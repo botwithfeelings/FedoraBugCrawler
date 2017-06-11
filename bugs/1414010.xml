@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-requests@redhat.com"
+>
+
+    <bug>
+          <bug_id>1414010</bug_id>
+          
+          <creation_ts>2017-01-17 09:31:00 -0500</creation_ts>
+          <short_desc>Regression: Atomic DBus VulnerabilityInfo API hangs loading results from /var/lib/atomic</short_desc>
+          <delta_ts>2017-04-01 13:10:38 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>atomic</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Stef Walter">stefw</reporter>
+          <assigned_to name="Brent Baude">bbaude</assigned_to>
+          <cc>adimania</cc>
+    
+    
+    <cc>amurdaca</cc>
+    
+    
+    <cc>dperpeet</cc>
+    
+    
+    <cc>dustymabe</cc>
+    
+    
+    <cc>dwalsh</cc>
+    
+    
+    <cc>lars</cc>
+    
+    
+    <cc>lsm5</cc>
+    
+    
+    <cc>walters</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>atomic-1.16.4-1.fc26</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-04-01 13:10:38</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10071900</commentid>
+    <comment_count>0</comment_count>
+    <who name="Stef Walter">stefw</who>
+    <bug_when>2017-01-17 09:31:58 -0500</bug_when>
+    <thetext>Description of problem:
+
+I have scan results on my Atomic Host system. The Atomic Scan DBus API now hangs when I try to access vulnerability info via the DBus API.
+
+Version-Release number of selected component (if applicable):
+
+# rpm -q atomic
+atomic-1.14.1-1.fc25.x86_64
+
+How reproducible:
+
+Every time.
+
+Steps to Reproduce:
+
+# mkdir -p /var/lib/atomic/atomic_scan_openscap/2016-12-11-12-09-57-674487/7968321274dc6b6171697c33df7815310468e694ac5be0ec03ff053bb135e768/
+
+# printf &apos;{&quot;Scanner&quot;: &quot;openscap&quot;, &quot;Scan Type&quot;: &quot;Standard Compliance&quot;, &quot;Vulnerabilities&quot;: [{&quot;Custom&quot;: {&quot;XCCDF result&quot;: &quot;fail&quot;}, &quot;Severity&quot;: &quot;Low&quot;, &quot;Description&quot;: &quot;\nThe RPM package management system can check file access\npermissions of installed software packages, including many that are\nimportant to system security. \nAfter locating a file with incorrect permissions, run the following command to determine which package owns it:\n&quot;, &quot;Title&quot;: &quot;Verify and Correct File Permissions with RPM&quot;}, {&quot;Custom&quot;: {&quot;XCCDF result&quot;: &quot;fail&quot;}, &quot;Severity&quot;: &quot;Moderate&quot;, &quot;Description&quot;: &quot;\nSystem executables are stored in the following directories by default:\n&quot;, &quot;Title&quot;: &quot;Verify that System Executables Have Restrictive Permissions&quot;}], &quot;Successful&quot;: &quot;true&quot;, &quot;Finished Time&quot;: &quot;2016-12-11T12:10:27&quot;, &quot;Time&quot;: &quot;2016-12-11T12:09:59&quot;, &quot;UUID&quot;: &quot;/scanin/d6fe5fdc49c2886ccad1c781d38a0c9fe679c6e7ca0297d23186c385873e86fa&quot;}&apos; &gt; /var/lib/atomic/atomic_scan_openscap/2016-12-11-12-09-57-674487/7968321274dc6b6171697c33df7815310468e694ac5be0ec03ff053bb135e768/json
+
+# printf &apos;{&quot;7968321274dc6b6171697c33df7815310468e694ac5be0ec03ff053bb135e768&quot;: {&quot;UUID&quot;: &quot;7968321274dc6b6171697c33df7815310468e694ac5be0ec03ff053bb135e768&quot;, &quot;Scan Type&quot;: &quot;Standards Compliance&quot;, &quot;json_file&quot;: &quot;/var/lib/atomic/atomic_scan_openscap/2016-12-11-12-09-57-674487/7968321274dc6b6171697c33df7815310468e694ac5be0ec03ff053bb135e768/json&quot;, &quot;Time&quot;: &quot;2016-12-11T12:09:59&quot;, &quot;Vulnerable&quot;: true, &quot;Scanner&quot;: &quot;openscap&quot;}}&apos; &gt; /var/lib/atomic/scan_summary.json
+
+# gdbus call --system --dest org.atomic --object-path /org/atomic/object --method org.atomic.VulnerableInfo
+
+Actual results:
+
+The DBus API hangs until it times out:
+
+Error: Timeout was reached
+
+
+Expected results:
+
+A real reply from the DBus API:
+
+(&apos;{&quot;7968321274dc6b6171697c33df7815310468e694ac5be0ec03ff053bb135e768&quot;: {&quot;UUID&quot;: &quot;7968321274dc6b6171697c33df7815310468e694ac5be0ec03ff053bb135e768&quot;, &quot;Scan Type&quot;: &quot;Standards Compliance&quot;, &quot;json_file&quot;: &quot;/var/lib/atomic/atomic_scan_openscap/2016-12-11-12-09-57-674487/7968321274dc6b6171697c33df7815310468e694ac5be0ec03ff053bb135e768/json&quot;, &quot;Time&quot;: &quot;2016-12-11T12:09:59&quot;, &quot;Vulnerable&quot;: true, &quot;Scanner&quot;: &quot;openscap&quot;}}\n&apos;,)
+
+Additional info:
+
+Works with atomic-1.13.1-3.git5dfcaa9.fc25.x86_64</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10071932</commentid>
+    <comment_count>1</comment_count>
+    <who name="Stef Walter">stefw</who>
+    <bug_when>2017-01-17 09:37:24 -0500</bug_when>
+    <thetext>Pull request has been filed by Lars upstream that avoided this regression ... https://github.com/projectatomic/atomic/pull/817</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10071936</commentid>
+    <comment_count>2</comment_count>
+    <who name="Stef Walter">stefw</who>
+    <bug_when>2017-01-17 09:38:05 -0500</bug_when>
+    <thetext>This version of the atomic CLI has been pushed out to &quot;released&quot; operating system like Fedora 24 and Fedora 25, and this bug affects real users using the Atomic scan functionality in Cockpit.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10075456</commentid>
+    <comment_count>3</comment_count>
+    <who name="Stef Walter">stefw</who>
+    <bug_when>2017-01-18 05:16:08 -0500</bug_when>
+    <thetext>We&apos;re starting to track failures of this as a known issue here: https://github.com/cockpit-project/cockpit/issues/5754</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10131384</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-08 09:47:15 -0500</bug_when>
+    <thetext>atomic-1.15.3-2.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-1def5655ad</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10136228</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-09 17:20:58 -0500</bug_when>
+    <thetext>atomic-1.15.3-2.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-1def5655ad</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10226419</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-09 15:58:32 -0500</bug_when>
+    <thetext>atomic-1.16.3-1.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-2ad6948192</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10230411</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-11 09:26:06 -0500</bug_when>
+    <thetext>atomic-1.16.3-1.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-2ad6948192</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10246655</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-16 12:02:05 -0400</bug_when>
+    <thetext>atomic-1.16.4-1.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-e8cbc792c6</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10248137</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-16 22:19:56 -0400</bug_when>
+    <thetext>atomic-1.16.4-1.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-e8cbc792c6</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10296738</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-01 13:10:38 -0400</bug_when>
+    <thetext>atomic-1.16.4-1.fc26 has been pushed to the Fedora 26 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

@@ -75,6 +75,8 @@ def get_bugs(short_desc, version, bug_status='CLOSED'):
         print 'Oops, something is not right here'
         return
     
+    print 'Retriving bug details: version: {}, status: {}, description: {}'.format(version, bug_status, short_desc)
+
     # Open the file and start processing.
     with open(file_name, 'r') as f:
         reader = csv.reader(f)

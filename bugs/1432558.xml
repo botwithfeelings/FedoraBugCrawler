@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-requests@redhat.com"
+>
+
+    <bug>
+          <bug_id>1432558</bug_id>
+          
+          <creation_ts>2017-03-15 12:52:00 -0400</creation_ts>
+          <short_desc>FTBFS: libuser doesn&apos;t build on current F26 due to -Werror=format-security</short_desc>
+          <delta_ts>2017-03-16 13:25:19 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>libuser</component>
+          <version>26</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>RAWHIDE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Stephen Gallagher">sgallagh</reporter>
+          <assigned_to name="Miloslav Trmač">mitr</assigned_to>
+          <cc>mitr</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>libuser-0.62-7.fc27</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-03-16 13:19:30</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10242696</commentid>
+    <comment_count>0</comment_count>
+      <attachid>1263396</attachid>
+    <who name="Stephen Gallagher">sgallagh</who>
+    <bug_when>2017-03-15 12:52:19 -0400</bug_when>
+    <thetext>Created attachment 1263396
+Patch to fix FTBFS on F26+
+
+Description of problem:
+libuser throws errors now that Fedora 26+ includes -Werror=format-security by default
+
+Version-Release number of selected component (if applicable):
+libuser-0.62-6.fc26
+
+How reproducible:
+Every time
+
+Steps to Reproduce:
+1. `fedpkg clone libuser`
+2. `fedpkg mock-build`
+
+Actual results:
+Build fails with errors.
+
+
+Expected results:
+Build should complete successfully.
+
+
+Additional info:
+
+Patch submitted upstream as well:
+https://pagure.io/libuser/pull-request/17</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10242853</commentid>
+    <comment_count>1</comment_count>
+      <attachid>1263402</attachid>
+    <who name="Stephen Gallagher">sgallagh</who>
+    <bug_when>2017-03-15 13:36:57 -0400</bug_when>
+    <thetext>Created attachment 1263402
+Patch to fix FTBFS on F26+
+
+Forgot to apply the patch on the first version.
+
+Also fix issues when building in a buildroot with only default locales available.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10246816</commentid>
+    <comment_count>2</comment_count>
+    <who name="Miloslav Trmač">mitr</who>
+    <bug_when>2017-03-16 12:53:40 -0400</bug_when>
+    <thetext>Thanks, applied.
+
+Still, I am curious:
+&gt; Also fix issues when building in a buildroot with only default locales available.
+
+Under what circumstances is that necessary? A koji scratch build without those hunks seems to work just fine.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10246890</commentid>
+    <comment_count>3</comment_count>
+    <who name="Stephen Gallagher">sgallagh</who>
+    <bug_when>2017-03-16 13:25:19 -0400</bug_when>
+    <thetext>(In reply to Miloslav Trmač from comment #2)
+&gt; Thanks, applied.
+&gt; 
+&gt; Still, I am curious:
+&gt; &gt; Also fix issues when building in a buildroot with only default locales available.
+&gt; 
+&gt; Under what circumstances is that necessary? A koji scratch build without
+&gt; those hunks seems to work just fine.
+
+The module build service defines a buildroot with glibc-minimal-langpack instead of glibc-all-langpacks the way that current Koji does it. This is preventative as the C and C.UTF-8 locales are the only ones guaranteed to always be present with glibc.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="1"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1263396</attachid>
+            <date>2017-03-15 12:52:00 -0400</date>
+            <delta_ts>2017-03-15 13:36:57 -0400</delta_ts>
+            <desc>Patch to fix FTBFS on F26+</desc>
+            <filename>0001-Fix-FTBFS-on-Fedora-26.patch</filename>
+            <type>text/plain</type>
+            <size>4221</size>
+            <attacher name="Stephen Gallagher">sgallagh</attacher>
+            
+              <data encoding="base64">RnJvbSA0NzFiMDg1ODk2ZDg2NjRhODExNTE1ZDljM2VmNmQwOWQ2MTdiNjFlIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBTdGVwaGVuIEdhbGxhZ2hlciA8c2dhbGxhZ2hAcmVkaGF0LmNv
+bT4KRGF0ZTogV2VkLCAxNSBNYXIgMjAxNyAxMjo0ODowMCAtMDQwMApTdWJqZWN0OiBbUEFUQ0hd
+IEZpeCBGVEJGUyBvbiBGZWRvcmEgMjYrCgotLS0KIDAwMDEtRml4LWVycm9ycy13aXRoLVdlcnJv
+ci1mb3JtYXQtc2VjdXJpdHkucGF0Y2ggfCA1MiArKysrKysrKysrKysrKysrKysrKysrKwogbGli
+dXNlci5zcGVjICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICA5ICsrKy0K
+IDIgZmlsZXMgY2hhbmdlZCwgNjAgaW5zZXJ0aW9ucygrKSwgMSBkZWxldGlvbigtKQogY3JlYXRl
+IG1vZGUgMTAwNjQ0IDAwMDEtRml4LWVycm9ycy13aXRoLVdlcnJvci1mb3JtYXQtc2VjdXJpdHku
+cGF0Y2gKCmRpZmYgLS1naXQgYS8wMDAxLUZpeC1lcnJvcnMtd2l0aC1XZXJyb3ItZm9ybWF0LXNl
+Y3VyaXR5LnBhdGNoIGIvMDAwMS1GaXgtZXJyb3JzLXdpdGgtV2Vycm9yLWZvcm1hdC1zZWN1cml0
+eS5wYXRjaApuZXcgZmlsZSBtb2RlIDEwMDY0NAppbmRleCAwMDAwMDAwMDAwMDAwMDAwMDAwMDAw
+MDAwMDAwMDAwMDAwMDAwMDAwLi5lZWI5ZWZiZmZlODVkYmU3NjZmMWYzYThkZWQ5NzdiYWU5MGVm
+OTJlCi0tLSAvZGV2L251bGwKKysrIGIvMDAwMS1GaXgtZXJyb3JzLXdpdGgtV2Vycm9yLWZvcm1h
+dC1zZWN1cml0eS5wYXRjaApAQCAtMCwwICsxLDUyIEBACitGcm9tIDkzMTdhZmM4YmI3ZWVjNjU2
+NDQ0ZmMyZWVjZmNkMWVhM2JmZGRhODIgTW9uIFNlcCAxNyAwMDowMDowMCAyMDAxCitGcm9tOiBT
+dGVwaGVuIEdhbGxhZ2hlciA8c2dhbGxhZ2hAcmVkaGF0LmNvbT4KK0RhdGU6IFdlZCwgMTUgTWFy
+IDIwMTcgMTI6NDM6MDMgLTA0MDAKK1N1YmplY3Q6IFtQQVRDSF0gRml4IGVycm9ycyB3aXRoIC1X
+ZXJyb3I9Zm9ybWF0LXNlY3VyaXR5CisKK1JlY2VudCB2ZXJzaW9ucyBvZiB0aGUgRmVkb3JhIGJ1
+aWxkIHN5c3RlbSB0cmVhdCBmb3JtYXQtc2VjdXJpdHkKK3dhcm5pbmdzIGFzIGVycm9ycywgcmVz
+dWx0aW5nIGluIGZhaWx1cmUgdG8gYnVpbGQuIFRoaXMgcGF0Y2gKK2Vuc3VyZXMgdGhhdCBhcHBy
+b3ByaWF0ZSBmb3JtYXQgc3RyaW5ncyBhcmUgcHJlc2VudC4KKworU2lnbmVkLW9mZi1ieTogU3Rl
+cGhlbiBHYWxsYWdoZXIgPHNnYWxsYWdoQHJlZGhhdC5jb20+CistLS0KKyBtb2R1bGVzL2ZpbGVz
+LmMgfCAyICstCisgbW9kdWxlcy9sZGFwLmMgIHwgMiArLQorIDIgZmlsZXMgY2hhbmdlZCwgMiBp
+bnNlcnRpb25zKCspLCAyIGRlbGV0aW9ucygtKQorCitkaWZmIC0tZ2l0IGEvbW9kdWxlcy9maWxl
+cy5jIGIvbW9kdWxlcy9maWxlcy5jCitpbmRleCA0ZWYwYTU3YmU5ZjJhYWQ5OWQ4MmFiZmFlNTIw
+NDAwOWE5M2U1NTcyLi42YTc3ODdlMjgxMTJiYTA3ZTBmYzQ0ZjI4ODdjZTFkMTU0MGFmMjllIDEw
+MDY0NAorLS0tIGEvbW9kdWxlcy9maWxlcy5jCisrKysgYi9tb2R1bGVzL2ZpbGVzLmMKK0BAIC01
+MzIsMTEgKzUzMiwxMSBAQCBwYXJzZV9maWVsZChjb25zdCBzdHJ1Y3QgZm9ybWF0X3NwZWNpZmll
+ciAqZm9ybWF0LCBHVmFsdWUgKnZhbHVlLAorIAllcnIgPSBOVUxMOworIAlyZXQgPSBsdV92YWx1
+ZV9pbml0X3NldF9hdHRyX2Zyb21fc3RyaW5nKHZhbHVlLCBmb3JtYXQtPmF0dHJpYnV0ZSwKKyAJ
+CQkJCQkgc3RyaW5nLCAmZXJyKTsKKyAJaWYgKHJldCA9PSBGQUxTRSkgeworIAkJZ19hc3NlcnQo
+ZXJyICE9IE5VTEwpOworLQkJZ193YXJuaW5nKGx1X3N0cmVycm9yKGVycikpOworKwkJZ193YXJu
+aW5nKCIlcyIsIGx1X3N0cmVycm9yKGVycikpOworIAkJbHVfZXJyb3JfZnJlZSgmZXJyKTsKKyAJ
+fQorIAlyZXR1cm4gcmV0OworIH0KKyAKK2RpZmYgLS1naXQgYS9tb2R1bGVzL2xkYXAuYyBiL21v
+ZHVsZXMvbGRhcC5jCitpbmRleCBhZDEwZjczOTRjNTczNWYzMTgwY2JhYjViYzczMTQzMDFmZDgz
+ZmZjLi4wMmU5ZWI2YTBjZjEwNTk1ZDczMGUzZGM3MTlmMmU4NDhhMzQ5MWQ0IDEwMDY0NAorLS0t
+IGEvbW9kdWxlcy9sZGFwLmMKKysrKyBiL21vZHVsZXMvbGRhcC5jCitAQCAtNjcwLDExICs2NzAs
+MTEgQEAgbHVfbGRhcF9sb29rdXAoc3RydWN0IGx1X21vZHVsZSAqbW9kdWxlLAorIAkJCQkJZXJy
+b3IgPSBOVUxMOworIAkJCQkJb2sgPSBsdV92YWx1ZV9pbml0X3NldF9hdHRyX2Zyb21fc3RyaW5n
+CisgCQkJCQkJKCZ2YWx1ZSwgYXR0ciwgdmFsLCAmZXJyb3IpOworIAkJCQkJaWYgKG9rID09IEZB
+TFNFKSB7CisgCQkJCQkJZ19hc3NlcnQoZXJyb3IgIT0gTlVMTCk7CistCQkJCQkJZ193YXJuaW5n
+KGx1X3N0cmVycm9yKGVycm9yKSk7CisrCQkJCQkJZ193YXJuaW5nKCIlcyIsIGx1X3N0cmVycm9y
+KGVycm9yKSk7CisgCQkJCQkJbHVfZXJyb3JfZnJlZSgmZXJyb3IpOworIAkJCQkJfSBlbHNlIHsK
+KyAJCQkJCQlsdV9lbnRfYWRkX2N1cnJlbnQoZW50LCBhdHRyLAorIAkJCQkJCQkJICAgJnZhbHVl
+KTsKKyAJCQkJCQlnX3ZhbHVlX3Vuc2V0KCZ2YWx1ZSk7CistLSAKKzIuMTIuMAorCmRpZmYgLS1n
+aXQgYS9saWJ1c2VyLnNwZWMgYi9saWJ1c2VyLnNwZWMKaW5kZXggNmM5MWMyOTkxODhhYzgzN2I1
+ODc1NDAwZjRkZjk1NDU3NGE5YjVhMS4uNjA4MzUzMGNhYmExMjJkYzZmYjZhZjlhOTE5M2Y1ZjMw
+NTYxNmIyMiAxMDA2NDQKLS0tIGEvbGlidXNlci5zcGVjCisrKyBiL2xpYnVzZXIuc3BlYwpAQCAt
+MSw4ICsxLDggQEAKIE5hbWU6IGxpYnVzZXIKIFZlcnNpb246IDAuNjIKLVJlbGVhc2U6IDYlez9k
+aXN0fQorUmVsZWFzZTogNyV7P2Rpc3R9CiBHcm91cDogU3lzdGVtIEVudmlyb25tZW50L0Jhc2UK
+IExpY2Vuc2U6IExHUEx2MisKIFVSTDogaHR0cHM6Ly9mZWRvcmFob3N0ZWQub3JnL2xpYnVzZXIv
+CiBTb3VyY2U6IGh0dHBzOi8vZmVkb3JhaG9zdGVkLm9yZy9yZWxlYXNlcy9sL2kvbGlidXNlci9s
+aWJ1c2VyLSV7dmVyc2lvbn0udGFyLnh6CiBCdWlsZFJlcXVpcmVzOiBnbGliMi1kZXZlbCwgbGlu
+dXhkb2MtdG9vbHMsIHBhbS1kZXZlbCwgcG9wdC1kZXZlbCwgcHl0aG9uMi1kZXZlbApAQCAtMTMs
+MTAgKzEzLDE0IEBAIEJ1aWxkUmVxdWlyZXM6IG5zY2QKIEJ1aWxkUmVxdWlyZXM6IGZha2Vyb290
+LCBvcGVubGRhcC1jbGllbnRzLCBvcGVubGRhcC1zZXJ2ZXJzLCBvcGVuc3NsCiBTdW1tYXJ5OiBB
+IHVzZXIgYW5kIGdyb3VwIGFjY291bnQgYWRtaW5pc3RyYXRpb24gbGlicmFyeQogCiAlZ2xvYmFs
+IF9fcHJvdmlkZXNfZXhjbHVkZV9mcm9tIF4oJXtfbGliZGlyfS8le25hbWV9fCV7cHl0aG9uMl9z
+aXRlYXJjaH18JXtweXRob24zX3NpdGVhcmNofSkvLiokCiAKKyMgUGF0Y2ggdG8gYWRkcmVzcyBm
+b3JtYXQtc2VjdXJpdHkuCisjIFN1Ym1pdHRlZCB1cHN0cmVhbSBhdCBodHRwczovL3BhZ3VyZS5p
+by9saWJ1c2VyL3B1bGwtcmVxdWVzdC8xNworUGF0Y2gwMDAxOiAwMDAxLUZpeC1lcnJvcnMtd2l0
+aC1XZXJyb3ItZm9ybWF0LXNlY3VyaXR5LnBhdGNoCisKICVkZXNjcmlwdGlvbgogVGhlIGxpYnVz
+ZXIgbGlicmFyeSBpbXBsZW1lbnRzIGEgc3RhbmRhcmRpemVkIGludGVyZmFjZSBmb3IgbWFuaXB1
+bGF0aW5nCiBhbmQgYWRtaW5pc3RlcmluZyB1c2VyIGFuZCBncm91cCBhY2NvdW50cy4gIFRoZSBs
+aWJyYXJ5IHVzZXMgcGx1Z2dhYmxlCiBiYWNrLWVuZHMgdG8gaW50ZXJmYWNlIHRvIGl0cyBkYXRh
+IHNvdXJjZXMuCiAKQEAgLTEzNywxMCArMTQxLDEzIEBAIExDX0FMTD1lbl9VUy5VVEYtOCBweXRo
+b24zIC1jICJpbXBvcnQgbGlidXNlciIKICV7X2xpYmRpcn0vKi5zbwogJXtfbGliZGlyfS9wa2dj
+b25maWcvKgogJXtfZGF0YWRpcn0vZ3RrLWRvYy9odG1sLyoKIAogJWNoYW5nZWxvZworKiBXZWQg
+TWFyIDE1IDIwMTcgU3RlcGhlbiBHYWxsYWdoZXIgPHNnYWxsYWdoQHJlZGhhdC5jb20+IC0gMC42
+Mi03CistIEZpeCBGVEJGUyBvbiBGZWRvcmEgMjYrCisKICogRnJpIEZlYiAxMCAyMDE3IEZlZG9y
+YSBSZWxlYXNlIEVuZ2luZWVyaW5nIDxyZWxlbmdAZmVkb3JhcHJvamVjdC5vcmc+IC0gMC42Mi02
+CiAtIFJlYnVpbHQgZm9yIGh0dHBzOi8vZmVkb3JhcHJvamVjdC5vcmcvd2lraS9GZWRvcmFfMjZf
+TWFzc19SZWJ1aWxkCiAKICogTW9uIERlYyAxOSAyMDE2IE1pcm8gSHJvbsSNb2sgPG1ocm9uY29r
+QHJlZGhhdC5jb20+IC0gMC42Mi01CiAtIFJlYnVpbGQgZm9yIFB5dGhvbiAzLjYKLS0gCjIuMTIu
+MAoK
+</data>
+
+          </attachment>
+          <attachment
+              isobsolete="0"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1263402</attachid>
+            <date>2017-03-15 13:36:00 -0400</date>
+            <delta_ts>2017-03-15 13:36:57 -0400</delta_ts>
+            <desc>Patch to fix FTBFS on F26+</desc>
+            <filename>0001-Fix-FTBFS-on-Fedora-26.patch</filename>
+            <type>text/plain</type>
+            <size>5648</size>
+            <attacher name="Stephen Gallagher">sgallagh</attacher>
+            
+              <data encoding="base64">RnJvbSAwODlhMmViNGE2OWM0ZWRmMDhhMDMwYjhmOWYxODk4MzdhMTdiYTE3IE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBTdGVwaGVuIEdhbGxhZ2hlciA8c2dhbGxhZ2hAcmVkaGF0LmNv
+bT4KRGF0ZTogV2VkLCAxNSBNYXIgMjAxNyAxMzozNjowOSAtMDQwMApTdWJqZWN0OiBbUEFUQ0hd
+IEZpeCBGVEJGUyBvbiBGZWRvcmEgMjYrIEFkZCBwYXRjaCB0byBmaXggaXNzdWVzIHdpdGgKIC1X
+ZXJyb3I9Zm9ybWF0LXNlY3VyaXR5IEVuc3VyZSB0aGF0IHRoZSBweXRob24gMyB0ZXN0cyB1c2Ug
+YSBsb2NhbGUKIGd1YXJhbnRlZWQgdG8gYmUgcHJlc2VudAoKLS0tCiAwMDAxLUZpeC1lcnJvcnMt
+d2l0aC1XZXJyb3ItZm9ybWF0LXNlY3VyaXR5LnBhdGNoIHwgNTIgKysrKysrKysrKysrKysrKysr
+KysrKysKIGxpYnVzZXIuc3BlYyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+fCAyMCArKysrKysrLS0KIDIgZmlsZXMgY2hhbmdlZCwgNjkgaW5zZXJ0aW9ucygrKSwgMyBkZWxl
+dGlvbnMoLSkKIGNyZWF0ZSBtb2RlIDEwMDY0NCAwMDAxLUZpeC1lcnJvcnMtd2l0aC1XZXJyb3It
+Zm9ybWF0LXNlY3VyaXR5LnBhdGNoCgpkaWZmIC0tZ2l0IGEvMDAwMS1GaXgtZXJyb3JzLXdpdGgt
+V2Vycm9yLWZvcm1hdC1zZWN1cml0eS5wYXRjaCBiLzAwMDEtRml4LWVycm9ycy13aXRoLVdlcnJv
+ci1mb3JtYXQtc2VjdXJpdHkucGF0Y2gKbmV3IGZpbGUgbW9kZSAxMDA2NDQKaW5kZXggMDAwMDAw
+MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMC4uZWViOWVmYmZmZTg1ZGJlNzY2ZjFm
+M2E4ZGVkOTc3YmFlOTBlZjkyZQotLS0gL2Rldi9udWxsCisrKyBiLzAwMDEtRml4LWVycm9ycy13
+aXRoLVdlcnJvci1mb3JtYXQtc2VjdXJpdHkucGF0Y2gKQEAgLTAsMCArMSw1MiBAQAorRnJvbSA5
+MzE3YWZjOGJiN2VlYzY1NjQ0NGZjMmVlY2ZjZDFlYTNiZmRkYTgyIE1vbiBTZXAgMTcgMDA6MDA6
+MDAgMjAwMQorRnJvbTogU3RlcGhlbiBHYWxsYWdoZXIgPHNnYWxsYWdoQHJlZGhhdC5jb20+CitE
+YXRlOiBXZWQsIDE1IE1hciAyMDE3IDEyOjQzOjAzIC0wNDAwCitTdWJqZWN0OiBbUEFUQ0hdIEZp
+eCBlcnJvcnMgd2l0aCAtV2Vycm9yPWZvcm1hdC1zZWN1cml0eQorCitSZWNlbnQgdmVyc2lvbnMg
+b2YgdGhlIEZlZG9yYSBidWlsZCBzeXN0ZW0gdHJlYXQgZm9ybWF0LXNlY3VyaXR5Cit3YXJuaW5n
+cyBhcyBlcnJvcnMsIHJlc3VsdGluZyBpbiBmYWlsdXJlIHRvIGJ1aWxkLiBUaGlzIHBhdGNoCitl
+bnN1cmVzIHRoYXQgYXBwcm9wcmlhdGUgZm9ybWF0IHN0cmluZ3MgYXJlIHByZXNlbnQuCisKK1Np
+Z25lZC1vZmYtYnk6IFN0ZXBoZW4gR2FsbGFnaGVyIDxzZ2FsbGFnaEByZWRoYXQuY29tPgorLS0t
+CisgbW9kdWxlcy9maWxlcy5jIHwgMiArLQorIG1vZHVsZXMvbGRhcC5jICB8IDIgKy0KKyAyIGZp
+bGVzIGNoYW5nZWQsIDIgaW5zZXJ0aW9ucygrKSwgMiBkZWxldGlvbnMoLSkKKworZGlmZiAtLWdp
+dCBhL21vZHVsZXMvZmlsZXMuYyBiL21vZHVsZXMvZmlsZXMuYworaW5kZXggNGVmMGE1N2JlOWYy
+YWFkOTlkODJhYmZhZTUyMDQwMDlhOTNlNTU3Mi4uNmE3Nzg3ZTI4MTEyYmEwN2UwZmM0NGYyODg3
+Y2UxZDE1NDBhZjI5ZSAxMDA2NDQKKy0tLSBhL21vZHVsZXMvZmlsZXMuYworKysrIGIvbW9kdWxl
+cy9maWxlcy5jCitAQCAtNTMyLDExICs1MzIsMTEgQEAgcGFyc2VfZmllbGQoY29uc3Qgc3RydWN0
+IGZvcm1hdF9zcGVjaWZpZXIgKmZvcm1hdCwgR1ZhbHVlICp2YWx1ZSwKKyAJZXJyID0gTlVMTDsK
+KyAJcmV0ID0gbHVfdmFsdWVfaW5pdF9zZXRfYXR0cl9mcm9tX3N0cmluZyh2YWx1ZSwgZm9ybWF0
+LT5hdHRyaWJ1dGUsCisgCQkJCQkJIHN0cmluZywgJmVycik7CisgCWlmIChyZXQgPT0gRkFMU0Up
+IHsKKyAJCWdfYXNzZXJ0KGVyciAhPSBOVUxMKTsKKy0JCWdfd2FybmluZyhsdV9zdHJlcnJvcihl
+cnIpKTsKKysJCWdfd2FybmluZygiJXMiLCBsdV9zdHJlcnJvcihlcnIpKTsKKyAJCWx1X2Vycm9y
+X2ZyZWUoJmVycik7CisgCX0KKyAJcmV0dXJuIHJldDsKKyB9CisgCitkaWZmIC0tZ2l0IGEvbW9k
+dWxlcy9sZGFwLmMgYi9tb2R1bGVzL2xkYXAuYworaW5kZXggYWQxMGY3Mzk0YzU3MzVmMzE4MGNi
+YWI1YmM3MzE0MzAxZmQ4M2ZmYy4uMDJlOWViNmEwY2YxMDU5NWQ3MzBlM2RjNzE5ZjJlODQ4YTM0
+OTFkNCAxMDA2NDQKKy0tLSBhL21vZHVsZXMvbGRhcC5jCisrKysgYi9tb2R1bGVzL2xkYXAuYwor
+QEAgLTY3MCwxMSArNjcwLDExIEBAIGx1X2xkYXBfbG9va3VwKHN0cnVjdCBsdV9tb2R1bGUgKm1v
+ZHVsZSwKKyAJCQkJCWVycm9yID0gTlVMTDsKKyAJCQkJCW9rID0gbHVfdmFsdWVfaW5pdF9zZXRf
+YXR0cl9mcm9tX3N0cmluZworIAkJCQkJCSgmdmFsdWUsIGF0dHIsIHZhbCwgJmVycm9yKTsKKyAJ
+CQkJCWlmIChvayA9PSBGQUxTRSkgeworIAkJCQkJCWdfYXNzZXJ0KGVycm9yICE9IE5VTEwpOwor
+LQkJCQkJCWdfd2FybmluZyhsdV9zdHJlcnJvcihlcnJvcikpOworKwkJCQkJCWdfd2FybmluZygi
+JXMiLCBsdV9zdHJlcnJvcihlcnJvcikpOworIAkJCQkJCWx1X2Vycm9yX2ZyZWUoJmVycm9yKTsK
+KyAJCQkJCX0gZWxzZSB7CisgCQkJCQkJbHVfZW50X2FkZF9jdXJyZW50KGVudCwgYXR0ciwKKyAJ
+CQkJCQkJCSAgICZ2YWx1ZSk7CisgCQkJCQkJZ192YWx1ZV91bnNldCgmdmFsdWUpOworLS0gCisy
+LjEyLjAKKwpkaWZmIC0tZ2l0IGEvbGlidXNlci5zcGVjIGIvbGlidXNlci5zcGVjCmluZGV4IDZj
+OTFjMjk5MTg4YWM4MzdiNTg3NTQwMGY0ZGY5NTQ1NzRhOWI1YTEuLmJhNTVlYzM1NGQ5YWRhYmJj
+NDM3OGYyMTkwZmMwYTQ5ODA5NWVmZTggMTAwNjQ0Ci0tLSBhL2xpYnVzZXIuc3BlYworKysgYi9s
+aWJ1c2VyLnNwZWMKQEAgLTEsOCArMSw4IEBACiBOYW1lOiBsaWJ1c2VyCiBWZXJzaW9uOiAwLjYy
+Ci1SZWxlYXNlOiA2JXs/ZGlzdH0KK1JlbGVhc2U6IDclez9kaXN0fQogR3JvdXA6IFN5c3RlbSBF
+bnZpcm9ubWVudC9CYXNlCiBMaWNlbnNlOiBMR1BMdjIrCiBVUkw6IGh0dHBzOi8vZmVkb3JhaG9z
+dGVkLm9yZy9saWJ1c2VyLwogU291cmNlOiBodHRwczovL2ZlZG9yYWhvc3RlZC5vcmcvcmVsZWFz
+ZXMvbC9pL2xpYnVzZXIvbGlidXNlci0le3ZlcnNpb259LnRhci54egogQnVpbGRSZXF1aXJlczog
+Z2xpYjItZGV2ZWwsIGxpbnV4ZG9jLXRvb2xzLCBwYW0tZGV2ZWwsIHBvcHQtZGV2ZWwsIHB5dGhv
+bjItZGV2ZWwKQEAgLTEzLDEwICsxMywxNCBAQCBCdWlsZFJlcXVpcmVzOiBuc2NkCiBCdWlsZFJl
+cXVpcmVzOiBmYWtlcm9vdCwgb3BlbmxkYXAtY2xpZW50cywgb3BlbmxkYXAtc2VydmVycywgb3Bl
+bnNzbAogU3VtbWFyeTogQSB1c2VyIGFuZCBncm91cCBhY2NvdW50IGFkbWluaXN0cmF0aW9uIGxp
+YnJhcnkKIAogJWdsb2JhbCBfX3Byb3ZpZGVzX2V4Y2x1ZGVfZnJvbSBeKCV7X2xpYmRpcn0vJXtu
+YW1lfXwle3B5dGhvbjJfc2l0ZWFyY2h9fCV7cHl0aG9uM19zaXRlYXJjaH0pLy4qJAogCisjIFBh
+dGNoIHRvIGFkZHJlc3MgZm9ybWF0LXNlY3VyaXR5LgorIyBTdWJtaXR0ZWQgdXBzdHJlYW0gYXQg
+aHR0cHM6Ly9wYWd1cmUuaW8vbGlidXNlci9wdWxsLXJlcXVlc3QvMTcKK1BhdGNoMDAwMTogMDAw
+MS1GaXgtZXJyb3JzLXdpdGgtV2Vycm9yLWZvcm1hdC1zZWN1cml0eS5wYXRjaAorCiAlZGVzY3Jp
+cHRpb24KIFRoZSBsaWJ1c2VyIGxpYnJhcnkgaW1wbGVtZW50cyBhIHN0YW5kYXJkaXplZCBpbnRl
+cmZhY2UgZm9yIG1hbmlwdWxhdGluZwogYW5kIGFkbWluaXN0ZXJpbmcgdXNlciBhbmQgZ3JvdXAg
+YWNjb3VudHMuICBUaGUgbGlicmFyeSB1c2VzIHBsdWdnYWJsZQogYmFjay1lbmRzIHRvIGludGVy
+ZmFjZSB0byBpdHMgZGF0YSBzb3VyY2VzLgogCkBAIC01MywxMCArNTcsMTUgQEAgVGhlIGxpYnVz
+ZXItcHl0aG9uMyBwYWNrYWdlIGNvbnRhaW5zIHRoZSBQeXRob24gYmluZGluZ3MgZm9yCiB0aGUg
+bGlidXNlciBsaWJyYXJ5LCB3aGljaCBwcm92aWRlcyBhIFB5dGhvbiAzIEFQSSBmb3IgbWFuaXB1
+bGF0aW5nIGFuZAogYWRtaW5pc3RlcmluZyB1c2VyIGFuZCBncm91cCBhY2NvdW50cy4KIAogJXBy
+ZXAKICVzZXR1cCAtcWMKKworcHVzaGQgbGlidXNlci0le3ZlcnNpb259CislcGF0Y2gwMDAxIC1w
+MQorcG9wZAorCiBtdiBsaWJ1c2VyLSV7dmVyc2lvbn0gcHl0aG9uMgogY3AgLWEgcHl0aG9uMiBw
+eXRob24zCiAKIHB1c2hkIHB5dGhvbjIKIGNwIC1wciBDT1BZSU5HIEFVVEhPUlMgTkVXUyBSRUFE
+TUUgVE9ETyBkb2NzIC4uCkBAIC04NiwyMSArOTUsMjEgQEAgbWFrZSAtQyBweXRob24yIGluc3Rh
+bGwgREVTVERJUj0kUlBNX0JVSUxEX1JPT1QgSU5TVEFMTD0naW5zdGFsbCAtcCcKIAogJWNoZWNr
+CiAKIG1ha2UgLUMgcHl0aG9uMiBjaGVjayB8fCB7IGNhdCBweXRob24yL3Rlc3Qtc3VpdGUubG9n
+OyBmYWxzZTsgfQogIyBUaGUgUHl0aG9uIDMgbW9kdWxlIG9ubHkgc3VwcG9ydHMgVVRGLTgKLUxD
+X0FMTD1lbl9VUy5VVEYtOCBtYWtlIC1DIHB5dGhvbjMgY2hlY2sgXAorTENfQUxMPUMuVVRGLTgg
+bWFrZSAtQyBweXRob24zIGNoZWNrIFwKIAl8fCB7IGNhdCBweXRob24zL3Rlc3Qtc3VpdGUubG9n
+OyBmYWxzZTsgfQogCiAjIFZlcmlmeSB0aGF0IGFsbCBweXRob24gbW9kdWxlcyBsb2FkLCBqdXN0
+IGluIGNhc2UuCiBMRF9MSUJSQVJZX1BBVEg9JFJQTV9CVUlMRF9ST09ULyV7X2xpYmRpcn06JHtM
+RF9MSUJSQVJZX1BBVEh9CiBleHBvcnQgTERfTElCUkFSWV9QQVRICiBjZCAkUlBNX0JVSUxEX1JP
+T1QvJXtweXRob24yX3NpdGVhcmNofQogcHl0aG9uMiAtYyAiaW1wb3J0IGxpYnVzZXIiCiBjZCAk
+UlBNX0JVSUxEX1JPT1QvJXtweXRob24zX3NpdGVhcmNofQogIyBUaGUgUHl0aG9uIDMgbW9kdWxl
+IG9ubHkgc3VwcG9ydHMgVVRGLTgKLUxDX0FMTD1lbl9VUy5VVEYtOCBweXRob24zIC1jICJpbXBv
+cnQgbGlidXNlciIKK0xDX0FMTD1DLlVURi04IHB5dGhvbjMgLWMgImltcG9ydCBsaWJ1c2VyIgog
+CiAKICVwb3N0IC1wIC9zYmluL2xkY29uZmlnCiAKICVwb3N0dW4gLXAgL3NiaW4vbGRjb25maWcK
+QEAgLTEzNywxMCArMTQ2LDE1IEBAIExDX0FMTD1lbl9VUy5VVEYtOCBweXRob24zIC1jICJpbXBv
+cnQgbGlidXNlciIKICV7X2xpYmRpcn0vKi5zbwogJXtfbGliZGlyfS9wa2djb25maWcvKgogJXtf
+ZGF0YWRpcn0vZ3RrLWRvYy9odG1sLyoKIAogJWNoYW5nZWxvZworKiBXZWQgTWFyIDE1IDIwMTcg
+U3RlcGhlbiBHYWxsYWdoZXIgPHNnYWxsYWdoQHJlZGhhdC5jb20+IC0gMC42Mi03CistIEZpeCBG
+VEJGUyBvbiBGZWRvcmEgMjYrCistIEFkZCBwYXRjaCB0byBmaXggaXNzdWVzIHdpdGggLVdlcnJv
+cj1mb3JtYXQtc2VjdXJpdHkKKy0gRW5zdXJlIHRoYXQgdGhlIHB5dGhvbiAzIHRlc3RzIHVzZSBh
+IGxvY2FsZSBndWFyYW50ZWVkIHRvIGJlIHByZXNlbnQKKwogKiBGcmkgRmViIDEwIDIwMTcgRmVk
+b3JhIFJlbGVhc2UgRW5naW5lZXJpbmcgPHJlbGVuZ0BmZWRvcmFwcm9qZWN0Lm9yZz4gLSAwLjYy
+LTYKIC0gUmVidWlsdCBmb3IgaHR0cHM6Ly9mZWRvcmFwcm9qZWN0Lm9yZy93aWtpL0ZlZG9yYV8y
+Nl9NYXNzX1JlYnVpbGQKIAogKiBNb24gRGVjIDE5IDIwMTYgTWlybyBIcm9uxI1vayA8bWhyb25j
+b2tAcmVkaGF0LmNvbT4gLSAwLjYyLTUKIC0gUmVidWlsZCBmb3IgUHl0aG9uIDMuNgotLSAKMi4x
+Mi4wCgo=
+</data>
+<flag name="review"
+          id="2991531"
+          type_id="155"
+          status="?"
+          setter="sgallagh"
+    />
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-requests@redhat.com"
+>
+
+    <bug>
+          <bug_id>1425825</bug_id>
+          
+          <creation_ts>2017-02-22 09:25:00 -0500</creation_ts>
+          <short_desc>gcc -Werror=format-security -Wall not reporting errors</short_desc>
+          <delta_ts>2017-03-07 14:44:46 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>gcc</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>RAWHIDE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Frantisek Kluknavsky">fkluknav</reporter>
+          <assigned_to name="Jakub Jelinek">jakub</assigned_to>
+          <cc>davejohansen</cc>
+    
+    
+    <cc>jakub</cc>
+    
+    
+    <cc>jwakely</cc>
+    
+    
+    <cc>law</cc>
+    
+    
+    <cc>mpolacek</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-03-07 14:44:46</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          <external_bugs name="GNU Compiler Collection">79677</external_bugs>
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10174694</commentid>
+    <comment_count>0</comment_count>
+    <who name="Frantisek Kluknavsky">fkluknav</who>
+    <bug_when>2017-02-22 09:25:12 -0500</bug_when>
+    <thetext>Description of problem:
+Combination of -Wformat and -Werror=format-security flags (or -Wall and -Werror=format-security) does not behave consistently.
+
+Using &apos;gcc -Wformat -Werror=format-security&apos; with the source file provided below reports error &quot;format not a string literal and no format arguments&quot; on line 7 as expected whereas &apos;gcc -Werror=format-security -Wformat&apos; does not. Similar behavior can be observed with the -Wall flag instead of -Wformat.
+
+
+Version-Release number of selected component (if applicable):
+gcc-6.3.1-1.fc25.x86_64
+
+How reproducible:
+always
+
+Steps to Reproduce:
+1. 
+$ cat formatsecurity.c 
+#include &lt;stdio.h&gt;
+int main()
+{
+	char message[10];
+	message[0]=0;
+	printf(message);
+	return 0;
+}
+
+2.
+$ gcc -Wall -Werror=format-security  formatsecurity.c
+
+3.
+$ gcc -Wall -Werror=format-security -Wall formatsecurity.c
+
+4.
+$ gcc -Werror=format-security -Wall formatsecurity.c
+
+Actual results:
+Error after step 2, silent run after steps 3 and 4.
+
+Expected results:
+Error message after each run of gcc. Either about vulnerable code or about wrong usage of flags. Adding -Wall should definitely not hide errors as in step 3.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10174789</commentid>
+    <comment_count>1</comment_count>
+    <who name="Jakub Jelinek">jakub</who>
+    <bug_when>2017-02-22 09:45:26 -0500</bug_when>
+    <thetext>Filed upstream: PR79677.  In the mean time, use -Wformat-security -Werror=format-security instead of just -Werror=format-security and then it will work properly.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10177611</commentid>
+    <comment_count>2</comment_count>
+    <who name="Frantisek Kluknavsky">fkluknav</who>
+    <bug_when>2017-02-23 04:46:02 -0500</bug_when>
+    <thetext>&quot;-Wformat-security -Werror=format-security&quot; gives &quot;error: -Wformat-security ignored without -Wformat&quot;
+&quot;-Wformat -Wformat-security -Werror=format-security&quot; works.
+
+Fun note: Fedora currently uses -Wall -Werror=format-security. While it is possible to get warnings with a right combination of flags (if you know...), it is a very strange feeling to fix rpm build errors by adding another -Wall. Surprisingly satisfying ;-)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10218084</commentid>
+    <comment_count>3</comment_count>
+    <who name="Jakub Jelinek">jakub</who>
+    <bug_when>2017-03-07 14:44:46 -0500</bug_when>
+    <thetext>Fixed in F26, not going to backport.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>
