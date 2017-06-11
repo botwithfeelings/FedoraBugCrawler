@@ -6,7 +6,7 @@ from urllib import urlretrieve, urlopen
 
 BUG_LIST_CSV_URL = """https://bugzilla.redhat.com/buglist.cgi?bug_status={}&classification=Fedora
                     &product=Fedora&query_format=advanced&resolution=CURRENTRELEASE&resolution=RAWHIDE
-                    &resolution=ERRATA&resolution=NEXTRELEASE&short_desc={}
+                    &resolution=WONTFIX&resolution=CANTFIX&resolution=ERRATA&resolution=NEXTRELEASE&short_desc={}
                     &short_desc_type=allwordssubstr&version={}&ctype=csv&human=1"""
 BUG_XML_URL = "https://bugzilla.redhat.com/show_bug.cgi?ctype=xml&id={}"
 
@@ -96,21 +96,23 @@ def get_bug_detail(bug_id):
     # Make the bugs directory, only once.
     if not os.path.exists(BUGS_DIR):
         os.makedirs(BUGS_DIR)
-    
-    # Get the proper bug xml url from the ID.
-    bug_url = BUG_XML_URL.format(bug_id)
-    
-    # Retrieve the xml for this bug.
-    try:
-        xml_str = urlopen(bug_url).read()
-    except Exception as e:
-        print 'Error retrieving bug: {} '.format(bug_id) + repr(e)
-        traceback.print_exc()
-        
-    # FOR NOW - Save it as an xml file.
+
+    # FOR NOW - Save it as an xml file, only if the bug file is not already
+    # there - ie we have this bug from prior pull for some other run.
     file_name = os.path.join(BUGS_DIR, str(bug_id) + '.xml')
-    with open(file_name, 'w') as f:
-        f.write(xml_str)
+    if not os.path.isfile(file_name):
+        # Get the proper bug xml url from the ID.
+        bug_url = BUG_XML_URL.format(bug_id)
+        
+        # Retrieve the xml for this bug.
+        try:
+            xml_str = urlopen(bug_url).read()
+        except Exception as e:
+            print 'Error retrieving bug: {} '.format(bug_id) + repr(e)
+            traceback.print_exc()
+            
+        with open(file_name, 'w') as f:
+            f.write(xml_str)
     
     return
 
