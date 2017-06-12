@@ -85,7 +85,7 @@ def get_bugs(long_desc, version, bug_status='CLOSED'):
         reader.next()
         for row in reader:
             bug_id = row[0]
-            get_bug_detail(bug_id)
+            get_bug_detail(bug_id, version)
             
     return
 
