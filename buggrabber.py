@@ -128,8 +128,7 @@ def main():
     Point of entry for the script
     """
     ap = argparse.ArgumentParser(description='Use the script to pull Fedora bugzilla issues.')
-    ap.add_argument('-d', '-desc', help='Long description of the bug, comma
-            seperated, matches any', required=True)
+    ap.add_argument('-d', '-desc', help='Long description of the bug, comma seperated, matches any', required=True)
     ap.add_argument('-v', '-version', help='Fedora product version')
     ap.add_argument('-s', '-bugstatus', help='Status of the bug', 
                     choices=['NEW', 'ASSIGNED', 'ON_DEV', 'POST', 'MODIFIED', 'ON_QA', 'VERIFIED', 'RELEASE_PENDING', 'CLOSED'],
