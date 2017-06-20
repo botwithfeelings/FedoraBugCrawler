@@ -120,9 +120,9 @@ def get_bug_detail(bug_id, version):
             traceback.print_exc()
 
         # Only save the bug if it's not of SecurityTracking keyword bug.
-        if 'SecurityTracking' in bug_obj.bugzilla.bug.keywords.split(', '):    
+        if 'SecurityTracking' not in str(bug_obj.bugzilla.bug.keywords).split(', '):    
                 with open(file_name, 'w') as f:
-                f.write(xml_str)
+                    f.write(xml_str)
     
     return
 
