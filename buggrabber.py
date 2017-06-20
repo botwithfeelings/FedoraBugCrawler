@@ -2,6 +2,7 @@ import os
 import csv
 import traceback
 import argparse
+import untangle
 from urllib import urlretrieve, urlopen, quote
 
 BUG_LIST_CSV_URL = """https://bugzilla.redhat.com/buglist.cgi?bug_status={}&classification=Fedora
@@ -12,7 +13,7 @@ BUG_LIST_CSV_URL = """https://bugzilla.redhat.com/buglist.cgi?bug_status={}&clas
 BUG_XML_URL = "https://bugzilla.redhat.com/show_bug.cgi?ctype=xml&id={}"
 
 BUGLIST_DIR = "./buglist"
-BUGS_DIR = "./bugs"
+BUGS_DIR = "./bugs/filtered/"
 
 
 def get_buglist_file_name(version, bug_status):
@@ -113,12 +114,15 @@ def get_bug_detail(bug_id, version):
         # Retrieve the xml for this bug.
         try:
             xml_str = urlopen(bug_url).read()
+            bug_obj = untangle.parse(xml_str)
         except Exception as e:
             print 'Error retrieving bug: {} '.format(bug_id) + repr(e)
             traceback.print_exc()
-            
-        with open(file_name, 'w') as f:
-            f.write(xml_str)
+
+        # Only save the bug if it's not of SecurityTracking keyword bug.
+        if 'SecurityTracking' in bug_obj.bugzilla.bug.keywords.split(', '):    
+                with open(file_name, 'w') as f:
+                f.write(xml_str)
     
     return
 
