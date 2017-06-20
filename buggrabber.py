@@ -6,15 +6,14 @@ import untangle
 from urllib import urlretrieve, urlopen, quote
 
 BUG_LIST_CLOSED_CSV_URL = """https://bugzilla.redhat.com/buglist.cgi?bug_status=CLOSED&classification=Fedora
-                    &keywords=Security%2C%20&keywords_type=anywords&longdesc={}&longdesc_type=anywords
-                    &product=Fedora&query_format=advanced&resolution=CURRENTRELEASE&resolution=RAWHIDE
-                    &resolution=WONTFIX&resolution=CANTFIX&resolution=ERRATA&resolution=NEXTRELEASE
+                    &longdesc={}&longdesc_type=anywords&product=Fedora&query_format=advanced
+                    &resolution=CURRENTRELEASE&resolution=RAWHIDE&resolution=WONTFIX
+                    &resolution=CANTFIX&resolution=ERRATA&resolution=NEXTRELEASE
                     &version={}&ctype=csv&human=1"""
 BUG_LIST_NON_CLOSED_URL = """https://bugzilla.redhat.com/buglist.cgi?bug_status=NEW&bug_status=ASSIGNED
                     &bug_status=POST&bug_status=MODIFIED&bug_status=ON_DEV&bug_status=ON_QA
                     &bug_status=VERIFIED&bug_status=RELEASE_PENDING&classification=Fedora
-                    &keywords=Security%2C%20&keywords_type=anywords&longdesc={}
-                    &longdesc_type=anywords&product=Fedora&query_format=advanced
+                    &longdesc={}&longdesc_type=anywords&product=Fedora&query_format=advanced
                     &resolution=---&version={}&ctype=csv&human=1"""
 BUG_XML_URL = "https://bugzilla.redhat.com/show_bug.cgi?ctype=xml&id={}"
 
