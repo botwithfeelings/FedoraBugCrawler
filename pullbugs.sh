@@ -1,7 +1,7 @@
 #!/bin/bash
 desclistfile="short_desc_list.txt"
 versions=(24 25 26)
-statuses=("CLOSED")
+statuses=("CLOSED" "OPEN")
 
 LONGDESC=""
 while read -r line
