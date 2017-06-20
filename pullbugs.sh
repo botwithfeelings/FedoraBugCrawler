@@ -1,7 +1,7 @@
 #!/bin/bash
 desclistfile="short_desc_list.txt"
 versions=(24 25 26)
-statuses=("CLOSED" "OPEN")
+statuses=("OPEN")
 
 LONGDESC=""
 while read -r line
@@ -18,7 +18,7 @@ for VER in "${versions[@]}"
 do
     for STAT in "${statuses[@]}"
     do
-        python buggrabber.py -d "$DESC" -v $VER -s $STAT
+        echo $LONGDESC
+        python buggrabber.py -d "$LONGDESC" -v $VER -s $STAT
     done
 done
-

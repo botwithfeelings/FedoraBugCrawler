@@ -11,11 +11,11 @@ BUG_LIST_CLOSED_CSV_URL = """https://bugzilla.redhat.com/buglist.cgi?bug_status=
                     &resolution=WONTFIX&resolution=CANTFIX&resolution=ERRATA&resolution=NEXTRELEASE
                     &version={}&ctype=csv&human=1"""
 BUG_LIST_NON_CLOSED_URL = """https://bugzilla.redhat.com/buglist.cgi?bug_status=NEW&bug_status=ASSIGNED
-                            &bug_status=POST&bug_status=MODIFIED&bug_status=ON_DEV&bug_status=ON_QA
-                            &bug_status=VERIFIED&bug_status=RELEASE_PENDING&classification=Fedora
-                            &keywords=Security%2C%20&keywords_type=allwords&longdesc={}
-                            &longdesc_type=anywordssubstr&product=Fedora&query_format=advanced
-                            &resolution=---&version={}&ctype=csv&human=1"""
+                    &bug_status=POST&bug_status=MODIFIED&bug_status=ON_DEV&bug_status=ON_QA
+                    &bug_status=VERIFIED&bug_status=RELEASE_PENDING&classification=Fedora
+                    &keywords=Security%2C%20&keywords_type=anywords&longdesc={}
+                    &longdesc_type=anywords&product=Fedora&query_format=advanced
+                    &resolution=---&version={}&ctype=csv&human=1"""
 BUG_XML_URL = "https://bugzilla.redhat.com/show_bug.cgi?ctype=xml&id={}"
 
 BUGLIST_DIR = "./buglist"
@@ -26,7 +26,7 @@ def get_buglist_file_name(version, bug_status):
     """
     Gives the formatted name of the file containing the buglist info from bugzilla.
     param version: version of the Fedora product.
-    param bug_status: One of CLOSED or NON-CLOSED which covers NEW, ASSIGNED,
+    param bug_status: One of CLOSED or OPEN which covers NEW, ASSIGNED,
                     ON_DEV, POST, MODIFIED, ON_QA, VERIFIED, RELEASE_PENDING.
                     Defaults to CLOSED.
     """
@@ -39,7 +39,7 @@ def get_bug_list_csv(long_desc, version, bug_status='CLOSED'):
     Retrieves the list of bugs with Id and some other basic info only if not already pulled.
     param long_desc: The comments to look for in the bug body.
     param version: version of the Fedora product.
-    param bug_status: One of CLOSED or NON-CLOSED which covers NEW, ASSIGNED,
+    param bug_status: One of CLOSED or OPEN which covers NEW, ASSIGNED,
                     ON_DEV, POST, MODIFIED, ON_QA, VERIFIED, RELEASE_PENDING.
                     Defaults to CLOSED.
     """
@@ -81,7 +81,7 @@ def get_bugs(long_desc, version, bug_status='CLOSED'):
     Pulls the buglist if already not pulled, then pulls the individual bugs themselves.
     param long_desc: The comments to look for in the bug body.
     param version: version of the Fedora product.
-    param bug_status: One of CLOSED or NON-CLOSED which covers NEW, ASSIGNED,
+    param bug_status: One of CLOSED or OPEN which covers NEW, ASSIGNED,
                     ON_DEV, POST, MODIFIED, ON_QA, VERIFIED, RELEASE_PENDING.
                     Defaults to CLOSED.
     """
@@ -151,7 +151,7 @@ def main():
     ap = argparse.ArgumentParser(description='Use the script to pull Fedora bugzilla issues.')
     ap.add_argument('-d', '-desc', help='Long description of the bug, comma seperated, matches any', required=True)
     ap.add_argument('-v', '-version', help='Fedora product version')
-    ap.add_argument('-s', '-bugstatus', help='Status of the bug', choices=['NON-CLOSED', 'CLOSED'],
+    ap.add_argument('-s', '-bugstatus', help='Status of the bug', choices=['OPEN', 'CLOSED'],
                     default='CLOSED')
 
     args = ap.parse_args()

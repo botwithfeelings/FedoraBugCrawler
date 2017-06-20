@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-requests@redhat.com"
+>
+
+    <bug>
+          <bug_id>1228426</bug_id>
+          
+          <creation_ts>2015-06-04 18:29:00 -0400</creation_ts>
+          <short_desc>When activating OpenVPN without DHCP6, random traffic will be routed without VPN</short_desc>
+          <delta_ts>2017-05-02 02:52:59 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>NetworkManager</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>NEW</bug_status>
+          <resolution></resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords>Reopened, Security</keywords>
+          <priority>unspecified</priority>
+          <bug_severity>high</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>883152</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Jonas Thiem">jonas</reporter>
+          <assigned_to name="Lubomir Rintel">lkundrak</assigned_to>
+          <cc>dcbw</cc>
+    
+    
+    <cc>nmavrogi</cc>
+    
+    
+    <cc>thozza</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-07-19 15:10:29</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>8307534</commentid>
+    <comment_count>0</comment_count>
+    <who name="Jonas Thiem">jonas</who>
+    <bug_when>2015-06-04 18:29:50 -0400</bug_when>
+    <thetext>Description of problem:
+When activating OpenVPN without DHCP6, random traffic will be routed without VPN if the basic physical network device has IPv6 connectivity. This is a security issue, since a user activating the VPN would expect all go through it. When I activate a VPN that doesn&apos;t support V6, obviously V6 routes need to be removed entirely to ensure everything goes through the VPN as the user would expect.
+
+Version-Release number of selected component (if applicable):
+
+
+How reproducible:
+
+
+Steps to Reproduce:
+1.
+2.
+3.
+
+Actual results:
+
+
+Expected results:
+
+
+Additional info:</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8307542</commentid>
+    <comment_count>1</comment_count>
+    <who name="Jonas Thiem">jonas</who>
+    <bug_when>2015-06-04 18:39:16 -0400</bug_when>
+    <thetext>Thanks to #1228427 it appears I can&apos;t easily use OpenVPN through the networkmanager gui in this wifi network *at all*. That sucks, it would be really awesome if you could do something to fix that..</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8308319</commentid>
+    <comment_count>2</comment_count>
+    <who name="Pavel Šimerda (pavlix)">psimerda</who>
+    <bug_when>2015-06-05 02:51:11 -0400</bug_when>
+    <thetext>This is indeed an interesting problem also described in bug #1091356 that is not specific to NetworkManager. A machine with IPv4 and IPv6 connectivity and IPv4 VPN connectivity with IPv4 and IPv6 DNS information from the VPN will always attempt to reach hosts via IPv6.
+
+&gt; This is a security issue, since a user activating the VPN would expect all go through it.
+
+There are two issues, actually:
+
+1) Serving IPv6 DNS records and providing VPN access without IPv6 at the same time is a security problem in the first place. Clients that only use VPN for resources on the network are thus not informed about the IPv6 subnets that constitute resources on the network.
+
+Solutions (on the network operator side):
+
+a) Avoid IPv4-only VPNs and only provide IPv4+IPv6 VPNs.
+
+b) Don&apos;t provide IPv6 DNS records on IPv4-only VPNs (and vice versa).
+
+2) When VPN is to be used for all (except local) resources and only IPv4 connectivity is available on the VPN, there should IMO be no IPv6 default route through the local router just as there is no IPv4 default route through the local router.
+
+From the network configuration point of view the second issue is as follows...
+
+Expected result:
+
+ * IPv4 default route through VPN
+ * IPv6 default route absent (as VPN doesn&apos;t provide any)
+
+Actual result (as I understand the bug report):
+
+ * IPv4 default route through VPN (good)
+ * IPv6 default route via local gateway (bad)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8552030</commentid>
+    <comment_count>3</comment_count>
+    <who name="Fedora Admin XMLRPC Client">fedora-admin-xmlrpc</who>
+    <bug_when>2015-08-18 10:59:01 -0400</bug_when>
+    <thetext>This package has changed ownership in the Fedora Package Database.  Reassigning to the new owner of this component.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8783774</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora End Of Life">jkurik</who>
+    <bug_when>2015-11-04 05:46:32 -0500</bug_when>
+    <thetext>This message is a reminder that Fedora 21 is nearing its end of life.
+Approximately 4 (four) weeks from now Fedora will stop maintaining
+and issuing updates for Fedora 21. It is Fedora&apos;s policy to close all
+bug reports from releases that are no longer maintained. At that time
+this bug will be closed as EOL if it remains open with a Fedora  &apos;version&apos;
+of &apos;21&apos;.
+
+Package Maintainer: If you wish for this bug to remain open because you
+plan to fix it in a currently maintained version, simply change the &apos;version&apos; 
+to a later Fedora version.
+
+Thank you for reporting this issue and we are sorry that we were not 
+able to fix it before Fedora 21 is end of life. If you would still like 
+to see this bug fixed and are able to reproduce it against a later version 
+of Fedora, you are encouraged  change the &apos;version&apos; to a later Fedora 
+version prior this bug is closed as described in the policy above.
+
+Although we aim to fix as many bugs as possible during every release&apos;s 
+lifetime, sometimes those efforts are overtaken by events. Often a 
+more recent Fedora release includes newer upstream software that fixes 
+bugs or makes them obsolete.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8791922</commentid>
+    <comment_count>5</comment_count>
+    <who name="Jonas Thiem">jonas</who>
+    <bug_when>2015-11-04 12:50:19 -0500</bug_when>
+    <thetext>Still present in Fedora 22</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9528168</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora End Of Life">jkurik</who>
+    <bug_when>2016-07-19 15:10:29 -0400</bug_when>
+    <thetext>Fedora 22 changed to end-of-life (EOL) status on 2016-07-19. Fedora 22 is
+no longer maintained, which means that it will not receive any further
+security or bug fix updates. As a result we are closing this bug.
+
+If you can reproduce this bug against a currently maintained version of
+Fedora please feel free to reopen this bug against that version. If you
+are unable to reopen this bug, please file a new report against the
+current release. If you experience problems, please add a comment to this
+bug.
+
+Thank you for reporting this bug and we are sorry it could not be fixed.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9549378</commentid>
+    <comment_count>7</comment_count>
+    <who name="Jan Kurik">jkurik</who>
+    <bug_when>2016-07-26 00:35:21 -0400</bug_when>
+    <thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 25 development cycle.
+Changing version to &apos;25&apos;.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>
