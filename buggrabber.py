@@ -9,12 +9,12 @@ BUG_LIST_CLOSED_CSV_URL = """https://bugzilla.redhat.com/buglist.cgi?bug_status=
                     &longdesc={}&longdesc_type=anywords&product=Fedora&query_format=advanced
                     &resolution=CURRENTRELEASE&resolution=RAWHIDE&resolution=WONTFIX
                     &resolution=CANTFIX&resolution=ERRATA&resolution=NEXTRELEASE
-                    &version={}&ctype=csv&human=1"""
+                    &version={}&ctype=csv&human=1&keywords=Security%2C%20&keywords_type=anywords"""
 BUG_LIST_NON_CLOSED_URL = """https://bugzilla.redhat.com/buglist.cgi?bug_status=NEW&bug_status=ASSIGNED
                     &bug_status=POST&bug_status=MODIFIED&bug_status=ON_DEV&bug_status=ON_QA
                     &bug_status=VERIFIED&bug_status=RELEASE_PENDING&classification=Fedora
                     &longdesc={}&longdesc_type=anywords&product=Fedora&query_format=advanced
-                    &resolution=---&version={}&ctype=csv&human=1"""
+                    &resolution=---&version={}&ctype=csv&human=1&keywords=Security%2C%20&keywords_type=anywords"""
 BUG_XML_URL = "https://bugzilla.redhat.com/show_bug.cgi?ctype=xml&id={}"
 
 BUGLIST_DIR = "./buglist"
