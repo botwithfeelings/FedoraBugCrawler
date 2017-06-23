@@ -1,0 +1,833 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1337607</bug_id>
+          
+          <creation_ts>2016-05-19 11:28:00 -0400</creation_ts>
+          <short_desc>BOINC relies on running &quot;stat /dev/input/&quot; for idle detection time. This approach does not work and triggers SELinux alerts</short_desc>
+          <delta_ts>2016-11-07 15:18:54 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>boinc-client</component>
+          <version>24</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc>https://github.com/BOINC/boinc/issues/1187#issuecomment-225699768</bug_file_loc>
+          <status_whiteboard>abrt_hash:2a7400c5fdf951f722d2cfa6b580aa69944c51106a0402a0470acf331b609921;</status_whiteboard>
+          <keywords>Reopened</keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Mattia Verga">mattia.verga</reporter>
+          <assigned_to name="Germano Massullo">germano.massullo</assigned_to>
+          <cc>a3</cc>
+    
+    
+    <cc>bjwyman</cc>
+    
+    
+    <cc>cheekyboinc</cc>
+    
+    
+    <cc>daveg</cc>
+    
+    
+    <cc>dominick.grift</cc>
+    
+    
+    <cc>dwalsh</cc>
+    
+    
+    <cc>eddie.kuns</cc>
+    
+    
+    <cc>germano.massullo</cc>
+    
+    
+    <cc>gregory</cc>
+    
+    
+    <cc>herman</cc>
+    
+    
+    <cc>jylo06g</cc>
+    
+    
+    <cc>keesdejong+bugs</cc>
+    
+    
+    <cc>lagarcia</cc>
+    
+    
+    <cc>Laurence.Field</cc>
+    
+    
+    <cc>lvrabec</cc>
+    
+    
+    <cc>mattia.verga</cc>
+    
+    
+    <cc>mgrepl</cc>
+    
+    
+    <cc>mmahut</cc>
+    
+    
+    <cc>noobusinghacks</cc>
+    
+    
+    <cc>obliterator666</cc>
+    
+    
+    <cc>plautrba</cc>
+    
+    
+    <cc>xjakub</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>boinc-client-7.6.22-7.fc24 boinc-client-7.6.22-7.fc23 boinc-client-7.6.22-7.el7</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-11-07 15:18:54</cf_last_closed>
+          <cf_type>---</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9341498</commentid>
+    <comment_count>0</comment_count>
+    <who name="Mattia Verga">mattia.verga</who>
+    <bug_when>2016-05-19 11:28:01 -0400</bug_when>
+    <thetext>Description of problem:
+Boinc 7.4+ requires access to /dev/input/event* to detect user activity
+SELinux is preventing boinc_client from &apos;getattr&apos; accesses on the chr_file /dev/input/event9.
+
+*****  Plugin catchall (100. confidence) suggests   **************************
+
+If si crede che boinc_client dovrebbe avere possibilità di accesso getattr sui event9 chr_file in modo predefinito.
+Then si dovrebbe riportare il problema come bug.
+E&apos; possibile generare un modulo di politica locale per consentire questo accesso.
+Do
+allow this access for now by executing:
+# ausearch -c &apos;boinc_client&apos; --raw | audit2allow -M my-boincclient
+# semodule -X 300 -i my-boincclient.pp
+
+Additional Information:
+Source Context                system_u:system_r:boinc_t:s0
+Target Context                system_u:object_r:event_device_t:s0
+Target Objects                /dev/input/event9 [ chr_file ]
+Source                        boinc_client
+Source Path                   boinc_client
+Port                          &lt;Unknown&gt;
+Host                          (removed)
+Source RPM Packages           
+Target RPM Packages           
+Policy RPM                    selinux-policy-3.13.1-185.fc24.noarch
+Selinux Enabled               True
+Policy Type                   targeted
+Enforcing Mode                Enforcing
+Host Name                     (removed)
+Platform                      Linux (removed) 4.5.4-300.fc24.x86_64 #1 SMP Wed
+                              May 11 17:57:16 UTC 2016 x86_64 x86_64
+Alert Count                   2609
+First Seen                    2016-05-19 17:17:08 CEST
+Last Seen                     2016-05-19 17:21:28 CEST
+Local ID                      14540e25-39ad-4bed-b534-60a6a43ec768
+
+Raw Audit Messages
+type=AVC msg=audit(1463671288.613:3380): avc:  denied  { getattr } for  pid=4752 comm=&quot;boinc_client&quot; path=&quot;/dev/input/event9&quot; dev=&quot;devtmpfs&quot; ino=15816 scontext=system_u:system_r:boinc_t:s0 tcontext=system_u:object_r:event_device_t:s0 tclass=chr_file permissive=0
+
+
+Hash: boinc_client,boinc_t,event_device_t,chr_file,getattr
+
+Version-Release number of selected component:
+selinux-policy-3.13.1-185.fc24.noarch
+
+Additional info:
+reporter:       libreport-2.7.0
+hashmarkername: setroubleshoot
+kernel:         4.5.4-300.fc24.x86_64
+reproducible:   Not sure how to reproduce the problem
+type:           libreport</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9351198</commentid>
+    <comment_count>1</comment_count>
+    <who name="Lukas Vrabec">lvrabec</who>
+    <bug_when>2016-05-23 11:36:07 -0400</bug_when>
+    <thetext>We need to discuss this action.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9380499</commentid>
+    <comment_count>2</comment_count>
+    <who name="Lukas Vrabec">lvrabec</who>
+    <bug_when>2016-06-02 06:11:47 -0400</bug_when>
+    <thetext>*** Bug 1340332 has been marked as a duplicate of this bug. ***</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9385845</commentid>
+    <comment_count>3</comment_count>
+    <who name="Brandon J. Wyman">bjwyman</who>
+    <bug_when>2016-06-03 13:27:10 -0400</bug_when>
+    <thetext>This also affects Fedora 23.
+$ sudo dnf history info 541
+Contacting OpenClient Router for restricted repository information
+Added restricted repo: RHEL-7-x86_64-crashplan
+Added restricted repo: Fedora-23-x86_64-Licensed
+Transaction ID : 541
+Begin time     : Wed Jun  1 11:11:41 2016
+Begin rpmdb    : 2980:48ad35edd327c68e19f0c3b83283010696de65dc
+End time       :            11:23:23 2016 (11 minutes)
+End rpmdb      : 2982:5fccaf870886552f4812427c0f8a47473603bb02
+User           : Brandon J. Wyman &lt;v2cib530&gt;
+Return-Code    : Success
+Command Line   : update
+Transaction performed with:
+    Upgraded      dnf-1.1.9-1.fc23.noarch         @updates
+    Installed     rpm-4.13.0-0.rc1.13.fc23.x86_64 @updates
+Packages Altered:
+    Upgraded boinc-client-7.2.42-8.gitdd0d630.fc23.x86_64                    (unknown)
+    Upgrade               7.6.22-4.fc23.x86_64                               @updates
+    Upgraded boinc-manager-7.2.42-8.gitdd0d630.fc23.x86_64                   (unknown)
+    Upgrade                7.6.22-4.fc23.x86_64                              @updates
+    Upgraded dkms-2.2.0.3-31.git.7c3e7c5.fc23.noarch                         @@commandline
+    Upgrade       2.2.0.3-34.git.9e0394d.fc23.noarch                         @updates
+    Upgraded dnf-1.1.9-1.fc23.noarch                                         @updates
+    Upgrade      1.1.9-2.fc23.noarch                                         @updates
+    Upgraded dnf-conf-1.1.9-1.fc23.noarch                                    @updates
+    Upgrade           1.1.9-2.fc23.noarch                                    @updates
+    Upgraded dnf-plugins-core-0.1.21-1.fc23.noarch                           @updates
+    Upgrade                   0.1.21-2.fc23.noarch                           @updates
+    Upgraded dnf-yum-1.1.9-1.fc23.noarch                                     @updates
+    Upgrade          1.1.9-2.fc23.noarch                                     @updates
+    Upgraded drpm-0.2.0-3.fc23.x86_64                                        @@commandline
+    Upgrade       0.3.0-3.fc23.x86_64                                        @updates
+    Upgraded ghdl-0.34dev-0.20160214gite7adf19.0.fc23.x86_64                 @updates
+    Upgrade       0.34dev-0.20160317gitf1ddf16.0.fc23.x86_64                 @updates
+    Upgraded ghdl-grt-0.34dev-0.20160214gite7adf19.0.fc23.x86_64             @updates
+    Upgrade           0.34dev-0.20160317gitf1ddf16.0.fc23.x86_64             @updates
+    Upgraded google-chrome-stable-50.0.2661.102-1.x86_64                     @google-chrome-unstable
+    Upgrade                       51.0.2704.63-1.x86_64                      @google-chrome-unstable
+    Upgrade  google-chrome-unstable-52.0.2743.19-1.x86_64                    @google-chrome-unstable
+    Upgraded google-chrome-unstable-52.0.2743.6-1.x86_64                     @google-chrome
+    Upgraded iwl100-firmware-39.31.5.1-64.fc23.noarch                        @updates
+    Upgrade                  39.31.5.1-65.fc23.noarch                        @updates
+    Upgraded iwl105-firmware-18.168.6.1-64.fc23.noarch                       @updates
+    Upgrade                  18.168.6.1-65.fc23.noarch                       @updates
+    Upgraded iwl135-firmware-18.168.6.1-64.fc23.noarch                       @updates
+    Upgrade                  18.168.6.1-65.fc23.noarch                       @updates
+    Upgraded iwl2000-firmware-18.168.6.1-64.fc23.noarch                      @updates
+    Upgrade                   18.168.6.1-65.fc23.noarch                      @updates
+    Upgraded iwl2030-firmware-18.168.6.1-64.fc23.noarch                      @updates
+    Upgrade                   18.168.6.1-65.fc23.noarch                      @updates
+    Upgraded iwl3945-firmware-15.32.2.9-64.fc23.noarch                       @updates
+    Upgrade                   15.32.2.9-65.fc23.noarch                       @updates
+    Upgraded iwl4965-firmware-228.61.2.24-64.fc23.noarch                     @updates
+    Upgrade                   228.61.2.24-65.fc23.noarch                     @updates
+    Upgraded iwl5000-firmware-8.83.5.1_1-64.fc23.noarch                      @updates
+    Upgrade                   8.83.5.1_1-65.fc23.noarch                      @updates
+    Upgraded iwl5150-firmware-8.24.2.2-64.fc23.noarch                        @updates
+    Upgrade                   8.24.2.2-65.fc23.noarch                        @updates
+    Upgraded iwl6000-firmware-9.221.4.1-64.fc23.noarch                       @updates
+    Upgrade                   9.221.4.1-65.fc23.noarch                       @updates
+    Upgraded iwl6000g2a-firmware-18.168.6.1-64.fc23.noarch                   @updates
+    Upgrade                      18.168.6.1-65.fc23.noarch                   @updates
+    Upgraded iwl6000g2b-firmware-18.168.6.1-64.fc23.noarch                   @updates
+    Upgrade                      18.168.6.1-65.fc23.noarch                   @updates
+    Upgraded iwl6050-firmware-41.28.5.1-64.fc23.noarch                       @updates
+    Upgrade                   41.28.5.1-65.fc23.noarch                       @updates
+    Upgraded krb5-devel-1.14.1-5.fc23.x86_64                                 @updates
+    Upgrade             1.14.1-6.fc23.x86_64                                 @updates
+    Upgraded krb5-libs-1.14.1-5.fc23.i686                                    @updates
+    Upgraded krb5-libs-1.14.1-5.fc23.x86_64                                  @updates
+    Upgrade            1.14.1-6.fc23.i686                                    @updates
+    Upgrade            1.14.1-6.fc23.x86_64                                  @updates
+    Upgraded krb5-workstation-1.14.1-5.fc23.x86_64                           @updates
+    Upgrade                   1.14.1-6.fc23.x86_64                           @updates
+    Upgraded libbluray-0.9.2-1.fc23.x86_64                                   @updates
+    Upgrade            0.9.3-1.fc23.x86_64                                   @updates
+    Upgraded libimobiledevice-1.2.0-5.fc23.x86_64                            @updates
+    Upgrade                   1.2.0-7.fc23.x86_64                            @updates
+    Upgraded libinput-1.2.4-3.fc23.x86_64                                    @updates
+    Upgrade           1.2.4-4.fc23.x86_64                                    @updates
+    Upgraded libnice-0.1.13-2.fc23.x86_64                                    @@commandline
+    Upgrade          0.1.13-4.fc23.x86_64                                    @updates
+    Upgraded libnice-gstreamer1-0.1.13-2.fc23.x86_64                         @@commandline
+    Upgrade                     0.1.13-4.fc23.x86_64                         @updates
+    Upgraded libteam-1.24-1.fc23.x86_64                                      @updates
+    Upgrade          1.25-1.fc23.x86_64                                      @updates
+    Upgraded libusbmuxd-1.0.10-3.fc23.x86_64                                 @@commandline
+    Upgrade             1.0.10-5.fc23.x86_64                                 @updates
+    Upgraded linux-firmware-20160505-64.git8afadbe5.fc23.noarch              @updates
+    Upgrade                 20160526-65.git80d463be.fc23.noarch              @updates
+    Upgraded lshw-B.02.18-2.fc23.x86_64                                      @updates
+    Upgrade       B.02.18-3.fc23.x86_64                                      @updates
+    Upgraded open-vm-tools-10.0.0-7.fc23.x86_64                              @@commandline
+    Upgrade                10.0.5-2.fc23.x86_64                              @updates
+    Upgraded open-vm-tools-desktop-10.0.0-7.fc23.x86_64                      @@commandline
+    Upgrade                        10.0.5-2.fc23.x86_64                      @updates
+    Upgraded packagedb-cli-2.12-1.fc23.noarch                                @updates
+    Upgrade                2.13-1.fc23.noarch                                @updates
+    Upgraded parted-3.2-18.fc23.x86_64                                       @updates
+    Upgrade         3.2-19.fc23.x86_64                                       @updates
+    Upgraded perl-Thread-Queue-3.09-1.fc23.noarch                            @updates
+    Upgrade                    3.11-1.fc23.noarch                            @updates
+    Upgraded python2-dnf-1.1.9-1.fc23.noarch                                 @updates
+    Upgrade              1.1.9-2.fc23.noarch                                 @updates
+    Upgraded python2-dnf-plugins-core-0.1.21-1.fc23.noarch                   @updates
+    Upgrade                           0.1.21-2.fc23.noarch                   @updates
+    Upgraded python3-dnf-1.1.9-1.fc23.noarch                                 @updates
+    Upgrade              1.1.9-2.fc23.noarch                                 @updates
+    Upgraded python3-dnf-plugins-core-0.1.21-1.fc23.noarch                   @updates
+    Upgrade                           0.1.21-2.fc23.noarch                   @updates
+    Upgraded setroubleshoot-3.3.6-1.fc23.x86_64                              @updates
+    Upgrade                 3.3.7-1.fc23.x86_64                              @updates
+    Upgraded setroubleshoot-server-3.3.6-1.fc23.x86_64                       @updates
+    Upgrade                        3.3.7-1.fc23.x86_64                       @updates
+    Upgraded teamd-1.24-1.fc23.x86_64                                        @updates
+    Upgrade        1.25-1.fc23.x86_64                                        @updates
+    Upgraded webkitgtk4-2.12.2-2.fc23.x86_64                                 @updates
+    Upgrade             2.12.3-1.fc23.x86_64                                 @updates
+    Upgraded webkitgtk4-jsc-2.12.2-2.fc23.x86_64                             @updates
+    Upgrade                 2.12.3-1.fc23.x86_64                             @updates
+    Upgraded webkitgtk4-plugin-process-gtk2-2.12.2-2.fc23.x86_64             @updates
+    Upgrade                                 2.12.3-1.fc23.x86_64             @updates
+    Install  wxBase3-3.0.2-19.fc23.x86_64                                    @updates
+    Install  wxGTK3-3.0.2-19.fc23.x86_64                                     @updates
+    Upgraded xen-libs-4.5.3-3.fc23.x86_64                                    @updates
+    Upgrade           4.5.3-5.fc23.x86_64                                    @updates
+    Upgraded xen-licenses-4.5.3-3.fc23.x86_64                                @updates
+    Upgrade               4.5.3-5.fc23.x86_64                                @updates
+    Upgraded autocorr-en-1:5.0.6.2-4.fc23.noarch                             @updates
+    Upgrade              1:5.0.6.2-5.fc23.noarch                             @updates
+    Upgraded ibm-lotus-notes-updates-1:9.0.1-16.0.i386                       @openclient
+    Upgrade                          1:9.0.1-17.0.i386                       @openclient
+    Upgraded iwl1000-firmware-1:39.31.5.1-64.fc23.noarch                     @updates
+    Upgrade                   1:39.31.5.1-65.fc23.noarch                     @updates
+    Upgraded iwl3160-firmware-1:25.30.13.0-64.fc23.noarch                    @updates
+    Upgrade                   1:25.30.13.0-65.fc23.noarch                    @updates
+    Upgraded iwl7260-firmware-1:25.30.13.0-64.fc23.noarch                    @updates
+    Upgrade                   1:25.30.13.0-65.fc23.noarch                    @updates
+    Upgraded librados2-1:0.94.6-1.fc23.x86_64                                @updates
+    Upgrade            1:0.94.7-2.fc23.x86_64                                @updates
+    Upgraded librbd1-1:0.94.6-1.fc23.x86_64                                  @updates
+    Upgrade          1:0.94.7-2.fc23.x86_64                                  @updates
+    Upgraded libreoffice-calc-1:5.0.6.2-4.fc23.x86_64                        @updates
+    Upgrade                   1:5.0.6.2-5.fc23.x86_64                        @updates
+    Upgraded libreoffice-core-1:5.0.6.2-4.fc23.x86_64                        @updates
+    Upgrade                   1:5.0.6.2-5.fc23.x86_64                        @updates
+    Upgraded libreoffice-draw-1:5.0.6.2-4.fc23.x86_64                        @updates
+    Upgrade                   1:5.0.6.2-5.fc23.x86_64                        @updates
+    Upgraded libreoffice-emailmerge-1:5.0.6.2-4.fc23.x86_64                  @updates
+    Upgrade                         1:5.0.6.2-5.fc23.x86_64                  @updates
+    Upgraded libreoffice-filters-1:5.0.6.2-4.fc23.x86_64                     @updates
+    Upgrade                      1:5.0.6.2-5.fc23.x86_64                     @updates
+    Upgraded libreoffice-graphicfilter-1:5.0.6.2-4.fc23.x86_64               @updates
+    Upgrade                            1:5.0.6.2-5.fc23.x86_64               @updates
+    Upgraded libreoffice-impress-1:5.0.6.2-4.fc23.x86_64                     @updates
+    Upgrade                      1:5.0.6.2-5.fc23.x86_64                     @updates
+    Upgraded libreoffice-math-1:5.0.6.2-4.fc23.x86_64                        @updates
+    Upgrade                   1:5.0.6.2-5.fc23.x86_64                        @updates
+    Upgraded libreoffice-opensymbol-fonts-1:5.0.6.2-4.fc23.noarch            @updates
+    Upgrade                               1:5.0.6.2-5.fc23.noarch            @updates
+    Upgraded libreoffice-pdfimport-1:5.0.6.2-4.fc23.x86_64                   @updates
+    Upgrade                        1:5.0.6.2-5.fc23.x86_64                   @updates
+    Upgraded libreoffice-pyuno-1:5.0.6.2-4.fc23.x86_64                       @updates
+    Upgrade                    1:5.0.6.2-5.fc23.x86_64                       @updates
+    Upgraded libreoffice-ure-1:5.0.6.2-4.fc23.x86_64                         @updates
+    Upgrade                  1:5.0.6.2-5.fc23.x86_64                         @updates
+    Upgraded libreoffice-writer-1:5.0.6.2-4.fc23.x86_64                      @updates
+    Upgrade                     1:5.0.6.2-5.fc23.x86_64                      @updates
+    Upgraded libreoffice-xsltfilter-1:5.0.6.2-4.fc23.x86_64                  @updates
+    Upgrade                         1:5.0.6.2-5.fc23.x86_64                  @updates
+    Upgraded perl-Module-CoreList-1:5.20160507-1.fc23.noarch                 @updates
+    Upgrade                       1:5.20160520-1.fc23.noarch                 @updates
+    Upgraded xscreensaver-1:5.34-1.fc23.x86_64                               @@commandline
+    Upgrade               1:5.35-1.fc23.x86_64                               @updates
+    Upgraded xscreensaver-base-1:5.34-1.fc23.x86_64                          @@commandline
+    Upgrade                    1:5.35-1.fc23.x86_64                          @updates
+    Upgraded xscreensaver-extras-1:5.34-1.fc23.x86_64                        @@commandline
+    Upgrade                      1:5.35-1.fc23.x86_64                        @updates
+    Upgraded xscreensaver-extras-base-1:5.34-1.fc23.x86_64                   @@commandline
+    Upgrade                           1:5.35-1.fc23.x86_64                   @updates
+    Upgraded xscreensaver-gl-base-1:5.34-1.fc23.x86_64                       @@commandline
+    Upgrade                       1:5.35-1.fc23.x86_64                       @updates
+    Upgraded xscreensaver-gl-extras-1:5.34-1.fc23.x86_64                     @@commandline
+    Upgrade                         1:5.35-1.fc23.x86_64                     @updates
+    Upgraded ibm-notes-config-2:9.0.1-78.i386                                @openclient
+    Upgrade                   2:9.0.1-79.i386                                @openclient
+    Upgrade  libcacard-2:2.4.1-10.fc23.x86_64                                @updates
+    Upgraded libcacard-2:2.4.1-9.fc23.x86_64                                 @updates
+    Upgraded libertas-usb8388-firmware-2:20160505-64.git8afadbe5.fc23.noarch @updates
+    Upgrade                            2:20160526-65.git80d463be.fc23.noarch @updates
+    Upgrade  qemu-common-2:2.4.1-10.fc23.x86_64                              @updates
+    Upgraded qemu-common-2:2.4.1-9.fc23.x86_64                               @updates
+    Upgrade  qemu-guest-agent-2:2.4.1-10.fc23.x86_64                         @updates
+    Upgraded qemu-guest-agent-2:2.4.1-9.fc23.x86_64                          @updates
+    Upgrade  qemu-img-2:2.4.1-10.fc23.x86_64                                 @updates
+    Upgraded qemu-img-2:2.4.1-9.fc23.x86_64                                  @updates
+    Upgrade  qemu-kvm-2:2.4.1-10.fc23.x86_64                                 @updates
+    Upgraded qemu-kvm-2:2.4.1-9.fc23.x86_64                                  @updates
+    Upgrade  qemu-system-x86-2:2.4.1-10.fc23.x86_64                          @updates
+    Upgraded qemu-system-x86-2:2.4.1-9.fc23.x86_64                           @updates
+Scriptlet output:
+   1 Redirecting to /bin/systemctl start  atd.service
+   2 Redirecting to /bin/systemctl start  atd.service
+   3 You can customize what plugins you want installed in /etc/ibm/notes/disable-plugins.cfg
+   4 Creating a new global configuration file, the following features will be enabled - 
+   5 voicerite.feature sut_hotfix.feature sut_blue.feature st-gateway.feature issi.feature ibm_lotus_sametime_issi.feature ibm_lotus_sametime.feature ibm_lotus_opensocial.feature ibm_lotus_notes-nl1.feature ibm_lotus_feedreader-nl1.feature ibm_lotus_feedreader.feature ibm_lotus_activities.feature hotfix_fp.feature dictionaries.feature connections.feature 
+   6 Cleaning up..
+   7 Updating Desktop Database
+   8 Fix mime issue
+   9 Updating icons
+  10 kernel.shmmax = 50331648
+  11 kernel.shmall = 50331648
+  12 Setting mailto to notes
+  13 Applying notes binary hotfix fixpack_20160423.1936.FP6
+  14 /opt/ibm/notes/res/ca_ES /
+  15 /
+  16 /opt/ibm/notes/res/de_DE /
+  17 /
+  18 /opt/ibm/notes/res/es_ES /
+  19 /
+  20 /opt/ibm/notes/res/fr_FR /
+  21 /
+  22 /opt/ibm/notes/res/it_IT /
+  23 /
+  24 /opt/ibm/notes/res/ja_JP /
+  25 /
+  26 /opt/ibm/notes/res/ko_KR /
+  27 /
+  28 /opt/ibm/notes/res/pt_BR /
+  29 /
+  30 /opt/ibm/notes/res/zh_CN /
+  31 /
+  32 /opt/ibm/notes/res/zh_TW /
+  33 /
+  34 *                soft    nofile          2048
+  35 *                hard    nofile          2048
+  36 IBM Lotus Notes 9.0.1 Fix Pack 5 Interim Fix 2 for the Linux Notes Client
+  37 dconsole.jar
+  38 dconsoleSE.jar
+  39 dconsoleenh.jar
+  40 dconsoleeval.jar
+  41 dconsolexpages.jar
+  42 libnotes.so
+  43 jconsole
+  44 libsslplus.so
+  45 libnotes.so.sym
+  46 sbinder
+  47 lnotes
+  48 scontroller
+  49 chmod: cannot access ‘/opt/ibm/notes/framework/shared/eclipse/plugins/com.ibm.notes.branding.version_9.0.1.20160423-1936/abou’: No such file or directory
+  50 /var/tmp/rpm-tmp.BGvpcF: line 307: t.mappings: command not found
+  51 Fixing permissions, to correct problems.
+  52 Fixing BluePages Photos
+  53 Fixing screensaver idle
+  54 canwatchscreensaver
+  55 sametime_mongss.sh
+  56 watchscreensaver
+$</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9387985</commentid>
+    <comment_count>4</comment_count>
+    <who name="Germano Massullo">germano.massullo</who>
+    <bug_when>2016-06-05 17:11:25 -0400</bug_when>
+    <thetext>As package co-maintainer, I started retrieving infos about the reasons why BOINC tried to access /dev/input
+https://boinc.berkeley.edu/dev/forum_thread.php?id=11041</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9393575</commentid>
+    <comment_count>5</comment_count>
+    <who name="DaveG">daveg</who>
+    <bug_when>2016-06-07 06:36:06 -0400</bug_when>
+    <thetext>Me too. Needed to downgrade.
+
+The key issues, as I see them:
+* boinc-client 7.4.42 is the current, offical Linux release.
+* boinc-client 7.6 is pre-release/beta for Linux.
+
+* boinc-client 7.4 was running unconfined since the log redirection script broke the SELinux process transitions.
+* boinc-client-7.4 was fixed to enforce SELinux confinement.
+
+* boinc 7.6 adds new functionality to check input sources for activity.
+* SELinux policy does not allow boinc-client access to input devices.
+* boinc-client-7.6 does not notice AVC denial and spams logs.
+
+Possible options:
+* Revert boinc-client to the official 7.4 series.
+  Will need to increment package epoch to handle downgrade.
+
+* Reinstate the log redirection script to run boinc-client unconfined.
+  or
+* Modify the systemd unit file to explicitly run unconfined.
+  Not optimal.
+
+* Update selinux-policy-targeted.
+  Run 7.6 permissive and collect AVC information.
+  Work with SELinux policy maintainers to audit and approve requirements.
+  Lots of work.
+
+* Work with upstream to resolve in 7.6 series.
+  Switch or #ifdef to skip the offending code (client/hostinfo.cpp).
+  Better fit for headless servers.
+  Lots of work and will take time.
+
+I&apos;d vote to revert to the 7.4 series.
+
+--DaveG.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9393637</commentid>
+    <comment_count>6</comment_count>
+    <who name="Germano Massullo">germano.massullo</who>
+    <bug_when>2016-06-07 06:55:52 -0400</bug_when>
+    <thetext>(In reply to DaveG from comment #5)
+&gt; 
+&gt; Possible options:
+&gt; * Revert boinc-client to the official 7.4 series.
+&gt;   Will need to increment package epoch to handle downgrade.
+
+Downgrade is not an option since the problem is easy to fix
+
+&gt; * Reinstate the log redirection script to run boinc-client unconfined.
+&gt;   or
+&gt; * Modify the systemd unit file to explicitly run unconfined.
+&gt;   Not optimal.
+
+boinc cannot run unconfined again.
+
+&gt; * Update selinux-policy-targeted.
+&gt;   Run 7.6 permissive and collect AVC information.
+&gt;   Work with SELinux policy maintainers to audit and approve requirements.
+&gt;   Lots of work.
+
+We have already been told to handle this problem.
+
+&gt; * Work with upstream to resolve in 7.6 series.
+&gt;   Switch or #ifdef to skip the offending code (client/hostinfo.cpp).
+&gt;   Better fit for headless servers.
+&gt;   Lots of work and will take time.
+
+This is the solution. A patch either for Fedora only, or upstream. I will be working on this as soon I have some free time.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9400369</commentid>
+    <comment_count>7</comment_count>
+    <who name="Kees de Jong">keesdejong+bugs</who>
+    <bug_when>2016-06-09 05:31:18 -0400</bug_when>
+    <thetext>Description of problem:
+Whenever boinc is running, these errors pile up. setroubleshootd often has a high CPU usage because of this. So there are many of these AVC&apos;s generated.
+
+Version-Release number of selected component:
+selinux-policy-3.13.1-158.15.fc23.noarch
+
+Additional info:
+reporter:       libreport-2.6.4
+hashmarkername: setroubleshoot
+kernel:         4.5.6-200.fc23.x86_64
+type:           libreport</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9404550</commentid>
+    <comment_count>8</comment_count>
+    <who name="OoZooL">obliterator666</who>
+    <bug_when>2016-06-10 12:03:40 -0400</bug_when>
+    <thetext>Description of problem:
+BOINC client
+
+Version-Release number of selected component:
+selinux-policy-3.13.1-158.15.fc23.noarch
+
+Additional info:
+reporter:       libreport-2.6.4
+hashmarkername: setroubleshoot
+kernel:         4.5.6-200.fc23.x86_64
+type:           libreport</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9405077</commentid>
+    <comment_count>9</comment_count>
+    <who name="Germano Massullo">germano.massullo</who>
+    <bug_when>2016-06-10 17:48:22 -0400</bug_when>
+    <thetext>https://lists.fedoraproject.org/archives/list/security-team@lists.fedoraproject.org/thread/P5PWUJQKKKLOUHBG46HSKTQ2ISNJ2P6V/</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9411574</commentid>
+    <comment_count>10</comment_count>
+    <who name="Germano Massullo">germano.massullo</who>
+    <bug_when>2016-06-13 16:36:23 -0400</bug_when>
+    <thetext>I contacted upstream developers, giving them a suggestion about how to implement user idle time detection in systemd based Linux distributions
+https://github.com/BOINC/boinc/issues/1187#issuecomment-225699768</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9411616</commentid>
+    <comment_count>11</comment_count>
+    <who name="Germano Massullo">germano.massullo</who>
+    <bug_when>2016-06-13 16:58:04 -0400</bug_when>
+    <thetext>Message sent also to boinc devel mailing list http://lists.ssl.berkeley.edu/pipermail/boinc_dev/2016-June/022229.html</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9430378</commentid>
+    <comment_count>12</comment_count>
+    <who name="robert fairbrother">noobusinghacks</who>
+    <bug_when>2016-06-18 16:19:42 -0400</bug_when>
+    <thetext>Description of problem:
+/dev/somthing/event* is counting down event7 to event 1 in the selinux troubleshooter and  https://bugzilla.redhat.com/show_bug.cgi?id=1181308 may be related
+
+Version-Release number of selected component:
+selinux-policy-3.13.1-158.15.fc23.noarch
+
+Additional info:
+reporter:       libreport-2.6.4
+hashmarkername: setroubleshoot
+kernel:         4.5.6-200.fc23.i686
+type:           libreport</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9430412</commentid>
+    <comment_count>13</comment_count>
+    <who name="robert fairbrother">noobusinghacks</who>
+    <bug_when>2016-06-18 17:33:27 -0400</bug_when>
+    <thetext>Description of problem:
+possibly related bugs?
+https://retrace.fedoraproject.org/faf/reports/bthash/0a9d4d46885b20275fea5f69e63ed895f0fd83cb
+https://retrace.fedoraproject.org/faf/reports/bthash/94b2942b25a4e975f958517df0e6cdc46e760ed0
+https://retrace.fedoraproject.org/faf/reports/bthash/914d0d7839020a08f14a4599287d9e681acaabc0
+https://retrace.fedoraproject.org/faf/reports/bthash/d07acdc19fba689d73d26c19556e9cab835e6274
+https://retrace.fedoraproject.org/faf/reports/bthash/93fe9bb1af9021f768977fa3b6319b6346e14cf5
+https://retrace.fedoraproject.org/faf/reports/bthash/3a0ed41a54220fea8e34d8a812ca31ada6127d0b
+https://bugzilla.redhat.com/show_bug.cgi?id=1300212
+https://retrace.fedoraproject.org/faf/reports/bthash/19ee31d5eb30ecad008327d0c4a4895a63f322fa
+
+Version-Release number of selected component:
+selinux-policy-3.13.1-158.15.fc23.noarch
+
+Additional info:
+reporter:       libreport-2.6.4
+hashmarkername: setroubleshoot
+kernel:         4.5.6-200.fc23.i686
+type:           libreport</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9446414</commentid>
+    <comment_count>14</comment_count>
+    <who name="Herman Grootaers">herman</who>
+    <bug_when>2016-06-23 09:13:55 -0400</bug_when>
+    <thetext>Description of problem:
+After the upgrade to Fedora 24 from Fedora 23 Selinux gave this error.
+
+It is a cycling error whitch ranges from event0 till event15.
+
+Allowing by a local rule is rejected:
+
+Failed to create node
+Bad boolean declaration at line 148 of /var/lib/selinux/targeted/tmp/modules/100/virt/cil
+semodule:  Failed!
+
+That went for -X 300 and -X 500; also no -X was rejected with the same error.
+
+It worked in Fedora 23, but I must admit that after the upgrade of Boinc also gave me problems, that I could resolve.
+
+Version-Release number of selected component:
+selinux-policy-3.13.1-190.fc24.noarch
+
+Additional info:
+reporter:       libreport-2.7.1
+hashmarkername: setroubleshoot
+kernel:         4.5.7-300.fc24.x86_64+debug
+reproducible:   Not sure how to reproduce the problem
+type:           libreport</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9446966</commentid>
+    <comment_count>15</comment_count>
+    <who name="Herman Grootaers">herman</who>
+    <bug_when>2016-06-23 10:47:11 -0400</bug_when>
+    <thetext>It recurred after I stopped the clients, re-applied with -X500 that was accepted, restarted client, verified the running of the client, started manager, got new work-units.
+
+I think the recurrence started when a checkpoint was to be written, however that is a guess. Stopping the manager and the clients did at the end stop Selinux from cycling in the reporting screen.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9520131</commentid>
+    <comment_count>16</comment_count>
+    <who name="Herman Grootaers">herman</who>
+    <bug_when>2016-07-19 02:31:19 -0400</bug_when>
+    <thetext>After a reinstall due to advice/request to a standard-install it disappeared, however, upgrading selinux to the latest version (3.13.1-191.5.fc24 upgrade on july 19th, 2016) it recurred.
+
+Boinc-client is running, however if it is running correctly is doubt.
+
+Note: Actions of SeLinux are not in compliance with each other: the advice that is given by the gui is different than what given by the computer:
+
+&gt;&gt; start PC output &lt;&lt;
+
+ root  ~  ausearch -c &apos;boinc_client&apos; --raw | audit2allow -M my-boincclient
+******************** IMPORTANT ***********************
+To make this policy package active, execute:
+
+semodule -i my-boincclient.pp
+
+ root  ~  semodule -i my-boincclient.pp
+Re-declaration of boolean virt_sandbox_use_fusefs
+Failed to create node
+Bad boolean declaration at line 148 of /var/lib/selinux/targeted/tmp/modules/100/virt/cil
+semodule:  Failed!
+&gt;&gt; end PC output &lt;&lt;
+
+&gt;&gt;Start GUI SeApplet &lt;&lt;
+ root  ~  ausearch -c &apos;boinc_client&apos; --raw | audit2allow -M my-boincclient
+******************** IMPORTANT ***********************
+To make this policy package active, execute:
+
+semodule -i my-boincclient.pp
+
+ root  ~  semodule -X 300 -i my-boincclient.pp
+libsemanage.semanage_direct_install_info: A higher priority my-boincclient module exists at priority 400 and will override the module currently being installed at priority 300.
+Re-declaration of boolean virt_sandbox_use_fusefs
+Failed to create node
+Bad boolean declaration at line 148 of /var/lib/selinux/targeted/tmp/modules/100/virt/cil
+semodule:  Failed!
+&gt;&gt; end GUI SeApplet &lt;&lt;</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9520748</commentid>
+    <comment_count>17</comment_count>
+    <who name="Germano Massullo">germano.massullo</who>
+    <bug_when>2016-07-19 04:58:46 -0400</bug_when>
+    <thetext>*** Bug 1047044 has been marked as a duplicate of this bug. ***</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9520753</commentid>
+    <comment_count>18</comment_count>
+    <who name="Germano Massullo">germano.massullo</who>
+    <bug_when>2016-07-19 04:59:33 -0400</bug_when>
+    <thetext>(In reply to Herman Grootaers from comment #16)
+
+This bugreport is not about virtual box sandbox SELinux alerts, please fill another bugreport</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9520824</commentid>
+    <comment_count>19</comment_count>
+    <who name="Germano Massullo">germano.massullo</who>
+    <bug_when>2016-07-19 05:18:11 -0400</bug_when>
+    <thetext>The actual situation is:
+
+1) upstream is going to start working on a new idle time detection approach, as I suggested in https://github.com/BOINC/boinc/issues/1187#issuecomment-225699768
+
+2) Meanwhile, since 1) will require an undefinite amount of time, as soon I have some free time I will try to disable the idle detection code. Here you can see some useful piece of code https://github.com/BOINC/boinc/blob/master/client/hostinfo_unix.cpp#L1686 Any help is welcome :-)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9539585</commentid>
+    <comment_count>20</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-22 01:49:55 -0400</bug_when>
+    <thetext>boinc-client-7.6.22-7.fc23 has been submitted as an update to Fedora 23. https://bodhi.fedoraproject.org/updates/FEDORA-2016-a35db13be2</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9539586</commentid>
+    <comment_count>21</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-22 01:50:14 -0400</bug_when>
+    <thetext>boinc-client-7.6.22-7.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-b7c5ba70ea</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9542392</commentid>
+    <comment_count>22</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-22 15:21:16 -0400</bug_when>
+    <thetext>boinc-client-7.6.22-7.fc23 has been pushed to the Fedora 23 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-a35db13be2</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9542394</commentid>
+    <comment_count>23</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-22 15:21:23 -0400</bug_when>
+    <thetext>boinc-client-7.6.22-7.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-b7c5ba70ea</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9578293</commentid>
+    <comment_count>24</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-02 15:53:33 -0400</bug_when>
+    <thetext>boinc-client-7.6.22-7.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9595829</commentid>
+    <comment_count>25</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-08 19:56:38 -0400</bug_when>
+    <thetext>boinc-client-7.6.22-7.fc23 has been pushed to the Fedora 23 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9768053</commentid>
+    <comment_count>26</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-10-05 09:19:37 -0400</bug_when>
+    <thetext>boinc-client-7.6.22-7.el7 has been pushed to the Fedora EPEL 7 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-EPEL-2016-5e04a4a471</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9768114</commentid>
+    <comment_count>27</comment_count>
+    <who name="Leonardo Garcia">lagarcia</who>
+    <bug_when>2016-10-05 09:32:10 -0400</bug_when>
+    <thetext>(In reply to Fedora Update System from comment #24)
+&gt; boinc-client-7.6.22-7.fc24 has been pushed to the Fedora 24 stable
+&gt; repository. If problems still persist, please make note of it in this bug
+&gt; report.
+
+This package worked for me for some time, but since mid-August it stopped working. Boinc is not able to detect when the computer is idle again. Maybe something change in Gnome3 that affect boinc-client? I am running Fedora 24.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9768125</commentid>
+    <comment_count>28</comment_count>
+    <who name="Germano Massullo">germano.massullo</who>
+    <bug_when>2016-10-05 09:35:48 -0400</bug_when>
+    <thetext>(In reply to Leonardo Garcia from comment #27)
+&gt; (In reply to Fedora Update System from comment #24)
+&gt; &gt; boinc-client-7.6.22-7.fc24 has been pushed to the Fedora 24 stable
+&gt; &gt; repository. If problems still persist, please make note of it in this bug
+&gt; &gt; report.
+&gt; 
+&gt; This package worked for me for some time, but since mid-August it stopped
+&gt; working. Boinc is not able to detect when the computer is idle again. Maybe
+&gt; something change in Gnome3 that affect boinc-client? I am running Fedora 24.
+
+Before my workaround patch, BOINC idle time did not work. Now as you can see from my comments, I removed the idle detection broken feature.
+Upstream developers are working on a new solution</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9868450</commentid>
+    <comment_count>29</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-11-07 15:18:54 -0500</bug_when>
+    <thetext>boinc-client-7.6.22-7.el7 has been pushed to the Fedora EPEL 7 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1416042</bug_id>
+          
+          <creation_ts>2017-01-24 08:04:00 -0500</creation_ts>
+          <short_desc>libtiff-4.0.7 breaks hylafax</short_desc>
+          <delta_ts>2017-01-30 17:17:41 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>libtiff</component>
+          <version>24</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>urgent</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Harald Reindl">h.reindl</reporter>
+          <assigned_to name="Nikola Forró">nforro</assigned_to>
+          <cc>faxguy</cc>
+    
+    
+    <cc>mtasaka</cc>
+    
+    
+    <cc>nforro</cc>
+    
+    
+    <cc>phracek</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>libtiff-4.0.7-2.fc24</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-01-30 17:17:41</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10091816</commentid>
+    <comment_count>0</comment_count>
+    <who name="Harald Reindl">h.reindl</who>
+    <bug_when>2017-01-24 08:04:21 -0500</bug_when>
+    <thetext>Jan 24 13:15:32 INFO Downgraded: libtiff-4.0.6-2.fc24.x86_64
+Jan 24 13:15:32 INFO Downgraded: libtiff-tools-4.0.6-2.fc24.x86_64
+Jan 24 13:15:32 INFO Erased: libtiff-tools-4.0.7-1.fc24.x86_64
+Jan 24 13:15:32 INFO Erased: libtiff-4.0.7-1.fc24.x86_64
+
+while the update was installed last december i did notice the regression that late because a few days ago an important fax was received for whatever reason without issues but others are not
+
+testing with a friend (because testing fax is really not that easy as any other software) showed after downgrade the first try was successful
+
+https://sourceforge.net/p/hylafax/mailman/message/35552822/
+__________________________________
+
+Re: [hylafax-users] HYLAFAX no longer works after LIBTIFF update
+From: Chris Severance &lt;aur.severach@sp...&gt; - 2016-12-15 10:07:02
+
+++/* WARNING: do not change the layout of this structure as the Halyfax
+software */
+++/* really depends on it. See
+http://bugzilla.maptools.org/show_bug.cgi?id=2636 */
++ typedef struct {                /* state table entry */
++       unsigned char State;    /* see above */
++       unsigned char Width;    /* width of code in bits */
++-      uint16 Param;           /* unsigned 16-bit run length in bits */
+++      uint32 Param;           /* unsigned 32-bit run length in bits
+(holds on 16 bit actually, but cannot be changed. See above warning) */
++ } TIFFFaxTabEnt;
+
+The changing the variable from 32 to 16 bits gets expanded back out by
+structure padding. The position of the bits change but the structure
+size doesn&apos;t. The size won&apos;t reduce on &gt;= 32 bit systems. You&apos;d need to
+compile in a 16 bit OS to see a structure size change. 
+
+The patch has Hylafax misspelled.
+__________________________________
+
+[hylafax-users] HYLAFAX no longer works after LIBTIFF update
+From: &lt;m.weissbach@in...&gt; - 2016-12-06 15:04:10
+
+Dear members,
+
+I have a big problem with the Hylafax+ server. After updating libtiff to
+&quot;libtiff 4.0.7-1&quot;, the fax server is unusable, because sending and
+receiving break with errors.
+The only solution to continue to use Hylafax+ for me is a downgrade to
+&quot;libtiff 4.0.6-2&quot;. After the downgrade everything works fine.
+But with regard to the security problem encountered at libtiff, the use
+of the old version is, of course, a bit of a concern.
+
+I ask for support because 30 stations hang at the fax server. Therefore
+this is really needed for me.
+__________________________________</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10092056</commentid>
+    <comment_count>1</comment_count>
+    <who name="Nikola Forró">nforro</who>
+    <bug_when>2017-01-24 09:01:23 -0500</bug_when>
+    <thetext>Commits:
+
+f24: http://pkgs.fedoraproject.org/cgit/rpms/libtiff.git/commit/?h=f24&amp;id=07d93630f5da33246a54c3cbcd2fd5909fb62947
+f25: http://pkgs.fedoraproject.org/cgit/rpms/libtiff.git/commit/?h=f25&amp;id=07d93630f5da33246a54c3cbcd2fd5909fb62947
+master: http://pkgs.fedoraproject.org/cgit/rpms/libtiff.git/commit/?id=0622d52ce38dd80f008c849743fe022b81405d08</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10092082</commentid>
+    <comment_count>2</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-24 09:07:34 -0500</bug_when>
+    <thetext>libtiff-4.0.7-2.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-2410f4feba</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10092083</commentid>
+    <comment_count>3</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-24 09:07:54 -0500</bug_when>
+    <thetext>libtiff-4.0.7-2.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2017-bfe67455ae</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10092101</commentid>
+    <comment_count>4</comment_count>
+    <who name="Harald Reindl">h.reindl</who>
+    <bug_when>2017-01-24 09:15:52 -0500</bug_when>
+    <thetext>libtiff-4.0.7-2.fc24 is fixing this issue
+https://bodhi.fedoraproject.org/updates/FEDORA-2017-bfe67455ae</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10092125</commentid>
+    <comment_count>5</comment_count>
+    <who name="Mamoru TASAKA">mtasaka</who>
+    <bug_when>2017-01-24 09:20:15 -0500</bug_when>
+    <thetext>Actually hylafax+ uses libtiff internal directly...
+
+https://sourceforge.net/p/hylafax/HylaFAX+/HEAD/tree/trunk/faxd/tif_fax3.h#l84</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10093963</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-24 20:23:14 -0500</bug_when>
+    <thetext>libtiff-4.0.7-2.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-bfe67455ae</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10099944</commentid>
+    <comment_count>7</comment_count>
+    <who name="Nikola Forró">nforro</who>
+    <bug_when>2017-01-26 14:45:44 -0500</bug_when>
+    <thetext>*** Bug 1416925 has been marked as a duplicate of this bug. ***</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10099948</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-26 14:47:32 -0500</bug_when>
+    <thetext>libtiff-4.0.7-2.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2017-bfe67455ae</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10102670</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-27 14:54:20 -0500</bug_when>
+    <thetext>libtiff-4.0.7-2.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-bfe67455ae</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10103694</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-28 14:20:24 -0500</bug_when>
+    <thetext>libtiff-4.0.7-2.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-2410f4feba</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10103863</commentid>
+    <comment_count>11</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-28 19:21:01 -0500</bug_when>
+    <thetext>libtiff-4.0.7-2.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10107213</commentid>
+    <comment_count>12</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-30 17:17:41 -0500</bug_when>
+    <thetext>libtiff-4.0.7-2.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

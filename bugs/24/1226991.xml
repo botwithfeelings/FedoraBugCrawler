@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1226991</bug_id>
+          
+          <creation_ts>2015-06-01 11:24:00 -0400</creation_ts>
+          <short_desc>Invalid link for log4j-1.2.17.jar</short_desc>
+          <delta_ts>2016-12-28 10:42:54 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>wildfly</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>CANTFIX</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Darran Lofthouse">darran.lofthouse</reporter>
+          <assigned_to name="gil cattaneo">puntogil</assigned_to>
+          <cc>dimer1</cc>
+    
+    
+    <cc>djuran</cc>
+    
+    
+    <cc>mgoldman</cc>
+    
+    
+    <cc>plehal</cc>
+    
+    
+    <cc>ssato</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-12-02 11:46:39</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>8293393</commentid>
+    <comment_count>0</comment_count>
+    <who name="Darran Lofthouse">darran.lofthouse</who>
+    <bug_when>2015-06-01 11:24:59 -0400</bug_when>
+    <thetext>Description of problem:
+
+After installing WildFly the Log4j module contains the following symbolic link: -
+
+  log4j-1.2.17.jar -&gt; /usr/lib/java/log4j-1.2.17.jar
+
+However the Log4j jar is actually at: -
+
+  /usr/share/java/log4j-1.2.17.jar
+
+Version-Release number of selected component (if applicable):
+
+  Installed Packages
+  Name        : wildfly
+  Arch        : noarch
+  Epoch       : 0
+  Version     : 8.1.0
+  Release     : 3.fc22
+
+How reproducible:
+
+Only attempted the installation once, due to the nature of the error I don&apos;t see a subsequent attempt as being helpful.
+
+Steps to Reproduce:
+1. dnf install wildfly
+2. cd /usr/share/wildfly/bin
+3. ./standalone.sh
+
+Actual results:
+
+Unable to read the logging configuration from &apos;file:/usr/share/wildfly/standalone/configuration/logging.properties&apos; (java.io.FileNotFoundException: /usr/share/wildfly/standalone/configuration/logging.properties (Permission denied))
+Exception in thread &quot;main&quot; org.jboss.modules.ModuleLoadError: Error loading module from /usr/share/wildfly/modules/system/layers/base/org/jboss/log4j/logmanager/main/module.xml
+	at org.jboss.modules.ModuleLoadException.toError(ModuleLoadException.java:78)
+	at org.jboss.modules.Module.getPathsUnchecked(Module.java:1392)
+	at org.jboss.modules.Module.loadModuleClass(Module.java:563)
+	at org.jboss.modules.ModuleClassLoader.findClass(ModuleClassLoader.java:205)
+
+
+Expected results:
+
+A cleanly started server.
+
+Additional info:</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8800144</commentid>
+    <comment_count>1</comment_count>
+    <who name="Dmitry Ermolchik">dimer1</who>
+    <bug_when>2015-11-07 10:19:16 -0500</bug_when>
+    <thetext>To fix this problem you need as root execute commands:
+#rm /usr/share/wildfly/modules/system/layers/base/org/jboss/log4j/logmanager/main/log4j-1.2.17.jar
+#ln -s /usr/share/java/log4j-1.2.17.jar /usr/share/wildfly/modules/system/layers/base/org/jboss/log4j/logmanager/main/log4j-1.2.17.jar</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8863320</commentid>
+    <comment_count>2</comment_count>
+    <who name="Satoru SATOH">ssato</who>
+    <bug_when>2015-11-26 12:28:06 -0500</bug_when>
+    <thetext>I&apos;m very new to wildfly and not familiar with it at all and I&apos;m not sure
+but I found some other missing symlinks in wildfly-8.1.0-3.fc22.
+
+By doing the below it worked even if still many warnings out.
+
+[root@lp5 ssato]# ln -sf /usr/share/java/txw2/txw2.jar /usr/share/wildfly/modules/system/layers/base/com/sun/xml/bind/main/txw2.jar
+[root@lp5 ssato]# ln -sf /usr/share/java/txw2/txw2.jar /usr/share/wildfly/modules/system/layers/base/com/sun/xml/txw2/main/txw2.jar
+[root@lp5 ssato]# ln -sf /usr/share/java/glassfish-jaxb/jaxb1-impl.jar /usr/share/wildfly/modules/system/layers/base/com/sun/xml/bind/main/jaxb-impl.jar
+[root@lp5 ssato]# ln -sf /usr/share/java/relaxngDatatype/relaxngDatatype.jar /usr/share/wildfly/modules/system/layers/base/com/github/relaxng/main/relaxngDatatype.jar
+[root@lp5 ssato]# ln -sf /usr/share/java/xsom/xsom.jar /usr/share/wildfly/modules/system/layers/base/com/sun/xsom/main/xsom.jar
+[root@lp5 ssato]# ln -sf /usr/share/java/rngom/rngom.jar  /usr/share/wildfly/modules/system/layers/base/org/kohsuke/rngom/main/rngom.jar</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9524602</commentid>
+    <comment_count>3</comment_count>
+    <who name="Fedora End Of Life">jkurik</who>
+    <bug_when>2016-07-19 10:26:48 -0400</bug_when>
+    <thetext>Fedora 22 changed to end-of-life (EOL) status on 2016-07-19. Fedora 22 is
+no longer maintained, which means that it will not receive any further
+security or bug fix updates. As a result we are closing this bug.
+
+If you can reproduce this bug against a currently maintained version of
+Fedora please feel free to reopen this bug against that version. If you
+are unable to reopen this bug, please file a new report against the
+current release. If you experience problems, please add a comment to this
+bug.
+
+Thank you for reporting this bug and we are sorry it could not be fixed.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9581736</commentid>
+    <comment_count>4</comment_count>
+    <who name="David Juran">djuran</who>
+    <bug_when>2016-08-03 10:15:29 -0400</bug_when>
+    <thetext>Still broken on wildfly-8.1.0-3.fc22 in F24. Which is not very surprising, considering the revision number...</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9613444</commentid>
+    <comment_count>5</comment_count>
+    <who name="Parminder Lehal">plehal</who>
+    <bug_when>2016-08-14 11:48:58 -0400</bug_when>
+    <thetext>How is this bug clubbed against fedora 22 when it is reported and present in fedora 24? Is it fixed in Fedora 24? Any plans to update Wildfly for current version of fedora?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9615048</commentid>
+    <comment_count>6</comment_count>
+    <who name="David Juran">djuran</who>
+    <bug_when>2016-08-15 09:23:34 -0400</bug_when>
+    <thetext>Not sure what clubbed mean, but it&apos;s reported against F24.... Then the package in F24 seem to date back to F22, if judging by the release stamp. But that&apos;s a different story...</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9951507</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Admin XMLRPC Client">fedora-admin-xmlrpc</who>
+    <bug_when>2016-12-02 09:41:16 -0500</bug_when>
+    <thetext>This package has changed ownership in the Fedora Package Database.  Reassigning to the new owner of this component.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9951932</commentid>
+    <comment_count>8</comment_count>
+    <who name="gil cattaneo">puntogil</who>
+    <bug_when>2016-12-02 11:46:39 -0500</bug_when>
+    <thetext>Not available apache-juddi (was retired: 2015-06-02)
+Not available dependecies in F24 branch for upgrade to latest release or rebuild.
+see https://fedoraproject.org/wiki/WildFly</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9981752</commentid>
+    <comment_count>9</comment_count>
+    <who name="David Juran">djuran</who>
+    <bug_when>2016-12-13 12:19:29 -0500</bug_when>
+    <thetext>So... if we can&apos;t make the wildfly package to work, shouldn&apos;t we retire it? Does it make any sense to have a dead package hanging around? Or am I misunderstanding the situation?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9983134</commentid>
+    <comment_count>10</comment_count>
+    <who name="gil cattaneo">puntogil</who>
+    <bug_when>2016-12-13 22:28:47 -0500</bug_when>
+    <thetext>(In reply to David Juran from comment #9)
+&gt; So... if we can&apos;t make the wildfly package to work, shouldn&apos;t we retire it?
+&gt; Does it make any sense to have a dead package hanging around? Or am I
+&gt; misunderstanding the situation?
+
+i can not fix this problem for F&lt;25 (Comment#8), ie upgrade to wildfly 10.x. the package will be usable only for F25 and rawhide</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10022972</commentid>
+    <comment_count>11</comment_count>
+    <who name="David Juran">djuran</who>
+    <bug_when>2016-12-28 10:42:54 -0500</bug_when>
+    <thetext>Sorry, then I misunderstood. Thanks for the clarification and thanks for fixing the issue (-:</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

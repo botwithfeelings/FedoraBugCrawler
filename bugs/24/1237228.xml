@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1237228</bug_id>
+          
+          <creation_ts>2015-06-30 10:59:00 -0400</creation_ts>
+          <short_desc>The dnf local plugin should not create the _local repo internally if createrepo is disabled</short_desc>
+          <delta_ts>2017-05-12 15:29:40 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>dnf-plugins-extras</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>WONTFIX</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords>Reopened, Triaged</keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Chris Siebenmann">cks-rhbugzilla</reporter>
+          <assigned_to>rpm-software-management</assigned_to>
+          <cc>jkadlcik</cc>
+    
+    
+    <cc>jmracek</cc>
+    
+    
+    <cc>mluscon</cc>
+    
+    
+    <cc>packaging-team-maint</cc>
+    
+    
+    <cc>vmukhame</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-05-12 15:29:40</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>8393128</commentid>
+    <comment_count>0</comment_count>
+    <who name="Chris Siebenmann">cks-rhbugzilla</who>
+    <bug_when>2015-06-30 10:59:01 -0400</bug_when>
+    <thetext>Description of problem:
+
+The dnf local plugin unconditionally creates an internal &apos;_local&apos; repo
+in DNF; this happens even if you have set &apos;enabled = false&apos; in the
+[createrepo] section in /etc/dnf/plugins/local.conf. I believe that
+this should not be the case.
+
+Version-Release number of selected component (if applicable):
+
+python-dnf-plugins-extras-local-0.0.8-1.fc22.noarch
+
+Steps to Reproduce:
+
+1. Install python-dnf-plugins-extras-local
+2. Edit /etc/dnf/plugins/local.conf to set &apos;enabled = false&apos; in
+   the [createrepo] section
+3. Do a DNF operation like &apos;dnf clean expire-cache&apos;; note that it still
+   reports it&apos;s operating on the _local repo among others.
+
+(In many cases this will then trip over bug 1209862 )
+
+This is an easy fix in local.py&apos;s Local.config() function; simply
+make all the local_repo stuff conditional on &apos;if self.crepo[&quot;enabled&quot;]:&apos;
+or the like.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8393470</commentid>
+    <comment_count>1</comment_count>
+    <who name="Igor Gnatenko">ignatenko</who>
+    <bug_when>2015-06-30 12:43:00 -0400</bug_when>
+    <thetext>You disabled creating repo, but you can have packages there. I don&apos;t think that we should not enable repo.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8393485</commentid>
+    <comment_count>2</comment_count>
+    <who name="Chris Siebenmann">cks-rhbugzilla</who>
+    <bug_when>2015-06-30 12:45:53 -0400</bug_when>
+    <thetext>I actually do not want any sort of _local repo to be created. I am using
+the local plugin purely to keep a copy of all installed RPMs (because I
+cannot count on Fedora doing so; update RPMs are purged from mirrors when
+they are replaced by newer updates). This is documented as supported when
+you set &apos;enabled = false&apos; on [createrepo]; trying to have a _local repo
+then is at best spurious and at worst misleading.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9525311</commentid>
+    <comment_count>3</comment_count>
+    <who name="Fedora End Of Life">jkurik</who>
+    <bug_when>2016-07-19 11:08:00 -0400</bug_when>
+    <thetext>Fedora 22 changed to end-of-life (EOL) status on 2016-07-19. Fedora 22 is
+no longer maintained, which means that it will not receive any further
+security or bug fix updates. As a result we are closing this bug.
+
+If you can reproduce this bug against a currently maintained version of
+Fedora please feel free to reopen this bug against that version. If you
+are unable to reopen this bug, please file a new report against the
+current release. If you experience problems, please add a comment to this
+bug.
+
+Thank you for reporting this bug and we are sorry it could not be fixed.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9525884</commentid>
+    <comment_count>4</comment_count>
+    <who name="Chris Siebenmann">cks-rhbugzilla</who>
+    <bug_when>2016-07-19 12:23:17 -0400</bug_when>
+    <thetext>This remains a bug in Fedora 24 with essentially the same reproduction.
+
+1. dnf install python3-dnf-plugins-extras-local
+2. edit /etc/dnf/plugins/local.conf to set &apos;enabled = false&apos; in the
+   [createrepo] section
+3. mkdir /var/lib/dnf/plugins/local to deal with bug 1236747
+4. do a dnf operation such as &apos;dnf install &lt;something&gt;&apos; and observe
+   that dnf complains:
+        Failed to synchronize cache for repo &apos;_dnf_local&apos;, disabling.
+
+There should not be a &apos;_dnf_local&apos; repository created inside dnf, since
+we said to disable it. Having the _dnf_local repository enabled will
+create various problems; for example, I&apos;m reasonably certain that if we
+install packages that are saved in /var/lib/dnf/plugins/local and then
+those packages get removed on the Fedora mirrors, &apos;dnf list&apos; will claim
+that those packages come from _dnf_local instead of being orphaned.
+
+Of course this assumes that createrepo_c has been run against the
+directory at some point. Another problem with adding _dnf_local when
+createrepo is not enabled is that nothing runs createrepo_c against
+/var/lib/dnf/plugins/local when packages are saved to it, which means
+that the repodata is increasingly out of date with reality. If the
+repodata is not being updated, it should not be used either.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9536697</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Admin XMLRPC Client">fedora-admin-xmlrpc</who>
+    <bug_when>2016-07-21 08:41:22 -0400</bug_when>
+    <thetext>This package has changed ownership in the Fedora Package Database.  Reassigning to the new owner of this component.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10408863</commentid>
+    <comment_count>6</comment_count>
+    <who name="Jaroslav Mracek">jmracek</who>
+    <bug_when>2017-05-12 15:29:40 -0400</bug_when>
+    <thetext>I am really sorry but I think that the problem reported in this report has very low impact on significant amount of users. I am really sorry, but I have to close it.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

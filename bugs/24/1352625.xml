@@ -1,0 +1,547 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1352625</bug_id>
+          
+          <creation_ts>2016-07-04 08:57:00 -0400</creation_ts>
+          <short_desc>Duplicate __syscall_error in librt.a and libpthread.a causing static linking to fail</short_desc>
+          <delta_ts>2016-09-05 04:40:03 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>glibc</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>high</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>467765</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Daniel Berrange">berrange</reporter>
+          <assigned_to name="Florian Weimer">fweimer</assigned_to>
+          <cc>arjun.is</cc>
+    
+    
+    <cc>codonell</cc>
+    
+    
+    <cc>crobinso</cc>
+    
+    
+    <cc>dan</cc>
+    
+    
+    <cc>dj</cc>
+    
+    
+    <cc>fweimer</cc>
+    
+    
+    <cc>jakub</cc>
+    
+    
+    <cc>law</cc>
+    
+    
+    <cc>mfabian</cc>
+    
+    
+    <cc>pbrobinson</cc>
+    
+    
+    <cc>pfrankli</cc>
+    
+    
+    <cc>sid</cc>
+    
+    
+    <cc>skumari</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>glibc-2.22-18.fc23, glibc-2.23.1-10.fc24, glibc-2.24-3.fc25, glibc-2.24.90-3.fc26</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-09-05 04:40:03</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          <external_bugs name="Sourceware">20452</external_bugs>
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9478600</commentid>
+    <comment_count>0</comment_count>
+    <who name="Daniel Berrange">berrange</who>
+    <bug_when>2016-07-04 08:57:16 -0400</bug_when>
+    <thetext>Description of problem:
+Try to build a static binary that links to librt.a and libpthread.a will fail due to duplicate symbols. 
+
+I&apos;ve tested armv7, x86_64 and i686 and this only happens on i686.
+
+This is seen when trying to build qemu user emulators as static libs. eg this failure
+
+https://kojipkgs.fedoraproject.org//work/tasks/2427/14732427/build.log
+
+It is easily reproduced standalone though with this program:
+
+$ cat &gt; foo.c &lt;&lt;EOF
+#include &lt;stdio.h&gt;
+#include &lt;mqueue.h&gt;
+#include &lt;pthread.h&gt;
+
+int main(void)
+{
+
+    pthread_mutex_t lock;
+    pthread_mutex_lock(&amp;lock);
+    mq_open(&quot;foo&quot;, O_WRONLY);
+    fprintf(stderr, &quot;Hello World\n&quot;);
+}
+EOF
+
+$ gcc -static -o foo foo.c -pthread  -lrt
+/usr/lib/gcc/i686-redhat-linux/6.1.1/../../../libpthread.a(libpthread.o): In function `__syscall_error&apos;:
+(.text+0xb9b0): multiple definition of `__syscall_error&apos;
+/usr/lib/gcc/i686-redhat-linux/6.1.1/../../../librt.a(sysdep.o):(.text+0x0): first defined here
+collect2: error: ld returned 1 exit status
+
+It is broken in Fedora 24 and rawhide
+
+glibc-static-2.23.1-8.fc24.i686
+glibc-static-2.23.90-25.fc25.i686
+
+It works fine in Fedora 23:
+
+glibc-static-2.22-17.fc23.i686</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9478612</commentid>
+    <comment_count>1</comment_count>
+    <who name="Daniel Berrange">berrange</who>
+    <bug_when>2016-07-04 09:03:24 -0400</bug_when>
+    <thetext>Looking at glibc GIT history upstream, the following commit looks like a candidate for causing the regression
+
+commit fb1cf108115f7e2e4510859693431b3473657d77
+Author: H.J. Lu &lt;hjl.tools@gmail.com&gt;
+Date:   Tue Oct 13 11:58:53 2015 -0700
+
+    Add INLINE_SYSCALL_ERROR_RETURN_VALUE
+    
+    For ia32 PIC, the first thing of many syscalls does is to call
+    __x86.get_pc_thunk.reg to load PC into reg in case there is an error,
+    which is required for setting errno.  In most cases, there are no
+    errors.  But we still call __x86.get_pc_thunk.reg.  This patch adds
+    INLINE_SYSCALL_ERROR_RETURN_VALUE so that i386 can optimize setting
+    errno by branching to the internal __syscall_error without PLT.
+    
+    With i386 INLINE_SYSCALL_ERROR_RETURN_VALUE and i386 syscall inlining
+    optimization for GCC 5, for sysdeps/unix/sysv/linux/fchmodat.c with
+    -O2 -march=i686 -mtune=generic, GCC 5.2 now generates:
+    
+
+It was added in 2.23, and this particular diff looks like it is pulling the __syscall_error function into librt and libpthread
+
+diff --git a/sysdeps/unix/sysv/linux/i386/Makefile b/sysdeps/unix/sysv/linux/i386/Makefile
+index 80da593..e10d133 100644
+--- a/sysdeps/unix/sysv/linux/i386/Makefile
++++ b/sysdeps/unix/sysv/linux/i386/Makefile
+@@ -27,3 +27,17 @@ endif
+ ifeq ($(subdir),stdlib)
+ gen-as-const-headers += ucontext_i.sym
+ endif
++
++ifeq ($(subdir),csu)
++sysdep-dl-routines += sysdep
++endif
++
++ifeq ($(subdir),nptl)
++# pull in __syscall_error routine
++libpthread-routines += sysdep
++endif
++
++ifeq ($(subdir),rt)
++# pull in __syscall_error routine
++librt-routines += sysdep
++endif</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9478632</commentid>
+    <comment_count>2</comment_count>
+    <who name="Florian Weimer">fweimer</who>
+    <bug_when>2016-07-04 09:13:55 -0400</bug_when>
+    <thetext>I suspect it&apos;s not an upstream bug because upstream does not link libpthread.a into a single object file, libpthread.o.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9478673</commentid>
+    <comment_count>3</comment_count>
+    <who name="Daniel Berrange">berrange</who>
+    <bug_when>2016-07-04 09:29:22 -0400</bug_when>
+    <thetext>Yep, looks like you are right. I built latest upstream glibc and it worked fine. I then copied the fedora glibc.spec hac
+
+gcc -r -nostdlib -o libpthread.o -Wl,--whole-archive ./libpthread.a
+ar rcs libpthread.a libpthread.o
+
+and it now shows the problem</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9479103</commentid>
+    <comment_count>4</comment_count>
+      <attachid>1176144</attachid>
+    <who name="Daniel Berrange">berrange</who>
+    <bug_when>2016-07-04 13:18:58 -0400</bug_when>
+    <thetext>Created attachment 1176144
+Don&apos;t force link of sysdep.o in libpthread.a
+
+Personally I&apos;d just vote for removing the Fedora specific hack, so libpthread.a in Fedora behaves the same way as on all other Linux distros.
+
+If we can&apos;t do that though, then this patch to the specfile tries to workaround the problem, by excluding sysdep.o from the objects we merge into libpthread.o.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9508658</commentid>
+    <comment_count>5</comment_count>
+    <who name="Daniel Berrange">berrange</who>
+    <bug_when>2016-07-14 06:19:03 -0400</bug_when>
+    <thetext>*** Bug 1356523 has been marked as a duplicate of this bug. ***</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9508667</commentid>
+    <comment_count>6</comment_count>
+    <who name="Daniel Berrange">berrange</who>
+    <bug_when>2016-07-14 06:20:39 -0400</bug_when>
+    <thetext>NB, also affects s390 platform</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9508742</commentid>
+    <comment_count>7</comment_count>
+    <who name="Dan Horák">dan</who>
+    <bug_when>2016-07-14 06:34:33 -0400</bug_when>
+    <thetext>(In reply to Daniel Berrange from comment #6)
+&gt; NB, also affects s390 platform
+
+let&apos;s check also ppc64/ppc64le with the standalone test case ...</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9508801</commentid>
+    <comment_count>8</comment_count>
+    <who name="Dan Horák">dan</who>
+    <bug_when>2016-07-14 06:40:35 -0400</bug_when>
+    <thetext>(In reply to Dan Horák from comment #7)
+&gt; (In reply to Daniel Berrange from comment #6)
+&gt; &gt; NB, also affects s390 platform
+&gt; 
+&gt; let&apos;s check also ppc64/ppc64le with the standalone test case ...
+
+no problem seen there</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9514467</commentid>
+    <comment_count>9</comment_count>
+    <who name="Carlos O&apos;Donell">codonell</who>
+    <bug_when>2016-07-15 23:29:30 -0400</bug_when>
+    <thetext>We can&apos;t remove the libpthread.a relinking without breaking other use cases.
+
+Thus I think splitting out sysdep.o from the other object files is a sensible solution, but I&apos;d need to verify the final symbols that are moved out.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9551088</commentid>
+    <comment_count>10</comment_count>
+    <who name="Dan Horák">dan</who>
+    <bug_when>2016-07-26 05:29:26 -0400</bug_when>
+    <thetext>Hi guys, is there any progress with this? The missing qemu build failing due this issue is blocking rawhide builds on s390x.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9551939</commentid>
+    <comment_count>11</comment_count>
+    <who name="Dan Horák">dan</who>
+    <bug_when>2016-07-26 09:04:38 -0400</bug_when>
+    <thetext>next qemu build (qemu-2.6.0-6.fc25) was successful, so this is not blocking anymore</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9551942</commentid>
+    <comment_count>12</comment_count>
+    <who name="Daniel Berrange">berrange</who>
+    <bug_when>2016-07-26 09:06:05 -0400</bug_when>
+    <thetext>(In reply to Dan Horák from comment #11)
+&gt; next qemu build (qemu-2.6.0-6.fc25) was successful, so this is not blocking
+&gt; anymore
+
+That&apos;s only because i temporarily disabled static qemu-user on s390(x) in qemu RPM spec until this glibc bug is fixed</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9584244</commentid>
+    <comment_count>13</comment_count>
+    <who name="Florian Weimer">fweimer</who>
+    <bug_when>2016-08-04 05:20:24 -0400</bug_when>
+    <thetext>Patch posted upstream: https://sourceware.org/ml/libc-alpha/2016-08/msg00180.html</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9584658</commentid>
+    <comment_count>14</comment_count>
+    <who name="Florian Weimer">fweimer</who>
+    <bug_when>2016-08-04 07:34:30 -0400</bug_when>
+    <thetext>Upstream branches for 2.23, 2.24 and master now contain this fix.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9606410</commentid>
+    <comment_count>15</comment_count>
+    <who name="Dan Horák">dan</who>
+    <bug_when>2016-08-11 06:33:57 -0400</bug_when>
+    <thetext>Hmm, seems the test case is passing on ppc64 and ppc64le, but qemu still fails (at least on ppc64le) with
+
+...
+cc -I/builddir/build/BUILD/qemu-2.6.0/dtc/libfdt -m64 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -Wstrict-prototypes -Wredundant-decls -Wall -Wundef -Wwrite-strings -Wmissing-prototypes -fno-strict-aliasing -fno-common  -O2 -g -pipe -Wall -Werror=format-security  -fexceptions -fstack-protector-strong --param=ssp-buffer-size=4 -grecord-gcc-switches -m64 -mcpu=power8 -mtune=power8 -Wendif-labels -Wmissing-include-dirs -Wempty-body -Wnested-externs -Wformat-security -Wformat-y2k -Winit-self -Wignored-qualifiers -Wold-style-declaration -Wold-style-definition -Wtype-limits -fstack-protector-strong -I/usr/include/cacard -I/usr/include/nss3 -I/usr/include/nspr4 -I/usr/include/glib-2.0 -I/usr/lib64/glib-2.0/include -I/usr/include/libusb-1.0   -I../linux-headers -I.. -I/builddir/build/BUILD/qemu-2.6.0/target-arm -DNEED_CPU_H -I/builddir/build/BUILD/qemu-2.6.0/include -I/builddir/build/BUILD/qemu-2.6.0/linux-user/aarch64 -I/builddir/build/BUILD/qemu-2.6.0/linux-user -O2 -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -pthread -I/usr/include/glib-2.0 -I/usr/lib64/glib-2.0/include -g  -Wl,--warn-common -m64 -static -g  -Wl,--build-id -Wl,-z,relro -Wl,-z,now -Wl,-Ttext-segment=0x60000000 -o qemu-aarch64 exec.o translate-all.o cpu-exec.o translate-common.o cpu-exec-common.o tcg/tcg.o tcg/tcg-op.o tcg/optimize.o tcg/tcg-common.o fpu/softfloat.o disas.o gdbstub-xml.o kvm-stub.o gdbstub.o thunk.o user-exec.o linux-user/main.o linux-user/syscall.o linux-user/strace.o linux-user/mmap.o linux-user/signal.o linux-user/elfload.o linux-user/linuxload.o linux-user/uaccess.o linux-user/uname.o linux-user/flatload.o target-arm/arm-semi.o target-arm/kvm-stub.o target-arm/translate.o target-arm/op_helper.o target-arm/helper.o target-arm/cpu.o target-arm/neon_helper.o target-arm/iwmmxt_helper.o target-arm/gdbstub.o target-arm/cpu64.o target-arm/translate-a64.o target-arm/helper-a64.o target-arm/gdbstub64.o target-arm/crypto_helper.o ../tcg-runtime.o ../disas/arm.o ../disas/ppc.o ../hw/core/qdev.o ../hw/core/qdev-properties.o ../hw/core/fw-path-provider.o ../hw/core/irq.o ../hw/core/hotplug.o ../hw/core/nmi.o ../qom/cpu.o trace/generated-helpers.o ../qom/object.o ../qom/container.o ../qom/qom-qobject.o ../qom/object_interfaces.o ../crypto/aes.o  ../libqemuutil.a ../libqemustub.a   -lm -lgthread-2.0 -pthread -lglib-2.0 -pthread -lpcre -pthread  -lz -lrt
+/usr/lib/gcc/ppc64le-redhat-linux/6.1.1/../../../../lib64/libpthread.a(libpthread.o): In function `__syscall_error&apos;:
+(.text+0x13170): multiple definition of `__syscall_error&apos;
+/usr/lib/gcc/ppc64le-redhat-linux/6.1.1/../../../../lib64/librt.a(rt-sysdep.o):(.text+0x0): first defined here
+/usr/lib/gcc/ppc64le-redhat-linux/6.1.1/../../../../lib64/libglib-2.0.a(libglib_2_0_la-gutils.o): In function `g_get_user_database_entry&apos;:
+(.text+0x2d0): warning: Using &apos;getpwuid&apos; in statically linked applications requires at runtime the shared libraries from the glibc version used for linking
+/usr/lib/gcc/ppc64le-redhat-linux/6.1.1/../../../../lib64/libglib-2.0.a(libglib_2_0_la-gutils.o): In function `g_get_user_database_entry&apos;:
+(.text+0x178): warning: Using &apos;getpwnam_r&apos; in statically linked applications requires at runtime the shared libraries from the glibc version used for linking
+/usr/lib/gcc/ppc64le-redhat-linux/6.1.1/../../../../lib64/libglib-2.0.a(libglib_2_0_la-gutils.o): In function `g_get_user_database_entry&apos;:
+(.text+0x1bc): warning: Using &apos;getpwuid_r&apos; in statically linked applications requires at runtime the shared libraries from the glibc version used for linking
+/usr/lib/gcc/ppc64le-redhat-linux/6.1.1/../../../../lib64/libc.a(dl-sysdep.o): warning: multiple common of `__cache_line_size&apos;
+/usr/lib/gcc/ppc64le-redhat-linux/6.1.1/../../../../lib64/libc.a(libc-start.o): warning: previous common is here
+collect2: error: ld returned 1 exit status
+Makefile:195: recipe for target &apos;qemu-aarch64&apos; failed
+make[1]: Leaving directory &apos;/builddir/build/BUILD/qemu-2.6.0/build-static/aarch64-linux-user&apos;
+make[1]: *** [qemu-aarch64] Error 1
+
+(http://ppc.koji.fedoraproject.org/koji/taskinfo?taskID=3591086)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9606418</commentid>
+    <comment_count>16</comment_count>
+    <who name="Dan Horák">dan</who>
+    <bug_when>2016-08-11 06:36:56 -0400</bug_when>
+    <thetext>fails on both, http://ppc.koji.fedoraproject.org/koji/taskinfo?taskID=3591555</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9606473</commentid>
+    <comment_count>17</comment_count>
+    <who name="Daniel Berrange">berrange</who>
+    <bug_when>2016-08-11 06:57:17 -0400</bug_when>
+    <thetext>(In reply to Dan Horák from comment #15)
+&gt; Hmm, seems the test case is passing on ppc64 and ppc64le, but qemu still
+&gt; fails (at least on ppc64le) with
+
+[snip]
+
+&gt; /usr/lib/gcc/ppc64le-redhat-linux/6.1.1/../../../../lib64/libc.a(dl-sysdep.o): warning: multiple common of `__cache_line_size&apos;
+&gt; /usr/lib/gcc/ppc64le-redhat-linux/6.1.1/../../../../lib64/libc.a(libc-start.o): warning: previous common is here
+&gt; collect2: error: ld returned 1 exit status
+
+NB, that&apos;s a different failure that the original one QEMU hit which was a clash between librt.a vs libpthread.a</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9606477</commentid>
+    <comment_count>18</comment_count>
+    <who name="Florian Weimer">fweimer</who>
+    <bug_when>2016-08-11 06:57:51 -0400</bug_when>
+    <thetext>(In reply to Dan Horák from comment #16)
+&gt; fails on both, http://ppc.koji.fedoraproject.org/koji/taskinfo?taskID=3591555
+
+I don&apos;t think we have cut a Fedora release after the upstream changes.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9606924</commentid>
+    <comment_count>19</comment_count>
+    <who name="Florian Weimer">fweimer</who>
+    <bug_when>2016-08-11 08:15:56 -0400</bug_when>
+    <thetext>It turns out that POWER needs a separate fix (also missing upstream).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9606970</commentid>
+    <comment_count>20</comment_count>
+    <who name="Dan Horák">dan</who>
+    <bug_when>2016-08-11 08:21:03 -0400</bug_when>
+    <thetext>(In reply to Daniel Berrange from comment #17)
+&gt; (In reply to Dan Horák from comment #15)
+&gt; &gt; Hmm, seems the test case is passing on ppc64 and ppc64le, but qemu still
+&gt; &gt; fails (at least on ppc64le) with
+&gt; 
+&gt; [snip]
+&gt; 
+&gt; &gt; /usr/lib/gcc/ppc64le-redhat-linux/6.1.1/../../../../lib64/libc.a(dl-sysdep.o): warning: multiple common of `__cache_line_size&apos;
+&gt; &gt; /usr/lib/gcc/ppc64le-redhat-linux/6.1.1/../../../../lib64/libc.a(libc-start.o): warning: previous common is here
+&gt; &gt; collect2: error: ld returned 1 exit status
+&gt; 
+&gt; NB, that&apos;s a different failure that the original one QEMU hit which was a
+&gt; clash between librt.a vs libpthread.a
+
+yes, this is new, not sure whether this is fatal (is marked as warning), but you can see the __syscall_error there too</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9621353</commentid>
+    <comment_count>21</comment_count>
+      <attachid>1191480</attachid>
+    <who name="Sinny Kumari">skumari</who>
+    <bug_when>2016-08-17 03:08:48 -0400</bug_when>
+    <thetext>Created attachment 1191480
+qemu build fix for ppc64(le)
+
+Until qemu fix for POWER is done, I am proposing to disable qemu-user-static sub-RPM for power arches too. I have prepared a patch(available in bugzilla attachment) which works fine for ppc64(le) build and shouldn&apos;t affect other arches.
+
+koji scratch build - http://ppc.koji.fedoraproject.org/koji/taskinfo?taskID=3612293 (F25) and http://ppc.koji.fedoraproject.org/koji/taskinfo?taskID=3612300 (rawhide)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9625268</commentid>
+    <comment_count>22</comment_count>
+    <who name="Sinny Kumari">skumari</who>
+    <bug_when>2016-08-18 02:31:16 -0400</bug_when>
+    <thetext>With glibc-2.24.90-3.fc26, qemu builds fine on Fedora powerpc, rawhide.
+Scratch build link - http://ppc.koji.fedoraproject.org/koji/taskinfo?taskID=3615007 .
+
+It will be great if patch can be backported to F25 and F24</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9626809</commentid>
+    <comment_count>23</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-18 10:55:58 -0400</bug_when>
+    <thetext>glibc-2.24-3.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2016-57cba655d5</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9626905</commentid>
+    <comment_count>24</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-18 11:17:17 -0400</bug_when>
+    <thetext>glibc-2.23.1-10.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-5f050a0a6d</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9627297</commentid>
+    <comment_count>25</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-18 12:53:31 -0400</bug_when>
+    <thetext>glibc-2.24-3.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-57cba655d5</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9627583</commentid>
+    <comment_count>26</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-18 13:33:04 -0400</bug_when>
+    <thetext>glibc-2.22-18.fc23 has been submitted as an update to Fedora 23. https://bodhi.fedoraproject.org/updates/FEDORA-2016-87dde780b8</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9628580</commentid>
+    <comment_count>27</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-18 20:22:05 -0400</bug_when>
+    <thetext>glibc-2.22-18.fc23 has been pushed to the Fedora 23 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-87dde780b8</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9628681</commentid>
+    <comment_count>28</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-18 20:58:42 -0400</bug_when>
+    <thetext>glibc-2.23.1-10.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-5f050a0a6d</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9631591</commentid>
+    <comment_count>29</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-19 15:52:41 -0400</bug_when>
+    <thetext>glibc-2.23.1-10.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9655481</commentid>
+    <comment_count>30</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-27 06:22:32 -0400</bug_when>
+    <thetext>glibc-2.24-3.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9676399</commentid>
+    <comment_count>31</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-02 19:20:59 -0400</bug_when>
+    <thetext>glibc-2.22-18.fc23 has been pushed to the Fedora 23 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="0"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1176144</attachid>
+            <date>2016-07-04 13:18:00 -0400</date>
+            <delta_ts>2016-07-04 13:18:58 -0400</delta_ts>
+            <desc>Don&apos;t force link of sysdep.o in libpthread.a</desc>
+            <filename>glibc-pthread-static-relink.patch</filename>
+            <type>text/plain</type>
+            <size>835</size>
+            <attacher name="Daniel Berrange">berrange</attacher>
+            
+              <data encoding="base64">ZGlmZiAtLWdpdCBhL2dsaWJjLnNwZWMgYi9nbGliYy5zcGVjCmluZGV4IDYwNjRmZjcuLmZkYWMw
+NDcgMTAwNjQ0Ci0tLSBhL2dsaWJjLnNwZWMKKysrIGIvZ2xpYmMuc3BlYwpAQCAtMTYxNCwxMCAr
+MTYxNCwxNyBAQCBlY2hvICIle19wcmVmaXh9L2xpYmV4ZWMvZ2xpYmMtYmVuY2h0ZXN0cy92YWxp
+ZGF0ZV9iZW5jaG91dC5weSoiID4+IGJlbmNodGVzdHMuZgogIyBzdGF0aWMgYXBwbGljYXRpb24g
+cG9zc2libGUuCiAjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMj
+IyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjCiBwdXNoZCAkUlBNX0JVSUxEX1JPT1Ql
+e19wcmVmaXh9LyV7X2xpYn0vCi0kR0NDIC1yIC1ub3N0ZGxpYiAtbyBsaWJwdGhyZWFkLm8gLVds
+LC0td2hvbGUtYXJjaGl2ZSAuL2xpYnB0aHJlYWQuYQotcm0gbGlicHRocmVhZC5hCi1hciByY3Mg
+bGlicHRocmVhZC5hIGxpYnB0aHJlYWQubwotcm0gbGlicHRocmVhZC5vCitta2RpciBzY3JhdGNo
+CitwdXNoZCBzY3JhdGNoCithciB4IC4uL2xpYnB0aHJlYWQuYQorQUxMX09CSlM9YGxzICoubyB8
+IGdyZXAgLXYgc3lzZGVwLm9gCiskR0NDIC1yIC1ub3N0ZGxpYiAtbyBsaWJwdGhyZWFkLm8gJEFM
+TF9PQkpTCithciByY3MgbGlicHRocmVhZC5hIGxpYnB0aHJlYWQubyBzeXNkZXAubworcm0gKi5v
+CitybSAuLi9saWJwdGhyZWFkLmEKK212IGxpYnB0aHJlYWQuYSAuLgorcG9wZAorcm1kaXIgc2Ny
+YXRjaAogcG9wZAogIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMj
+IyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIwogCg==
+</data>
+
+          </attachment>
+          <attachment
+              isobsolete="0"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1191480</attachid>
+            <date>2016-08-17 03:08:00 -0400</date>
+            <delta_ts>2016-08-17 03:08:48 -0400</delta_ts>
+            <desc>qemu build fix for ppc64(le)</desc>
+            <filename>qemu-power.patch</filename>
+            <type>text/plain</type>
+            <size>871</size>
+            <attacher name="Sinny Kumari">skumari</attacher>
+            
+              <data encoding="base64">ZGlmZiAtLWdpdCBhL3FlbXUuc3BlYyBiL3FlbXUuc3BlYwppbmRleCBiOTE5OTkyLi4xYjAwZWI5
+IDEwMDY0NAotLS0gYS9xZW11LnNwZWMKKysrIGIvcWVtdS5zcGVjCkBAIC0yNCw3ICsyNCw3IEBA
+CiAlZ2xvYmFsIHVzZXJfc3RhdGljIDEKICMgZ2xpYmMgc3RhdGljIGxpYnMgYXJlIGZ1YmFyIG9u
+IGkzODYgJiBzMzkwCiAjIGh0dHBzOi8vYnVnemlsbGEucmVkaGF0LmNvbS9zaG93X2J1Zy5jZ2k/
+aWQ9MTM1MjYyNQotJWlmYXJjaCAlez9peDg2fSBzMzkwIHMzOTB4CislaWZhcmNoICV7P2l4ODZ9
+IHMzOTAgczM5MHggJXtwb3dlcjY0fQogJWdsb2JhbCB1c2VyX3N0YXRpYyAwCiAlZW5kaWYKIApA
+QCAtNjAsNyArNjAsNyBAQAogU3VtbWFyeTogUUVNVSBpcyBhIEZBU1QhIHByb2Nlc3NvciBlbXVs
+YXRvcgogTmFtZTogcWVtdQogVmVyc2lvbjogMi43LjAKLVJlbGVhc2U6IDAuMSV7P3JjcmVsfSV7
+P2Rpc3R9CitSZWxlYXNlOiAwLjIlez9yY3JlbH0lez9kaXN0fQogRXBvY2g6IDIKIExpY2Vuc2U6
+IEdQTHYyKyBhbmQgTEdQTHYyKyBhbmQgQlNECiBHcm91cDogRGV2ZWxvcG1lbnQvVG9vbHMKQEAg
+LTE1NDUsNiArMTU0NSw5IEBAIGdldGVudCBwYXNzd2QgcWVtdSA+L2Rldi9udWxsIHx8IFwKIAog
+CiAlY2hhbmdlbG9nCisqIFdlZCBBdWcgMTcgMjAxNiBTaW5ueSBLdW1hcmkgPHNrdW1hcmlAcmVk
+aGF0LmNvbT4gLSAyOjIuNy4wLTAuMi5yYzIKKy0gRGlzYWJsZSBxZW11LXVzZXItc3RhdGljIG9u
+IHBvd2VyIGFyY2hpdGVjdHVyZXMgdG9vCisKICogV2VkIEF1ZyAwMyAyMDE2IENvbGUgUm9iaW5z
+b24gPGNyb2JpbnNvQHJlZGhhdC5jb20+IC0gMjoyLjcuMC0wLjEucmMyCiAtIFJlYmFzZSB0byBx
+ZW11IDIuNy4wLXJjMgogCg==
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

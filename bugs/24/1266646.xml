@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1266646</bug_id>
+          
+          <creation_ts>2015-09-25 22:07:00 -0400</creation_ts>
+          <short_desc>/bin/su throws error msg &apos;mmap: Invalid parameter&apos;</short_desc>
+          <delta_ts>2016-11-01 13:45:33 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>selinux-policy</component>
+          <version>24</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>CURRENTRELEASE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>medium</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Valdis Kletnieks">valdis.kletnieks</reporter>
+          <assigned_to name="Lukas Vrabec">lvrabec</assigned_to>
+          <cc>dominick.grift</cc>
+    
+    
+    <cc>dwalsh</cc>
+    
+    
+    <cc>lvrabec</cc>
+    
+    
+    <cc>mgrepl</cc>
+    
+    
+    <cc>plautrba</cc>
+    
+    
+    <cc>pmoore</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-11-01 13:45:19</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>8670774</commentid>
+    <comment_count>0</comment_count>
+    <who name="Valdis Kletnieks">valdis.kletnieks</who>
+    <bug_when>2015-09-25 22:07:50 -0400</bug_when>
+    <thetext>Description of problem:
+Installation of selinux-policy-mls-3.13.1-148.fc24.noarch seems to have exposed a bug in libselinux, which results in an error message from /bin/su
+
+The problem seems to be that -148 adds a file_contexts.local.bin, which seems to be giving libselinux indigestion.
+
+strace of the problematic area:
+
+open(&quot;/etc/selinux/mls/contexts/files/file_contexts.local&quot;, O_RDONLY) = 4
+fstat(4, {st_mode=S_IFREG|0644, st_size=0, ...}) = 0
+open(&quot;/etc/selinux/mls/contexts/files/file_contexts.local.bin&quot;, O_RDONLY|O_CLOEXEC) = 6
+fstat(6, {st_mode=S_IFREG|0644, st_size=0, ...}) = 0
+mmap(NULL, 0, PROT_READ, MAP_PRIVATE, 6, 0) = -1 EINVAL (Invalid argument)
+
+gdb traceback:
+
+Breakpoint 1, mmap64 () at ../sysdeps/unix/syscall-template.S:84
+84      T_PSEUDO (SYSCALL_SYMBOL, SYSCALL_NAME, SYSCALL_NARGS)
+(gdb) where
+#0  mmap64 () at ../sysdeps/unix/syscall-template.S:84
+#1  0x00007feeef6c4fef in load_mmap (rec=0x557ca26ef810, sb=0x7ffc075846e0, sb=0x7ffc075846e0, 
+    path=0x7ffc07584800 &quot;/etc/selinux/mls/contexts/files/file_contexts.local&quot;) at label_file.c:292
+#2  process_file (path=0x7ffc07584800 &quot;/etc/selinux/mls/contexts/files/file_contexts.local&quot;, 
+    path@entry=0x557ca26ef8f0 &quot;/etc/selinux/mls/contexts/files/file_contexts&quot;, suffix=suffix@entry=0x7feeef6cc6e2 &quot;local&quot;, 
+    rec=rec@entry=0x557ca26ef810, prefix=prefix@entry=0x0) at label_file.c:468
+#3  0x00007feeef6c5d69 in init (rec=0x557ca26ef810, opts=&lt;optimized out&gt;, n=&lt;optimized out&gt;) at label_file.c:543
+#4  0x00007feeef6c781f in selabel_open (backend=0, opts=0x0, nopts=0) at label.c:182
+#5  0x00007feeeabb6b86 in pam_sm_open_session () from /usr/lib64/security/pam_xauth.so
+#6  0x00007feef71ac33a in _pam_dispatch () from /lib64/libpam.so.0
+#7  0x0000557ca1f3d5e2 in su_main ()
+#8  0x00007feef6bfa600 in __libc_start_main (main=0x557ca1f3c8d0 &lt;main&gt;, argc=1, argv=0x7ffc075c8068, init=&lt;optimized out&gt;, fini=&lt;optimized out&gt;, 
+    rtld_fini=&lt;optimized out&gt;, stack_end=0x7ffc075c8058) at ../csu/libc-start.c:289
+#9  0x0000557ca1f3c909 in _start ()
+(gdb) c
+Continuing.
+mmap: Invalid argument
+
+Looks like the problem is in src/label_file.c, function load_map(), near here:
+
+        rc = fstat(mmapfd, &amp;mmap_stat);
+        if (rc &lt; 0) {
+                close(mmapfd);
+                return -1;
+        }       
+
+Probably needs this:
+
+        if (!mmap_stat.st_size) {
+                close(mmapfd);
+                return -1;
+        }
+
+
+
+Version-Release number of selected component (if applicable):
+libselinux-2.4-3.fc24.x86_64
+
+How reproducible:
+
+
+Steps to Reproduce:
+1.
+2.
+3.
+
+Actual results:
+
+
+Expected results:
+
+
+Additional info:</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9094361</commentid>
+    <comment_count>1</comment_count>
+    <who name="Jan Kurik">jkurik</who>
+    <bug_when>2016-02-24 10:36:42 -0500</bug_when>
+    <thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 24 development cycle.
+Changing version to &apos;24&apos;.
+
+More information and reason for this action is here:
+https://fedoraproject.org/wiki/Fedora_Program_Management/HouseKeeping/Fedora24#Rawhide_Rebase</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9764871</commentid>
+    <comment_count>3</comment_count>
+    <who name="Petr Lautrbach">plautrba</who>
+    <bug_when>2016-10-04 10:22:20 -0400</bug_when>
+    <thetext>selinux-policy ships an empty /etc/selinux/mls/contexts/files/file_contexts.local.bin file. libselinux tries to mmap it and fails. This bug should be harmless, it&apos;s just an error on strderr.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9769288</commentid>
+    <comment_count>4</comment_count>
+    <who name="Valdis Kletnieks">valdis.kletnieks</who>
+    <bug_when>2016-10-05 16:24:29 -0400</bug_when>
+    <thetext>Error also happens on dracut, and presumably on any other software that tries to label a file context.
+
+Harmless or not, unexpected error messages are something you *don&apos;t* want to see on security-relevant commands like su and dracut..</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9770769</commentid>
+    <comment_count>5</comment_count>
+    <who name="Lukas Vrabec">lvrabec</who>
+    <bug_when>2016-10-06 07:11:33 -0400</bug_when>
+    <thetext>Valdis, 
+This should be fixed in the latest selinux-policy rpm package. Could you re-test it? 
+
+Thanks.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9808810</commentid>
+    <comment_count>6</comment_count>
+    <who name="Valdis Kletnieks">valdis.kletnieks</who>
+    <bug_when>2016-10-20 12:04:10 -0400</bug_when>
+    <thetext>Sorry for the delay, missed the notification that commetn 5 was there.
+
+Yes, as of current rawhide, su and dracut are working as expected...</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9838312</commentid>
+    <comment_count>7</comment_count>
+    <who name="Lukas Vrabec">lvrabec</who>
+    <bug_when>2016-11-01 13:45:33 -0400</bug_when>
+    <thetext>Thanks!</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

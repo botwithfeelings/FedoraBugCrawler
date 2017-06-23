@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1163428</bug_id>
+          
+          <creation_ts>2014-11-12 11:51:00 -0500</creation_ts>
+          <short_desc>rich rule with destination and no element</short_desc>
+          <delta_ts>2016-08-16 17:01:04 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>firewalld</component>
+          <version>25</version>
+          <rep_platform>noarch</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>CURRENTRELEASE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords>Reopened</keywords>
+          <priority>medium</priority>
+          <bug_severity>medium</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Jiri Popelka">jpopelka</reporter>
+          <assigned_to name="Thomas Woerner">twoerner</assigned_to>
+          <cc>danofsatx</cc>
+    
+    
+    <cc>jpopelka</cc>
+    
+    
+    <cc>twoerner</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-08-16 17:01:04</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>7666513</commentid>
+    <comment_count>0</comment_count>
+    <who name="Jiri Popelka">jpopelka</who>
+    <bug_when>2014-11-12 11:51:51 -0500</bug_when>
+    <thetext>Steps to Reproduce:
+1.firewall-cmd --add-rich-rule=&apos;rule family=&quot;ipv4&quot; source address=&quot;172.31.255.0/24&quot; destination address=&quot;172.16.4.0/24&quot; log prefix=&quot;ConFusionGW&quot; level=&quot;info&quot; reject type=&quot;icmp-admin-prohibited&quot;&apos;
+
+Actual results:
+Error: INVALID_RULE: destination action
+
+
+Additional info:
+freenode_#fedora-server [Tuesday 04 of November 2014]
+
+&lt;danofsatx&gt;	twoerner: ping - running into some problems with firewalld rich rules. The rules in this zone file are being rejected, and I can&apos;t see why: http://ur1.ca/iou53
+&lt;danofsatx&gt;	oh, here&apos;s the journal output, too: http://ur1.ca/iou8x
+&lt;twoerner&gt;	danofsatx: you are using source and destination address at the same time - Jiri added a change for this some time ago - need to check it again
+&lt;danofsatx&gt;	oh, ok - I don&apos;t need the source, since it&apos;s on the interface. Let me take that out.
+&lt;danofsatx&gt;	nope. :( ERROR: INVALID_RULE: no element, no source
+&lt;jpopelka&gt;	it&apos;s failing because there&apos;s a destination but no element (service, port, etc.). I don&apos;t understand why the condition is there however (I touched it some time ago, yes, but haven&apos;t changed its meaning)
+&lt;twoerner&gt;	danofsatx: ok.. I remmeber now.. this check is in there for a long time.. 
+&lt;danofsatx&gt;	is the element required if I move the rule to the other interface as a source rule instead of a destination rule?
+&lt;twoerner&gt;	danofsatx: there is no port or protocol - if you add an element with port or protocol, then it will work
+&lt;danofsatx&gt;	can I define protocol as basic as IP?
+&lt;twoerner&gt;	danofsatx: &lt;rule family=&quot;ipv4&quot;&gt;&lt;source address=&quot;172.31.255.0/24&quot;/&gt;&lt;destination address=&quot;172.16.4.0/24&quot;/&gt;&lt;protocol value=&quot;tcp&quot;/&gt;&lt;reject type=&quot;icmp-host-prohibited&quot;/&gt;&lt;/rule&gt;
+&lt;twoerner&gt;	danofsatx: just add &quot;&lt;protocol value=&quot;tcp&quot;/&gt;&quot; for example
+&lt;twoerner&gt;	danofsatx: &quot;&lt;protocol value=&quot;all&quot;/&gt;&quot; is not supported though
+&lt;danofsatx&gt;	according to man page, anything out of /etc/protocols will work. ip is protocol 0
+&lt;twoerner&gt;	danofsatx: yes, protocol 0 is working
+&lt;danofsatx&gt;	I was simply trying to define a blacklist. I have this rule currently in effect, but it is not working.
+&lt;twoerner&gt;	danofsatx: please open a bug.. it should be working without this</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8790597</commentid>
+    <comment_count>1</comment_count>
+    <who name="Fedora End Of Life">jkurik</who>
+    <bug_when>2015-11-04 10:48:29 -0500</bug_when>
+    <thetext>This message is a reminder that Fedora 21 is nearing its end of life.
+Approximately 4 (four) weeks from now Fedora will stop maintaining
+and issuing updates for Fedora 21. It is Fedora&apos;s policy to close all
+bug reports from releases that are no longer maintained. At that time
+this bug will be closed as EOL if it remains open with a Fedora  &apos;version&apos;
+of &apos;21&apos;.
+
+Package Maintainer: If you wish for this bug to remain open because you
+plan to fix it in a currently maintained version, simply change the &apos;version&apos; 
+to a later Fedora version.
+
+Thank you for reporting this issue and we are sorry that we were not 
+able to fix it before Fedora 21 is end of life. If you would still like 
+to see this bug fixed and are able to reproduce it against a later version 
+of Fedora, you are encouraged  change the &apos;version&apos; to a later Fedora 
+version prior this bug is closed as described in the policy above.
+
+Although we aim to fix as many bugs as possible during every release&apos;s 
+lifetime, sometimes those efforts are overtaken by events. Often a 
+more recent Fedora release includes newer upstream software that fixes 
+bugs or makes them obsolete.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8877157</commentid>
+    <comment_count>2</comment_count>
+    <who name="Fedora End Of Life">jkurik</who>
+    <bug_when>2015-12-01 23:56:43 -0500</bug_when>
+    <thetext>Fedora 21 changed to end-of-life (EOL) status on 2015-12-01. Fedora 21 is
+no longer maintained, which means that it will not receive any further
+security or bug fix updates. As a result we are closing this bug.
+
+If you can reproduce this bug against a currently maintained version of
+Fedora please feel free to reopen this bug against that version. If you
+are unable to reopen this bug, please file a new report against the
+current release. If you experience problems, please add a comment to this
+bug.
+
+Thank you for reporting this bug and we are sorry it could not be fixed.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9341365</commentid>
+    <comment_count>3</comment_count>
+    <who name="Thomas Woerner">twoerner</who>
+    <bug_when>2016-05-19 11:00:01 -0400</bug_when>
+    <thetext>Fixed upstream: 
+
+https://github.com/t-woerner/firewalld/commit/221d810557deb62e0c402bfadf2f965ebdab70f1</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9550057</commentid>
+    <comment_count>4</comment_count>
+    <who name="Jan Kurik">jkurik</who>
+    <bug_when>2016-07-26 01:10:19 -0400</bug_when>
+    <thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 25 development cycle.
+Changing version to &apos;25&apos;.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9620499</commentid>
+    <comment_count>5</comment_count>
+    <who name="Thomas Woerner">twoerner</who>
+    <bug_when>2016-08-16 17:01:04 -0400</bug_when>
+    <thetext>Fixed in firewalld-0.4.3 in F-23 and up</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

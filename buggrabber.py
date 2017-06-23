@@ -9,12 +9,12 @@ BUG_LIST_CLOSED_CSV_URL = """https://bugzilla.redhat.com/buglist.cgi?bug_status=
                     &longdesc={}&longdesc_type=anywords&product=Fedora&query_format=advanced
                     &resolution=CURRENTRELEASE&resolution=RAWHIDE&resolution=WONTFIX
                     &resolution=CANTFIX&resolution=ERRATA&resolution=NEXTRELEASE
-                    &version={}&ctype=csv&human=1&keywords=Security%2C%20&keywords_type=anywords"""
+                    &version={}&ctype=csv&human=1"""
 BUG_LIST_NON_CLOSED_URL = """https://bugzilla.redhat.com/buglist.cgi?bug_status=NEW&bug_status=ASSIGNED
                     &bug_status=POST&bug_status=MODIFIED&bug_status=ON_DEV&bug_status=ON_QA
                     &bug_status=VERIFIED&bug_status=RELEASE_PENDING&classification=Fedora
                     &longdesc={}&longdesc_type=anywords&product=Fedora&query_format=advanced
-                    &resolution=---&version={}&ctype=csv&human=1&keywords=Security%2C%20&keywords_type=anywords"""
+                    &resolution=---&version={}&ctype=csv&human=1"""
 BUG_XML_URL = "https://bugzilla.redhat.com/show_bug.cgi?ctype=xml&id={}"
 
 BUGLIST_DIR = "./buglist"
@@ -49,10 +49,6 @@ def get_bug_list_csv(long_desc, version, bug_status='CLOSED'):
 
     # Concoct the file name to be saved as.
     file_name = get_buglist_file_name(version, bug_status)
-
-    # Check if we have brought it already. If so, don't bother.
-    if os.path.isfile(file_name):
-        return
 
     # Escape the long description properly so that it's a valid URL.
     long_desc_encoded = quote(long_desc)
@@ -131,14 +127,14 @@ def get_bug_detail(bug_id, version):
         try:
             xml_str = urlopen(bug_url).read()
             bug_obj = untangle.parse(xml_str)
+
+            # Only save the bug if it's not of SecurityTracking keyword bug.
+            if 'SecurityTracking' not in str(bug_obj.bugzilla.bug.keywords).split(', '):
+                    with open(file_name, 'w') as f:
+                        f.write(xml_str)
         except Exception as e:
             print 'Error retrieving bug: {} '.format(bug_id) + repr(e)
             traceback.print_exc()
-
-        # Only save the bug if it's not of SecurityTracking keyword bug.
-        if 'SecurityTracking' not in str(bug_obj.bugzilla.bug.keywords).split(', '):
-                with open(file_name, 'w') as f:
-                    f.write(xml_str)
 
     return
 

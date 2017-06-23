@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1287266</bug_id>
+          
+          <creation_ts>2015-12-01 15:51:00 -0500</creation_ts>
+          <short_desc>glib2: includes bundled pcre library</short_desc>
+          <delta_ts>2017-03-02 03:40:56 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>glib2</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>CURRENTRELEASE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>medium</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Tomas Hoger">thoger</reporter>
+          <assigned_to name="Matthias Clasen">mclasen</assigned_to>
+          <cc>amigadave</cc>
+    
+    
+    <cc>mclasen</cc>
+    
+    
+    <cc>walters</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-03-02 03:40:56</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>8874885</commentid>
+    <comment_count>0</comment_count>
+    <who name="Tomas Hoger">thoger</who>
+    <bug_when>2015-12-01 15:51:08 -0500</bug_when>
+    <thetext>Description of problem:
+
+glib2 packages bundle pcre library.  Fedora Packaging Guidelines currently states the following regarding library bundling:
+
+https://fedoraproject.org/wiki/Packaging:Guidelines#Bundling_and_Duplication_of_system_libraries
+
+  All packages whose upstreams allow them to be built against system libraries
+  must be built against system libraries.
+
+It seems glib allow building against system pcre based on its configure:
+
+$ ./configure --help | grep -i pcre
+  --with-pcre=[internal/system]
+                          whether to use system PCRE [default=internal]
+  PCRE_CFLAGS C compiler flags for PCRE, overriding pkg-config
+  PCRE_LIBS   linker flags for PCRE, overriding pkg-config
+
+
+  All packages whose upstreams have no mechanism to build against system
+  libraries may opt to carry bundled libraries, but if they do, they must
+  include Provides: bundled(&lt;libname&gt;) = &lt;version&gt; in their RPM spec file.
+  In addition, packages whose upstreams have no mechanism to build against
+  system libraries must be contacted publicly about a path to supporting
+  system libraries. If upstream refuses, this must be recorded in the spec
+  file, either in comments placed adjacent to the Provides: above, or in an
+  additional file checked into the SCM and referenced by a comment placed
+  adjacent to the Provides: above.
+
+There&apos;s no mention of pcre in glib2.spec, hence there&apos;s also no bundled(pcre) Provides:.
+
+Version-Release number of selected component (if applicable):
+
+glib2-2.47.3-1.fc24</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8885065</commentid>
+    <comment_count>1</comment_count>
+    <who name="Matthias Clasen">mclasen</who>
+    <bug_when>2015-12-02 15:30:09 -0500</bug_when>
+    <thetext>It is not just a bundled copy of pcre. It is modified to use GLibs Unicode data instead of shipping its own copy. Switching to system pcre will cause all GLib-using applications to have two copies of the Unicode data.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9094377</commentid>
+    <comment_count>2</comment_count>
+    <who name="Jan Kurik">jkurik</who>
+    <bug_when>2016-02-24 10:37:42 -0500</bug_when>
+    <thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 24 development cycle.
+Changing version to &apos;24&apos;.
+
+More information and reason for this action is here:
+https://fedoraproject.org/wiki/Fedora_Program_Management/HouseKeeping/Fedora24#Rawhide_Rebase</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9208138</commentid>
+    <comment_count>3</comment_count>
+    <who name="Tomas Hoger">thoger</who>
+    <bug_when>2016-04-05 08:26:50 -0400</bug_when>
+    <thetext>Related upstream bug report tracking removal of embedded pcre copy:
+
+https://bugzilla.gnome.org/show_bug.cgi?id=740573
+
+Glib 2.47.5 also defaults to using system pcre version instead of bundled:
+
+https://git.gnome.org/browse/glib/commit/?id=82c2461e3d719dfe11361c07502d1cf8a998c121
+
+Other related bug reports:
+
+https://bugzilla.gnome.org/show_bug.cgi?id=755693
+https://bugzilla.gnome.org/show_bug.cgi?id=689791</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9213520</commentid>
+    <comment_count>4</comment_count>
+    <who name="Colin Walters">walters</who>
+    <bug_when>2016-04-06 16:11:48 -0400</bug_when>
+    <thetext>Regarding security:  I doubt any software in the CentOS core uses any non-static regular expressions passed to GRegex, much less anything that potentially crosses a privilege boundary.  The Fedora package collection is bigger but I still doubt it there.
+
+That said it&apos;s just my feeling, we&apos;d have to consult a code search.
+
+Anyways, the upstream rationale for libgio-2.0 -&gt; libselinux -&gt; prcre makes sense, so I&apos;ll make the change now for rawhide at least.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9213597</commentid>
+    <comment_count>5</comment_count>
+    <who name="Colin Walters">walters</who>
+    <bug_when>2016-04-06 16:39:19 -0400</bug_when>
+    <thetext>http://pkgs.fedoraproject.org/cgit/rpms/glib2.git/commit/?id=c1a8bc0c279dd662e31ca0975e4f24aece22d71a</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10200891</commentid>
+    <comment_count>6</comment_count>
+    <who name="David King">amigadave</who>
+    <bug_when>2017-03-02 03:40:56 -0500</bug_when>
+    <thetext>Fedora versions down to 24 use system pcre in GLib.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>
