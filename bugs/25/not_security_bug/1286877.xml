@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1" urlbase="https://bugzilla.redhat.com/" maintainer="bugzilla-error-list@redhat.com">
+
+  <bug>
+    <bug_id>1286877</bug_id>
+
+    <creation_ts>2015-11-30 20:14:00 -0500</creation_ts>
+    <short_desc>Cannot specify package installation versions without including epoch using DNF</short_desc>
+    <delta_ts>2017-04-10 11:43:47 -0400</delta_ts>
+    <reporter_accessible>1</reporter_accessible>
+    <cclist_accessible>1</cclist_accessible>
+    <classification_id>2</classification_id>
+    <classification>Fedora</classification>
+    <product>Fedora</product>
+    <component>dnf</component>
+    <version>25</version>
+    <rep_platform>x86_64</rep_platform>
+    <op_sys>Linux</op_sys>
+    <bug_status>CLOSED</bug_status>
+    <resolution>RAWHIDE</resolution>
+
+    <see_also>https://bugzilla.redhat.com/show_bug.cgi?id=1229730</see_also>
+    <bug_file_loc></bug_file_loc>
+    <status_whiteboard></status_whiteboard>
+    <keywords>Reopened, Triaged</keywords>
+    <priority>unspecified</priority>
+    <bug_severity>unspecified</bug_severity>
+    <target_milestone>---</target_milestone>
+    <dependson>1229730</dependson>
+
+    <everconfirmed>1</everconfirmed>
+    <reporter name="William Hopper">whopper</reporter>
+    <assigned_to>rpm-software-management</assigned_to>
+    <cc>jan.kratochvil</cc>
+
+    <cc>jmracek</cc>
+
+    <cc>kylo</cc>
+
+    <cc>mluscon</cc>
+
+    <cc>mmraka</cc>
+
+    <cc>packaging-team-maint</cc>
+
+    <cc>skuznets</cc>
+
+    <cc>vmukhame</cc>
+    <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+
+    <cf_fixed_in></cf_fixed_in>
+  <cf_doc_type>Bug Fix</cf_doc_type>
+<cf_release_notes></cf_release_notes>
+<cf_story_points>---</cf_story_points>
+
+<cf_environment></cf_environment>
+<cf_last_closed>2017-04-10 11:10:14</cf_last_closed>
+<cf_type>Bug</cf_type>
+<cf_regression_status>---</cf_regression_status>
+<cf_mount_type>---</cf_mount_type>
+<cf_documentation_action>---</cf_documentation_action>
+<cf_crm></cf_crm>
+<cf_verified_branch></cf_verified_branch>
+<cf_category>---</cf_category>
+<cf_ovirt_team>---</cf_ovirt_team>
+
+<cf_cloudforms_team>---</cf_cloudforms_team>
+
+<target_release>---</target_release>
+
+<votes>0</votes>
+
+<comment_sort_order>oldest_to_newest</comment_sort_order>
+<long_desc isprivate="0">
+<commentid>8871543</commentid>
+<comment_count>0</comment_count>
+<who name="William Hopper">whopper</who>
+<bug_when>2015-11-30 20:14:52 -0500</bug_when>
+<thetext>Description of problem: In Fedora 22 and 23, `man dnf` describes the format with which one should be able to install a specific version of a package. It lists the following options: · name.arch · name · name-[epoch:]version-release.arch ·
+name-[epoch:]version-release · name-[epoch:]version As is the case with Yum, epoch is listed as being optional here. However, when trying to install a package which utilizes the epoch field, such as tomcat-1:8.0.26-1.fc23.noarch (fedora 23), DNF
+fails to locate the package when specifying a version *unless* the epoch is provided. This means that several of the listed options for specifying a package version don&apos;t actually work. I.e, `dnf install tomcat-8.0.26-1.fc23.noarch` doesn&apos;t
+work *unless* I add the epoch &apos;1:&apos;. Yum doesn&apos;t have this problem, and will automatically pick the newest epoch if the package has one and the user doesn&apos;t specify it when installing. Version-Release number of selected component
+(if applicable): 1.0.0 (F22) and 1.1.3 (F23). How reproducible: This is easily reproducible by trying to install a specific version of a package which includes an epoch. Note that the problem doesn&apos;t exist if using a package which doesn&apos;t
+use the epoch field. Tomcat is a good example. Steps to Reproduce: 1. `man dnf` to verify ways which a version of a package can be installed, as is listed above. 2. `dnf install &lt;package-version-release.arch&gt; using a package which has an epoch,
+without including an epoch in this command. I.e, `dnf install tomcat-8.0.26-1.fc23.noarch`. This will fail. 3. Then run the exact same command again, but include the epoch. I.e, `dnf install tomcat-1:8.0.26-1.fc23.noarch`. This will succeed. Actual
+results: DNF is unable to find the tomcat package when an epoch is not specified in the version string. Expected results: DNF should automatically find the newest epoch (1 in this case) and install the package if an epoch is not explicitly provided
+to DNF. (At least, this is what Yum seems to do). Additional info:</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8874543</commentid>
+<comment_count>1</comment_count>
+<who name="William Hopper">whopper</who>
+<bug_when>2015-12-01 14:18:42 -0500</bug_when>
+<thetext>For posterity and a bit of extra color, the following are DNF commands which do and do not work when installing
+{{tomcat-1:7.0.59-4.fc22.noarch}}. tomcat-1:7.0.59-4.fc22 Thus, for tomcat we have: * Name: tomcat * epoch: 1 * version: 7.0.59 * release: 4.fc22 * arch: noarch According to man DNF, the following are valid ways to install packages: · name.arch ·
+name · name-[epoch:]version-release.arch · name-[epoch:]version-release · name-[epoch:]version # Based on this, the following *should* work: dnf install tomcat.noarch dnf install tomcat dnf install tomcat-1:7.0.59-4.fc22.noarch dnf install
+tomcat-7.0.59-4.fc22.noarch dnf install tomcat-1:7.0.59-4.fc22 dnf install tomcat-7.0.59-4.fc22 dnf install tomcat-1:7.0.59 dnf install tomcat-7.0.59 {noformat} Working invocations dnf install tomcat.noarch dnf install tomcat dnf install
+tomcat-1:7.0.59-4.fc22.noarch dnf install tomcat-1:7.0.59-4.fc22 dnf install tomcat-1:7.0.59 Failed invocations dnf install tomcat-7.0.59-4.fc22.noarch dnf install tomcat-7.0.59-4.fc22 dnf install tomcat-7.0.59 Thus, anything which tries to provide
+the version but not the epoch fails. Every example listed in Yum&apos;s man page works correctly for a package which uses an epoch.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8915833</commentid>
+<comment_count>2</comment_count>
+<who name="Honza Silhan">jsilhan</who>
+<bug_when>2015-12-14 08:25:20 -0500</bug_when>
+<thetext>Thanks for the report, we&apos;ll take a look.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9490318</commentid>
+<comment_count>3</comment_count>
+<who name="Fedora Admin XMLRPC Client">fedora-admin-xmlrpc</who>
+<bug_when>2016-07-08 05:32:36 -0400</bug_when>
+<thetext>This package has changed ownership in the Fedora Package Database. Reassigning to the new owner of this component.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9527568</commentid>
+<comment_count>4</comment_count>
+<who name="Fedora End Of Life">jkurik</who>
+<bug_when>2016-07-19 14:33:09 -0400</bug_when>
+<thetext>Fedora 22 changed to end-of-life (EOL) status on 2016-07-19. Fedora 22 is no longer maintained, which means that it will not receive any further security or bug fix updates. As a result we are closing this bug. If you can reproduce this bug
+against a currently maintained version of Fedora please feel free to reopen this bug against that version. If you are unable to reopen this bug, please file a new report against the current release. If you experience problems, please add a comment to
+this bug. Thank you for reporting this bug and we are sorry it could not be fixed.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9529775</commentid>
+<comment_count>5</comment_count>
+<who name="Igor Gnatenko">ignatenko</who>
+<bug_when>2016-07-19 18:48:52 -0400</bug_when>
+<thetext>looks like still actual.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9549872</commentid>
+<comment_count>6</comment_count>
+<who name="Jan Kurik">jkurik</who>
+<bug_when>2016-07-26 01:00:47 -0400</bug_when>
+<thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 25 development cycle. Changing version to &apos;25&apos;.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9694306</commentid>
+<comment_count>7</comment_count>
+<who name="Steve Kuznetsov">skuznets</who>
+<bug_when>2016-09-09 10:11:45 -0400</bug_when>
+<thetext>Can confirm that I see this on F24.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10320833</commentid>
+<comment_count>8</comment_count>
+<who name="Jaroslav Mracek">jmracek</who>
+<bug_when>2017-04-10 11:10:14 -0400</bug_when>
+<thetext>The problem cannot be reproduced with dnf-2.2.0-1 that was released for rawhide and fc26. We provide testing repository with latest dnf versions for fc24 and later.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10321038</commentid>
+<comment_count>9</comment_count>
+<who name="Jaroslav Mracek">jmracek</who>
+<bug_when>2017-04-10 11:43:25 -0400</bug_when>
+<thetext>Testing repository: &quot;dnf copr rpmsoftwaremanagement/dnf-nightly&quot;</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10321039</commentid>
+<comment_count>10</comment_count>
+<who name="Jaroslav Mracek">jmracek</who>
+<bug_when>2017-04-10 11:43:47 -0400</bug_when>
+<thetext>
+
+Testing repository: &quot;dnf copr enable rpmsoftwaremanagement/dnf-nightly&quot;</thetext>
+</long_desc>
+
+</bug>
+
+</bugzilla>
