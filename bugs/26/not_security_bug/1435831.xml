@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1" urlbase="https://bugzilla.redhat.com/" maintainer="bugzilla-error-list@redhat.com">
+
+  <bug>
+    <bug_id>1435831</bug_id>
+
+    <creation_ts>2017-03-24 19:10:00 -0400</creation_ts>
+    <short_desc>openvpn@.service uses --daemon and --writepid</short_desc>
+    <delta_ts>2017-04-08 19:20:34 -0400</delta_ts>
+    <reporter_accessible>1</reporter_accessible>
+    <cclist_accessible>1</cclist_accessible>
+    <classification_id>2</classification_id>
+    <classification>Fedora</classification>
+    <product>Fedora</product>
+    <component>openvpn</component>
+    <version>26</version>
+    <rep_platform>Unspecified</rep_platform>
+    <op_sys>Unspecified</op_sys>
+    <bug_status>CLOSED</bug_status>
+    <resolution>ERRATA</resolution>
+
+    <bug_file_loc></bug_file_loc>
+    <status_whiteboard></status_whiteboard>
+    <keywords>FutureFeature, Reopened, Triaged</keywords>
+    <priority>unspecified</priority>
+    <bug_severity>unspecified</bug_severity>
+    <target_milestone>---</target_milestone>
+    <dependson>1435036</dependson>
+
+    <everconfirmed>1</everconfirmed>
+    <reporter name="David Sommerseth">dazo</reporter>
+    <assigned_to name="David Sommerseth">dazo</assigned_to>
+    <cc>alekcejk</cc>
+
+    <cc>alex.ploumistos</cc>
+
+    <cc>dazo</cc>
+
+    <cc>dimitris</cc>
+
+    <cc>extras-qa</cc>
+
+    <cc>huzaifas</cc>
+
+    <cc>mauricio.teixeira</cc>
+
+    <cc>mteixeira</cc>
+
+    <cc>samuel-rhbugs</cc>
+
+    <cc>scott-redhat</cc>
+
+    <cc>steve</cc>
+
+    <cc>twshield</cc>
+
+    <cc>upstream-release-monitoring</cc>
+    <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+
+    <cf_fixed_in>openvpn-2.4.1-2.fc25 openvpn-2.4.1-3.fc26 openvpn-2.4.1-2.el7</cf_fixed_in>
+  <cf_doc_type>Enhancement</cf_doc_type>
+<cf_release_notes></cf_release_notes>
+<cf_story_points>---</cf_story_points>
+<cf_clone_of>1435036</cf_clone_of>
+<cf_environment></cf_environment>
+<cf_last_closed>2017-04-08 19:20:34</cf_last_closed>
+<cf_type>---</cf_type>
+<cf_regression_status>---</cf_regression_status>
+<cf_mount_type>---</cf_mount_type>
+<cf_documentation_action>---</cf_documentation_action>
+<cf_crm></cf_crm>
+<cf_verified_branch></cf_verified_branch>
+<cf_category>---</cf_category>
+<cf_ovirt_team>---</cf_ovirt_team>
+
+<cf_cloudforms_team>---</cf_cloudforms_team>
+
+<target_release>---</target_release>
+
+<votes>0</votes>
+
+<comment_sort_order>oldest_to_newest</comment_sort_order>
+<long_desc isprivate="0">
+<commentid>10276467</commentid>
+<comment_count>0</comment_count>
+<who name="David Sommerseth">dazo</who>
+<bug_when>2017-03-24 19:10:32 -0400</bug_when>
+<thetext>+++ This bug was initially created as a clone of Bug #1435036 +++ --- Additional comment from nucleo on 2017-03-24 15:02:19 EDT --- Missing path for /var/run/openvpn in tmpfiles config: # cat /usr/lib/tmpfiles.d/openvpn.conf d
+/run/openvpn-client 0710 root root - d /run/openvpn-server 0710 root root - So openvpn@.service can&apos;t start because of it ExecStart=/usr/sbin/openvpn --daemon --writepid /var/run/openvpn/%i.pid --cd /etc/openvpn/ --config %i.conf Options error:
+--writepid fails with &apos;/var/run/openvpn/server.pid&apos;: No such file or directory --- Additional comment from David Sommerseth on 2017-03-24 19:08:47 EDT --- (In reply to nucleo from comment #15) &gt; Missing path for /var/run/openvpn in
+tmpfiles config: &gt; &gt; # cat /usr/lib/tmpfiles.d/openvpn.conf &gt; d /run/openvpn-client 0710 root root - &gt; d /run/openvpn-server 0710 root root - &gt; &gt; So openvpn@.service can&apos;t start because of it &gt; ExecStart=/usr/sbin/openvpn
+--daemon --writepid /var/run/openvpn/%i.pid --cd &gt; /etc/openvpn/ --config %i.conf &gt; &gt; Options error: --writepid fails with &apos;/var/run/openvpn/server.pid&apos;: No such &gt; file or directory I will actually claim that the unit file is
+faulty here. I did not review Fedora specific unit file, but rather want to encourage you to try using either openvpn-server@.service or openvpn-client@.service. I will add a new README.systemd file to document this better as well, see here for the
+current one in Rawhide: http://pkgs.fedoraproject.org/cgit/rpms/openvpn.git/tree/README.systemd I will however update the unit file for F26 and F25. There is no reason to use --daemon and --writepid with systemd; systemd seems to do the Type=simple
+(systemd default) far better.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10277649</commentid>
+<comment_count>1</comment_count>
+<who name="Scott Shambarger">scott-redhat</who>
+<bug_when>2017-03-26 17:49:01 -0400</bug_when>
+<thetext>The missing tmpfiles entry does break exiting configurations on upgrade (it did mine), and as long as openvpn@.service is shipped, the directory for the pidfile should be created.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10277657</commentid>
+<comment_count>2</comment_count>
+<who name="David Sommerseth">dazo</who>
+<bug_when>2017-03-26 18:20:42 -0400</bug_when>
+<thetext>(In reply to Scott Shambarger from comment #1) &gt; The missing tmpfiles entry does break exiting configurations on upgrade (it &gt; did mine), and as long as openvpn@.service is shipped, the directory for the &gt; pidfile should be created.
+With all due respect, that is the wrong solution. The openvpn@.service is doing things the wrong way. So instead openvpn@.service must be fixed to do things correctly. I have a scratch build ready which needs testing before final build can be sent to
+bodhi. This build should fix this issue in the proper way. https://koji.fedoraproject.org/koji/taskinfo?taskID=18582382 With that said, openvpn@.service is deprecated and will be removed in Fedora 27, as the newer openvpn-client@.service and
+openvpn-server@.service provides far better hardening and control of VPN tunnels. And these two new unit files are being maintained by the upstream community and being included in other systemd based Linux distributions as well. This helps all
+OpenVPN users to have the same behaviour and usage, regardless of Linux distribution. Further, people in the OpenVPN community are already discussing the next steps to further harden running OpenVPN processes.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10277659</commentid>
+<comment_count>3</comment_count>
+<who name="Scott Shambarger">scott-redhat</who>
+<bug_when>2017-03-26 18:28:21 -0400</bug_when>
+<thetext>Feel free to do things the &quot;right way&quot; in openvpn@, but breaking existing VPN setups during a release cycle is not very considerate. I&apos;m changing my setup to use openvpn-server now, but I need to disable/enable services, and
+move/edit configurations... I expect to do this when upgrading system releases (F25-&gt;F26), but not just when upgrading a program that generally has to be done for security fixes :) Changing to remove --daemon or use the new tmpfile location etc
+can be done as long as the config is still referenced in /etc/openvpn (not /etc/openvpn/server). Currently, the openvpn@.service shipped fails to start because of the missing tmpfile...</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10277667</commentid>
+<comment_count>4</comment_count>
+<who name="David Sommerseth">dazo</who>
+<bug_when>2017-03-26 18:43:02 -0400</bug_when>
+<thetext>(In reply to Scott Shambarger from comment #3) &gt; Feel free to do things the &quot;right way&quot; in openvpn@, but breaking existing &gt; VPN setups during a release cycle is not very considerate. Fair point! And this breakage was a
+glitch which was not intended. But as I pointed out, there is a proper fix in the pipe. It just needs to be better tested before being pushed out.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10277669</commentid>
+<comment_count>5</comment_count>
+<who name="nucleo">alekcejk</who>
+<bug_when>2017-03-26 18:50:35 -0400</bug_when>
+<thetext>I already switched to new units, so now can&apos;t test old unit. New units works fine except nice option which requires missing CAP_SYS_NICE in CapabilityBoundingSet.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10277671</commentid>
+<comment_count>6</comment_count>
+<who name="David Sommerseth">dazo</who>
+<bug_when>2017-03-26 18:56:24 -0400</bug_when>
+<thetext>(In reply to nucleo from comment #5) &gt; I already switched to new units, so now can&apos;t test old unit. &gt; New units works fine except nice option which requires missing CAP_SYS_NICE &gt; in CapabilityBoundingSet. Great feedback! I
+will ensure CAP_SYS_NICE gets included upstream and added to Fedora repos in the meantime.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10282543</commentid>
+<comment_count>7</comment_count>
+<who name="David Sommerseth">dazo</who>
+<bug_when>2017-03-28 05:33:12 -0400</bug_when>
+<thetext>*** Bug 1436541 has been marked as a duplicate of this bug. ***</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10284318</commentid>
+<comment_count>8</comment_count>
+<who name="Tom Shield">twshield</who>
+<bug_when>2017-03-28 13:12:55 -0400</bug_when>
+<thetext>I tried switching to openvpn-server@.service and it fails because WorkingDirectory=/etc/openvpn/server directory does not exist (and that is also not were my config files are). openvpn-2.4.1-1.fc25.x86_64 is what I have installed. I&apos;ve
+copied /lib/systemd/system/openvpn@.service to /etc/systemd/system and edited the lines PIDFile=/var/run/openvpn-server/%i.pid ExecStart=/usr/sbin/openvpn --daemon --writepid /var/run/openvpn-server/%i.pid --cd /etc/openvpn/ --config %i.conf to add
+-server to the /var/run paths to get things working for now. Seems like there are several things to straighten out here. You are forcing config changes no matter which way you try to run it.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10284690</commentid>
+<comment_count>9</comment_count>
+<who name="David Sommerseth">dazo</who>
+<bug_when>2017-03-28 15:04:12 -0400</bug_when>
+<thetext>(In reply to Tom Shield from comment #8) &gt; I tried switching to openvpn-server@.service and it fails because &gt; &gt; WorkingDirectory=/etc/openvpn/server &gt; &gt; directory does not exist (and that is also not were my config files
+are). If that directory does not exist, that&apos;s an error in the packaging. I do have a clean-up of the .spec file in the pipe already to ensure the package sanity is better. The openvpn-server@.serivce expects configurations to reside in
+/etc/openvpn/server for a purpose, as there are setups where the box is both an openvpn server and an openvpn client ... and the requirements for servers and clients are somewhat different when starting to harden the services. So to avoid users from
+starting a server configuration through the openvpn-client@.service or vice versa, it was decided to move configuration files into separate directories. For more information, see the README.systemd file which will arrive in a later update ...
+http://pkgs.fedoraproject.org/cgit/rpms/openvpn.git/tree/README.systemd &gt; openvpn-2.4.1-1.fc25.x86_64 is what I have installed. &gt; &gt; I&apos;ve copied /lib/systemd/system/openvpn@.service to /etc/systemd/system &gt; &gt; and edited the lines
+&gt; &gt; PIDFile=/var/run/openvpn-server/%i.pid &gt; ExecStart=/usr/sbin/openvpn --daemon --writepid &gt; /var/run/openvpn-server/%i.pid --cd /etc/openvpn/ --config %i.conf Do NOT add --writepid and PIDFile= with OpenVPN v2.4. That can definitely
+give you even more headaches. OpenVPN v2.4 is designed to use Type=notify which enables sd_notify() [0] under the hood, where OpenVPN messages systemd directly about its state. In such a configuration, --daemon is even ignored. [0]
+https://www.freedesktop.org/software/systemd/man/sd_notify.html We are currently in the phase of cleaning up the systemd integration mess which was caused when distro package maintainers in their best efforts did some quick decisions without getting
+in touch with OpenVPN upstream in the early days of the systemd introduction ... so even though there will be some turbulence now while we&apos;re cleaning up things, I do expect things to be far better once all that is settled. I am truly sorry that
+all these issues appeared ... but it just shows what can happen when distro package maintainers don&apos;t talk to their upstream project when doing the packaging job. It&apos;s a road filled with traps, so when even upstream does several steps to
+improve the situation across all systemd distributions and these efforts are not taken into consideration, things tend to crash badly at some point. I am active in the upstream OpenVPN project (have been for many years) and I do intend to really sort
+this out ASAP. Hence the scratch build to really test out these last adjustments to bring the Fedora package in-sync with the upstream project expectations ... https://koji.fedoraproject.org/koji/taskinfo?taskID=18582382 ... I really hope to get
+those fixes pushed out within this week at latest. Unfortunately, this won&apos;t be the last round, we need to see what else comes up with. OpenVPN is extremely flexible with a bit over 240 options. There will be some option combinations I have not
+predicted, which we need to sort out as they appear. And in addition, I try to be in touch with the NetworkManager as well, to ensure OpenVPN don&apos;t clash too much there too. If users have issues ... I strongly encourage you to join the
+openvpn-user [1] mailing-list or join the #openvpn channel at Freenode; I am dazo there and do try to help out as long as I&apos;m online plus there&apos;s a lot of other users who can be helpful there too. [1]
+https://sourceforge.net/p/openvpn/mailman/</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10285122</commentid>
+<comment_count>10</comment_count>
+<who name="Fedora Update System">updates</who>
+<bug_when>2017-03-28 18:15:50 -0400</bug_when>
+<thetext>openvpn-2.4.1-2.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-c07a04251a</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10285124</commentid>
+<comment_count>11</comment_count>
+<who name="Fedora Update System">updates</who>
+<bug_when>2017-03-28 18:16:07 -0400</bug_when>
+<thetext>openvpn-2.4.1-2.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-0ffb8246fa</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10288031</commentid>
+<comment_count>12</comment_count>
+<who name="Fedora Update System">updates</who>
+<bug_when>2017-03-29 13:49:37 -0400</bug_when>
+<thetext>openvpn-2.4.1-2.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report. See https://fedoraproject.org/wiki/QA:Updates_Testing for instructions on how to install test
+updates. You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-c07a04251a</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10288261</commentid>
+<comment_count>13</comment_count>
+<who name="Fedora Update System">updates</who>
+<bug_when>2017-03-29 15:20:05 -0400</bug_when>
+<thetext>openvpn-2.4.1-2.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report. See https://fedoraproject.org/wiki/QA:Updates_Testing for instructions on how to install test
+updates. You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-0ffb8246fa</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10289795</commentid>
+<comment_count>14</comment_count>
+<who name="Fedora Update System">updates</who>
+<bug_when>2017-03-30 05:38:49 -0400</bug_when>
+<thetext>openvpn-2.4.1-3.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-c07a04251a</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10291991</commentid>
+<comment_count>15</comment_count>
+<who name="Fedora Update System">updates</who>
+<bug_when>2017-03-30 14:52:30 -0400</bug_when>
+<thetext>openvpn-2.4.1-3.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report. See https://fedoraproject.org/wiki/QA:Updates_Testing for instructions on how to install test
+updates. You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-c07a04251a</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10292787</commentid>
+<comment_count>16</comment_count>
+<who name="Fedora Update System">updates</who>
+<bug_when>2017-03-30 22:23:06 -0400</bug_when>
+<thetext>openvpn-2.4.1-2.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10299316</commentid>
+<comment_count>17</comment_count>
+<who name="Fedora Update System">updates</who>
+<bug_when>2017-04-03 09:25:53 -0400</bug_when>
+<thetext>openvpn-2.4.1-2.el7 has been submitted as an update to Fedora EPEL 7. https://bodhi.fedoraproject.org/updates/FEDORA-EPEL-2017-5c642f8063</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10299319</commentid>
+<comment_count>18</comment_count>
+<who name="Fedora Update System">updates</who>
+<bug_when>2017-04-03 09:26:34 -0400</bug_when>
+<thetext>openvpn-2.4.1-2.el7 has been submitted as an update to Fedora EPEL 7. https://bodhi.fedoraproject.org/updates/FEDORA-EPEL-2017-5c642f8063</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10299923</commentid>
+<comment_count>19</comment_count>
+<who name="Fedora Update System">updates</who>
+<bug_when>2017-04-03 12:08:29 -0400</bug_when>
+<thetext>openvpn-2.4.1-3.fc26 has been pushed to the Fedora 26 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10300761</commentid>
+<comment_count>20</comment_count>
+<who name="Fedora Update System">updates</who>
+<bug_when>2017-04-03 19:19:54 -0400</bug_when>
+<thetext>openvpn-2.4.1-2.el7 has been pushed to the Fedora EPEL 7 testing repository. If problems still persist, please make note of it in this bug report. See https://fedoraproject.org/wiki/QA:Updates_Testing for instructions on how to install test
+updates. You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-EPEL-2017-5c642f8063</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10316707</commentid>
+<comment_count>21</comment_count>
+<who name="Fedora Update System">updates</who>
+<bug_when>2017-04-08 19:20:34 -0400</bug_when>
+<thetext>openvpn-2.4.1-2.el7 has been pushed to the Fedora EPEL 7 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+</long_desc>
+
+</bug>
+
+</bugzilla>
