@@ -1,0 +1,404 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1" urlbase="https://bugzilla.redhat.com/" maintainer="bugzilla-error-list@redhat.com">
+
+  <bug>
+    <bug_id>1415140</bug_id>
+
+    <creation_ts>2017-01-20 06:52:00 -0500</creation_ts>
+    <short_desc>Improve openldap to correctly handle NSS builds that provide TLS 1.3 support</short_desc>
+    <delta_ts>2017-04-07 06:33:53 -0400</delta_ts>
+    <reporter_accessible>1</reporter_accessible>
+    <cclist_accessible>1</cclist_accessible>
+    <classification_id>2</classification_id>
+    <classification>Fedora</classification>
+    <product>Fedora</product>
+    <component>openldap</component>
+    <version>25</version>
+    <rep_platform>Unspecified</rep_platform>
+    <op_sys>Unspecified</op_sys>
+    <bug_status>CLOSED</bug_status>
+    <resolution>CURRENTRELEASE</resolution>
+
+    <bug_file_loc></bug_file_loc>
+    <status_whiteboard></status_whiteboard>
+    <keywords></keywords>
+    <priority>unspecified</priority>
+    <bug_severity>urgent</bug_severity>
+    <target_milestone>---</target_milestone>
+    <dependson>1435689</dependson>
+
+    <dependson>1435692</dependson>
+    <blocked>1431316</blocked>
+
+    <blocked>1432889</blocked>
+    <everconfirmed>1</everconfirmed>
+    <reporter name="Martin Babinsky">mbabinsk</reporter>
+    <assigned_to name="Matus Honek">mhonek</assigned_to>
+    <cc>cheimes</cc>
+
+    <cc>dueno</cc>
+
+    <cc>emaldona</cc>
+
+    <cc>hkario</cc>
+
+    <cc>kdudka</cc>
+
+    <cc>kengert</cc>
+
+    <cc>mhonek</cc>
+
+    <cc>pkis</cc>
+
+    <cc>rmeggins</cc>
+    <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+
+    <cf_fixed_in></cf_fixed_in>
+  <cf_doc_type>If docs needed, set a value</cf_doc_type>
+<cf_release_notes></cf_release_notes>
+<cf_story_points>---</cf_story_points>
+
+<cf_environment></cf_environment>
+<cf_last_closed>2017-04-07 06:33:53</cf_last_closed>
+<cf_type>Bug</cf_type>
+<cf_regression_status>---</cf_regression_status>
+<cf_mount_type>---</cf_mount_type>
+<cf_documentation_action>---</cf_documentation_action>
+<cf_crm></cf_crm>
+<cf_verified_branch></cf_verified_branch>
+<cf_category>---</cf_category>
+<cf_ovirt_team>---</cf_ovirt_team>
+
+<cf_cloudforms_team>---</cf_cloudforms_team>
+
+<target_release>---</target_release>
+
+<votes>0</votes>
+
+<comment_sort_order>oldest_to_newest</comment_sort_order>
+<long_desc isprivate="0">
+<commentid>10083100</commentid>
+<comment_count>0</comment_count>
+<attachid>1242726</attachid>
+<who name="Martin Babinsky">mbabinsk</who>
+<bug_when>2017-01-20 06:52:17 -0500</bug_when>
+<thetext>Created attachment 1242726 Output of sslscan tool against broken and working installation Description of problem: Recent update of NSS library left in Fedora 25 updates-testing (nss-3.28.1-1.2.fc25.x86_64) breaks FreeIPA installations due to
+the fact that LDAP client are unable to connect to configured directory server instance via StartTLS/LDAPS:
+
+{{{ Please add records in this file to your DNS system: /tmp/ipa.system.records.I5D5bB.db Restarting the web server Unable to set admin password Command &apos;/usr/bin/ldappasswd -h master1.ipa.test -ZZ -x -D cn=Directory Manager -y
+/var/lib/ipa/tmpZ1Grqr -T /var/lib/ipa/tmp6RW64m uid=admin,cn=users,cn=accounts,dc=ipa,dc=test&apos; returned non-zero exit status 1 Configuring client side components Using existing certificate &apos;/etc/ipa/ca.crt&apos;. Skip master1.ipa.test:
+cannot verify if this is an IPA server Failed to verify that master1.ipa.test is an IPA Server. This may mean that the remote server is not up or is not reachable due to network or firewall settings. Please make sure the following ports are opened in
+the firewall settings: TCP: 80, 88, 389 UDP: 88 (at least one of TCP/UDP ports 88 has to be open) Also note that following ports are necessary for ipa-client working properly after enrollment: TCP: 464 UDP: 464, 123 (if NTP enabled) Installation
+failed. As this is IPA server, changes will not be rolled back. ipa.ipapython.install.cli.install_tool(Server): ERROR Configuration of client side components failed! ipa.ipapython.install.cli.install_tool(Server): ERROR The ipa-server-install command
+failed. See /var/log/ipaserver-install.log for more information }}}
+
+in the client self-enrollment logs, we can see that the LDAP bind fails during cipher negotiation as client and server can not agree on a common cipher:
+
+{{{ 2017-01-20T09:37:27Z DEBUG Verifying that master1.ipa.test (realm IPA.TEST) is an IPA server 2017-01-20T09:37:27Z DEBUG Init LDAP connection to: master1.ipa.test 2017-01-20T09:37:27Z DEBUG Error checking LDAP: Connect error: TLS error
+-12286:Cannot communicate securely with peer: no common encryption algorithm(s). 2017-01-20T09:37:27Z WARNING Skip master1.ipa.test: cannot verify if this is an IPA server }}}
+
+Similarly, manually connecting to LDAP via StartTLS/LDAPS also fails:
+
+{{{
+# ldapsearch -ZZ -H ldaps://localhost
+ldap_start_tls: Can&apos;t contact LDAP server (-1)
+        additional info: TLS error -12286:Cannot communicate securely with peer: no common encryption algorithm(s).
+}}}
+
+This precludes any secure connections to directory server and thus blocks successful installation of FreeIPA master, client enrollment and replica setup. Version-Release number of selected component (if applicable): nss-3.28.1-1.2.fc25.x86_64
+freeipa-server-4.4.3-1.fc25.x86_64 389-ds-base-1.3.5.15-1.fc25.x86_64 openldap-clients-2.4.44-2.fc25.x86_64 How reproducible: Always. Steps to Reproduce: 1. Install the RPMs mentioned in previous sections 2. Run ipa-server-install Actual results:
+Installation succeeds. Expected results: Installation fails due to errors in establishing secure LDAP connections.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10083415</commentid>
+<comment_count>1</comment_count>
+<attachid>1242801</attachid>
+<who name="Kai Engert (:kaie)">kengert</who>
+<bug_when>2017-01-20 08:03:58 -0500</bug_when>
+<thetext>Created attachment 1242801 ssltap.txt</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10083520</commentid>
+<comment_count>2</comment_count>
+<who name="Hubert Kario">hkario</who>
+<bug_when>2017-01-20 08:37:50 -0500</bug_when>
+<thetext>Thanks Kai, From that ssltap, it is apparent that the client does enable TLS v1.3 protocol (the extensions 40 and 43 are present, extension 43 lists support for draft 18 - 0x7f12), but it does not enable any of the TLSv1.3 specific ciphers -
+0x1301, 0x1302, 0x1303, 0x1304, 0x1305 [1] - so establishing the connection is impossible and server correctly responds with handshake_failure alert. Solution for freeipa/ldap would be to either not enable TLSv1.3, enable TLSv1.3 and TLSv1.3 ciphers
+or (preferred) do not change the NSS TLS configuration and use Crypto Policy for configuration of TLS settings[2]. 1 - https://tools.ietf.org/html/draft-ietf-tls-tls13-18#appendix-A.4 2 - https://fedoraproject.org/wiki/Packaging:CryptoPolicies</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10083559</commentid>
+<comment_count>3</comment_count>
+<who name="Christian Heimes">cheimes</who>
+<bug_when>2017-01-20 08:52:00 -0500</bug_when>
+<thetext>In our case the client is libldap with NSS as TLS provider. It seems like libldap enabled TLS 1.3 by default. The server is 389-DS with NSS as well. I have to check why it has TLS 1.3 enabled. I know for sure that FreeIPA configures 389-DS
+with a custom list of allowed ciphers during installation. We might want to drop this and just use the default cipher list of NSS. Hubert told me that the default list is secure.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10083580</commentid>
+<comment_count>4</comment_count>
+<who name="Christian Heimes">cheimes</who>
+<bug_when>2017-01-20 09:00:04 -0500</bug_when>
+<thetext>According to its configuration, the 389-DS instance on the test machine has TLS 1.3 disabled. sslVersionMin: TLS1.0 sslVersionMax: TLS1.2 $ ldapsearch -ZZ -D &apos;cn=Directory Manager&apos; -W -H ldap://localhost -b cn=encryption,cn=config
+Enter LDAP Password: # extended LDIF # # LDAPv3 # base &lt;cn=encryption,cn=config&gt; with scope subtree # filter: (objectclass=*) # requesting: ALL # # encryption, config dn: cn=encryption,cn=config allowWeakCipher: off cn: encryption
+nsSSL3Ciphers: default nsSSLClientAuth: allowed nsSSLSessionTimeout: 0 objectClass: top objectClass: nsEncryptionConfig sslVersionMin: TLS1.0 nsSSLSupportedCiphers: TLS_AES_128_GCM_SHA256::AES-GCM::AEAD::128 nsSSLSupportedCiphers:
+TLS_CHACHA20_POLY1305_SHA256::CHACHA20POLY1305::AEAD::2 56 nsSSLSupportedCiphers: TLS_AES_256_GCM_SHA384::AES-GCM::AEAD::256 nsSSLSupportedCiphers: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256::AES-GCM::AEAD: :128 nsSSLSupportedCiphers:
+TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256::AES-GCM::AEAD::1 28 nsSSLSupportedCiphers: TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256::CHACHA20 POLY1305::AEAD::256 nsSSLSupportedCiphers: TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256::CHACHA20PO
+LY1305::AEAD::256 nsSSLSupportedCiphers: TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384::AES-GCM::AEAD: :256 nsSSLSupportedCiphers: TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384::AES-GCM::AEAD::2 56 nsSSLSupportedCiphers:
+TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA::AES::SHA1::256 nsSSLSupportedCiphers: TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA::AES::SHA1::128 nsSSLSupportedCiphers: TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA::AES::SHA1::128 nsSSLSupportedCiphers:
+TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256::AES::SHA256::1 28 nsSSLSupportedCiphers: TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256::AES::SHA256::128 nsSSLSupportedCiphers: TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA::AES::SHA1::256 nsSSLSupportedCiphers:
+TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384::AES::SHA384::2 56 nsSSLSupportedCiphers: TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384::AES::SHA384::256 nsSSLSupportedCiphers: TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA::3DES::SHA1::192 nsSSLSupportedCiphers:
+TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA::3DES::SHA1::192 nsSSLSupportedCiphers: TLS_ECDHE_ECDSA_WITH_RC4_128_SHA::RC4::SHA1::128 nsSSLSupportedCiphers: TLS_ECDHE_RSA_WITH_RC4_128_SHA::RC4::SHA1::128 nsSSLSupportedCiphers:
+TLS_DHE_RSA_WITH_AES_128_GCM_SHA256::AES-GCM::AEAD::128 nsSSLSupportedCiphers: TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256::CHACHA20POLY 1305::AEAD::256 nsSSLSupportedCiphers: TLS_DHE_DSS_WITH_AES_128_GCM_SHA256::AES-GCM::AEAD::128
+nsSSLSupportedCiphers: TLS_DHE_RSA_WITH_AES_256_GCM_SHA384::AES-GCM::AEAD::256 nsSSLSupportedCiphers: TLS_DHE_DSS_WITH_AES_256_GCM_SHA384::AES-GCM::AEAD::256 nsSSLSupportedCiphers: TLS_DHE_RSA_WITH_AES_128_CBC_SHA::AES::SHA1::128
+nsSSLSupportedCiphers: TLS_DHE_DSS_WITH_AES_128_CBC_SHA::AES::SHA1::128 nsSSLSupportedCiphers: TLS_DHE_RSA_WITH_AES_128_CBC_SHA256::AES::SHA256::128 nsSSLSupportedCiphers: TLS_DHE_DSS_WITH_AES_128_CBC_SHA256::AES::SHA256::128 nsSSLSupportedCiphers:
+TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA::CAMELLIA::SHA1:: 128 nsSSLSupportedCiphers: TLS_DHE_DSS_WITH_CAMELLIA_128_CBC_SHA::CAMELLIA::SHA1:: 128 nsSSLSupportedCiphers: TLS_DHE_RSA_WITH_AES_256_CBC_SHA::AES::SHA1::256 nsSSLSupportedCiphers:
+TLS_DHE_DSS_WITH_AES_256_CBC_SHA::AES::SHA1::256 nsSSLSupportedCiphers: TLS_DHE_RSA_WITH_AES_256_CBC_SHA256::AES::SHA256::256 nsSSLSupportedCiphers: TLS_DHE_DSS_WITH_AES_256_CBC_SHA256::AES::SHA256::256 nsSSLSupportedCiphers:
+TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA::CAMELLIA::SHA1:: 256 nsSSLSupportedCiphers: TLS_DHE_DSS_WITH_CAMELLIA_256_CBC_SHA::CAMELLIA::SHA1:: 256 nsSSLSupportedCiphers: TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA::3DES::SHA1::192 nsSSLSupportedCiphers:
+TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA::3DES::SHA1::192 nsSSLSupportedCiphers: TLS_DHE_DSS_WITH_RC4_128_SHA::RC4::SHA1::128 nsSSLSupportedCiphers: TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA::AES::SHA1::128 nsSSLSupportedCiphers:
+TLS_ECDH_RSA_WITH_AES_128_CBC_SHA::AES::SHA1::128 nsSSLSupportedCiphers: TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA::AES::SHA1::256 nsSSLSupportedCiphers: TLS_ECDH_RSA_WITH_AES_256_CBC_SHA::AES::SHA1::256 nsSSLSupportedCiphers:
+TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA::3DES::SHA1::192 nsSSLSupportedCiphers: TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA::3DES::SHA1::192 nsSSLSupportedCiphers: TLS_ECDH_ECDSA_WITH_RC4_128_SHA::RC4::SHA1::128 nsSSLSupportedCiphers:
+TLS_ECDH_RSA_WITH_RC4_128_SHA::RC4::SHA1::128 nsSSLSupportedCiphers: TLS_RSA_WITH_AES_128_GCM_SHA256::AES-GCM::AEAD::128 nsSSLSupportedCiphers: TLS_RSA_WITH_AES_256_GCM_SHA384::AES-GCM::AEAD::256 nsSSLSupportedCiphers:
+TLS_RSA_WITH_AES_128_CBC_SHA::AES::SHA1::128 nsSSLSupportedCiphers: TLS_RSA_WITH_AES_128_CBC_SHA256::AES::SHA256::128 nsSSLSupportedCiphers: TLS_RSA_WITH_CAMELLIA_128_CBC_SHA::CAMELLIA::SHA1::128 nsSSLSupportedCiphers:
+TLS_RSA_WITH_AES_256_CBC_SHA::AES::SHA1::256 nsSSLSupportedCiphers: TLS_RSA_WITH_AES_256_CBC_SHA256::AES::SHA256::256 nsSSLSupportedCiphers: TLS_RSA_WITH_CAMELLIA_256_CBC_SHA::CAMELLIA::SHA1::256 nsSSLSupportedCiphers:
+TLS_RSA_WITH_SEED_CBC_SHA::SEED::SHA1::128 nsSSLSupportedCiphers: TLS_RSA_WITH_3DES_EDE_CBC_SHA::3DES::SHA1::192 nsSSLSupportedCiphers: TLS_RSA_WITH_RC4_128_SHA::RC4::SHA1::128 nsSSLSupportedCiphers: TLS_RSA_WITH_RC4_128_MD5::RC4::MD5::128
+nsSSLSupportedCiphers: TLS_DHE_RSA_WITH_DES_CBC_SHA::DES::SHA1::64 nsSSLSupportedCiphers: TLS_DHE_DSS_WITH_DES_CBC_SHA::DES::SHA1::64 nsSSLSupportedCiphers: TLS_RSA_WITH_DES_CBC_SHA::DES::SHA1::64 nsSSLSupportedCiphers:
+TLS_ECDHE_ECDSA_WITH_NULL_SHA::NULL::SHA1::0 nsSSLSupportedCiphers: TLS_ECDHE_RSA_WITH_NULL_SHA::NULL::SHA1::0 nsSSLSupportedCiphers: TLS_ECDH_RSA_WITH_NULL_SHA::NULL::SHA1::0 nsSSLSupportedCiphers: TLS_ECDH_ECDSA_WITH_NULL_SHA::NULL::SHA1::0
+nsSSLSupportedCiphers: TLS_RSA_WITH_NULL_SHA::NULL::SHA1::0 nsSSLSupportedCiphers: TLS_RSA_WITH_NULL_SHA256::NULL::SHA256::0 nsSSLSupportedCiphers: TLS_RSA_WITH_NULL_MD5::NULL::MD5::0 nssslenabledciphers: TLS_AES_128_GCM_SHA256::AES-GCM::AEAD::128
+nssslenabledciphers: TLS_CHACHA20_POLY1305_SHA256::CHACHA20POLY1305::AEAD::256 nssslenabledciphers: TLS_AES_256_GCM_SHA384::AES-GCM::AEAD::256 nssslenabledciphers: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256::AES-GCM::AEAD::1 28 nssslenabledciphers:
+TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256::AES-GCM::AEAD::128 nssslenabledciphers: TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256::CHACHA20PO LY1305::AEAD::256 nssslenabledciphers: TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256::CHACHA20POLY 1305::AEAD::256
+nssslenabledciphers: TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA::AES::SHA1::256 nssslenabledciphers: TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA::AES::SHA1::128 nssslenabledciphers: TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA::AES::SHA1::128 nssslenabledciphers:
+TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256::AES::SHA256::128 nssslenabledciphers: TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256::AES::SHA256::128 nssslenabledciphers: TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA::AES::SHA1::256 nssslenabledciphers:
+TLS_DHE_RSA_WITH_AES_128_GCM_SHA256::AES-GCM::AEAD::128 nssslenabledciphers: TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256::CHACHA20POLY13 05::AEAD::256 nssslenabledciphers: TLS_DHE_RSA_WITH_AES_128_CBC_SHA::AES::SHA1::128 nssslenabledciphers:
+TLS_DHE_DSS_WITH_AES_128_CBC_SHA::AES::SHA1::128 nssslenabledciphers: TLS_DHE_RSA_WITH_AES_128_CBC_SHA256::AES::SHA256::128 nssslenabledciphers: TLS_DHE_RSA_WITH_AES_256_CBC_SHA::AES::SHA1::256 nssslenabledciphers:
+TLS_DHE_DSS_WITH_AES_256_CBC_SHA::AES::SHA1::256 nssslenabledciphers: TLS_DHE_RSA_WITH_AES_256_CBC_SHA256::AES::SHA256::256 nssslenabledciphers: TLS_RSA_WITH_AES_128_GCM_SHA256::AES-GCM::AEAD::128 nssslenabledciphers:
+TLS_RSA_WITH_AES_128_CBC_SHA::AES::SHA1::128 nssslenabledciphers: TLS_RSA_WITH_AES_128_CBC_SHA256::AES::SHA256::128 nssslenabledciphers: TLS_RSA_WITH_AES_256_CBC_SHA::AES::SHA1::256 nssslenabledciphers:
+TLS_RSA_WITH_AES_256_CBC_SHA256::AES::SHA256::256 nsSSL2: off nsSSL3: off nsTLS1: on sslVersionMax: TLS1.2 # RSA, encryption, config dn: cn=RSA,cn=encryption,cn=config cn: RSA nsSSLActivation: on nsSSLPersonalitySSL: Server-Cert nsSSLToken: internal
+(software) objectClass: top objectClass: nsEncryptionModule # search result search: 3 result: 0 Success # numResponses: 3 # numEntries: 2</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10083595</commentid>
+<comment_count>5</comment_count>
+<who name="Christian Heimes">cheimes</who>
+<bug_when>2017-01-20 09:08:45 -0500</bug_when>
+<thetext>The startup log for 389-DS says that it has TLS 1.3 enabled. It contradicts the values in cn=encryption,cn=config. [20/Jan/2017:12:21:43.392275455 +0100] SSL alert: Security Initialization: Enabling default cipher set.
+[20/Jan/2017:12:21:43.394692646 +0100] SSL alert: Configured NSS Ciphers [20/Jan/2017:12:21:43.396532427 +0100] SSL alert: TLS_AES_128_GCM_SHA256: enabled [20/Jan/2017:12:21:43.398188842 +0100] SSL alert: TLS_CHACHA20_POLY1305_SHA256: enabled
+[20/Jan/2017:12:21:43.399739538 +0100] SSL alert: TLS_AES_256_GCM_SHA384: enabled [20/Jan/2017:12:21:43.401377726 +0100] SSL alert: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256: enabled [20/Jan/2017:12:21:43.403380409 +0100] SSL alert:
+TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256: enabled [20/Jan/2017:12:21:43.405172237 +0100] SSL alert: TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256: enabled [20/Jan/2017:12:21:43.406907371 +0100] SSL alert: TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256:
+enabled [20/Jan/2017:12:21:43.408401533 +0100] SSL alert: TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA: enabled [20/Jan/2017:12:21:43.409959655 +0100] SSL alert: TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA: enabled [20/Jan/2017:12:21:43.411726408 +0100] SSL alert:
+TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA: enabled [20/Jan/2017:12:21:43.413183516 +0100] SSL alert: TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256: enabled [20/Jan/2017:12:21:43.414869511 +0100] SSL alert: TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256: enabled
+[20/Jan/2017:12:21:43.416444533 +0100] SSL alert: TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA: enabled [20/Jan/2017:12:21:43.418008226 +0100] SSL alert: TLS_DHE_RSA_WITH_AES_128_GCM_SHA256: enabled [20/Jan/2017:12:21:43.419633218 +0100] SSL alert:
+TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256: enabled [20/Jan/2017:12:21:43.421273013 +0100] SSL alert: TLS_DHE_RSA_WITH_AES_128_CBC_SHA: enabled [20/Jan/2017:12:21:43.422934354 +0100] SSL alert: TLS_DHE_DSS_WITH_AES_128_CBC_SHA: enabled
+[20/Jan/2017:12:21:43.424567189 +0100] SSL alert: TLS_DHE_RSA_WITH_AES_128_CBC_SHA256: enabled [20/Jan/2017:12:21:43.426224006 +0100] SSL alert: TLS_DHE_RSA_WITH_AES_256_CBC_SHA: enabled [20/Jan/2017:12:21:43.427839095 +0100] SSL alert:
+TLS_DHE_DSS_WITH_AES_256_CBC_SHA: enabled [20/Jan/2017:12:21:43.429640172 +0100] SSL alert: TLS_DHE_RSA_WITH_AES_256_CBC_SHA256: enabled [20/Jan/2017:12:21:43.431426045 +0100] SSL alert: TLS_RSA_WITH_AES_128_GCM_SHA256: enabled
+[20/Jan/2017:12:21:43.433083291 +0100] SSL alert: TLS_RSA_WITH_AES_128_CBC_SHA: enabled [20/Jan/2017:12:21:43.434599471 +0100] SSL alert: TLS_RSA_WITH_AES_128_CBC_SHA256: enabled [20/Jan/2017:12:21:43.436011163 +0100] SSL alert:
+TLS_RSA_WITH_AES_256_CBC_SHA: enabled [20/Jan/2017:12:21:43.437544750 +0100] SSL alert: TLS_RSA_WITH_AES_256_CBC_SHA256: enabled [20/Jan/2017:12:21:43.449406482 +0100] SSL Initialization - Configured SSL version range: min: TLS1.0, max: TLS1.3
+[20/Jan/2017:12:21:43.451608332 +0100] 389-Directory/1.3.5.15 B2016.308.2026 starting up</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10083807</commentid>
+<comment_count>6</comment_count>
+<who name="Hubert Kario">hkario</who>
+<bug_when>2017-01-20 09:56:58 -0500</bug_when>
+<thetext>(In reply to Christian Heimes from comment #5) &gt; The startup log for 389-DS says that it has TLS 1.3 enabled. It contradicts &gt; the values in cn=encryption,cn=config. but it does look like NSS default (and TLSv1.3 specific ciphers look
+to be enabled), so it looks like the issue is on the client side</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10087979</commentid>
+<comment_count>7</comment_count>
+<who name="Kai Engert (:kaie)">kengert</who>
+<bug_when>2017-01-23 04:20:27 -0500</bug_when>
+<thetext>Updates for Fedora 24 and Fedora 25 have been pushed, which disable TLS 1.3. Do you think it&apos;s acceptable to keep TLS 1.3 enabled on Rawhide 26 ? It will allow you to test more easily if you&apos;ve fixed it, and it would allow us to
+find other broken applications.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10088054</commentid>
+<comment_count>8</comment_count>
+<who name="Kai Engert (:kaie)">kengert</who>
+<bug_when>2017-01-23 04:47:11 -0500</bug_when>
+<thetext>Could you please give us feedback, if FreeIPA works with the submitted F24 + F25 updates?</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10088500</commentid>
+<comment_count>9</comment_count>
+<who name="Hubert Kario">hkario</who>
+<bug_when>2017-01-23 07:47:02 -0500</bug_when>
+<thetext>(In reply to Kai Engert (:kaie) from comment #7) &gt; Updates for Fedora 24 and Fedora 25 have been pushed, which disable TLS 1.3. &gt; &gt; Do you think it&apos;s acceptable to keep TLS 1.3 enabled on Rawhide 26 ? &gt; &gt; It will allow
+you to test more easily if you&apos;ve fixed it, and it would allow &gt; us to find other broken applications. We shouldn&apos;t break rawhide intentionally either, so probably we should keep TLS 1.3 disabled. Matus Honek said he&apos;ll work on
+fixing openldap handling of ciphersuites this week, so we should be able to resume testing of TLS 1.3 next week.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10242968</commentid>
+<comment_count>10</comment_count>
+<who name="Kai Engert (:kaie)">kengert</who>
+<bug_when>2017-03-15 14:10:29 -0400</bug_when>
+<thetext>(In reply to Hubert Kario from comment #9) &gt; &gt; Matus Honek said he&apos;ll work on fixing openldap handling of &gt; ciphersuites this week, so we should be able to resume testing of TLS 1.3 &gt; next week. Is there a Fedora bug that
+tracks this work? Has there been any progress on fixing openldap? We would like to try to enable TLS 1.3 in Fedora again, and this issue is a blocker for that effort.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10245312</commentid>
+<comment_count>11</comment_count>
+<who name="Kai Engert (:kaie)">kengert</who>
+<bug_when>2017-03-16 06:27:59 -0400</bug_when>
+<thetext>The identified problem is with the openldap component, so let&apos;s reassign this bug.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10270778</commentid>
+<comment_count>12</comment_count>
+<attachid>1265834</attachid>
+<who name="Matus Honek">mhonek</who>
+<bug_when>2017-03-23 12:43:40 -0400</bug_when>
+<thetext>Created attachment 1265834 Add support for TLSv1.3 ciphers in OpenLDAP I&apos;m attaching a proposed patch (it probably won&apos;t apply cleanly to the dist-git repo due to some of my local changes). Hubert, please, check if the flags in the
+cipher suite definitions are correct. I&apos;ve tested with TLS_PROTOCOL_MIN 3.4 with both client and server and all three ciphers were sent in the Client Hello with TLS connection successfully established. I&apos;ll file separate bugzillas for f25
+and f26 for this issue. Thanks.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10270832</commentid>
+<comment_count>13</comment_count>
+<who name="Kai Engert (:kaie)">kengert</who>
+<bug_when>2017-03-23 13:00:06 -0400</bug_when>
+<thetext>Here is a COPR repository with NSS builds that enable TLS 1.3 support: https://copr.fedorainfracloud.org/coprs/kengert/nss-with-tls-1.3/</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10274519</commentid>
+<comment_count>14</comment_count>
+<attachid>1265834</attachid>
+<who name="Hubert Kario">hkario</who>
+<bug_when>2017-03-24 08:08:25 -0400</bug_when>
+<thetext>Comment on attachment 1265834 Add support for TLSv1.3 ciphers in OpenLDAP r+ but the &quot;TLSv1.3&quot; alias is not exactly set in stone just yet: https://github.com/openssl/openssl/issues/2276</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10274902</commentid>
+<comment_count>15</comment_count>
+<who name="Matus Honek">mhonek</who>
+<bug_when>2017-03-24 09:51:10 -0400</bug_when>
+<thetext>Thanks, Hubert. I am aware of the alias not being official (I came across the very same GitHub issue), yet, but I wanted to make choosing those ciphers through TLS_CIPHER_SUITE possible. Same as the TLSv1.3, it is a subject to a potential change.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10313835</commentid>
+<comment_count>16</comment_count>
+<who name="Matus Honek">mhonek</who>
+<bug_when>2017-04-07 06:33:53 -0400</bug_when>
+<thetext>This bug is resolved now by bug 1435689 and bug 1435692. Should the issues still persist, please, feel free to reopen this bug.</thetext>
+</long_desc>
+
+<attachment isobsolete="0" ispatch="0" isprivate="0">
+<attachid>1242726</attachid>
+<date>2017-01-20 06:52:00 -0500</date>
+<delta_ts>2017-01-20 06:52:17 -0500</delta_ts>
+<desc>Output of sslscan tool against broken and working installation</desc>
+<filename>sslscan_ldap_starttls.txt</filename>
+<type>text/plain</type>
+<size>5306</size>
+<attacher name="Martin Babinsky">mbabinsk</attacher>
+
+<data encoding="base64">QnJva2VuIGluc3RhbGxhdGlvbiAobnNzLTMuMjguMS0xLjIuZmMyNS54ODZfNjQpOgoKVmVyc2lv bjogMS4xMS44LXJic2VjLTUtZzY2ZGVkZGIKT3BlblNTTCAxLjAuMmotZmlwcyAgMjYgU2VwIDIw
+MTYKCk9wZW5TU0wgdmVyc2lvbiBkb2VzIG5vdCBzdXBwb3J0IFNTTHYyClNTTHYyIGNpcGhlcnMg d2lsbCBub3QgYmUgZGV0ZWN0ZWQKClRlc3RpbmcgU1NMIHNlcnZlciAxOTIuMTY4LjEyMS4xNjIg b24gcG9ydCAzODkKCiAgVExTIEZhbGxiYWNrIFNDU1Y6ClNlcnZlciBkb2VzIG5vdCBzdXBwb3J0
+IFRMUyBGYWxsYmFjayBTQ1NWCgogIFRMUyByZW5lZ290aWF0aW9uOgpTZWN1cmUgc2Vzc2lvbiBy ZW5lZ290aWF0aW9uIHN1cHBvcnRlZAoKICBUTFMgQ29tcHJlc3Npb246CkNvbXByZXNzaW9uIGRp c2FibGVkCgogIEhlYXJ0YmxlZWQ6ClRMUyAxLjIgbm90IHZ1bG5lcmFibGUgdG8gaGVhcnRibGVl
+ZApUTFMgMS4xIG5vdCB2dWxuZXJhYmxlIHRvIGhlYXJ0YmxlZWQKVExTIDEuMCBub3QgdnVsbmVy YWJsZSB0byBoZWFydGJsZWVkCgogIFN1cHBvcnRlZCBTZXJ2ZXIgQ2lwaGVyKHMpOgpQcmVmZXJy ZWQgVExTdjEuMiAgMTI4IGJpdHMgIEVDREhFLVJTQS1BRVMxMjgtR0NNLVNIQTI1NiAgIEN1cnZl
+IFAtMjU2IERIRSAyNTYKQWNjZXB0ZWQgIFRMU3YxLjIgIDEyOCBiaXRzICBFQ0RIRS1SU0EtQUVT MTI4LVNIQSAgICAgICAgICBDdXJ2ZSBQLTI1NiBESEUgMjU2CkFjY2VwdGVkICBUTFN2MS4yICAx MjggYml0cyAgRUNESEUtUlNBLUFFUzEyOC1TSEEyNTYgICAgICAgQ3VydmUgUC0yNTYgREhFIDI1
+NgpBY2NlcHRlZCAgVExTdjEuMiAgMjU2IGJpdHMgIEVDREhFLVJTQS1BRVMyNTYtU0hBICAgICAg ICAgIEN1cnZlIFAtMjU2IERIRSAyNTYKQWNjZXB0ZWQgIFRMU3YxLjIgIDEyOCBiaXRzICBESEUt UlNBLUFFUzEyOC1HQ00tU0hBMjU2ICAgICBESEUgMjA0OCBiaXRzCkFjY2VwdGVkICBUTFN2MS4y
+ICAxMjggYml0cyAgREhFLVJTQS1BRVMxMjgtU0hBICAgICAgICAgICAgREhFIDIwNDggYml0cwpB Y2NlcHRlZCAgVExTdjEuMiAgMTI4IGJpdHMgIERIRS1SU0EtQUVTMTI4LVNIQTI1NiAgICAgICAg IERIRSAyMDQ4IGJpdHMKQWNjZXB0ZWQgIFRMU3YxLjIgIDI1NiBiaXRzICBESEUtUlNBLUFFUzI1
+Ni1TSEEgICAgICAgICAgICBESEUgMjA0OCBiaXRzCkFjY2VwdGVkICBUTFN2MS4yICAyNTYgYml0 cyAgREhFLVJTQS1BRVMyNTYtU0hBMjU2ICAgICAgICAgREhFIDIwNDggYml0cwpBY2NlcHRlZCAg VExTdjEuMiAgMTI4IGJpdHMgIEFFUzEyOC1HQ00tU0hBMjU2ICAgICAgICAgICAgCkFjY2VwdGVk
+ICBUTFN2MS4yICAxMjggYml0cyAgQUVTMTI4LVNIQSAgICAgICAgICAgICAgICAgICAKQWNjZXB0 ZWQgIFRMU3YxLjIgIDEyOCBiaXRzICBBRVMxMjgtU0hBMjU2ICAgICAgICAgICAgICAgIApBY2Nl cHRlZCAgVExTdjEuMiAgMjU2IGJpdHMgIEFFUzI1Ni1TSEEgICAgICAgICAgICAgICAgICAgCkFj
+Y2VwdGVkICBUTFN2MS4yICAyNTYgYml0cyAgQUVTMjU2LVNIQTI1NiAgICAgICAgICAgICAgICAK UHJlZmVycmVkIFRMU3YxLjEgIDEyOCBiaXRzICBFQ0RIRS1SU0EtQUVTMTI4LVNIQSAgICAgICAg ICBDdXJ2ZSBQLTI1NiBESEUgMjU2CkFjY2VwdGVkICBUTFN2MS4xICAyNTYgYml0cyAgRUNESEUt
+UlNBLUFFUzI1Ni1TSEEgICAgICAgICAgQ3VydmUgUC0yNTYgREhFIDI1NgpBY2NlcHRlZCAgVExT djEuMSAgMTI4IGJpdHMgIERIRS1SU0EtQUVTMTI4LVNIQSAgICAgICAgICAgIERIRSAyMDQ4IGJp dHMKQWNjZXB0ZWQgIFRMU3YxLjEgIDI1NiBiaXRzICBESEUtUlNBLUFFUzI1Ni1TSEEgICAgICAg
+ICAgICBESEUgMjA0OCBiaXRzCkFjY2VwdGVkICBUTFN2MS4xICAxMjggYml0cyAgQUVTMTI4LVNI QSAgICAgICAgICAgICAgICAgICAKQWNjZXB0ZWQgIFRMU3YxLjEgIDI1NiBiaXRzICBBRVMyNTYt U0hBICAgICAgICAgICAgICAgICAgIApQcmVmZXJyZWQgVExTdjEuMCAgMTI4IGJpdHMgIEVDREhF
+LVJTQS1BRVMxMjgtU0hBICAgICAgICAgIEN1cnZlIFAtMjU2IERIRSAyNTYKQWNjZXB0ZWQgIFRM U3YxLjAgIDI1NiBiaXRzICBFQ0RIRS1SU0EtQUVTMjU2LVNIQSAgICAgICAgICBDdXJ2ZSBQLTI1 NiBESEUgMjU2CkFjY2VwdGVkICBUTFN2MS4wICAxMjggYml0cyAgREhFLVJTQS1BRVMxMjgtU0hB
+ICAgICAgICAgICAgREhFIDIwNDggYml0cwpBY2NlcHRlZCAgVExTdjEuMCAgMjU2IGJpdHMgIERI RS1SU0EtQUVTMjU2LVNIQSAgICAgICAgICAgIERIRSAyMDQ4IGJpdHMKQWNjZXB0ZWQgIFRMU3Yx LjAgIDEyOCBiaXRzICBBRVMxMjgtU0hBICAgICAgICAgICAgICAgICAgIApBY2NlcHRlZCAgVExT
+djEuMCAgMjU2IGJpdHMgIEFFUzI1Ni1TSEEgICAgICAgICAgICAgICAgICAgCgpXb3JraW5nIGlu c3RhbGxhdGlvbiAobnNzLTMuMjcuMC0xLjMuZmMyNS54ODZfNjQpOgoKICBTU0wgQ2VydGlmaWNh dGU6ClNpZ25hdHVyZSBBbGdvcml0aG06IHNoYTI1NldpdGhSU0FFbmNyeXB0aW9uClJTQSBLZXkg
+U3RyZW5ndGg6ICAgIDIwNDgKClN1YmplY3Q6ICBtYXN0ZXIxLmlwYS50ZXN0CkFsdG5hbWVzOiBE TlM6bWFzdGVyMS5pcGEudGVzdApJc3N1ZXI6ICAgQ2VydGlmaWNhdGUgQXV0aG9yaXR5CgpOb3Qg dmFsaWQgYmVmb3JlOiBKYW4gMjAgMDk6MzU6MDQgMjAxNyBHTVQKTm90IHZhbGlkIGFmdGVyOiAg
+SmFuIDIxIDA5OjM1OjA0IDIwMTkgR01UClZlcnNpb246IDEuMTEuOC1yYnNlYy01LWc2NmRlZGRi Ck9wZW5TU0wgMS4wLjJqLWZpcHMgIDI2IFNlcCAyMDE2CgpPcGVuU1NMIHZlcnNpb24gZG9lcyBu b3Qgc3VwcG9ydCBTU0x2MgpTU0x2MiBjaXBoZXJzIHdpbGwgbm90IGJlIGRldGVjdGVkCgpUZXN0
+aW5nIFNTTCBzZXJ2ZXIgbWFzdGVyMS5pcGEudGVzdCBvbiBwb3J0IDM4OQoKICBUTFMgRmFsbGJh Y2sgU0NTVjoKU2VydmVyIGRvZXMgbm90IHN1cHBvcnQgVExTIEZhbGxiYWNrIFNDU1YKCiAgVExT IHJlbmVnb3RpYXRpb246ClNlY3VyZSBzZXNzaW9uIHJlbmVnb3RpYXRpb24gc3VwcG9ydGVkCgog
+IFRMUyBDb21wcmVzc2lvbjoKQ29tcHJlc3Npb24gZGlzYWJsZWQKCiAgSGVhcnRibGVlZDoKVExT IDEuMiBub3QgdnVsbmVyYWJsZSB0byBoZWFydGJsZWVkClRMUyAxLjEgbm90IHZ1bG5lcmFibGUg dG8gaGVhcnRibGVlZApUTFMgMS4wIG5vdCB2dWxuZXJhYmxlIHRvIGhlYXJ0YmxlZWQKCiAgU3Vw
+cG9ydGVkIFNlcnZlciBDaXBoZXIocyk6ClByZWZlcnJlZCBUTFN2MS4yICAxMjggYml0cyAgRUNE SEUtUlNBLUFFUzEyOC1HQ00tU0hBMjU2ICAgQ3VydmUgUC0yNTYgREhFIDI1NgpBY2NlcHRlZCAg VExTdjEuMiAgMTI4IGJpdHMgIEVDREhFLVJTQS1BRVMxMjgtU0hBICAgICAgICAgIEN1cnZlIFAt
+MjU2IERIRSAyNTYKQWNjZXB0ZWQgIFRMU3YxLjIgIDEyOCBiaXRzICBFQ0RIRS1SU0EtQUVTMTI4 LVNIQTI1NiAgICAgICBDdXJ2ZSBQLTI1NiBESEUgMjU2CkFjY2VwdGVkICBUTFN2MS4yICAyNTYg Yml0cyAgRUNESEUtUlNBLUFFUzI1Ni1TSEEgICAgICAgICAgQ3VydmUgUC0yNTYgREhFIDI1NgpB
+Y2NlcHRlZCAgVExTdjEuMiAgMTI4IGJpdHMgIERIRS1SU0EtQUVTMTI4LUdDTS1TSEEyNTYgICAg IERIRSAyMDQ4IGJpdHMKQWNjZXB0ZWQgIFRMU3YxLjIgIDEyOCBiaXRzICBESEUtUlNBLUFFUzEy OC1TSEEgICAgICAgICAgICBESEUgMjA0OCBiaXRzCkFjY2VwdGVkICBUTFN2MS4yICAxMjggYml0
+cyAgREhFLVJTQS1BRVMxMjgtU0hBMjU2ICAgICAgICAgREhFIDIwNDggYml0cwpBY2NlcHRlZCAg VExTdjEuMiAgMjU2IGJpdHMgIERIRS1SU0EtQUVTMjU2LVNIQSAgICAgICAgICAgIERIRSAyMDQ4 IGJpdHMKQWNjZXB0ZWQgIFRMU3YxLjIgIDI1NiBiaXRzICBESEUtUlNBLUFFUzI1Ni1TSEEyNTYg
+ICAgICAgICBESEUgMjA0OCBiaXRzCkFjY2VwdGVkICBUTFN2MS4yICAxMjggYml0cyAgQUVTMTI4 LUdDTS1TSEEyNTYgICAgICAgICAgICAKQWNjZXB0ZWQgIFRMU3YxLjIgIDEyOCBiaXRzICBBRVMx MjgtU0hBICAgICAgICAgICAgICAgICAgIApBY2NlcHRlZCAgVExTdjEuMiAgMTI4IGJpdHMgIEFF
+UzEyOC1TSEEyNTYgICAgICAgICAgICAgICAgCkFjY2VwdGVkICBUTFN2MS4yICAyNTYgYml0cyAg QUVTMjU2LVNIQSAgICAgICAgICAgICAgICAgICAKQWNjZXB0ZWQgIFRMU3YxLjIgIDI1NiBiaXRz ICBBRVMyNTYtU0hBMjU2ICAgICAgICAgICAgICAgIApQcmVmZXJyZWQgVExTdjEuMSAgMTI4IGJp
+dHMgIEVDREhFLVJTQS1BRVMxMjgtU0hBICAgICAgICAgIEN1cnZlIFAtMjU2IERIRSAyNTYKQWNj ZXB0ZWQgIFRMU3YxLjEgIDI1NiBiaXRzICBFQ0RIRS1SU0EtQUVTMjU2LVNIQSAgICAgICAgICBD dXJ2ZSBQLTI1NiBESEUgMjU2CkFjY2VwdGVkICBUTFN2MS4xICAxMjggYml0cyAgREhFLVJTQS1B
+RVMxMjgtU0hBICAgICAgICAgICAgREhFIDIwNDggYml0cwpBY2NlcHRlZCAgVExTdjEuMSAgMjU2 IGJpdHMgIERIRS1SU0EtQUVTMjU2LVNIQSAgICAgICAgICAgIERIRSAyMDQ4IGJpdHMKQWNjZXB0 ZWQgIFRMU3YxLjEgIDEyOCBiaXRzICBBRVMxMjgtU0hBICAgICAgICAgICAgICAgICAgIApBY2Nl
+cHRlZCAgVExTdjEuMSAgMjU2IGJpdHMgIEFFUzI1Ni1TSEEgICAgICAgICAgICAgICAgICAgClBy ZWZlcnJlZCBUTFN2MS4wICAxMjggYml0cyAgRUNESEUtUlNBLUFFUzEyOC1TSEEgICAgICAgICAg Q3VydmUgUC0yNTYgREhFIDI1NgpBY2NlcHRlZCAgVExTdjEuMCAgMjU2IGJpdHMgIEVDREhFLVJT
+QS1BRVMyNTYtU0hBICAgICAgICAgIEN1cnZlIFAtMjU2IERIRSAyNTYKQWNjZXB0ZWQgIFRMU3Yx LjAgIDEyOCBiaXRzICBESEUtUlNBLUFFUzEyOC1TSEEgICAgICAgICAgICBESEUgMjA0OCBiaXRz CkFjY2VwdGVkICBUTFN2MS4wICAyNTYgYml0cyAgREhFLVJTQS1BRVMyNTYtU0hBICAgICAgICAg
+ICAgREhFIDIwNDggYml0cwpBY2NlcHRlZCAgVExTdjEuMCAgMTI4IGJpdHMgIEFFUzEyOC1TSEEg ICAgICAgICAgICAgICAgICAgCkFjY2VwdGVkICBUTFN2MS4wICAyNTYgYml0cyAgQUVTMjU2LVNI QSAgICAgICAgICAgICAgICAgICAKCiAgU1NMIENlcnRpZmljYXRlOgpTaWduYXR1cmUgQWxnb3Jp
+dGhtOiBzaGEyNTZXaXRoUlNBRW5jcnlwdGlvbgpSU0EgS2V5IFN0cmVuZ3RoOiAgICAyMDQ4CgpT dWJqZWN0OiAgbWFzdGVyMS5pcGEudGVzdApBbHRuYW1lczogRE5TOm1hc3RlcjEuaXBhLnRlc3QK SXNzdWVyOiAgIENlcnRpZmljYXRlIEF1dGhvcml0eQoKTm90IHZhbGlkIGJlZm9yZTogRGVjICA5
+IDEyOjAwOjU5IDIwMTYgR01UCk5vdCB2YWxpZCBhZnRlcjogIERlYyAxMCAxMjowMDo1OSAyMDE4 IEdNVAo=
+</data>
+
+</attachment>
+<attachment isobsolete="0" ispatch="0" isprivate="0">
+<attachid>1242801</attachid>
+<date>2017-01-20 08:03:00 -0500</date>
+<delta_ts>2017-01-20 08:03:58 -0500</delta_ts>
+<desc>ssltap.txt</desc>
+<filename>ssltap.txt</filename>
+<type>text/plain</type>
+<size>3127</size>
+<attacher name="Kai Engert (:kaie)">kengert</attacher>
+
+<data encoding="base64">TG9va2luZyB1cCAiMTI3LjAuMC4xIi4uLgpQcm94eSBzb2NrZXQgcmVhZHkgYW5kIGxpc3Rlbmlu ZwpDb25uZWN0ZWQgdG8gMTI3LjAuMC4xOjYzNgotLT4gWwooMjE4IGJ5dGVzIG9mIDIxMykKU1NM
+UmVjb3JkIHsgW0ZyaSBKYW4gMjAgMTQ6MDA6MTUgMjAxN10KICAgdHlwZSAgICA9IDIyIChoYW5k c2hha2UpCiAgIHZlcnNpb24gPSB7IDMsMSB9CiAgIGxlbmd0aCAgPSAyMTMgKDB4ZDUpCiAgIGhh bmRzaGFrZSB7CiAgICAgIHR5cGUgPSAxIChjbGllbnRfaGVsbG8pCiAgICAgIGxlbmd0aCA9IDIw
+OSAoMHgwMDAwZDEpCiAgICAgICAgIENsaWVudEhlbGxvVjMgewogICAgICAgICAgICBjbGllbnRf dmVyc2lvbiA9IHszLCAzfQogICAgICAgICAgICByYW5kb20gPSB7Li4ufQogICAgICAgICAgICBz ZXNzaW9uIElEID0gewogICAgICAgICAgICAgICAgbGVuZ3RoID0gMAogICAgICAgICAgICAgICAg
+Y29udGVudHMgPSB7Li4ufQogICAgICAgICAgICB9CiAgICAgICAgICAgIGNpcGhlcl9zdWl0ZXNb MjFdID0gewogICAgICAgICAgICAgICAgKDB4YzAwYSkgVExTL0VDREhFLUVDRFNBL0FFUzI1Ni1D QkMvU0hBCiAgICAgICAgICAgICAgICAoMHhjMDA5KSBUTFMvRUNESEUtRUNEU0EvQUVTMTI4LUNC
+Qy9TSEEKICAgICAgICAgICAgICAgICgweGMwMTMpIFRMUy9FQ0RIRS1SU0EvQUVTMTI4LUNCQy9T SEEKICAgICAgICAgICAgICAgICgweGMwMTQpIFRMUy9FQ0RIRS1SU0EvQUVTMjU2LUNCQy9TSEEK ICAgICAgICAgICAgICAgICgweGMwMDgpIFRMUy9FQ0RIRS1FQ0RTQS8zREVTLUVERS1DQkMvU0hB
+CiAgICAgICAgICAgICAgICAoMHhjMDEyKSBUTFMvRUNESEUtUlNBLzNERVMtRURFLUNCQy9TSEEK ICAgICAgICAgICAgICAgICgweDAwMzMpIFRMUy9ESEUtUlNBL0FFUzEyOC1DQkMvU0hBCiAgICAg ICAgICAgICAgICAoMHgwMDMyKSBUTFMvREhFLURTUy9BRVMxMjgtQ0JDL1NIQQogICAgICAgICAg
+ICAgICAgKDB4MDA0NSkgVExTL0RIRS1SU0EvQ0FNRUxMSUExMjgtQ0JDL1NIQQogICAgICAgICAg ICAgICAgKDB4MDA0NCkgVExTL0RIRS1EU1MvQ0FNRUxMSUExMjgtQ0JDL1NIQQogICAgICAgICAg ICAgICAgKDB4MDAzOSkgVExTL0RIRS1SU0EvQUVTMjU2LUNCQy9TSEEKICAgICAgICAgICAgICAg
+ICgweDAwMzgpIFRMUy9ESEUtRFNTL0FFUzI1Ni1DQkMvU0hBCiAgICAgICAgICAgICAgICAoMHgw MDg4KSBUTFMvREhFLVJTQS9DQU1FTExJQTI1Ni1DQkMvU0hBCiAgICAgICAgICAgICAgICAoMHgw MDg3KSBUTFMvREhFLURTUy9DQU1FTExJQTI1Ni1DQkMvU0hBCiAgICAgICAgICAgICAgICAoMHgw
+MDE2KSBTU0wzL0RIRS1SU0EvM0RFUzE5MkVERS1DQkMvU0hBCiAgICAgICAgICAgICAgICAoMHgw MDEzKSBTU0wzL0RIRS1EU1MvREVTMTkyRURFM0NCQy9TSEEKICAgICAgICAgICAgICAgICgweDAw MmYpIFRMUy9SU0EvQUVTMTI4LUNCQy9TSEEKICAgICAgICAgICAgICAgICgweDAwNDEpIFRMUy9S
+U0EvQ0FNRUxMSUExMjgtQ0JDL1NIQQogICAgICAgICAgICAgICAgKDB4MDAzNSkgVExTL1JTQS9B RVMyNTYtQ0JDL1NIQQogICAgICAgICAgICAgICAgKDB4MDA4NCkgVExTL1JTQS9DQU1FTExJQTI1 Ni1DQkMvU0hBCiAgICAgICAgICAgICAgICAoMHgwMDBhKSBTU0wzL1JTQS8zREVTMTkyRURFLUNC
+Qy9TSEEKICAgICAgICAgICAgfQogICAgICAgICAgICBjb21wcmVzc2lvblsxXSA9IHsKICAgICAg ICAgICAgICAgICgwMCkgTlVMTAogICAgICAgICAgICB9CiAgICAgICAgICAgIGV4dGVuc2lvbnNb MTI2XSA9IHsKICAgICAgICAgICAgICBleHRlbnNpb24gdHlwZSByZW5lZ290aWF0aW9uX2luZm8s
+IGxlbmd0aCBbMV0gPSB7CiAgIDA6IDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg ICAgICAgICAgICAgICAgICB8IC4KICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgZXh0ZW5z aW9uIHR5cGUgZWxsaXB0aWNfY3VydmVzLCBsZW5ndGggWzIwXSA9IHsKICAgMDogMDAgMTIgMDAg
+MWQgIDAwIDE3IDAwIDE4ICAwMCAxOSAwMSAwMCAgMDEgMDEgMDEgMDIgIHwgLi4uLi4uLi4uLi4u Li4uLgogIDEwOiAwMSAwMyAwMSAwNCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg ICAgICAgfCAuLi4uCiAgICAgICAgICAgICAgfQogICAgICAgICAgICAgIGV4dGVuc2lvbiB0eXBl
+IGVjX3BvaW50X2Zvcm1hdHMsIGxlbmd0aCBbMl0gPSB7CiAgIDA6IDAxIDAwICAgICAgICAgICAg ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8IC4uCiAgICAgICAgICAgICAgfQog ICAgICAgICAgICAgIGV4dGVuc2lvbiB0eXBlIDQwLCBsZW5ndGggWzM4XSA9IHsKICAgMDogMDAg
+MjQgMDAgMWQgIDAwIDIwIGE4IDFkICBhMSAxOCAzNCBhNCAgODAgNTQgZTkgNDMgIHwgLiQuLi4g Li4uLjQuLlQuQwogIDEwOiBkZSBhNSA5OCA0YyAgMTYgZDcgNzMgMTIgIDRhIDUzIDIwIGZlICBj ZCBhMiBkNyA4OCAgfCAuLi5MLi5zLkpTIC4uLi4uCiAgMjA6IDdiIDMzIGI3IDhmICAyNiAxZCAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8IHszLi4mLgogICAgICAgICAgICAgIH0K ICAgICAgICAgICAgICBleHRlbnNpb24gdHlwZSA0MywgbGVuZ3RoIFs5XSA9IHsKICAgMDogMDgg N2YgMTIgMDMgIDAzIDAzIDAyIDAzICAwMSAgICAgICAgICAgICAgICAgICAgICAgIHwgLi4uLi4u
+Li4KICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgZXh0ZW5zaW9uIHR5cGUgc2lnbmF0dXJl X2FsZ29yaXRobXMsIGxlbmd0aCBbMzJdID0gewogICAwOiAwMCAxZSAwNCAwMyAgMDUgMDMgMDYg MDMgIDAyIDAzIDA4IDA0ICAwOCAwNSAwOCAwNiAgfCAuLi4uLi4uLi4uLi4uLi4uCiAgMTA6IDA0
+IDAxIDA1IDAxICAwNiAwMSAwMiAwMSAgMDQgMDIgMDUgMDIgIDA2IDAyIDAyIDAyICB8IC4uLi4u Li4uLi4uLi4uLi4KICAgICAgICAgICAgICB9CiAgICAgICAgICAgIH0KICAgICAgICAgfQogICB9 Cn0KXQo8LS0gWwooNyBieXRlcyBvZiAyKQpTU0xSZWNvcmQgeyBbRnJpIEphbiAyMCAxNDowMDox
+NSAyMDE3XQogICB0eXBlICAgID0gMjEgKGFsZXJ0KQogICB2ZXJzaW9uID0geyAzLDEgfQogICBs ZW5ndGggID0gMiAoMHgyKQogICBmYXRhbDogaGFuZHNoYWtlX2ZhaWx1cmUKfQpdCg==
+</data>
+
+</attachment>
+<attachment isobsolete="0" ispatch="1" isprivate="0">
+<attachid>1265834</attachid>
+<date>2017-03-23 12:43:00 -0400</date>
+<delta_ts>2017-03-24 08:08:25 -0400</delta_ts>
+<desc>Add support for TLSv1.3 ciphers in OpenLDAP</desc>
+<filename>0001-add-TLSv1.3.patch</filename>
+<type>text/plain</type>
+<size>3901</size>
+<attacher name="Matus Honek">mhonek</attacher>
+
+<data encoding="base64">RnJvbSBiNjU0NzZjNzkxZjgyNDFlNjBjZGViNTljMzNmNjE5YjIyOWU0MTlkIE1vbiBTZXAgMTcg MDA6MDA6MDAgMjAwMQpGcm9tOiA9P1VURi04P3E/TWF0PUMzPUJBPUM1PUExPTIwSG9uPUM0PTlC
+az89IDxtaG9uZWtAcmVkaGF0LmNvbT4KRGF0ZTogVGh1LCAyMyBNYXIgMjAxNyAxMzo0MzozOSAr MDEwMApTdWJqZWN0OiBbUEFUQ0hdIGFkZCBUTFN2MS4zCgotLS0KIG9wZW5sZGFwLW5zcy1jaXBo ZXItYXR0cmlidXRlcy5wYXRjaCAgIHwgMyArKy0KIG9wZW5sZGFwLW5zcy1jaXBoZXJzLWRlZmlu
+aXRpb25zLnBhdGNoIHwgNyArKysrKystCiBvcGVubGRhcC1uc3MtY2lwaGVycy1wYXJzaW5nLnBh dGNoICAgICB8IDQgKysrLQogMyBmaWxlcyBjaGFuZ2VkLCAxMSBpbnNlcnRpb25zKCspLCAzIGRl bGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL29wZW5sZGFwLW5zcy1jaXBoZXItYXR0cmlidXRlcy5w
+YXRjaCBiL29wZW5sZGFwLW5zcy1jaXBoZXItYXR0cmlidXRlcy5wYXRjaAppbmRleCA1ZWJkMzQ3 Li5hZDE1YWVhIDEwMDY0NAotLS0gYS9vcGVubGRhcC1uc3MtY2lwaGVyLWF0dHJpYnV0ZXMucGF0 Y2gKKysrIGIvb3BlbmxkYXAtbnNzLWNpcGhlci1hdHRyaWJ1dGVzLnBhdGNoCkBAIC02Nyw3ICs2
+Nyw3IEBAIGRpZmYgLS1naXQgYS9saWJyYXJpZXMvbGlibGRhcC90bHNfbS5jIGIvbGlicmFyaWVz L2xpYmxkYXAvdGxzX20uYwogIAogIC8qIGNpcGhlciBzdHJlbmd0aCAqLwogICNkZWZpbmUgU1NM X05VTEwgICAgICAweDAwMDAwMDAxTAotQEAgLTI0MCwxMCArMjU3LDE0IEBAIHR5cGVkZWYgc3Ry
+dWN0IHsKK0BAIC0yNDAsMTAgKzI1NywxNSBAQCB0eXBlZGVmIHN0cnVjdCB7CiAgI2RlZmluZSBT U0xfTUVESVVNICAgIDB4MDAwMDAwMTBMCiAgI2RlZmluZSBTU0xfSElHSCAgICAgIDB4MDAwMDAw MjBMCiAgCkBAIC03OSw2ICs3OSw3IEBAIGRpZmYgLS1naXQgYS9saWJyYXJpZXMvbGlibGRhcC90
+bHNfbS5jIGIvbGlicmFyaWVzL2xpYmxkYXAvdGxzX20uYwogIC8qIE9wZW5TU0wgdHJlYXRzIFNT TDMgYW5kIFRMU3YxIHRoZSBzYW1lICovCiAgI2RlZmluZSBUTFMxICBTU0wzCiArI2RlZmluZSBU TFMxXzIgMHgwMDAwMDAwNEwKKysjZGVmaW5lIFRMUzFfMyAweDAwMDAwMDA4TAogIAogIC8qIENp
+cGhlciB0cmFuc2xhdGlvbiAqLwogIHN0YXRpYyBjaXBoZXJfcHJvcGVydGllcyBjaXBoZXJzX2Rl ZltdID0gewpkaWZmIC0tZ2l0IGEvb3BlbmxkYXAtbnNzLWNpcGhlcnMtZGVmaW5pdGlvbnMucGF0 Y2ggYi9vcGVubGRhcC1uc3MtY2lwaGVycy1kZWZpbml0aW9ucy5wYXRjaAppbmRleCA3YjdhODY4
+Li42ZGUxNDJjIDEwMDY0NAotLS0gYS9vcGVubGRhcC1uc3MtY2lwaGVycy1kZWZpbml0aW9ucy5w YXRjaAorKysgYi9vcGVubGRhcC1uc3MtY2lwaGVycy1kZWZpbml0aW9ucy5wYXRjaApAQCAtNiw3 ICs2LDcgQEAgUHJldmlvdXNBdXRob3I6IEphbiBWY2VsYWsgPGp2Y2VsYWtAcmVkaGF0LmNvbT4K
+IGRpZmYgLS1naXQgYS9saWJyYXJpZXMvbGlibGRhcC90bHNfbS5jIGIvbGlicmFyaWVzL2xpYmxk YXAvdGxzX20uYwogLS0tIGEvbGlicmFyaWVzL2xpYmxkYXAvdGxzX20uYwogKysrIGIvbGlicmFy aWVzL2xpYmxkYXAvdGxzX20uYwotQEAgLTI2OCwyOSArMjY4LDEwNCBAQCB0eXBlZGVmIHN0cnVj
+dCB7CitAQCAtMjY4LDI5ICsyNjgsMTA5IEBAIHR5cGVkZWYgc3RydWN0IHsKICAKICAvKiBDaXBo ZXIgdHJhbnNsYXRpb24gKi8KICBzdGF0aWMgY2lwaGVyX3Byb3BlcnRpZXMgY2lwaGVyc19kZWZb XSA9IHsKQEAgLTEyOSw2ICsxMjksMTEgQEAgZGlmZiAtLWdpdCBhL2xpYnJhcmllcy9saWJsZGFw
+L3Rsc19tLmMgYi9saWJyYXJpZXMvbGlibGRhcC90bHNfbS5jCiArCS8veyJFQ0RIRS1FQ0RTQS1D SEFDSEEyMC1QT0xZMTMwNSIsIDB4Y2NhOSAvKiBUTFNfRUNESEVfRUNEU0FfV0lUSF9DSEFDSEEy MF9QT0xZMTMwNV9TSEEyNTYgKi8sIFNTTF9rRUNESEV8U1NMX2FFQ0RTQXxTU0xfQ0hBQ0hBMjBQ
+T0xZMTMwNXxTU0xfQUVBRCwgVExTMV8yLCBTU0xfSElHSH0sCiArCS8veyJFQ0RIRS1SU0EtQ0hB Q0hBMjAtUE9MWTEzMDUiLCAgIDB4Y2NhOCAvKiBUTFNfRUNESEVfUlNBX1dJVEhfQ0hBQ0hBMjBf UE9MWTEzMDVfU0hBMjU2ICovLCAgIFNTTF9rRUNESEV8U1NMX2FSU0F8U1NMX0NIQUNIQTIwUE9M
+WTEzMDV8U1NMX0FFQUQsICAgVExTMV8yLCBTU0xfSElHSH0sCiArCS8veyJESEUtUlNBLUNIQUNI QTIwLVBPTFkxMzA1IiwgICAgIDB4Y2NhYSAvKiBUTFNfREhFX1JTQV9XSVRIX0NIQUNIQTIwX1BP TFkxMzA1X1NIQTI1NiAqLywgICAgIFNTTF9rRURIfFNTTF9hUlNBfFNTTF9DSEFDSEEyMFBPTFkx
+MzA1fFNTTF9BRUFELCAgICAgVExTMV8yLCBTU0xfSElHSH0sCisrCisrCS8vIFRMU3YxLjMKKysJ eyJUTFMxMy1BRVMtMTI4LUdDTS1TSEEyNTYiLAkweDEzMDEgLyogVExTX0FFU18xMjhfR0NNX1NI QTI1NiAqLywJU1NMX0FFUzEyOHxTU0xfQUVTR0NNfFNTTF9BRUFELAlUTFMxXzMsIFNTTF9ISUdI
+fSwKKysJeyJUTFMxMy1BRVMtMjU2LUdDTS1TSEEzODQiLAkweDEzMDIgLyogVExTX0FFU18yNTZf R0NNX1NIQTM4NCAqLywJU1NMX0FFUzI1NnxTU0xfQUVTR0NNfFNTTF9BRUFELAlUTFMxXzMsIFNT TF9ISUdIfSwKKysJeyJUTFMxMy1DSEFDSEEyMC1QT0xZMTMwNS1TSEEyNTYiLCAgICAgMHgxMzAz
+IC8qIFRMU19DSEFDSEEyMF9QT0xZMTMwNV9TSEEyNTYgKi8sCVNTTF9DSEFDSEEyMFBPTFkxMzA1 fFNTTF9BRUFELAlUTFMxXzMsIFNTTF9ISUdIfSwKICB9OwogIAogICNkZWZpbmUgY2lwaGVybnVt IChzaXplb2YoY2lwaGVyc19kZWYpL3NpemVvZihjaXBoZXJfcHJvcGVydGllcykpCmRpZmYgLS1n
+aXQgYS9vcGVubGRhcC1uc3MtY2lwaGVycy1wYXJzaW5nLnBhdGNoIGIvb3BlbmxkYXAtbnNzLWNp cGhlcnMtcGFyc2luZy5wYXRjaAppbmRleCBiOTFkMDdkLi5kZDA0MDdiIDEwMDY0NAotLS0gYS9v cGVubGRhcC1uc3MtY2lwaGVycy1wYXJzaW5nLnBhdGNoCisrKyBiL29wZW5sZGFwLW5zcy1jaXBo
+ZXJzLXBhcnNpbmcucGF0Y2gKQEAgLTY5LDcgKzY5LDcgQEAgZGlmZiAtLWdpdCBhL2xpYnJhcmll cy9saWJsZGFwL3Rsc19tLmMgYi9saWJyYXJpZXMvbGlibGRhcC90bHNfbS5jCiAgCQkJCX0gZWxz ZSBpZiAoIXN0cmNtcChjaXBoZXIsICIzREVTIikpIHsKICAJCQkJCW1hc2sgfD0gU1NMXzNERVM7
+CiAgCQkJCX0gZWxzZSBpZiAoIXN0cmNtcChjaXBoZXIsICJERVMiKSkgewotQEAgLTY5MywyNiAr NzA3LDY3IEBAIG5zc19wYXJzZV9jaXBoZXJzKGNvbnN0IGNoYXIgKmNpcGhlcnN0ciwgaW50IGNp cGhlcl9saXN0W2NpcGhlcm51bV0pCitAQCAtNjkzLDI2ICs3MDcsNjkgQEAgbnNzX3BhcnNlX2Np
+cGhlcnMoY29uc3QgY2hhciAqY2lwaGVyc3RyLCBpbnQgY2lwaGVyX2xpc3RbY2lwaGVybnVtXSkK ICAJCQkJCW1hc2sgfD0gU1NMX1JDMjsKICAJCQkJfSBlbHNlIGlmICghc3RyY21wKGNpcGhlciwg Ik1ENSIpKSB7CiAgCQkJCQltYXNrIHw9IFNTTF9NRDU7CkBAIC0xMjIsNiArMTIyLDggQEAgZGlm
+ZiAtLWdpdCBhL2xpYnJhcmllcy9saWJsZGFwL3Rsc19tLmMgYi9saWJyYXJpZXMvbGlibGRhcC90 bHNfbS5jCiAgCQkJCQlwcm90b2NvbCB8PSBUTFMxOwogKwkJCQl9IGVsc2UgaWYgKCFzdHJjbXAo Y2lwaGVyLCAiVExTdjEuMiIpKSB7CiArCQkJCQlwcm90b2NvbCB8PSBUTFMxXzI7CisrCQkJCX0g
+ZWxzZSBpZiAoIXN0cmNtcChjaXBoZXIsICJUTFN2MS4zIikpIHsKKysJCQkJCXByb3RvY29sIHw9 IFRMUzFfMzsKICAJCQkJfSBlbHNlIGlmICghc3RyY21wKGNpcGhlciwgIkhJR0giKSkgewogIAkJ CQkJc3RyZW5ndGggfD0gU1NMX0hJR0g7CiAgCQkJCX0gZWxzZSBpZiAoIXN0cmNtcChjaXBoZXIs
+ICJNRURJVU0iKSkgewotLSAKMi45LjMKCg==
+</data>
+<flag name="review" id="3001092" type_id="155" status="+" setter="hkario"/>
+</attachment>
+
+</bug>
+
+</bugzilla>
