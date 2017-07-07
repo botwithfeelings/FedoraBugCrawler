@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1" urlbase="https://bugzilla.redhat.com/" maintainer="bugzilla-error-list@redhat.com">
+
+  <bug>
+    <bug_id>1359395</bug_id>
+
+    <creation_ts>2016-07-23 13:02:00 -0400</creation_ts>
+    <short_desc>festival crash on simplest command</short_desc>
+    <delta_ts>2016-10-19 17:22:59 -0400</delta_ts>
+    <reporter_accessible>1</reporter_accessible>
+    <cclist_accessible>1</cclist_accessible>
+    <classification_id>2</classification_id>
+    <classification>Fedora</classification>
+    <product>Fedora</product>
+    <component>festival</component>
+    <version>24</version>
+    <rep_platform>Unspecified</rep_platform>
+    <op_sys>Unspecified</op_sys>
+    <bug_status>CLOSED</bug_status>
+    <resolution>WONTFIX</resolution>
+
+    <bug_file_loc></bug_file_loc>
+    <status_whiteboard></status_whiteboard>
+    <keywords></keywords>
+    <priority>unspecified</priority>
+    <bug_severity>unspecified</bug_severity>
+    <target_milestone>---</target_milestone>
+
+    <everconfirmed>1</everconfirmed>
+    <reporter name="Przemek Klosowski">przemek</reporter>
+    <assigned_to name="Bruno Wolff III">bruno</assigned_to>
+    <cc>bruno</cc>
+
+    <cc>mattdm</cc>
+
+    <cc>redhat</cc>
+
+    <cc>taybola</cc>
+
+    <cc>tim</cc>
+    <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+
+    <cf_fixed_in></cf_fixed_in>
+  <cf_doc_type>If docs needed, set a value</cf_doc_type>
+<cf_release_notes></cf_release_notes>
+<cf_story_points>---</cf_story_points>
+
+<cf_environment></cf_environment>
+<cf_last_closed>2016-10-19 17:22:59</cf_last_closed>
+<cf_type>Bug</cf_type>
+<cf_regression_status>---</cf_regression_status>
+<cf_mount_type>---</cf_mount_type>
+<cf_documentation_action>---</cf_documentation_action>
+<cf_crm></cf_crm>
+<cf_verified_branch></cf_verified_branch>
+<cf_category>---</cf_category>
+<cf_ovirt_team>---</cf_ovirt_team>
+
+<cf_cloudforms_team>---</cf_cloudforms_team>
+
+<target_release>---</target_release>
+
+<votes>0</votes>
+
+<comment_sort_order>oldest_to_newest</comment_sort_order>
+<long_desc isprivate="0">
+<commentid>9543167</commentid>
+<comment_count>0</comment_count>
+<who name="Przemek Klosowski">przemek</who>
+<bug_when>2016-07-23 13:02:46 -0400</bug_when>
+<thetext>Description of problem: Festival crashes on a simplest command Version-Release number of selected component (if applicable): festival-1.96-32.fc24.x86_64 How reproducible: every time Steps to Reproduce: 1. run commandline
+&apos;festival&apos; 2. type simple command (SayText &quot;Hello&quot;) Actual results: instant SEGV crash, no output Expected results: correct operation, sound output, no crash</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9543174</commentid>
+<comment_count>1</comment_count>
+<who name="Przemek Klosowski">przemek</who>
+<bug_when>2016-07-23 13:10:48 -0400</bug_when>
+<thetext>Stack frame at crash: #0 EST_Item::EST_Item (this=0x7180a0, rel=0x717f40, li=0x0) at EST_Item.cc:167 set_contents(li-&gt;contents()); #1 0x00007ffff743018d in EST_Relation::append (this=0x717f40, si=0x0) at EST_Relation.cc:98 #2
+0x00007ffff7b6609d in add_token (u=u@entry=0x6fe8b0, t=...) at text_aux.cc:47 #3 0x00007ffff7b64e63 in FT_Text_Utt (utt=0x7fffef6065f0) at text.cc:92 #4 0x00007ffff7843ae7 in leval (x=&lt;optimized out&gt;, env=&lt;optimized out&gt;, ... The
+&apos;li&apos; variable is NULL; it&apos;s coming via the &apos;si&apos; in frame #2, which in turn comes from text_aux.cc:47: EST_Item *add_token(EST_Utterance *u,EST_Token &amp;t) │ │45 { │ │46 // Add a token stream item to the end of Token
+relation │ &gt;│47 EST_Item *item = u-&gt;relation(&quot;Token&quot;)-&gt;append(); It looks like append() expects the &apos;si&apos; argument, but is called without it? Change in API?</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9741102</commentid>
+<comment_count>2</comment_count>
+<who name="Thomas Clark">redhat</who>
+<bug_when>2016-09-25 18:49:01 -0400</bug_when>
+<thetext>I just upgraded to Fedora 24 today and I&apos;m seeing exactly the same thing.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9741324</commentid>
+<comment_count>3</comment_count>
+<who name="Bruno Wolff III">bruno</who>
+<bug_when>2016-09-25 23:18:23 -0400</bug_when>
+<thetext>Thanks for doing that analysis. I&apos;ll see if I can use that to get it working again in f24. I plan to retire Festival in f25. It needs a significant upgrade that I don&apos;t have time to do. A new review is probably justified so
+retirement won&apos;t really add a lot of work if someone is interested in taking over.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9741559</commentid>
+<comment_count>4</comment_count>
+<who name="Artem Prokshin">taybola</who>
+<bug_when>2016-09-26 02:42:07 -0400</bug_when>
+<thetext>I&apos;m interesting to keep Festival in Fedora. I compiled Festival from sources. It works under Fedora24.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9742523</commentid>
+<comment_count>5</comment_count>
+<who name="Tim Niemueller">tim</who>
+<bug_when>2016-09-26 08:25:17 -0400</bug_when>
+<thetext>Why worry about a significant upgrade if keeping it alive will suffice for most users. We are interested in keeping it here as we use it for speech synthesis on our robots. I had a brief look. Even though the de-referencing of the nullptr
+can be solved easily, it still crashes later when iterating through the utterance. This I couldn&apos;t find quickly. I have also tried building with -std=c++98 or gnu++98 without luck. The code seems to assume that it is ok to make checks inside
+methods of the form &quot;if (this == 0) ...&quot;, usually returned a specific value. Strictly speaking, this is not allowed in C++. It seems this was tolerated before GCC6, but is not any longer. Fixing this probably means to please checks sooner.
+There is also code plain wrong even if that check would work, e.g.: &quot;return n-&gt;first()-&gt;up();&quot;, where first() may already return 0. Festival has dozens of committers (https://admin.fedoraproject.org/pkgdb/package/rpms/festival/).
+Someone ought to have the time to fix this. I have attached a small patch which makes the problem obvious but fixes only the basic initial problems.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9742524</commentid>
+<comment_count>6</comment_count>
+<attachid>1204811</attachid>
+<who name="Tim Niemueller">tim</who>
+<bug_when>2016-09-26 08:26:08 -0400</bug_when>
+<thetext>Created attachment 1204811 Preliminary patch exposing some problems</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9743416</commentid>
+<comment_count>7</comment_count>
+<who name="Bruno Wolff III">bruno</who>
+<bug_when>2016-09-26 13:10:47 -0400</bug_when>
+<thetext>The problem with the old version is not getting fixes for bugs, especially ones with security implications. If someone is interested in getting back into f25 after it is retired, they can become a packager for it. There is still time to get
+the current version packaged before f25 is released. I should be able to try out your patches soon to try to get it to at least work again in f24. I don&apos;t think we can expect much help with the other committers. Matthew was hoping to be able to
+put in significant effort at one time, but then got roped into being the Fedora Project Leader which is keeping him pretty busy.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9806077</commentid>
+<comment_count>8</comment_count>
+<who name="Matthew Miller">mattdm</who>
+<bug_when>2016-10-19 17:22:59 -0400</bug_when>
+<thetext>The Festival package in Fedora needs a lot of work to update to a newer release, fix a lot of bugs, and generally clean up the packaging. And, despite best intentions, we just haven&apos;t had the developer interest in doing so. The current
+plan is to retire Festival from Fedora. See thread at https://lists.fedoraproject.org/archives/list/devel@lists.fedoraproject.org/message/UOL4ETKKOFGTFZZ36V726OF7UTHYMEYP/ for discussion. Despite being large, slow, and fragile, Festival is
+interesting software and as far as I know can produce the best quality results of any open-source TTS system. It would be nice if there is interest in continuing it, but that should probably be done from a clean slate in any case. In the meantime, I
+think it&apos;s most honest to close the currently-open bugs as &quot;WONTFIX&quot;. Thanks everyone for your reports and effort in making Fedora better.</thetext>
+</long_desc>
+
+<attachment isobsolete="0" ispatch="1" isprivate="0">
+<attachid>1204811</attachid>
+<date>2016-09-26 08:26:00 -0400</date>
+<delta_ts>2016-09-26 08:26:08 -0400</delta_ts>
+<desc>Preliminary patch exposing some problems</desc>
+<filename>festival-1.96-fix-null-content.patch</filename>
+<type>text/plain</type>
+<size>6760</size>
+<attacher name="Tim Niemueller">tim</attacher>
+
+<data encoding="base64">ZGlmZiAtdXJOIGZlc3RpdmFsL3NwZWVjaF90b29scy9iYXNlX2NsYXNzL0VTVF9GZWF0dXJlcy5j YyBmZXN0aXZhbC5maXgtbnVsbC1jb250ZW50L3NwZWVjaF90b29scy9iYXNlX2NsYXNzL0VTVF9G
+ZWF0dXJlcy5jYwotLS0gZmVzdGl2YWwvc3BlZWNoX3Rvb2xzL2Jhc2VfY2xhc3MvRVNUX0ZlYXR1 cmVzLmNjCTIwMDQtMDktMzAgMTQ6NTM6MzUuMDAwMDAwMDAwICswMjAwCisrKyBmZXN0aXZhbC5m aXgtbnVsbC1jb250ZW50L3NwZWVjaF90b29scy9iYXNlX2NsYXNzL0VTVF9GZWF0dXJlcy5jYwky
+MDE2LTA5LTI2IDEwOjUxOjIzLjMyMTcxNDUzNyArMDIwMApAQCAtMTA0LDEzICsxMDQsMTMgQEAK IHsKICAgICAvLyBGb3Igd2hlbiBuYW1lIGNvbnRhaW5zIHJlZmVyZW5jZXMgdG8gc3ViLWZlYXR1 cmVzCiAgICAgCi0gICAgaWYgKHN0cmNocihuYW1lLCcuJykgPT0gTlVMTCkKLQlyZXR1cm4gdmFs
+KG5hbWUsIGQpOworICAgIGlmIChzdHJjaHIobmFtZS5zdHIoKSwnLicpID09IE5VTEwpCisJcmV0 dXJuIHZhbChuYW1lLnN0cigpLCBkKTsKICAgICBlbHNlCiAgICAgewogCUVTVF9TdHJpbmcgbm5h bWUgPSBuYW1lOwogCUVTVF9TdHJpbmcgZm5hbWUgPSBubmFtZS5iZWZvcmUoIi4iKTsKLQljb25z
+dCBFU1RfVmFsICZ2ID0gdmFsKGZuYW1lLCBkKTsKKwljb25zdCBFU1RfVmFsICZ2ID0gdmFsKGZu YW1lLnN0cigpLCBkKTsKIAlpZiAodi50eXBlKCkgPT0gdmFsX3R5cGVfZmVhdHMpCiAJICAgIHJl dHVybiBmZWF0cyh2KS0+dmFsX3BhdGgobm5hbWUuYWZ0ZXIoIi4iKSwgZCk7CiAJZWxzZQpAQCAt
+MTIyLDEzICsxMjIsMTMgQEAKIHsKICAgICAvLyBGb3Igd2hlbiBuYW1lIGNvbnRhaW5zIHJlZmVy ZW5jZXMgdG8gc3ViLWZlYXR1cmVzCiAgICAgCi0gICAgaWYgKHN0cmNocihuYW1lLCcuJykgPT0g TlVMTCkKLQlyZXR1cm4gdmFsKG5hbWUpOworICAgIGlmIChzdHJjaHIobmFtZS5zdHIoKSwnLicp
+ID09IE5VTEwpCisJcmV0dXJuIHZhbChuYW1lLnN0cigpKTsKICAgICBlbHNlCiAgICAgewogCUVT VF9TdHJpbmcgbm5hbWUgPSBuYW1lOwogCUVTVF9TdHJpbmcgZm5hbWUgPSBubmFtZS5iZWZvcmUo Ii4iKTsKLQljb25zdCBFU1RfVmFsICZ2ID0gdmFsKGZuYW1lKTsKKwljb25zdCBFU1RfVmFsICZ2
+ID0gdmFsKGZuYW1lLnN0cigpKTsKIAlpZiAodi50eXBlKCkgPT0gdmFsX3R5cGVfZmVhdHMpCiAJ ICAgIHJldHVybiBmZWF0cyh2KS0+dmFsX3BhdGgobm5hbWUuYWZ0ZXIoIi4iKSk7CiAJZWxzZQpA QCAtMTQxLDE3ICsxNDEsMTcgQEAKIHsKICAgICBFU1RfRmVhdHVyZXMgKmZmID0gbmV3IEVTVF9G
+ZWF0dXJlcyhkZWYpOwogCi0gICAgcmV0dXJuICpmZWF0cyh2YWwocGF0aCxlc3RfdmFsKGZmKSkp OworICAgIHJldHVybiAqZmVhdHModmFsKHBhdGguc3RyKCksZXN0X3ZhbChmZikpKTsKIH0KIAog aW50IEVTVF9GZWF0dXJlczo6cHJlc2VudChjb25zdCBFU1RfU3RyaW5nICZuYW1lKSBjb25zdAog
+ewotICAgIGlmIChzdHJjaHIobmFtZSwnLicpID09IE5VTEwpCisgICAgaWYgKHN0cmNocihuYW1l LnN0cigpLCcuJykgPT0gTlVMTCkKIAlyZXR1cm4gZmVhdHVyZXMtPnByZXNlbnQobmFtZSk7CiAg ICAgRVNUX1N0cmluZyBubmFtZSA9IG5hbWU7CiAgICAgaWYgKGZlYXR1cmVzLT5wcmVzZW50KG5u
+YW1lLmJlZm9yZSgiLiIpKSkKICAgICB7Ci0JY29uc3QgRVNUX1ZhbCAmdiA9IHZhbChubmFtZS5i ZWZvcmUoIi4iKSk7CisJY29uc3QgRVNUX1ZhbCAmdiA9IHZhbChubmFtZS5iZWZvcmUoIi4iKS5z dHIoKSk7CiAJaWYgKHYudHlwZSgpID09IHZhbF90eXBlX2ZlYXRzKQogCSAgICByZXR1cm4gZmVh
+dHModiktPnByZXNlbnQobm5hbWUuYWZ0ZXIoIi4iKSk7CiAJZWxzZQpAQCAtMTY1LDE1ICsxNjUs MTUgQEAKIHsKICAgICAvLyBCdWlsZHMgc3ViIGZlYXR1cmVzIChpZiBuZWNlc3NhcnkpCiAgICAg Ci0gICAgaWYgKHN0cmNocihuYW1lLCcuJykgPT0gTlVMTCkKLQlzZXRfdmFsKG5hbWUsc3ZhbCk7
+CisgICAgaWYgKHN0cmNocihuYW1lLnN0cigpLCcuJykgPT0gTlVMTCkKKwlzZXRfdmFsKG5hbWUu c3RyKCksc3ZhbCk7CiAgICAgZWxzZQogICAgIHsKIAlFU1RfU3RyaW5nIG5uYW1lID0gbmFtZTsK IAlFU1RfU3RyaW5nIGZuYW1lID0gbm5hbWUuYmVmb3JlKCIuIik7CiAJaWYgKHByZXNlbnQoZm5h
+bWUpKQogCXsKLQkgICAgY29uc3QgRVNUX1ZhbCAmdiA9IHZhbChmbmFtZSk7CisJICAgIGNvbnN0 IEVTVF9WYWwgJnYgPSB2YWwoZm5hbWUuc3RyKCkpOwogCSAgICBpZiAodi50eXBlKCkgPT0gdmFs X3R5cGVfZmVhdHMpCiAJCWZlYXRzKHYpLT5zZXRfcGF0aChubmFtZS5hZnRlcigiLiIpLHN2YWwp
+OwogCSAgICBlbHNlCmRpZmYgLXVyTiBmZXN0aXZhbC9zcGVlY2hfdG9vbHMvaW5jbHVkZS9saW5n X2NsYXNzL0VTVF9JdGVtLmggZmVzdGl2YWwuZml4LW51bGwtY29udGVudC9zcGVlY2hfdG9vbHMv aW5jbHVkZS9saW5nX2NsYXNzL0VTVF9JdGVtLmgKLS0tIGZlc3RpdmFsL3NwZWVjaF90b29scy9p
+bmNsdWRlL2xpbmdfY2xhc3MvRVNUX0l0ZW0uaAkyMDA2LTA3LTA0IDE5OjAxOjMzLjAwMDAwMDAw MCArMDIwMAorKysgZmVzdGl2YWwuZml4LW51bGwtY29udGVudC9zcGVlY2hfdG9vbHMvaW5jbHVk ZS9saW5nX2NsYXNzL0VTVF9JdGVtLmgJMjAxNi0wOS0yNiAxMzo1MjowOC4yNDk2NTEzNTIgKzAy
+MDAKQEAgLTMzOSw3ICszMzksNyBAQAogCiAgICAgLy8gSW50ZXJuYWwgdHJhdmVyc2FsIC0gbm5v dCByZWNvbW1lbmRlZCAtIHVzZSByZWxhdGlvbiB0cmF2ZXJzYWwgZnVuY3Rpb25zCiAgICAgLy8K LSAgICBFU1RfSXRlbSAqbmV4dCgpIGNvbnN0IHsgcmV0dXJuIHRoaXMgPT0gMCA/IDAgOiBuOyB9
+CisgICAgRVNUX0l0ZW0gKm5leHQoKSBjb25zdCB7IHByaW50ZigiJXAubmV4dCA9ICVwXG4iLCB0 aGlzLCBuKTsgcmV0dXJuIHRoaXMgPT0gMCA/IDAgOiBuOyB9CiAgICAgLy8KICAgICBFU1RfSXRl bSAqcHJldigpIGNvbnN0IHsgcmV0dXJuIHRoaXMgPT0gMCA/IDAgOiBwOyB9CiAgICAgLy8KZGlm
+ZiAtdXJOIGZlc3RpdmFsL3NwZWVjaF90b29scy9saW5nX2NsYXNzL0VTVF9JdGVtLmNjIGZlc3Rp dmFsLmZpeC1udWxsLWNvbnRlbnQvc3BlZWNoX3Rvb2xzL2xpbmdfY2xhc3MvRVNUX0l0ZW0uY2MK LS0tIGZlc3RpdmFsL3NwZWVjaF90b29scy9saW5nX2NsYXNzL0VTVF9JdGVtLmNjCTIwMDUtMTAt
+MjYgMjE6NDM6MjQuMDAwMDAwMDAwICswMjAwCisrKyBmZXN0aXZhbC5maXgtbnVsbC1jb250ZW50 L3NwZWVjaF90b29scy9saW5nX2NsYXNzL0VTVF9JdGVtLmNjCTIwMTYtMDktMjYgMTM6NDY6MzMu NTE4NTgwNTE3ICswMjAwCkBAIC04MCw2ICs4MCw3IEBACiAKIEVTVF9JdGVtOjpFU1RfSXRlbSgp
+CiB7CisgICAgcHJpbnRmKCJDcmVhdGUgaXRlbSAxICVwXG4iLCB0aGlzKTsKICAgICBwX3JlbGF0 aW9uID0gMDsKICAgICBwX2NvbnRlbnRzID0gMDsKICAgICBuPXA9dT1kPTA7CkBAIC04OCw2ICs4 OSw3IEBACiAKIHZvaWQgRVNUX0l0ZW06OmNvcHkoY29uc3QgRVNUX0l0ZW0gJnMpCiB7CisgICAg
+cHJpbnRmKCJDb3B5IGl0ZW0gJXAgPSAlcFxuIiwgdGhpcywgJnMpOwogICAgIC8vIFlvdSBjYW4n dCByZWFsbHkgZG8gdGhpcyBpbiBnZW5lcmFsIGFzIGEgbm9kZSBpcyBkb3VibHkKICAgICAvLyBs aW5rZWQgdG8gaXRzIG5laWdoYm91cnMgYW5kIGl0ZW0uICBDb3B5aW5nIGFsbCB0aGUgZmllbGRz
+IHdvdWxkCiAgICAgLy8gbWVhbiBpdCB3YXMgbm8gbG9uZ2VyIHRydWUgKHVubGVzcyB5b3UgY29w aWVkIGV2ZXJ5dGhpbmcpLgpAQCAtMTAyLDExICsxMDQsMTMgQEAKIAogRVNUX0l0ZW06OkVTVF9J dGVtKGNvbnN0IEVTVF9JdGVtICZpKQogeworICAgIHByaW50ZigiQ29weSBjdG9yIGl0ZW0gJXAg
+JXBcbiIsIHRoaXMsICZpKTsKICAgICBjb3B5KGkpOwogfQogCiBFU1RfSXRlbTo6fkVTVF9JdGVt KCkKIHsKKyAgICBwcmludGYoImR0b3IgJXBcbiIsIHRoaXMpOwogICAgIC8vIERlbGV0ZSB0aGlz IGl0ZW0gYW5kIGl0cyBkYXVnaHRlcnMgKGFuZCB0aGUgY29udGVudHMgd2l0aCBubyAKICAgICAv
+LyBvdGhlciBsaW5rcykKICAgICAvLyBBc3N1bWVzIGEgdHJlZSBzdHJ1Y3R1cmUKQEAgLTE0MSw2 ICsxNDUsNyBAQAogCiBFU1RfSXRlbTo6RVNUX0l0ZW0oRVNUX1JlbGF0aW9uICpyZWwpCiB7Cisg ICAgcHJpbnRmKCJDYWxsZWQgZm9yIHJlbCAlcFxuIiwgdGhpcyk7CiAgICAgcF9yZWxhdGlvbiA9
+IHJlbDsKICAgICBwX2NvbnRlbnRzID0gMDsKICAgICBuPXA9dT1kPTA7CkBAIC0xNjEsMTAgKzE2 NiwxMSBAQAogCiBFU1RfSXRlbTo6RVNUX0l0ZW0oRVNUX1JlbGF0aW9uICpyZWwsIEVTVF9JdGVt ICpsaSkKIHsKKyAgICBwcmludGYoIiVwID0gaXRlbSglcCwgJXApXG4iLCB0aGlzLCByZWwsIGxp
+KTsKICAgICBwX3JlbGF0aW9uID0gcmVsOwogICAgIHBfY29udGVudHMgPSAwOwogICAgIG49cD11 PWQ9MDsKLSAgICBzZXRfY29udGVudHMobGktPmNvbnRlbnRzKCkpOworICAgIHNldF9jb250ZW50 cyhsaSA/IGxpLT5jb250ZW50cygpIDogMCk7CiAKICAgICBhc3NpZ25faWQodGhpcyk7CiB9CkBA
+IC0xODMsNiArMTg5LDcgQEAKIAlpZiAocF9jb250ZW50cy0+dW5yZWZfcmVsYXRpb24ocmVsYXRp b25fbmFtZSgpKSkKIAkgICAgZGVsZXRlIHBfY29udGVudHM7CiAJcF9jb250ZW50cyA9IDA7Cisg ICAgICBwcmludGYoIlVucmVmaW5nICVzXG4iLCB0aGlzKTsKICAgICB9CiB9CiAKQEAgLTIwNCwx
+NSArMjExLDE3IEBACiAgICAgLy8gVGhpcyBmdW5jdGlvbiBpcyBmb3IgaW50ZXJuYWwgdXNlIG9u bHksIGdlbmVyYWwgdXNlIG9mIHRoaXMgCiAgICAgLy8gaXMgbGlrZWx5IHRvIGJlIHVuc2FmZS4K ICAgICBFU1RfSXRlbV9Db250ZW50ICpjOwotICAgIGlmIChuZXdfY29udGVudHMgPT0gMCkKKyAg
+ICBpZiAobmV3X2NvbnRlbnRzID09IDApIHsKIAljID0gbmV3IEVTVF9JdGVtX0NvbnRlbnQ7Ci0g ICAgZWxzZQorICAgICAgcHJpbnRmKCJDcmVhdGVkIG5ldyBjb250ZW50IGZvciAlcDogJXBcbiIs IHRoaXMsIGMpOworICAgIH0gZWxzZQogCWMgPSBuZXdfY29udGVudHM7CiAKICAgICBpZiAocF9j
+b250ZW50cyAhPSBjKQogICAgIHsKIAl1bnJlZl9jb250ZW50cygpOwogCXBfY29udGVudHMgPSBj OworICAgICAgcHJpbnRmKCJTZXR0aW5nIGNvbnRlbnQgb2YgJXA6ICVwXG4iLCB0aGlzLCBjKTsK IAogCUVTVF9JdGVtICpubl9pdGVtID0gcF9jb250ZW50cy0+UmVsYXRpb24ocmVsYXRpb25fbmFt
+ZSgpKTsKIAlpZiAobm5faXRlbSkgLy8gdGhpcyBpcyBhbHJlYWR5IGxpbmtlZCB0byB0aGlzIHJl bGF0aW9uCkBAIC0yNDAsNiArMjQ5LDggQEAKICAgICAvLyBmcm9tIHNpJ3MgcmVsYXRpb25zIGZp ZWxkcyBiYWNrIHRvIHRoZSBuZXcgbm9kZQogICAgIEVTVF9JdGVtICpuZXdfbm9kZSA9IG5ldyBF
+U1RfSXRlbShwX3JlbGF0aW9uLHNpKTsKICAgICAKKyAgICBwcmludGYoIkluc2VydGluZyAlcCBh ZnRlciAlcFxuIiwgc2ksIHRoaXMpOworCiAgICAgbmV3X25vZGUtPnAgPSB0aGlzOwogICAgIG5l d19ub2RlLT5uID0gdGhpcy0+bjsKICAgICBpZiAobmV3X25vZGUtPm4gIT0gMCkKQEAgLTI1Nyw2
+ICsyNjgsOCBAQAogICAgIC8vIENyZWF0ZSBhIG5ldyBub2RlIGFuZCBhZGQgaXQgYmVmb3JlIHRo aXMsIGFuZCByZXR1cm4gaXQuCiAgICAgRVNUX0l0ZW0gKm5ld19ub2RlID0gbmV3IEVTVF9JdGVt KHBfcmVsYXRpb24sc2kpOwogICAgIAorICAgIHByaW50ZigiSW5zZXJ0aW5nICVwIGJlZm9yZSAl
+cFxuIiwgc2ksIHRoaXMpOworCiAgICAgbmV3X25vZGUtPm4gPSB0aGlzOwogICAgIG5ld19ub2Rl LT5wID0gdGhpcy0+cDsKICAgICBpZiAobmV3X25vZGUtPnAgIT0gMCkKQEAgLTMxNiw2ICszMjks OCBAQAogICAgIC8vIHRoZSBjb250ZW50cyBkb3duIHRvIGl0LgogICAgIGlmICh0aGlzID09IDAp
+IHJldHVybiAwOwogCisgICAgcHJpbnRmKCJJbnNlcnQgJXAgaW4gcGFyZW50ICVwIiwgc2ksIHRo aXMpOworCiAgICAgaW5zZXJ0X2JlbG93KDApOwogICAgIGRvd24oKS0+c2V0X2NvbnRlbnRzKGdy YWJfY29udGVudHMoKSk7CiAgICAgaWYgKHNpICE9IDApCkJpbmFyeSBmaWxlcyBmZXN0aXZhbC9z
+cGVlY2hfdG9vbHMvdmdjb3JlLjIzMzQgYW5kIGZlc3RpdmFsLmZpeC1udWxsLWNvbnRlbnQvc3Bl ZWNoX3Rvb2xzL3ZnY29yZS4yMzM0IGRpZmZlcgpkaWZmIC11ck4gZmVzdGl2YWwvc3JjL21vZHVs ZXMvVGV4dC90b2tlbl9wb3MuY2MgZmVzdGl2YWwuZml4LW51bGwtY29udGVudC9zcmMvbW9kdWxl
+cy9UZXh0L3Rva2VuX3Bvcy5jYwotLS0gZmVzdGl2YWwvc3JjL21vZHVsZXMvVGV4dC90b2tlbl9w b3MuY2MJMjAwNC0wOS0zMCAxNTowNDoxOC4wMDAwMDAwMDAgKzAyMDAKKysrIGZlc3RpdmFsLmZp eC1udWxsLWNvbnRlbnQvc3JjL21vZHVsZXMvVGV4dC90b2tlbl9wb3MuY2MJMjAxNi0wOS0yNiAx
+MjoxNzowMC45NzM0NTMwNzEgKzAyMDAKQEAgLTU2LDYgKzU2LDggQEAKIAogICAgIGZvciAodD11 LT5yZWxhdGlvbigiVG9rZW4iKS0+Zmlyc3QoKTsgdCAhPSAwOyB0ID0gbmV4dCh0KSkKICAgICB7 CisgICAgIHByaW50ZigiQ2hlY2tpbmcgJXBcbiIsIHQpOworICAgICBwcmludGYoIkNoZWNraW5n
+ICVzXG4iLCB0LT5yZWxhdGlvbl9uYW1lKCkuc3RyKCkpOwogCWlmICh0LT5mKCJ0b2tlbl9wb3Mi LCIwIikgPT0gIjAiKQogCSAgICBmb3IgKGw9dHJlZXM7IGwgIT0gTklMOyBsPWNkcihsKSkgIC8v IGZpbmQgYSB0cmVlIHRoYXQgbWF0Y2hlcwogCSAgICB7Cg==
+</data>
+
+</attachment>
+
+</bug>
+
+</bugzilla>
