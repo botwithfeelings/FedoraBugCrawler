@@ -1,0 +1,578 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1" urlbase="https://bugzilla.redhat.com/" maintainer="bugzilla-error-list@redhat.com">
+
+  <bug>
+    <bug_id>1317927</bug_id>
+
+    <creation_ts>2016-03-15 10:28:00 -0400</creation_ts>
+    <short_desc>selinux prevents systemd&apos;s ProtectSystem=full from working</short_desc>
+    <delta_ts>2016-08-12 15:29:27 -0400</delta_ts>
+    <reporter_accessible>1</reporter_accessible>
+    <cclist_accessible>1</cclist_accessible>
+    <classification_id>2</classification_id>
+    <classification>Fedora</classification>
+    <product>Fedora</product>
+    <component>selinux-policy</component>
+    <version>24</version>
+    <rep_platform>Unspecified</rep_platform>
+    <op_sys>Unspecified</op_sys>
+    <bug_status>CLOSED</bug_status>
+    <resolution>ERRATA</resolution>
+
+    <bug_file_loc></bug_file_loc>
+    <status_whiteboard>RejectedBlocker</status_whiteboard>
+    <keywords></keywords>
+    <priority>high</priority>
+    <bug_severity>high</bug_severity>
+    <target_milestone>---</target_milestone>
+
+    <everconfirmed>1</everconfirmed>
+    <reporter name="Matthias Clasen">mclasen</reporter>
+    <assigned_to name="Lukas Vrabec">lvrabec</assigned_to>
+    <cc>akees</cc>
+
+    <cc>amessina</cc>
+
+    <cc>beaaegicfqmq6rykaqaakty3lqcg6btv</cc>
+
+    <cc>bugzilla</cc>
+
+    <cc>cfergeau</cc>
+
+    <cc>cogre666</cc>
+
+    <cc>dominick.grift</cc>
+
+    <cc>dwalsh</cc>
+
+    <cc>george.joseph</cc>
+
+    <cc>goeran</cc>
+
+    <cc>guo888xiao</cc>
+
+    <cc>jfilak</cc>
+
+    <cc>kparal</cc>
+
+    <cc>lvrabec</cc>
+
+    <cc>mark.harfouche</cc>
+
+    <cc>matej</cc>
+
+    <cc>mcatanzaro</cc>
+
+    <cc>mclasen</cc>
+
+    <cc>mgrepl</cc>
+
+    <cc>mike</cc>
+
+    <cc>mvollmer</cc>
+
+    <cc>nicolas.mailhot</cc>
+
+    <cc>ol+redhat</cc>
+
+    <cc>plautrba</cc>
+
+    <cc>pmoore</cc>
+
+    <cc>rhbz2</cc>
+
+    <cc>robatino</cc>
+
+    <cc>rstrode</cc>
+
+    <cc>tpopela</cc>
+
+    <cc>vondruch</cc>
+
+    <cc>yaneti</cc>
+
+    <cc>zach</cc>
+
+    <cc>zbyszek</cc>
+
+    <cc>zor1984qq</cc>
+    <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+
+    <cf_fixed_in>selinux-policy-3.13.1-191.10.fc24</cf_fixed_in>
+  <cf_doc_type>Bug Fix</cf_doc_type>
+<cf_release_notes></cf_release_notes>
+<cf_story_points>---</cf_story_points>
+
+<cf_environment></cf_environment>
+<cf_last_closed>2016-08-12 15:29:27</cf_last_closed>
+<cf_type>Bug</cf_type>
+<cf_regression_status>---</cf_regression_status>
+<cf_mount_type>---</cf_mount_type>
+<cf_documentation_action>---</cf_documentation_action>
+<cf_crm></cf_crm>
+<cf_verified_branch></cf_verified_branch>
+<cf_category>---</cf_category>
+<cf_ovirt_team>---</cf_ovirt_team>
+
+<cf_cloudforms_team>---</cf_cloudforms_team>
+
+<target_release>---</target_release>
+
+<votes>0</votes>
+
+<comment_sort_order>oldest_to_newest</comment_sort_order>
+<long_desc isprivate="0">
+<commentid>9149607</commentid>
+<comment_count>0</comment_count>
+<who name="Matthias Clasen">mclasen</who>
+<bug_when>2016-03-15 10:28:10 -0400</bug_when>
+<thetext>I&apos;m seeing this in my journal: Mar 15 10:19:53 localhost audit[4221]: ANOM_ABEND auid=1000 uid=1000 gid=1000 ses=1 subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 pid=4221 comm=&quot;SoftwareVsyncTh&quot;
+exe=&quot;/usr/lib64/firefox/firefox&quot; sig=11 Mar 15 10:19:53 localhost systemd-coredump[11572]: Failed to send coredump datagram: Message too long Mar 15 10:19:53 localhost systemd[1]: Started Process Core Dump (PID 11572/UID 0). Mar 15 10:19:53
+localhost audit[1]: SERVICE_START pid=1 uid=0 auid=4294967295 ses=4294967295 subj=system_u:system_r:init_t:s0 msg=&apos;unit=systemd-coredump@4-11572-0 comm=&quot;systemd&quot; exe=&quot;/usr/lib/systemd/systemd&quot; hostname=? addr=? terminal=?
+res=success&apos; Mar 15 10:19:53 localhost audit: NETFILTER_CFG table=filter family=2 entries=0 Mar 15 10:19:53 localhost audit: NETFILTER_CFG table=security family=2 entries=0 Mar 15 10:19:53 localhost audit: NETFILTER_CFG table=raw family=2
+entries=0 Mar 15 10:19:53 localhost audit: NETFILTER_CFG table=mangle family=2 entries=0 Mar 15 10:19:53 localhost audit: NETFILTER_CFG table=nat family=2 entries=0 Mar 15 10:19:53 localhost audit: NETFILTER_CFG table=filter family=10 entries=0 Mar
+15 10:19:53 localhost audit: NETFILTER_CFG table=security family=10 entries=0 Mar 15 10:19:53 localhost audit: NETFILTER_CFG table=raw family=10 entries=0 Mar 15 10:19:53 localhost audit: NETFILTER_CFG table=mangle family=10 entries=0 Mar 15 10:19:53
+localhost audit: NETFILTER_CFG table=nat family=10 entries=0 Mar 15 10:19:53 localhost audit[11573]: AVC avc: denied { mounton } for pid=11573 comm=&quot;(coredump)&quot; path=&quot;/etc&quot; dev=&quot;dm-1&quot; ino=783362
+scontext=system_u:system_r:init_t:s0 tc Mar 15 10:19:53 localhost systemd-coredump[11573]: Coredump file descriptor missing. Mar 15 10:19:53 localhost audit[1]: SERVICE_STOP pid=1 uid=0 auid=4294967295 ses=4294967295 subj=system_u:system_r:init_t:s0
+msg=&apos;unit=systemd-coredump@4-11572-0 comm=&quot;systemd&quot;</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9149617</commentid>
+<comment_count>1</comment_count>
+<who name="Ray Strode [halfline]">rstrode</who>
+<bug_when>2016-03-15 10:32:31 -0400</bug_when>
+<thetext>maybe related to this code: _public_ int sd_journal_sendv(const struct iovec *iov, int n) {• ... k = sendmsg(fd, &amp;mh, MSG_NOSIGNAL);• ... if (errno != EMSGSIZE &amp;&amp; errno != ENOBUFS)• return -errno;• ... /* Message doesn&apos;t
+fit... Let&apos;s dump the data in a memfd or• * temporary file and just pass a file descriptor of it to the• * other side.• *• ... buffer_fd = memfd_new(NULL);• ... n = writev(buffer_fd, w, j);• ... r = send_one_fd_sa(fd, buffer_fd, mh.msg_name,
+mh.msg_namelen, 0);• ... }•</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9149748</commentid>
+<comment_count>2</comment_count>
+<who name="Paul Moore">pmoore</who>
+<bug_when>2016-03-15 10:57:04 -0400</bug_when>
+<thetext>Any chance we can see the rest of the SELinux AVC message? There is some important info missing, specifically the target context (tcontext). Mar 15 10:19:53 localhost audit[11573]: AVC avc: denied { mounton } for pid=11573
+comm=&quot;(coredump)&quot; path=&quot;/etc&quot; dev=&quot;dm-1&quot; ino=783362 scontext=system_u:system_r:init_t:s0 tc... The &quot;mounton&quot; permission is only used when mounting a filesystem, and to be honest I have no idea why
+systemd-coredump would be mounting something on top of /etc. I&apos;m equally confused suspicious about what a memfd has to do with this AVC. Is there a reproducer for this?</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9149804</commentid>
+<comment_count>3</comment_count>
+<who name="Ray Strode [halfline]">rstrode</who>
+<bug_when>2016-03-15 11:12:09 -0400</bug_when>
+<thetext>i think comment 1 is a red herring. it was a guess based on this message errno: Mar 15 10:19:53 localhost systemd-coredump[11572]: Failed to send coredump datagram: Message too long but actually that message comes from a different part of
+the code: coredump/coredump.c (send_iovec)</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9149807</commentid>
+<comment_count>4</comment_count>
+<attachid>1136644</attachid>
+<who name="Matthias Clasen">mclasen</who>
+<bug_when>2016-03-15 11:13:21 -0400</bug_when>
+<thetext>Created attachment 1136644 more complete log</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9149847</commentid>
+<comment_count>5</comment_count>
+<who name="Paul Moore">pmoore</who>
+<bug_when>2016-03-15 11:27:54 -0400</bug_when>
+<thetext>Thanks for the rest of the log. From a SELinux point of view, it would seem that systemd-coredump is trying to mount something on top of /etc; which seems odd. I don&apos;t have any time to go digging through systemd-coredump at the moment,
+but does it try to mount anything?</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9153431</commentid>
+<comment_count>6</comment_count>
+<who name="Lukas Vrabec">lvrabec</who>
+<bug_when>2016-03-16 11:01:29 -0400</bug_when>
+<thetext>*** Bug 1311532 has been marked as a duplicate of this bug. ***</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9153486</commentid>
+<comment_count>7</comment_count>
+<who name="Lukas Vrabec">lvrabec</who>
+<bug_when>2016-03-16 11:13:42 -0400</bug_when>
+<thetext>*** Bug 1316866 has been marked as a duplicate of this bug. ***</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9153494</commentid>
+<comment_count>8</comment_count>
+<who name="Lukas Vrabec">lvrabec</who>
+<bug_when>2016-03-16 11:14:52 -0400</bug_when>
+<thetext>*** Bug 1306346 has been marked as a duplicate of this bug. ***</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9164718</commentid>
+<comment_count>9</comment_count>
+<who name="Lukas Vrabec">lvrabec</who>
+<bug_when>2016-03-21 08:58:54 -0400</bug_when>
+<thetext>*** Bug 1318815 has been marked as a duplicate of this bug. ***</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9205229</commentid>
+<comment_count>10</comment_count>
+<who name="Vít Ondruch">vondruch</who>
+<bug_when>2016-04-04 12:17:21 -0400</bug_when>
+<thetext>Description of problem: This appeared as soon as I tried to stop ABRT via: $ sudo systemctl stop abrtd.service Version-Release number of selected component: selinux-policy-3.13.1-179.fc25.noarch Additional info: reporter: libreport-2.6.4
+hashmarkername: setroubleshoot kernel: 4.5.0-1.fc25.x86_64 type: libreport</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9205452</commentid>
+<comment_count>11</comment_count>
+<who name="Matthias Clasen">mclasen</who>
+<bug_when>2016-04-04 13:45:04 -0400</bug_when>
+<thetext>This bug currently makes it impossible for me to use firefox with selinux enforcing. The combination of plugin-helper crashing, coredumpctl failing to write out the coredump, and setroubleshootd juggling the avcs (all in a loop) puts a real
+load on my system.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9205457</commentid>
+<comment_count>12</comment_count>
+<who name="Fedora Blocker Bugs Application">blockerbugs</who>
+<bug_when>2016-04-04 13:46:02 -0400</bug_when>
+<thetext>Proposed as a Blocker for 24-final by Fedora user mclasen using the blocker tracking app because: This makes firefox unusably slow on my system.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9226544</commentid>
+<comment_count>13</comment_count>
+<who name="Kamil Páral">kparal</who>
+<bug_when>2016-04-11 12:53:56 -0400</bug_when>
+<thetext>Discussed at today&apos;s blocker review meeting [1]. Voted as RejectedBlocker (Final) - firefox being unusable would constitute a blocker issue, however no-one present in the blocker meeting has hit this issue in F24 testing and the bug
+seems unclear on exactly what configuration is required to trigger it. can be re-proposed with a clearer reproducer and blocker justification [1] https://meetbot-raw.fedoraproject.org/fedora-blocker-review/2016-04-11/</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9301895</commentid>
+<comment_count>16</comment_count>
+<who name="Göran Uddeborg">goeran</who>
+<bug_when>2016-05-07 17:59:11 -0400</bug_when>
+<thetext>Does comment 13 mean you need more ways to reproduce the issue? I have one system where I can repeat the AVC every time something crashes. If I can help with any experiments, let me know! To reproduce, I can for example do this: 23:44
+freddi$ sleep 1m&amp; [1] 8681 23:46 freddi$ kill -ABRT 8681 I then get an AVC like this: time-&gt;Sat May 7 23:46:33 2016 type=AVC msg=audit(1462657593.983:4417): avc: denied { mounton } for pid=8683 comm=&quot;(coredump)&quot; path=&quot;/etc&quot;
+dev=&quot;sda2&quot; ino=7914369 scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:etc_t:s0 tclass=dir permissive=0 According to the journal, pid 8683 is systemd-coredump: maj 07 23:46:33 freddi systemd[1]: Started Process Core Dump
+(PID 8682/UID 0). maj 07 23:46:34 freddi systemd-coredump[8683]: Process 8681 (sleep) of user 1003 dumped core. It happens every time on this system, started after a number of upgrades, selinux-policy among them. But it doesn&apos;t happen on another
+system that is supposed to have the same code installed. I&apos;m quite confused by this. But again, if you want me to run any experiments, I&apos;ll be happy to! :-)</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9303209</commentid>
+<comment_count>17</comment_count>
+<who name="Miroslav Grepl">mgrepl</who>
+<bug_when>2016-05-09 03:35:21 -0400</bug_when>
+<thetext>*** Bug 1334116 has been marked as a duplicate of this bug. ***</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9346453</commentid>
+<comment_count>18</comment_count>
+<who name="Christophe Fergeau">cfergeau</who>
+<bug_when>2016-05-21 06:44:44 -0400</bug_when>
+<thetext>(In reply to Paul Moore from comment #5) &gt; From a SELinux point of view, it would seem that systemd-coredump is trying &gt; to mount something on top of /etc; which seems odd. I don&apos;t have any time &gt; to go digging through
+systemd-coredump at the moment, but does it try to &gt; mount anything? systemd does try to do this before (re?)starting the systemd-coredump process: #0 mount () at ../sysdeps/unix/syscall-template.S:84 #1 0x0000558ba8f0e23c in
+bind_remount_recursive (prefix=0x558ba8fa2df8 &quot;/etc&quot;, ro=true) at src/basic/mount-util.c:424 #2 0x0000558ba8f30f2e in make_read_only (m=0x7ffc1279bdd0) at src/core/namespace.c:406 #3 setup_namespace (root_directory=0x0,
+read_write_dirs=&lt;optimized out&gt;, read_only_dirs=&lt;optimized out&gt;, inaccessible_dirs=&lt;optimized out&gt;, tmp_dir=0x0, var_tmp_dir=0x0, bus_endpoint_path=0x0, private_dev=false, protect_home=PROTECT_HOME_NO,
+protect_system=PROTECT_SYSTEM_FULL, mount_flags=1048576) at src/core/namespace.c:546 #4 0x0000558ba8f84dff in exec_child.lto_priv.895 (unit=&lt;optimized out&gt;, command=&lt;optimized out&gt;, context=0x558baae1d0d8, params=0x7ffc1279c4e0,
+runtime=&lt;optimized out&gt;, argv=&lt;optimized out&gt;, socket_fd=&lt;optimized out&gt;, fds=&lt;optimized out&gt;, n_fds=&lt;optimized out&gt;, files_env=&lt;optimized out&gt;, exit_status=&lt;optimized out&gt;) at src/core/execute.c:1783 #5
+0x0000558ba8f94db6 in exec_spawn (unit=0x558baae1cd20, command=0x558baad9cc50, context=0x558baae1d0d8, params=0x7ffc1279c4e0, runtime=0x558baae0b340, ret=0x7ffc1279c4d0) at src/core/execute.c:2117 #6 0x0000558ba8f4dbd0 in service_spawn.lto_priv.935
+(s=s@entry=0x558baae1cd20, c=&lt;optimized out&gt;, timeout=timeout@entry=18446744073709551615, pass_fds=pass_fds@entry=true, apply_permissions=apply_permissions@entry=true, apply_chroot=apply_chroot@entry=true, apply_tty_stdin=true,
+is_control=false, _pid=0x7ffc1279c644) at src/core/service.c:1301 #7 0x0000558ba8f50db0 in service_enter_start.lto_priv.934 (s=s@entry=0x558baae1cd20) at src/core/service.c:1739 #8 0x0000558ba8f51198 in service_enter_start_pre (s=0x558baae1cd20) at
+src/core/service.c:1816 #9 service_start.lto_priv.383 (u=0x558baae1cd20) at src/core/service.c:2027 #10 0x0000558ba8eda8f7 in unit_start (u=&lt;optimized out&gt;) at src/core/unit.c:1529 #11 job_perform_on_unit.lto_priv.982 (j=0x7ffc1279c6c0) at
+src/core/job.c:531 #12 0x0000558ba8f7d728 in job_run_and_invalidate (j=&lt;optimized out&gt;) at src/core/job.c:595 #13 manager_dispatch_run_queue.lto_priv.987 (source=&lt;optimized out&gt;, userdata=0x558baad42840) at src/core/manager.c:1444 #14
+0x0000558ba8ee333f in source_dispatch.lto_priv.974 (s=0x558baad43280) at src/libsystemd/sd-event/sd-event.c:2305 #15 0x0000558ba8f7e651 in sd_event_dispatch (e=0x558baad42ff0) at src/libsystemd/sd-event/sd-event.c:2625 #16 sd_event_run
+(timeout=&lt;optimized out&gt;, e=0x558baad42ff0) at src/libsystemd/sd-event/sd-event.c:2684 #17 manager_loop (m=0x558baad42840) at src/core/manager.c:2051 #18 0x0000558ba8ebb00b in main (argc=&lt;optimized out&gt;, argv=&lt;optimized out&gt;) at
+src/core/main.c:1833 (backtrace generated with gdb --pid 1; set follow-fork-mode child; break mount, and then running a program which abort() ) It&apos;s doing some more mounting before/after that (/boot, ...). If it&apos;s setting up some kind of
+container to run systemd-coredump in it, the mounting might be legit.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9373916</commentid>
+<comment_count>19</comment_count>
+<who name="Matthias Clasen">mclasen</who>
+<bug_when>2016-05-31 15:14:27 -0400</bug_when>
+<thetext>This is happening because systemd-coredump@.service has the line ProtectSystem=full According to systemd.exec(5): ProtectSystem= Takes a boolean argument or &quot;full&quot;. If true, mounts the /usr and /boot directories read-only for
+processes invoked by this unit. If set to &quot;full&quot;, the /etc directory is mounted read-only, too. This setting ensures that any modification of the vendor-supplied operating system (and optionally its configuration) is prohibited for the
+service. It is recommended to enable this setting for all long-running services, unless they are involved with system updates or need to modify the operating system in other ways. Note however that processes retaining the CAP_SYS_ADMIN capability can
+undo the effect of this setting. This setting is hence particularly useful for daemons which have this capability removed, for example with CapabilityBoundingSet=. Defaults to off. So, I would say the selinux policy is in the wrong to prevent this,
+and needs fixing.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9373967</commentid>
+<comment_count>20</comment_count>
+<who name="Paul Moore">pmoore</who>
+<bug_when>2016-05-31 15:32:49 -0400</bug_when>
+<thetext>Huh, that&apos;s something. I&apos;m not sure if I like the ProtectSystem=full or not. Another option, assuming systemd can handle the failure, would be to add a dontaudit rule instead of granting access.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9374155</commentid>
+<comment_count>21</comment_count>
+<who name="Matthias Clasen">mclasen</who>
+<bug_when>2016-05-31 16:40:30 -0400</bug_when>
+<thetext>(In reply to Paul Moore from comment #20) &gt; Huh, that&apos;s something. I&apos;m not sure if I like the ProtectSystem=full or not. &gt; &gt; Another option, assuming systemd can handle the failure, would be to add a &gt; dontaudit rule
+instead of granting access. I think all the duplicates on this bug are a clear indication that systemd can&apos;t. But granting systemd this access is a good thing: You give a small amount of code (systemd) the privilege to set things up so that much
+larger amounts of code (all the system daemons with ProtectSystem=full in their service file) can run will less access to the system.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9374192</commentid>
+<comment_count>22</comment_count>
+<who name="Paul Moore">pmoore</who>
+<bug_when>2016-05-31 16:51:38 -0400</bug_when>
+<thetext>(In reply to Matthias Clasen from comment #21) &gt; (In reply to Paul Moore from comment #20) &gt; &gt; Huh, that&apos;s something. I&apos;m not sure if I like the ProtectSystem=full or not. &gt; &gt; &gt; &gt; Another option, assuming
+systemd can handle the failure, would be to add a &gt; &gt; dontaudit rule instead of granting access. &gt; &gt; I think all the duplicates on this bug are a clear indication that systemd &gt; can&apos;t. I see lots of people complaining about AVCs
+in their systemd journal, but I only see one comment about the coredump failing (comment #11). Can you confirm that the systemd coredump service fails to produce a coredump? The AVC error messages don&apos;t necessarily mean that the systemd coredump
+service failed to work. &gt; But granting systemd this access is a good thing: You give a small amount of &gt; code (systemd) the privilege to set things up so that much larger amounts of &gt; code (all the system daemons with ProtectSystem=full in
+their service file) &gt; can run will less access to the system. It depends on your perspective and use case; from your perspective the solution is obvious, for others I&apos;m not certain at this point. I haven&apos;t thought about this very much,
+but granting mounton permissions for /etc isn&apos;t something I would undertake lightly.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9376191</commentid>
+<comment_count>23</comment_count>
+<who name="Christophe Fergeau">cfergeau</who>
+<bug_when>2016-06-01 04:43:28 -0400</bug_when>
+<thetext>(In reply to Paul Moore from comment #22) &gt; (In reply to Matthias Clasen from comment #21) &gt; &gt; (In reply to Paul Moore from comment #20) &gt; &gt; &gt; Huh, that&apos;s something. I&apos;m not sure if I like the ProtectSystem=full
+or not. &gt; &gt; &gt; &gt; &gt; &gt; Another option, assuming systemd can handle the failure, would be to add a &gt; &gt; &gt; dontaudit rule instead of granting access. &gt; &gt; &gt; &gt; I think all the duplicates on this bug are a clear
+indication that systemd &gt; &gt; can&apos;t. &gt; &gt; I see lots of people complaining about AVCs in their systemd journal, but I &gt; only see one comment about the coredump failing (comment #11). Can you &gt; confirm that the systemd coredump
+service fails to produce a coredump? The &gt; AVC error messages don&apos;t necessarily mean that the systemd coredump service &gt; failed to work. I was under the impression that this AVC was actually preventing the core generation even though
+coredumpctl shows it (ie coredumpctl gdb xxx fails saying there is no core file), but after running more tests, I cannot get it to produce core files even with setenforce 0, so dunno what&apos;s going on :((</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9378462</commentid>
+<comment_count>24</comment_count>
+<who name="Paul Moore">pmoore</who>
+<bug_when>2016-06-01 15:38:34 -0400</bug_when>
+<thetext>(In reply to Christophe Fergeau from comment #23) &gt; I was under the impression that this AVC was actually preventing the core &gt; generation even though coredumpctl shows it (ie coredumpctl gdb xxx fails &gt; saying there is no core
+file), but after running more tests, I cannot get it &gt; to produce core files even with setenforce 0, so dunno what&apos;s going on :(( Can anyone else confirm this behavior?</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9378480</commentid>
+<comment_count>25</comment_count>
+<who name="Göran Uddeborg">goeran</who>
+<bug_when>2016-06-01 15:47:11 -0400</bug_when>
+<thetext>I hadn&apos;t tried, but yes, it&apos;s the same for me. mimmi$ getenforce Permissive mimmi$ sleep 30 ^\Quit (core dumped) mimmi$ coredumpctl TIME PID UID GID SIG PRESENT EXE ... ons 2016-06-01 21:44:38 CEST 13065 1003 1003 3 /usr/bin/sleep
+mimmi$ coredumpctl gdb 13065 PID: 13065 (sleep) UID: 1003 (göran) GID: 1003 (göran) Signal: 3 (QUIT) Timestamp: ons 2016-06-01 21:44:38 CEST (13s ago) Command Line: sleep 30 Executable: /usr/bin/sleep Control Group:
+/user.slice/user-1003.slice/session-1806.scope Unit: session-1806.scope Slice: user-1003.slice Session: 1806 Owner UID: 1003 (göran) Boot ID: 6a333211d9d34218a6b92e299146ee7a Machine ID: 606ba17eef1ffa5a76fdb50047756efd Hostname: mimmi Message:
+Process 13065 (sleep) of user 1003 dumped core. Cannot retrieve coredump from journal nor disk. Failed to retrieve core: No such file or directory</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9378485</commentid>
+<comment_count>26</comment_count>
+<who name="Paul Moore">pmoore</who>
+<bug_when>2016-06-01 15:50:02 -0400</bug_when>
+<thetext>Regardless of the SELinux policy, perhaps there is an issue with systemd-coredump.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9378519</commentid>
+<comment_count>27</comment_count>
+<who name="Göran Uddeborg">goeran</who>
+<bug_when>2016-06-01 15:59:49 -0400</bug_when>
+<thetext>Indeed. I filed a separate bug 1341829 about it.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9387600</commentid>
+<comment_count>28</comment_count>
+<who name="Mike Goodwin">mike</who>
+<bug_when>2016-06-05 04:44:55 -0400</bug_when>
+<thetext>Description of problem: Started seeing this after upgrading F23 to F24. Even after a /.autorelabel Version-Release number of selected component: selinux-policy-3.13.1-190.fc24.noarch Additional info: reporter: libreport-2.7.1 hashmarkername:
+setroubleshoot kernel: 4.5.5-300.fc24.x86_64 reproducible: Not sure how to reproduce the problem type: libreport</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9441580</commentid>
+<comment_count>29</comment_count>
+<who name="Matthias Clasen">mclasen</who>
+<bug_when>2016-06-22 11:22:56 -0400</bug_when>
+<thetext>Did we get any closer to a fix for the selinux policy that stops it from breaking a designed systemd feature that is meant to protect the system ?</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9441651</commentid>
+<comment_count>30</comment_count>
+<who name="Christophe Fergeau">cfergeau</who>
+<bug_when>2016-06-22 11:35:30 -0400</bug_when>
+<thetext>After more testing, the selinux alert does not seem to prevent the generation of the core file. &apos;ulimit -c unlimited&apos; is required though as explained in https://bugzilla.redhat.com/show_bug.cgi?id=1341829#c1 « Michael Catanzaro
+2016-06-04 09:44:41 EDT You have to set ulimit now (and disable SELinux, bug #1317927) for systemd-coredump to work in F24. This really sucks; neither was required in F23. I was hoping that having coredumpctl enabled by default could be a F25 feature
+thanks to recent integration work by the ABRT team, but looks like that requires either setting ulimit systemwide (probably preferable) or reverting the change to respect ulimit. »</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9442696</commentid>
+<comment_count>31</comment_count>
+<who name="Paul Moore">pmoore</who>
+<bug_when>2016-06-22 15:53:27 -0400</bug_when>
+<thetext>Policy guys (mgrepl,lvrabec), I suggest bringing this up to the upstream SELinux list for discussion.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9445173</commentid>
+<comment_count>32</comment_count>
+<who name="Jakub Filak">jfilak</who>
+<bug_when>2016-06-23 03:41:00 -0400</bug_when>
+<thetext>(In reply to Christophe Fergeau from comment #30) &gt; After more testing, the selinux alert does not seem to prevent the &gt; generation of the core file. &apos;ulimit -c unlimited&apos; is required though as &gt; explained in
+https://bugzilla.redhat.com/show_bug.cgi?id=1341829#c1 RLIMIT_CORE (ulimit -c) should be &apos;unlimited&apos; by default (bug #1341829 comment #2).</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9479030</commentid>
+<comment_count>33</comment_count>
+<who name="George Joseph">george.joseph</who>
+<bug_when>2016-07-04 12:37:04 -0400</bug_when>
+<thetext>Just chiming in with a possible (temporary) solution... In my case, it was a crash of Asterisk that was causing the failure, specifically &quot;failed to send coredump datagram: Message too long&quot;, even with selinux disabled and ulimit
+-c 0. Turns out that since coredump.c/send_iovec doesn&apos;t do any buffering, when it tries to send a large COREDUMP_PROC_MAPS that exceeds /proc/sys/net/core/wmem_default, sendto fails with EMSGSIZE. Increasing /proc/sys/net/core/wmem_default and
+wmem_max fixed the issue for me. The real solution should be for coredump.c/send_iovec to buffer messages that exceed wmem_default and/or wmem_max.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9549551</commentid>
+<comment_count>34</comment_count>
+<who name="Jan Kurik">jkurik</who>
+<bug_when>2016-07-26 00:44:32 -0400</bug_when>
+<thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 25 development cycle. Changing version to &apos;25&apos;.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9560983</commentid>
+<comment_count>35</comment_count>
+<who name="Sergey">zor1984qq</who>
+<bug_when>2016-07-27 19:42:00 -0400</bug_when>
+<thetext>Description of problem: Install tor using dnf install tor command sudo systemctl enable tor sudo systemctl start tor sudo systemctl status tor июл 28 02:00:13 localhost.localdomain Tor[17064]: Bootstrapped 45%: Asking for relay d июл 28
+02:00:13 localhost.localdomain Tor[17064]: I learned some more directory inform июл 28 02:00:14 localhost.localdomain Tor[17064]: Bootstrapped 50%: Loading relay desc июл 28 02:00:15 localhost.localdomain Tor[17064]: Bootstrapped 58%: Loading relay
+desc июл 28 02:00:15 localhost.localdomain Tor[17064]: Bootstrapped 66%: Loading relay desc июл 28 02:00:15 localhost.localdomain Tor[17064]: Bootstrapped 72%: Loading relay desc июл 28 02:00:16 localhost.localdomain Tor[17064]: Bootstrapped 80%:
+Connecting to the июл 28 02:00:16 localhost.localdomain Tor[17064]: Bootstrapped 90%: Establishing a Tor июл 28 02:00:16 localhost.localdomain Tor[17064]: Tor has successfully opened a circui июл 28 02:00:16 localhost.localdomain Tor[17064]:
+Bootstrapped 100%: Done then setup firefox for using tor sock4a port 9050 actually tor working normally as intended after these steps but I&apos;ve got these messages: SELinux is preventing (tor) from mounton access on the directory /etc. Модуль:
+catchall_labels you want to allow (tor) to have mounton access on the etc directoryЕсли you want to allow (tor) to have mounton access on the etc directory Необходимо изменить метку на /etc # semanage fcontext -a -t FILE_TYPE &apos;/etc&apos; -
+PLEASE GIVE ME ADVICE WHAT I NEED TO PUT INTO FILE_TYPE VARIABLE FOR TOR!!! I HAVE NO CLUE WHAT TO DO AND WRITE IN THESE COMMAND, THE SECOND TIP BY TWO COMMANDS WHICH CREATES CUSTOM SELINUX POLICY IS WORKED OUT FOR ME, THANK YOU!!! where FILE_TYPE is
+one of the following: admin_home_t, anon_inodefs_t, audit_spool_t, auditd_log_t, autofs_t, automount_tmp_t, bacula_store_t, binfmt_misc_fs_t, boot_t, capifs_t, cephfs_t, cgroup_t, cifs_t, container_image_t, debugfs_t, default_t, device_t, devpts_t,
+dnssec_t, dosfs_t, ecryptfs_t, efivarfs_t, fusefs_t, home_root_t, hugetlbfs_t, ifconfig_var_run_t, init_var_run_t, initrc_tmp_t, iso9660_t, kdbusfs_t, mail_spool_t, mnt_t, mqueue_spool_t, named_conf_t, news_spool_t, nfs_t, nfsd_fs_t, openshift_tmp_t,
+openshift_var_lib_t, oracleasmfs_t, proc_t, proc_xen_t, pstore_t, public_content_rw_t, public_content_t, ramfs_t, random_seed_t, removable_t, root_t, rpc_pipefs_t, security_t, spufs_t, src_t, svirt_sandbox_file_t, sysctl_fs_t, sysctl_t, sysfs_t,
+sysv_t, tmp_t, tmpfs_t, usbfs_t, user_home_dir_t, user_home_t, user_tmp_t, usr_t, var_lib_nfs_t, var_lib_t, var_lock_t, var_log_t, var_run_t, var_t, virt_image_t, virt_var_lib_t, vmblock_t, vxfs_t, xend_var_lib_t, xend_var_run_t, xenfs_t,
+xenstored_var_lib_t. Then execute: restorecon -v &apos;/etc&apos; and SELinux is preventing (tor) from mounton access on the directory /etc. Модуль: catchall you want to allow (tor) to have mounton access on the etc directoryЕсли вы считаете, что
+(tor) следует разрешить доступ mounton к etc directory по умолчанию. Рекомендуется создать отчет об ошибке. Чтобы разрешить доступ, можно создать локальный модуль политики. Allow this access for now by executing: # ausearch -c &apos;(tor)&apos; --raw
+| audit2allow -M my-tor # semodule -X 300 -i my-tor.pp then these when error reporting SELinux is preventing (tor) from &apos;mounton&apos; accesses on the directory /etc. ***** Plugin catchall_labels (83.8 confidence) suggests ******************* If
+you want to allow (tor) to have mounton access on the etc directory Then необходимо изменить метку на /etc Do # semanage fcontext -a -t FILE_TYPE &apos;/etc&apos; where FILE_TYPE is one of the following: admin_home_t, anon_inodefs_t, audit_spool_t,
+auditd_log_t, autofs_t, automount_tmp_t, bacula_store_t, binfmt_misc_fs_t, boot_t, capifs_t, cephfs_t, cgroup_t, cifs_t, container_image_t, debugfs_t, default_t, device_t, devpts_t, dnssec_t, dosfs_t, ecryptfs_t, efivarfs_t, fusefs_t, home_root_t,
+hugetlbfs_t, ifconfig_var_run_t, init_var_run_t, initrc_tmp_t, iso9660_t, kdbusfs_t, mail_spool_t, mnt_t, mqueue_spool_t, named_conf_t, news_spool_t, nfs_t, nfsd_fs_t, openshift_tmp_t, openshift_var_lib_t, oracleasmfs_t, proc_t, proc_xen_t, pstore_t,
+public_content_rw_t, public_content_t, ramfs_t, random_seed_t, removable_t, root_t, rpc_pipefs_t, security_t, spufs_t, src_t, svirt_sandbox_file_t, sysctl_fs_t, sysctl_t, sysfs_t, sysv_t, tmp_t, tmpfs_t, usbfs_t, user_home_dir_t, user_home_t,
+user_tmp_t, usr_t, var_lib_nfs_t, var_lib_t, var_lock_t, var_log_t, var_run_t, var_t, virt_image_t, virt_var_lib_t, vmblock_t, vxfs_t, xend_var_lib_t, xend_var_run_t, xenfs_t, xenstored_var_lib_t. Then execute: restorecon -v &apos;/etc&apos; *****
+Plugin catchall (17.1 confidence) suggests ************************** If вы считаете, что (tor) следует разрешить доступ mounton к etc directory по умолчанию. Then рекомендуется создать отчет об ошибке. Чтобы разрешить доступ, можно создать локальный
+модуль политики. Do allow this access for now by executing: # ausearch -c &apos;(tor)&apos; --raw | audit2allow -M my-tor # semodule -X 300 -i my-tor.pp Additional Information: Source Context system_u:system_r:init_t:s0 Target Context
+system_u:object_r:etc_t:s0 Target Objects /etc [ dir ] Source (tor) Source Path (tor) Port &lt;Unknown&gt; Host (removed) Source RPM Packages Target RPM Packages filesystem-3.2-37.fc24.x86_64 Policy RPM selinux-policy-3.13.1-191.5.fc24.noarch Selinux
+Enabled True Policy Type targeted Enforcing Mode Enforcing Host Name (removed) Platform Linux (removed) 4.5.5-300.fc24.x86_64 #1 SMP Thu May 19 13:05:32 UTC 2016 x86_64 x86_64 Alert Count 3 First Seen 2016-07-28 02:00:05 MSK Last Seen 2016-07-28
+02:02:55 MSK Local ID 232edcff-3325-49a3-8a55-ea5a8d170f22 Raw Audit Messages type=AVC msg=audit(1469660575.66:765): avc: denied { mounton } for pid=17137 comm=&quot;(tor)&quot; path=&quot;/etc&quot; dev=&quot;dm-0&quot; ino=917505
+scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:etc_t:s0 tclass=dir permissive=0 Hash: (tor),init_t,etc_t,dir,mounton Version-Release number of selected component: selinux-policy-3.13.1-191.5.fc24.noarch Additional info: reporter:
+libreport-2.7.2 hashmarkername: setroubleshoot kernel: 4.5.5-300.fc24.x86_64 type: libreport</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9584201</commentid>
+<comment_count>36</comment_count>
+<who name="Matěj Koudelka">matej</who>
+<bug_when>2016-08-04 05:02:28 -0400</bug_when>
+<thetext>Description of problem: 1/ First I have done upgrade from Fedora23 to Fedora24 2/ Than java application (PHPStorm) has started fall down and no coredump was available When I run command: coredumpctl dump java -o java_dump.log Got this error:
+&quot;Cannot retrieve coredump from journal nor disk.&quot; &quot;Coredump retrieval failed: No such file or directory&quot; 3/ touch /.autorelabel &amp;&amp; reboot 4/ Test coredump again and receive this SELinux alert. Version-Release number of
+selected component: selinux-policy-3.13.1-191.5.fc24.noarch Additional info: reporter: libreport-2.7.2 hashmarkername: setroubleshoot kernel: 4.6.4-301.fc24.x86_64 type: libreport</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9584405</commentid>
+<comment_count>37</comment_count>
+<who name="Matěj Koudelka">matej</who>
+<bug_when>2016-08-04 06:16:48 -0400</bug_when>
+<thetext>I have disabled ProtectSystem in service systemd-coredump, and try to kill -ABRT process sleep. SElinux alert is away, but there is same result. Cannot retrieve coredump from journal nor disk. Coredump retrieval failed: No such file or
+directory So it looks like that my primary problem is with coredump? Or do I something wrong? I have no experience with coredumping.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9584514</commentid>
+<comment_count>38</comment_count>
+<who name="Christophe Fergeau">cfergeau</who>
+<bug_when>2016-08-04 07:05:30 -0400</bug_when>
+<thetext>Matej, have you read comment #30 and the other bug report it mentions? « After more testing, the selinux alert does not seem to prevent the generation of the core file. &apos;ulimit -c unlimited&apos; is required though as explained in
+https://bugzilla.redhat.com/show_bug.cgi?id=1341829#c1 « Michael Catanzaro 2016-06-04 09:44:41 EDT You have to set ulimit now (and disable SELinux, bug #1317927) for systemd-coredump to work in F24. This really sucks; neither was required in F23. I
+was hoping that having coredumpctl enabled by default could be a F25 feature thanks to recent integration work by the ABRT team, but looks like that requires either setting ulimit systemwide (probably preferable) or reverting the change to respect
+ulimit. »</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9584591</commentid>
+<comment_count>39</comment_count>
+<who name="Matěj Koudelka">matej</who>
+<bug_when>2016-08-04 07:23:51 -0400</bug_when>
+<thetext>Christophe, thanks. I have omitted this comment. Setting ulimit helps me, even if I have SElinux in Enforced state.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9599095</commentid>
+<comment_count>40</comment_count>
+<who name="Zbigniew Jędrzejewski-Szmek">zbyszek</who>
+<bug_when>2016-08-09 12:25:21 -0400</bug_when>
+<thetext>Selinux policy was updated to allow mounton in https://github.com/fedora-selinux/selinux-policy/commit/257f2a8a44a039eb298b7c04508fa2db93983807 (rawhide),
+https://github.com/fedora-selinux/selinux-policy/commit/78216c32fd090c691eadf973c5dc7c87d17b3c9e (F24). This seems to work in rawhide (no AVC, ProtectSystem works), BUT DOES NOT WORK IN F24 (AVC, ProtectSystem=full does not work). Reproducer: $
+systemctl cat test-pf # /run/systemd/system/test-pf.service [Service] ProtectSystem=full Type=oneshot ExecStart=/bin/touch /etc/test-protect-system-full ExecStart=/bin/touch /boot/test-protect-system-full ExecStart=/bin/touch
+/usr/test-protect-system-full $ systemctl start test-pf &amp;&gt;/dev/null $ ls /*/test-protect-system-full /etc/test-protect-system-full Logs: Aug 09 12:21:42 systemd[1]: Starting test-pf.service... Aug 09 12:21:42 audit[15472]: AVC avc: denied {
+mounton } for pid=15472 comm=&quot;(touch)&quot; path=&quot;/etc&quot; dev=&quot;dm-0&quot; ino=1179649 scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:etc_t:s0 tclass=dir permissive=0 Aug 09 12:21:42 audit[15480]: AVC avc: denied {
+mounton } for pid=15480 comm=&quot;(touch)&quot; path=&quot;/etc&quot; dev=&quot;dm-0&quot; ino=1179649 scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:etc_t:s0 tclass=dir permissive=0 Aug 09 12:21:42 touch[15480]: /bin/touch: cannot
+touch &apos;/boot/test-protect-system-full&apos;: Read-only file system Aug 09 12:21:42 systemd[1]: test-pf.service: Main process exited, code=exited, status=1/FAILURE Aug 09 12:21:42 systemd[1]: Failed to start test-pf.service. $ rpm -q
+selinux-policy-targeted selinux-policy-targeted-3.13.1-191.8.fc24.noarch</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9599106</commentid>
+<comment_count>41</comment_count>
+<who name="Zbigniew Jędrzejewski-Szmek">zbyszek</who>
+<bug_when>2016-08-09 12:27:57 -0400</bug_when>
+<thetext>Let&apos;s make this bug about the AVC denial and ProtectSystem=full and handle other coredump issues in #1309172.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9606822</commentid>
+<comment_count>42</comment_count>
+<who name="Fedora Update System">updates</who>
+<bug_when>2016-08-11 07:57:50 -0400</bug_when>
+<thetext>selinux-policy-3.13.1-191.10.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-2c8a3e08c6</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9612248</commentid>
+<comment_count>43</comment_count>
+<who name="Fedora Update System">updates</who>
+<bug_when>2016-08-12 15:28:39 -0400</bug_when>
+<thetext>selinux-policy-3.13.1-191.10.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+</long_desc>
+
+<attachment isobsolete="0" ispatch="0" isprivate="0">
+<attachid>1136644</attachid>
+<date>2016-03-15 11:13:00 -0400</date>
+<delta_ts>2016-03-15 11:13:21 -0400</delta_ts>
+<desc>more complete log</desc>
+<filename>LOG</filename>
+<type>text/x-vhdl</type>
+<size>7017</size>
+<attacher name="Matthias Clasen">mclasen</attacher>
+
+<data encoding="base64">LS0gTG9ncyBiZWdpbiBhdCBNb24gMjAxNi0wMy0wNyAyMjowNToyMyBFU1QuIC0tCk1hciAxNSAx MToxMDo0MyBsb2NhbGhvc3QgZmlyZWZveC5kZXNrdG9wWzEzMzYwXTogKGZpcmVmb3g6MTMzNjAp
+OiBHdGstV0FSTklORyAqKjogU3RhdGUgMCBmb3IgR3RrRW50cnkgMHg3ZmJkYzQ5YmYyNTAgZG9l c24ndCBtYXRjaCBzdGF0ZSAxMjggc2V0IHZpYSBndGtfc3R5bGVfY29udGV4dF9zZXRfc3RhdGUg KCkKTWFyIDE1IDExOjEwOjQzIGxvY2FsaG9zdCBmaXJlZm94LmRlc2t0b3BbMTMzNjBdOiAoZmly
+ZWZveDoxMzM2MCk6IEd0ay1XQVJOSU5HICoqOiBTdGF0ZSAwIGZvciBHdGtFbnRyeSAweDdmYmRj NDliZjI1MCBkb2Vzbid0IG1hdGNoIHN0YXRlIDEyOCBzZXQgdmlhIGd0a19zdHlsZV9jb250ZXh0 X3NldF9zdGF0ZSAoKQpNYXIgMTUgMTE6MTA6NDMgbG9jYWxob3N0IGZpcmVmb3guZGVza3RvcFsx
+MzM2MF06IChmaXJlZm94OjEzMzYwKTogR3RrLVdBUk5JTkcgKio6IFN0YXRlIDAgZm9yIEd0a1Rv Z2dsZUJ1dHRvbiAweDdmYmRiZmU1NGVjMCBkb2Vzbid0IG1hdGNoIHN0YXRlIDEyOCBzZXQgdmlh IGd0a19zdHlsZV9jb250ZXh0X3NldF9zdGF0ZSAoKQpNYXIgMTUgMTE6MTA6NDMgbG9jYWxob3N0
+IGZpcmVmb3guZGVza3RvcFsxMzM2MF06IChmaXJlZm94OjEzMzYwKTogR3RrLVdBUk5JTkcgKio6 IFN0YXRlIDAgZm9yIEd0a1RvZ2dsZUJ1dHRvbiAweDdmYmRiZmU1NGVjMCBkb2Vzbid0IG1hdGNo IHN0YXRlIDEyOCBzZXQgdmlhIGd0a19zdHlsZV9jb250ZXh0X3NldF9zdGF0ZSAoKQpNYXIgMTUg
+MTE6MTA6NDMgbG9jYWxob3N0IGZpcmVmb3guZGVza3RvcFsxMzM2MF06IChmaXJlZm94OjEzMzYw KTogR3RrLVdBUk5JTkcgKio6IFN0YXRlIDAgZm9yIEd0a1RvZ2dsZUJ1dHRvbiAweDdmYmRiZmU1 NGVjMCBkb2Vzbid0IG1hdGNoIHN0YXRlIDEyOCBzZXQgdmlhIGd0a19zdHlsZV9jb250ZXh0X3Nl
+dF9zdGF0ZSAoKQpNYXIgMTUgMTE6MTA6NDMgbG9jYWxob3N0IGZpcmVmb3guZGVza3RvcFsxMzM2 MF06IChmaXJlZm94OjEzMzYwKTogR3RrLVdBUk5JTkcgKio6IFN0YXRlIDAgZm9yIEd0a1RvZ2ds ZUJ1dHRvbiAweDdmYmRiZmU1NGVjMCBkb2Vzbid0IG1hdGNoIHN0YXRlIDEyOCBzZXQgdmlhIGd0
+a19zdHlsZV9jb250ZXh0X3NldF9zdGF0ZSAoKQpNYXIgMTUgMTE6MTA6NDQgbG9jYWxob3N0IGZp cmVmb3guZGVza3RvcFsxMzM2MF06IChmaXJlZm94OjEzMzYwKTogR3RrLVdBUk5JTkcgKio6IFN0 YXRlIDAgZm9yIEd0a1RvZ2dsZUJ1dHRvbiAweDdmYmRiZmU1NGVjMCBkb2Vzbid0IG1hdGNoIHN0
+YXRlIDEyOCBzZXQgdmlhIGd0a19zdHlsZV9jb250ZXh0X3NldF9zdGF0ZSAoKQpNYXIgMTUgMTE6 MTA6NDQgbG9jYWxob3N0IGZpcmVmb3guZGVza3RvcFsxMzM2MF06IChmaXJlZm94OjEzMzYwKTog R3RrLVdBUk5JTkcgKio6IFN0YXRlIDAgZm9yIEd0a1RvZ2dsZUJ1dHRvbiAweDdmYmRiZmU1NGVj
+MCBkb2Vzbid0IG1hdGNoIHN0YXRlIDEyOCBzZXQgdmlhIGd0a19zdHlsZV9jb250ZXh0X3NldF9z dGF0ZSAoKQpNYXIgMTUgMTE6MTA6NDUgbG9jYWxob3N0IGZpcmVmb3guZGVza3RvcFsxMzM2MF06 IChmaXJlZm94OjEzMzYwKTogR3RrLVdBUk5JTkcgKio6IFN0YXRlIDAgZm9yIEd0a1RvZ2dsZUJ1
+dHRvbiAweDdmYmRiZmU1NGVjMCBkb2Vzbid0IG1hdGNoIHN0YXRlIDEyOCBzZXQgdmlhIGd0a19z dHlsZV9jb250ZXh0X3NldF9zdGF0ZSAoKQpNYXIgMTUgMTE6MTA6NDUgbG9jYWxob3N0IGZpcmVm b3guZGVza3RvcFsxMzM2MF06IChmaXJlZm94OjEzMzYwKTogR3RrLVdBUk5JTkcgKio6IFN0YXRl
+IDAgZm9yIEd0a1RvZ2dsZUJ1dHRvbiAweDdmYmRiZmU1NGVjMCBkb2Vzbid0IG1hdGNoIHN0YXRl IDEyOCBzZXQgdmlhIGd0a19zdHlsZV9jb250ZXh0X3NldF9zdGF0ZSAoKQpNYXIgMTUgMTE6MTE6 NTQgbG9jYWxob3N0IGF1ZGl0WzEzMzYwXTogQU5PTV9BQkVORCBhdWlkPTEwMDAgdWlkPTEwMDAg
+Z2lkPTEwMDAgc2VzPTEgc3Viaj11bmNvbmZpbmVkX3U6dW5jb25maW5lZF9yOnVuY29uZmluZWRf dDpzMC1zMDpjMC5jMTAyMyBwaWQ9MTMzNjAgY29tbT0iZmlyZWZveCIgZXhlPSIvdXNyL2xpYjY0 L2ZpcmVmb3gvZmlyZWZveCIgc2lnPTExCk1hciAxNSAxMToxMTo1NCBsb2NhbGhvc3QgZGJ1c1s5
+MjRdOiBbc3lzdGVtXSBBY3RpdmF0aW5nIHNlcnZpY2UgbmFtZT0nb3JnLmZlZG9yYXByb2plY3Qu U2V0cm91Ymxlc2hvb3RkJyAodXNpbmcgc2VydmljZWhlbHBlcikKTWFyIDE1IDExOjExOjU0IGxv Y2FsaG9zdCBzeXN0ZW1kWzFdOiBTdGFydGVkIFByb2Nlc3MgQ29yZSBEdW1wIChQSUQgMTM2MzUv
+VUlEIDApLgpNYXIgMTUgMTE6MTE6NTQgbG9jYWxob3N0IGF1ZGl0OiBORVRGSUxURVJfQ0ZHIHRh YmxlPWZpbHRlciBmYW1pbHk9MiBlbnRyaWVzPTAKTWFyIDE1IDExOjExOjU0IGxvY2FsaG9zdCBh dWRpdFsxXTogU0VSVklDRV9TVEFSVCBwaWQ9MSB1aWQ9MCBhdWlkPTQyOTQ5NjcyOTUgc2VzPTQy
+OTQ5NjcyOTUgc3Viaj1zeXN0ZW1fdTpzeXN0ZW1fcjppbml0X3Q6czAgbXNnPSd1bml0PXN5c3Rl bWQtY29yZWR1bXBANi0xMzYzNS0wIGNvbW09InN5c3RlbWQiIGV4ZT0iL3Vzci9saWIvc3lzdGVt ZC9zeXN0ZW1kIiBob3N0bmFtZT0/IGFkZHI9PyB0ZXJtaW5hbD0/IHJlcz1zdWNjZXNzJwpNYXIg
+MTUgMTE6MTE6NTQgbG9jYWxob3N0IGF1ZGl0OiBORVRGSUxURVJfQ0ZHIHRhYmxlPXNlY3VyaXR5 IGZhbWlseT0yIGVudHJpZXM9MApNYXIgMTUgMTE6MTE6NTQgbG9jYWxob3N0IGF1ZGl0OiBORVRG SUxURVJfQ0ZHIHRhYmxlPXJhdyBmYW1pbHk9MiBlbnRyaWVzPTAKTWFyIDE1IDExOjExOjU0IGxv
+Y2FsaG9zdCBhdWRpdDogTkVURklMVEVSX0NGRyB0YWJsZT1tYW5nbGUgZmFtaWx5PTIgZW50cmll cz0wCk1hciAxNSAxMToxMTo1NCBsb2NhbGhvc3QgYXVkaXQ6IE5FVEZJTFRFUl9DRkcgdGFibGU9 bmF0IGZhbWlseT0yIGVudHJpZXM9MApNYXIgMTUgMTE6MTE6NTQgbG9jYWxob3N0IGF1ZGl0OiBO
+RVRGSUxURVJfQ0ZHIHRhYmxlPWZpbHRlciBmYW1pbHk9MTAgZW50cmllcz0wCk1hciAxNSAxMTox MTo1NCBsb2NhbGhvc3QgYXVkaXQ6IE5FVEZJTFRFUl9DRkcgdGFibGU9c2VjdXJpdHkgZmFtaWx5 PTEwIGVudHJpZXM9MApNYXIgMTUgMTE6MTE6NTQgbG9jYWxob3N0IGF1ZGl0OiBORVRGSUxURVJf
+Q0ZHIHRhYmxlPXJhdyBmYW1pbHk9MTAgZW50cmllcz0wCk1hciAxNSAxMToxMTo1NCBsb2NhbGhv c3QgYXVkaXQ6IE5FVEZJTFRFUl9DRkcgdGFibGU9bWFuZ2xlIGZhbWlseT0xMCBlbnRyaWVzPTAK TWFyIDE1IDExOjExOjU0IGxvY2FsaG9zdCBhdWRpdDogTkVURklMVEVSX0NGRyB0YWJsZT1uYXQg
+ZmFtaWx5PTEwIGVudHJpZXM9MApNYXIgMTUgMTE6MTE6NTQgbG9jYWxob3N0IGF1ZGl0WzEzNjQ0 XTogQVZDIGF2YzogIGRlbmllZCAgeyBtb3VudG9uIH0gZm9yICBwaWQ9MTM2NDQgY29tbT0iKGNv cmVkdW1wKSIgcGF0aD0iL2V0YyIgZGV2PSJkbS0xIiBpbm89NzgzMzYyIHNjb250ZXh0PXN5c3Rl
+bV91OnN5c3RlbV9yOmluaXRfdDpzMCB0Y29udGV4dD1zeXN0ZW1fdTpvYmplY3RfcjpldGNfdDpz MCB0Y2xhc3M9ZGlyIHBlcm1pc3NpdmU9MApNYXIgMTUgMTE6MTE6NTQgbG9jYWxob3N0IHN5c3Rl bWQtY29yZWR1bXBbMTM2NDRdOiBDb3JlZHVtcCBmaWxlIGRlc2NyaXB0b3IgbWlzc2luZy4KTWFy
+IDE1IDExOjExOjU0IGxvY2FsaG9zdCBhdWRpdFsxXTogU0VSVklDRV9TVE9QIHBpZD0xIHVpZD0w IGF1aWQ9NDI5NDk2NzI5NSBzZXM9NDI5NDk2NzI5NSBzdWJqPXN5c3RlbV91OnN5c3RlbV9yOmlu aXRfdDpzMCBtc2c9J3VuaXQ9c3lzdGVtZC1jb3JlZHVtcEA2LTEzNjM1LTAgY29tbT0ic3lzdGVt
+ZCIgZXhlPSIvdXNyL2xpYi9zeXN0ZW1kL3N5c3RlbWQiIGhvc3RuYW1lPT8gYWRkcj0/IHRlcm1p bmFsPT8gcmVzPXN1Y2Nlc3MnCk1hciAxNSAxMToxMTo1NCBsb2NhbGhvc3QgZGJ1c1s5MjRdOiBb c3lzdGVtXSBTdWNjZXNzZnVsbHkgYWN0aXZhdGVkIHNlcnZpY2UgJ29yZy5mZWRvcmFwcm9qZWN0
+LlNldHJvdWJsZXNob290ZCcKTWFyIDE1IDExOjExOjU1IGxvY2FsaG9zdCBzZXRyb3VibGVzaG9v dFsxMzY0MF06IFNFTGludXggaXMgcHJldmVudGluZyAoY29yZWR1bXApIGZyb20gbW91bnRvbiBh Y2Nlc3Mgb24gdGhlIGRpcmVjdG9yeSAvZXRjLiBGb3IgY29tcGxldGUgU0VMaW51eCBtZXNzYWdl
+cy4gcnVuIHNlYWxlcnQgLWwgNmM5ODUzZDgtZDJjNC00NGM2LWFkNTEtNWUyODgyNzQyZTU0Ck1h ciAxNSAxMToxMTo1NSBsb2NhbGhvc3QgcHl0aG9uM1sxMzY0MF06IFNFTGludXggaXMgcHJldmVu dGluZyAoY29yZWR1bXApIGZyb20gbW91bnRvbiBhY2Nlc3Mgb24gdGhlIGRpcmVjdG9yeSAvZXRj
+LgogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAg ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKioqKiogIFBsdWdpbiBjYXRjaGFsbF9sYWJl bHMgKDgzLjggY29uZmlkZW5jZSkgc3VnZ2VzdHMgICAqKioqKioqKioqKioqKioqKioqCiAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAg ICAgICAgICAgICAgICAgICAgICAgICBJZiB5b3Ugd2FudCB0byBhbGxvdyAoY29yZWR1bXApIHRv IGhhdmUgbW91bnRvbiBhY2Nlc3Mgb24gdGhlIGV0YyBkaXJlY3RvcnkKICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgVGhlbiB5b3UgbmVlZCB0byBjaGFuZ2UgdGhlIGxh YmVsIG9uIC9ldGMKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgRG8K ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIyBzZW1hbmFnZSBmY29u
+dGV4dCAtYSAtdCBGSUxFX1RZUEUgJy9ldGMnCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAg ICAgICAgICAgICAgIHdoZXJlIEZJTEVfVFlQRSBpcyBvbmUgb2YgdGhlIGZvbGxvd2luZzogYWRt aW5faG9tZV90LCBhbm9uX2lub2RlZnNfdCwgYXVkaXRfc3Bvb2xfdCwgYXVkaXRkX2xvZ190LCBh
+dXRvZnNfdCwgYXV0b21vdW50X3RtcF90LCBiYWN1bGFfc3RvcmVfdCwgYmluZm10X21pc2NfZnNf dCwgYm9vdF90LCBjYXBpZnNfdCwgY2dyb3VwX3QsIGNpZnNfdCwgZGVidWdmc190LCBkZWZhdWx0 X3QsIGRldmljZV90LCBkZXZwdHNfdCwgZG5zc2VjX3QsIGRvc2ZzX3QsIGVjcnlwdGZzX3QsIGVm
+aXZhcmZzX3QsIGZ1c2Vmc190LCBob21lX3Jvb3RfdCwgaHVnZXRsYmZzX3QsIGlmY29uZmlnX3Zh cl9ydW5fdCwgaW5pdF92YXJfcnVuX3QsIGluaXRyY190bXBfdCwgaXNvOTY2MF90LCBrZGJ1c2Zz X3QsIG1haWxfc3Bvb2xfdCwgbW50X3QsIG1xdWV1ZV9zcG9vbF90LCBuYW1lZF9jb25mX3QsIG5l
+d3Nfc3Bvb2xfdCwgbmZzX3QsIG5mc2RfZnNfdCwgb3BlbnNoaWZ0X3RtcF90LCBvcGVuc2hpZnRf dmFyX2xpYl90LCBvcmFjbGVhc21mc190LCBwcm9jX3QsIHByb2NfeGVuX3QsIHBzdG9yZV90LCBw dWJsaWNfY29udGVudF9yd190LCBwdWJsaWNfY29udGVudF90LCByYW1mc190LCByYW5kb21fc2Vl
+ZF90LCByZW1vdmFibGVfdCwgcm9vdF90LCBycGNfcGlwZWZzX3QsIHNlY3VyaXR5X3QsIHNwdWZz X3QsIHNyY190LCBzdmlydF9zYW5kYm94X2ZpbGVfdCwgc3lzY3RsX2ZzX3QsIHN5c2N0bF90LCBz eXNmc190LCBzeXN2X3QsIHRtcF90LCB0bXBmc190LCB1bmxhYmVsZWRfdCwgdXNiZnNfdCwgdXNl
+cl9ob21lX2Rpcl90LCB1c2VyX2hvbWVfdCwgdXNlcl90bXBfdCwgdXNyX3QsIHZhcl9saWJfbmZz X3QsIHZhcl9saWJfdCwgdmFyX2xvY2tfdCwgdmFyX2xvZ190LCB2YXJfcnVuX3QsIHZhcl90LCB2 aXJ0X2ltYWdlX3QsIHZpcnRfdmFyX2xpYl90LCB2bWJsb2NrX3QsIHZ4ZnNfdCwgeGVuZF92YXJf
+bGliX3QsIHhlbmRfdmFyX3J1bl90LCB4ZW5mc190LCB4ZW5zdG9yZWRfdmFyX2xpYl90LiAKICAg ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgVGhlbiBleGVjdXRlOiAKICAg ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgcmVzdG9yZWNvbiAtdiAnL2V0
+YycKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAg ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAg ICAgICAgICAgICAgICAgICAqKioqKiAgUGx1Z2luIGNhdGNoYWxsICgxNy4xIGNvbmZpZGVuY2Up
+IHN1Z2dlc3RzICAgKioqKioqKioqKioqKioqKioqKioqKioqKioKICAgICAgICAgICAgICAgICAg ICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg ICAgICAgICAgIElmIHlvdSBiZWxpZXZlIHRoYXQgKGNvcmVkdW1wKSBzaG91bGQgYmUgYWxsb3dl
+ZCBtb3VudG9uIGFjY2VzcyBvbiB0aGUgZXRjIGRpcmVjdG9yeSBieSBkZWZhdWx0LgogICAgICAg ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBUaGVuIHlvdSBzaG91bGQgcmVwb3J0 IHRoaXMgYXMgYSBidWcuCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+IFlvdSBjYW4gZ2VuZXJhdGUgYSBsb2NhbCBwb2xpY3kgbW9kdWxlIHRvIGFsbG93IHRoaXMgYWNj ZXNzLgogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBEbwogICAgICAg ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBhbGxvdyB0aGlzIGFjY2VzcyBmb3Ig
+bm93IGJ5IGV4ZWN1dGluZzoKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg ICAgIyBncmVwIChjb3JlZHVtcCkgL3Zhci9sb2cvYXVkaXQvYXVkaXQubG9nIHwgYXVkaXQyYWxs b3cgLU0gbXlwb2wKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIyBz
+ZW1vZHVsZSAtaSBteXBvbC5wcAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg ICAgICAK
+</data>
+
+</attachment>
+
+</bug>
+
+</bugzilla>

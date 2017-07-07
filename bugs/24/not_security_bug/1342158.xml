@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1" urlbase="https://bugzilla.redhat.com/" maintainer="bugzilla-error-list@redhat.com">
+
+  <bug>
+    <bug_id>1342158</bug_id>
+
+    <creation_ts>2016-06-02 10:47:00 -0400</creation_ts>
+    <short_desc>nss-3.24 does no longer support ssl V2, installation of IPA fails because nss init fails</short_desc>
+    <delta_ts>2016-07-11 16:49:30 -0400</delta_ts>
+    <reporter_accessible>1</reporter_accessible>
+    <cclist_accessible>1</cclist_accessible>
+    <classification_id>2</classification_id>
+    <classification>Fedora</classification>
+    <product>Fedora</product>
+    <component>nss</component>
+    <version>24</version>
+    <rep_platform>Unspecified</rep_platform>
+    <op_sys>Unspecified</op_sys>
+    <bug_status>CLOSED</bug_status>
+    <resolution>ERRATA</resolution>
+
+    <see_also>https://bugzilla.redhat.com/show_bug.cgi?id=1033024</see_also>
+    <bug_file_loc></bug_file_loc>
+    <status_whiteboard></status_whiteboard>
+    <keywords></keywords>
+    <priority>unspecified</priority>
+    <bug_severity>unspecified</bug_severity>
+    <target_milestone>---</target_milestone>
+
+    <blocked>1342720</blocked>
+    <everconfirmed>1</everconfirmed>
+    <reporter name="thierry bordaz">tbordaz</reporter>
+    <assigned_to name="Elio Maldonado Batiz">emaldona</assigned_to>
+    <cc>abokovoy</cc>
+
+    <cc>amessina</cc>
+
+    <cc>awilliam</cc>
+
+    <cc>ehaukjaer</cc>
+
+    <cc>emaldona</cc>
+
+    <cc>kdudka</cc>
+
+    <cc>kengert</cc>
+
+    <cc>kevin</cc>
+
+    <cc>netllama</cc>
+
+    <cc>ngaywood</cc>
+
+    <cc>robatino</cc>
+
+    <cc>sgallagh</cc>
+
+    <cc>terjeros</cc>
+
+    <cc>thomas</cc>
+
+    <cc>umar</cc>
+    <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+
+    <cf_fixed_in>nss-3.24.0-1.2.fc24, nss-3.24.0-1.2.fc23 nss-3.24.0-1.2.fc24</cf_fixed_in>
+  <cf_doc_type>If docs needed, set a value</cf_doc_type>
+<cf_release_notes></cf_release_notes>
+<cf_story_points>---</cf_story_points>
+
+<cf_environment></cf_environment>
+<cf_last_closed>2016-06-04 22:54:56</cf_last_closed>
+<cf_type>Bug</cf_type>
+<cf_regression_status>---</cf_regression_status>
+<cf_mount_type>---</cf_mount_type>
+<cf_documentation_action>---</cf_documentation_action>
+<cf_crm></cf_crm>
+<cf_verified_branch></cf_verified_branch>
+<cf_category>---</cf_category>
+<cf_ovirt_team>---</cf_ovirt_team>
+
+<cf_cloudforms_team>---</cf_cloudforms_team>
+<external_bugs name="Mozilla Foundation">1277569</external_bugs>
+
+<target_release>---</target_release>
+
+<votes>0</votes>
+
+<comment_sort_order>oldest_to_newest</comment_sort_order>
+<long_desc isprivate="0">
+<commentid>9381574</commentid>
+<comment_count>0</comment_count>
+<who name="thierry bordaz">tbordaz</who>
+<bug_when>2016-06-02 10:47:49 -0400</bug_when>
+<thetext>Description of problem: Installation of freeipa-server enables LDAPS (port 636), but on restart there is a failure to initialize nss and does not listen on LDAPS [02/Jun/2016:16:12:32.480224437 +0200] SSL alert: Security Initialization:
+Failed to disable SSLv2 on the imported socket (Netscape Portable Runtime error -8187 - security library: invalid arguments.) [02/Jun/2016:16:12:32.485622120 +0200] ERROR: SSL2 Initialization Failed. Disabling SSL2. DS LDAPS does not work, so IPA is
+no working It works with nss-3.23 Version-Release number of selected component (if applicable): nss-3.24.0-1.1.fc24.x86_64 How reproducible: On F24, update nss to install nss 3.24 Install freeipa-server. THe failure is in PKI component that tries to
+access through LDAPS that has been disabled because of nss init failure. Actual results: freeipa install fails netstat -ntulp | grep 636 --&gt; no result Expected results: freeipa install should succeed netstat -ntulp | grep 636 --&gt; should should
+ns-slapd process Additional info:</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9381595</commentid>
+<comment_count>1</comment_count>
+<who name="thierry bordaz">tbordaz</who>
+<bug_when>2016-06-02 10:49:50 -0400</bug_when>
+<thetext>DS upstream ticket is https://fedorahosted.org/389/ticket/48866. DS tries to disable sslv2 but the access fails and so initialization of LDAPS drops</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9381617</commentid>
+<comment_count>2</comment_count>
+<who name="Kai Engert (:kaie)">kengert</who>
+<bug_when>2016-06-02 10:54:47 -0400</bug_when>
+<thetext>See upstream bug. I think upstream should continue to return success from the options set API when you attempt to disable SSL v2. I hope there will be a patch soon.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9381648</commentid>
+<comment_count>3</comment_count>
+<who name="Fedora Blocker Bugs Application">blockerbugs</who>
+<bug_when>2016-06-02 10:57:44 -0400</bug_when>
+<thetext>Proposed as a Blocker and Freeze Exception for 24-final by Fedora user sgallagh using the blocker tracking app because: Beta Criterion: &quot;The core functional requirements for all Featured Server Roles must be met, without any workarounds
+being necessary.&quot; The &quot;Domain Controller&quot; role cannot be deployed if the offending &apos;nss&apos; package is present on the system.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9381677</commentid>
+<comment_count>4</comment_count>
+<who name="Alexander Bokovoy">abokovoy</who>
+<bug_when>2016-06-02 11:01:28 -0400</bug_when>
+<thetext>(In reply to Kai Engert (:kaie) from comment #2) &gt; See upstream bug. I think upstream should continue to return success from &gt; the options set API when you attempt to disable SSL v2. I hope there will be &gt; a patch soon. Thanks. I
+think your suggestion on the upstream bug is a sound one. We need to fix nss prior to updating F24, F23, and F22 repositories.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9381775</commentid>
+<comment_count>5</comment_count>
+<who name="Adam Williamson">awilliam</who>
+<bug_when>2016-06-02 11:34:37 -0400</bug_when>
+<thetext>24 is at this point frozen, so there is no possibility the offending nss will go stable unless it itself fixes a blocker or FE bug, which I don&apos;t believe it does. So I&apos;d be +1 on this if it were in stable, but as it&apos;s in u-t
+and can&apos;t get out, I&apos;m -1.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9381830</commentid>
+<comment_count>6</comment_count>
+<who name="Sammy">umar</who>
+<bug_when>2016-06-02 11:50:20 -0400</bug_when>
+<thetext>Firefox 47 requires version 24. httpd server does not start with version 24 unless one removes /etc/httpd/conf.d/nss.conf file.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9381934</commentid>
+<comment_count>7</comment_count>
+<who name="Kai Engert (:kaie)">kengert</who>
+<bug_when>2016-06-02 12:17:15 -0400</bug_when>
+<thetext>The NSS 3.24 package for Fedora could locally carry an upstream patch. It should be a simple patch. If this is urgent, and nobody else is quicker, then I can try to help later today with making the patch.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9382123</commentid>
+<comment_count>8</comment_count>
+<who name="Kai Engert (:kaie)">kengert</who>
+<bug_when>2016-06-02 13:22:48 -0400</bug_when>
+<thetext>Upstream patch ready and reviewed, available here: Before applying to Fedora, you might want to wait for upstream CI tests to finish, to see if the patch is good. https://bug1277569.bmoattachments.org/attachment.cgi?id=8759229</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9382178</commentid>
+<comment_count>9</comment_count>
+<who name="Kai Engert (:kaie)">kengert</who>
+<bug_when>2016-06-02 13:39:28 -0400</bug_when>
+<thetext>At least a one-line fix on top is required: https://bug1277569.bmoattachments.org/attachment.cgi?id=8759238</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9382826</commentid>
+<comment_count>10</comment_count>
+<attachid>1164233</attachid>
+<who name="Elio Maldonado Batiz">emaldona</who>
+<bug_when>2016-06-02 17:22:26 -0400</bug_when>
+<thetext>Created attachment 1164233 Kai&apos;s upstream commits merged and adapted for fedora Merged https://bug1277569.bmoattachments.org/attachment.cgi?id=8759229 and https://bug1277569.bmoattachments.org/attachment.cgi?id=8759238 and adapted them
+to the nss-3.24.0 sources as we have them in fedora.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9383102</commentid>
+<comment_count>11</comment_count>
+<who name="Anthony Messina">amessina</who>
+<bug_when>2016-06-02 20:38:01 -0400</bug_when>
+<thetext>Koji build http://koji.fedoraproject.org/koji/buildinfo?buildID=770185 resolved the issue for FreeIPA.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9383185</commentid>
+<comment_count>12</comment_count>
+<who name="Anthony Messina">amessina</who>
+<bug_when>2016-06-02 21:42:39 -0400</bug_when>
+<thetext>(In reply to Anthony Messina from comment #11) &gt; Koji build http://koji.fedoraproject.org/koji/buildinfo?buildID=770185 &gt; resolved the issue for FreeIPA. The nss-3.24.0-1.2.fc23 Koji build
+(http://koji.fedoraproject.org/koji/buildinfo?buildID=770185) does resolve the FreeIPA issue at least on x86_64, however, anyone using ldapsearch or PHP&apos;s ldap tools on another machine running a previous version of NSS will have their
+connections hang (after entering the password): ldap_start_tls: Connect error (-11) additional info: Start TLS request accepted.Server willing to negotiate SSL. Enter LDAP Password: It seems that all systems must be upgraded to the nss-3.24.0-1.2
+builds to avoid these failures. After I upgrade my webserver machine to nss-3.24.0-1.2.fc23, my Apache/PHP ldap operations over TLS no longer failed.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9383252</commentid>
+<comment_count>13</comment_count>
+<who name="Fedora Update System">updates</who>
+<bug_when>2016-06-02 22:39:39 -0400</bug_when>
+<thetext>nss-3.24.0-1.2.fc24 nss-softokn-3.24.0-1.0.fc24 nss-util-3.24.0-1.0.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-fa807cca6f</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9383253</commentid>
+<comment_count>14</comment_count>
+<who name="Fedora Update System">updates</who>
+<bug_when>2016-06-02 22:39:50 -0400</bug_when>
+<thetext>nss-3.24.0-1.2.fc24 nss-softokn-3.24.0-1.0.fc24 nss-util-3.24.0-1.0.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-fa807cca6f</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9383261</commentid>
+<comment_count>15</comment_count>
+<who name="Fedora Update System">updates</who>
+<bug_when>2016-06-02 22:49:08 -0400</bug_when>
+<thetext>nss-3.24.0-1.2.fc23 has been submitted as an update to Fedora 23. https://bodhi.fedoraproject.org/updates/FEDORA-2016-db48cd10e9</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9384083</commentid>
+<comment_count>16</comment_count>
+<who name="Fedora Update System">updates</who>
+<bug_when>2016-06-03 05:28:01 -0400</bug_when>
+<thetext>nss-3.24.0-1.2.fc24, nss-softokn-3.24.0-1.0.fc24, nss-util-3.24.0-1.0.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report. See
+https://fedoraproject.org/wiki/QA:Updates_Testing for instructions on how to install test updates. You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-fa807cca6f</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9384238</commentid>
+<comment_count>17</comment_count>
+<who name="thierry bordaz">tbordaz</who>
+<bug_when>2016-06-03 05:54:37 -0400</bug_when>
+<thetext>Tests of freeipa are successful with nss-3.24.0-1.2.fc24.x86_64 Test on F23 - Freeipa 4.3.1 - DS 1.3.5.4.1 Freeipa already installed upgrade nss-3.23-&gt;nss-3.24.0-1.2.fc24.x86_64 restart DS instance --&gt; nss is correctly initialize nss,
+LDAPS working (636) Freeipa full install with nss-3.24.0-1.2.fc24.x86_64 Installation complete successfully restart DS instance --&gt; nss is correctly initialize nss, LDAPS working (636)</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9385628</commentid>
+<comment_count>18</comment_count>
+<who name="Fedora Update System">updates</who>
+<bug_when>2016-06-03 12:27:03 -0400</bug_when>
+<thetext>nss-3.24.0-1.2.fc23 has been pushed to the Fedora 23 testing repository. If problems still persist, please make note of it in this bug report. See https://fedoraproject.org/wiki/QA:Updates_Testing for instructions on how to install test
+updates. You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-db48cd10e9</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9386262</commentid>
+<comment_count>19</comment_count>
+<who name="Stephen Gallagher">sgallagh</who>
+<bug_when>2016-06-03 16:01:24 -0400</bug_when>
+<thetext>I&apos;m -1 blocker, -1 FE on this (unless some other blocker forces it to be pulled in). This can be addressed with an update and the broken code isn&apos;t in the stable branch yet. Also, I&apos;m very concerned about comment 12. Does it
+only fail for other versions of 3.24.0 that don&apos;t have this fix, or is it literally every version of NSS prior. If it&apos;s the latter, this isn&apos;t an acceptable fix.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9386273</commentid>
+<comment_count>20</comment_count>
+<who name="Kai Engert (:kaie)">kengert</who>
+<bug_when>2016-06-03 16:10:16 -0400</bug_when>
+<thetext>(In reply to Stephen Gallagher from comment #19) &gt; Also, I&apos;m very concerned about comment 12. Does it only fail for other &gt; versions of 3.24.0 that don&apos;t have this fix, or is it literally every &gt; version of NSS prior. If
+it&apos;s the latter, this isn&apos;t an acceptable fix. Upstream version 3.24 is the first and only NSS release that contains the bug. All prior versions still supported SSL v2, and didn&apos;t fail on the attempt to disable it. With version 3.24,
+SSL v2 was completely removed, resulting in the new failure when attempting to disable SSL v2. The fix we&apos;re backporting from (unreleased) NSS 3.25 ensures that APIs call to disable SSL v2 will report success.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9386293</commentid>
+<comment_count>21</comment_count>
+<who name="Stephen Gallagher">sgallagh</who>
+<bug_when>2016-06-03 16:16:59 -0400</bug_when>
+<thetext>Kai: OK, so if I&apos;m reading that right, comment 12 just means that anyone who picked up nss-3.24.0-1.1 will need to be upgraded together (which is a small number, since it never got out of testing, right?) but anyone going straight from
+3.23 to 3.24.0-1.2 (or mixing the two) won&apos;t have issues. Oh, hmm... a quick check of Koji says that F23 *did* get the interim change. Which is unfortunate, but I don&apos;t think it&apos;s fixable.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9386492</commentid>
+<comment_count>22</comment_count>
+<who name="Kevin Fenzi">kevin</who>
+<bug_when>2016-06-03 17:49:27 -0400</bug_when>
+<thetext>-1 blocker given it never went into f24 stable. Either the fixed version or 3.25 can be pushed in updates.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9386534</commentid>
+<comment_count>23</comment_count>
+<who name="Anthony Messina">amessina</who>
+<bug_when>2016-06-03 18:08:44 -0400</bug_when>
+<thetext>(In reply to Stephen Gallagher from comment #19) &gt; I&apos;m -1 blocker, -1 FE on this (unless some other blocker forces it to be &gt; pulled in). This can be addressed with an update and the broken code isn&apos;t &gt; in the stable
+branch yet. &gt; &gt; Also, I&apos;m very concerned about comment 12. Does it only fail for other &gt; versions of 3.24.0 that don&apos;t have this fix, or is it literally every &gt; version of NSS prior. If it&apos;s the latter, this isn&apos;t an
+acceptable fix. My comments in comment 12 are only related to F23. Unfortunately, nss-3.24.0-1.1.fc23 was pushed to F23 stable which is how I encountered the FreeIPA issue. Once I saw the Koji build for nss-3.24.0-1.2.fc23, I installed it on my
+FreeIPA machines which resolved the issue with FreeIPA not starting. That is when I found that my other machines were unable to do ldapsearch or use Apache/PHP to complete ldap operations against my FreeIPA instances -- they were all still at
+nss-3.24.0-1.1.fc23. Once I upgraded the rest of my machines to nss-3.24.0-1.2.fc23, things are working properly again.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9386584</commentid>
+<comment_count>24</comment_count>
+<who name="Adam Williamson">awilliam</who>
+<bug_when>2016-06-03 18:37:01 -0400</bug_when>
+<thetext>The F24 update has been edited, so there&apos;s now zero possibility of the affected build reaching stable, so I&apos;m un-proposing this as an F24 blocker. The fact that it reached stable for F23 is unfortunate but nothing to do with the
+F24 blocker process.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9387328</commentid>
+<comment_count>25</comment_count>
+<who name="Jerry James">loganjerry</who>
+<bug_when>2016-06-04 16:57:15 -0400</bug_when>
+<thetext>*** Bug 1342734 has been marked as a duplicate of this bug. ***</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9387372</commentid>
+<comment_count>26</comment_count>
+<who name="Lonni J Friedman">netllama</who>
+<bug_when>2016-06-04 19:10:26 -0400</bug_when>
+<thetext>*** Bug 1342332 has been marked as a duplicate of this bug. ***</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9387447</commentid>
+<comment_count>27</comment_count>
+<who name="Fedora Update System">updates</who>
+<bug_when>2016-06-04 22:54:51 -0400</bug_when>
+<thetext>nss-3.24.0-1.2.fc23 has been pushed to the Fedora 23 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9414958</commentid>
+<comment_count>28</comment_count>
+<who name="Kai Engert (:kaie)">kengert</who>
+<bug_when>2016-06-14 13:06:35 -0400</bug_when>
+<thetext>*** Bug 1341981 has been marked as a duplicate of this bug. ***</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9430273</commentid>
+<comment_count>29</comment_count>
+<who name="Fedora Update System">updates</who>
+<bug_when>2016-06-18 14:55:15 -0400</bug_when>
+<thetext>nss-3.24.0-1.2.fc24, nss-softokn-3.24.0-1.0.fc24, nss-util-3.24.0-1.0.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9497928</commentid>
+<comment_count>30</comment_count>
+<who name="Elio Maldonado Batiz">emaldona</who>
+<bug_when>2016-07-11 16:49:30 -0400</bug_when>
+<thetext>*** Bug 1342745 has been marked as a duplicate of this bug. ***</thetext>
+</long_desc>
+
+<attachment isobsolete="0" ispatch="1" isprivate="0">
+<attachid>1164233</attachid>
+<date>2016-06-02 17:22:00 -0400</date>
+<delta_ts>2016-06-02 17:22:26 -0400</delta_ts>
+<desc>Kai&apos;s upstream commits merged and adapted for fedora</desc>
+<filename>mozbz1277569backport.patch</filename>
+<type>text/plain</type>
+<size>3338</size>
+<attacher name="Elio Maldonado Batiz">emaldona</attacher>
+
+<data encoding="base64">LS0tIC4vbGliL3NzbC9zc2xzb2NrLmMuY29tcGF0aWJpbGl0eQkyMDE2LTA2LTAyIDEwOjU5OjA3 LjE4ODgzMTgyNSAtMDcwMAorKysgLi9saWIvc3NsL3NzbHNvY2suYwkyMDE2LTA2LTAyIDEwOjU5
+OjA3LjIwNTgzMTQwNCAtMDcwMApAQCAtNjc1LDE2ICs2NzUsMjggQEAKICAgICAgICAgICAgICAg ICAgICAgUE9SVF9TZXRFcnJvcihTRUNfRVJST1JfSU5WQUxJRF9BUkdTKTsKICAgICAgICAgICAg ICAgICAgICAgcnYgPSBTRUNGYWlsdXJlOyAvKiBub3QgYWxsb3dlZCAqLwogICAgICAgICAgICAg
+ICAgIH0KICAgICAgICAgICAgICAgICBicmVhazsKICAgICAgICAgICAgIH0KICAgICAgICAgICAg IHNzbF9FbmFibGVTU0wzKCZzcy0+dnJhbmdlLCBvbik7CiAgICAgICAgICAgICBicmVhazsKIAor ICAgICAgICBjYXNlIFNTTF9FTkFCTEVfU1NMMjoKKyAgICAgICAgY2FzZSBTU0xfVjJfQ09NUEFU
+SUJMRV9IRUxMTzoKKyAgICAgICAgICAgIC8qIFdlIG5vIGxvbmdlciBzdXBwb3J0IFNTTCB2Mi4K KyAgICAgICAgICAgICAqIEhvd2V2ZXIsIGlmIGFuIG9sZCBhcHBsaWNhdGlvbiByZXF1ZXN0cyB0 byBkaXNhYmxlIFNTTCB2MiwKKyAgICAgICAgICAgICAqIHdlIHNob3VsZG4ndCBmYWlsLgorICAg
+ICAgICAgICAgICovCisgICAgICAgICAgICBpZiAob24pIHsKKyAgICAgICAgICAgICAgICBQT1JU X1NldEVycm9yKFNFQ19FUlJPUl9JTlZBTElEX0FSR1MpOworICAgICAgICAgICAgICAgIHJ2ID0g U0VDRmFpbHVyZTsKKyAgICAgICAgICAgIH0KKyAgICAgICAgICAgIGJyZWFrOworCiAgICAgICAg
+IGNhc2UgU1NMX05PX0NBQ0hFOgogICAgICAgICAgICAgc3MtPm9wdC5ub0NhY2hlID0gb247CiAg ICAgICAgICAgICBicmVhazsKIAogICAgICAgICBjYXNlIFNTTF9FTkFCTEVfRkRYOgogICAgICAg ICAgICAgaWYgKG9uICYmIHNzLT5vcHQubm9Mb2NrcykgewogICAgICAgICAgICAgICAgIFBPUlRf
+U2V0RXJyb3IoU0VDX0VSUk9SX0lOVkFMSURfQVJHUyk7CiAgICAgICAgICAgICAgICAgcnYgPSBT RUNGYWlsdXJlOwpAQCAtODU2LDE2ICs4NjgsMjAgQEAKICAgICAgICAgICAgIG9uID0gc3MtPm9w dC5oYW5kc2hha2VBc1NlcnZlcjsKICAgICAgICAgICAgIGJyZWFrOwogICAgICAgICBjYXNlIFNT
+TF9FTkFCTEVfVExTOgogICAgICAgICAgICAgb24gPSBzcy0+dnJhbmdlLm1heCA+PSBTU0xfTElC UkFSWV9WRVJTSU9OX1RMU18xXzA7CiAgICAgICAgICAgICBicmVhazsKICAgICAgICAgY2FzZSBT U0xfRU5BQkxFX1NTTDM6CiAgICAgICAgICAgICBvbiA9IHNzLT52cmFuZ2UubWluID09IFNTTF9M
+SUJSQVJZX1ZFUlNJT05fM18wOwogICAgICAgICAgICAgYnJlYWs7CisgICAgICAgIGNhc2UgU1NM X0VOQUJMRV9TU0wyOgorICAgICAgICBjYXNlIFNTTF9WMl9DT01QQVRJQkxFX0hFTExPOgorICAg ICAgICAgICAgb24gPSBQUl9GQUxTRTsKKyAgICAgICAgICAgIGJyZWFrOwogICAgICAgICBjYXNl
+IFNTTF9OT19DQUNIRToKICAgICAgICAgICAgIG9uID0gc3MtPm9wdC5ub0NhY2hlOwogICAgICAg ICAgICAgYnJlYWs7CiAgICAgICAgIGNhc2UgU1NMX0VOQUJMRV9GRFg6CiAgICAgICAgICAgICBv biA9IHNzLT5vcHQuZmR4OwogICAgICAgICAgICAgYnJlYWs7CiAgICAgICAgIGNhc2UgU1NMX1JP
+TExCQUNLX0RFVEVDVElPTjoKICAgICAgICAgICAgIG9uID0gc3MtPm9wdC5kZXRlY3RSb2xsQmFj azsKQEAgLTk2NywxNiArOTgzLDIwIEBACiAgICAgICAgICAgICBvbiA9IHNzbF9kZWZhdWx0cy5o YW5kc2hha2VBc1NlcnZlcjsKICAgICAgICAgICAgIGJyZWFrOwogICAgICAgICBjYXNlIFNTTF9F
+TkFCTEVfVExTOgogICAgICAgICAgICAgb24gPSB2ZXJzaW9uc19kZWZhdWx0c19zdHJlYW0ubWF4 ID49IFNTTF9MSUJSQVJZX1ZFUlNJT05fVExTXzFfMDsKICAgICAgICAgICAgIGJyZWFrOwogICAg ICAgICBjYXNlIFNTTF9FTkFCTEVfU1NMMzoKICAgICAgICAgICAgIG9uID0gdmVyc2lvbnNfZGVm
+YXVsdHNfc3RyZWFtLm1pbiA9PSBTU0xfTElCUkFSWV9WRVJTSU9OXzNfMDsKICAgICAgICAgICAg IGJyZWFrOworICAgICAgICBjYXNlIFNTTF9FTkFCTEVfU1NMMjoKKyAgICAgICAgY2FzZSBTU0xf VjJfQ09NUEFUSUJMRV9IRUxMTzoKKyAgICAgICAgICAgIG9uID0gUFJfRkFMU0U7CisgICAgICAg
+ICAgICBicmVhazsKICAgICAgICAgY2FzZSBTU0xfTk9fQ0FDSEU6CiAgICAgICAgICAgICBvbiA9 IHNzbF9kZWZhdWx0cy5ub0NhY2hlOwogICAgICAgICAgICAgYnJlYWs7CiAgICAgICAgIGNhc2Ug U1NMX0VOQUJMRV9GRFg6CiAgICAgICAgICAgICBvbiA9IHNzbF9kZWZhdWx0cy5mZHg7CiAgICAg
+ICAgICAgICBicmVhazsKICAgICAgICAgY2FzZSBTU0xfUk9MTEJBQ0tfREVURUNUSU9OOgogICAg ICAgICAgICAgb24gPSBzc2xfZGVmYXVsdHMuZGV0ZWN0Um9sbEJhY2s7CkBAIC0xMTAwLDE2ICsx MTIwLDI4IEBACiAgICAgICAgIGNhc2UgU1NMX0VOQUJMRV9UTFM6CiAgICAgICAgICAgICBzc2xf
+RW5hYmxlVExTKCZ2ZXJzaW9uc19kZWZhdWx0c19zdHJlYW0sIG9uKTsKICAgICAgICAgICAgIGJy ZWFrOwogCiAgICAgICAgIGNhc2UgU1NMX0VOQUJMRV9TU0wzOgogICAgICAgICAgICAgc3NsX0Vu YWJsZVNTTDMoJnZlcnNpb25zX2RlZmF1bHRzX3N0cmVhbSwgb24pOwogICAgICAgICAgICAgYnJl
+YWs7CiAKKyAgICAgICAgY2FzZSBTU0xfRU5BQkxFX1NTTDI6CisgICAgICAgIGNhc2UgU1NMX1Yy X0NPTVBBVElCTEVfSEVMTE86CisgICAgICAgICAgICAvKiBXZSBubyBsb25nZXIgc3VwcG9ydCBT U0wgdjIuCisgICAgICAgICAgICAgKiBIb3dldmVyLCBpZiBhbiBvbGQgYXBwbGljYXRpb24gcmVx
+dWVzdHMgdG8gZGlzYWJsZSBTU0wgdjIsCisgICAgICAgICAgICAgKiB3ZSBzaG91bGRuJ3QgZmFp bC4KKyAgICAgICAgICAgICAqLworICAgICAgICAgICAgaWYgKG9uKSB7CisgICAgICAgICAgICAg ICAgUE9SVF9TZXRFcnJvcihTRUNfRVJST1JfSU5WQUxJRF9BUkdTKTsKKyAgICAgICAgICAgICAg
+ICByZXR1cm4gU0VDRmFpbHVyZTsKKyAgICAgICAgICAgIH0KKyAgICAgICAgICAgIGJyZWFrOwor CiAgICAgICAgIGNhc2UgU1NMX05PX0NBQ0hFOgogICAgICAgICAgICAgc3NsX2RlZmF1bHRzLm5v Q2FjaGUgPSBvbjsKICAgICAgICAgICAgIGJyZWFrOwogCiAgICAgICAgIGNhc2UgU1NMX0VOQUJM
+RV9GRFg6CiAgICAgICAgICAgICBpZiAob24gJiYgc3NsX2RlZmF1bHRzLm5vTG9ja3MpIHsKICAg ICAgICAgICAgICAgICBQT1JUX1NldEVycm9yKFNFQ19FUlJPUl9JTlZBTElEX0FSR1MpOwogICAg ICAgICAgICAgICAgIHJldHVybiBTRUNGYWlsdXJlOwo=
+</data>
+
+</attachment>
+
+</bug>
+
+</bugzilla>

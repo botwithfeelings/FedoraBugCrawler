@@ -1,0 +1,557 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1" urlbase="https://bugzilla.redhat.com/" maintainer="bugzilla-error-list@redhat.com">
+
+  <bug>
+    <bug_id>1300652</bug_id>
+
+    <creation_ts>2016-01-21 06:12:00 -0500</creation_ts>
+    <short_desc>[PEM] insufficient input validity checking while loading a private key</short_desc>
+    <delta_ts>2016-03-26 14:17:46 -0400</delta_ts>
+    <reporter_accessible>1</reporter_accessible>
+    <cclist_accessible>1</cclist_accessible>
+    <classification_id>2</classification_id>
+    <classification>Fedora</classification>
+    <product>Fedora</product>
+    <component>nss</component>
+    <version>24</version>
+    <rep_platform>All</rep_platform>
+    <op_sys>Linux</op_sys>
+    <bug_status>CLOSED</bug_status>
+    <resolution>ERRATA</resolution>
+
+    <bug_file_loc></bug_file_loc>
+    <status_whiteboard></status_whiteboard>
+    <keywords></keywords>
+    <priority>medium</priority>
+    <bug_severity>high</bug_severity>
+    <target_milestone>---</target_milestone>
+
+    <everconfirmed>1</everconfirmed>
+    <reporter name="Kamil Dudka">kdudka</reporter>
+    <assigned_to name="Elio Maldonado Batiz">emaldona</assigned_to>
+    <cc>emaldona</cc>
+
+    <cc>kdudka</cc>
+
+    <cc>kengert</cc>
+
+    <cc>rcritten</cc>
+
+    <cc>rmeggins</cc>
+
+    <cc>tehmasp</cc>
+    <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+
+    <cf_fixed_in>nss-3.23.0-1.2.fc24</cf_fixed_in>
+  <cf_doc_type>Bug Fix</cf_doc_type>
+<cf_release_notes></cf_release_notes>
+<cf_story_points>---</cf_story_points>
+<cf_clone_of>512019</cf_clone_of>
+<cf_environment></cf_environment>
+<cf_last_closed>2016-03-26 14:17:46</cf_last_closed>
+<cf_type>---</cf_type>
+<cf_regression_status>---</cf_regression_status>
+<cf_mount_type>---</cf_mount_type>
+<cf_documentation_action>---</cf_documentation_action>
+<cf_crm></cf_crm>
+<cf_verified_branch></cf_verified_branch>
+<cf_category>---</cf_category>
+<cf_ovirt_team>---</cf_ovirt_team>
+
+<cf_cloudforms_team>---</cf_cloudforms_team>
+
+<target_release>---</target_release>
+
+<votes>0</votes>
+
+<comment_sort_order>oldest_to_newest</comment_sort_order>
+<long_desc isprivate="0">
+<commentid>8999083</commentid>
+<comment_count>0</comment_count>
+<who name="Kamil Dudka">kdudka</who>
+<bug_when>2016-01-21 06:12:19 -0500</bug_when>
+<thetext>+++ This bug was initially created as a clone of Bug #512019 +++ --- Additional comment from on 2016-01-19 22:36:15 CET --- This is still an issue. Just had libnss3.so segfault on CentOS 7.1 system after slapd attempted to do a TLS cert
+exchange with a key file as follows: -----BEGIN PRIVATE KEY----- key -----END PRIVATE KEY----- system/issue details: CentOS Linux release 7.2.1511 (Core) nss-3.19.1-19.el7_2.x86_64 openldap-2.4.40-8.el7.x86_64 openldap-clients-2.4.40-8.el7.x86_64
+openldap-servers-2.4.40-8.el7.x86_64 kernel: slapd[2648]: segfault at 0 ip 00007f0af036c25c sp 00007f0ac0ea6610 error 4 in libnss3.so[7f0af0340000+11e000] --- Additional comment from on 2016-01-19 22:38:25 CET --- CentOS 7.2 to be correct; typo on my
+first sentence. Once I repaired the key file with a valid key - slapd TLS works like normal BTW. No more issues but definitely a reproducible segfault w/ details above. Thanks. Tehmasp Chaudhri tehmasp@gmail.com --- Additional comment from Kamil
+Dudka on 2016-01-20 13:41:44 CET --- I am not able to repeat the crash. Does curl crash if you pass such a key file to the --key option (together with --cert and an https:// URL)? --- Additional comment from on 2016-01-20 16:55:44 CET --- This
+isn&apos;t reproducible via curl. I verified just now and curl does not crash. But specifically when slapd (openldap) is running on a server and using the bad key file then something in the code path causes a segfault in libnss3.so. There&apos;s some
+edge case in libnss (in conjunction w/ how slapd w/ TLS) causes a segfault. My setup is an openldap provider server (w/ bad slapd.key) and an openldap consumer server. When the consumer connects to the provider server which is using the key example
+above it crashes the openldap provider server. Here are the journal provider slapd.service logs: Jan 19 21:01:20 gcestg-openldap-provider-use1c-01 systemd[1]: Started OpenLDAP Server Daemon. Jan 19 21:01:27 gcestg-openldap-provider-use1c-01
+slapd[867]: conn=1000 fd=28 ACCEPT from IP=10.240.0.19:43420 (IP=0.0.0.0:10389) Jan 19 21:01:27 gcestg-openldap-provider-use1c-01 slapd[867]: conn=1000 op=0 EXT oid=1.3.6.1.4.1.1466.20037 Jan 19 21:01:27 gcestg-openldap-provider-use1c-01 slapd[867]:
+conn=1000 op=0 STARTTLS Jan 19 21:01:27 gcestg-openldap-provider-use1c-01 slapd[867]: conn=1000 op=0 RESULT oid= err=0 text= Jan 19 21:01:29 gcestg-openldap-provider-use1c-01 systemd[1]: slapd.service: main process exited, code=killed, status=11/SEGV
+Jan 19 21:01:29 gcestg-openldap-provider-use1c-01 systemd[1]: Unit slapd.service entered failed state. Jan 19 21:01:29 gcestg-openldap-provider-use1c-01 systemd[1]: slapd.service failed. /// Thus, we&apos;ve got 2 issues IMO (and this may not be the
+best place to capture all of this) but libnss3.so segfaults and an important piece of software in the RedHat ecosystem - ldap - segfaults badly when consumer servers connect to it. Would hate for someone else to hit up against this issue. Let me know
+how I can help more. If I somehow find the time I might be able to create a multi-VM vagrant env for repro purposes. Again, we&apos;re using the latest CentOS 7.2 w/ updates as of yesterday. Cheers, Tehmasp --- Additional comment from Rob Crittenden
+on 2016-01-20 17:27:34 CET --- So it fails the first time the key is used? It doesn&apos;t fail on server startup? (I&apos;m not familiar with openssl cert/key handling). A stacktrace would be incredibly helpful. I&apos;m not sure how the value of
+&quot;key&quot; could get past the base64 decoding. --- Additional comment from on 2016-01-20 19:03:04 CET --- Correct; it fails exactly after the ACCEPT from the consumer server. I tested via telnet connecting to the provider server on port 10389
+(albeit w/o TLS) and that ACCEPT was all good. As soon as the consumer connects and after the ACCEPT line in the provider&apos;s journal slapd.service log the server crashes. Something w/ decoding the key like you say would be my guess as well. ---
+Additional comment from Rob Crittenden on 2016-01-20 19:20:37 CET --- Any chance on getting a stacktrace of the core? --- Additional comment from on 2016-01-20 19:28:32 CET --- Let me work on this - I need to recreate the environment now as the
+previous servers are now in active use :) --- Additional comment from on 2016-01-20 22:04:45 CET --- OK - had to learn how to enable coredumps w/ systemd :) got a couple of coredumps with a bunch of gdb info - particularly: (gdb) bt (gdb) bt full
+(gdb) info threads (gdb) thread apply all bt (gdb) thread apply all bt full gdb trace w/o debuginfo installed: https://gist.github.com/tehmaspc/1b238c1766549fc5f72f gdb trace w/ debuginfo installed:
+https://gist.github.com/tehmaspc/67e7c80efb63e1d6fada Thanks, Tehmasp Chaudhri --- Additional comment from on 2016-01-20 22:06:33 CET --- BTW - this new recreated environment (provider/consumer server) was built w/ my same config management (Salt)
+tools; same everything to allay any concerns w/ these environments. Reproduced the segfault exactly the same way. --- Additional comment from Rob Crittenden on 2016-01-20 22:47:41 CET --- That seems to confirm my suspicions. The bad base64 data
+isn&apos;t being detected and when it is eventually pulled apart as an RSA key it blows up spectacularly. --- Additional comment from on 2016-01-21 03:56:40 CET --- @Rob - cool; I&apos;ll leave it in your court for now. Let me know if I can help
+further! Cheers, Tehmasp Chaudhri</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8999346</commentid>
+<comment_count>1</comment_count>
+<who name="Kamil Dudka">kdudka</who>
+<bug_when>2016-01-21 07:37:35 -0500</bug_when>
+<thetext>I was able to repeat the crash with curl: $ cat key.pem -----BEGIN PRIVATE KEY----- key -----END PRIVATE KEY----- $ curl -v --key key.pem https://koji.fedoraproject.org/koji/login --cacert ~/.fedora-upload-ca.cert --cert ~/.fedora.cert *
+Trying 209.132.181.7... * Connected to koji.fedoraproject.org (209.132.181.7) port 443 (#0) * Initializing NSS with certpath: sql:/etc/pki/nssdb * CAfile: /home/kdudka/.fedora-upload-ca.cert CApath: none * ALPN/NPN, server did not agree to a protocol
+* SSL connection using TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 * Server certificate: * subject: E=buildsys@fedoraproject.org,CN=koji.fedoraproject.org,OU=Fedora Builders,O=Fedora Project,ST=North Carolina,C=US * start date: Apr 15 18:26:14 2014 GMT *
+expire date: Apr 12 18:26:14 2024 GMT * common name: koji.fedoraproject.org * issuer: E=admin@fedoraproject.org,CN=Fedora Project CA,OU=Fedora Project CA,O=Fedora Project,L=Raleigh,ST=North Carolina,C=US &gt; GET /koji/login HTTP/1.1 &gt; Host:
+koji.fedoraproject.org &gt; User-Agent: curl/7.46.0 &gt; Accept: */* &gt; * NSS: client certificate from file * subject: E=kdudka@redhat.com,CN=kdudka,OU=Fedora User Cert,O=Fedora Project,ST=North Carolina,C=US * start date: Nov 18 20:45:26 2015 GMT
+* expire date: May 16 20:45:26 2016 GMT * common name: kdudka * issuer: E=admin@fedoraproject.org,CN=Fedora Project CA,OU=Fedora Project CA,O=Fedora Project,L=Raleigh,ST=North Carolina,C=US zsh: segmentation fault (core dumped) curl -v --key key.pem
+https://koji.fedoraproject.org/koji/login --cacert It crashes during a sing operation: #0 PK11_GetPrivateModulusLen (key=&lt;optimized out&gt;) at pk11akey.c:814 #1 PK11_SignatureLen (key=key@entry=0x5555559339b0) at pk11obj.c:531 #2 SGN_Digest
+(privKey=0x5555559339b0, ...) at secsign.c:408 #3 ssl3_SignHashes (hash=0x7fffffffcd60, ...) at ssl3con.c:1020 #4 ssl3_SendCertificateVerify (ss=0x55555590fe80) at ssl3con.c:6355 However, the cause of the crash is not obvious from the backtrace
+because it happens much sooner -- the code of pem_getPrivateKey() silently ignores the failure of SEC_QuickDERDecodeItem(): 209│ /* decode the private key and any algorithm parameters */ 210├&gt; rv = SEC_QuickDERDecodeItem(arena, lpk,
+pem_RSAPrivateKeyTemplate, 211│ keysrc); 212│ 213│ if (rv != SECSuccess) { 214│ goto done; 215│ } 216│ 217│ done: 218│ return lpk; 219│ }</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8999357</commentid>
+<comment_count>2</comment_count>
+<who name="Kamil Dudka">kdudka</who>
+<bug_when>2016-01-21 07:42:32 -0500</bug_when>
+<thetext>This bug seems to be introduced in commit 06c610cc: https://git.fedorahosted.org/cgit/nss-pem.git/commit/?id=06c610cc</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8999750</commentid>
+<comment_count>3</comment_count>
+<who name="Rich Megginson">rmeggins</who>
+<bug_when>2016-01-21 09:30:16 -0500</bug_when>
+<thetext>What should pem_getPrivateKey() do in this case at line 214? Set pError to some code, free any allocated memory, and return NULL?</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9000252</commentid>
+<comment_count>4</comment_count>
+<who name="">tehmasp</who>
+<bug_when>2016-01-21 11:29:06 -0500</bug_when>
+<thetext>nice! glad there will be some fix; nice work! cheers, tehmasp</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9000316</commentid>
+<comment_count>5</comment_count>
+<who name="Rob Crittenden">rcritten</who>
+<bug_when>2016-01-21 11:44:27 -0500</bug_when>
+<thetext>I think this would have blown up anyway. Even with the old code I don&apos;t think everything would have been allocated properly. If this is solved the the key will just not work, they will get a MAC error as the server private key is not
+available. Not sure if that&apos;s enough for a user to look at the contents of the key file or not. What needs to happen is in GetAttribute and GetAttributeSize the call to pem_FetchAttribute needs to include an error pointer so we can return an
+error if the key isn&apos;t loaded. This will short-circuit things in the upper PKCS#11 layers and is likely the most compliant. I think this means that pem_PopulateModulusExponent will need to return a CK_RV value and have that bubble up to get
+reasonable error messages returned. Or we could shortcut it and always return a fixed error to avoid a humongous, invasive change. This is what the end of a request looks like when I configured mod_nss to use a pemnss token: pem_mdToken_OpenSession
+pem_CreateSession returning new session Failed to decode, assuming raw RSA key SEC_QuickDERDecodeItem failed pem_getPrivateKey returned NULL pem_mdToken_OpenSession pem_CreateSession returning new session pem_mdToken_OpenSession pem_CreateSession
+returning new session Failed to decode, assuming raw RSA key SEC_QuickDERDecodeItem failed pem_getPrivateKey returned NULL pem_Finalize</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9001043</commentid>
+<comment_count>6</comment_count>
+<attachid>1117015</attachid>
+<who name="Rob Crittenden">rcritten</who>
+<bug_when>2016-01-21 17:32:17 -0500</bug_when>
+<thetext>Created attachment 1117015 Patch to catch failed ASN1 decoding of RSA keys</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9001088</commentid>
+<comment_count>7</comment_count>
+<attachid>1117015</attachid>
+<who name="Rich Megginson">rmeggins</who>
+<bug_when>2016-01-21 18:03:58 -0500</bug_when>
+<thetext>Comment on attachment 1117015 Patch to catch failed ASN1 decoding of RSA keys nack https://bugzilla.redhat.com/attachment.cgi?id=1117015&amp;action=diff#a/mozilla/security/nss/lib/ckfw/pem/pfind.c_sec1 CK_RV * pError = CKR_OK; b =
+pem_FetchAttribute(o, a-&gt;type, pError); should be CK_RV pError = CKR_OK; b = pem_FetchAttribute(o, a-&gt;type, &amp;pError); /* do something here with pError? */
+https://bugzilla.redhat.com/attachment.cgi?id=1117015&amp;action=diff#a/mozilla/security/nss/lib/ckfw/pem/pobject.c_sec6 Is it ok to overwrite pError if ((const NSSItem *) NULL != b) ?
+https://bugzilla.redhat.com/attachment.cgi?id=1117015&amp;action=diff#a/mozilla/security/nss/lib/ckfw/pem/prsa.c_sec1 this shouldn&apos;t be different?
+https://bugzilla.redhat.com/attachment.cgi?id=1117015&amp;action=diff#a/mozilla/security/nss/lib/ckfw/pem/prsa.c_sec2 this shouldn&apos;t be different?
+https://bugzilla.redhat.com/attachment.cgi?id=1117015&amp;action=diff#a/mozilla/security/nss/lib/ckfw/pem/prsa.c_sec3 second diff - this shouldn&apos;t be different?
+https://bugzilla.redhat.com/attachment.cgi?id=1117015&amp;action=diff#a/mozilla/security/nss/lib/ckfw/pem/prsa.c_sec4 this shouldn&apos;t be different?
+https://bugzilla.redhat.com/attachment.cgi?id=1117015&amp;action=diff#a/mozilla/security/nss/lib/ckfw/pem/prsa.c_sec5 const NSSItem *classItem = pem_FetchAttribute(io, CKA_CLASS, &amp;pError); const NSSItem *keyType = pem_FetchAttribute(io,
+CKA_KEY_TYPE, &amp;pError); The second call will overwrite pError returned from the first call. https://bugzilla.redhat.com/attachment.cgi?id=1117015&amp;action=diff#a/mozilla/security/nss/lib/ckfw/pem/prsa.c_sec6 return CKR_KEY_TYPE_INCONSISTENT; //
+return pError instead? or how about return (pError ? pError : CKR_KEY_TYPE_INCONSISTENT); https://bugzilla.redhat.com/attachment.cgi?id=1117015&amp;action=diff#a/mozilla/security/nss/lib/ckfw/pem/prsa.c_sec8 const NSSItem *classItem =
+pem_FetchAttribute(iKey, CKA_CLASS, pError); const NSSItem *keyType = pem_FetchAttribute(iKey, CKA_KEY_TYPE, pError); The second call will overwrite pError returned from the first call.
+https://bugzilla.redhat.com/attachment.cgi?id=1117015&amp;action=diff#a/mozilla/security/nss/lib/ckfw/pem/prsa.c_sec9 *pError = (*pError ? *pError : CKR_KEY_TYPE_INCONSISTENT);
+https://bugzilla.redhat.com/attachment.cgi?id=1117015&amp;action=diff#a/mozilla/security/nss/lib/ckfw/pem/prsa.c_sec11 this shouldn&apos;t be different?</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9003027</commentid>
+<comment_count>8</comment_count>
+<who name="Rob Crittenden">rcritten</who>
+<bug_when>2016-01-22 09:33:26 -0500</bug_when>
+<thetext>(In reply to Rich Megginson from comment #7) &gt; Comment on attachment 1117015 [details] &gt; Patch to catch failed ASN1 decoding of RSA keys &gt; &gt; nack &gt;
+https://bugzilla.redhat.com/attachment.cgi?id=1117015&amp;action=diff#a/mozilla/ &gt; security/nss/lib/ckfw/pem/pfind.c_sec1 &gt; &gt; CK_RV * pError = CKR_OK; &gt; &gt; b = pem_FetchAttribute(o, a-&gt;type, pError); &gt; &gt; should be &gt; &gt;
+CK_RV pError = CKR_OK; &gt; &gt; b = pem_FetchAttribute(o, a-&gt;type, &amp;pError); &gt; /* do something here with pError? */ Sure. &gt; &gt; https://bugzilla.redhat.com/attachment.cgi?id=1117015&amp;action=diff#a/mozilla/ &gt;
+security/nss/lib/ckfw/pem/pobject.c_sec6 &gt; &gt; Is it ok to overwrite pError if ((const NSSItem *) NULL != b) ? Isn&apos;t that the idea? Are you suggested it check for *pError != CKR_OK at some point and return earlier? &gt;
+https://bugzilla.redhat.com/attachment.cgi?id=1117015&amp;action=diff#a/mozilla/ &gt; security/nss/lib/ckfw/pem/prsa.c_sec1 &gt; &gt; this shouldn&apos;t be different? &gt; &gt;
+https://bugzilla.redhat.com/attachment.cgi?id=1117015&amp;action=diff#a/mozilla/ &gt; security/nss/lib/ckfw/pem/prsa.c_sec2 &gt; &gt; this shouldn&apos;t be different? &gt; &gt;
+https://bugzilla.redhat.com/attachment.cgi?id=1117015&amp;action=diff#a/mozilla/ &gt; security/nss/lib/ckfw/pem/prsa.c_sec3 &gt; &gt; second diff - this shouldn&apos;t be different? &gt; &gt;
+https://bugzilla.redhat.com/attachment.cgi?id=1117015&amp;action=diff#a/mozilla/ &gt; security/nss/lib/ckfw/pem/prsa.c_sec4 &gt; &gt; this shouldn&apos;t be different? These are all trailing white-space fixes my vimrc picked up automatically. &gt;
+&gt; https://bugzilla.redhat.com/attachment.cgi?id=1117015&amp;action=diff#a/mozilla/ &gt; security/nss/lib/ckfw/pem/prsa.c_sec5 &gt; &gt; const NSSItem *classItem = pem_FetchAttribute(io, CKA_CLASS, &amp;pError); &gt; const NSSItem *keyType =
+pem_FetchAttribute(io, CKA_KEY_TYPE, &amp;pError); &gt; &gt; The second call will overwrite pError returned from the first call. I can add a check to see if it fails I suppose. I was trying to keep the patch small and change the least behavior. &gt;
+&gt; https://bugzilla.redhat.com/attachment.cgi?id=1117015&amp;action=diff#a/mozilla/ &gt; security/nss/lib/ckfw/pem/prsa.c_sec6 &gt; &gt; return CKR_KEY_TYPE_INCONSISTENT; // return pError instead? &gt; &gt; or how about &gt; &gt; return (pError ?
+pError : CKR_KEY_TYPE_INCONSISTENT); Yes, I think you&apos;re right. &gt; https://bugzilla.redhat.com/attachment.cgi?id=1117015&amp;action=diff#a/mozilla/ &gt; security/nss/lib/ckfw/pem/prsa.c_sec8 &gt; &gt; const NSSItem *classItem =
+pem_FetchAttribute(iKey, CKA_CLASS, pError); &gt; const NSSItem *keyType = pem_FetchAttribute(iKey, CKA_KEY_TYPE, pError); &gt; &gt; The second call will overwrite pError returned from the first call. Yeah, similar to other change earlier, trying to
+keep diffs small and least invasive as possible. I can add conditionals around these, it&apos;s the right thing to do. &gt; https://bugzilla.redhat.com/attachment.cgi?id=1117015&amp;action=diff#a/mozilla/ &gt; security/nss/lib/ckfw/pem/prsa.c_sec9
+&gt; &gt; *pError = (*pError ? *pError : CKR_KEY_TYPE_INCONSISTENT); Yup. &gt; https://bugzilla.redhat.com/attachment.cgi?id=1117015&amp;action=diff#a/mozilla/ &gt; security/nss/lib/ckfw/pem/prsa.c_sec11 &gt; &gt; this shouldn&apos;t be different?
+The final white-space change.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9003154</commentid>
+<comment_count>9</comment_count>
+<who name="Rich Megginson">rmeggins</who>
+<bug_when>2016-01-22 10:14:45 -0500</bug_when>
+<thetext>(In reply to Rob Crittenden from comment #8) &gt; (In reply to Rich Megginson from comment #7) &gt; &gt; Comment on attachment 1117015 [details] &gt; &gt; Patch to catch failed ASN1 decoding of RSA keys &gt; &gt; &gt; &gt; nack &gt; &gt;
+https://bugzilla.redhat.com/attachment.cgi?id=1117015&amp;action=diff#a/mozilla/ &gt; &gt; security/nss/lib/ckfw/pem/pfind.c_sec1 &gt; &gt; &gt; &gt; CK_RV * pError = CKR_OK; &gt; &gt; &gt; &gt; b = pem_FetchAttribute(o, a-&gt;type, pError); &gt;
+&gt; &gt; &gt; should be &gt; &gt; &gt; &gt; CK_RV pError = CKR_OK; &gt; &gt; &gt; &gt; b = pem_FetchAttribute(o, a-&gt;type, &amp;pError); &gt; &gt; /* do something here with pError? */ &gt; &gt; Sure. &gt; &gt; &gt; &gt; &gt;
+https://bugzilla.redhat.com/attachment.cgi?id=1117015&amp;action=diff#a/mozilla/ &gt; &gt; security/nss/lib/ckfw/pem/pobject.c_sec6 &gt; &gt; &gt; &gt; Is it ok to overwrite pError if ((const NSSItem *) NULL != b) ? &gt; &gt; Isn&apos;t that the
+idea? Are you suggested it check for *pError != CKR_OK at &gt; some point and return earlier? No. What I mean is this: mdItem.item = (NSSItem *) pem_FetchAttribute(io, attribute, pError); If there is an error here, pError will have been set, then, if
+mdItem.item is NULL, pError will be overwritten and the original value will have been lost here: if ((NSSItem *) NULL == mdItem.item) { *pError = CKR_ATTRIBUTE_TYPE_INVALID; maybe use *pError = (*pError ? *pError : CKR_ATTRIBUTE_TYPE_INVALID); &gt;
+&gt; &gt; https://bugzilla.redhat.com/attachment.cgi?id=1117015&amp;action=diff#a/mozilla/ &gt; &gt; security/nss/lib/ckfw/pem/prsa.c_sec1 &gt; &gt; &gt; &gt; this shouldn&apos;t be different? &gt; &gt; &gt; &gt;
+https://bugzilla.redhat.com/attachment.cgi?id=1117015&amp;action=diff#a/mozilla/ &gt; &gt; security/nss/lib/ckfw/pem/prsa.c_sec2 &gt; &gt; &gt; &gt; this shouldn&apos;t be different? &gt; &gt; &gt; &gt;
+https://bugzilla.redhat.com/attachment.cgi?id=1117015&amp;action=diff#a/mozilla/ &gt; &gt; security/nss/lib/ckfw/pem/prsa.c_sec3 &gt; &gt; &gt; &gt; second diff - this shouldn&apos;t be different? &gt; &gt; &gt; &gt;
+https://bugzilla.redhat.com/attachment.cgi?id=1117015&amp;action=diff#a/mozilla/ &gt; &gt; security/nss/lib/ckfw/pem/prsa.c_sec4 &gt; &gt; &gt; &gt; this shouldn&apos;t be different? &gt; &gt; These are all trailing white-space fixes my vimrc picked
+up automatically. &gt; &gt; &gt; &gt; &gt; https://bugzilla.redhat.com/attachment.cgi?id=1117015&amp;action=diff#a/mozilla/ &gt; &gt; security/nss/lib/ckfw/pem/prsa.c_sec5 &gt; &gt; &gt; &gt; const NSSItem *classItem = pem_FetchAttribute(io,
+CKA_CLASS, &amp;pError); &gt; &gt; const NSSItem *keyType = pem_FetchAttribute(io, CKA_KEY_TYPE, &amp;pError); &gt; &gt; &gt; &gt; The second call will overwrite pError returned from the first call. &gt; &gt; I can add a check to see if it fails I
+suppose. I was trying to keep the &gt; patch small and change the least behavior. Understood. But the intent of the patch, in addition to fixing the crash, is to make sure the low level error is returned to the higher level. If there is a problem
+with the classItem, the caller will have no way to know that it is the classItem that is the problem. &gt; &gt; &gt; &gt; https://bugzilla.redhat.com/attachment.cgi?id=1117015&amp;action=diff#a/mozilla/ &gt; &gt; security/nss/lib/ckfw/pem/prsa.c_sec6
+&gt; &gt; &gt; &gt; return CKR_KEY_TYPE_INCONSISTENT; // return pError instead? &gt; &gt; &gt; &gt; or how about &gt; &gt; &gt; &gt; return (pError ? pError : CKR_KEY_TYPE_INCONSISTENT); &gt; &gt; Yes, I think you&apos;re right. &gt; &gt; &gt;
+https://bugzilla.redhat.com/attachment.cgi?id=1117015&amp;action=diff#a/mozilla/ &gt; &gt; security/nss/lib/ckfw/pem/prsa.c_sec8 &gt; &gt; &gt; &gt; const NSSItem *classItem = pem_FetchAttribute(iKey, CKA_CLASS, pError); &gt; &gt; const NSSItem
+*keyType = pem_FetchAttribute(iKey, CKA_KEY_TYPE, pError); &gt; &gt; &gt; &gt; The second call will overwrite pError returned from the first call. &gt; &gt; Yeah, similar to other change earlier, trying to keep diffs small and least &gt; invasive as
+possible. I can add conditionals around these, it&apos;s the right &gt; thing to do. See above. &gt; &gt; &gt; https://bugzilla.redhat.com/attachment.cgi?id=1117015&amp;action=diff#a/mozilla/ &gt; &gt; security/nss/lib/ckfw/pem/prsa.c_sec9 &gt; &gt;
+&gt; &gt; *pError = (*pError ? *pError : CKR_KEY_TYPE_INCONSISTENT); &gt; &gt; Yup. &gt; &gt; &gt; https://bugzilla.redhat.com/attachment.cgi?id=1117015&amp;action=diff#a/mozilla/ &gt; &gt; security/nss/lib/ckfw/pem/prsa.c_sec11 &gt; &gt; &gt; &gt;
+this shouldn&apos;t be different? &gt; &gt; The final white-space change.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9003433</commentid>
+<comment_count>10</comment_count>
+<attachid>1117288</attachid>
+<who name="Rob Crittenden">rcritten</who>
+<bug_when>2016-01-22 11:20:38 -0500</bug_when>
+<thetext>Created attachment 1117288 Patch to catch failed ASN1 decoding of RSA keys</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9003757</commentid>
+<comment_count>11</comment_count>
+<who name="Rob Crittenden">rcritten</who>
+<bug_when>2016-01-22 13:16:15 -0500</bug_when>
+<thetext>Hold off on this for a bit, I want to ensure that encrypted keys still work. I&apos;m having trouble getting them to work and I&apos;m not sure if it&apos;s me or the code.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9004165</commentid>
+<comment_count>12</comment_count>
+<who name="Rob Crittenden">rcritten</who>
+<bug_when>2016-01-22 17:41:38 -0500</bug_when>
+<thetext>Ok, the problem had to do with how I was loading the pem module. I added it manually using: $ modutil -dbdir . -add pem -libfile /usr/lib64/libnsspem.so -string &quot;`pwd`/server.pem;`pwd`//server.key `pwd`/ca.pem&quot; This method
+doesn&apos;t support encrypted keys (I can provide a patch if interested). Once I fixed that it worked fine. I would appreciate additional testing using other methods. I also tested curl briefly (so I was in fact using the pem module for both client
+and server). Elio, are you ok with this patch?</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9005408</commentid>
+<comment_count>13</comment_count>
+<who name="Kamil Dudka">kdudka</who>
+<bug_when>2016-01-24 11:40:03 -0500</bug_when>
+<thetext>I would prefer to commit white-space fixes and functional fixes separated from each other. Also the &quot;p&quot; prefix in pError means &quot;a pointer&quot;, doesn&apos;t it? If you define a non-pointer variable, the &quot;p&quot; prefix
+is unnecessarily confusing. I will give it a try and, if it works properly, I will fix the minor issues.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9005420</commentid>
+<comment_count>14</comment_count>
+<who name="Elio Maldonado Batiz">emaldona</who>
+<bug_when>2016-01-24 12:12:54 -0500</bug_when>
+<thetext>I&apos;m okay withe the patch in general I don&apos;t think it will cause regressions elsewhere. I ado gree with Kamil&apos;s comments regarding the &quot;p&quot; prefix. I see lines like diff --git
+a/mozilla/security/nss/lib/ckfw/pem/ckpem.h b/mozilla/security/nss/lib/ckfw/pem/ckpem.h .... and that worries me because in the interim PEM upstream git repository I got rid of the &quot;mozilla/security&quot; part years ago to match the shallower
+tree we have in NSS upstream and when NSS upstream switched from cvs to mercurial. Please regenerate the patch using the temporary upstream instead.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9005594</commentid>
+<comment_count>15</comment_count>
+<who name="Kamil Dudka">kdudka</who>
+<bug_when>2016-01-24 17:09:14 -0500</bug_when>
+<thetext>It works fairly well. I only fixed a memory leak on top of that. All three patches are now available in a temporary upstream branch: https://git.fedorahosted.org/cgit/nss-pem.git/commit/?h=kdudka&amp;id=98490091
+https://git.fedorahosted.org/cgit/nss-pem.git/commit/?h=kdudka&amp;id=2bea33eb https://git.fedorahosted.org/cgit/nss-pem.git/commit/?h=kdudka&amp;id=dc6cfc85 Unless anybody objects, I would merge them into master...</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9007631</commentid>
+<comment_count>16</comment_count>
+<who name="Rich Megginson">rmeggins</who>
+<bug_when>2016-01-25 10:03:18 -0500</bug_when>
+<thetext>The short circuit returns upon error in https://git.fedorahosted.org/cgit/nss-pem.git/commit/?h=kdudka&amp;id=2bea33eb in nss/lib/ckfw/pem/pobject.c Are you sure that they do not introduce any memory leaks?</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9007686</commentid>
+<comment_count>17</comment_count>
+<who name="Kamil Dudka">kdudka</who>
+<bug_when>2016-01-25 10:21:53 -0500</bug_when>
+<thetext>I personally do not like the interface of pem_Fetch{,PrivKey}Attribute(), which can return non-null value with *pError != CKR_OK and vice versa. It is neither intuitive, nor documented. But no, I can see no obvious memory leak introduced by
+the patchset. Could you please be more specific?</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9007766</commentid>
+<comment_count>18</comment_count>
+<who name="Rob Crittenden">rcritten</who>
+<bug_when>2016-01-25 10:39:50 -0500</bug_when>
+<thetext>Operationally I don&apos;t see a leak when starting with a bad key in Apache and making a number of requests against the server but it certainly is not exercising all attribute requests.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9007786</commentid>
+<comment_count>19</comment_count>
+<who name="Rich Megginson">rmeggins</who>
+<bug_when>2016-01-25 10:41:13 -0500</bug_when>
+<thetext>(In reply to Kamil Dudka from comment #17) &gt; I personally do not like the interface of pem_Fetch{,PrivKey}Attribute(), &gt; which can return non-null value with *pError != CKR_OK and vice versa. It &gt; is neither intuitive, nor
+documented. But no, I can see no obvious memory &gt; leak introduced by the patchset. Could you please be more specific? In many cases adding short circuit returns will introduce memory leaks if memory is allocated before the return. However, in this
+case, looking at the code where the short circuit returns were introduced, pem_FetchPrivKeyAttribute allocates nothing, and no other resources are referenced which need to be dereferenced, so in this case the short circuit returns are ok.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9035267</commentid>
+<comment_count>20</comment_count>
+<who name="Kamil Dudka">kdudka</who>
+<bug_when>2016-02-04 04:16:45 -0500</bug_when>
+<thetext>(In reply to Kamil Dudka from comment #15) &gt; It works fairly well. I only fixed a memory leak on top of that. All three &gt; patches are now available in a temporary upstream branch: &gt; &gt;
+https://git.fedorahosted.org/cgit/nss-pem.git/commit/?h=kdudka&amp;id=98490091 &gt; https://git.fedorahosted.org/cgit/nss-pem.git/commit/?h=kdudka&amp;id=2bea33eb &gt; https://git.fedorahosted.org/cgit/nss-pem.git/commit/?h=kdudka&amp;id=dc6cfc85
+&gt; &gt; Unless anybody objects, I would merge them into master... I have merged them and pushed to master (while keeping the above hashes).</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9094567</commentid>
+<comment_count>21</comment_count>
+<who name="Jan Kurik">jkurik</who>
+<bug_when>2016-02-24 10:49:10 -0500</bug_when>
+<thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 24 development cycle. Changing version to &apos;24&apos;. More information and reason for this action is here:
+https://fedoraproject.org/wiki/Fedora_Program_Management/HouseKeeping/Fedora24#Rawhide_Rebase</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9128184</commentid>
+<comment_count>22</comment_count>
+<who name="Kamil Dudka">kdudka</who>
+<bug_when>2016-03-08 04:27:13 -0500</bug_when>
+<thetext>Elio, could you please include the up2date tarball of nss-pem in the next update of nss in Fedora?</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9130552</commentid>
+<comment_count>23</comment_count>
+<who name="Elio Maldonado Batiz">emaldona</who>
+<bug_when>2016-03-08 17:49:21 -0500</bug_when>
+<thetext>Done.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9130564</commentid>
+<comment_count>24</comment_count>
+<who name="Fedora Update System">updates</who>
+<bug_when>2016-03-08 17:55:52 -0500</bug_when>
+<thetext>nss-3.23.0-1.1.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-71d6f90d9b</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9136103</commentid>
+<comment_count>25</comment_count>
+<who name="Fedora Update System">updates</who>
+<bug_when>2016-03-09 20:56:39 -0500</bug_when>
+<thetext>nss-3.23.0-1.2.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report. See https://fedoraproject.org/wiki/QA:Updates_Testing for instructions on how to install test
+updates. You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-71d6f90d9b</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9139652</commentid>
+<comment_count>26</comment_count>
+<who name="">tehmasp</who>
+<bug_when>2016-03-10 15:20:14 -0500</bug_when>
+<thetext>cool; nice work; removing myself from future emails on this issue. cheers, tehmasp</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9180386</commentid>
+<comment_count>27</comment_count>
+<who name="Fedora Update System">updates</who>
+<bug_when>2016-03-26 14:17:42 -0400</bug_when>
+<thetext>nss-3.23.0-1.2.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+</long_desc>
+
+<attachment isobsolete="1" ispatch="1" isprivate="0">
+<attachid>1117015</attachid>
+<date>2016-01-21 17:32:00 -0500</date>
+<delta_ts>2016-01-22 11:20:38 -0500</delta_ts>
+<desc>Patch to catch failed ASN1 decoding of RSA keys</desc>
+<filename>0001-Be-sure-that-an-RSA-key-is-decoded-properly.patch</filename>
+<type>text/plain</type>
+<size>13491</size>
+<attacher name="Rob Crittenden">rcritten</attacher>
+
+<data encoding="base64">RnJvbSA4NWUwMGM1NGI0ZGQ2YTliMmEwZTA0YTNhZWQ1ZWRmZjc1ZTlhMDU5IE1vbiBTZXAgMTcg MDA6MDA6MDAgMjAwMQpGcm9tOiBSb2IgQ3JpdHRlbmRlbiA8cmNyaXR0ZW5AcmVkaGF0LmNvbT4K
+RGF0ZTogVGh1LCAyMSBKYW4gMjAxNiAxNzoyNzoxNiAtMDUwMApTdWJqZWN0OiBbUEFUQ0hdIEJl IHN1cmUgdGhhdCBhbiBSU0Ega2V5IGlzIGRlY29kZWQgcHJvcGVybHkKClRoZSBOU1MgYmFzZTY0 IGRlY29kZXIgaXMgdmVyeSBsYXggc3VjaCB0aGF0IGl0IGFjY2VwdHMgcHJldHR5Cm11Y2ggYW55
+IGlucHV0LiBBIG1hbGZvcm1lZCBrZXkgd291bGQgbm90IGJlIGNhdWdodCBieSBpdCBhbmQKY2F1 c2UgYSBTRUdWIHdoZW4gdHJ5aW5nIHRvIHB1bGwgdmFyaW91cyBjb21wb25lbnRzIG91dCBvZiBp dAoobW9kdWx1cywgZXRjKS4KClJldHVybiBhbiBlcnJvciB3aGVuIHRoZSBBU04xIGRlY29kZXIg
+ZmFpbHMgdG8gcGFyc2UgdGhlIGtleSBhbmQKdHJ5IHRvIHByb3BvZ2F0ZSB0aGlzIGVycm9yIHVw IHRvIHRoZSBQS0NTIzExIGNhbGxlci4KClRoaXMgd29uJ3QgdGhyb3cgYW55IG9idmlvdXMgZXJy b3JzIHdoZW4gaXQgaGFwcGVucy4gTlNTIHdpbGwKanVzdCBub3QgaGF2ZSBhIHByaXZhdGUga2V5
+IGF2YWlsYWJsZSBzbyB3aWxsIGZhaWwgYW55IHRpbWUgdGhhdAprZXkgaXMgcmVxdWVzdGVkIChv ZnRlbiB3aXRoIGEgTUFDIGVycm9yKS4KCkJaICMxMzAwNjUyCi0tLQogbW96aWxsYS9zZWN1cml0 eS9uc3MvbGliL2NrZncvcGVtL2NrcGVtLmggICB8ICA0ICstCiBtb3ppbGxhL3NlY3VyaXR5L25z
+cy9saWIvY2tmdy9wZW0vcGZpbmQuYyAgIHwgIDMgKy0KIG1vemlsbGEvc2VjdXJpdHkvbnNzL2xp Yi9ja2Z3L3BlbS9wb2JqZWN0LmMgfCA2MyArKysrKysrKysrKysrKysrKysrKysrLS0tLS0tLQog bW96aWxsYS9zZWN1cml0eS9uc3MvbGliL2NrZncvcGVtL3Byc2EuYyAgICB8IDQyICsrKysrKysr
+KystLS0tLS0tLS0KIDQgZmlsZXMgY2hhbmdlZCwgNzcgaW5zZXJ0aW9ucygrKSwgMzUgZGVsZXRp b25zKC0pCgpkaWZmIC0tZ2l0IGEvbW96aWxsYS9zZWN1cml0eS9uc3MvbGliL2NrZncvcGVtL2Nr cGVtLmggYi9tb3ppbGxhL3NlY3VyaXR5L25zcy9saWIvY2tmdy9wZW0vY2twZW0uaAppbmRleCA4
+MzlkNDBiLi40OGNkMTZiIDEwMDY0NAotLS0gYS9tb3ppbGxhL3NlY3VyaXR5L25zcy9saWIvY2tm dy9wZW0vY2twZW0uaAorKysgYi9tb3ppbGxhL3NlY3VyaXR5L25zcy9saWIvY2tmdy9wZW0vY2tw ZW0uaApAQCAtMjMwLDggKzIzMCw4IEBAIHN0cnVjdCBwZW1MT1dLRVlQcml2YXRlS2V5U3RyIHsK
+IHR5cGVkZWYgc3RydWN0IHBlbUxPV0tFWVByaXZhdGVLZXlTdHIgcGVtTE9XS0VZUHJpdmF0ZUtl eTsKIAogU0VDU3RhdHVzIFJlYWRERVJGcm9tRmlsZShTRUNJdGVtICoqKmRlcmxpc3QsIGNoYXIg KmZpbGVuYW1lLCBQUkJvb2wgYXNjaWksIGludCAqY2lwaGVyLCBjaGFyICoqaXZzdHJpbmcsIFBS
+Qm9vbCBjZXJ0c29ubHkpOwotY29uc3QgTlNTSXRlbSAqIHBlbV9GZXRjaEF0dHJpYnV0ZSAoIHBl bUludGVybmFsT2JqZWN0ICppbywgQ0tfQVRUUklCVVRFX1RZUEUgdHlwZSk7Ci12b2lkIHBlbV9Q b3B1bGF0ZU1vZHVsdXNFeHBvbmVudChwZW1JbnRlcm5hbE9iamVjdCAqaW8pOworY29uc3QgTlNT
+SXRlbSAqIHBlbV9GZXRjaEF0dHJpYnV0ZSAoIHBlbUludGVybmFsT2JqZWN0ICppbywgQ0tfQVRU UklCVVRFX1RZUEUgdHlwZSwgQ0tfUlYgKnBFcnJvcik7CitDS19SViBwZW1fUG9wdWxhdGVNb2R1 bHVzRXhwb25lbnQocGVtSW50ZXJuYWxPYmplY3QgKmlvKTsKIE5TU0NLTURPYmplY3QgKiBwZW1f
+Q3JlYXRlT2JqZWN0KE5TU0NLRldJbnN0YW5jZSAqZndJbnN0YW5jZSwgTlNTQ0tGV1Nlc3Npb24g KmZ3U2Vzc2lvbiwgTlNTQ0tNRFRva2VuICptZFRva2VuLCBDS19BVFRSSUJVVEVfUFRSIHBUZW1w bGF0ZSwgQ0tfVUxPTkcgdWxBdHRyaWJ1dGVDb3VudCwgQ0tfUlYgKnBFcnJvcik7CiBOU1NDS01E
+U2xvdCAqcGVtX05ld1Nsb3QoIE5TU0NLRldJbnN0YW5jZSAqZndJbnN0YW5jZSwgQ0tfUlYgKnBF cnJvcik7CiAKZGlmZiAtLWdpdCBhL21vemlsbGEvc2VjdXJpdHkvbnNzL2xpYi9ja2Z3L3BlbS9w ZmluZC5jIGIvbW96aWxsYS9zZWN1cml0eS9uc3MvbGliL2NrZncvcGVtL3BmaW5kLmMKaW5kZXgg
+MzBiMTE3NC4uYjRmODdhZiAxMDA2NDQKLS0tIGEvbW96aWxsYS9zZWN1cml0eS9uc3MvbGliL2Nr ZncvcGVtL3BmaW5kLmMKKysrIGIvbW96aWxsYS9zZWN1cml0eS9uc3MvbGliL2NrZncvcGVtL3Bm aW5kLmMKQEAgLTIwNCw4ICsyMDQsOSBAQCBzdGF0aWMgQ0tfQkJPT0wKIHBlbV9hdHRybWF0Y2go
+Q0tfQVRUUklCVVRFX1BUUiBhLCBwZW1JbnRlcm5hbE9iamVjdCAqIG8pIHsKICAgICBQUkJvb2wg cHJiOwogICAgIGNvbnN0IE5TU0l0ZW0gKmI7CisgICAgQ0tfUlYgKiBwRXJyb3IgPSBDS1JfT0s7 CiAKLSAgICBiID0gcGVtX0ZldGNoQXR0cmlidXRlKG8sIGEtPnR5cGUpOworICAgIGIgPSBwZW1f
+RmV0Y2hBdHRyaWJ1dGUobywgYS0+dHlwZSwgcEVycm9yKTsKICAgICBpZiAoYiA9PSBOVUxMKSB7 CiAgICAgICAgIHBsb2coInBlbV9hdHRybWF0Y2ggJXMgJTA4eDogQ0tfRkFMU0UgYXR0ciBub3Qg Zm91bmRcbiIsIHBlbV9hdHRyX25hbWUoYS0+dHlwZSksIGEtPnR5cGUpOwogICAgICAgICByZXR1
+cm4gQ0tfRkFMU0U7CmRpZmYgLS1naXQgYS9tb3ppbGxhL3NlY3VyaXR5L25zcy9saWIvY2tmdy9w ZW0vcG9iamVjdC5jIGIvbW96aWxsYS9zZWN1cml0eS9uc3MvbGliL2NrZncvcGVtL3BvYmplY3Qu YwppbmRleCA4ZjNlMGRjLi41ZDIwNzU3IDEwMDY0NAotLS0gYS9tb3ppbGxhL3NlY3VyaXR5L25z
+cy9saWIvY2tmdy9wZW0vcG9iamVjdC5jCisrKyBiL21vemlsbGEvc2VjdXJpdHkvbnNzL2xpYi9j a2Z3L3BlbS9wb2JqZWN0LmMKQEAgLTI3NSw3ICsyNzUsOCBAQCBjb25zdCBOU1NJdGVtICoKIHBl bV9GZXRjaFByaXZLZXlBdHRyaWJ1dGUKICgKICAgICBwZW1JbnRlcm5hbE9iamVjdCAqIGlvLAot
+ICAgIENLX0FUVFJJQlVURV9UWVBFIHR5cGUKKyAgICBDS19BVFRSSUJVVEVfVFlQRSB0eXBlLAor ICAgIENLX1JWICogcEVycm9yCiApCiB7CiAgICAgUFJCb29sIGlzQ2VydFR5cGUgPSAocGVtQ2Vy dCA9PSBpby0+dHlwZSk7CkBAIC0zMTgsNDkgKzMxOSw3MyBAQCBwZW1fRmV0Y2hQcml2S2V5QXR0
+cmlidXRlCiAgICAgICAgIHJldHVybiAmaW8tPnUuY2VydC5zdWJqZWN0OwogICAgIGNhc2UgQ0tB X01PRFVMVVM6CiAgICAgICAgIGlmICgwID09IGtwLT5tb2R1bHVzLnNpemUpIHsKLSAgICAgICAg ICAgIHBlbV9Qb3B1bGF0ZU1vZHVsdXNFeHBvbmVudChpbyk7CisgICAgICAgICAgICAqcEVycm9y
+ID0gcGVtX1BvcHVsYXRlTW9kdWx1c0V4cG9uZW50KGlvKTsKKyAgICAgICAgICAgIGlmIChDS1Jf T0sgIT0gKnBFcnJvcikgeworICAgICAgICAgICAgICAgIHJldHVybiBOVUxMOworICAgICAgICAg ICAgfQogICAgICAgICB9CiAgICAgICAgIHBsb2coIiAgZmV0Y2gga2V5IENLQV9NT0RVTFVTXG4i
+KTsKICAgICAgICAgcmV0dXJuICZrcC0+bW9kdWx1czsKICAgICBjYXNlIENLQV9QVUJMSUNfRVhQ T05FTlQ6CiAgICAgICAgIGlmICgwID09IGtwLT5tb2R1bHVzLnNpemUpIHsKLSAgICAgICAgICAg IHBlbV9Qb3B1bGF0ZU1vZHVsdXNFeHBvbmVudChpbyk7CisgICAgICAgICAgICAqcEVycm9yID0g
+cGVtX1BvcHVsYXRlTW9kdWx1c0V4cG9uZW50KGlvKTsKKyAgICAgICAgICAgIGlmIChDS1JfT0sg IT0gKnBFcnJvcikgeworICAgICAgICAgICAgICAgIHJldHVybiBOVUxMOworICAgICAgICAgICAg fQogICAgICAgICB9CiAgICAgICAgIHBsb2coIiAgZmV0Y2gga2V5IENLQV9QVUJMSUNfRVhQT05F
+TlRcbiIpOwogICAgICAgICByZXR1cm4gJmtwLT5leHBvbmVudDsKICAgICBjYXNlIENLQV9QUklW QVRFX0VYUE9ORU5UOgogICAgICAgICBpZiAoMCA9PSBrcC0+cHJpdmF0ZUV4cG9uZW50LnNpemUp IHsKLSAgICAgICAgICAgIHBlbV9Qb3B1bGF0ZU1vZHVsdXNFeHBvbmVudChpbyk7CisgICAgICAg
+ICAgICAqcEVycm9yID0gcGVtX1BvcHVsYXRlTW9kdWx1c0V4cG9uZW50KGlvKTsKKyAgICAgICAg ICAgIGlmIChDS1JfT0sgIT0gKnBFcnJvcikgeworICAgICAgICAgICAgICAgIHJldHVybiBOVUxM OworICAgICAgICAgICAgfQogICAgICAgICB9CiAgICAgICAgIHBsb2coIiAgZmV0Y2gga2V5IENL
+QV9QUklWQVRFX0VYUE9ORU5UXG4iKTsKICAgICAgICAgcmV0dXJuICZrcC0+cHJpdmF0ZUV4cG9u ZW50OwogICAgIGNhc2UgQ0tBX1BSSU1FXzE6CiAgICAgICAgIGlmICgwID09IGtwLT5wcmltZTEu c2l6ZSkgewotICAgICAgICAgICAgcGVtX1BvcHVsYXRlTW9kdWx1c0V4cG9uZW50KGlvKTsKKyAg
+ICAgICAgICAgICpwRXJyb3IgPSBwZW1fUG9wdWxhdGVNb2R1bHVzRXhwb25lbnQoaW8pOworICAg ICAgICAgICAgaWYgKENLUl9PSyAhPSAqcEVycm9yKSB7CisgICAgICAgICAgICAgICAgcmV0dXJu IE5VTEw7CisgICAgICAgICAgICB9CiAgICAgICAgIH0KICAgICAgICAgcGxvZygiICBmZXRjaCBr
+ZXkgQ0tBX1BSSU1FXzFcbiIpOwogICAgICAgICByZXR1cm4gJmtwLT5wcmltZTE7CiAgICAgY2Fz ZSBDS0FfUFJJTUVfMjoKICAgICAgICAgaWYgKDAgPT0ga3AtPnByaW1lMi5zaXplKSB7Ci0gICAg ICAgICAgICBwZW1fUG9wdWxhdGVNb2R1bHVzRXhwb25lbnQoaW8pOworICAgICAgICAgICAgKnBF
+cnJvciA9IHBlbV9Qb3B1bGF0ZU1vZHVsdXNFeHBvbmVudChpbyk7CisgICAgICAgICAgICBpZiAo Q0tSX09LICE9ICpwRXJyb3IpIHsKKyAgICAgICAgICAgICAgICByZXR1cm4gTlVMTDsKKyAgICAg ICAgICAgIH0KICAgICAgICAgfQogICAgICAgICBwbG9nKCIgIGZldGNoIGtleSBDS0FfUFJJTUVf
+MlxuIik7CiAgICAgICAgIHJldHVybiAma3AtPnByaW1lMjsKICAgICBjYXNlIENLQV9FWFBPTkVO VF8xOgogICAgICAgICBpZiAoMCA9PSBrcC0+ZXhwb25lbnQxLnNpemUpIHsKLSAgICAgICAgICAg IHBlbV9Qb3B1bGF0ZU1vZHVsdXNFeHBvbmVudChpbyk7CisgICAgICAgICAgICAqcEVycm9yID0g
+cGVtX1BvcHVsYXRlTW9kdWx1c0V4cG9uZW50KGlvKTsKKyAgICAgICAgICAgIGlmIChDS1JfT0sg IT0gKnBFcnJvcikgeworICAgICAgICAgICAgICAgIHJldHVybiBOVUxMOworICAgICAgICAgICAg fQogICAgICAgICB9CiAgICAgICAgIHBsb2coIiAgZmV0Y2gga2V5IENLQV9FWFBPTkVOVF8xXG4i
+KTsKICAgICAgICAgcmV0dXJuICZrcC0+ZXhwb25lbnQxOwogICAgIGNhc2UgQ0tBX0VYUE9ORU5U XzI6CiAgICAgICAgIGlmICgwID09IGtwLT5leHBvbmVudDIuc2l6ZSkgewotICAgICAgICAgICAg cGVtX1BvcHVsYXRlTW9kdWx1c0V4cG9uZW50KGlvKTsKKyAgICAgICAgICAgICpwRXJyb3IgPSBw
+ZW1fUG9wdWxhdGVNb2R1bHVzRXhwb25lbnQoaW8pOworICAgICAgICAgICAgaWYgKENLUl9PSyAh PSAqcEVycm9yKSB7CisgICAgICAgICAgICAgICAgcmV0dXJuIE5VTEw7CisgICAgICAgICAgICB9 CiAgICAgICAgIH0KICAgICAgICAgcGxvZygiICBmZXRjaCBrZXkgQ0tBX0VYUE9ORU5UXzJcbiIp
+OwogICAgICAgICByZXR1cm4gJmtwLT5leHBvbmVudDI7CiAgICAgY2FzZSBDS0FfQ09FRkZJQ0lF TlQ6CiAgICAgICAgIGlmICgwID09IGtwLT5jb2VmZmljaWVudC5zaXplKSB7Ci0gICAgICAgICAg ICBwZW1fUG9wdWxhdGVNb2R1bHVzRXhwb25lbnQoaW8pOworICAgICAgICAgICAgKnBFcnJvciA9
+IHBlbV9Qb3B1bGF0ZU1vZHVsdXNFeHBvbmVudChpbyk7CisgICAgICAgICAgICBpZiAoQ0tSX09L ICE9ICpwRXJyb3IpIHsKKyAgICAgICAgICAgICAgICByZXR1cm4gTlVMTDsKKyAgICAgICAgICAg IH0KICAgICAgICAgfQogICAgICAgICBwbG9nKCIgIGZldGNoIGtleSBDS0FfQ09FRkZJQ0lFTlRf
+MlxuIik7CiAgICAgICAgIHJldHVybiAma3AtPmNvZWZmaWNpZW50OwpAQCAtNTIzLDcgKzU0OCw4 IEBAIGNvbnN0IE5TU0l0ZW0gKgogcGVtX0ZldGNoQXR0cmlidXRlCiAoCiAgICAgcGVtSW50ZXJu YWxPYmplY3QgKiBpbywKLSAgICBDS19BVFRSSUJVVEVfVFlQRSB0eXBlCisgICAgQ0tfQVRUUklC
+VVRFX1RZUEUgdHlwZSwKKyAgICBDS19SViAqIHBFcnJvcgogKQogewogICAgIENLX1VMT05HIGk7 CkBAIC01NDEsNyArNTY3LDcgQEAgcGVtX0ZldGNoQXR0cmlidXRlCiAgICAgY2FzZSBDS09fQ0VS VElGSUNBVEU6CiAgICAgICAgIHJldHVybiBwZW1fRmV0Y2hDZXJ0QXR0cmlidXRlKGlvLCB0eXBl
+KTsKICAgICBjYXNlIENLT19QUklWQVRFX0tFWToKLSAgICAgICAgcmV0dXJuIHBlbV9GZXRjaFBy aXZLZXlBdHRyaWJ1dGUoaW8sIHR5cGUpOworICAgICAgICByZXR1cm4gcGVtX0ZldGNoUHJpdktl eUF0dHJpYnV0ZShpbywgdHlwZSwgcEVycm9yKTsKICAgICBjYXNlIENLT19ORVRTQ0FQRV9UUlVT
+VDoKICAgICAgICAgcmV0dXJuIHBlbV9GZXRjaFRydXN0QXR0cmlidXRlKGlvLCB0eXBlKTsKICAg ICBjYXNlIENLT19QVUJMSUNfS0VZOgpAQCAtODMwLDcgKzg1NiwxNiBAQCBwZW1fbWRPYmplY3Rf R2V0QXR0cmlidXRlU2l6ZQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgYXR0
+cmlidXRlLCBwRXJyb3IpOwogICAgIH0KIAotICAgIGIgPSBwZW1fRmV0Y2hBdHRyaWJ1dGUoaW8s IGF0dHJpYnV0ZSk7CisgICAgYiA9IHBlbV9GZXRjaEF0dHJpYnV0ZShpbywgYXR0cmlidXRlLCBw RXJyb3IpOworICAgIHBsb2coInBlbV9GZXRjaEF0dHJpYnV0ZSBwRXJyb3IgPSAweCUwOHhcbiIs
+ICpwRXJyb3IpOworCisgICAgLyogRG9uJ3QgYXNzdW1lIHRoYXQgdGhlIHJldHVybmVkIGl0ZW0g aXMgTlVMTCBvbiBlcnJvciAqLworICAgIGlmICgqcEVycm9yICE9IENLUl9PSykgeworICAgICAg ICBpZiAoKGNvbnN0IE5TU0l0ZW0gKikgTlVMTCAhPSBiKSB7CisgICAgICAgICAgICBuc3NfWkZy
+ZWVJZihiLT5kYXRhKTsKKyAgICAgICAgfQorICAgICAgICByZXR1cm4gMDsKKyAgICB9CiAKICAg ICBpZiAoKGNvbnN0IE5TU0l0ZW0gKikgTlVMTCA9PSBiKSB7CiAgICAgICAgICpwRXJyb3IgPSBD S1JfQVRUUklCVVRFX1RZUEVfSU5WQUxJRDsKQEAgLTg2Niw3ICs5MDEsNyBAQCBwZW1fbWRPYmpl
+Y3RfR2V0QXR0cmlidXRlCiAgICAgfQogCiAgICAgbWRJdGVtLm5lZWRzRnJlZWluZyA9IFBSX0ZB TFNFOwotICAgIG1kSXRlbS5pdGVtID0gKE5TU0l0ZW0gKikgcGVtX0ZldGNoQXR0cmlidXRlKGlv LCBhdHRyaWJ1dGUpOworICAgIG1kSXRlbS5pdGVtID0gKE5TU0l0ZW0gKikgcGVtX0ZldGNoQXR0
+cmlidXRlKGlvLCBhdHRyaWJ1dGUsIHBFcnJvcik7CiAKICAgICBpZiAoKE5TU0l0ZW0gKikgTlVM TCA9PSBtZEl0ZW0uaXRlbSkgewogICAgICAgICAqcEVycm9yID0gQ0tSX0FUVFJJQlVURV9UWVBF X0lOVkFMSUQ7CkBAIC05MjUsNyArOTYwLDcgQEAgcGVtX0dldFVMb25nQXR0cmlidXRlCiAgICAg
+cmV0dXJuICooQ0tfVUxPTkcgKikgaXRlbS5kYXRhOwogfQogCi0vKiAgCisvKgogICogZ2V0IGFu IGF0dHJpYnV0ZSB3aGljaCBpcyB0eXBlIENLX0JCT09MLgogICovCiBDS19CQk9PTApkaWZmIC0t Z2l0IGEvbW96aWxsYS9zZWN1cml0eS9uc3MvbGliL2NrZncvcGVtL3Byc2EuYyBiL21vemlsbGEv
+c2VjdXJpdHkvbnNzL2xpYi9ja2Z3L3BlbS9wcnNhLmMKaW5kZXggOGQ0ZmI5Mi4uM2Y0MzFkOCAx MDA2NDQKLS0tIGEvbW96aWxsYS9zZWN1cml0eS9uc3MvbGliL2NrZncvcGVtL3Byc2EuYworKysg Yi9tb3ppbGxhL3NlY3VyaXR5L25zcy9saWIvY2tmdy9wZW0vcHJzYS5jCkBAIC02NCwxMCArNjQs
+MTAgQEAgY29uc3QgU0VDX0FTTjFUZW1wbGF0ZSBwZW1fUlNBUHJpdmF0ZUtleVRlbXBsYXRlW10g PSB7CiB9OwogCiBzdGF0aWMgY29uc3QgU0VDX0FTTjFUZW1wbGF0ZSBwZW1fQXR0cmlidXRlVGVt cGxhdGVbXSA9IHsKLSAgICB7IFNFQ19BU04xX1NFUVVFTkNFLCAKKyAgICB7IFNFQ19BU04xX1NF
+UVVFTkNFLAogICAgICAgMCwgTlVMTCwgc2l6ZW9mKE5TU0xPV0tFWUF0dHJpYnV0ZSkgfSwKICAg ICB7IFNFQ19BU04xX09CSkVDVF9JRCwgb2Zmc2V0b2YoTlNTTE9XS0VZQXR0cmlidXRlLCBhdHRy VHlwZSkgfSwKLSAgICB7IFNFQ19BU04xX1NFVF9PRiB8IFNFQ19BU04xX1hUUk4sIG9mZnNldG9m
+KE5TU0xPV0tFWUF0dHJpYnV0ZSwgYXR0clZhbHVlKSwgCisgICAgeyBTRUNfQVNOMV9TRVRfT0Yg fCBTRUNfQVNOMV9YVFJOLCBvZmZzZXRvZihOU1NMT1dLRVlBdHRyaWJ1dGUsIGF0dHJWYWx1ZSks CiAgICAgICBTRUNfQVNOMV9TVUIoU0VDX0FueVRlbXBsYXRlKSB9LAogICAgIHsgMCB9CiB9OwpA
+QCAtMTYwLDcgKzE2MCw3IEBAIHBlbV9nZXRQcml2YXRlS2V5KFBMQXJlbmFQb29sICphcmVuYSwg U0VDSXRlbSAqcmF3a2V5LCBDS19SViAqIHBFcnJvciwgTlNTSXRlbSAqCiAgICAgICAgIHJldHVy biBOVUxMOyAvKiB3aGE/Pz8/ICovCiAgICAgfQogCi0gICAgcGtpID0gKE5TU0xPV0tFWVByaXZh
+dGVLZXlJbmZvKilQT1JUX0FyZW5hWkFsbG9jKGFyZW5hLCAKKyAgICBwa2kgPSAoTlNTTE9XS0VZ UHJpdmF0ZUtleUluZm8qKVBPUlRfQXJlbmFaQWxsb2MoYXJlbmEsCiAgICAgICAgICAgICAgICAg ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHNpemVvZihOU1NMT1dLRVlQcml2
+YXRlS2V5SW5mbykpOwogICAgIGlmKCFwa2kpIHsKICAgICAgICAgKnBFcnJvciA9IENLUl9IT1NU X01FTU9SWTsKQEAgLTE3MSw5ICsxNzEsMTAgQEAgcGVtX2dldFByaXZhdGVLZXkoUExBcmVuYVBv b2wgKmFyZW5hLCBTRUNJdGVtICpyYXdrZXksIENLX1JWICogcEVycm9yLCBOU1NJdGVtICoKICAg
+ICBydiA9IFNFQ19BU04xRGVjb2RlSXRlbShhcmVuYSwgcGtpLCBwZW1fUHJpdmF0ZUtleUluZm9U ZW1wbGF0ZSwgcmF3a2V5KTsKICAgICBpZiAocnYgIT0gU0VDU3VjY2VzcykgewogICAgICAgICAv KiBub3QgUEtDUyM4IC0gYXNzdW1lIGl0J3MgYSAicmF3IiBSU0EgcHJpdmF0ZSBrZXkgKi8KKyAg
+ICAgICAgcGxvZygiRmFpbGVkIHRvIGRlY29kZSBrZXksIGFzc3VtaW5nIHJhdyBSU0EgcHJpdmF0 ZSBrZXlcbiIpOwogICAgICAgICBrZXlzcmMgPSByYXdrZXk7CiAgICAgfSBlbHNlIGlmIChTRUNP SURfR2V0QWxnb3JpdGhtVGFnKCZwa2ktPmFsZ29yaXRobSkgPT0gU0VDX09JRF9QS0NTMV9SU0Ff
+RU5DUllQVElPTikgewotICAgICAgICBrZXlzcmMgPSAmcGtpLT5wcml2YXRlS2V5OyAgICAgICAg CisgICAgICAgIGtleXNyYyA9ICZwa2ktPnByaXZhdGVLZXk7CiAgICAgfSBlbHNlIHsgLyogdW5z dXBwb3J0ZWQgKi8KICAgICAgICAgKnBFcnJvciA9IENLUl9GVU5DVElPTl9OT1RfU1VQUE9SVEVE
+OwogICAgICAgICBnb3RvIGRvbmU7CkBAIC0xOTQsNyArMTk1LDcgQEAgcGVtX2dldFByaXZhdGVL ZXkoUExBcmVuYVBvb2wgKmFyZW5hLCBTRUNJdGVtICpyYXdrZXksIENLX1JWICogcEVycm9yLCBO U1NJdGVtICoKICAgICAgICBtb2R1bHVzIGRhdGEgYW5kIHNldCBpdCBhZ2FpbiwgbWFraW5nIGEg
+Y29weSBvZiB0aGUgbmV3IGRhdGEuCiAgICAgICAgQnV0IHdlIGp1c3QgYWxsb2NhdGVkIGEgbmV3 IGVtcHR5IGtleSBzdHJ1Y3R1cmUgYWJvdmUgd2l0aAogICAgICAgIG5zc19aQWxsb2MuICBTbyBs cGstPnUucnNhLm1vZHVsdXMuZGF0YSBpcyBOVUxMIGFuZAotICAgICAgIGxway0+dS5yc2EubW9k
+dWx1cy5sZW4uICBJZiB0aGUgaW50ZW50aW9uIGlzIHRvIGZyZWUgdGhlIG9sZCAKKyAgICAgICBs cGstPnUucnNhLm1vZHVsdXMubGVuLiAgSWYgdGhlIGludGVudGlvbiBpcyB0byBmcmVlIHRoZSBv bGQKICAgICAgICBtb2R1bHVzIGRhdGEsIHdoeSBub3QganVzdCBzZXQgaXQgdG8gTlVMTCBhZnRl
+ciBmcmVlaW5nPyAgV2h5CiAgICAgICAgZ28gdGhyb3VnaCB0aGlzIHVubmVjZXNzYXJ5IGFuZCBj b25mdXNpbmcgY29weWluZyBjb2RlPwogICAgICovCkBAIC0yMTEsMjEgKzIxMiwyMyBAQCBwZW1f Z2V0UHJpdmF0ZUtleShQTEFyZW5hUG9vbCAqYXJlbmEsIFNFQ0l0ZW0gKnJhd2tleSwgQ0tfUlYg
+KiBwRXJyb3IsIE5TU0l0ZW0gKgogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBrZXlz cmMpOwogCiAgICAgaWYgKHJ2ICE9IFNFQ1N1Y2Nlc3MpIHsKLSAgICAgICAgZ290byBkb25lOwor ICAgICAgICBwbG9nKCJTRUNfUXVpY2tERVJEZWNvZGVJdGVtIGZhaWxlZFxuIik7CisgICAgICAg
+ICpwRXJyb3IgPSBDS1JfS0VZX1RZUEVfSU5DT05TSVNURU5UOworICAgICAgICByZXR1cm4gTlVM TDsKICAgICB9CiAKIGRvbmU6CiAgICAgcmV0dXJuIGxwazsKIH0KIAotdm9pZAorQ0tfUlYKIHBl bV9Qb3B1bGF0ZU1vZHVsdXNFeHBvbmVudChwZW1JbnRlcm5hbE9iamVjdCAqIGlvKQogewotICAg
+IGNvbnN0IE5TU0l0ZW0gKmNsYXNzSXRlbSA9IHBlbV9GZXRjaEF0dHJpYnV0ZShpbywgQ0tBX0NM QVNTKTsKLSAgICBjb25zdCBOU1NJdGVtICprZXlUeXBlID0gcGVtX0ZldGNoQXR0cmlidXRlKGlv LCBDS0FfS0VZX1RZUEUpOworICAgIENLX1JWIHBFcnJvciA9IENLUl9PSzsKKyAgICBjb25zdCBO
+U1NJdGVtICpjbGFzc0l0ZW0gPSBwZW1fRmV0Y2hBdHRyaWJ1dGUoaW8sIENLQV9DTEFTUywgJnBF cnJvcik7CisgICAgY29uc3QgTlNTSXRlbSAqa2V5VHlwZSA9IHBlbV9GZXRjaEF0dHJpYnV0ZShp bywgQ0tBX0tFWV9UWVBFLCAmcEVycm9yKTsKICAgICBwZW1MT1dLRVlQcml2YXRlS2V5ICpscGsg
+PSBOVUxMOwogICAgIFBMQXJlbmFQb29sICphcmVuYTsKLSAgICBDS19SViBwRXJyb3IgPSAwOwog CiAgICAgLyogbWFrZSBzdXJlIHdlIGhhdmUgdGhlIHJpZ2h0IG9iamVjdHMgKi8KICAgICBpZiAo KChjb25zdCBOU1NJdGVtICopIE5VTEwgPT0gY2xhc3NJdGVtKSB8fApAQCAtMjM0LDE4ICsyMzcs
+MTkgQEAgcGVtX1BvcHVsYXRlTW9kdWx1c0V4cG9uZW50KHBlbUludGVybmFsT2JqZWN0ICogaW8p CiAgICAgICAgICgoY29uc3QgTlNTSXRlbSAqKSBOVUxMID09IGtleVR5cGUpIHx8CiAgICAgICAg IChzaXplb2YoQ0tfS0VZX1RZUEUpICE9IGtleVR5cGUtPnNpemUpIHx8CiAgICAgICAgIChDS0tf
+UlNBICE9ICooQ0tfS0VZX1RZUEUgKikga2V5VHlwZS0+ZGF0YSkpIHsKLSAgICAgICAgcmV0dXJu OworICAgICAgICByZXR1cm4gQ0tSX0tFWV9UWVBFX0lOQ09OU0lTVEVOVDsKICAgICB9CiAKICAg ICBhcmVuYSA9IFBPUlRfTmV3QXJlbmEoMjA0OCk7CiAgICAgaWYgKCFhcmVuYSkgewotICAgICAg
+ICByZXR1cm47CisgICAgICAgIHJldHVybiBDS1JfSE9TVF9NRU1PUlk7CiAgICAgfQogCiAgICAg bHBrID0gcGVtX2dldFByaXZhdGVLZXkoYXJlbmEsIGlvLT51LmtleS5rZXkucHJpdmF0ZUtleSwg JnBFcnJvciwgTlVMTCk7CiAgICAgaWYgKGxwayA9PSBOVUxMKSB7CisgICAgICAgIHBsb2coInBl
+bV9nZXRQcml2YXRlS2V5IHJldHVybmVkIE5VTExcbiIpOwogICAgICAgICBQT1JUX0ZyZWVBcmVu YShhcmVuYSwgUFJfRkFMU0UpOwotICAgICAgICByZXR1cm47CisgICAgICAgIHJldHVybiBDS1Jf S0VZX1RZUEVfSU5DT05TSVNURU5UOyAvLyByZXR1cm4gcEVycm9yIGluc3RlYWQ/CiAgICAgfQog
+CiAgICAgbnNzX1pGcmVlSWYoaW8tPnUua2V5LmtleS5tb2R1bHVzLmRhdGEpOwpAQCAtMzA4LDcg KzMxMiw3IEBAIHBlbV9Qb3B1bGF0ZU1vZHVsdXNFeHBvbmVudChwZW1JbnRlcm5hbE9iamVjdCAq IGlvKQogICAgICAgICAgICAgICAgICAgIGxway0+dS5yc2EuY29lZmZpY2llbnQubGVuKTsKIAog
+ICAgIHBlbV9EZXN0cm95UHJpdmF0ZUtleShscGspOwotICAgIHJldHVybjsKKyAgICByZXR1cm4g Q0tSX09LOwogfQogCiB0eXBlZGVmIHN0cnVjdCBwZW1JbnRlcm5hbENyeXB0b09wZXJhdGlvblJT QVByaXZTdHIKQEAgLTMzNSw4ICszMzksOCBAQCBwZW1fbWRDcnlwdG9PcGVyYXRpb25SU0FQcml2
+X0NyZWF0ZQogKQogewogICAgIHBlbUludGVybmFsT2JqZWN0ICppS2V5ID0gKHBlbUludGVybmFs T2JqZWN0ICopIG1kS2V5LT5ldGM7Ci0gICAgY29uc3QgTlNTSXRlbSAqY2xhc3NJdGVtID0gcGVt X0ZldGNoQXR0cmlidXRlKGlLZXksIENLQV9DTEFTUyk7Ci0gICAgY29uc3QgTlNTSXRlbSAqa2V5
+VHlwZSA9IHBlbV9GZXRjaEF0dHJpYnV0ZShpS2V5LCBDS0FfS0VZX1RZUEUpOworICAgIGNvbnN0 IE5TU0l0ZW0gKmNsYXNzSXRlbSA9IHBlbV9GZXRjaEF0dHJpYnV0ZShpS2V5LCBDS0FfQ0xBU1Ms IHBFcnJvcik7CisgICAgY29uc3QgTlNTSXRlbSAqa2V5VHlwZSA9IHBlbV9GZXRjaEF0dHJpYnV0
+ZShpS2V5LCBDS0FfS0VZX1RZUEUsIHBFcnJvcik7CiAgICAgcGVtSW50ZXJuYWxDcnlwdG9PcGVy YXRpb25SU0FQcml2ICppT3BlcmF0aW9uOwogICAgIHBlbUxPV0tFWVByaXZhdGVLZXkgKmxwayA9 IE5VTEw7CiAgICAgUExBcmVuYVBvb2wgKmFyZW5hOwpAQCAtMzYwLDcgKzM2NCw5IEBAIHBlbV9t
+ZENyeXB0b09wZXJhdGlvblJTQVByaXZfQ3JlYXRlCiAKICAgICBscGsgPSBwZW1fZ2V0UHJpdmF0 ZUtleShhcmVuYSwgaUtleS0+dS5rZXkua2V5LnByaXZhdGVLZXksIHBFcnJvciwgJmlLZXktPnUu a2V5LmtleS5tb2R1bHVzKTsKICAgICBpZiAobHBrID09IE5VTEwpIHsKKyAgICAgICAgcGxvZygi
+cGVtX2dldFByaXZhdGVLZXkgcmV0dXJuZWQgTlVMTFxuIik7CiAgICAgICAgIFBPUlRfRnJlZUFy ZW5hKGFyZW5hLCBQUl9GQUxTRSk7CisgICAgICAgICpwRXJyb3IgPSBDS1JfS0VZX1RZUEVfSU5D T05TSVNURU5UOwogICAgICAgICByZXR1cm4gKE5TU0NLTURDcnlwdG9PcGVyYXRpb24gKikgTlVM
+TDsKICAgICB9CiAKQEAgLTQxOCw3ICs0MjQsNyBAQCBwZW1fbWRDcnlwdG9PcGVyYXRpb25SU0Ff R2V0RmluYWxMZW5ndGgKICAgICBwZW1JbnRlcm5hbENyeXB0b09wZXJhdGlvblJTQVByaXYgKmlP cGVyYXRpb24gPQogICAgICAgICAocGVtSW50ZXJuYWxDcnlwdG9PcGVyYXRpb25SU0FQcml2ICop
+IG1kT3BlcmF0aW9uLT5ldGM7CiAgICAgY29uc3QgTlNTSXRlbSAqbW9kdWx1cyA9Ci0gICAgICAg IHBlbV9GZXRjaEF0dHJpYnV0ZShpT3BlcmF0aW9uLT5pS2V5LCBDS0FfTU9EVUxVUyk7CisgICAg ICAgIHBlbV9GZXRjaEF0dHJpYnV0ZShpT3BlcmF0aW9uLT5pS2V5LCBDS0FfTU9EVUxVUywgcEVy
+cm9yKTsKIAogICAgIHJldHVybiBtb2R1bHVzLT5zaXplOwogfQpAQCAtNDc1LDcgKzQ4MSw3IEBA IHBlbV9tZENyeXB0b09wZXJhdGlvblJTQURlY3J5cHRfR2V0T3BlcmF0aW9uTGVuZ3RoCiAvKgog ICogcGVtX21kQ3J5cHRvT3BlcmF0aW9uUlNBRGVjcnlwdF9VcGRhdGVGaW5hbAogICoKLSAqIE5P
+VEU6IHBlbV9tZENyeXB0b09wZXJhdGlvblJTQURlY3J5cHRfR2V0T3BlcmF0aW9uTGVuZ3RoIGlz IHByZXN1bWVkIHRvIAorICogTk9URTogcGVtX21kQ3J5cHRvT3BlcmF0aW9uUlNBRGVjcnlwdF9H ZXRPcGVyYXRpb25MZW5ndGggaXMgcHJlc3VtZWQgdG8KICAqIGhhdmUgYmVlbiBjYWxsZWQgcHJl
+dmlvdXNseS4KICAqLwogc3RhdGljIENLX1JWCi0tIAoyLjUuMAoK
+</data>
+
+</attachment>
+<attachment isobsolete="0" ispatch="1" isprivate="0">
+<attachid>1117288</attachid>
+<date>2016-01-22 11:20:00 -0500</date>
+<delta_ts>2016-01-22 12:02:12 -0500</delta_ts>
+<desc>Patch to catch failed ASN1 decoding of RSA keys</desc>
+<filename>0001-Be-sure-that-an-RSA-key-is-decoded-properly.patch</filename>
+<type>text/plain</type>
+<size>14137</size>
+<attacher name="Rob Crittenden">rcritten</attacher>
+
+<data encoding="base64">RnJvbSBhMDg4NjgwN2EzMWEyOWQ2ODc5NWNlMjU3N2RiOTFhNjBmZjE4ZDYzIE1vbiBTZXAgMTcg MDA6MDA6MDAgMjAwMQpGcm9tOiBSb2IgQ3JpdHRlbmRlbiA8cmNyaXR0ZW5AcmVkaGF0LmNvbT4K
+RGF0ZTogVGh1LCAyMSBKYW4gMjAxNiAxNzoyNzoxNiAtMDUwMApTdWJqZWN0OiBbUEFUQ0hdIEJl IHN1cmUgdGhhdCBhbiBSU0Ega2V5IGlzIGRlY29kZWQgcHJvcGVybHkKClRoZSBOU1MgYmFzZTY0 IGRlY29kZXIgaXMgdmVyeSBsYXggc3VjaCB0aGF0IGl0IGFjY2VwdHMgcHJldHR5Cm11Y2ggYW55
+IGlucHV0LiBBIG1hbGZvcm1lZCBrZXkgd291bGQgbm90IGJlIGNhdWdodCBieSBpdCBhbmQKY2F1 c2UgYSBTRUdWIHdoZW4gdHJ5aW5nIHRvIHB1bGwgdmFyaW91cyBjb21wb25lbnRzIG91dCBvZiBp dAoobW9kdWx1cywgZXRjKS4KClJldHVybiBhbiBlcnJvciB3aGVuIHRoZSBBU04xIGRlY29kZXIg
+ZmFpbHMgdG8gcGFyc2UgdGhlIGtleSBhbmQKdHJ5IHRvIHByb3BvZ2F0ZSB0aGlzIGVycm9yIHVw IHRvIHRoZSBQS0NTIzExIGNhbGxlci4KClRoaXMgd29uJ3QgdGhyb3cgYW55IG9idmlvdXMgZXJy b3JzIHdoZW4gaXQgaGFwcGVucy4gTlNTIHdpbGwKanVzdCBub3QgaGF2ZSBhIHByaXZhdGUga2V5
+IGF2YWlsYWJsZSBzbyB3aWxsIGZhaWwgYW55IHRpbWUgdGhhdAprZXkgaXMgcmVxdWVzdGVkIChv ZnRlbiB3aXRoIGEgTUFDIGVycm9yKS4KCkJaICMxMzAwNjUyCi0tLQogbW96aWxsYS9zZWN1cml0 eS9uc3MvbGliL2NrZncvcGVtL2NrcGVtLmggICB8ICA0ICstCiBtb3ppbGxhL3NlY3VyaXR5L25z
+cy9saWIvY2tmdy9wZW0vcGZpbmQuYyAgIHwgIDMgKy0KIG1vemlsbGEvc2VjdXJpdHkvbnNzL2xp Yi9ja2Z3L3BlbS9wb2JqZWN0LmMgfCA2NSArKysrKysrKysrKysrKysrKysrKysrLS0tLS0tLQog bW96aWxsYS9zZWN1cml0eS9uc3MvbGliL2NrZncvcGVtL3Byc2EuYyAgICB8IDU3ICsrKysrKysr
+KysrKysrKysrLS0tLS0tLS0KIDQgZmlsZXMgY2hhbmdlZCwgOTMgaW5zZXJ0aW9ucygrKSwgMzYg ZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvbW96aWxsYS9zZWN1cml0eS9uc3MvbGliL2NrZncv cGVtL2NrcGVtLmggYi9tb3ppbGxhL3NlY3VyaXR5L25zcy9saWIvY2tmdy9wZW0vY2twZW0uaApp
+bmRleCA4MzlkNDBiLi40OGNkMTZiIDEwMDY0NAotLS0gYS9tb3ppbGxhL3NlY3VyaXR5L25zcy9s aWIvY2tmdy9wZW0vY2twZW0uaAorKysgYi9tb3ppbGxhL3NlY3VyaXR5L25zcy9saWIvY2tmdy9w ZW0vY2twZW0uaApAQCAtMjMwLDggKzIzMCw4IEBAIHN0cnVjdCBwZW1MT1dLRVlQcml2YXRlS2V5
+U3RyIHsKIHR5cGVkZWYgc3RydWN0IHBlbUxPV0tFWVByaXZhdGVLZXlTdHIgcGVtTE9XS0VZUHJp dmF0ZUtleTsKIAogU0VDU3RhdHVzIFJlYWRERVJGcm9tRmlsZShTRUNJdGVtICoqKmRlcmxpc3Qs IGNoYXIgKmZpbGVuYW1lLCBQUkJvb2wgYXNjaWksIGludCAqY2lwaGVyLCBjaGFyICoqaXZzdHJp
+bmcsIFBSQm9vbCBjZXJ0c29ubHkpOwotY29uc3QgTlNTSXRlbSAqIHBlbV9GZXRjaEF0dHJpYnV0 ZSAoIHBlbUludGVybmFsT2JqZWN0ICppbywgQ0tfQVRUUklCVVRFX1RZUEUgdHlwZSk7Ci12b2lk IHBlbV9Qb3B1bGF0ZU1vZHVsdXNFeHBvbmVudChwZW1JbnRlcm5hbE9iamVjdCAqaW8pOworY29u
+c3QgTlNTSXRlbSAqIHBlbV9GZXRjaEF0dHJpYnV0ZSAoIHBlbUludGVybmFsT2JqZWN0ICppbywg Q0tfQVRUUklCVVRFX1RZUEUgdHlwZSwgQ0tfUlYgKnBFcnJvcik7CitDS19SViBwZW1fUG9wdWxh dGVNb2R1bHVzRXhwb25lbnQocGVtSW50ZXJuYWxPYmplY3QgKmlvKTsKIE5TU0NLTURPYmplY3Qg
+KiBwZW1fQ3JlYXRlT2JqZWN0KE5TU0NLRldJbnN0YW5jZSAqZndJbnN0YW5jZSwgTlNTQ0tGV1Nl c3Npb24gKmZ3U2Vzc2lvbiwgTlNTQ0tNRFRva2VuICptZFRva2VuLCBDS19BVFRSSUJVVEVfUFRS IHBUZW1wbGF0ZSwgQ0tfVUxPTkcgdWxBdHRyaWJ1dGVDb3VudCwgQ0tfUlYgKnBFcnJvcik7CiBO
+U1NDS01EU2xvdCAqcGVtX05ld1Nsb3QoIE5TU0NLRldJbnN0YW5jZSAqZndJbnN0YW5jZSwgQ0tf UlYgKnBFcnJvcik7CiAKZGlmZiAtLWdpdCBhL21vemlsbGEvc2VjdXJpdHkvbnNzL2xpYi9ja2Z3 L3BlbS9wZmluZC5jIGIvbW96aWxsYS9zZWN1cml0eS9uc3MvbGliL2NrZncvcGVtL3BmaW5kLmMK
+aW5kZXggMzBiMTE3NC4uNmUwMzhhNSAxMDA2NDQKLS0tIGEvbW96aWxsYS9zZWN1cml0eS9uc3Mv bGliL2NrZncvcGVtL3BmaW5kLmMKKysrIGIvbW96aWxsYS9zZWN1cml0eS9uc3MvbGliL2NrZncv cGVtL3BmaW5kLmMKQEAgLTIwNCw4ICsyMDQsOSBAQCBzdGF0aWMgQ0tfQkJPT0wKIHBlbV9hdHRy
+bWF0Y2goQ0tfQVRUUklCVVRFX1BUUiBhLCBwZW1JbnRlcm5hbE9iamVjdCAqIG8pIHsKICAgICBQ UkJvb2wgcHJiOwogICAgIGNvbnN0IE5TU0l0ZW0gKmI7CisgICAgQ0tfUlYgcEVycm9yID0gQ0tS X09LOwogCi0gICAgYiA9IHBlbV9GZXRjaEF0dHJpYnV0ZShvLCBhLT50eXBlKTsKKyAgICBiID0g
+cGVtX0ZldGNoQXR0cmlidXRlKG8sIGEtPnR5cGUsICZwRXJyb3IpOwogICAgIGlmIChiID09IE5V TEwpIHsKICAgICAgICAgcGxvZygicGVtX2F0dHJtYXRjaCAlcyAlMDh4OiBDS19GQUxTRSBhdHRy IG5vdCBmb3VuZFxuIiwgcGVtX2F0dHJfbmFtZShhLT50eXBlKSwgYS0+dHlwZSk7CiAgICAgICAg
+IHJldHVybiBDS19GQUxTRTsKZGlmZiAtLWdpdCBhL21vemlsbGEvc2VjdXJpdHkvbnNzL2xpYi9j a2Z3L3BlbS9wb2JqZWN0LmMgYi9tb3ppbGxhL3NlY3VyaXR5L25zcy9saWIvY2tmdy9wZW0vcG9i amVjdC5jCmluZGV4IDhmM2UwZGMuLjk4ZDU0NmEgMTAwNjQ0Ci0tLSBhL21vemlsbGEvc2VjdXJp
+dHkvbnNzL2xpYi9ja2Z3L3BlbS9wb2JqZWN0LmMKKysrIGIvbW96aWxsYS9zZWN1cml0eS9uc3Mv bGliL2NrZncvcGVtL3BvYmplY3QuYwpAQCAtMjc1LDcgKzI3NSw4IEBAIGNvbnN0IE5TU0l0ZW0g KgogcGVtX0ZldGNoUHJpdktleUF0dHJpYnV0ZQogKAogICAgIHBlbUludGVybmFsT2JqZWN0ICog
+aW8sCi0gICAgQ0tfQVRUUklCVVRFX1RZUEUgdHlwZQorICAgIENLX0FUVFJJQlVURV9UWVBFIHR5 cGUsCisgICAgQ0tfUlYgKiBwRXJyb3IKICkKIHsKICAgICBQUkJvb2wgaXNDZXJ0VHlwZSA9IChw ZW1DZXJ0ID09IGlvLT50eXBlKTsKQEAgLTMxOCw0OSArMzE5LDczIEBAIHBlbV9GZXRjaFByaXZL
+ZXlBdHRyaWJ1dGUKICAgICAgICAgcmV0dXJuICZpby0+dS5jZXJ0LnN1YmplY3Q7CiAgICAgY2Fz ZSBDS0FfTU9EVUxVUzoKICAgICAgICAgaWYgKDAgPT0ga3AtPm1vZHVsdXMuc2l6ZSkgewotICAg ICAgICAgICAgcGVtX1BvcHVsYXRlTW9kdWx1c0V4cG9uZW50KGlvKTsKKyAgICAgICAgICAgICpw
+RXJyb3IgPSBwZW1fUG9wdWxhdGVNb2R1bHVzRXhwb25lbnQoaW8pOworICAgICAgICAgICAgaWYg KENLUl9PSyAhPSAqcEVycm9yKSB7CisgICAgICAgICAgICAgICAgcmV0dXJuIE5VTEw7CisgICAg ICAgICAgICB9CiAgICAgICAgIH0KICAgICAgICAgcGxvZygiICBmZXRjaCBrZXkgQ0tBX01PRFVM
+VVNcbiIpOwogICAgICAgICByZXR1cm4gJmtwLT5tb2R1bHVzOwogICAgIGNhc2UgQ0tBX1BVQkxJ Q19FWFBPTkVOVDoKICAgICAgICAgaWYgKDAgPT0ga3AtPm1vZHVsdXMuc2l6ZSkgewotICAgICAg ICAgICAgcGVtX1BvcHVsYXRlTW9kdWx1c0V4cG9uZW50KGlvKTsKKyAgICAgICAgICAgICpwRXJy
+b3IgPSBwZW1fUG9wdWxhdGVNb2R1bHVzRXhwb25lbnQoaW8pOworICAgICAgICAgICAgaWYgKENL Ul9PSyAhPSAqcEVycm9yKSB7CisgICAgICAgICAgICAgICAgcmV0dXJuIE5VTEw7CisgICAgICAg ICAgICB9CiAgICAgICAgIH0KICAgICAgICAgcGxvZygiICBmZXRjaCBrZXkgQ0tBX1BVQkxJQ19F
+WFBPTkVOVFxuIik7CiAgICAgICAgIHJldHVybiAma3AtPmV4cG9uZW50OwogICAgIGNhc2UgQ0tB X1BSSVZBVEVfRVhQT05FTlQ6CiAgICAgICAgIGlmICgwID09IGtwLT5wcml2YXRlRXhwb25lbnQu c2l6ZSkgewotICAgICAgICAgICAgcGVtX1BvcHVsYXRlTW9kdWx1c0V4cG9uZW50KGlvKTsKKyAg
+ICAgICAgICAgICpwRXJyb3IgPSBwZW1fUG9wdWxhdGVNb2R1bHVzRXhwb25lbnQoaW8pOworICAg ICAgICAgICAgaWYgKENLUl9PSyAhPSAqcEVycm9yKSB7CisgICAgICAgICAgICAgICAgcmV0dXJu IE5VTEw7CisgICAgICAgICAgICB9CiAgICAgICAgIH0KICAgICAgICAgcGxvZygiICBmZXRjaCBr
+ZXkgQ0tBX1BSSVZBVEVfRVhQT05FTlRcbiIpOwogICAgICAgICByZXR1cm4gJmtwLT5wcml2YXRl RXhwb25lbnQ7CiAgICAgY2FzZSBDS0FfUFJJTUVfMToKICAgICAgICAgaWYgKDAgPT0ga3AtPnBy aW1lMS5zaXplKSB7Ci0gICAgICAgICAgICBwZW1fUG9wdWxhdGVNb2R1bHVzRXhwb25lbnQoaW8p
+OworICAgICAgICAgICAgKnBFcnJvciA9IHBlbV9Qb3B1bGF0ZU1vZHVsdXNFeHBvbmVudChpbyk7 CisgICAgICAgICAgICBpZiAoQ0tSX09LICE9ICpwRXJyb3IpIHsKKyAgICAgICAgICAgICAgICBy ZXR1cm4gTlVMTDsKKyAgICAgICAgICAgIH0KICAgICAgICAgfQogICAgICAgICBwbG9nKCIgIGZl
+dGNoIGtleSBDS0FfUFJJTUVfMVxuIik7CiAgICAgICAgIHJldHVybiAma3AtPnByaW1lMTsKICAg ICBjYXNlIENLQV9QUklNRV8yOgogICAgICAgICBpZiAoMCA9PSBrcC0+cHJpbWUyLnNpemUpIHsK LSAgICAgICAgICAgIHBlbV9Qb3B1bGF0ZU1vZHVsdXNFeHBvbmVudChpbyk7CisgICAgICAgICAg
+ICAqcEVycm9yID0gcGVtX1BvcHVsYXRlTW9kdWx1c0V4cG9uZW50KGlvKTsKKyAgICAgICAgICAg IGlmIChDS1JfT0sgIT0gKnBFcnJvcikgeworICAgICAgICAgICAgICAgIHJldHVybiBOVUxMOwor ICAgICAgICAgICAgfQogICAgICAgICB9CiAgICAgICAgIHBsb2coIiAgZmV0Y2gga2V5IENLQV9Q
+UklNRV8yXG4iKTsKICAgICAgICAgcmV0dXJuICZrcC0+cHJpbWUyOwogICAgIGNhc2UgQ0tBX0VY UE9ORU5UXzE6CiAgICAgICAgIGlmICgwID09IGtwLT5leHBvbmVudDEuc2l6ZSkgewotICAgICAg ICAgICAgcGVtX1BvcHVsYXRlTW9kdWx1c0V4cG9uZW50KGlvKTsKKyAgICAgICAgICAgICpwRXJy
+b3IgPSBwZW1fUG9wdWxhdGVNb2R1bHVzRXhwb25lbnQoaW8pOworICAgICAgICAgICAgaWYgKENL Ul9PSyAhPSAqcEVycm9yKSB7CisgICAgICAgICAgICAgICAgcmV0dXJuIE5VTEw7CisgICAgICAg ICAgICB9CiAgICAgICAgIH0KICAgICAgICAgcGxvZygiICBmZXRjaCBrZXkgQ0tBX0VYUE9ORU5U
+XzFcbiIpOwogICAgICAgICByZXR1cm4gJmtwLT5leHBvbmVudDE7CiAgICAgY2FzZSBDS0FfRVhQ T05FTlRfMjoKICAgICAgICAgaWYgKDAgPT0ga3AtPmV4cG9uZW50Mi5zaXplKSB7Ci0gICAgICAg ICAgICBwZW1fUG9wdWxhdGVNb2R1bHVzRXhwb25lbnQoaW8pOworICAgICAgICAgICAgKnBFcnJv
+ciA9IHBlbV9Qb3B1bGF0ZU1vZHVsdXNFeHBvbmVudChpbyk7CisgICAgICAgICAgICBpZiAoQ0tS X09LICE9ICpwRXJyb3IpIHsKKyAgICAgICAgICAgICAgICByZXR1cm4gTlVMTDsKKyAgICAgICAg ICAgIH0KICAgICAgICAgfQogICAgICAgICBwbG9nKCIgIGZldGNoIGtleSBDS0FfRVhQT05FTlRf
+MlxuIik7CiAgICAgICAgIHJldHVybiAma3AtPmV4cG9uZW50MjsKICAgICBjYXNlIENLQV9DT0VG RklDSUVOVDoKICAgICAgICAgaWYgKDAgPT0ga3AtPmNvZWZmaWNpZW50LnNpemUpIHsKLSAgICAg ICAgICAgIHBlbV9Qb3B1bGF0ZU1vZHVsdXNFeHBvbmVudChpbyk7CisgICAgICAgICAgICAqcEVy
+cm9yID0gcGVtX1BvcHVsYXRlTW9kdWx1c0V4cG9uZW50KGlvKTsKKyAgICAgICAgICAgIGlmIChD S1JfT0sgIT0gKnBFcnJvcikgeworICAgICAgICAgICAgICAgIHJldHVybiBOVUxMOworICAgICAg ICAgICAgfQogICAgICAgICB9CiAgICAgICAgIHBsb2coIiAgZmV0Y2gga2V5IENLQV9DT0VGRklD
+SUVOVF8yXG4iKTsKICAgICAgICAgcmV0dXJuICZrcC0+Y29lZmZpY2llbnQ7CkBAIC01MjMsNyAr NTQ4LDggQEAgY29uc3QgTlNTSXRlbSAqCiBwZW1fRmV0Y2hBdHRyaWJ1dGUKICgKICAgICBwZW1J bnRlcm5hbE9iamVjdCAqIGlvLAotICAgIENLX0FUVFJJQlVURV9UWVBFIHR5cGUKKyAgICBDS19B
+VFRSSUJVVEVfVFlQRSB0eXBlLAorICAgIENLX1JWICogcEVycm9yCiApCiB7CiAgICAgQ0tfVUxP TkcgaTsKQEAgLTU0MSw3ICs1NjcsNyBAQCBwZW1fRmV0Y2hBdHRyaWJ1dGUKICAgICBjYXNlIENL T19DRVJUSUZJQ0FURToKICAgICAgICAgcmV0dXJuIHBlbV9GZXRjaENlcnRBdHRyaWJ1dGUoaW8s
+IHR5cGUpOwogICAgIGNhc2UgQ0tPX1BSSVZBVEVfS0VZOgotICAgICAgICByZXR1cm4gcGVtX0Zl dGNoUHJpdktleUF0dHJpYnV0ZShpbywgdHlwZSk7CisgICAgICAgIHJldHVybiBwZW1fRmV0Y2hQ cml2S2V5QXR0cmlidXRlKGlvLCB0eXBlLCBwRXJyb3IpOwogICAgIGNhc2UgQ0tPX05FVFNDQVBF
+X1RSVVNUOgogICAgICAgICByZXR1cm4gcGVtX0ZldGNoVHJ1c3RBdHRyaWJ1dGUoaW8sIHR5cGUp OwogICAgIGNhc2UgQ0tPX1BVQkxJQ19LRVk6CkBAIC04MzAsNyArODU2LDE2IEBAIHBlbV9tZE9i amVjdF9HZXRBdHRyaWJ1dGVTaXplCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICBhdHRyaWJ1dGUsIHBFcnJvcik7CiAgICAgfQogCi0gICAgYiA9IHBlbV9GZXRjaEF0dHJpYnV0 ZShpbywgYXR0cmlidXRlKTsKKyAgICBiID0gcGVtX0ZldGNoQXR0cmlidXRlKGlvLCBhdHRyaWJ1 dGUsIHBFcnJvcik7CisgICAgcGxvZygicGVtX0ZldGNoQXR0cmlidXRlIHBFcnJvciA9IDB4JTA4
+eFxuIiwgKnBFcnJvcik7CisKKyAgICAvKiBEb24ndCBhc3N1bWUgdGhhdCB0aGUgcmV0dXJuZWQg aXRlbSBpcyBOVUxMIG9uIGVycm9yICovCisgICAgaWYgKCpwRXJyb3IgIT0gQ0tSX09LKSB7Cisg ICAgICAgIGlmICgoY29uc3QgTlNTSXRlbSAqKSBOVUxMICE9IGIpIHsKKyAgICAgICAgICAgIG5z
+c19aRnJlZUlmKGItPmRhdGEpOworICAgICAgICB9CisgICAgICAgIHJldHVybiAwOworICAgIH0K IAogICAgIGlmICgoY29uc3QgTlNTSXRlbSAqKSBOVUxMID09IGIpIHsKICAgICAgICAgKnBFcnJv ciA9IENLUl9BVFRSSUJVVEVfVFlQRV9JTlZBTElEOwpAQCAtODY2LDEwICs5MDEsMTAgQEAgcGVt
+X21kT2JqZWN0X0dldEF0dHJpYnV0ZQogICAgIH0KIAogICAgIG1kSXRlbS5uZWVkc0ZyZWVpbmcg PSBQUl9GQUxTRTsKLSAgICBtZEl0ZW0uaXRlbSA9IChOU1NJdGVtICopIHBlbV9GZXRjaEF0dHJp YnV0ZShpbywgYXR0cmlidXRlKTsKKyAgICBtZEl0ZW0uaXRlbSA9IChOU1NJdGVtICopIHBlbV9G
+ZXRjaEF0dHJpYnV0ZShpbywgYXR0cmlidXRlLCBwRXJyb3IpOwogCiAgICAgaWYgKChOU1NJdGVt ICopIE5VTEwgPT0gbWRJdGVtLml0ZW0pIHsKLSAgICAgICAgKnBFcnJvciA9IENLUl9BVFRSSUJV VEVfVFlQRV9JTlZBTElEOworICAgICAgICAqcEVycm9yID0gKCpwRXJyb3IgPyAqcEVycm9yIDog
+Q0tSX0FUVFJJQlVURV9UWVBFX0lOVkFMSUQpOwogICAgIH0KIAogICAgIHJldHVybiBtZEl0ZW07 CkBAIC05MjUsNyArOTYwLDcgQEAgcGVtX0dldFVMb25nQXR0cmlidXRlCiAgICAgcmV0dXJuICoo Q0tfVUxPTkcgKikgaXRlbS5kYXRhOwogfQogCi0vKiAgCisvKgogICogZ2V0IGFuIGF0dHJpYnV0
+ZSB3aGljaCBpcyB0eXBlIENLX0JCT09MLgogICovCiBDS19CQk9PTApkaWZmIC0tZ2l0IGEvbW96 aWxsYS9zZWN1cml0eS9uc3MvbGliL2NrZncvcGVtL3Byc2EuYyBiL21vemlsbGEvc2VjdXJpdHkv bnNzL2xpYi9ja2Z3L3BlbS9wcnNhLmMKaW5kZXggOGQ0ZmI5Mi4uOThlZTgzNiAxMDA2NDQKLS0t
+IGEvbW96aWxsYS9zZWN1cml0eS9uc3MvbGliL2NrZncvcGVtL3Byc2EuYworKysgYi9tb3ppbGxh L3NlY3VyaXR5L25zcy9saWIvY2tmdy9wZW0vcHJzYS5jCkBAIC02NCwxMCArNjQsMTAgQEAgY29u c3QgU0VDX0FTTjFUZW1wbGF0ZSBwZW1fUlNBUHJpdmF0ZUtleVRlbXBsYXRlW10gPSB7CiB9Owog
+CiBzdGF0aWMgY29uc3QgU0VDX0FTTjFUZW1wbGF0ZSBwZW1fQXR0cmlidXRlVGVtcGxhdGVbXSA9 IHsKLSAgICB7IFNFQ19BU04xX1NFUVVFTkNFLCAKKyAgICB7IFNFQ19BU04xX1NFUVVFTkNFLAog ICAgICAgMCwgTlVMTCwgc2l6ZW9mKE5TU0xPV0tFWUF0dHJpYnV0ZSkgfSwKICAgICB7IFNFQ19B
+U04xX09CSkVDVF9JRCwgb2Zmc2V0b2YoTlNTTE9XS0VZQXR0cmlidXRlLCBhdHRyVHlwZSkgfSwK LSAgICB7IFNFQ19BU04xX1NFVF9PRiB8IFNFQ19BU04xX1hUUk4sIG9mZnNldG9mKE5TU0xPV0tF WUF0dHJpYnV0ZSwgYXR0clZhbHVlKSwgCisgICAgeyBTRUNfQVNOMV9TRVRfT0YgfCBTRUNfQVNO
+MV9YVFJOLCBvZmZzZXRvZihOU1NMT1dLRVlBdHRyaWJ1dGUsIGF0dHJWYWx1ZSksCiAgICAgICBT RUNfQVNOMV9TVUIoU0VDX0FueVRlbXBsYXRlKSB9LAogICAgIHsgMCB9CiB9OwpAQCAtMTYwLDcg KzE2MCw3IEBAIHBlbV9nZXRQcml2YXRlS2V5KFBMQXJlbmFQb29sICphcmVuYSwgU0VDSXRlbSAq
+cmF3a2V5LCBDS19SViAqIHBFcnJvciwgTlNTSXRlbSAqCiAgICAgICAgIHJldHVybiBOVUxMOyAv KiB3aGE/Pz8/ICovCiAgICAgfQogCi0gICAgcGtpID0gKE5TU0xPV0tFWVByaXZhdGVLZXlJbmZv KilQT1JUX0FyZW5hWkFsbG9jKGFyZW5hLCAKKyAgICBwa2kgPSAoTlNTTE9XS0VZUHJpdmF0ZUtl
+eUluZm8qKVBPUlRfQXJlbmFaQWxsb2MoYXJlbmEsCiAgICAgICAgICAgICAgICAgICAgICAgICAg ICAgICAgICAgICAgICAgICAgICAgICAgICAgIHNpemVvZihOU1NMT1dLRVlQcml2YXRlS2V5SW5m bykpOwogICAgIGlmKCFwa2kpIHsKICAgICAgICAgKnBFcnJvciA9IENLUl9IT1NUX01FTU9SWTsK
+QEAgLTE3MSw5ICsxNzEsMTAgQEAgcGVtX2dldFByaXZhdGVLZXkoUExBcmVuYVBvb2wgKmFyZW5h LCBTRUNJdGVtICpyYXdrZXksIENLX1JWICogcEVycm9yLCBOU1NJdGVtICoKICAgICBydiA9IFNF Q19BU04xRGVjb2RlSXRlbShhcmVuYSwgcGtpLCBwZW1fUHJpdmF0ZUtleUluZm9UZW1wbGF0ZSwg
+cmF3a2V5KTsKICAgICBpZiAocnYgIT0gU0VDU3VjY2VzcykgewogICAgICAgICAvKiBub3QgUEtD UyM4IC0gYXNzdW1lIGl0J3MgYSAicmF3IiBSU0EgcHJpdmF0ZSBrZXkgKi8KKyAgICAgICAgcGxv ZygiRmFpbGVkIHRvIGRlY29kZSBrZXksIGFzc3VtaW5nIHJhdyBSU0EgcHJpdmF0ZSBrZXlcbiIp
+OwogICAgICAgICBrZXlzcmMgPSByYXdrZXk7CiAgICAgfSBlbHNlIGlmIChTRUNPSURfR2V0QWxn b3JpdGhtVGFnKCZwa2ktPmFsZ29yaXRobSkgPT0gU0VDX09JRF9QS0NTMV9SU0FfRU5DUllQVElP TikgewotICAgICAgICBrZXlzcmMgPSAmcGtpLT5wcml2YXRlS2V5OyAgICAgICAgCisgICAgICAg
+IGtleXNyYyA9ICZwa2ktPnByaXZhdGVLZXk7CiAgICAgfSBlbHNlIHsgLyogdW5zdXBwb3J0ZWQg Ki8KICAgICAgICAgKnBFcnJvciA9IENLUl9GVU5DVElPTl9OT1RfU1VQUE9SVEVEOwogICAgICAg ICBnb3RvIGRvbmU7CkBAIC0xOTQsNyArMTk1LDcgQEAgcGVtX2dldFByaXZhdGVLZXkoUExBcmVu
+YVBvb2wgKmFyZW5hLCBTRUNJdGVtICpyYXdrZXksIENLX1JWICogcEVycm9yLCBOU1NJdGVtICoK ICAgICAgICBtb2R1bHVzIGRhdGEgYW5kIHNldCBpdCBhZ2FpbiwgbWFraW5nIGEgY29weSBvZiB0 aGUgbmV3IGRhdGEuCiAgICAgICAgQnV0IHdlIGp1c3QgYWxsb2NhdGVkIGEgbmV3IGVtcHR5IGtl
+eSBzdHJ1Y3R1cmUgYWJvdmUgd2l0aAogICAgICAgIG5zc19aQWxsb2MuICBTbyBscGstPnUucnNh Lm1vZHVsdXMuZGF0YSBpcyBOVUxMIGFuZAotICAgICAgIGxway0+dS5yc2EubW9kdWx1cy5sZW4u ICBJZiB0aGUgaW50ZW50aW9uIGlzIHRvIGZyZWUgdGhlIG9sZCAKKyAgICAgICBscGstPnUucnNh
+Lm1vZHVsdXMubGVuLiAgSWYgdGhlIGludGVudGlvbiBpcyB0byBmcmVlIHRoZSBvbGQKICAgICAg ICBtb2R1bHVzIGRhdGEsIHdoeSBub3QganVzdCBzZXQgaXQgdG8gTlVMTCBhZnRlciBmcmVlaW5n PyAgV2h5CiAgICAgICAgZ28gdGhyb3VnaCB0aGlzIHVubmVjZXNzYXJ5IGFuZCBjb25mdXNpbmcg
+Y29weWluZyBjb2RlPwogICAgICovCkBAIC0yMTEsMjEgKzIxMiwzMSBAQCBwZW1fZ2V0UHJpdmF0 ZUtleShQTEFyZW5hUG9vbCAqYXJlbmEsIFNFQ0l0ZW0gKnJhd2tleSwgQ0tfUlYgKiBwRXJyb3Is IE5TU0l0ZW0gKgogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBrZXlzcmMpOwogCiAg
+ICAgaWYgKHJ2ICE9IFNFQ1N1Y2Nlc3MpIHsKLSAgICAgICAgZ290byBkb25lOworICAgICAgICBw bG9nKCJTRUNfUXVpY2tERVJEZWNvZGVJdGVtIGZhaWxlZFxuIik7CisgICAgICAgICpwRXJyb3Ig PSBDS1JfS0VZX1RZUEVfSU5DT05TSVNURU5UOworICAgICAgICByZXR1cm4gTlVMTDsKICAgICB9
+CiAKIGRvbmU6CiAgICAgcmV0dXJuIGxwazsKIH0KIAotdm9pZAorQ0tfUlYKIHBlbV9Qb3B1bGF0 ZU1vZHVsdXNFeHBvbmVudChwZW1JbnRlcm5hbE9iamVjdCAqIGlvKQogewotICAgIGNvbnN0IE5T U0l0ZW0gKmNsYXNzSXRlbSA9IHBlbV9GZXRjaEF0dHJpYnV0ZShpbywgQ0tBX0NMQVNTKTsKLSAg
+ICBjb25zdCBOU1NJdGVtICprZXlUeXBlID0gcGVtX0ZldGNoQXR0cmlidXRlKGlvLCBDS0FfS0VZ X1RZUEUpOworICAgIENLX1JWIHBFcnJvciA9IENLUl9PSzsKKyAgICBjb25zdCBOU1NJdGVtICpj bGFzc0l0ZW07CisgICAgY29uc3QgTlNTSXRlbSAqa2V5VHlwZTsKICAgICBwZW1MT1dLRVlQcml2
+YXRlS2V5ICpscGsgPSBOVUxMOwogICAgIFBMQXJlbmFQb29sICphcmVuYTsKLSAgICBDS19SViBw RXJyb3IgPSAwOworCisgICAgY2xhc3NJdGVtID0gcGVtX0ZldGNoQXR0cmlidXRlKGlvLCBDS0Ff Q0xBU1MsICZwRXJyb3IpOworICAgIGlmIChwRXJyb3IgIT0gQ0tSX09LKQorICAgICAgICByZXR1
+cm4gcEVycm9yOworCisgICAga2V5VHlwZSA9IHBlbV9GZXRjaEF0dHJpYnV0ZShpbywgQ0tBX0tF WV9UWVBFLCAmcEVycm9yKTsKKyAgICBpZiAocEVycm9yICE9IENLUl9PSykKKyAgICAgICAgcmV0 dXJuIHBFcnJvcjsKIAogICAgIC8qIG1ha2Ugc3VyZSB3ZSBoYXZlIHRoZSByaWdodCBvYmplY3Rz
+ICovCiAgICAgaWYgKCgoY29uc3QgTlNTSXRlbSAqKSBOVUxMID09IGNsYXNzSXRlbSkgfHwKQEAg LTIzNCwxOCArMjQ1LDE5IEBAIHBlbV9Qb3B1bGF0ZU1vZHVsdXNFeHBvbmVudChwZW1JbnRlcm5h bE9iamVjdCAqIGlvKQogICAgICAgICAoKGNvbnN0IE5TU0l0ZW0gKikgTlVMTCA9PSBrZXlUeXBl
+KSB8fAogICAgICAgICAoc2l6ZW9mKENLX0tFWV9UWVBFKSAhPSBrZXlUeXBlLT5zaXplKSB8fAog ICAgICAgICAoQ0tLX1JTQSAhPSAqKENLX0tFWV9UWVBFICopIGtleVR5cGUtPmRhdGEpKSB7Ci0g ICAgICAgIHJldHVybjsKKyAgICAgICAgcmV0dXJuIENLUl9LRVlfVFlQRV9JTkNPTlNJU1RFTlQ7
+CiAgICAgfQogCiAgICAgYXJlbmEgPSBQT1JUX05ld0FyZW5hKDIwNDgpOwogICAgIGlmICghYXJl bmEpIHsKLSAgICAgICAgcmV0dXJuOworICAgICAgICByZXR1cm4gQ0tSX0hPU1RfTUVNT1JZOwog ICAgIH0KIAogICAgIGxwayA9IHBlbV9nZXRQcml2YXRlS2V5KGFyZW5hLCBpby0+dS5rZXkua2V5
+LnByaXZhdGVLZXksICZwRXJyb3IsIE5VTEwpOwogICAgIGlmIChscGsgPT0gTlVMTCkgeworICAg ICAgICBwbG9nKCJwZW1fUG9wdWxhdGVNb2R1bHVzRXhwb25lbnQ6IHBlbV9nZXRQcml2YXRlS2V5 IHJldHVybmVkIE5VTEwsIHBFcnJvciAweCUwOHhcbiIsIHBFcnJvcik7CiAgICAgICAgIFBPUlRf
+RnJlZUFyZW5hKGFyZW5hLCBQUl9GQUxTRSk7Ci0gICAgICAgIHJldHVybjsKKyAgICAgICAgcmV0 dXJuIChwRXJyb3IgPyBwRXJyb3IgOiBDS1JfS0VZX1RZUEVfSU5DT05TSVNURU5UKTsKICAgICB9 CiAKICAgICBuc3NfWkZyZWVJZihpby0+dS5rZXkua2V5Lm1vZHVsdXMuZGF0YSk7CkBAIC0zMDgs
+NyArMzIwLDcgQEAgcGVtX1BvcHVsYXRlTW9kdWx1c0V4cG9uZW50KHBlbUludGVybmFsT2JqZWN0 ICogaW8pCiAgICAgICAgICAgICAgICAgICAgbHBrLT51LnJzYS5jb2VmZmljaWVudC5sZW4pOwog CiAgICAgcGVtX0Rlc3Ryb3lQcml2YXRlS2V5KGxwayk7Ci0gICAgcmV0dXJuOworICAgIHJldHVy
+biBDS1JfT0s7CiB9CiAKIHR5cGVkZWYgc3RydWN0IHBlbUludGVybmFsQ3J5cHRvT3BlcmF0aW9u UlNBUHJpdlN0cgpAQCAtMzM1LDEyICszNDcsMjAgQEAgcGVtX21kQ3J5cHRvT3BlcmF0aW9uUlNB UHJpdl9DcmVhdGUKICkKIHsKICAgICBwZW1JbnRlcm5hbE9iamVjdCAqaUtleSA9IChwZW1JbnRl
+cm5hbE9iamVjdCAqKSBtZEtleS0+ZXRjOwotICAgIGNvbnN0IE5TU0l0ZW0gKmNsYXNzSXRlbSA9 IHBlbV9GZXRjaEF0dHJpYnV0ZShpS2V5LCBDS0FfQ0xBU1MpOwotICAgIGNvbnN0IE5TU0l0ZW0g KmtleVR5cGUgPSBwZW1fRmV0Y2hBdHRyaWJ1dGUoaUtleSwgQ0tBX0tFWV9UWVBFKTsKKyAgICBj
+b25zdCBOU1NJdGVtICpjbGFzc0l0ZW07CisgICAgY29uc3QgTlNTSXRlbSAqa2V5VHlwZTsKICAg ICBwZW1JbnRlcm5hbENyeXB0b09wZXJhdGlvblJTQVByaXYgKmlPcGVyYXRpb247CiAgICAgcGVt TE9XS0VZUHJpdmF0ZUtleSAqbHBrID0gTlVMTDsKICAgICBQTEFyZW5hUG9vbCAqYXJlbmE7CiAK
+KyAgICBjbGFzc0l0ZW0gPSBwZW1fRmV0Y2hBdHRyaWJ1dGUoaUtleSwgQ0tBX0NMQVNTLCBwRXJy b3IpOworICAgIGlmICgqcEVycm9yICE9IENLUl9PSykKKyAgICAgICAgcmV0dXJuIChOU1NDS01E Q3J5cHRvT3BlcmF0aW9uICopIE5VTEw7CisKKyAgICBrZXlUeXBlID0gcGVtX0ZldGNoQXR0cmli
+dXRlKGlLZXksIENLQV9LRVlfVFlQRSwgcEVycm9yKTsKKyAgICBpZiAoKnBFcnJvciAhPSBDS1Jf T0spCisgICAgICAgIHJldHVybiAoTlNTQ0tNRENyeXB0b09wZXJhdGlvbiAqKSBOVUxMOworCiAg ICAgLyogbWFrZSBzdXJlIHdlIGhhdmUgdGhlIHJpZ2h0IG9iamVjdHMgKi8KICAgICBpZiAoKChj
+b25zdCBOU1NJdGVtICopIE5VTEwgPT0gY2xhc3NJdGVtKSB8fAogICAgICAgICAoc2l6ZW9mKENL X09CSkVDVF9DTEFTUykgIT0gY2xhc3NJdGVtLT5zaXplKSB8fApAQCAtMzYwLDYgKzM4MCw3IEBA IHBlbV9tZENyeXB0b09wZXJhdGlvblJTQVByaXZfQ3JlYXRlCiAKICAgICBscGsgPSBwZW1fZ2V0
+UHJpdmF0ZUtleShhcmVuYSwgaUtleS0+dS5rZXkua2V5LnByaXZhdGVLZXksIHBFcnJvciwgJmlL ZXktPnUua2V5LmtleS5tb2R1bHVzKTsKICAgICBpZiAobHBrID09IE5VTEwpIHsKKyAgICAgICAg cGxvZygicGVtX21kQ3J5cHRvT3BlcmF0aW9uUlNBUHJpdl9DcmVhdGU6IHBlbV9nZXRQcml2YXRl
+S2V5IHJldHVybmVkIE5VTEwsIHBFcnJvciAweCUwOHhcbiIsICpwRXJyb3IpOwogICAgICAgICBQ T1JUX0ZyZWVBcmVuYShhcmVuYSwgUFJfRkFMU0UpOwogICAgICAgICByZXR1cm4gKE5TU0NLTURD cnlwdG9PcGVyYXRpb24gKikgTlVMTDsKICAgICB9CkBAIC00MTgsNyArNDM5LDcgQEAgcGVtX21k
+Q3J5cHRvT3BlcmF0aW9uUlNBX0dldEZpbmFsTGVuZ3RoCiAgICAgcGVtSW50ZXJuYWxDcnlwdG9P cGVyYXRpb25SU0FQcml2ICppT3BlcmF0aW9uID0KICAgICAgICAgKHBlbUludGVybmFsQ3J5cHRv T3BlcmF0aW9uUlNBUHJpdiAqKSBtZE9wZXJhdGlvbi0+ZXRjOwogICAgIGNvbnN0IE5TU0l0ZW0g
+Km1vZHVsdXMgPQotICAgICAgICBwZW1fRmV0Y2hBdHRyaWJ1dGUoaU9wZXJhdGlvbi0+aUtleSwg Q0tBX01PRFVMVVMpOworICAgICAgICBwZW1fRmV0Y2hBdHRyaWJ1dGUoaU9wZXJhdGlvbi0+aUtl eSwgQ0tBX01PRFVMVVMsIHBFcnJvcik7CiAKICAgICByZXR1cm4gbW9kdWx1cy0+c2l6ZTsKIH0K
+QEAgLTQ3NSw3ICs0OTYsNyBAQCBwZW1fbWRDcnlwdG9PcGVyYXRpb25SU0FEZWNyeXB0X0dldE9w ZXJhdGlvbkxlbmd0aAogLyoKICAqIHBlbV9tZENyeXB0b09wZXJhdGlvblJTQURlY3J5cHRfVXBk YXRlRmluYWwKICAqCi0gKiBOT1RFOiBwZW1fbWRDcnlwdG9PcGVyYXRpb25SU0FEZWNyeXB0X0dl
+dE9wZXJhdGlvbkxlbmd0aCBpcyBwcmVzdW1lZCB0byAKKyAqIE5PVEU6IHBlbV9tZENyeXB0b09w ZXJhdGlvblJTQURlY3J5cHRfR2V0T3BlcmF0aW9uTGVuZ3RoIGlzIHByZXN1bWVkIHRvCiAgKiBo YXZlIGJlZW4gY2FsbGVkIHByZXZpb3VzbHkuCiAgKi8KIHN0YXRpYyBDS19SVgotLSAKMi41LjAK Cg==
+</data>
+<flag name="review" id="2533991" type_id="155" status="+" setter="rmeggins"/>
+</attachment>
+
+</bug>
+
+</bugzilla>
