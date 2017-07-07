@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1" urlbase="https://bugzilla.redhat.com/" maintainer="bugzilla-error-list@redhat.com">
+
+  <bug>
+    <bug_id>1383565</bug_id>
+
+    <creation_ts>2016-10-11 01:23:00 -0400</creation_ts>
+    <short_desc>segmentation fault when Sack.add_cmdline_package is passed an invalid RPM</short_desc>
+    <delta_ts>2017-02-20 03:57:01 -0500</delta_ts>
+    <reporter_accessible>1</reporter_accessible>
+    <cclist_accessible>1</cclist_accessible>
+    <classification_id>2</classification_id>
+    <classification>Fedora</classification>
+    <product>Fedora</product>
+    <component>hawkey</component>
+    <version>24</version>
+    <rep_platform>Unspecified</rep_platform>
+    <op_sys>Unspecified</op_sys>
+    <bug_status>CLOSED</bug_status>
+    <resolution>RAWHIDE</resolution>
+
+    <see_also>https://bugzilla.redhat.com/show_bug.cgi?id=1358664</see_also>
+
+    <see_also>https://bugzilla.redhat.com/show_bug.cgi?id=1332538</see_also>
+    <bug_file_loc></bug_file_loc>
+    <status_whiteboard></status_whiteboard>
+    <keywords>Patch, Triaged</keywords>
+    <priority>high</priority>
+    <bug_severity>unspecified</bug_severity>
+    <target_milestone>---</target_milestone>
+
+    <everconfirmed>1</everconfirmed>
+    <reporter name="Dan Callaghan">dcallagh</reporter>
+    <assigned_to>rpm-software-management</assigned_to>
+    <cc>grgoffe</cc>
+
+    <cc>mluscon</cc>
+
+    <cc>mmraka</cc>
+
+    <cc>packaging-team-maint</cc>
+
+    <cc>RadekHolyPublic</cc>
+
+    <cc>rpm-software-management</cc>
+
+    <cc>vmukhame</cc>
+    <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+
+    <cf_fixed_in></cf_fixed_in>
+  <cf_doc_type>If docs needed, set a value</cf_doc_type>
+<cf_release_notes></cf_release_notes>
+<cf_story_points>---</cf_story_points>
+
+<cf_environment></cf_environment>
+<cf_last_closed>2017-02-08 10:16:47</cf_last_closed>
+<cf_type>Bug</cf_type>
+<cf_regression_status>---</cf_regression_status>
+<cf_mount_type>---</cf_mount_type>
+<cf_documentation_action>---</cf_documentation_action>
+<cf_crm></cf_crm>
+<cf_verified_branch></cf_verified_branch>
+<cf_category>---</cf_category>
+<cf_ovirt_team>---</cf_ovirt_team>
+
+<cf_cloudforms_team>---</cf_cloudforms_team>
+
+<target_release>---</target_release>
+
+<votes>0</votes>
+
+<comment_sort_order>oldest_to_newest</comment_sort_order>
+<long_desc isprivate="0">
+<commentid>9780300</commentid>
+<comment_count>0</comment_count>
+<who name="Dan Callaghan">dcallagh</who>
+<bug_when>2016-10-11 01:23:03 -0400</bug_when>
+<thetext>Description of problem: If Sack.add_cmdline_package is passed a filename which ends in .rpm but is not actually a valid RPM package, any subsequent operations on the package will crash with a segfault. Version-Release number of selected
+component (if applicable): python2-hawkey-0.6.3-6.fc24.x86_64 How reproducible: pretty easily Steps to Reproduce: $ : &gt;broken.rpm $ python Python 2.7.12 (default, Aug 9 2016, 15:48:18) [GCC 6.1.1 20160621 (Red Hat 6.1.1-3)] on linux2 Type
+&quot;help&quot;, &quot;copyright&quot;, &quot;credits&quot; or &quot;license&quot; for more information. &gt;&gt;&gt; import hawkey &gt;&gt;&gt; sack = hawkey.Sack() &gt;&gt;&gt; sack.add_cmdline_package(&apos;broken.rpm&apos;) Segmentation fault
+(core dumped) Actual results: crash Expected results: Python exception Additional info: Program received signal SIGSEGV, Segmentation fault. 0x00007fffef6f1364 in hy_package_get_reponame (pkg=pkg@entry=0x555555825ba0) at
+/usr/src/debug/hawkey-0.6.3/src/package.c:317 317 return s-&gt;repo-&gt;name; Missing separate debuginfos, use: dnf debuginfo-install nss-3.26.0-1.0.fc24.x86_64 nss-util-3.26.0-1.0.fc24.x86_64 sssd-client-1.13.4-4.fc24.x86_64 (gdb) where #0
+0x00007fffef6f1364 in hy_package_get_reponame (pkg=pkg@entry=0x555555825ba0) at /usr/src/debug/hawkey-0.6.3/src/package.c:317 #1 0x00007fffef90dd1e in package_repr (self=0x7ffff7f680b0) at /usr/src/debug/hawkey-0.6.3/src/python/package-py.c:163 #2
+0x00007ffff7a80340 in PyObject_Repr (v=v@entry=&lt;_hawkey.Package at remote 0x7ffff7f680b0&gt;) at /usr/src/debug/Python-2.7.12/Objects/object.c:381 [...] (gdb) p pkg-&gt;id $3 = 0 (gdb) p pkg-&gt;sack-&gt;pool-&gt;solvables[0] $4 = {name = 0, arch
+= 0, evr = 0, vendor = 0, repo = 0x0, provides = 0, obsoletes = 0, conflicts = 0, requires = 0, recommends = 0, suggests = 0, supplements = 0, enhances = 0} It seems like hawkey is incorrectly populating the libsolv pool with an empty Solvable, which
+then crashes because s-&gt;repo is NULL. I guess an error is being ignored somewhere (instead of being raised back to Python) when loading the package into the Sack.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9780333</commentid>
+<comment_count>1</comment_count>
+<who name="Dan Callaghan">dcallagh</who>
+<bug_when>2016-10-11 01:48:02 -0400</bug_when>
+<thetext>So I had a poke around in gdb... It seems to hit this error case in repo_add_rpm inside libsolv: 2126 if (fread(lead, 96 + 16, 1, fp) != 1 || getu32(lead) != 0xedabeedb) 2127 { 2128 pool_error(pool, -1, &quot;%s: not a rpm&quot;, rpm); 2129
+fclose(fp); 2130 return 0; 2131 } The return type of repo_add_rpm is Id. I can&apos;t find any API docs for libsolv... but I&apos;m guessing that callers are supposed to check for 0 as a return value indicating error. However
+hy_sack_add_cmdline_package is not doing that, it just blindly saves the id as 0 which is why it ends up pointing at the empty solvable in the pool.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9783156</commentid>
+<comment_count>2</comment_count>
+<attachid>1209414</attachid>
+<who name="Dan Callaghan">dcallagh</who>
+<bug_when>2016-10-11 23:05:33 -0400</bug_when>
+<thetext>Created attachment 1209414 proposed patch Here is a proposed patch against hawkey 0.6.3.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9783316</commentid>
+<comment_count>3</comment_count>
+<who name="Igor Gnatenko">ignatenko</who>
+<bug_when>2016-10-12 01:19:31 -0400</bug_when>
+<thetext>Thanks a lot for patch. I submitted PR on behalf of you: https://github.com/rpm-software-management/libhif/pull/201 Do you need it for hawkey as well or it can be just included into libdnf (F26+)?</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9783338</commentid>
+<comment_count>4</comment_count>
+<who name="Dan Callaghan">dcallagh</who>
+<bug_when>2016-10-12 01:25:43 -0400</bug_when>
+<thetext>This bug is affecting rpmdeplint, that&apos;s why I found it originally: bug 1382531. It would be helpful for us if you could fix this in RHEL7 hawkey (and ideally Fedora hawkey also) since we are planning to deploy a production service
+using rpmdeplint on RHEL7 in the future.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9796712</commentid>
+<comment_count>5</comment_count>
+<who name="Honza Silhan">jsilhan</who>
+<bug_when>2016-10-17 07:49:12 -0400</bug_when>
+<thetext>we should backport patch to hawkey in RHEL and in libdnf upstream version.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9991887</commentid>
+<comment_count>7</comment_count>
+<who name="Dan Callaghan">dcallagh</who>
+<bug_when>2016-12-15 20:01:48 -0500</bug_when>
+<thetext>I actually wrote the patch against the version of hawkey in RHEL7 so there is no actual backporting needed. You can just apply it. :-)</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10105732</commentid>
+<comment_count>8</comment_count>
+<who name="Igor Gnatenko">ignatenko</who>
+<bug_when>2017-01-30 07:29:45 -0500</bug_when>
+<thetext>*** Bug 1408662 has been marked as a duplicate of this bug. ***</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10165139</commentid>
+<comment_count>9</comment_count>
+<who name="George R. Goffe">grgoffe</who>
+<bug_when>2017-02-19 19:18:40 -0500</bug_when>
+<thetext>Igor, I don&apos;t understand how you guys can close this bug because I&apos;m STILL having the problem. Running gnome-abrt shows NOTHING... Not trapping this segfault? From 13 February 2017 I have 2016 messages about dnf segfaults! I have a
+core file but it&apos;s too big to attach to this bug report. Where do you guys put your dumps and do I have access to it? George...</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10165159</commentid>
+<comment_count>10</comment_count>
+<attachid>1255562</attachid>
+<who name="George R. Goffe">grgoffe</who>
+<bug_when>2017-02-19 19:30:51 -0500</bug_when>
+<thetext>Created attachment 1255562 flat file of stack trace edited from /var/log/messages</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10166078</commentid>
+<comment_count>11</comment_count>
+<who name="Igor Gnatenko">ignatenko</who>
+<bug_when>2017-02-20 03:42:41 -0500</bug_when>
+<thetext>(In reply to George R. Goffe from comment #9) &gt; Igor, &gt; &gt; I don&apos;t understand how you guys can close this bug because I&apos;m STILL having &gt; the problem. This particular bug has been fixed in Rawhide. F24 and F25 versions of
+DNF getting only security fixes.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10166130</commentid>
+<comment_count>12</comment_count>
+<who name="George R. Goffe">grgoffe</who>
+<bug_when>2017-02-20 03:57:01 -0500</bug_when>
+<thetext>Igor, I think this system is up to date yet I&apos;m getting LOTS of segfaults. Am I doing something wrong? How would you suggest I proceed. Is there a &quot;special&quot; rpm for DNF et. al. that I should install first? Thanks for your
+response and help. George...</thetext>
+</long_desc>
+
+<attachment isobsolete="0" ispatch="1" isprivate="0">
+<attachid>1209414</attachid>
+<date>2016-10-11 23:05:00 -0400</date>
+<delta_ts>2016-10-11 23:05:33 -0400</delta_ts>
+<desc>proposed patch</desc>
+<filename>0001-check-for-errors-from-repo_add_rpm-RhBug-1383565.patch</filename>
+<type>text/plain</type>
+<size>2196</size>
+<attacher name="Dan Callaghan">dcallagh</attacher>
+
+<data encoding="base64">RnJvbSA3ODQyMjJhOGRmNTFiYzRkMDkyYmZiNmQ1N2M4ZjkyNjcxNWY4MGExIE1vbiBTZXAgMTcg MDA6MDA6MDAgMjAwMQpGcm9tOiBEYW4gQ2FsbGFnaGFuIDxkY2FsbGFnaEByZWRoYXQuY29tPgpE
+YXRlOiBXZWQsIDEyIE9jdCAyMDE2IDEzOjAzOjUxICsxMDAwClN1YmplY3Q6IFtQQVRDSF0gY2hl Y2sgZm9yIGVycm9ycyBmcm9tIHJlcG9fYWRkX3JwbSAoUmhCdWc6MTM4MzU2NSkKCi0tLQogc3Jj L3NhY2suYyAgICAgICAgfCAgNSArKysrKwogdGVzdHMvdGVzdF9zYWNrLmMgfCAxNyArKysrKysr
+KysrKysrKysrKwogMiBmaWxlcyBjaGFuZ2VkLCAyMiBpbnNlcnRpb25zKCspCgpkaWZmIC0tZ2l0 IGEvc3JjL3NhY2suYyBiL3NyYy9zYWNrLmMKaW5kZXggNWJjZGIzOS4uMzI0OGZkZCAxMDA2NDQK LS0tIGEvc3JjL3NhY2suYworKysgYi9zcmMvc2Fjay5jCkBAIC04MDcsNiArODA3LDExIEBAIGh5
+X3NhY2tfYWRkX2NtZGxpbmVfcGFja2FnZShIeVNhY2sgc2FjaywgY29uc3QgY2hhciAqZm4pCiAJ cmV0dXJuIE5VTEw7CiAgICAgfQogICAgIHAgPSByZXBvX2FkZF9ycG0ocmVwbywgZm4sIFJFUE9f UkVVU0VfUkVQT0RBVEF8UkVQT19OT19JTlRFUk5BTElaRSk7CisgICAgaWYgKHAgPT0gMCkgewor
+ICAgICAgICBIWV9MT0dfRVJST1IoImZhaWxlZCB0byByZWFkIFJQTTogJXMsIHNraXBwaW5nIiwK KyAgICAgICAgICAgICAgICAgICAgIHBvb2xfZXJyc3RyKHNhY2tfcG9vbChzYWNrKSkpOworICAg ICAgICByZXR1cm4gTlVMTDsKKyAgICB9CiAgICAgc2Fjay0+cHJvdmlkZXNfcmVhZHkgPSAwOyAg
+ICAvKiB0cmlnZ2VycyBpbnRlcm5hbGl6aW5nIGxhdGVyICovCiAgICAgcmV0dXJuIHBhY2thZ2Vf Y3JlYXRlKHNhY2ssIHApOwogfQpkaWZmIC0tZ2l0IGEvdGVzdHMvdGVzdF9zYWNrLmMgYi90ZXN0 cy90ZXN0X3NhY2suYwppbmRleCA5Yzk3ZjRlLi43YjliN2ZmIDEwMDY0NAotLS0gYS90ZXN0cy90
+ZXN0X3NhY2suYworKysgYi90ZXN0cy90ZXN0X3NhY2suYwpAQCAtMTgsNiArMTgsNyBAQAogICog Rm91bmRhdGlvbiwgSW5jLiwgNTEgRnJhbmtsaW4gU3RyZWV0LCBGaWZ0aCBGbG9vciwgQm9zdG9u LCBNQSAwMjExMC0xMzAxIFVTQQogICovCiAKKyNkZWZpbmUgX0dOVV9TT1VSQ0UKICNpbmNsdWRl
+IDxjaGVjay5oPgogI2luY2x1ZGUgPHN0ZGlvLmg+CiAjaW5jbHVkZSA8c3RkbGliLmg+CkBAIC0x MDYsNiArMTA3LDIxIEBAIFNUQVJUX1RFU1QodGVzdF9sb2FkX3JlcG9fZXJyKQogfQogRU5EX1RF U1QKIAorU1RBUlRfVEVTVCh0ZXN0X2FkZF9jbWRsaW5lX3BhY2thZ2VfaW52YWxpZCkKK3sKKyAg
+ICBIeVNhY2sgc2FjayA9IGh5X3NhY2tfY3JlYXRlKHRlc3RfZ2xvYmFscy50bXBkaXIsIE5VTEws IE5VTEwsIE5VTEwsCisJCQkJIEhZX01BS0VfQ0FDSEVfRElSKTsKKyAgICBjaGFyICppbnZhbGlk X3BhY2thZ2UgPSBzb2x2X2R1cGpvaW4odGVzdF9nbG9iYWxzLnRtcGRpciwKKyAgICAgICAgICAg
+ICIvdGVzdF9hZGRfY21kbGluZV9wYWNrYWdlX2ludmFsaWQucnBtIiwgTlVMTCk7CisgICAgRklM RSAqZnAgPSBmb3BlbihpbnZhbGlkX3BhY2thZ2UsICJ3Iik7CisgICAgZmFpbF91bmxlc3MoZnAg IT0gTlVMTCk7CisgICAgZmNsb3NlKGZwKTsKKyAgICBmYWlsX3VubGVzcyhoeV9zYWNrX2FkZF9j
+bWRsaW5lX3BhY2thZ2Uoc2FjaywgaW52YWxpZF9wYWNrYWdlKSA9PSBOVUxMKTsKKyAgICBoeV9z YWNrX2ZyZWUoc2Fjayk7CisgICAgc29sdl9mcmVlKGludmFsaWRfcGFja2FnZSk7Cit9CitFTkRf VEVTVAorCiBTVEFSVF9URVNUKHRlc3RfcmVwb193cml0dGVuKQogewogICAgIEh5U2FjayBzYWNr
+ID0gaHlfc2Fja19jcmVhdGUodGVzdF9nbG9iYWxzLnRtcGRpciwgTlVMTCwgTlVMTCwgTlVMTCwK QEAgLTI3Niw2ICsyOTIsNyBAQCBzYWNrX3N1aXRlKHZvaWQpCiAgICAgdGNhc2VfYWRkX3Rlc3Qo dGMsIHRlc3RfZ2l2ZV9jYWNoZV9mbik7CiAgICAgdGNhc2VfYWRkX3Rlc3QodGMsIHRlc3RfbGlz
+dF9hcmNoZXMpOwogICAgIHRjYXNlX2FkZF90ZXN0KHRjLCB0ZXN0X2xvYWRfcmVwb19lcnIpOwor ICAgIHRjYXNlX2FkZF90ZXN0KHRjLCB0ZXN0X2FkZF9jbWRsaW5lX3BhY2thZ2VfaW52YWxpZCk7 CiAgICAgdGNhc2VfYWRkX3Rlc3QodGMsIHRlc3RfcmVwb193cml0dGVuKTsKICAgICBzdWl0ZV9h
+ZGRfdGNhc2UocywgdGMpOwogCi0tIAoyLjcuNAoK
+</data>
+
+</attachment>
+<attachment isobsolete="0" ispatch="0" isprivate="0">
+<attachid>1255562</attachid>
+<date>2017-02-19 19:30:00 -0500</date>
+<delta_ts>2017-02-19 19:30:51 -0500</delta_ts>
+<desc>flat file of stack trace edited from /var/log/messages</desc>
+<filename>stack-trace-4-dnf</filename>
+<type>text/plain</type>
+<size>3565</size>
+<attacher name="George R. Goffe">grgoffe</attacher>
+
+<data encoding="base64">RmViIDE5IDEzOjI5OjE0IGZjMjYtcmF3aGlkZSBzeXN0ZW1kOiBTdGFydGVkIFByb2Nlc3MgQ29y ZSBEdW1wIChQSUQgMjI1NDEvVUlEIDApLgpGZWIgMTkgMTM6Mjk6MTQgZmMyNi1yYXdoaWRlIHN5
+c3RlbWQtY29yZWR1bXA6IFJlbW92ZWQgb2xkIGNvcmVkdW1wIGNvcmUuZG5mLjAuM2FkZTY3M2Y2 ZDU3NGE3Mzk1YWJiMGRkY2JkNzU3NWEuMjIyNjAuMTQ4NzUzOTczMjAwMDAwMDAwMDAwMC5sejQu CkZlYiAxOSAxMzoyOToyMCBmYzI2LXJhd2hpZGUgc3lzdGVtZC1jb3JlZHVtcDogUHJvY2VzcyAy
+MjQxMiAoZG5mKSBvZiB1c2VyIDAgZHVtcGVkIGNvcmUuCiMwMTIgIzAxMlN0YWNrIHRyYWNlIG9m IHRocmVhZCAyMjQxMjoKIzAxMiAjMCAgMHgwMDAwN2YzYjg0MjlkMzg2IHN0cmxlbiAobGliYy5z by42KQojMDEyICMxICAweDAwMDA3ZjNiODQyZmEwZjcgcmVnZXhlY0BAR0xJQkNfMi4zLjQgKGxp
+YmMuc28uNikKIzAxMiAjMiAgMHgwMDAwN2YzYjc0NTdlMDZjIHBhcnNlX3JlbGRlcF9zdHIgKGxp YmRuZi5zby4xKQojMDEyICMzICAweDAwMDA3ZjNiNzQ1N2UyNDAgcmVsZGVwX2Zyb21fc3RyIChs aWJkbmYuc28uMSkKIzAxMiAjNCAgMHgwMDAwN2YzYjc0N2I0N2Y0IHJlbGRlcF9mcm9tX3B5c3Ry
+IChfaGF3a2V5LnNvKQojMDEyICM1ICAweDAwMDA3ZjNiNzQ3YjQ5NzUgcHlzZXFfdG9fcmVsZGVw bGlzdCAoX2hhd2tleS5zbykKIzAxMiAjNiAgMHgwMDAwN2YzYjc0N2I2MTNhIGZpbHRlciAoX2hh d2tleS5zbykKIzAxMiAjNyAgMHgwMDAwN2YzYjg0ZmM0N2M5IFB5Q0Z1bmN0aW9uX0NhbGwgKGxp
+YnB5dGhvbjMuNW0uc28uMS4wKQojMDEyICM4ICAweDAwMDA3ZjNiODUwM2NiZmEgUHlFdmFsX0V2 YWxGcmFtZUV4IChsaWJweXRob24zLjVtLnNvLjEuMCkKIzAxMiAjOSAgMHgwMDAwN2YzYjg1MDNk NWMzIF9QeUV2YWxfRXZhbENvZGVXaXRoTmFtZSAobGlicHl0aG9uMy41bS5zby4xLjApCiMwMTIg
+IzEwIDB4MDAwMDdmM2I4NTAzZDZhMyBQeUV2YWxfRXZhbENvZGVFeCAobGlicHl0aG9uMy41bS5z by4xLjApCiMwMTIgIzExIDB4MDAwMDdmM2I4NGZhN2NjNSBmdW5jdGlvbl9jYWxsIChsaWJweXRo b24zLjVtLnNvLjEuMCkKIzAxMiAjMTIgMHgwMDAwN2YzYjg0ZjdjZWI3IFB5T2JqZWN0X0NhbGwg
+KGxpYnB5dGhvbjMuNW0uc28uMS4wKQojMDEyICMxMyAweDAwMDA3ZjNiODUwMzhhMTUgUHlFdmFs X0V2YWxGcmFtZUV4IChsaWJweXRob24zLjVtLnNvLjEuMCkKIzAxMiAjMTQgMHgwMDAwN2YzYjg1 MDNkNWMzIF9QeUV2YWxfRXZhbENvZGVXaXRoTmFtZSAobGlicHl0aG9uMy41bS5zby4xLjApCiMw
+MTIgIzE1IDB4MDAwMDdmM2I4NTAzZDZhMyBQeUV2YWxfRXZhbENvZGVFeCAobGlicHl0aG9uMy41 bS5zby4xLjApCiMwMTIgIzE2IDB4MDAwMDdmM2I4NGZhN2NjNSBmdW5jdGlvbl9jYWxsIChsaWJw eXRob24zLjVtLnNvLjEuMCkKIzAxMiAjMTcgMHgwMDAwN2YzYjg0ZjdjZWI3IFB5T2JqZWN0X0Nh
+bGwgKGxpYnB5dGhvbjMuNW0uc28uMS4wKQojMDEyICMxOCAweDAwMDA3ZjNiODUwMzhhMTUgUHlF dmFsX0V2YWxGcmFtZUV4IChsaWJweXRob24zLjVtLnNvLjEuMCkKIzAxMiAjMTkgMHgwMDAwN2Yz Yjg1MDNkNWMzIF9QeUV2YWxfRXZhbENvZGVXaXRoTmFtZSAobGlicHl0aG9uMy41bS5zby4xLjAp
+CiMwMTIgIzIwIDB4MDAwMDdmM2I4NTAzZDZhMyBQeUV2YWxfRXZhbENvZGVFeCAobGlicHl0aG9u My41bS5zby4xLjApCiMwMTIgIzIxIDB4MDAwMDdmM2I4NGZhN2NjNSBmdW5jdGlvbl9jYWxsIChs aWJweXRob24zLjVtLnNvLjEuMCkKIzAxMiAjMjIgMHgwMDAwN2YzYjg0ZjdjZWI3IFB5T2JqZWN0
+X0NhbGwgKGxpYnB5dGhvbjMuNW0uc28uMS4wKQojMDEyICMyMyAweDAwMDA3ZjNiODUwMzhhMTUg UHlFdmFsX0V2YWxGcmFtZUV4IChsaWJweXRob24zLjVtLnNvLjEuMCkKIzAxMiAjMjQgMHgwMDAw N2YzYjg1MDNkNWMzIF9QeUV2YWxfRXZhbENvZGVXaXRoTmFtZSAobGlicHl0aG9uMy41bS5zby4x
+LjApCiMwMTIgIzI1IDB4MDAwMDdmM2I4NTAzOWUzOSBQeUV2YWxfRXZhbEZyYW1lRXggKGxpYnB5 dGhvbjMuNW0uc28uMS4wKQojMDEyICMyNiAweDAwMDA3ZjNiODUwM2Q1YzMgX1B5RXZhbF9FdmFs Q29kZVdpdGhOYW1lIChsaWJweXRob24zLjVtLnNvLjEuMCkKIzAxMiAjMjcgMHgwMDAwN2YzYjg1
+MDM5ZTM5IFB5RXZhbF9FdmFsRnJhbWVFeCAobGlicHl0aG9uMy41bS5zby4xLjApCiMwMTIgIzI4 IDB4MDAwMDdmM2I4NTAzZDVjMyBfUHlFdmFsX0V2YWxDb2RlV2l0aE5hbWUgKGxpYnB5dGhvbjMu NW0uc28uMS4wKQojMDEyICMyOSAweDAwMDA3ZjNiODUwMzllMzkgUHlFdmFsX0V2YWxGcmFtZUV4
+IChsaWJweXRob24zLjVtLnNvLjEuMCkKIzAxMiAjMzAgMHgwMDAwN2YzYjg1MDNkNWMzIF9QeUV2 YWxfRXZhbENvZGVXaXRoTmFtZSAobGlicHl0aG9uMy41bS5zby4xLjApCiMwMTIgIzMxIDB4MDAw MDdmM2I4NTAzOWUzOSBQeUV2YWxfRXZhbEZyYW1lRXggKGxpYnB5dGhvbjMuNW0uc28uMS4wKQoj
+MDEyICMzMiAweDAwMDA3ZjNiODUwM2JjZmIgUHlFdmFsX0V2YWxGcmFtZUV4IChsaWJweXRob24z LjVtLnNvLjEuMCkKIzAxMiAjMzMgMHgwMDAwN2YzYjg1MDNiY2ZiIFB5RXZhbF9FdmFsRnJhbWVF eCAobGlicHl0aG9uMy41bS5zby4xLjApCiMwMTIgIzM0IDB4MDAwMDdmM2I4NTAzYmNmYiBQeUV2
+YWxfRXZhbEZyYW1lRXggKGxpYnB5dGhvbjMuNW0uc28uMS4wKQojMDEyICMzNSAweDAwMDA3ZjNi ODUwM2JjZmIgUHlFdmFsX0V2YWxGcmFtZUV4IChsaWJweXRob24zLjVtLnNvLjEuMCkKIzAxMiAj MzYgMHgwMDAwN2YzYjg1MDNkNWMzIF9QeUV2YWxfRXZhbENvZGVXaXRoTmFtZSAobGlicHl0aG9u
+My41bS5zby4xLjApCiMwMTIgIzM3IDB4MDAwMDdmM2I4NTAzOWUzOSBQeUV2YWxfRXZhbEZyYW1l RXggKGxpYnB5dGhvbjMuNW0uc28uMS4wKQojMDEyICMzOCAweDAwMDA3ZjNiODUwM2Q1YzMgX1B5 RXZhbF9FdmFsQ29kZVdpdGhOYW1lIChsaWJweXRob24zLjVtLnNvLjEuMCkKIzAxMiAjMzkgMHgw
+MDAwN2YzYjg1MDNkNmEzIFB5RXZhbF9FdmFsQ29kZUV4IChsaWJweXRob24zLjVtLnNvLjEuMCkK IzAxMiAjNDAgMHgwMDAwN2YzYjg1MDNkNmNiIFB5RXZhbF9FdmFsQ29kZSAobGlicHl0aG9uMy41 bS5zby4xLjApCiMwMTIgIzQxIDB4MDAwMDdmM2I4NTA1YzhjNCBydW5fbW9kIChsaWJweXRob24z
+LjVtLnNvLjEuMCkKIzAxMiAjNDIgMHgwMDAwN2YzYjg1MDVlZTQ1IFB5UnVuX0ZpbGVFeEZsYWdz IChsaWJweXRob24zLjVtLnNvLjEuMCkKIzAxMiAjNDMgMHgwMDAwN2YzYjg1MDVlZmI1IFB5UnVu X1NpbXBsZUZpbGVFeEZsYWdzIChsaWJweXRob24zLjVtLnNvLjEuMCkKIzAxMiAjNDQgMHgwMDAw
+N2YzYjg1MDc1YmZjIFB5X01haW4gKGxpYnB5dGhvbjMuNW0uc28uMS4wKQojMDEyICM0NSAweDAw MDA1NWU5ZTQwNmJiNDAgbWFpbiAoc3lzdGVtLXB5dGhvbikKIzAxMiAjNDYgMHgwMDAwN2YzYjg0 MjJkNjcxIF9fbGliY19zdGFydF9tYWluIChsaWJjLnNvLjYpCiMwMTIgIzQ3IDB4MDAwMDU1ZTll
+NDA2YmJlYSBfc3RhcnQgKHN5c3RlbS1weXRob24pCg==
+</data>
+
+</attachment>
+
+</bug>
+
+</bugzilla>
