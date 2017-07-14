@@ -1,6 +1,6 @@
 #!/bin/bash
 desclistfile="short_desc_list.txt"
-versions=(26)
+versions=(24 25 26)
 statuses=("CLOSED")
 
 LONGDESC=""
