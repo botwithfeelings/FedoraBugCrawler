@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1" urlbase="https://bugzilla.redhat.com/" maintainer="bugzilla-error-list@redhat.com">
+
+  <bug>
+    <bug_id>1249083</bug_id>
+
+    <creation_ts>2015-07-31 09:12:00 -0400</creation_ts>
+    <short_desc>java SSL/TLS implementation: should follow the policies of system-wide crypto policy</short_desc>
+    <delta_ts>2017-06-15 08:16:50 -0400</delta_ts>
+    <reporter_accessible>1</reporter_accessible>
+    <cclist_accessible>1</cclist_accessible>
+    <classification_id>2</classification_id>
+    <classification>Fedora</classification>
+    <product>Fedora</product>
+    <component>java-1.8.0-openjdk</component>
+    <version>24</version>
+    <rep_platform>Unspecified</rep_platform>
+    <op_sys>Unspecified</op_sys>
+    <bug_status>CLOSED</bug_status>
+    <resolution>NEXTRELEASE</resolution>
+
+    <bug_file_loc></bug_file_loc>
+    <status_whiteboard></status_whiteboard>
+    <keywords></keywords>
+    <priority>unspecified</priority>
+    <bug_severity>unspecified</bug_severity>
+    <target_milestone>---</target_milestone>
+
+    <blocked>1179209</blocked>
+
+    <blocked>1335909</blocked>
+
+    <blocked>1340845</blocked>
+    <everconfirmed>1</everconfirmed>
+    <reporter name="Nikos Mavrogiannopoulos">nmavrogi</reporter>
+    <assigned_to name="Andrew John Hughes">ahughes</assigned_to>
+    <cc>ahughes</cc>
+
+    <cc>aph</cc>
+
+    <cc>dbhole</cc>
+
+    <cc>jerboaa</cc>
+
+    <cc>jvanek</cc>
+
+    <cc>mcatanzaro</cc>
+
+    <cc>msrb</cc>
+
+    <cc>nmavrogi</cc>
+
+    <cc>omajid</cc>
+
+    <cc>riehecky</cc>
+
+    <cc>sgehwolf</cc>
+
+    <cc>thoger</cc>
+    <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+
+    <cf_fixed_in></cf_fixed_in>
+  <cf_doc_type>Bug Fix</cf_doc_type>
+<cf_release_notes></cf_release_notes>
+<cf_story_points>---</cf_story_points>
+
+<cf_environment></cf_environment>
+<cf_last_closed>2017-06-15 08:03:41</cf_last_closed>
+<cf_type>Bug</cf_type>
+<cf_regression_status>---</cf_regression_status>
+<cf_mount_type>---</cf_mount_type>
+<cf_documentation_action>---</cf_documentation_action>
+<cf_crm></cf_crm>
+<cf_verified_branch></cf_verified_branch>
+<cf_category>---</cf_category>
+<cf_ovirt_team>---</cf_ovirt_team>
+
+<cf_cloudforms_team>---</cf_cloudforms_team>
+<external_bugs name="Icedtea Bugzilla">3183</external_bugs>
+
+<target_release>---</target_release>
+
+<votes>0</votes>
+
+<comment_sort_order>oldest_to_newest</comment_sort_order>
+<long_desc isprivate="0">
+<commentid>8500170</commentid>
+<comment_count>0</comment_count>
+<who name="Nikos Mavrogiannopoulos">nmavrogi</who>
+<bug_when>2015-07-31 09:12:30 -0400</bug_when>
+<thetext>As it is now Java&apos;s configuration for SSL is set using properties in jre/lib/security/java.security and the administrator is responsible for doing any changes to it. It would be simpler for Java to follow the system-wide crypto policy
+[0] by default and unless the administrator changes the configuration the policies will be kept up to date and will be consistent with the policies followed in other parts of the system. The simplest approach for that would be for Java to be able to
+include a file in its default configuration files, and thus include a file which has been auto-generated. That would also simplify an administrators job by not requiring to review configuration settings as recommended by:
+https://bettercrypto.org/static/applied-crypto-hardening.pdf [This is a proposal for collaboration, please let me know whether that can be done in our current setup of Java and how, and if not, the steps that are required to achieve that goal] [0].
+http://fedoraproject.org/wiki/Changes/CryptoPolicy</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8500293</commentid>
+<comment_count>1</comment_count>
+<who name="Andrew John Hughes">ahughes</who>
+<bug_when>2015-07-31 09:38:29 -0400</bug_when>
+<thetext>Can you provide an example of the configuration file you would want included? Has the system described in [0] being employed anywhere other than Fedora? I think this would require fairly significant changes to security configuration in
+OpenJDK, which would need to go upstream first. It does seem like a worthwhile goal though.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8500505</commentid>
+<comment_count>2</comment_count>
+<who name="Nikos Mavrogiannopoulos">nmavrogi</who>
+<bug_when>2015-07-31 10:45:18 -0400</bug_when>
+<thetext>From what I see in the java config file most likely we need to only modify the following options: * jdk.tls.disabledAlgorithms=... * jdk.certpath.disabledAlgorithms=... The way it is done currently, is to auto-generate a file based on some
+criteria selected for the Fedora release [0]. The generation of that file is done when, &quot;update-crypto-policies&quot; is run. Typically the generated file is either &quot;included&quot; by the master config file. Is the inclusion part that you
+mean that may need significant changes upstream? Other than that, if that approach is followed, I don&apos;t believe we need upstream changes. [0]. https://github.com/nmav/fedora-crypto-policies</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8500564</commentid>
+<comment_count>3</comment_count>
+<who name="Andrew John Hughes">ahughes</who>
+<bug_when>2015-07-31 11:03:25 -0400</bug_when>
+<thetext>Yes. For something as important as cryptography support, I don&apos;t want Fedora carrying some local hack that overrides the defaults. AIUI, OpenJDK will need to look at this auto-generated file and use its settings if they are not
+overridden in java.security. The difficulty is that java.security will have settings for these values, and there&apos;s no way to tell if they are from the default file supplied with OpenJDK or provided by the user i.e. you&apos;re effectively
+providing a third source of configuration for OpenJDK, in addition to the default OpenJDK settings and whatever the user sets.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8501539</commentid>
+<comment_count>6</comment_count>
+<who name="Andrew John Hughes">ahughes</who>
+<bug_when>2015-07-31 19:06:09 -0400</bug_when>
+<thetext>Nikos, could you please supply an example configuration file that would be made available by this feature, together with information on where it would be located? Thanks.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8502698</commentid>
+<comment_count>7</comment_count>
+<who name="Nikos Mavrogiannopoulos">nmavrogi</who>
+<bug_when>2015-08-02 09:19:31 -0400</bug_when>
+<thetext>I believe there is some misunderstanding. Let me rephrase. The requirement we have for system-wide crypto policies is to be able to modify the two options quoted above. The question is can this be done without any code changes (e.g., by
+auto-generating the jdk&apos;s configuration file from a template), or by using an &apos;include&apos; directive to include the auto-generated part? Let&apos;s first explore this path before going to any changes in the code (which I agree they should
+not be Fedora specific). What is the blocker for the path above?</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8577815</commentid>
+<comment_count>8</comment_count>
+<who name="Andrew John Hughes">ahughes</who>
+<bug_when>2015-08-26 10:54:44 -0400</bug_when>
+<thetext>Adding some form of inclusion would require code changes, which is why I headed down that track. Users also modify this file so auto-generation of it directly seems problematic. I really need examples of what you plan to generate from your
+tool. Also, is this available on anything other than Fedora?</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8691202</commentid>
+<comment_count>21</comment_count>
+<who name="Nikos Mavrogiannopoulos">nmavrogi</who>
+<bug_when>2015-10-05 04:07:20 -0400</bug_when>
+<thetext>I&apos;ve just updated crypto-policies in rawhide to generate /etc/crypto-policies/back-ends/java.config I&apos;ve tested all 3 generated configurations manually and the advertized ciphers are the expected ones. Please update this bug on any updates.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9091967</commentid>
+<comment_count>24</comment_count>
+<who name="Jan Kurik">jkurik</who>
+<bug_when>2016-02-24 08:30:24 -0500</bug_when>
+<thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 24 development cycle. Changing version to &apos;24&apos;. More information and reason for this action is here:
+https://fedoraproject.org/wiki/Fedora_Program_Management/HouseKeeping/Fedora24#Rawhide_Rebase</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9250173</commentid>
+<comment_count>27</comment_count>
+<who name="Nikos Mavrogiannopoulos">nmavrogi</who>
+<bug_when>2016-04-19 05:23:08 -0400</bug_when>
+<thetext>I&apos;ve added a basic check for java policies, which can also be used to verify (manually) the ciphersuites expected on each level. Andrew any comments welcome. As it is now I use the presence of the SCSV ciphersuite as an indicator that
+the file was properly parsed, since I couldn&apos;t figure a better way. https://github.com/nmav/fedora-crypto-policies/commit/88f0adc75e995ea9ef22ba2b0afc888fb2171154</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9341104</commentid>
+<comment_count>28</comment_count>
+<who name="Nikos Mavrogiannopoulos">nmavrogi</who>
+<bug_when>2016-05-19 09:57:31 -0400</bug_when>
+<thetext>Added Fedora 25 change request. https://fedoraproject.org/wiki/Changes/JavaCryptoPolicies</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9850078</commentid>
+<comment_count>29</comment_count>
+<who name="Andrew John Hughes">ahughes</who>
+<bug_when>2016-11-03 00:16:25 -0400</bug_when>
+<thetext>Here&apos;s the patch: http://icedtea.classpath.org/hg/icedtea8-forest/jdk/rev/1c4d5cb2096a Jiri, please add this to the Fedora RPMs.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9850308</commentid>
+<comment_count>30</comment_count>
+<who name="jiri vanek">jvanek</who>
+<bug_when>2016-11-03 03:45:12 -0400</bug_when>
+<thetext>(In reply to Andrew John Hughes from comment #29) &gt; Here&apos;s the patch: &gt; &gt; http://icedtea.classpath.org/hg/icedtea8-forest/jdk/rev/1c4d5cb2096a &gt; &gt; Jiri, please add this to the Fedora RPMs. Thank you! Work in progress.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9882330</commentid>
+<comment_count>31</comment_count>
+<who name="Andrew John Hughes">ahughes</who>
+<bug_when>2016-11-11 01:50:38 -0500</bug_when>
+<thetext>Any ETA on this?</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9882760</commentid>
+<comment_count>32</comment_count>
+<who name="jiri vanek">jvanek</who>
+<bug_when>2016-11-11 04:54:22 -0500</bug_when>
+<thetext>its already built.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9911370</commentid>
+<comment_count>36</comment_count>
+<who name="Michael Catanzaro">mcatanzaro</who>
+<bug_when>2016-11-22 05:15:32 -0500</bug_when>
+<thetext>(In reply to jiri vanek from comment #32) &gt; its already built. For the record, this is now stable for: F24: https://bodhi.fedoraproject.org/updates/FEDORA-2016-7da42d8561 F25: https://bodhi.fedoraproject.org/updates/FEDORA-2016-ae6ca5f109</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10205602</commentid>
+<comment_count>43</comment_count>
+<who name="Nikos Mavrogiannopoulos">nmavrogi</who>
+<bug_when>2017-03-03 06:40:37 -0500</bug_when>
+<thetext>Check tests/java/CipherList in: https://gitlab.com/nmav/fedora-crypto-policies You should see a different ciphersuite list when you change system policy. E.g.: $ update-crypto-policies --set FUTURE $ java CipherList should give you a
+different (more strict) set than the following: $ update-crypto-policies --set DEFAULT $ java CipherList</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10289946</commentid>
+<comment_count>44</comment_count>
+<who name="jiri vanek">jvanek</who>
+<bug_when>2017-03-30 06:24:52 -0400</bug_when>
+<thetext>(In reply to Nikos Mavrogiannopoulos from comment #43) &gt; Check tests/java/CipherList in: &gt; https://gitlab.com/nmav/fedora-crypto-policies &gt; &gt; You should see a different ciphersuite list when you change system policy. &gt; &gt;
+E.g.: &gt; $ update-crypto-policies --set FUTURE &gt; $ java CipherList &gt; &gt; should give you a different (more strict) set than the following: &gt; $ update-crypto-policies --set DEFAULT &gt; $ java CipherList Another good case is to install
+icedtea-web (javaws (and/or browser java plugin) and try various https resources. You may find cases which works only in one of the global/java state.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10440166</commentid>
+<comment_count>45</comment_count>
+<who name="Nikos Mavrogiannopoulos">nmavrogi</who>
+<bug_when>2017-05-23 10:00:55 -0400</bug_when>
+<thetext>Jiri is that already in F26? Shouldn&apos;t the bug be in closed state?</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10509250</commentid>
+<comment_count>46</comment_count>
+<who name="jiri vanek">jvanek</who>
+<bug_when>2017-06-15 08:03:41 -0400</bug_when>
+<thetext>(In reply to Nikos Mavrogiannopoulos from comment #45) &gt; Jiri is that already in F26? Shouldn&apos;t the bug be in closed state? We tested it and it seems ok. Is the tie to close now? If so, Although assigned To Andrew, I will close.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10509295</commentid>
+<comment_count>47</comment_count>
+<who name="Nikos Mavrogiannopoulos">nmavrogi</who>
+<bug_when>2017-06-15 08:16:50 -0400</bug_when>
+<thetext>Thank you.</thetext>
+</long_desc>
+
+</bug>
+
+</bugzilla>

@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1" urlbase="https://bugzilla.redhat.com/" maintainer="bugzilla-error-list@redhat.com">
+
+  <bug>
+    <bug_id>1279242</bug_id>
+
+    <creation_ts>2015-11-08 15:06:00 -0500</creation_ts>
+    <short_desc>NM generated IPv6 addresses leak your MAC address to the world</short_desc>
+    <delta_ts>2017-05-16 06:55:35 -0400</delta_ts>
+    <reporter_accessible>1</reporter_accessible>
+    <cclist_accessible>1</cclist_accessible>
+    <classification_id>2</classification_id>
+    <classification>Fedora</classification>
+    <product>Fedora</product>
+    <component>NetworkManager</component>
+    <version>25</version>
+    <rep_platform>All</rep_platform>
+    <op_sys>Unspecified</op_sys>
+    <bug_status>CLOSED</bug_status>
+    <resolution>CURRENTRELEASE</resolution>
+
+    <see_also>https://github.com/lathiat/avahi/issues/41</see_also>
+    <bug_file_loc></bug_file_loc>
+    <status_whiteboard></status_whiteboard>
+    <keywords></keywords>
+    <priority>unspecified</priority>
+    <bug_severity>medium</bug_severity>
+    <target_milestone>---</target_milestone>
+
+    <everconfirmed>1</everconfirmed>
+    <reporter name="Nicholas Miell">nmiell</reporter>
+    <assigned_to name="Lubomir Rintel">lkundrak</assigned_to>
+    <cc>bugzilla</cc>
+
+    <cc>dcbw</cc>
+
+    <cc>dominik</cc>
+
+    <cc>jrowens.fedora</cc>
+
+    <cc>lkundrak</cc>
+
+    <cc>pb</cc>
+
+    <cc>rhbz2</cc>
+
+    <cc>thaller</cc>
+    <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+
+    <cf_fixed_in></cf_fixed_in>
+  <cf_doc_type>Bug Fix</cf_doc_type>
+<cf_release_notes></cf_release_notes>
+<cf_story_points>---</cf_story_points>
+
+<cf_environment></cf_environment>
+<cf_last_closed>2017-05-16 06:55:35</cf_last_closed>
+<cf_type>Bug</cf_type>
+<cf_regression_status>---</cf_regression_status>
+<cf_mount_type>---</cf_mount_type>
+<cf_documentation_action>---</cf_documentation_action>
+<cf_crm></cf_crm>
+<cf_verified_branch></cf_verified_branch>
+<cf_category>---</cf_category>
+<cf_ovirt_team>---</cf_ovirt_team>
+
+<cf_cloudforms_team>---</cf_cloudforms_team>
+
+<target_release>---</target_release>
+
+<votes>0</votes>
+
+<comment_sort_order>oldest_to_newest</comment_sort_order>
+<long_desc isprivate="0">
+<commentid>8801436</commentid>
+<comment_count>0</comment_count>
+<who name="Nicholas Miell">nmiell</who>
+<bug_when>2015-11-08 15:06:11 -0500</bug_when>
+<thetext>Description of problem: IPv6 addresses on Fedora systems configured by NetworkManager contain your NIC&apos;s MAC address, making it possible for you to be uniquely identified and tracked even when connecting from different ISPs / public
+WiFi access points / etc. Version-Release number of selected component (if applicable): NetworkManager 1.0.6 How reproducible: Always Steps to Reproduce: 1. Enable IPv6 on a NM managed connection. Actual results: Your IPv6 address is a SLAAC address
+containing an EUI64 derived from your MAC address. Expected results: Your IPv6 address is a SLAAC address generated using RFC7217 Additional info: Upstream NetworkManager added support for this in commit e603c86926ce48a7dd53b892fe85d506e6322378
+(core: add support for RFC7217 stable privacy addressing, 2015 Oct 3); it doesn&apos;t require kernel support and does the configuration entirely in userspace.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8945673</commentid>
+<comment_count>1</comment_count>
+<who name="J. Randall Owens">jrowens.fedora</who>
+<bug_when>2015-12-30 01:23:48 -0500</bug_when>
+<thetext>Have you tried changing the IPv6 &apos;Privacy&apos; setting to &quot;Enabled (prefer temporary addresses)&quot;? At least, that&apos;s what it looks like in KDE&apos;s plasma-nm. I don&apos;t know about the Gnome/GTK interface.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8945752</commentid>
+<comment_count>2</comment_count>
+<who name="Nicholas Miell">nmiell</who>
+<bug_when>2015-12-30 03:03:11 -0500</bug_when>
+<thetext>The GNOME interface doesn&apos;t have such option. I don&apos;t know how it could have one, Fedora still has NetworkManager 1.0.6 and e603c86926ce48a7dd53b892fe85d506e6322378 is only available in the 1.1 dev branch. Presumably either that
+KDE option does nothing at all or KDE has reimplemented a chunk of NetworkManager functionality for dubious reasons.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8953059</commentid>
+<comment_count>3</comment_count>
+<who name="Chris Murphy">bugzilla</who>
+<bug_when>2016-01-04 16:31:40 -0500</bug_when>
+<thetext>RFC4941 privacy extensions were supposedly enabled in NM 1.0.4. So it should be working out of the box in NM 1.0.6 on Fedora 23, but it&apos;s not. On the same hardware, ancient Windows and OS X (years older) do not do this. I thought this
+was working on Fedora 21 or 22, but can&apos;t immediately test it. What&apos;s supposed to land in NM 1.2 for Fedora 24 is RFC7217 which is stable privacy addressing.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8953086</commentid>
+<comment_count>4</comment_count>
+<who name="Chris Murphy">bugzilla</who>
+<bug_when>2016-01-04 16:50:56 -0500</bug_when>
+<thetext>OK so the MAC address itself is leaked as the IID, even aside from the ipv6 privacy extensions issue: Fedora 23 + Firefox 42 https://drive.google.com/open?id=0B_2Asp8DGjJ9aFl5SnZzRzEybkE OS X 10.9 (2013) + Firefox 43
+https://drive.google.com/open?id=0B_2Asp8DGjJ9ZkJONUNzS1pKZWs I get essentially identical results on Android, as I do on OS X. I guess this is more of a privacy concern than a security concern, although the lack of temporary (rotating) globally
+available IPs via RFC4941 does slightly bother me. Further I&apos;m confused because this blog entry says privacy extensions enabled and turned on by default in NM 1.0.4, and yet evidence to the contrary unless I&apos;m misunderstanding something
+significantly. https://blogs.gnome.org/lkundrak/2015/12/03/networkmanager-and-privacy-in-the-ipv6-internet/</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8953112</commentid>
+<comment_count>5</comment_count>
+<who name="Nicholas Miell">nmiell</who>
+<bug_when>2016-01-04 17:01:23 -0500</bug_when>
+<thetext>OK, the GNOME Settings Network interface may not have any privacy configuration options, but nm-connection-editor does, and setting that to &quot;Enabled (prefer temporary address)&quot; does use RFC4941 addresses. &apos;git log
+--grep=4941&apos; shows that the way this is configured (and the default values) have changed several times, I wouldn&apos;t be surprised if things got lost in the shuffle.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8953252</commentid>
+<comment_count>6</comment_count>
+<who name="Chris Murphy">bugzilla</who>
+<bug_when>2016-01-04 18:45:10 -0500</bug_when>
+<thetext>I can confirm using nm-connection-editor &gt; connection:edit &gt; ipv6 settings &gt; ipv6 privacy extensions &quot;enabled (prefer temporary address)&quot; and then &apos;sudo systemctl restart NetworkManager&apos; fixes this without
+further action. This adds: IPV6_PRIVACY=rfc3041 to this file: /etc/sysconfig/network-scripts/ifcfg-&lt;linkname&gt; When I Google serach RFC3041(2001), it&apos;s been obsoleted by RFC4941 (2007), and at least one result comes up saying 3041 is
+harmful. So is it a 3041 implementation or is this just wrongly named in the configuration file?</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8953393</commentid>
+<comment_count>7</comment_count>
+<who name="Nicholas Miell">nmiell</who>
+<bug_when>2016-01-04 20:05:36 -0500</bug_when>
+<thetext>That&apos;s just how the ifcfg-rh configuration backend serializes it, NetworkManager implements RFC4941.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9008343</commentid>
+<comment_count>8</comment_count>
+<who name="Chris Murphy">bugzilla</who>
+<bug_when>2016-01-25 13:13:49 -0500</bug_when>
+<thetext>Seems like setting ipv6.ip6-privacy 2 (enabled, prefer temporary IP) causes avahi-daemon to totally flip out and flood the journal upon preferred_lft being reached and the ipv6 address becoming deprecated. See upstream bug and also bug
+1221676 for more info.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9022419</commentid>
+<comment_count>9</comment_count>
+<who name="Chris Murphy">bugzilla</who>
+<bug_when>2016-01-29 18:56:38 -0500</bug_when>
+<thetext>This is still a problem on Rawhide. nmcli reports value -1 for ipv6.ip6-privacy.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9051761</commentid>
+<comment_count>10</comment_count>
+<who name="Peter Bieringer">pb</who>
+<bug_when>2016-02-11 03:05:04 -0500</bug_when>
+<thetext>Hit by the same problem (reproduced on 2 fresh F23 installations) Looks like there is a problem with related sysctl toggles in case privacy option is enabled (and DCHPv6 is in use?) accept_ra_pinfo=0 which means the interface will not
+generate IPv6 address from prefix net.ipv6.conf.enp9s0.accept_ra = 1 net.ipv6.conf.enp9s0.accept_ra_defrtr = 0 net.ipv6.conf.enp9s0.accept_ra_from_local = 0 net.ipv6.conf.enp9s0.accept_ra_min_hop_limit = 1 net.ipv6.conf.enp9s0.accept_ra_mtu = 1
+net.ipv6.conf.enp9s0.accept_ra_pinfo = 0 &lt;----!!!! net.ipv6.conf.enp9s0.accept_ra_rt_info_max_plen = 0 net.ipv6.conf.enp9s0.accept_ra_rtr_pref = 0 net.ipv6.conf.enp9s0.autoconf = 1 net.ipv6.conf.enp9s0.use_tempaddr = 2 Workaround: on a running
+interface execute sysctl -w net.ipv6.conf.enp9s0.accept_ra_pinfo=1 and wait for next Router Advertisement, then the tempaddr appears This is non-persistent because NM overwrites accept_ra_pinfo=0 on next down/up cylce :-( Suggestion: in case
+use_tempaddr&gt;0 also set accept_ra_pinfo=1 In case dhclient is also in the game, here options and config /sbin/dhclient -d -q -6 -N -sf /usr/libexec/nm-dhcp-helper -pf /var/run/dhclient6-enp9s0.pid -lf
+/var/lib/NetworkManager/dhclient6-***-enp9s0.lease -cf /var/lib/NetworkManager/dhclient6-enp9s0.conf enp9s0 /var/lib/NetworkManager/dhclient6-enp9s0.conf send fqdn.fqdn &quot;****&quot;; # added by NetworkManager send fqdn.encoded on; send
+fqdn.server-update on; also request dhcp6.name-servers; also request dhcp6.domain-search; also request dhcp6.client-id; configuration retrieved with &quot;nmcli c show &lt;UUID&gt;&quot; and here the important/related entries shown below.
+connection.id: enp9s0 connection.type: 802-3-ethernet connection.autoconnect: yes connection.autoconnect-priority: 0 ipv4.method: manual ipv4.dns: 192.168.1.1 ipv4.dns-search: ipv4.addresses: 192.168.1.2/24 ipv4.gateway: 192.168.1.1 ipv4.routes:
+ipv4.route-metric: -1 ipv4.ignore-auto-routes: no ipv4.ignore-auto-dns: no ipv4.dhcp-client-id: -- ipv4.dhcp-send-hostname: yes ipv4.dhcp-hostname: -- ipv4.never-default: no ipv4.may-fail: no ipv6.method: auto ipv6.dns: ipv6.dns-search:
+ipv6.addresses: ipv6.gateway: -- ipv6.routes: ipv6.route-metric: -1 ipv6.ignore-auto-routes: no ipv6.ignore-auto-dns: no ipv6.never-default: no ipv6.may-fail: yes ipv6.ip6-privacy: 2 (enabled, prefer temporary IP) &lt;-!! ipv6.dhcp-send-hostname: yes
+ipv6.dhcp-hostname: -- GENERAL.NAME: enp9s0 GENERAL.UUID: *** GENERAL.DEVICES: enp9s0 GENERAL.STATE: activated GENERAL.DEFAULT: yes GENERAL.DEFAULT6: yes GENERAL.VPN: no GENERAL.ZONE: -- GENERAL.DBUS-PATH:
+/org/freedesktop/NetworkManager/ActiveConnection/0 GENERAL.CON-PATH: /org/freedesktop/NetworkManager/Settings/0 GENERAL.SPEC-OBJECT: / GENERAL.MASTER-PATH: -- IP4.ADDRESS[1]: 192.168.1.2/24 IP4.GATEWAY: 192.168.1.1 IP4.DNS[1]: 192.168.1.1
+IP6.ADDRESS[1]: 2001:a61:**:**:2**:**ff:fe**:****/128 IP6.ADDRESS[2]: fe80::2**:**ff:fe**:****/64 IP6.GATEWAY: fe80::2665:11ff:fe8e:68a0 DHCP6.OPTION[1]: dhcp6_client_id = *** DHCP6.OPTION[2]: dhcp6_name_servers = fd00::2665:11ff:fe8e:68a0
+DHCP6.OPTION[3]: requested_dhcp6_name_servers = 1 DHCP6.OPTION[4]: rebind = 2880 DHCP6.OPTION[5]: max_life = 7200 DHCP6.OPTION[6]: preferred_life = 3600 DHCP6.OPTION[7]: requested_dhcp6_domain_search = 1 DHCP6.OPTION[8]: requested_dhcp6_client_id = 1
+DHCP6.OPTION[9]: life_starts = 1455175073 DHCP6.OPTION[10]: ip6_address = 2001:***:***:***:2**:**ff:fe**:**** DHCP6.OPTION[11]: ip6_prefixlen = 128 DHCP6.OPTION[12]: renew = 1800 DHCP6.OPTION[13]: dhcp6_server_id = 0:3:0:1:24:65:11:8e:68:a0</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9051866</commentid>
+<comment_count>11</comment_count>
+<who name="Peter Bieringer">pb</who>
+<bug_when>2016-02-11 04:00:21 -0500</bug_when>
+<thetext>I&apos;ve played around with a scriptlet and it turned out, that something near/inbetween DHCPv6 will reset accept_ra_pinfo even if tempaddr is enabled: Feb 11 09:53:42 *** root[565]: 01-PB.sh/up: set sysctl/ipv6/conf/accept_ra_pinfo=1 for
+enp9s0 Feb 11 09:53:42 *** nm-dispatcher[456]: net.ipv6.conf.enp9s0.accept_ra_pinfo = 1 Feb 11 09:53:42 *** systemd[1]: iscsi.service: Unit cannot be reloaded because it is inactive. Feb 11 09:53:42 *** chronyd[854]: Source 192.168.1.1 online Feb 11
+09:53:42 *** root[584]: 99-PB.sh/up: already active sysctl/ipv6/conf/accept_ra_pinfo=1 for enp9s0 Feb 11 09:53:43 *** chronyd[854]: Selected source 192.168.1.1 Feb 11 09:53:44 *** avahi-daemon[844]: Joining mDNS multicast group on interface
+enp9s0.IPv6 with address fe80::*:*ff:fe*:*. Feb 11 09:53:44 *** avahi-daemon[844]: New relevant interface enp9s0.IPv6 for mDNS. Feb 11 09:53:44 *** avahi-daemon[844]: Registering new address record for fe80::*:*ff:fe*:* on enp9s0.*. Feb 11 09:53:44
+*** NetworkManager[30335]: &lt;info&gt; Activation (enp9s0) Beginning DHCPv6 transaction (timeout in 45 seconds) Feb 11 09:53:44 *** NetworkManager[30335]: &lt;info&gt; dhclient started with pid 597 Feb 11 09:53:45 *** dhclient[597]: XMT: Confirm on
+enp9s0, interval 960ms. Feb 11 09:53:45 *** dhclient[597]: RCV: Reply message on enp9s0 from fe80::*:*ff:fe*:*. Feb 11 09:53:45 *** NetworkManager[30335]: &lt;info&gt; valid_lft 7200 Feb 11 09:53:45 *** NetworkManager[30335]: &lt;info&gt;
+preferred_lft 3600 Feb 11 09:53:45 *** NetworkManager[30335]: &lt;info&gt; address 2001:*:*:*:*:*ff:fe*:* Feb 11 09:53:45 *** NetworkManager[30335]: &lt;info&gt; nameserver &apos;fd00::*:*ff:fe*:*&apos; Feb 11 09:53:45 *** NetworkManager[30335]:
+&lt;info&gt; (enp9s0): DHCPv6 state changed unknown -&gt; bound, event ID=&quot;70:b2:d2:d1|1455180473&quot; Feb 11 09:53:45 *** NetworkManager[30335]: &lt;info&gt; Policy set &apos;enp9s0&apos; (enp9s0) as default for IPv6 routing and DNS. Feb 11
+09:53:45 *** nm-dispatcher[456]: Dispatching action &apos;dhcp6-change&apos; for enp9s0 Feb 11 09:53:45 *** root[616]: 01-PB.sh/dhcp6-change: set sysctl/ipv6/conf/accept_ra_pinfo=1 for enp9s0 Feb 11 09:53:45 *** nm-dispatcher[456]:
+net.ipv6.conf.enp9s0.accept_ra_pinfo = 1 Feb 11 09:53:45 *** root[629]: 99-PB.sh/dhcp6-change: already active sysctl/ipv6/conf/accept_ra_pinfo=1 for enp9s0 scriptlet stored in /etc/NetworkManager/dispatcher.d/ as 01-PB.sh and softlinked to 99-PB.sh
+#!/bin/sh export LC_ALL=C IF=&quot;$1&quot; ACTION=&quot;$2&quot; prog=$(basename &quot;$0&quot;) if [ &quot;$IF&quot; != &quot;enp9s0&quot; ]; then exit 0 fi if [ &quot;$ACTION&quot; = &quot;up&quot; -o &quot;$ACTION&quot; = &quot;dhcp6-change&quot;
+]; then if [ &quot;$(sysctl -n net.ipv6.conf.$IF.accept_ra_pinfo)&quot; = &quot;0&quot; ]; then logger &quot;$prog/$ACTION: set sysctl/ipv6/conf/accept_ra_pinfo=1 for $IF&quot; sysctl -w net.ipv6.conf.$IF.accept_ra_pinfo=1 else logger
+&quot;$prog/$ACTION: already active sysctl/ipv6/conf/accept_ra_pinfo=1 for $IF&quot; fi fi exit 0</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9922481</commentid>
+<comment_count>12</comment_count>
+<who name="Fedora End Of Life">jkurik</who>
+<bug_when>2016-11-24 08:12:54 -0500</bug_when>
+<thetext>This message is a reminder that Fedora 23 is nearing its end of life. Approximately 4 (four) weeks from now Fedora will stop maintaining and issuing updates for Fedora 23. It is Fedora&apos;s policy to close all bug reports from releases
+that are no longer maintained. At that time this bug will be closed as EOL if it remains open with a Fedora &apos;version&apos; of &apos;23&apos;. Package Maintainer: If you wish for this bug to remain open because you plan to fix it in a currently
+maintained version, simply change the &apos;version&apos; to a later Fedora version. Thank you for reporting this issue and we are sorry that we were not able to fix it before Fedora 23 is end of life. If you would still like to see this bug fixed
+and are able to reproduce it against a later version of Fedora, you are encouraged change the &apos;version&apos; to a later Fedora version prior this bug is closed as described in the policy above. Although we aim to fix as many bugs as possible
+during every release&apos;s lifetime, sometimes those efforts are overtaken by events. Often a more recent Fedora release includes newer upstream software that fixes bugs or makes them obsolete.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9925963</commentid>
+<comment_count>13</comment_count>
+<who name="Christian Stadelmann">rhbz2</who>
+<bug_when>2016-11-24 12:38:29 -0500</bug_when>
+<thetext>ipv6.ip6-privacy still doesn&apos;t default to 1 or 2. Please change version info to F25.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9925971</commentid>
+<comment_count>14</comment_count>
+<who name="Nicholas Miell">nmiell</who>
+<bug_when>2016-11-24 12:42:50 -0500</bug_when>
+<thetext>The correct solution would be setting ipv6.addr-gen-mode to stable-privacy by default. Also adding a way of configuring addr-gen-mode to the GUI tools.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10416358</commentid>
+<comment_count>15</comment_count>
+<who name="Thomas Haller">thaller</who>
+<bug_when>2017-05-16 06:55:35 -0400</bug_when>
+<thetext>as explained in `man NetworkManager.conf`, ipv6.ip6-privacy defaults to -1. that default means to fallback to global configuration in NetworkManager.conf -- and if absence of such configuration, use
+/proc/sys/net/ipv6/conf/default/use_tempaddr. NM doesn&apos;t have an ultimate default value for ipv6.ip6-privacy. If it is neither specified per-connection nor in NetworkManager.conf, it inherits the value from sysctl -- defined outside of NM. (In
+reply to Nicholas Miell from comment #14) &gt; The correct solution would be setting ipv6.addr-gen-mode to stable-privacy &gt; by default. Also adding a way of configuring addr-gen-mode to the GUI tools. Indeed, in the meantime, NM supports RFC7217
+stable privacy addresses. Note that these are enabled by default -- as you request. See `man nm-settings` how to configure it. See also, connection.stable-id setting which affects the stable-privacy address. And have a look at
+https://cgit.freedesktop.org/NetworkManager/NetworkManager/tree/examples/nm-conf.d/30-anon.conf?id=a21b8882cc9defc43248afc94bf59ca0f84f0d27 Also, NM supports to randomize your MAC address -- which affects the EUI64 addr-gen-mode. See
+wifi.cloned-mac-address and ethernet.cloned-mac-address settings.</thetext>
+</long_desc>
+
+</bug>
+
+</bugzilla>

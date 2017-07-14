@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1" urlbase="https://bugzilla.redhat.com/" maintainer="bugzilla-error-list@redhat.com">
+
+  <bug>
+    <bug_id>1004427</bug_id>
+
+    <creation_ts>2013-09-04 11:33:00 -0400</creation_ts>
+    <short_desc>python-dns: random number generator lacks fork protection</short_desc>
+    <delta_ts>2016-11-19 16:00:50 -0500</delta_ts>
+    <reporter_accessible>1</reporter_accessible>
+    <cclist_accessible>1</cclist_accessible>
+    <classification_id>2</classification_id>
+    <classification>Fedora</classification>
+    <product>Fedora</product>
+    <component>python-dns</component>
+    <version>25</version>
+    <rep_platform>Unspecified</rep_platform>
+    <op_sys>Unspecified</op_sys>
+    <bug_status>CLOSED</bug_status>
+    <resolution>ERRATA</resolution>
+
+    <bug_file_loc></bug_file_loc>
+    <status_whiteboard></status_whiteboard>
+    <keywords>Reopened</keywords>
+    <priority>unspecified</priority>
+    <bug_severity>unspecified</bug_severity>
+    <target_milestone>---</target_milestone>
+
+    <blocked>1004424</blocked>
+    <everconfirmed>1</everconfirmed>
+    <reporter name="Florian Weimer">fweimer</reporter>
+    <assigned_to name="Jeffrey C. Ollie">jeff</assigned_to>
+    <cc>aviso</cc>
+
+    <cc>jeff</cc>
+
+    <cc>louiz</cc>
+
+    <cc>pwouters</cc>
+    <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+
+    <cf_fixed_in>python-dns-1.15.0-1.fc24 python-dns-1.15.0-1.fc25</cf_fixed_in>
+  <cf_doc_type>Bug Fix</cf_doc_type>
+<cf_release_notes></cf_release_notes>
+<cf_story_points>---</cf_story_points>
+
+<cf_environment></cf_environment>
+<cf_last_closed>2016-11-11 15:51:23</cf_last_closed>
+<cf_type>Bug</cf_type>
+<cf_regression_status>---</cf_regression_status>
+<cf_mount_type>---</cf_mount_type>
+<cf_documentation_action>---</cf_documentation_action>
+<cf_crm></cf_crm>
+<cf_verified_branch></cf_verified_branch>
+<cf_category>---</cf_category>
+<cf_ovirt_team>---</cf_ovirt_team>
+
+<cf_cloudforms_team>---</cf_cloudforms_team>
+
+<target_release>---</target_release>
+
+<votes>0</votes>
+
+<comment_sort_order>oldest_to_newest</comment_sort_order>
+<long_desc isprivate="0">
+<commentid>6274494</commentid>
+<comment_count>0</comment_count>
+<who name="Florian Weimer">fweimer</who>
+<bug_when>2013-09-04 11:33:45 -0400</bug_when>
+<thetext>The random number generator in dns/entropy.py does not clear the pool after a fork. Parent and child will obtain the same sequence of random numbers as a result. Reading directly from /dev/urandom probably offers sufficient performance for
+this application. (Unfortunately, Python&apos;s ssl module does not expose the RAND_bytes function.)</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>7993838</commentid>
+<comment_count>2</comment_count>
+<who name="Jaroslav Reznik">jreznik</who>
+<bug_when>2015-03-03 10:02:14 -0500</bug_when>
+<thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 22 development cycle. Changing version to &apos;22&apos;. More information and reason for this action is here:
+https://fedoraproject.org/wiki/Fedora_Program_Management/HouseKeeping/Fedora22</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9521175</commentid>
+<comment_count>3</comment_count>
+<who name="Fedora End Of Life">jkurik</who>
+<bug_when>2016-07-19 06:20:58 -0400</bug_when>
+<thetext>Fedora 22 changed to end-of-life (EOL) status on 2016-07-19. Fedora 22 is no longer maintained, which means that it will not receive any further security or bug fix updates. As a result we are closing this bug. If you can reproduce this bug
+against a currently maintained version of Fedora please feel free to reopen this bug against that version. If you are unable to reopen this bug, please file a new report against the current release. If you experience problems, please add a comment to
+this bug. Thank you for reporting this bug and we are sorry it could not be fixed.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9537118</commentid>
+<comment_count>4</comment_count>
+<who name="Florian Weimer">fweimer</who>
+<bug_when>2016-07-21 10:10:58 -0400</bug_when>
+<thetext>It should be sufficient to switch to os.urandom as the random number generator.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9549183</commentid>
+<comment_count>5</comment_count>
+<who name="Jan Kurik">jkurik</who>
+<bug_when>2016-07-26 00:23:35 -0400</bug_when>
+<thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 25 development cycle. Changing version to &apos;25&apos;.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9585124</commentid>
+<comment_count>6</comment_count>
+<who name="Avram Lubkin">aviso</who>
+<bug_when>2016-08-04 09:24:01 -0400</bug_when>
+<thetext>Upstream switched to using random.SystemRandom as the primary source for random numbers [1] and retained the existing entropy pool as a fallback. I&apos;m not sure when a fallback would be needed since random is included in the standard
+library. In the fallback, a pid check was added so the pool is reseeded if the pid changes [2]. Will be included in Fedora after the next upstream release. Upstream recently merged Python 2 and Python 3 codebases, and has been working through bugs
+and cleaning up pylint errors. [1] https://github.com/rthalley/dnspython/commit/52e95798b4fe36e393ca7a90678f12ff0233c96a [2] https://github.com/rthalley/dnspython/commit/6a6d2af0dcc94867f6b518d453aeaa7c05fb3352</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9776371</commentid>
+<comment_count>7</comment_count>
+<who name="Fedora Update System">updates</who>
+<bug_when>2016-10-09 08:29:22 -0400</bug_when>
+<thetext>python-dns-1.15.0-1.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report. See https://fedoraproject.org/wiki/QA:Updates_Testing for instructions on how to install test
+updates. You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-4998c59ba3</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9776459</commentid>
+<comment_count>8</comment_count>
+<who name="Fedora Update System">updates</who>
+<bug_when>2016-10-09 09:50:45 -0400</bug_when>
+<thetext>python-dns-1.15.0-1.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report. See https://fedoraproject.org/wiki/QA:Updates_Testing for instructions on how to install test
+updates. You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-1857421df6</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9884504</commentid>
+<comment_count>9</comment_count>
+<who name="Fedora Update System">updates</who>
+<bug_when>2016-11-11 15:51:23 -0500</bug_when>
+<thetext>python-dns-1.15.0-1.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9905646</commentid>
+<comment_count>10</comment_count>
+<who name="Fedora Update System">updates</who>
+<bug_when>2016-11-19 16:00:50 -0500</bug_when>
+<thetext>python-dns-1.15.0-1.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+</long_desc>
+
+</bug>
+
+</bugzilla>

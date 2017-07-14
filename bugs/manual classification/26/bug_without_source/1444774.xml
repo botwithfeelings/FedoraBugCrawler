@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1" urlbase="https://bugzilla.redhat.com/" maintainer="bugzilla-error-list@redhat.com">
+
+  <bug>
+    <bug_id>1444774</bug_id>
+
+    <creation_ts>2017-04-24 05:22:00 -0400</creation_ts>
+    <short_desc>heap overflow security issue in date(1) and touch(1)</short_desc>
+    <delta_ts>2017-05-01 14:17:10 -0400</delta_ts>
+    <reporter_accessible>1</reporter_accessible>
+    <cclist_accessible>1</cclist_accessible>
+    <classification_id>2</classification_id>
+    <classification>Fedora</classification>
+    <product>Fedora</product>
+    <component>coreutils</component>
+    <version>26</version>
+    <rep_platform>All</rep_platform>
+    <op_sys>Unspecified</op_sys>
+    <bug_status>CLOSED</bug_status>
+    <resolution>ERRATA</resolution>
+
+    <bug_file_loc></bug_file_loc>
+    <status_whiteboard></status_whiteboard>
+    <keywords>Security</keywords>
+    <priority>unspecified</priority>
+    <bug_severity>urgent</bug_severity>
+    <target_milestone>---</target_milestone>
+
+    <blocked>1445185</blocked>
+    <everconfirmed>1</everconfirmed>
+    <reporter name="Pádraig Brady">p</reporter>
+    <assigned_to name="Kamil Dudka">kdudka</assigned_to>
+    <cc>eggert</cc>
+
+    <cc>kdudka</cc>
+
+    <cc>security-response-team</cc>
+    <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+
+    <cf_fixed_in>coreutils-8.27-4.fc27 coreutils-8.27-5.fc26</cf_fixed_in>
+  <cf_doc_type>If docs needed, set a value</cf_doc_type>
+<cf_release_notes></cf_release_notes>
+<cf_story_points>---</cf_story_points>
+
+<cf_environment></cf_environment>
+<cf_last_closed>2017-05-01 14:17:10</cf_last_closed>
+<cf_type>Bug</cf_type>
+<cf_regression_status>---</cf_regression_status>
+<cf_mount_type>---</cf_mount_type>
+<cf_documentation_action>---</cf_documentation_action>
+<cf_crm></cf_crm>
+<cf_verified_branch></cf_verified_branch>
+<cf_category>---</cf_category>
+<cf_ovirt_team>---</cf_ovirt_team>
+
+<cf_cloudforms_team>---</cf_cloudforms_team>
+
+<target_release>---</target_release>
+
+<votes>0</votes>
+
+<comment_sort_order>oldest_to_newest</comment_sort_order>
+<long_desc isprivate="0">
+<commentid>10355697</commentid>
+<comment_count>0</comment_count>
+<attachid>1273560</attachid>
+<who name="Pádraig Brady">p</who>
+<bug_when>2017-04-24 05:22:42 -0400</bug_when>
+<thetext>Created attachment 1273560 heap overflow mitigation coreutils &gt;= 8.25 (Fedora 24) has a nasty arbitrary heap write issue that I presume can be exploited to run arbitrary code as the user running date, just by setting a large TZ variable
+in the command line or in the environment. Proposed fix attached. This has not been discussed anywhere else yet. Would it be possible to assign an CVE if required, as I&apos;m not familiar with that process. Note hwclock from the util-linux project
+recently moved to using parse_datetime from gnulib, but that is _not_ impacted as far as I can tell.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10355935</commentid>
+<comment_count>1</comment_count>
+<who name="Kamil Dudka">kdudka</who>
+<bug_when>2017-04-24 06:39:38 -0400</bug_when>
+<thetext>Thank you for contacting us, Pádraig! Could you please report the security issue to secalert@redhat.com and tell them about this BZ? The Product Security team will take care of the CVE assignment. Alternatively, I could report it on your
+behalf but, if you communicate with them directly, it can speedup the process. Thanks in advance!</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10357277</commentid>
+<comment_count>2</comment_count>
+<who name="Pádraig Brady">p</who>
+<bug_when>2017-04-24 11:40:51 -0400</bug_when>
+<thetext>OK cool. Note security-response-team@redhat.com are on the CC for this bug, so I presume secalert@redhat.com is different. I&apos;m attaching a slightly updated patch to make things clearer and remove a theoretical overflow.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10357369</commentid>
+<comment_count>3</comment_count>
+<attachid>1273643</attachid>
+<who name="Pádraig Brady">p</who>
+<bug_when>2017-04-24 12:04:06 -0400</bug_when>
+<thetext>Created attachment 1273643 updated mitigation</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10357501</commentid>
+<comment_count>4</comment_count>
+<who name="Pádraig Brady">p</who>
+<bug_when>2017-04-24 12:33:44 -0400</bug_when>
+<thetext>A quick audit of the parse_datetime uses in util-linux and ostree show their adjustments avoid the issue. Also recutils uses parse_datetime directly but references an old version before the issue was introduced.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10357772</commentid>
+<comment_count>5</comment_count>
+<who name="Pádraig Brady">p</who>
+<bug_when>2017-04-24 13:52:10 -0400</bug_when>
+<thetext>BTW touch(1) is also impacted</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10360163</commentid>
+<comment_count>6</comment_count>
+<who name="Tomas Hoger">thoger</who>
+<bug_when>2017-04-25 08:59:53 -0400</bug_when>
+<thetext>You seem to have a good understanding of the issue, yet this report does not include details to indicate what the problem is. Trying to figure out the issue from the patch, I assume the attack is to make zone_copy be more than tz-&gt;abbrs +
+ABBR_SIZE_MIN. As a consequence, the following expression should be negative: tz-&gt;abbrs + ABBR_SIZE_MIN - zone_copy , but as it&apos;s computed as size_t, it wraps around to a large positive. Hence code thinks there&apos;s enough space for
+zone_size bytes when it&apos;s not. I&apos;ve not yet tried to figure out if zone_copy &gt; tz-&gt;abbrs + ABBR_SIZE_MIN is a problem of its own. Note that the reproducer you shared does not trigger crash or valgrind-detectable error for me with
+coreutils-8.25-8.fc24.x86_64 or coreutils-8.25-16.fc25.x86_64.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10360252</commentid>
+<comment_count>7</comment_count>
+<who name="Tomas Hoger">thoger</who>
+<bug_when>2017-04-25 09:15:24 -0400</bug_when>
+<thetext>It should also be noted that the affected code is in gnulib, which is bundled/embedded in coreutils. The time_rz code was added to gnulib via this commit in Jul 2015:
+http://git.savannah.gnu.org/gitweb/?p=gnulib.git;a=commitdiff;h=4bc76593d509827588081e32ebd75a5e34d1c374</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10361355</commentid>
+<comment_count>8</comment_count>
+<who name="Pádraig Brady">p</who>
+<bug_when>2017-04-25 13:05:54 -0400</bug_when>
+<thetext>@Tomas your analysis is correct, and corresponds to what I tried to describe in the patch commit message. It&apos;s interesting that the bugzilla patch preview strips this info. Also one small point is that I think the issue is due to the
+promotion of signed to unsigned in the comparison, rather than wrapping. The consequence is the same in that arbitrary specified TZ is written over the heap. It&apos;s very surprising that valgrind doesn&apos;t catch this. Ah! Actually it only
+impacts coreutils &gt;= 8.27, i.e. Fedora &gt;= 26 The issue was latent since the gnulib commit you mentioned, but only actually hit from parse_datetime since: http://git.sv.gnu.org/gitweb/?p=gnulib.git;a=commitdiff;h=4e6e16b3f valgrind _does_ notice
+the issue as I double checked with: valgrind ~/t/date-8.27 -d \ $(printf &apos;TZ=&quot;aaa%020daaaaaaaaaaaaaaaaaaaaaaaaaaab%089d&quot;&apos;) Note that the a....b part can be expanded to write whatever, though I suppose arbitrary binary info would
+be ignored earlier in the process somewhat mitigating the issue. Given this impacts just coreutils &gt;= 8.27 I guess we can release a public fix sooner rather than later. (I also notice 8.27 is not in debian yet). I also notice that tar uses
+parse_datetime, but tar-1.29 uses the older version not directly impacted.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10361385</commentid>
+<comment_count>9</comment_count>
+<who name="Pádraig Brady">p</who>
+<bug_when>2017-04-25 13:15:14 -0400</bug_when>
+<thetext>CCing Paul Eggert who is the originator of this code, and who would know better about other released users of this localtime_rz() issue. Paul note this is embargoed for now and I&apos;ll apply the fix to gnulib when deemed appropriate. tar
+will also need to bump their gnulib reference to avoid releasing with the issue.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10361924</commentid>
+<comment_count>10</comment_count>
+<who name="Tomas Hoger">thoger</who>
+<bug_when>2017-04-25 16:23:39 -0400</bug_when>
+<thetext>(In reply to Pádraig Brady from comment #8) &gt; @Tomas your analysis is correct, and corresponds to what I tried to describe &gt; in the patch commit message. It&apos;s interesting that the bugzilla patch &gt; preview strips this info. The
+fancy diff viewer only shows code changes and hides the commit message: https://bugzilla.redhat.com/attachment.cgi?id=1273643&amp;action=diff Think link shows the raw patch including commit message:
+https://bugzilla.redhat.com/attachment.cgi?id=1273643 I should have been more careful to check the latter link too. Regarding embargo - you can make this public whenever you need to. Fedora does not have mechanisms to produce embargoed builds while
+flaws are non-public.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10362211</commentid>
+<comment_count>11</comment_count>
+<attachid>1274031</attachid>
+<who name="Paul Eggert">eggert</who>
+<bug_when>2017-04-25 17:45:14 -0400</bug_when>
+<thetext>Created attachment 1274031 proposed fix + test case Ouch. Sorry about that. Although we should fix it ASAP, my kneejerk reaction is that the bug is not serious enough to embargo. The proposed patch has some minor glitches in the overflow
+case. I&apos;m attaching a revised Gnulib patch, which also adds a test for this bug; what do you think?</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10362403</commentid>
+<comment_count>12</comment_count>
+<who name="Pádraig Brady">p</who>
+<bug_when>2017-04-25 19:55:52 -0400</bug_when>
+<thetext>I was going to add a test after the fix was discussed finalized. Can you explain the minor glitches in my patch? I much prefer my commit message at least :) cheers</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10363296</commentid>
+<comment_count>13</comment_count>
+<who name="Paul Eggert">eggert</who>
+<bug_when>2017-04-26 03:39:17 -0400</bug_when>
+<thetext>(In reply to Pádraig Brady from comment #12) &gt; Can you explain the minor glitches in my patch? It doesn&apos;t set errno on failure like it should, and it consumes one more machine instruction (to subtract a value from SIZE_MAX) than it
+needs to. Please feel free to improve the commit message; I didn&apos;t spend a lot of time on it.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10365298</commentid>
+<comment_count>14</comment_count>
+<attachid>1274288</attachid>
+<who name="Pádraig Brady">p</who>
+<bug_when>2017-04-26 11:46:16 -0400</bug_when>
+<thetext>Created attachment 1274288 updated mitigation + test case Thanks. I&apos;ve set the errno on theoretical overflow case. Note I prefer the more explicit broken down code rather than wondering about what may happen in overflow cases. I&apos;ve
+added your test, thanks.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10365324</commentid>
+<comment_count>15</comment_count>
+<who name="Pádraig Brady">p</who>
+<bug_when>2017-04-26 11:49:19 -0400</bug_when>
+<thetext>Given there are no more flagged impacted projects I hope to apply this to gnulib tomorrow. Fedora coreutils can patch now (which I realize also publicizes the issue, albeit less directly).</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10366948</commentid>
+<comment_count>16</comment_count>
+<who name="Pádraig Brady">p</who>
+<bug_when>2017-04-26 23:46:09 -0400</bug_when>
+<thetext>Final patch now pushed upstream at: http://git.sv.gnu.org/gitweb/?p=gnulib.git;a=commitdiff;h=94e01571</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10367363</commentid>
+<comment_count>17</comment_count>
+<who name="Kamil Dudka">kdudka</who>
+<bug_when>2017-04-27 03:28:41 -0400</bug_when>
+<thetext>Thank you very much! I will take care of the backport for Fedora.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10367469</commentid>
+<comment_count>18</comment_count>
+<who name="Kamil Dudka">kdudka</who>
+<bug_when>2017-04-27 04:02:45 -0400</bug_when>
+<thetext>downstream commit: https://src.fedoraproject.org/cgit/rpms/coreutils.git/commit/?id=e0567d54</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10367554</commentid>
+<comment_count>19</comment_count>
+<who name="Fedora Update System">updates</who>
+<bug_when>2017-04-27 04:28:10 -0400</bug_when>
+<thetext>coreutils-8.27-4.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-54c2e9124e</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10370526</commentid>
+<comment_count>20</comment_count>
+<who name="Fedora Update System">updates</who>
+<bug_when>2017-04-27 20:23:13 -0400</bug_when>
+<thetext>coreutils-8.27-4.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report. See https://fedoraproject.org/wiki/QA:Updates_Testing for instructions on how to install test
+updates. You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-54c2e9124e</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10372014</commentid>
+<comment_count>21</comment_count>
+<who name="Fedora Update System">updates</who>
+<bug_when>2017-04-28 08:26:05 -0400</bug_when>
+<thetext>coreutils-8.27-5.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-b17d54561b</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10374778</commentid>
+<comment_count>22</comment_count>
+<who name="Fedora Update System">updates</who>
+<bug_when>2017-04-29 23:51:59 -0400</bug_when>
+<thetext>coreutils-8.27-5.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report. See https://fedoraproject.org/wiki/QA:Updates_Testing for instructions on how to install test
+updates. You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-b17d54561b</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10376854</commentid>
+<comment_count>23</comment_count>
+<who name="Fedora Update System">updates</who>
+<bug_when>2017-05-01 14:17:10 -0400</bug_when>
+<thetext>coreutils-8.27-5.fc26 has been pushed to the Fedora 26 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+</long_desc>
+
+<attachment isobsolete="1" ispatch="1" isprivate="0">
+<attachid>1273560</attachid>
+<date>2017-04-24 05:22:00 -0400</date>
+<delta_ts>2017-04-24 12:04:06 -0400</delta_ts>
+<desc>heap overflow mitigation</desc>
+<filename>gnulib-time_rz-overflow.patch</filename>
+<type>text/plain</type>
+<size>1777</size>
+<attacher name="Pádraig Brady">p</attacher>
+
+<data encoding="base64">RnJvbSAyMzRkNDY5YjAyM2Y0YjI4MGUyNjY1YTM2NGRkZmIwN2M5YjdiMmY4IE1vbiBTZXAgMTcg MDA6MDA6MDAgMjAwMQpGcm9tOiA9P1VURi04P3E/UD1DMz1BMWRyYWlnPTIwQnJhZHk/PSA8UEBk
+cmFpZ0JyYWR5LmNvbT4KRGF0ZTogTW9uLCAyNCBBcHIgMjAxNyAwMTo0MzozNiAtMDcwMApTdWJq ZWN0OiBbUEFUQ0hdIHRpbWVfcno6IGZpeCBoZWFwIGJ1ZmZlciBvdmVyZmxvdyB2dWxuZXJhYmls aXR5CgpEZXRlY3RlZCB3aXRoIGFtZXJpY2FuIGZ1enp5IGxvcCAyLjQxYiB3aXRoIEFTQU4gZW5h
+YmxlZC4KCiAgRVJST1I6IEFkZHJlc3NTYW5pdGl6ZXI6IGhlYXAtYnVmZmVyLW92ZXJmbG93IG9u IGFkZHJlc3MgMHguLi4uLi4uLgogIFdSSVRFIG9mIHNpemUgOCBhdCAweDYwZDAwMDAwY2ZmOCB0 aHJlYWQgVDAKICAjMSAweDQ0MzAyMCBpbiBleHRlbmRfYWJicnMgbGliL3RpbWVfcnouYzo4OAog
+ICMyIDB4NDQzMzU2IGluIHNhdmVfYWJiciBsaWIvdGltZV9yei5jOjE1NQogICMzIDB4NDQzOTNm IGluIGxvY2FsdGltZV9yeiBsaWIvdGltZV9yei5jOjI5MAogICM0IDB4NDFlNGZlIGluIHBhcnNl X2RhdGV0aW1lMiBsaWIvcGFyc2UtZGF0ZXRpbWUueToxNzk4CgpBIG1pbmltaXplZCByZXByb2R1
+Y2VyIGlzIHRoZSBmb2xsb3dpbmcgMTIwIGJ5dGUgVFogdmFsdWUsCndoaWNoIGdvZXMgYmV5b25k IHRoZSB2YWx1ZSBvZiBBQkJSX1NJWkVfTUlOICgxMTkpIG9uIHg4Nl82NC4KCiAgZGF0ZSAtZCAk KHByaW50ZiAnVFo9ImFhYSUwMjBkYWFhYWFhYiUwODlkIicpCgoqIGxpYi90aW1lX3J6LmMgKHNh
+dmVfYWJicik6IFJlYXJyYW5nZSB0aGUgY2FsY3VsYXRpb24gZGV0ZXJtaW5pbmcKd2hldGhlciB0 aGVyZSBpcyBlbm91Z2ggYnVmZmVyIHNwYWNlIGF2YWlsYWJsZS4gIFRoZSByZWFycmFuZ2VtZW50 CmVuc3VyZXMgd2UncmUgb25seSBkZWFsaW5nIHdpdGggcG9zaXRpdmUgbnVtYmVycywgdGh1cyBh
+dm9pZGluZwp0aGUgcHJvYmxlbWF0aWMgcHJvbW90aW9uIG9mIHNpZ25lZCB0byB1bnNpZ25lZCBj YXVzaW5nIGFuIGludmFsaWQKY29tcGFyaXNvbiB3aGVuIHpvbmVfY29weSBpcyBtb3JlIHRoYW4g QUJCUl9TSVpFX01JTiBieXRlcyBiZXlvbmQKdGhlIHN0YXJ0IG9mIHRoZSBidWZmZXIuCi0tLQog
+bGliL3RpbWVfcnouYyB8IDIgKy0KIDEgZmlsZSBjaGFuZ2VkLCAxIGluc2VydGlvbigrKSwgMSBk ZWxldGlvbigtKQoKZGlmZiAtLWdpdCBhL2xpYi90aW1lX3J6LmMgYi9saWIvdGltZV9yei5jCmlu ZGV4IDFiODc4NzAuLmUxMjkxYmQgMTAwNjQ0Ci0tLSBhL2xpYi90aW1lX3J6LmMKKysrIGIvbGli
+L3RpbWVfcnouYwpAQCAtMTUwLDcgKzE1MCw3IEBAIHNhdmVfYWJiciAodGltZXpvbmVfdCB0eiwg c3RydWN0IHRtICp0bSkKICAgICAgICAgICBpZiAoISAoKnpvbmVfY29weSB8fCAoem9uZV9jb3B5 ID09IHR6LT5hYmJycyAmJiB0ei0+dHpfaXNfc2V0KSkpCiAgICAgICAgICAgICB7CiAgICAgICAg
+ICAgICAgIHNpemVfdCB6b25lX3NpemUgPSBzdHJsZW4gKHpvbmUpICsgMTsKLSAgICAgICAgICAg ICAgaWYgKHpvbmVfc2l6ZSA8IHR6LT5hYmJycyArIEFCQlJfU0laRV9NSU4gLSB6b25lX2NvcHkp CisgICAgICAgICAgICAgIGlmICh6b25lX2NvcHkgKyB6b25lX3NpemUgLSB0ei0+YWJicnMgPCBB
+QkJSX1NJWkVfTUlOKQogICAgICAgICAgICAgICAgIGV4dGVuZF9hYmJycyAoem9uZV9jb3B5LCB6 b25lLCB6b25lX3NpemUpOwogICAgICAgICAgICAgICBlbHNlCiAgICAgICAgICAgICAgICAgewot LSAKMi45LjMKCg==
+</data>
+
+</attachment>
+<attachment isobsolete="1" ispatch="1" isprivate="0">
+<attachid>1273643</attachid>
+<date>2017-04-24 12:04:00 -0400</date>
+<delta_ts>2017-04-26 11:46:16 -0400</delta_ts>
+<desc>updated mitigation</desc>
+<filename>gnulib-time_rz-overflow.patch</filename>
+<type>text/plain</type>
+<size>2251</size>
+<attacher name="Pádraig Brady">p</attacher>
+
+<data encoding="base64">RnJvbSA5MzZkMmYxNzVmNjJkMDVhYzdjNDI1MTE4ZjQ0NDNlOTJkNDFjZTA1IE1vbiBTZXAgMTcg MDA6MDA6MDAgMjAwMQpGcm9tOiA9P1VURi04P3E/UD1DMz1BMWRyYWlnPTIwQnJhZHk/PSA8UEBk
+cmFpZ0JyYWR5LmNvbT4KRGF0ZTogTW9uLCAyNCBBcHIgMjAxNyAwMTo0MzozNiAtMDcwMApTdWJq ZWN0OiBbUEFUQ0hdIHRpbWVfcno6IGZpeCBoZWFwIGJ1ZmZlciBvdmVyZmxvdyB2dWxuZXJhYmls aXR5CgpEZXRlY3RlZCB3aXRoIGFtZXJpY2FuIGZ1enp5IGxvcCAyLjQxYiB3aXRoIEFTQU4gZW5h
+YmxlZC4KCiAgRVJST1I6IEFkZHJlc3NTYW5pdGl6ZXI6IGhlYXAtYnVmZmVyLW92ZXJmbG93IG9u IGFkZHJlc3MgMHguLi4uLi4uLgogIFdSSVRFIG9mIHNpemUgOCBhdCAweDYwZDAwMDAwY2ZmOCB0 aHJlYWQgVDAKICAjMSAweDQ0MzAyMCBpbiBleHRlbmRfYWJicnMgbGliL3RpbWVfcnouYzo4OAog
+ICMyIDB4NDQzMzU2IGluIHNhdmVfYWJiciBsaWIvdGltZV9yei5jOjE1NQogICMzIDB4NDQzOTNm IGluIGxvY2FsdGltZV9yeiBsaWIvdGltZV9yei5jOjI5MAogICM0IDB4NDFlNGZlIGluIHBhcnNl X2RhdGV0aW1lMiBsaWIvcGFyc2UtZGF0ZXRpbWUueToxNzk4CgpBIG1pbmltaXplZCByZXByb2R1
+Y2VyIGlzIHRoZSBmb2xsb3dpbmcgMTIwIGJ5dGUgVFogdmFsdWUsCndoaWNoIGdvZXMgYmV5b25k IHRoZSB2YWx1ZSBvZiBBQkJSX1NJWkVfTUlOICgxMTkpIG9uIHg4Nl82NC4KCiAgZGF0ZSAtZCAk KHByaW50ZiAnVFo9ImFhYSUwMjBkYWFhYWFhYiUwODlkIicpCgoqIGxpYi90aW1lX3J6LmMgKHNh
+dmVfYWJicik6IFJlYXJyYW5nZSB0aGUgY2FsY3VsYXRpb24gZGV0ZXJtaW5pbmcKd2hldGhlciB0 aGVyZSBpcyBlbm91Z2ggYnVmZmVyIHNwYWNlIGF2YWlsYWJsZS4gIFRoZSByZWFycmFuZ2VtZW50 CmVuc3VyZXMgd2UncmUgb25seSBkZWFsaW5nIHdpdGggcG9zaXRpdmUgbnVtYmVycywgdGh1cyBh
+dm9pZGluZwp0aGUgcHJvYmxlbWF0aWMgcHJvbW90aW9uIG9mIHNpZ25lZCB0byB1bnNpZ25lZCBj YXVzaW5nIGFuIGludmFsaWQKY29tcGFyaXNvbiB3aGVuIHpvbmVfY29weSBpcyBtb3JlIHRoYW4g QUJCUl9TSVpFX01JTiBieXRlcyBiZXlvbmQKdGhlIHN0YXJ0IG9mIHRoZSBidWZmZXIuCi0tLQog
+bGliL3RpbWVfcnouYyB8IDEwICsrKysrKysrKy0KIDEgZmlsZSBjaGFuZ2VkLCA5IGluc2VydGlv bnMoKyksIDEgZGVsZXRpb24oLSkKCmRpZmYgLS1naXQgYS9saWIvdGltZV9yei5jIGIvbGliL3Rp bWVfcnouYwppbmRleCAxYjg3ODcwLi5jMzlkZDkxIDEwMDY0NAotLS0gYS9saWIvdGltZV9yei5j
+CisrKyBiL2xpYi90aW1lX3J6LmMKQEAgLTI3LDYgKzI3LDcgQEAKICNpbmNsdWRlIDx0aW1lLmg+ CiAKICNpbmNsdWRlIDxlcnJuby5oPgorI2luY2x1ZGUgPGxpbWl0cy5oPgogI2luY2x1ZGUgPHN0 ZGJvb2wuaD4KICNpbmNsdWRlIDxzdGRkZWYuaD4KICNpbmNsdWRlIDxzdGRsaWIuaD4KQEAgLTM1
+LDYgKzM2LDEwIEBACiAjaW5jbHVkZSAiZmxleG1lbWJlci5oIgogI2luY2x1ZGUgInRpbWUtaW50 ZXJuYWwuaCIKIAorI2lmbmRlZiBTSVpFX01BWAorIyBkZWZpbmUgU0laRV9NQVggKChzaXplX3Qp IC0xKQorI2VuZGlmCisKICNpZiAhSEFWRV9UWlNFVAogc3RhdGljIHZvaWQgdHpzZXQgKHZvaWQp
+IHsgfQogI2VuZGlmCkBAIC0xNTAsNyArMTU1LDEwIEBAIHNhdmVfYWJiciAodGltZXpvbmVfdCB0 eiwgc3RydWN0IHRtICp0bSkKICAgICAgICAgICBpZiAoISAoKnpvbmVfY29weSB8fCAoem9uZV9j b3B5ID09IHR6LT5hYmJycyAmJiB0ei0+dHpfaXNfc2V0KSkpCiAgICAgICAgICAgICB7CiAgICAg
+ICAgICAgICAgIHNpemVfdCB6b25lX3NpemUgPSBzdHJsZW4gKHpvbmUpICsgMTsKLSAgICAgICAg ICAgICAgaWYgKHpvbmVfc2l6ZSA8IHR6LT5hYmJycyArIEFCQlJfU0laRV9NSU4gLSB6b25lX2Nv cHkpCisgICAgICAgICAgICAgIHNpemVfdCB6b25lX3VzZWQgPSB6b25lX2NvcHkgLSB0ei0+YWJi
+cnM7CisgICAgICAgICAgICAgIGlmIChTSVpFX01BWCAtIHpvbmVfdXNlZCA8IHpvbmVfc2l6ZSkK KyAgICAgICAgICAgICAgICByZXR1cm4gZmFsc2U7CisgICAgICAgICAgICAgIGlmICh6b25lX3Vz ZWQgKyB6b25lX3NpemUgPCBBQkJSX1NJWkVfTUlOKQogICAgICAgICAgICAgICAgIGV4dGVuZF9h
+YmJycyAoem9uZV9jb3B5LCB6b25lLCB6b25lX3NpemUpOwogICAgICAgICAgICAgICBlbHNlCiAg ICAgICAgICAgICAgICAgewotLSAKMi45LjMKCg==
+</data>
+
+</attachment>
+<attachment isobsolete="1" ispatch="1" isprivate="0">
+<attachid>1274031</attachid>
+<date>2017-04-25 17:45:00 -0400</date>
+<delta_ts>2017-04-26 11:46:16 -0400</delta_ts>
+<desc>proposed fix + test case</desc>
+<filename>0001-time_rz-fix-integer-overflow-in-time-zone-parsing.patch</filename>
+<type>text/plain</type>
+<size>3439</size>
+<attacher name="Paul Eggert">eggert</attacher>
+
+<data encoding="base64">RnJvbSAyYTYzOGFjMGQzMWNkZTE1ODc4MDc2Y2NiNDViZWE5MWU2MGI1NDk1IE1vbiBTZXAgMTcg MDA6MDA6MDAgMjAwMQpGcm9tOiBQYXVsIEVnZ2VydCA8ZWdnZXJ0QGNzLnVjbGEuZWR1PgpEYXRl
+OiBUdWUsIDI1IEFwciAyMDE3IDE0OjM5OjExIC0wNzAwClN1YmplY3Q6IFtQQVRDSF0gdGltZV9y ejogZml4IGludGVnZXIgb3ZlcmZsb3cgaW4gdGltZSB6b25lIHBhcnNpbmcKTUlNRS1WZXJzaW9u OiAxLjAKQ29udGVudC1UeXBlOiB0ZXh0L3BsYWluOyBjaGFyc2V0PVVURi04CkNvbnRlbnQtVHJh
+bnNmZXItRW5jb2Rpbmc6IDhiaXQKClByb2JsZW0gcmVwb3J0ZWQgYnkgUMOhZHJhaWcgQnJhZHku CiogbGliL3RpbWVfcnouYyAoc2F2ZV9hYmJyKTogQXZvaWQgdW5zaWduZWQgaW50ZWdlciBvdmVy ZmxvdyB3aGVuCnBhcnNpbmcgbG9uZyB0aW1lIHpvbmUgYWJicmV2aWF0aW9ucy4KKiB0ZXN0cy90
+ZXN0LXBhcnNlLWRhdGV0aW1lLmMgKG1haW4pOgpBZGQgYSB0ZXN0IGZvciB0aGlzIGJ1Zy4KLS0t CiBDaGFuZ2VMb2cgICAgICAgICAgICAgICAgICAgfCAgNyArKysrKysrCiBsaWIvdGltZV9yei5j ICAgICAgICAgICAgICAgfCAgNSArKystLQogdGVzdHMvdGVzdC1wYXJzZS1kYXRldGltZS5jIHwg
+MTYgKysrKysrKysrKysrKysrKwogMyBmaWxlcyBjaGFuZ2VkLCAyNiBpbnNlcnRpb25zKCspLCAy IGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL0NoYW5nZUxvZyBiL0NoYW5nZUxvZwppbmRleCA4 MDEwYTI0Li4xNjA2ODk3IDEwMDY0NAotLS0gYS9DaGFuZ2VMb2cKKysrIGIvQ2hhbmdlTG9nCkBA
+IC0xLDUgKzEsMTIgQEAKIDIwMTctMDQtMjUgIFBhdWwgRWdnZXJ0ICA8ZWdnZXJ0QGNzLnVjbGEu ZWR1PgogCisJdGltZV9yejogZml4IGludGVnZXIgb3ZlcmZsb3cgaW4gdGltZSB6b25lIHBhcnNp bmcKKwlQcm9ibGVtIHJlcG9ydGVkIGJ5IFDDoWRyYWlnIEJyYWR5LgorCSogbGliL3RpbWVfcnou
+YyAoc2F2ZV9hYmJyKTogQXZvaWQgdW5zaWduZWQgaW50ZWdlciBvdmVyZmxvdyB3aGVuCisJcGFy c2luZyBsb25nIHRpbWUgem9uZSBhYmJyZXZpYXRpb25zLgorCSogdGVzdHMvdGVzdC1wYXJzZS1k YXRldGltZS5jIChtYWluKToKKwlBZGQgYSB0ZXN0IGZvciB0aGlzIGJ1Zy4KKwogCXBhcnNlLWRh
+dGV0aW1lOiBtYWtlIGl0IHN0YW5kYWxvbmUKIAkqIGxpYi9wYXJzZS1kYXRldGltZS55OiBJbmNs dWRlIDxzdGRhcmcuaD4sIGZvciB2YV9zdGFydCBldGMuCiAJKF9HTF9BVFRSSUJVVEVfRk9STUFU KTogTmV3IG1hY3JvLgpkaWZmIC0tZ2l0IGEvbGliL3RpbWVfcnouYyBiL2xpYi90aW1lX3J6LmMK
+aW5kZXggMWI4Nzg3MC4uOWQ0MzYyMiAxMDA2NDQKLS0tIGEvbGliL3RpbWVfcnouYworKysgYi9s aWIvdGltZV9yei5jCkBAIC00Myw3ICs0Myw3IEBAIHN0YXRpYyB2b2lkIHR6c2V0ICh2b2lkKSB7 IH0KICAgIHRoZSBsYXJnZXN0ICJzbWFsbCIgcmVxdWVzdCBmb3IgdGhlIEdOVSBDIGxpYnJhcnkg
+bWFsbG9jLiAgKi8KIGVudW0geyBERUZBVUxUX01YRkFTVCA9IDY0ICogc2l6ZW9mIChzaXplX3Qp IC8gNCB9OwogCi0vKiBNaW5pbXVtIHNpemUgb2YgdGhlIEFCQlJTIG1lbWJlciBvZiBzdHJ1Y3Qg YWJici4gIEFCQlJTIGlzIGxhcmdlcgorLyogTWluaW11bSBzaXplIG9mIHRoZSBBQkJSUyBtZW1i
+ZXIgb2Ygc3RydWN0IHRtX3pvbmUuICBBQkJSUyBpcyBsYXJnZXIKICAgIG9ubHkgaW4gdGhlIHVu bGlrZWx5IGNhc2Ugd2hlcmUgYW4gYWJicmV2aWF0aW9uIGxvbmdlciB0aGFuIHRoaXMgaXMKICAg IHVzZWQuICAqLwogZW51bSB7IEFCQlJfU0laRV9NSU4gPSBERUZBVUxUX01YRkFTVCAtIG9mZnNl
+dG9mIChzdHJ1Y3QgdG1fem9uZSwgYWJicnMpIH07CkBAIC0xNTAsNyArMTUwLDggQEAgc2F2ZV9h YmJyICh0aW1lem9uZV90IHR6LCBzdHJ1Y3QgdG0gKnRtKQogICAgICAgICAgIGlmICghICgqem9u ZV9jb3B5IHx8ICh6b25lX2NvcHkgPT0gdHotPmFiYnJzICYmIHR6LT50el9pc19zZXQpKSkKICAg
+ICAgICAgICAgIHsKICAgICAgICAgICAgICAgc2l6ZV90IHpvbmVfc2l6ZSA9IHN0cmxlbiAoem9u ZSkgKyAxOwotICAgICAgICAgICAgICBpZiAoem9uZV9zaXplIDwgdHotPmFiYnJzICsgQUJCUl9T SVpFX01JTiAtIHpvbmVfY29weSkKKyAgICAgICAgICAgICAgaWYgKHpvbmVfY29weSA8IHR6LT5h
+YmJycyArIEFCQlJfU0laRV9NSU4KKyAgICAgICAgICAgICAgICAgICYmIHpvbmVfc2l6ZSA8IHR6 LT5hYmJycyArIEFCQlJfU0laRV9NSU4gLSB6b25lX2NvcHkpCiAgICAgICAgICAgICAgICAgZXh0 ZW5kX2FiYnJzICh6b25lX2NvcHksIHpvbmUsIHpvbmVfc2l6ZSk7CiAgICAgICAgICAgICAgIGVs
+c2UKICAgICAgICAgICAgICAgICB7CmRpZmYgLS1naXQgYS90ZXN0cy90ZXN0LXBhcnNlLWRhdGV0 aW1lLmMgYi90ZXN0cy90ZXN0LXBhcnNlLWRhdGV0aW1lLmMKaW5kZXggYjQyYTUxYy4uYjZmZTQ1 NyAxMDA2NDQKLS0tIGEvdGVzdHMvdGVzdC1wYXJzZS1kYXRldGltZS5jCisrKyBiL3Rlc3RzL3Rl
+c3QtcGFyc2UtZGF0ZXRpbWUuYwpAQCAtNDMyLDUgKzQzMiwyMSBAQCBtYWluIChpbnQgYXJnYyBf R0xfVU5VU0VELCBjaGFyICoqYXJndikKICAgQVNTRVJUICggICBwYXJzZV9kYXRldGltZSAoJnJl c3VsdCwgIlRaPVwiXFxcXFwiIiwgJm5vdykpOwogICBBU1NFUlQgKCAgIHBhcnNlX2RhdGV0aW1l
+ICgmcmVzdWx0LCAiVFo9XCJcXFwiXCIiLCAmbm93KSk7CiAKKyAgLyogT3V0bGFuZGlzaGx5LWxv bmcgdGltZSB6b25lIGFiYnJldmlhdGlvbnMgc2hvdWxkIG5vdCBjYXVzZSBwcm9ibGVtcy4gICov CisgIHsKKyAgICBzdGF0aWMgY2hhciBjb25zdCBidWZwcmVmaXhbXSA9ICJUWj1cIiI7CisgICAg
+ZW51bSB7IHR6bmFtZV9sZW4gPSAyMDAwIH07CisgICAgc3RhdGljIGNoYXIgY29uc3QgYnVmc3Vm Zml4W10gPSAiMFwiIDE5NzAtMDEtMDEgMDE6MDI6MDMuMTIzNDU2Nzg5IjsKKyAgICBlbnVtIHsg YnVmc2l6ZSA9IHNpemVvZiBidWZwcmVmaXggLSAxICsgdHpuYW1lX2xlbiArIHNpemVvZiBidWZz
+dWZmaXggfTsKKyAgICBjaGFyIGJ1ZltidWZzaXplXTsKKyAgICBtZW1jcHkgKGJ1ZiwgYnVmcHJl Zml4LCBzaXplb2YgYnVmcHJlZml4IC0gMSk7CisgICAgbWVtc2V0IChidWYgKyBzaXplb2YgYnVm cHJlZml4IC0gMSwgJ1gnLCB0em5hbWVfbGVuKTsKKyAgICBzdHJjcHkgKGJ1ZiArIGJ1ZnNpemUg
+LSBzaXplb2YgYnVmc3VmZml4LCBidWZzdWZmaXgpOworICAgIEFTU0VSVCAocGFyc2VfZGF0ZXRp bWUgKCZyZXN1bHQsIGJ1ZiwgJm5vdykpOworICAgIExPRyAoYnVmLCBub3csIHJlc3VsdCk7Cisg ICAgQVNTRVJUIChyZXN1bHQudHZfc2VjID09IDEgKiA2MCAqIDYwICsgMiAqIDYwICsgMworICAg
+ICAgICAgICAgJiYgcmVzdWx0LnR2X25zZWMgPT0gMTIzNDU2Nzg5KTsKKyAgfQorCiAgIHJldHVy biAwOwogfQotLSAKMi45LjMKCg==
+</data>
+
+</attachment>
+<attachment isobsolete="0" ispatch="1" isprivate="0">
+<attachid>1274288</attachid>
+<date>2017-04-26 11:46:00 -0400</date>
+<delta_ts>2017-04-26 11:46:16 -0400</delta_ts>
+<desc>updated mitigation + test case</desc>
+<filename>gnulib-time_rz-overflow.patch</filename>
+<type>text/plain</type>
+<size>4025</size>
+<attacher name="Pádraig Brady">p</attacher>
+
+<data encoding="base64">RnJvbSAyYzY4MmQ3YjExODRmYzk5NmY1ZTM1OTY4OTFkNDA1MjJlYWQ3MWExIE1vbiBTZXAgMTcg MDA6MDA6MDAgMjAwMQpGcm9tOiA9P1VURi04P3E/UD1DMz1BMWRyYWlnPTIwQnJhZHk/PSA8UEBk
+cmFpZ0JyYWR5LmNvbT4KRGF0ZTogTW9uLCAyNCBBcHIgMjAxNyAwMTo0MzozNiAtMDcwMApTdWJq ZWN0OiBbUEFUQ0hdIHRpbWVfcno6IGZpeCBoZWFwIGJ1ZmZlciBvdmVyZmxvdyB2dWxuZXJhYmls aXR5CgpEZXRlY3RlZCB3aXRoIGFtZXJpY2FuIGZ1enp5IGxvcCAyLjQxYiB3aXRoIEFTQU4gZW5h
+YmxlZC4KCiAgRVJST1I6IEFkZHJlc3NTYW5pdGl6ZXI6IGhlYXAtYnVmZmVyLW92ZXJmbG93IG9u IGFkZHJlc3MgMHguLi4uLi4uLgogIFdSSVRFIG9mIHNpemUgOCBhdCAweDYwZDAwMDAwY2ZmOCB0 aHJlYWQgVDAKICAjMSAweDQ0MzAyMCBpbiBleHRlbmRfYWJicnMgbGliL3RpbWVfcnouYzo4OAog
+ICMyIDB4NDQzMzU2IGluIHNhdmVfYWJiciBsaWIvdGltZV9yei5jOjE1NQogICMzIDB4NDQzOTNm IGluIGxvY2FsdGltZV9yeiBsaWIvdGltZV9yei5jOjI5MAogICM0IDB4NDFlNGZlIGluIHBhcnNl X2RhdGV0aW1lMiBsaWIvcGFyc2UtZGF0ZXRpbWUueToxNzk4CgpBIG1pbmltaXplZCByZXByb2R1
+Y2VyIGlzIHRoZSBmb2xsb3dpbmcgMTIwIGJ5dGUgVFogdmFsdWUsCndoaWNoIGdvZXMgYmV5b25k IHRoZSB2YWx1ZSBvZiBBQkJSX1NJWkVfTUlOICgxMTkpIG9uIHg4Nl82NC4KCiAgZGF0ZSAtZCAk KHByaW50ZiAnVFo9ImFhYSUwMjBkYWFhYWFhYiUwODlkIicpCgoqIGxpYi90aW1lX3J6LmMgKHNh
+dmVfYWJicik6IFJlYXJyYW5nZSB0aGUgY2FsY3VsYXRpb24gZGV0ZXJtaW5pbmcKd2hldGhlciB0 aGVyZSBpcyBlbm91Z2ggYnVmZmVyIHNwYWNlIGF2YWlsYWJsZS4gIFRoZSByZWFycmFuZ2VtZW50 CmVuc3VyZXMgd2UncmUgb25seSBkZWFsaW5nIHdpdGggcG9zaXRpdmUgbnVtYmVycywgdGh1cyBh
+dm9pZGluZwp0aGUgcHJvYmxlbWF0aWMgcHJvbW90aW9uIG9mIHNpZ25lZCB0byB1bnNpZ25lZCBj YXVzaW5nIGFuIGludmFsaWQKY29tcGFyaXNvbiB3aGVuIHpvbmVfY29weSBpcyBtb3JlIHRoYW4g QUJCUl9TSVpFX01JTiBieXRlcyBiZXlvbmQKdGhlIHN0YXJ0IG9mIHRoZSBidWZmZXIuCiogdGVz
+dHMvdGVzdC1wYXJzZS1kYXRldGltZS5jIChtYWluKTogQWRkIGEgdGVzdCBjYXNlIHdyaXR0ZW4g YnkKZnJvbSBQYXVsIEVnZ2VydC4KLS0tCiBsaWIvdGltZV9yei5jICAgICAgICAgICAgICAgfCAx NSArKysrKysrKysrKysrLS0KIHRlc3RzL3Rlc3QtcGFyc2UtZGF0ZXRpbWUuYyB8IDE2ICsrKysr
+KysrKysrKysrKysKIDIgZmlsZXMgY2hhbmdlZCwgMjkgaW5zZXJ0aW9ucygrKSwgMiBkZWxldGlv bnMoLSkKCmRpZmYgLS1naXQgYS9saWIvdGltZV9yei5jIGIvbGliL3RpbWVfcnouYwppbmRleCAx Yjg3ODcwLi44MmYzZjNmIDEwMDY0NAotLS0gYS9saWIvdGltZV9yei5jCisrKyBiL2xpYi90aW1l
+X3J6LmMKQEAgLTI3LDYgKzI3LDcgQEAKICNpbmNsdWRlIDx0aW1lLmg+CiAKICNpbmNsdWRlIDxl cnJuby5oPgorI2luY2x1ZGUgPGxpbWl0cy5oPgogI2luY2x1ZGUgPHN0ZGJvb2wuaD4KICNpbmNs dWRlIDxzdGRkZWYuaD4KICNpbmNsdWRlIDxzdGRsaWIuaD4KQEAgLTM1LDYgKzM2LDEwIEBACiAj
+aW5jbHVkZSAiZmxleG1lbWJlci5oIgogI2luY2x1ZGUgInRpbWUtaW50ZXJuYWwuaCIKIAorI2lm bmRlZiBTSVpFX01BWAorIyBkZWZpbmUgU0laRV9NQVggKChzaXplX3QpIC0xKQorI2VuZGlmCisK ICNpZiAhSEFWRV9UWlNFVAogc3RhdGljIHZvaWQgdHpzZXQgKHZvaWQpIHsgfQogI2VuZGlmCkBA
+IC00Myw3ICs0OCw3IEBAIHN0YXRpYyB2b2lkIHR6c2V0ICh2b2lkKSB7IH0KICAgIHRoZSBsYXJn ZXN0ICJzbWFsbCIgcmVxdWVzdCBmb3IgdGhlIEdOVSBDIGxpYnJhcnkgbWFsbG9jLiAgKi8KIGVu dW0geyBERUZBVUxUX01YRkFTVCA9IDY0ICogc2l6ZW9mIChzaXplX3QpIC8gNCB9OwogCi0vKiBN
+aW5pbXVtIHNpemUgb2YgdGhlIEFCQlJTIG1lbWJlciBvZiBzdHJ1Y3QgYWJici4gIEFCQlJTIGlz IGxhcmdlcgorLyogTWluaW11bSBzaXplIG9mIHRoZSBBQkJSUyBtZW1iZXIgb2Ygc3RydWN0IHRt X3pvbmUuICBBQkJSUyBpcyBsYXJnZXIKICAgIG9ubHkgaW4gdGhlIHVubGlrZWx5IGNhc2Ugd2hl
+cmUgYW4gYWJicmV2aWF0aW9uIGxvbmdlciB0aGFuIHRoaXMgaXMKICAgIHVzZWQuICAqLwogZW51 bSB7IEFCQlJfU0laRV9NSU4gPSBERUZBVUxUX01YRkFTVCAtIG9mZnNldG9mIChzdHJ1Y3QgdG1f em9uZSwgYWJicnMpIH07CkBAIC0xNTAsNyArMTU1LDEzIEBAIHNhdmVfYWJiciAodGltZXpvbmVf
+dCB0eiwgc3RydWN0IHRtICp0bSkKICAgICAgICAgICBpZiAoISAoKnpvbmVfY29weSB8fCAoem9u ZV9jb3B5ID09IHR6LT5hYmJycyAmJiB0ei0+dHpfaXNfc2V0KSkpCiAgICAgICAgICAgICB7CiAg ICAgICAgICAgICAgIHNpemVfdCB6b25lX3NpemUgPSBzdHJsZW4gKHpvbmUpICsgMTsKLSAgICAg
+ICAgICAgICAgaWYgKHpvbmVfc2l6ZSA8IHR6LT5hYmJycyArIEFCQlJfU0laRV9NSU4gLSB6b25l X2NvcHkpCisgICAgICAgICAgICAgIHNpemVfdCB6b25lX3VzZWQgPSB6b25lX2NvcHkgLSB0ei0+ YWJicnM7CisgICAgICAgICAgICAgIGlmIChTSVpFX01BWCAtIHpvbmVfdXNlZCA8IHpvbmVfc2l6
+ZSkKKyAgICAgICAgICAgICAgICB7CisgICAgICAgICAgICAgICAgICBlcnJubyA9IEVOT01FTTsK KyAgICAgICAgICAgICAgICAgIHJldHVybiBmYWxzZTsKKyAgICAgICAgICAgICAgICB9CisgICAg ICAgICAgICAgIGlmICh6b25lX3VzZWQgKyB6b25lX3NpemUgPCBBQkJSX1NJWkVfTUlOKQogICAg
+ICAgICAgICAgICAgIGV4dGVuZF9hYmJycyAoem9uZV9jb3B5LCB6b25lLCB6b25lX3NpemUpOwog ICAgICAgICAgICAgICBlbHNlCiAgICAgICAgICAgICAgICAgewpkaWZmIC0tZ2l0IGEvdGVzdHMv dGVzdC1wYXJzZS1kYXRldGltZS5jIGIvdGVzdHMvdGVzdC1wYXJzZS1kYXRldGltZS5jCmluZGV4
+IGI0MmE1MWMuLmI2ZmU0NTcgMTAwNjQ0Ci0tLSBhL3Rlc3RzL3Rlc3QtcGFyc2UtZGF0ZXRpbWUu YworKysgYi90ZXN0cy90ZXN0LXBhcnNlLWRhdGV0aW1lLmMKQEAgLTQzMiw1ICs0MzIsMjEgQEAg bWFpbiAoaW50IGFyZ2MgX0dMX1VOVVNFRCwgY2hhciAqKmFyZ3YpCiAgIEFTU0VSVCAoICAgcGFy
+c2VfZGF0ZXRpbWUgKCZyZXN1bHQsICJUWj1cIlxcXFxcIiIsICZub3cpKTsKICAgQVNTRVJUICgg ICBwYXJzZV9kYXRldGltZSAoJnJlc3VsdCwgIlRaPVwiXFxcIlwiIiwgJm5vdykpOwogCisgIC8q IE91dGxhbmRpc2hseS1sb25nIHRpbWUgem9uZSBhYmJyZXZpYXRpb25zIHNob3VsZCBub3QgY2F1
+c2UgcHJvYmxlbXMuICAqLworICB7CisgICAgc3RhdGljIGNoYXIgY29uc3QgYnVmcHJlZml4W10g PSAiVFo9XCIiOworICAgIGVudW0geyB0em5hbWVfbGVuID0gMjAwMCB9OworICAgIHN0YXRpYyBj aGFyIGNvbnN0IGJ1ZnN1ZmZpeFtdID0gIjBcIiAxOTcwLTAxLTAxIDAxOjAyOjAzLjEyMzQ1Njc4
+OSI7CisgICAgZW51bSB7IGJ1ZnNpemUgPSBzaXplb2YgYnVmcHJlZml4IC0gMSArIHR6bmFtZV9s ZW4gKyBzaXplb2YgYnVmc3VmZml4IH07CisgICAgY2hhciBidWZbYnVmc2l6ZV07CisgICAgbWVt Y3B5IChidWYsIGJ1ZnByZWZpeCwgc2l6ZW9mIGJ1ZnByZWZpeCAtIDEpOworICAgIG1lbXNldCAo
+YnVmICsgc2l6ZW9mIGJ1ZnByZWZpeCAtIDEsICdYJywgdHpuYW1lX2xlbik7CisgICAgc3RyY3B5 IChidWYgKyBidWZzaXplIC0gc2l6ZW9mIGJ1ZnN1ZmZpeCwgYnVmc3VmZml4KTsKKyAgICBBU1NF UlQgKHBhcnNlX2RhdGV0aW1lICgmcmVzdWx0LCBidWYsICZub3cpKTsKKyAgICBMT0cgKGJ1Ziwg
+bm93LCByZXN1bHQpOworICAgIEFTU0VSVCAocmVzdWx0LnR2X3NlYyA9PSAxICogNjAgKiA2MCAr IDIgKiA2MCArIDMKKyAgICAgICAgICAgICYmIHJlc3VsdC50dl9uc2VjID09IDEyMzQ1Njc4OSk7 CisgIH0KKwogICByZXR1cm4gMDsKIH0KLS0gCjIuOS4zCgo=
+</data>
+
+</attachment>
+
+</bug>
+
+</bugzilla>

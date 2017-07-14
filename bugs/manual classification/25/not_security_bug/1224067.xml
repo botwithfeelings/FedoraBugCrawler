@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1" urlbase="https://bugzilla.redhat.com/" maintainer="bugzilla-error-list@redhat.com">
+
+  <bug>
+    <bug_id>1224067</bug_id>
+
+    <creation_ts>2015-05-22 03:18:00 -0400</creation_ts>
+    <short_desc>hawkey: Segfaul if repo primary file fails to open</short_desc>
+    <delta_ts>2017-06-21 14:25:35 -0400</delta_ts>
+    <reporter_accessible>1</reporter_accessible>
+    <cclist_accessible>1</cclist_accessible>
+    <classification_id>2</classification_id>
+    <classification>Fedora</classification>
+    <product>Fedora</product>
+    <component>hawkey</component>
+    <version>25</version>
+    <rep_platform>Unspecified</rep_platform>
+    <op_sys>Unspecified</op_sys>
+    <bug_status>CLOSED</bug_status>
+    <resolution>NEXTRELEASE</resolution>
+
+    <bug_file_loc></bug_file_loc>
+    <status_whiteboard></status_whiteboard>
+    <keywords>Reopened, Triaged</keywords>
+    <priority>low</priority>
+    <bug_severity>unspecified</bug_severity>
+    <target_milestone>---</target_milestone>
+
+    <everconfirmed>1</everconfirmed>
+    <reporter name="Mikolaj Izdebski">mizdebsk</reporter>
+    <assigned_to>rpm-software-management</assigned_to>
+    <cc>collura</cc>
+
+    <cc>jzeleny</cc>
+
+    <cc>michal.jnn</cc>
+
+    <cc>mluscon</cc>
+
+    <cc>packaging-team-maint</cc>
+
+    <cc>vmukhame</cc>
+    <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+
+    <cf_fixed_in></cf_fixed_in>
+  <cf_doc_type>Bug Fix</cf_doc_type>
+<cf_release_notes></cf_release_notes>
+<cf_story_points>---</cf_story_points>
+
+<cf_environment></cf_environment>
+<cf_last_closed>2017-06-21 14:25:35</cf_last_closed>
+<cf_type>Bug</cf_type>
+<cf_regression_status>---</cf_regression_status>
+<cf_mount_type>---</cf_mount_type>
+<cf_documentation_action>---</cf_documentation_action>
+<cf_crm></cf_crm>
+<cf_verified_branch></cf_verified_branch>
+<cf_category>---</cf_category>
+<cf_ovirt_team>---</cf_ovirt_team>
+
+<cf_cloudforms_team>---</cf_cloudforms_team>
+
+<target_release>---</target_release>
+
+<votes>0</votes>
+
+<comment_sort_order>oldest_to_newest</comment_sort_order>
+<long_desc isprivate="0">
+<commentid>8258239</commentid>
+<comment_count>0</comment_count>
+<who name="Mikolaj Izdebski">mizdebsk</who>
+<bug_when>2015-05-22 03:18:10 -0400</bug_when>
+<thetext>Description of problem: hawkey segfaults when trying to open primary repo file, which is inaccessible or doesn&apos;t exist. Version-Release number of selected component (if applicable): hawkey-0.5.3-2.fc21.x86_64 How reproducible: always
+Steps to Reproduce: $ cat &lt;&lt;EOF &gt;test.c #include &lt;hawkey/sack.h&gt; #include &lt;hawkey/repo.h&gt; int main() { HySack sack = hy_sack_create(0, &quot;x86_64&quot;, 0, 0); HyRepo repo = hy_repo_create(&quot;dummy&quot;);
+hy_repo_set_string(repo, HY_REPO_MD_FN, &quot;repomd.xml&quot;); hy_repo_set_string(repo, HY_REPO_PRIMARY_FN, &quot;non-existent-file&quot;); hy_sack_load_yum_repo(sack, repo, 0); } EOF $ echo &quot;&lt;repomd/&gt;&quot; &gt;repomd.xml $ cc test.c
+-lhawkey $ ./a.out Actual results: Segmentation fault (core dumped) Expected results: No segfault, hawkey fails and sets appropriate errno. Additional info: backtrace: Program received signal SIGSEGV, Segmentation fault. __GI__IO_fread
+(buf=0x7fffffffbe20, size=1, count=8192, fp=0x0) at iofread.c:41 41 _IO_acquire_lock (fp); (gdb) bt full #0 __GI__IO_fread (buf=0x7fffffffbe20, size=1, count=8192, fp=0x0) at iofread.c:41 _IO_acquire_lock_file = &lt;optimized out&gt; bytes_requested
+= 8192 bytes_read = &lt;optimized out&gt; #1 0x0000003191e1e4ce in fread (__stream=&lt;optimized out&gt;, __n=&lt;optimized out&gt;, __size=&lt;optimized out&gt;, __ptr=&lt;optimized out&gt;) at /usr/include/bits/stdio2.h:295 No locals. #2
+repo_add_rpmmd (repo=0x624440, fp=0x0, language=0x7fffffffbe20 &quot;&lt;repomd/&gt;\n&quot;, flags=flags@entry=0) at /usr/src/debug/libsolv/ext/repo_rpmmd.c:1183 pool = 0x602090 pd = {ret = 0, pool = 0x602090, repo = 0x624440, data = 0x624f80, kind
+= 0x0, depth = 0, state = STATE_START, statedepth = 0, content = 0x624890 &quot;\030}\033\327\066&quot;, lcontent = 0, acontent = 256, docontent = 0, solvable = 0x0, freshens = 0, swtab = { 0x319202b940 &lt;stateswitches&gt;, 0x319202ba30
+&lt;stateswitches+240&gt;, 0x0 &lt;repeats 22 times&gt;, 0x319202beb0 &lt;stateswitches+1392&gt;, 0x319202bec8 &lt;stateswitches+1416&gt;, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x319202bfb8 &lt;stateswitches+1656&gt;, 0x0, 0x319202bfd0
+&lt;stateswitches+1680&gt;, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x319202bee0 &lt;stateswitches+1440&gt;, 0x319202bef8 &lt;stateswitches+1464&gt;, 0x319202bf10 &lt;stateswitches+1488&gt;, 0x319202bf28 &lt;stateswitches+1512&gt;,
+0x319202bf40 &lt;stateswitches+1536&gt;, 0x319202bf58 &lt;stateswitches+1560&gt;, 0x319202bf70 &lt;stateswitches+1584&gt;, 0x319202bf88 &lt;stateswitches+1608&gt;, 0x319202bfa0 &lt;stateswitches+1632&gt;, 0x0 &lt;repeats 13 times&gt;}, sbtab = {
+STATE_START, STATE_START, STATE_SOLVABLE &lt;repeats 12 times&gt;, STATE_START, STATE_START, STATE_SOLVABLE, STATE_SOLVABLE, STATE_SOLVABLE, STATE_SOLVABLE, STATE_SOLVABLE, STATE_SOLVABLE, STATE_SOLVABLE, STATE_SOLVABLE, STATE_SOLVABLE,
+STATE_DISKUSAGE, STATE_DIRS, STATE_START, STATE_START, STATE_START, STATE_START, STATE_SOLVABLE, STATE_SOLVABLE, STATE_SOLVABLE, STATE_INCLUDES, STATE_SOLVABLE, STATE_EXTENDS, STATE_SOLVABLE &lt;repeats 20 times&gt;, STATE_PROVIDES, STATE_REQUIRES,
+STATE_OBSOLETES, STATE_CONFLICTS, STATE_RECOMMENDS, STATE_SUPPLEMENTS, STATE_SUGGESTS, STATE_ENHANCES, STATE_FRESHENS, STATE_SOLVABLE, STATE_SOLVABLE}, jd = {tmp = 0x0, tmpl = 0}, tmplang = 0x0, chksumtype = 0, handle = 0, parser = 0x7fffffffb578,
+dirs = 0x0, ndirs = 0, language = 0x0, langcache = {0 &lt;repeats 184 times&gt;}, lastdir = 0, lastdirstr = 0x0, lastdirstrl = 0, changelog_handle = 0, cspool = {strings = 0x635160, nstrings = 2, stringspace = 0x625150 &quot;&lt;NULL&gt;&quot;,
+sstrings = 8, stringhashtbl = 0x0, stringhashmask = 0}, cscache = 0x0, ncscache = 0} buf = &quot;&lt;repomd/&gt;\n&quot;, &apos;\000&apos; &lt;repeats 3246 times&gt;... sw = 0x7fffffffb578 parser = 0x637170 #3 0x00007ffff7dd67ba in load_yum_repo
+(hrepo=0x624380, sack=0x602010) at /usr/src/debug/hawkey-85826ee4905b0422e3490fc2aa1b6d9bd6a302b2/py3/src/sack.c:584 retval = 0 pool = 0x602090 fn_cache = 0x624530 &quot;/var/tmp/hawkey-kojan-XXXXXX/dummy.solv&quot; fp_primary = 0x0 repo = 0x624440
+fp_repomd = 0x624560 name = 0x61b1c0 &quot;dummy&quot; fn_repomd = &lt;optimized out&gt; fp_cache = 0x0 #4 hy_sack_load_yum_repo (sack=0x602010, repo=0x624380, flags=0) at
+/usr/src/debug/hawkey-85826ee4905b0422e3490fc2aa1b6d9bd6a302b2/py3/src/sack.c:997 build_cache = &lt;optimized out&gt; retval = &lt;optimized out&gt; #5 0x000000000040081d in main () at test.c:9 sack = 0x602010 repo = 0x624380</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8469702</commentid>
+<comment_count>1</comment_count>
+<who name="Honza Silhan">jsilhan</who>
+<bug_when>2015-07-22 09:21:22 -0400</bug_when>
+<thetext>Thanks for the report. It will be fixed after integration hawkey with libhif.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8783091</commentid>
+<comment_count>2</comment_count>
+<who name="Fedora End Of Life">jkurik</who>
+<bug_when>2015-11-04 05:18:12 -0500</bug_when>
+<thetext>This message is a reminder that Fedora 21 is nearing its end of life. Approximately 4 (four) weeks from now Fedora will stop maintaining and issuing updates for Fedora 21. It is Fedora&apos;s policy to close all bug reports from releases
+that are no longer maintained. At that time this bug will be closed as EOL if it remains open with a Fedora &apos;version&apos; of &apos;21&apos;. Package Maintainer: If you wish for this bug to remain open because you plan to fix it in a currently
+maintained version, simply change the &apos;version&apos; to a later Fedora version. Thank you for reporting this issue and we are sorry that we were not able to fix it before Fedora 21 is end of life. If you would still like to see this bug fixed
+and are able to reproduce it against a later version of Fedora, you are encouraged change the &apos;version&apos; to a later Fedora version prior this bug is closed as described in the policy above. Although we aim to fix as many bugs as possible
+during every release&apos;s lifetime, sometimes those efforts are overtaken by events. Often a more recent Fedora release includes newer upstream software that fixes bugs or makes them obsolete.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9490115</commentid>
+<comment_count>3</comment_count>
+<who name="Fedora Admin XMLRPC Client">fedora-admin-xmlrpc</who>
+<bug_when>2016-07-08 05:24:40 -0400</bug_when>
+<thetext>This package has changed ownership in the Fedora Package Database. Reassigning to the new owner of this component.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9524319</commentid>
+<comment_count>4</comment_count>
+<who name="Fedora End Of Life">jkurik</who>
+<bug_when>2016-07-19 10:12:09 -0400</bug_when>
+<thetext>Fedora 22 changed to end-of-life (EOL) status on 2016-07-19. Fedora 22 is no longer maintained, which means that it will not receive any further security or bug fix updates. As a result we are closing this bug. If you can reproduce this bug
+against a currently maintained version of Fedora please feel free to reopen this bug against that version. If you are unable to reopen this bug, please file a new report against the current release. If you experience problems, please add a comment to
+this bug. Thank you for reporting this bug and we are sorry it could not be fixed.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9549868</commentid>
+<comment_count>5</comment_count>
+<who name="Jan Kurik">jkurik</who>
+<bug_when>2016-07-26 01:00:37 -0400</bug_when>
+<thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 25 development cycle. Changing version to &apos;25&apos;.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10528806</commentid>
+<comment_count>6</comment_count>
+<who name="Michal Jaegermann">michal.jnn</who>
+<bug_when>2017-06-21 13:34:05 -0400</bug_when>
+<thetext>It looks like my all Fedora 25 installations were NOW hit by this problem. An attempt to run &apos;dnf update&apos; ends up with system-python: /builddir/build/BUILD/hawkey-0.6.4/src/sack.c:354: load_ext: Assertion `ret == 0&apos; failed.
+Aborted (core dumped) As systemd attempts to periodically refresh dnf caches that has an effect of quickly collecting a pile of coredumps in /var/lib/systemd/coredump/. I can prevent dnf/hawkey from misbehaving by running &apos;dnf
+--disablerepo=updates&apos;; only that this clearly does not update anything. OTOH removing all /var/cached/dnf/updates* files results in &quot;Error: Failed to synchronize cache for repo &apos;updates&apos;&quot; after &apos;dnf update&apos; but
+prevents a coredump. If I try &apos;dnf update -v&apos; then I am seeing a long list of &quot;error: Downloading successful, but checksum doesn&apos;t match. Calculated: ... Expected: ....&quot; for a long list of different mirrors and this ends up
+with Cannot download &apos;https://mirrors.fedoraproject.org/metalink?repo=updates-released-f25&amp;arch=x86_64&apos;: Cannot download repomd.xml: Cannot download repodata/repomd.xml: All mirrors were tried. Error: Failed to synchronize cache for
+repo &apos;updates&apos; AFAICS update mirrors have some issue but this still should not cause hawkey to coredump. This is hawkey-0.6.4-3.fc25 as installed on my systems for a while. A single core.dnf.0....lz4 file vary in size between 33M and 45M.
+Is such core of interest to anybody?</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>10528941</commentid>
+<comment_count>7</comment_count>
+<who name="Igor Gnatenko">ignatenko</who>
+<bug_when>2017-06-21 14:25:35 -0400</bug_when>
+<thetext>Michal, look at bug 1463561. This bug got fixed in libdnf indeed.</thetext>
+</long_desc>
+
+</bug>
+
+</bugzilla>

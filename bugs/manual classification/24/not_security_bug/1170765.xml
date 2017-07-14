@@ -1,0 +1,1172 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1" urlbase="https://bugzilla.redhat.com/" maintainer="bugzilla-error-list@redhat.com">
+
+  <bug>
+    <bug_id>1170765</bug_id>
+
+    <creation_ts>2014-12-04 14:37:00 -0500</creation_ts>
+    <short_desc>systemd: all processes in scopes (including user sessions) SIGKILLed immediately on shutdown with no opportunity to shut down cleanly</short_desc>
+    <delta_ts>2016-11-14 15:00:59 -0500</delta_ts>
+    <reporter_accessible>1</reporter_accessible>
+    <cclist_accessible>1</cclist_accessible>
+    <classification_id>2</classification_id>
+    <classification>Fedora</classification>
+    <product>Fedora</product>
+    <component>systemd</component>
+    <version>24</version>
+    <rep_platform>x86_64</rep_platform>
+    <op_sys>Linux</op_sys>
+    <bug_status>CLOSED</bug_status>
+    <resolution>ERRATA</resolution>
+
+    <bug_file_loc></bug_file_loc>
+    <status_whiteboard>https://fedoraproject.org/wiki/Common_F23_bugs#systemd-shutdown-kill</status_whiteboard>
+    <keywords>CommonBugs, Reopened</keywords>
+    <priority>unspecified</priority>
+    <bug_severity>high</bug_severity>
+    <target_milestone>---</target_milestone>
+
+    <blocked>1139380</blocked>
+
+    <blocked>1268654</blocked>
+
+    <blocked>1277289</blocked>
+    <everconfirmed>1</everconfirmed>
+    <reporter name="Dusty Mabe">dustymabe</reporter>
+    <assigned_to>systemd-maint</assigned_to>
+    <cc>a1237</cc>
+
+    <cc>alex.ploumistos</cc>
+
+    <cc>ali+rhbugzilla</cc>
+
+    <cc>awilliam</cc>
+
+    <cc>biaji.cn</cc>
+
+    <cc>bof90</cc>
+
+    <cc>bojan</cc>
+
+    <cc>bugzilla</cc>
+
+    <cc>bugzilla.redhat.com</cc>
+
+    <cc>chris+rhbugzilla</cc>
+
+    <cc>djuran</cc>
+
+    <cc>dustymabe</cc>
+
+    <cc>fdc</cc>
+
+    <cc>fedora</cc>
+
+    <cc>htl10</cc>
+
+    <cc>johannbg</cc>
+
+    <cc>jswensso</cc>
+
+    <cc>jsynacek</cc>
+
+    <cc>ledufff</cc>
+
+    <cc>lnykryn</cc>
+
+    <cc>ltoscano</cc>
+
+    <cc>luvilla</cc>
+
+    <cc>marc.dejardin</cc>
+
+    <cc>marcosfrm</cc>
+
+    <cc>mattdm</cc>
+
+    <cc>maxantispam</cc>
+
+    <cc>mbroz</cc>
+
+    <cc>mrmazda</cc>
+
+    <cc>msekleta</cc>
+
+    <cc>myroslav</cc>
+
+    <cc>olliniem</cc>
+
+    <cc>pahan</cc>
+
+    <cc>patrick_dkt</cc>
+
+    <cc>rbarlow</cc>
+
+    <cc>redhat-bugzilla</cc>
+
+    <cc>rharwood</cc>
+
+    <cc>rjones</cc>
+
+    <cc>robatino</cc>
+
+    <cc>sauchter</cc>
+
+    <cc>sforsyt</cc>
+
+    <cc>sgallagh</cc>
+
+    <cc>sgraf</cc>
+
+    <cc>sitsofe</cc>
+
+    <cc>s</cc>
+
+    <cc>stefw</cc>
+
+    <cc>stepglenn</cc>
+
+    <cc>steveboss111</cc>
+
+    <cc>systemd-maint</cc>
+
+    <cc>theinric</cc>
+
+    <cc>vpavlin</cc>
+
+    <cc>zbyszek</cc>
+    <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+
+    <cf_fixed_in>systemd-222-6.fc23</cf_fixed_in>
+  <cf_doc_type>Bug Fix</cf_doc_type>
+<cf_release_notes></cf_release_notes>
+<cf_story_points>---</cf_story_points>
+
+<cf_environment></cf_environment>
+<cf_last_closed>2016-11-14 15:00:59</cf_last_closed>
+<cf_type>Bug</cf_type>
+<cf_regression_status>---</cf_regression_status>
+<cf_mount_type>---</cf_mount_type>
+<cf_documentation_action>---</cf_documentation_action>
+<cf_crm></cf_crm>
+<cf_verified_branch></cf_verified_branch>
+<cf_category>---</cf_category>
+<cf_ovirt_team>---</cf_ovirt_team>
+
+<cf_cloudforms_team>---</cf_cloudforms_team>
+
+<target_release>---</target_release>
+
+<votes>0</votes>
+
+<comment_sort_order>oldest_to_newest</comment_sort_order>
+<long_desc isprivate="0">
+<commentid>7734339</commentid>
+<comment_count>0</comment_count>
+<who name="Dusty Mabe">dustymabe</who>
+<bug_when>2014-12-04 14:37:30 -0500</bug_when>
+<thetext>Description of problem: I have been noticing during F21 cloud and atomic testing that I sometimes lose my bash history. This seems to be triggered by reboots as can be shown below: [root@f21 ~]# cat .bash_history | wc -l 2 [root@f21 ~]#
+history | wc -l 123 [root@f21 ~]# reboot Connection to 172.24.4.228 closed by remote host. Connection to 172.24.4.228 closed. [root@localhost ~(keystone_admin)]# [root@localhost ~(keystone_admin)]# ssh -i key1.pem fedora@172.24.4.228 Last login: Thu
+Nov 20 18:54:48 2014 from 172.24.4.225 [fedora@f21 ~]$ [fedora@f21 ~]$ sudo su - [root@f21 ~]# history | wc -l 3 Version-Release number of selected component (if applicable): This is from the F21 Cloud RC5 image: [fedora@f21 ~]$ rpm -q systemd
+systemd-216-12.fc21.x86_64 How reproducible: Seems to be pretty consistent to me. Steps to Reproduce: See description. Actual results: My bash history is not saved. Expected results: My bash history is saved. Additional info: I think this is an issue
+with systemd but it could be some other component. Feel free to re-assign where appropriate. I think the fact that I use &apos;sudo su -&apos; to become another user plays a role in this. I don&apos;t think it happens without doing that. The
+following fedora bug seems to be the same issue from a time in the past: https://bugzilla.redhat.com/show_bug.cgi?id=821254 A few suse bugs with similar descriptions: https://bugzilla.novell.com/show_bug.cgi?id=671719
+https://bugzilla.novell.com/show_bug.cgi?id=652633</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>7734352</commentid>
+<comment_count>1</comment_count>
+<who name="Dusty Mabe">dustymabe</who>
+<bug_when>2014-12-04 14:42:21 -0500</bug_when>
+<thetext>
+Let me add to my recreation in the description by explaining how I log in to the system. I ssh as &apos;fedora&apos; to the system and the &apos;sudo su -&apos; to root: [root@localhost ~(keystone_admin)]# ssh -i key1.pem fedora@172.24.4.228
+[fedora@f21 ~]$ sudo su - &lt;&lt;&lt;&lt; LOTS OF COMMANDS RUN IN HERE &gt;&gt;&gt;&gt;&gt; [root@f21 ~]# cat .bash_history | wc -l 2 [root@f21 ~]# history | wc -l 123 [root@f21 ~]# reboot Connection to 172.24.4.228 closed by remote host. Connection
+to 172.24.4.228 closed. [root@localhost ~(keystone_admin)]# [root@localhost ~(keystone_admin)]# ssh -i key1.pem fedora@172.24.4.228 Last login: Thu Nov 20 18:54:48 2014 from 172.24.4.225 [fedora@f21 ~]$ [fedora@f21 ~]$ sudo su - [root@f21 ~]# history
+| wc -l 3</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>7901444</commentid>
+<comment_count>2</comment_count>
+<attachid>987257</attachid>
+<who name="Alexander Ploumistos">alex.ploumistos</who>
+<bug_when>2015-02-02 16:25:11 -0500</bug_when>
+<thetext>Created attachment 987257 Output from journalctl -a I am also having this problem on both i686 and x86_64. I had chunks of bash history missing every now and then and after reading this report I realized that this has been happening
+consistently after rebooting. I get the same misbehavior in local and remote sessions. It doesn&apos;t matter how I become root, &quot;su&quot;, &quot;sudo su&quot; and &quot;su -&quot; make no difference. Last time it happened, I had just updated my
+selinux-policy packages and then ordered a reboot. I am attaching the output from journalctl -a for the same time frame.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>7903573</commentid>
+<comment_count>3</comment_count>
+<who name="Alexander Ploumistos">alex.ploumistos</who>
+<bug_when>2015-02-03 08:07:16 -0500</bug_when>
+<thetext>I ran a few more tests and history loss does not happen exclusively on reboot, but sometimes also on poweroff (though, not always) and it&apos;s not just root&apos;s history that gets mangled; all users are affected.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>7914292</commentid>
+<comment_count>4</comment_count>
+<who name="Alexander Ploumistos">alex.ploumistos</who>
+<bug_when>2015-02-06 07:12:03 -0500</bug_when>
+<thetext>About a day after my last comment, the problem seems to have gone away. Dusty, could you please check if you&apos;re still seeing it?</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>7914294</commentid>
+<comment_count>5</comment_count>
+<attachid>988850</attachid>
+<who name="Alexander Ploumistos">alex.ploumistos</who>
+<bug_when>2015-02-06 07:13:16 -0500</bug_when>
+<thetext>Created attachment 988850 yum.log excerpt These are the packages that got updated in the meantime.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>7925865</commentid>
+<comment_count>6</comment_count>
+<who name="Dusty Mabe">dustymabe</who>
+<bug_when>2015-02-10 23:50:19 -0500</bug_when>
+<thetext>My recreator from comment1 still has the same behavior even after updating all packages to latest as of tonight. This includes systemd-216-17.fc21.x86_64 .</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>7926386</commentid>
+<comment_count>7</comment_count>
+<who name="Alexander Ploumistos">alex.ploumistos</who>
+<bug_when>2015-02-11 04:02:15 -0500</bug_when>
+<thetext>I too did a fresh install of F21 on a Lenovo g50-30 and after updating everything, the problem is there. I&apos;ll check my other systems again.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>7937988</commentid>
+<comment_count>8</comment_count>
+<who name="Alexander Ploumistos">alex.ploumistos</who>
+<bug_when>2015-02-14 11:29:00 -0500</bug_when>
+<thetext>This is getting worse by the day. I spent quite a few hours working from the terminal yesterday, a lot of git, rsync and several other tools that I use on a daily basis. When I finished working, I quit the terminals and shut down the system
+from the gnome menu, strongly resisting the urge to just type &quot;poweroff&quot; in my root terminal. This morning, my history was intact, both in the root account and in my user. At noon, I powered down the system exactly like the night before;
+quitting the terminals and issuing the shutdown from within gnome. Now, I turned the machine back on, root account was missing the last 5-6 typed commands but my user had this: $ history 1 su 2 history $ cat .bash_history su where there should have
+been more than a thousand commands... I really don&apos;t know if systemd is to blame, I originally posted here to avoid opening a duplicate bug report. However, something is chewing off history files and it has become more than annoying, it is
+severely impacting my work flow. Could someone list the programs or systemd units that perform history-related tasks?</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>7942284</commentid>
+<comment_count>9</comment_count>
+<who name="Alexander Ploumistos">alex.ploumistos</who>
+<bug_when>2015-02-16 12:11:17 -0500</bug_when>
+<thetext>Should we close this as a duplicate of #1183194 which contains more useful links?</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>7942372</commentid>
+<comment_count>10</comment_count>
+<who name="Dusty Mabe">dustymabe</who>
+<bug_when>2015-02-16 12:43:04 -0500</bug_when>
+<thetext>Since this bug was opened first I would vote that we add any pertinent information from that bug to this one and dup that one.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>7942450</commentid>
+<comment_count>11</comment_count>
+<who name="Alexander Ploumistos">alex.ploumistos</who>
+<bug_when>2015-02-16 13:18:24 -0500</bug_when>
+<thetext>I&apos;m sorry, I misread the bug numbers and thought it was the other way around.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>7956612</commentid>
+<comment_count>12</comment_count>
+<who name="Adam Williamson">awilliam</who>
+<bug_when>2015-02-18 14:15:36 -0500</bug_when>
+<thetext>*** Bug 1183194 has been marked as a duplicate of this bug. ***</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>7956617</commentid>
+<comment_count>13</comment_count>
+<who name="Adam Williamson">awilliam</who>
+<bug_when>2015-02-18 14:17:01 -0500</bug_when>
+<thetext>I believe this is caused by a systemd bug: https://bugzilla.redhat.com/show_bug.cgi?id=1141137 See my dupe. I also included a reproducer there: 1. Install a clean Fedora 21 2. Open a terminal, open two tabs, &apos;su&apos; in one 3. Run
+&apos;test01&apos; in one terminal, &apos;test02&apos; in the other 4. Reboot (by running &apos;reboot&apos; in either terminal or using the GNOME &apos;Restart&apos; button, it doesn&apos;t seem to matter) 5. Open a terminal, check history for both
+user and root and see if you see &apos;test01&apos; and &apos;test02&apos; 6. Open two tabs, su in one, run &apos;test03&apos; in one, &apos;test04&apos; in the other 7. GOTO 4 (at step 5 check for &apos;test03&apos; and &apos;test04&apos;,
+obviously) Loop as much as you like. Quite often, the history from one or both of the sessions running at reboot time is lost. and confirmed the bug does not affect F20 (when systemd didn&apos;t have this insta-kill behaviour).</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8013990</commentid>
+<comment_count>14</comment_count>
+<who name="Jan Synacek">jsynacek</who>
+<bug_when>2015-03-05 08:20:21 -0500</bug_when>
+<thetext>*** Bug 1199026 has been marked as a duplicate of this bug. ***</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8177502</commentid>
+<comment_count>15</comment_count>
+<who name="Olli Niemi">olliniem</who>
+<bug_when>2015-04-24 14:01:34 -0400</bug_when>
+<thetext>See also: https://bugs.launchpad.net/ubuntu/+source/mosh/+bug/1446982</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8208302</commentid>
+<comment_count>16</comment_count>
+<who name="Bojan Smojver">bojan</who>
+<bug_when>2015-05-05 23:47:07 -0400</bug_when>
+<thetext>And F-22.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8317629</commentid>
+<comment_count>17</comment_count>
+<who name="Marcos Mello">marcosfrm</who>
+<bug_when>2015-06-09 06:11:48 -0400</bug_when>
+<thetext>As Martin said in 1141137#c7 , can we have 743970d reverted? It is very annoying lose my bash history on every shutdown.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8356817</commentid>
+<comment_count>18</comment_count>
+<who name="Michael K Johnson">a1237</who>
+<bug_when>2015-06-20 21:15:58 -0400</bug_when>
+<thetext>I also experienced this after upgrading to F22. I consider this a data integrity issue.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8484328</commentid>
+<comment_count>19</comment_count>
+<who name="colin">bugzilla.redhat.com</who>
+<bug_when>2015-07-27 13:56:00 -0400</bug_when>
+<thetext>On Fedora21 my my ~/.bash_history has been truncated to length 0. :-( All I did was shutdown then power up.. [colin@k8 ~]$ yum info systemd Installed Packages Name : systemd Arch : x86_64 Version : 216 Release : 25.fc21 [colin@k8 ~]$ yum
+info bash Loaded plugins: fastestmirror, langpacks Installed Packages Name : bash Arch : x86_64 Version : 4.3.39 Release : 1.fc21 Size : 6.8 M [colin@k8 ~]$ ls -alrt /home/colin/.bash* -rw-r--r--. 1 colin colin 231 Oct 8 2014 /home/colin/.bashrc
+-rw-r--r--. 1 colin colin 193 Oct 8 2014 /home/colin/.bash_profile -rw-r--r--. 1 colin colin 18 Oct 8 2014 /home/colin/.bash_logout -rw-------. 1 colin colin 41385 Jun 1 23:57 /home/colin/.bash_history~ -rw-------. 1 colin colin 40916 Jun 2 15:52
+/home/colin/.bash_history.old -rw-------. 1 colin colin 0 Jul 27 18:17 /home/colin/.bash_history [colin@k8 ~]$</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8484352</commentid>
+<comment_count>20</comment_count>
+<who name="Adam Williamson">awilliam</who>
+<bug_when>2015-07-27 14:04:35 -0400</bug_when>
+<thetext>yeah, I think one of the #fedora-desktop guys saw the same when we were diagnosing this; I think there&apos;s some very unfortunate special case of this where, if the terminal/bash is killed at a very specific unfortunate point, the file
+gets truncated :/</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8484718</commentid>
+<comment_count>21</comment_count>
+<who name="Matthew Miller">mattdm</who>
+<bug_when>2015-07-27 15:45:18 -0400</bug_when>
+<thetext>I had mine truncated to 0 once too. It makes me a little concerned that the issue is not bash-specific and other files may have the same thing happen.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8484805</commentid>
+<comment_count>22</comment_count>
+<who name="Michael K Johnson">a1237</who>
+<bug_when>2015-07-27 16:21:30 -0400</bug_when>
+<thetext>It&apos;s not at all bash-specific; it&apos;s just that bash makes us more likely to notice, as far as I can tell. It has happened to me multiple times; to the point where I make sure to keep frequent copies of my .bash_history around as
+backups. It has hit me quite a few times now. If I have a logged-in session and reboot in any other way than choosing to reboot when logging out of a graphical session (e.g. &quot;shutdown -r now&quot; in a root shell, or the one time my X session
+quit displaying properly on F22 and I had to &quot;shutdown -r now&quot; from a terminal session) it seems to pretty reliably truncate .bash_history. But I agree, we may have arbitrary other data corruption happening due to this that is more subtle
+and harder to trigger or trace down. There&apos;s no particular reason to assume that the only way this happens is a truncated file, nor that all impact would be so immediately visible. When did data integrity failures lose their no-ship status for
+Fedora?</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8484815</commentid>
+<comment_count>23</comment_count>
+<who name="Marcos Mello">marcosfrm</who>
+<bug_when>2015-07-27 16:26:19 -0400</bug_when>
+<thetext>Upstream bug: https://github.com/systemd/systemd/issues/317</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8485481</commentid>
+<comment_count>24</comment_count>
+<who name="Adam Williamson">awilliam</who>
+<bug_when>2015-07-27 22:28:22 -0400</bug_when>
+<thetext>&quot;When did data integrity failures lose their no-ship status for Fedora?&quot; So far as I&apos;m aware there wasn&apos;t ever any such rule. There are, like, 10,000 complicated bits of software in Fedora. The chance that any given
+Fedora image contains some sort of data integrity issue is, basically, 100%. We have a release criterion: &quot;All known bugs that can cause corruption of user data must be fixed or documented at Common F23 bugs.&quot; (the release number changes as
+appropriate), so this probably ought to be in common bugs (I sorta thought it was already). That criterion was introduced with the formal release criteria revision in F13, prior to that I don&apos;t believe there was a corresponding requirement of
+any kind. Anyhow, aside from that, I think you&apos;re working with a rather squishy definition of &quot;the issue&quot;. The fact that systemd kills processes without giving them a real chance to shut down properly is of course not at all
+bash-specific, but I think the .bash_history truncation bug very likely *is* bash-specific, in the sense that the bash code is so written that if it happens to get killed at a specific point, the file gets truncated. There may of course be similar
+cases in other code, where terrible things might happen if a given process is killed at just the wrong time, but they wouldn&apos;t logically speaking be the same issue (as they&apos;d be in completely different code, so you couldn&apos;t fix them by
+changing bash), and so far as I&apos;m aware we haven&apos;t had any clear reports of such cases yet.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8485549</commentid>
+<comment_count>25</comment_count>
+<who name="Bojan Smojver">bojan</who>
+<bug_when>2015-07-27 23:01:47 -0400</bug_when>
+<thetext>(In reply to Adam Williamson from comment #24) &gt; The chance that any given Fedora &gt; image contains some sort of data integrity issue is, basically, 100%. Pure gold! That&apos;s the most accurate and the funniest thing I&apos;ve read in
+a while. We should make it a Fedora motto or something. Or at least a signature. :-) &gt; The fact that systemd kills processes without giving them a real chance to &gt; shut down properly is of course not at all bash-specific, but I think the &gt;
+.bash_history truncation bug very likely *is* bash-specific, in the sense &gt; that the bash code is so written that if it happens to get killed at a &gt; specific point, the file gets truncated. Is this maybe one of those &quot;atomic rename&quot;
+things that there was a storm about around the time ext4 was about to replace ext3?</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8485816</commentid>
+<comment_count>26</comment_count>
+<who name="Michael K Johnson">a1237</who>
+<bug_when>2015-07-28 01:13:04 -0400</bug_when>
+<thetext>(In reply to Adam Williamson from comment #24) &gt; So far as I&apos;m aware there wasn&apos;t ever any such rule. There are, like, 10,000 &gt; complicated bits of software in Fedora. The chance that any given Fedora &gt; image contains some
+sort of data integrity issue is, basically, 100%. When I was FPL it was the rule that we didn&apos;t ship with known data corruption bugs. But that was FC1 and not all the rules were written down yet... So whether it changed in F13 or had been
+informally been relaxed before that is probably lost to posterity. Thanks for the pointer to the criterion! &gt; Anyhow, aside from that, I think you&apos;re working with a rather squishy &gt; definition of &quot;the issue&quot;. I don&apos;t see
+where I wrote &quot;the issue&quot; as you quote. I think that you are right that #1141137 is the cause (&quot;The right fix for the whole mess is to port systemd to the unified cgroup logic&quot; as Lennart says in the upstream bug report) and
+should be fixed there to avoid corruption generally. So are you saying that this issue should be for possibly working around the cgroup partially implemented feature by investigating why bash is truncating the history file, and we should discuss the
+general problem of possible unrecognized data corruption in #114113? In that case, this issue (bash-specific) would still be a known data corruption issue that is specific, I would think, so adding the CommonBugs keyword is a good idea based on the
+release criterion you quoted.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8485987</commentid>
+<comment_count>27</comment_count>
+<who name="Olli Niemi">olliniem</who>
+<bug_when>2015-07-28 02:43:22 -0400</bug_when>
+<thetext>Just to get a clear picture of the case here: without knowing bash code I guess that bash is actually caching those commands in memory and when the machine should shut down, it has no time to write those commands to .bash_history?
+&quot;Systemd is a good test bench because now we can make take applications work correctly&quot; some would say. I&apos;ve actually already heard/read this comment from multiple sources. Fixing this &quot;correctly&quot; would require writing each
+line of .bash_history file separately (with a possible forced sync for each write). Avoiding unnecessary I/O activity and having delayed writes are probably more common today. Now we are running this stuff in Raspberry Pi 2, for example, with their
+particularly bad &quot;SSD drives&quot; and we want to avoid frequent small writes as much as possible. We also want to avoid unnecessary writes because of performance/load reasons. Because of systemd behavior the shutdown is now forced power off
+case for many applications. There are two possibilities: Fix to systemd: a) Simple and fast fix. (+) b) Preserve SSD lifetime. (+) c) Have better system load/performance/responsiveness. (+) d) Possibly a little bit slower (probably unnoticeable if
+implemented correctly) shutdown sequence. (-) Fix to applications: a) Investigation needed. (-) b) Documentation change needed. (-) c) Responsible parties should be notified. (-) d) All responsible applications need to be changed. (-) e) Reduced SSD
+lifetime (-) f) Have worse system load/performance/responsiveness. (-) g) Possibly a little bit faster (probably unnoticeable) shutdown sequence. (+)</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8486843</commentid>
+<comment_count>28</comment_count>
+<who name="colin">bugzilla.redhat.com</who>
+<bug_when>2015-07-28 07:38:49 -0400</bug_when>
+<thetext>Thanks to all for their contributions to that enlightening discussion. What I have learned so far: 1) There exists a serious data corruption bug which already has a longstanding bugzilla entry:
+https://bugzilla.redhat.com/show_bug.cgi?id=1141137 2) The intermittent data loss that I have occasionally noticed for many months now has been repeatedly reported by others- see 1) 3) In the intervening 10+ months since 2014-09-12 until now there
+have been MANY reports of this serious problem: http://lists.freedesktop.org/archives/systemd-devel/2014-October/024452.html https://bugs.launchpad.net/ubuntu/+source/mosh/+bug/1446982 https://bugs.launchpad.net/ubuntu/+source/systemd/+bug/1448259 3)
+Some sort of Serious Organisational Disfunction seems to be manifesting itself here whereby The Fedora Project has completely failed to release to its users a package build that either reverts the already identified patch that introduced the error or
+included improvements to fix it. Did I miss out anything else important?</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8486871</commentid>
+<comment_count>29</comment_count>
+<who name="Marcos Mello">marcosfrm</who>
+<bug_when>2015-07-28 07:49:40 -0400</bug_when>
+<thetext>(In reply to colin from comment #28) &gt; Did I miss out anything else important? Yes, RH reverted it in RHEL 7.2 systemd: https://bugzilla.redhat.com/show_bug.cgi?id=1199644</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8486890</commentid>
+<comment_count>30</comment_count>
+<who name="Jóhann B. Guðmundsson">johannbg</who>
+<bug_when>2015-07-28 07:54:37 -0400</bug_when>
+<thetext>(In reply to Michael K Johnson from comment #26) &gt; (In reply to Adam Williamson from comment #24) &gt; &gt; So far as I&apos;m aware there wasn&apos;t ever any such rule. There are, like, 10,000 &gt; &gt; complicated bits of software in
+Fedora. The chance that any given Fedora &gt; &gt; image contains some sort of data integrity issue is, basically, 100%. &gt; &gt; When I was FPL it was the rule that we didn&apos;t ship with known data corruption &gt; bugs. At the time you where the
+FPL there was no functional QA sub community in the project so you had no real means of determine if the distribution was being shipped with data corruption or not, nor was there any real testing being performed on the image being composed or being
+shipped. . .</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8487015</commentid>
+<comment_count>31</comment_count>
+<who name="colin">bugzilla.redhat.com</who>
+<bug_when>2015-07-28 08:21:37 -0400</bug_when>
+<thetext>
+Thankyou Lukas. :-) That new piece of information suggests to me that there would be no point in me being bounced into a forced update from fc21 -&gt; fc22 to get systemd-219 If http://koji.fedoraproject.org/koji/packageinfo?packageID=10477 has not
+been fixed yet. p.s. OOps I posted this in the wrong thread first. &lt;shrug&gt; Since mere BZ commentors are denied any way to fix their mistakes.. I will just have to carry on like it never happened &lt;whistles&gt;</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8487842</commentid>
+<comment_count>32</comment_count>
+<who name="Adam Williamson">awilliam</who>
+<bug_when>2015-07-28 12:02:11 -0400</bug_when>
+<thetext>colin: basically, this hasn&apos;t been treated as an especially high-priority problem in Fedora; I&apos;m not in any special position, but my personal take has been that it&apos;s more an annoyance than anything else (I run three systems
+that are subject to the bug as my main systems for daily use, though I worked around the bash case in my bash config). Again this is a personal take not anything official, but I think calling it a &apos;serious data corruption bug&apos; is sort of
+pushing things a bit - &quot;I&apos;ll look it up in my bash history!&quot; is not, to my knowledge, a widely recommended personal data storage strategy :) I don&apos;t think anyone was particularly keen to gainsay the systemd maintainers and just
+revert the commit downstream, because it&apos;s never entirely safe to do that kind of thing. Just because you&apos;ve identified that change A causes behaviour change B, and reverting change A is possible and does indeed stop behaviour change B, it
+doesn&apos;t follow that it&apos;s *all* that reverting change A does, or that reverting change A is safe. It&apos;s entirely possible that other, later changes assume that change A is in place, and reverting it from a later version of the code will
+have unexpected consequences. Obviously this isn&apos;t something anyone wants to risk lightly when it comes to systemd. Each time I&apos;ve looked at this I kind of got the impression it was expected that a proper fix would be arriving in upstream
+shortly, but at this point that seems somewhat less likely, and I&apos;m trying to get the systemd maintainers to sign off on reverting the change until a better fix is available upstream.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8487849</commentid>
+<comment_count>33</comment_count>
+<who name="Adam Williamson">awilliam</who>
+<bug_when>2015-07-28 12:03:33 -0400</bug_when>
+<thetext>michael: sorry for any confusion, I think I was conflating your comment with a parallel github discussion.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8487996</commentid>
+<comment_count>34</comment_count>
+<who name="colin">bugzilla.redhat.com</who>
+<bug_when>2015-07-28 13:03:36 -0400</bug_when>
+<thetext>Thankyou for your full reply Adam. It has certainly been useful for people to document their knowledge of what has been going on - and enabled me to examine the full history of the problem. Since I do not have the free time to expend to
+create a custom build of a shipped package, just to fix it _for_myself_ I will just hurry-up-and-wait some more. I have waited this long for Fedora to release a fix, but at least I now have hope that a fix will appear in Centos (via RHEL7.2) which
+_should_ dovetail into my existing launch schedule. (it is actually the systemd-shutdown-in-a-container-corruption issue that I am more concerned about than the &apos;my-history-disapeared-again-for-the-nth-time&apos;) Once again - thanks for now
+creating enough of a breadcrumb trail in this thread that an external observer will be able to fully appreciate the history of the problem. Perhaps it will all be sorted out for Fedora23. ;-) That is all. Thanks again, Colin</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8488691</commentid>
+<comment_count>35</comment_count>
+<who name="sforsyt">sforsyt</who>
+<bug_when>2015-07-28 19:24:11 -0400</bug_when>
+<thetext>Adam, You seem to be all over the place on this ... on the one hand saying its not that big of an issue, and just barely/not really a data integrity issue , and going so far as to be dismissive of anyone relying on .bash_history ... yet you
+then say &quot;I run three systems that are subject to the bug as my main systems for daily use, though I worked around the bash case in my bash config&quot; (yay you!) Have you ever heard the phrase &quot;eat your own dog food&quot;? To say it is
+not a big issue and reply to me in the systemd git issue queue that you knew about it, but wouldn&apos;t get around to pushing fix till F23 ... yet you found it annoying/exasperating enough to kludge a fix/work around on your own. Yet the peons who
+are not as smart as you should be ok just waiting until Oct and F23 to get the issue fixed. If its not a big deal, undo your bash config fix, and live with the pain point so you can objectively see what an issue it is ... At the very least, care to
+share bash config so we can &quot;work around&quot; it until it finally does get released? Or maybe reach out to the bash maintainers and commit it officially for the betterment of the distro? I think that clearly goes to colin&apos;s statement
+&gt;3) Some sort of Serious Organisational Disfunction seems to be manifesting itself here whereby The Fedora Project has completely failed to release to its users a package build that either reverts the already identified patch that introduced the
+error or included improvements to fix it. You also state &quot;I don&apos;t think anyone was particularly keen to gainsay the systemd maintainers and just revert the commit downstream&quot; but that is simply untrue .... The maintainer for
+Debian/Ubuntu/Redhat 7.2 have all reverted it. They eat their own dog food. You seem to take umbrage in systemd git issue queue when I repeated what I had been told by Michael Chapman ,&quot; &quot;As with many other critical Fedora packages, the
+Fedora maintainers are also upstream maintainers and they typically only backport patches to Fedora that have already applied upstream, so the best place to start would be to get this fixed upstream: https://github.com/systemd/systemd&quot; You
+answered, &quot;I&apos;m not really sure what you mean when you keep saying Fedora &apos;rely on systemd directly as an upstream sources&apos;, implying that it&apos;s somehow different from any other distro. All distros use systemd as the upstream
+source for systemd, it couldn&apos;t really be any other way.&quot; But yet this conversation seems to imply exactly that! Every other distro has recognized this as a BAD commit and reverted it. Yes or No, Does Poettering have to sign off on it
+before it can be reverted for Fedora? I DO agree with your statement, &quot;Software is complex, and it&apos;s not generally a good idea to run around whacking on buttons that superficially look like they do the right thing.&quot; ... but I feel the
+commit in question is the egregious &quot;whacking on a button&quot;.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8490904</commentid>
+<comment_count>36</comment_count>
+<who name="Michael Chapman">redhat-bugzilla</who>
+<bug_when>2015-07-29 05:40:43 -0400</bug_when>
+<thetext>(In reply to sforsyt from comment #35) &gt; You seem to take umbrage in systemd git issue queue when I repeated what I &gt; had been told by Michael Chapman ,&quot; &quot;As with many other critical Fedora &gt; packages, the Fedora
+maintainers are also upstream maintainers and they &gt; typically only backport patches to Fedora that have already applied &gt; upstream, so the best place to start would be to get this fixed upstream: &gt; https://github.com/systemd/systemd&quot;
+It was actually Michael Catanzaro, not me. :-) Just to add my point of view, I think we need to remember this bug is not really about losing Bash history. That&apos;s just the most visible symptom of the bug. systemd will SIGKILL *any* scope unit
+when that unit is stopped. The problem is not related to login scopes. It&apos;s certainly got nothing to do with the system being shutdown or rebooted: in bug #1183194 I gave a demonstration of this using &quot;systemd-run --scope&quot;. Why should
+stopping a scope unit behave any differently to stopping a service unit? Why do I need to be ultra careful that the software I run through a transient scope unit doesn&apos;t lose data when SIGKILLed, when I don&apos;t need to be so careful when
+using a full service unit? I think we do need to fully understand what reverting that commit will do. As I understand it, it&apos;s guarding against a possible-but-somewhat-unlikely race condition... and moreover, that will resolve itself
+automatically after TimeoutStopSec (which is 120 seconds for scope units). But I have yet to have any confirmation from a core systemd developer of this; I know I did ask about it at least once on the mailing list.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8491364</commentid>
+<comment_count>37</comment_count>
+<who name="Matthew Miller">mattdm</who>
+<bug_when>2015-07-29 07:58:54 -0400</bug_when>
+<thetext>Just for the record, that&apos;s not what &quot;eat your own dogfood&quot; means. But *more* importantly, bugs aren&apos;t the best place for that kind of discussion. In fact, really, since you seem to mostly be focusing on one of the people
+who is trying to help rather than focusing on the problem itself, I don&apos;t think there *is* a good place for that. However, if you want to discuss any broader issues of Fedora policies or approaches, it would be better to use the Fedora Devel or
+Fedora Test mailing lists -- let&apos;s keep this bug focused on the problem itself.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8491504</commentid>
+<comment_count>38</comment_count>
+<who name="Alexander Ploumistos">alex.ploumistos</who>
+<bug_when>2015-07-29 08:36:44 -0400</bug_when>
+<thetext>(In reply to sforsyt from comment #35) &gt; At the very least, care to share bash config so we can &quot;work around&quot; it &gt; until it finally does get released? I believe this is what you&apos;re looking for:
+https://www.happyassassin.net/2015/01/16/bash-history-with-multiple-sessions/ I think it was mentioned somewhere in one of the links from #1183194.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8491677</commentid>
+<comment_count>39</comment_count>
+<who name="Michael K Johnson">a1237</who>
+<bug_when>2015-07-29 09:17:35 -0400</bug_when>
+<thetext>(In reply to Michael Chapman from comment #36) &gt; Just to add my point of view, I think we need to remember this bug is not &gt; really about losing Bash history. That&apos;s just the most visible symptom of &gt; the bug. That&apos;s not
+my understanding. My understanding is that #1141137 is the systemd behavior of sending SIGKILL right after SIGTERM (what I understand to be a partially-implemented feature from Lennart&apos;s description in the upstream bug at github), and this bug
+is about bash losing all its history because it can&apos;t handle a SIGKILL arriving almost immediately after a SIGTERM; a bash bug that was not generally relevant until systemd started to commonly do precisely that. I believe that I contributed to
+improper aliasing of the two related but logically independent issues, and I apologize for that.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8491684</commentid>
+<comment_count>40</comment_count>
+<who name="sforsyt">sforsyt</who>
+<bug_when>2015-07-29 09:21:05 -0400</bug_when>
+<thetext>Sorry Michael Chapman for mis-attributing quote; thanks for the link Alexander.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8491759</commentid>
+<comment_count>41</comment_count>
+<who name="Michael Chapman">redhat-bugzilla</who>
+<bug_when>2015-07-29 09:38:25 -0400</bug_when>
+<thetext>(In reply to Michael K Johnson from comment #39) &gt; That&apos;s not my understanding. My understanding is that #1141137 is the &gt; systemd behavior of sending SIGKILL right after SIGTERM (what I &gt; understand to be a
+partially-implemented feature from Lennart&apos;s &gt; description in the upstream bug at github), and this bug is about &gt; bash losing all its history because it can&apos;t handle a SIGKILL &gt; arriving almost immediately after a SIGTERM; a bash
+bug that was not &gt; generally relevant until systemd started to commonly do precisely that. Yeah, that&apos;s an excellent point. By &quot;this bug&quot; I was really referring to the systemd bug, not this bugzilla ticket. But putting that aside, I
+think it&apos;d be a good idea to treat &quot;Bash&apos;s behaviour with ill-timed SIGKILLs&quot; and &quot;systemd&apos;s behaviour when stopping scope units&quot; as separate problems. They can be solved independently. Perhaps this ticket should be
+reassigned to the &quot;bash&quot; component?</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8491799</commentid>
+<comment_count>42</comment_count>
+<who name="sforsyt">sforsyt</who>
+<bug_when>2015-07-29 09:50:02 -0400</bug_when>
+<thetext>Is it really &quot;Bash&apos;s behaviour ill-timed SIGKILLs&quot;? As I understand it , you send a SIGHUP to a process to tell it to exit and explicitly give it a chance to do any house-keeping/shutdown. Sending SIGKILL immediately after
+SIGHUP ( 1 cpu cycle later) , why bother sending SIGHUP at all ... just send the SIGKILL. If anything I would guess the SIGHUP is actually what causes the &quot;problem&quot;, bash begins to shutdown and opens a filehandle with &quot;&gt;&quot;
+(truncating the existing file) , but before it can write out it is sent SIGKILL. That&apos;s purely a guess and probably gross over simplification, but I think fairly typical of how a program would be coded to handle SIGHUP</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8491894</commentid>
+<comment_count>43</comment_count>
+<who name="Jóhann B. Guðmundsson">johannbg</who>
+<bug_when>2015-07-29 10:08:06 -0400</bug_when>
+<thetext>pam sessions behaviour/logic not bash thats ( part of ) problem here.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8491913</commentid>
+<comment_count>44</comment_count>
+<who name="Michael Chapman">redhat-bugzilla</who>
+<bug_when>2015-07-29 10:11:13 -0400</bug_when>
+<thetext>(In reply to sforsyt from comment #42) &gt; Is it really &quot;Bash&apos;s behaviour ill-timed SIGKILLs&quot;? I&apos;d say so. No other signal need be involved. $ cat &gt;/tmp/history one two three four five $ HISTFILE=/tmp/history
+HISTSIZE=5 strace bash execve(&quot;/usr/bin/bash&quot;, [&quot;bash&quot;], [/* 75 vars */]) = 0 ... read(0, &quot;e&quot;, 1) = 1 write(2, &quot;e&quot;, 1e) = 1 read(0, &quot;x&quot;, 1) = 1 write(2, &quot;x&quot;, 1x) = 1 read(0, &quot;i&quot;,
+1) = 1 write(2, &quot;i&quot;, 1i) = 1 read(0, &quot;t&quot;, 1) = 1 write(2, &quot;t&quot;, 1t) = 1 read(0, &quot;\r&quot;, 1) = 1 write(2, &quot;\n&quot;, 1 ) = 1 ... stat(&quot;/tmp/history&quot;, {st_mode=S_IFREG|0600, st_size=24, ...}) = 0
+open(&quot;/tmp/history&quot;, O_WRONLY|O_APPEND) = 3 write(3, &quot;exit\n&quot;, 5) = 5 close(3) = 0 open(&quot;/tmp/history&quot;, O_RDONLY) = 3 fstat(3, {st_mode=S_IFREG|0600, st_size=29, ...}) = 0 read(3,
+&quot;one\ntwo\nthree\nfour\nfive\nexit\n&quot;, 29) = 29 close(3) = 0 open(&quot;/tmp/history&quot;, O_WRONLY|O_TRUNC) = 3 write(3, &quot;two\nthree\nfour\nfive\nexit\n&quot;, 25) = 25 close(3) = 0 ... So if the Bash process is killed anywhere
+between those last open and write commands, the history file can end up completely empty. Note that if Bash detects that the file doesn&apos;t need to be completely rewritten (i.e. it has fewer than HISTFILESIZE entries in it), it opens the file with
+O_WRONLY|O_APPEND and simply writes the new entries. This is safe even if Bash is unexpectedly killed.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8491954</commentid>
+<comment_count>45</comment_count>
+<who name="Michael Chapman">redhat-bugzilla</who>
+<bug_when>2015-07-29 10:20:46 -0400</bug_when>
+<thetext>(In reply to Michael Chapman from comment #44) &gt; Note that if Bash detects that the file doesn&apos;t need to be completely &gt; rewritten (i.e. it has fewer than HISTFILESIZE entries in it), it opens the &gt; file with O_WRONLY|O_APPEND
+and simply writes the new entries. This is safe &gt; even if Bash is unexpectedly killed. I should clarify this. It&apos;s &quot;safe&quot; in that you don&apos;t lose existing entries in the history file, but you may get none, some or all of the new
+entries, depending on exactly when the process is killed and the size of data that needs to be added. I don&apos;t consider that to be a Bash bug. Certainly though I think there could be an improvement in the way it handles the complete rewrite of
+the file, when that&apos;s necessary.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8492469</commentid>
+<comment_count>46</comment_count>
+<who name="Adam Williamson">awilliam</who>
+<bug_when>2015-07-29 12:44:00 -0400</bug_when>
+<thetext>sforsyt: When I said &apos;anyone&apos; I meant &apos;anyone in Fedora&apos;. Fedora can choose to patch this issue downstream. It has not yet done so. But that&apos;s simply a question of choice: you seemed to be suggesting that we were
+somehow prevented from doing so by some sort of technical or policy issue. This is not the case. There is no fundamental reason Fedora&apos;s systemd package cannot have downstream patches, it&apos;s simply the case that we have not chosen to patch
+this issue downstream (yet). For the record, this is what I was told by a core systemd dev when asking if they would consider it a good idea to revert the commit downstream: it&apos;s broken either way but i&apos;d rather take missing shell history
+over leaking without bounds I&apos;m asking if we can at least get a temporary fix which avoids the kills without causing unacceptable other consequences. I did note that there are consequences beyond the bash_history one. The Fedora package *can* be
+patched without the say-so of upstream systemd maintainers and even by people other than the downstream packagers, but we tend to take the advice of the former seriously and it&apos;s generally much better to avoid the latter and do things by
+consensus.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8492495</commentid>
+<comment_count>47</comment_count>
+<who name="Marcos Mello">marcosfrm</who>
+<bug_when>2015-07-29 12:52:21 -0400</bug_when>
+<thetext>(In reply to Adam Williamson from comment #46) &gt; &gt; The Fedora package *can* be patched without the say-so of upstream systemd &gt; maintainers and even by people other than the downstream packagers, but we &gt; tend to take the advice
+of the former seriously and it&apos;s generally much &gt; better to avoid the latter and do things by consensus. I agree. But how long the right fix will take? A week, a month, a year? More? This is the problem here. I would simply follow RHEL until
+the right fix arrive. My 2 cents.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8492768</commentid>
+<comment_count>48</comment_count>
+<who name="Adam Williamson">awilliam</who>
+<bug_when>2015-07-29 14:19:18 -0400</bug_when>
+<thetext>Please read comment #46.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8514308</commentid>
+<comment_count>49</comment_count>
+<who name="sforsyt">sforsyt</who>
+<bug_when>2015-08-05 10:54:56 -0400</bug_when>
+<thetext>Has there been any response from the systemd maintainer in the last 7 days on signing off on this?</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8560351</commentid>
+<comment_count>50</comment_count>
+<who name="Adam Williamson">awilliam</who>
+<bug_when>2015-08-20 13:49:24 -0400</bug_when>
+<thetext>Not since what I posted in #c46, no. Sorry. AFAIK that&apos;s still the status: upstream doesn&apos;t believe that reverting the commit is an appropriate fix, so we&apos;re waiting on something else.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8560994</commentid>
+<comment_count>51</comment_count>
+<who name="sforsyt">sforsyt</who>
+<bug_when>2015-08-20 20:30:09 -0400</bug_when>
+<thetext>Why is the discussion with &quot;upstream&quot; not being discussed in public on fedoras issue queue, but rather in private communication outside of the projects own issue queue? Many people have commented and discussed this bug, its
+implications, arguing for/against reverting patch ... have the &quot;maintainers&quot; of systemd for Fedora made one comment explaining on here? Earlier Adam said &gt;Fedora can choose to patch this issue downstream. It has not yet done so. But
+that&apos;s simply a question of choice: you seemed to be suggesting that we were somehow prevented from doing so by some sort of technical or policy issue. This is not the case. There is no fundamental reason Fedora&apos;s systemd package cannot
+have downstream patches, it&apos;s simply the case that we have not chosen to patch this issue downstream (yet). To me from the discussion (which I can&apos;t see as its completely behind closed doors) seems to be proving the opposite. The fact that
+it has taken 21 days suggests either there was alot of internal discussion on this issue ... or it was simply beneath the maintainers time to even respond to. I missed it , but in C46 you said that upstream made this comment &gt; but i&apos;d rather
+take missing shell history over leaking without bounds What &quot;leaking without bounds&quot; ... I&apos;ve not seen anyone suggest or describe this as a &quot;leak&quot; .. what type of leak is he referring to? It blocks shutdown for a few minutes
+... I&apos;d rather take THAT then data loss. Many, many people have shown and experience the data loss as per comments left on this ticket .. to my knowledge a single complaint led to that commit that caused these issue. I&apos;ve not seen multiple
+people complain this effects them nor claim that it is easily reproducible. In fact it has been the opposite, some have stated that it is a rare edge case that not everyone can reproduce or trigger. Every other distribution that has an independent
+maintainer for systemd; that can objectively decide what is best for the user base of its distribution has reverted this commit due to the impact of data loss on its users. Those other distributions have not erupted in flames or come to a screaching
+halt because of &quot;leaking without bounds&quot; , in fact I don&apos;t think there has been a single issue/ticket created since those other distributions reverted this patch complaining of an issue (ie it was a very small subset that this issue
+effected). Earlier you said if no progress was made you would revert this commit for F23 to be released in Oct ... is that still your plan?</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8561009</commentid>
+<comment_count>52</comment_count>
+<who name="Adam Williamson">awilliam</who>
+<bug_when>2015-08-20 20:44:49 -0400</bug_when>
+<thetext>There aren&apos;t any &apos;closed doors&apos;. The upstream discussion is happening on upstream&apos;s bug tracker. I usually talk to systemd devs on IRC, their IRC channel is public on freenode. &quot;Those other distributions have not
+erupted in flames or come to a screaching halt because of &quot;leaking without bounds&quot;&quot; As I understand it, the leak is a potential security issue, not a flaming eruption. If you have an authoritative technical analysis of the bug, please
+provide it.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8561012</commentid>
+<comment_count>53</comment_count>
+<who name="Fedora Blocker Bugs Application">blockerbugs</who>
+<bug_when>2015-08-20 20:46:50 -0400</bug_when>
+<thetext>Proposed as a Blocker for 23-final by Fedora user sforsythe using the blocker tracking app because: See also TTS 1141137 The commit at issue for TTS 1141137 and 1170765 has demonstrated wide spread data loss in multiple applications .. most
+notably bash history, but in a wide range of other applications as detailed by many different users in the two TTS listed above. The issue of this commit has been raised in every other major distribution (Redhat, ubuntu, debian,etc) as well; all have
+unanimously agreed that the commit causes data loss and is unacceptable for the quality and have reverted the commit. I realize fedora is a testing ground and considered &quot;bleeding edge&quot;. To experience a bug is one thing , to know a bug that
+causes data loss exists and to ignore it is another. The package maintainers for systemed for fedora have not responded one to the issues or claims raised in the TTS. Rather as I understand it they have had internal &quot;closed door&quot; discussion
+with Adam Williamson. If Lennart, Kay, and the other systemd maintainers are beyond reproach and what they say goes ... that needs to be stated clearly and simply. The illusion of of community input and feedback need to be abandoned and stated
+implicitly that the direction and quality of fedora will be determine by the appointed Redhat Employees. Simply put ... this issue seriously stains the reputation and integrity of the fedora project as it ignores data integrity. Some have tried to
+&quot;wishy wash&quot; it and say &quot;well TECHNICALLY it&apos;s a data integrity issue , but not really&quot;. Yes, it is a data integrity issue. Easily verified, easily repeatable, and effects a wide range of applications.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8561016</commentid>
+<comment_count>54</comment_count>
+<who name="Adam Williamson">awilliam</who>
+<bug_when>2015-08-20 20:47:58 -0400</bug_when>
+<thetext>er, upstream&apos;s bug tracker and mailing list, I should say (there are bits in both places). I&apos;m not closely following that, I&apos;m relying on other people&apos;s reports.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8561017</commentid>
+<comment_count>55</comment_count>
+<who name="Adam Williamson">awilliam</who>
+<bug_when>2015-08-20 20:49:56 -0400</bug_when>
+<thetext>Please don&apos;t make unwarranted extrapolations and assumptions from my comments. Look, I&apos;m trying to help here, OK? Getting on a soapbox and making unwarranted assumptions is not *helping* you to get this bug addressed, it is *hurting*.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8561025</commentid>
+<comment_count>56</comment_count>
+<who name="sforsyt">sforsyt</who>
+<bug_when>2015-08-20 20:52:00 -0400</bug_when>
+<thetext>The commit in questions changes makes one change - wait_for_exit = true; + /* wait_for_exit = true; */ No where in this TTS or in any other has anyone suggested that there is a security issue. I have followed the systemd git issue queue and
+the systemd devel mailing list and I&apos;ve never seen that stated once. If there is a security issue, why isn&apos;t it being disclosed so other downstream distribution can take appropriate actions? It sounds suspiciously like a red herring. If
+someone with &quot;authoritative technical analysis of the bug&quot; believes there is a security issue ... where is the tts for that? Please provide it.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8561028</commentid>
+<comment_count>57</comment_count>
+<who name="Adam Williamson">awilliam</who>
+<bug_when>2015-08-20 20:58:10 -0400</bug_when>
+<thetext>I&apos;m telling you what the devs told me. That&apos;s all I know. Please stop assuming bad faith, here. Reverting the commit is easy. If there isn&apos;t actually a problem with doing it, what possible reason would the developers have to
+lie? Who does that benefit? Frankly I&apos;m tired of trying to help with this bug, which is an awkward position to be in in the first place, and getting crapped on for my troubles.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8561037</commentid>
+<comment_count>58</comment_count>
+<who name="sforsyt">sforsyt</who>
+<bug_when>2015-08-20 21:08:27 -0400</bug_when>
+<thetext>The upstream issue queue to my understanding is on git, the only ticket I&apos;ve seen on this issue is https://github.com/systemd/systemd/issues/317 which has not been updated in 23 days. No one there has made any mention of a security
+issue. The devel board is http://lists.freedesktop.org/archives/systemd-devel/ and I&apos;ve not seen mention of it since Oct 2014 http://lists.freedesktop.org/archives/systemd-devel/2014-October/024452.html I&apos;m sorry your feeling beat up .. but
+your only one that seems to be responding to the issue. This is what I know as the &quot;maintainters&quot; for systemd in fedora https://admin.fedoraproject.org/pkgdb/package/systemd/ kay (Fedora devel, Fedora 23, Fedora 22, Fedora 21) harald
+(Fedora devel, Fedora 23, Fedora 22, Fedora 21) michich (Fedora devel, Fedora 23, Fedora 22, Fedora 21) lennart (Fedora devel, Fedora 23, Fedora 22, Fedora 21) and the systemd-maint (Fedora devel, Fedora 23, Fedora 22, Fedora 21) Which I don&apos;t
+know who that goes too. To my knowledge none of them have responded to the issue on this TTS here. That is a &quot;fedora&quot; issue, if the maintainers are not present for the discussion and you have to act as a middle man for them. I listed the
+systemd git issue queue, and the devel mailing forum .. I have been following them but don&apos;t see any &quot;discussion&quot; of this issue. That is why I continue to discuss it here. Is there someplace else it can be discussed?</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8561350</commentid>
+<comment_count>59</comment_count>
+<who name="Michael Chapman">redhat-bugzilla</who>
+<bug_when>2015-08-21 01:51:38 -0400</bug_when>
+<thetext>(In reply to Adam Williamson from comment #57) &gt; I&apos;m telling you what the devs told me. That&apos;s all I know. I really don&apos;t want to inflame this discussion even further, but I would like to say that I too am frustrated at the
+lack of communication from the systemd developers. It&apos;s not just this bug; I am CCed on several other systemd bugs in Fedora (e.g. [1] [2] [3]) that have had no communication from the systemd package&apos;s maintainers. It&apos;s great that we
+now hear that the systemd developers think the problem described in this bug should not be solved by simply reverting that one commit. But really, we should be getting this news from *them* (via systemd-maint or their own Bugzilla accounts), not
+indirectly through you, and certainly not after having to practically beg for the information. I really do hope there&apos;s a way we can improve communication between the systemd developers and its users in Fedora. This bug shows that the present
+situation simply isn&apos;t working well. [1] https://bugzilla.redhat.com/show_bug.cgi?id=995792 [2] https://bugzilla.redhat.com/show_bug.cgi?id=1072368 [3] https://bugzilla.redhat.com/show_bug.cgi?id=1243319</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8569902</commentid>
+<comment_count>60</comment_count>
+<who name="Adam Williamson">awilliam</who>
+<bug_when>2015-08-24 12:29:36 -0400</bug_when>
+<thetext>Discussed at 2015-08-24 blocker review meeting: http://meetbot-raw.fedoraproject.org/fedora-blocker-review/2015-08-24/f23-blocker-review.2015-08-24-16.03.log.txt . Accepted as a Final blocker per criterion &quot;All known bugs that can cause
+corruption of user data must be fixed or documented at Common F23 bugs.&quot; We also note that we consider this bug sufficiently serious that we&apos;d be unhappy with just documenting it as a resolution, this bug should be fixed.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8572655</commentid>
+<comment_count>61</comment_count>
+<who name="Hans de Goede">hdegoede</who>
+<bug_when>2015-08-25 07:43:54 -0400</bug_when>
+<thetext>*** Bug 1238456 has been marked as a duplicate of this bug. ***</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8591456</commentid>
+<comment_count>62</comment_count>
+<who name="Michael Catanzaro">mcatanzaro</who>
+<bug_when>2015-08-31 19:30:15 -0400</bug_when>
+<thetext>*** Bug 1141137 has been marked as a duplicate of this bug. ***</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8601388</commentid>
+<comment_count>63</comment_count>
+<who name="Chris Smart">fedora</who>
+<bug_when>2015-09-03 04:02:41 -0400</bug_when>
+<thetext>This upstream commit looks relevant https://github.com/poettering/systemd/commit/e9db43d5910717a1084924c512bf85e2b8265375</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8655921</commentid>
+<comment_count>64</comment_count>
+<who name="Adam Williamson">awilliam</who>
+<bug_when>2015-09-22 03:16:23 -0400</bug_when>
+<thetext>Well, kinda, but I think part of this comment: https://github.com/systemd/systemd/pull/350#issuecomment-137005614 is about that. Note: &quot;I also made a change as part of #1111 (e9db43d) that reenables waiting for cgroup empty events on
+the legacy hierarchy under certain conditions, specifically when the unit in question is not a delegation unit, and we are not running in a container (which won&apos;t do a thing about the session case though, as session scopes are delegation
+units).&quot; so, I don&apos;t think it helps the major case we care about here.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8667198</commentid>
+<comment_count>65</comment_count>
+<who name="Michal Sekletar">msekleta</who>
+<bug_when>2015-09-24 19:16:28 -0400</bug_when>
+<thetext>I just pushed batch of bugfixes for systemd to F23 along with revert which should fix this bug. I know that revert is trade-off rather than fix, but I fear we don&apos;t have any other viable options. Build is already underway and scratch
+build is here http://koji.fedoraproject.org/koji/taskinfo?taskID=11217918</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8667263</commentid>
+<comment_count>66</comment_count>
+<who name="Adam Williamson">awilliam</who>
+<bug_when>2015-09-24 19:42:34 -0400</bug_when>
+<thetext>Thanks a lot. Can we please do the same for F22?</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8667264</commentid>
+<comment_count>67</comment_count>
+<who name="Marcos Mello">marcosfrm</who>
+<bug_when>2015-09-24 19:47:00 -0400</bug_when>
+<thetext>And for F21 maybe?</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8668431</commentid>
+<comment_count>68</comment_count>
+<who name="Michal Sekletar">msekleta</who>
+<bug_when>2015-09-25 05:05:36 -0400</bug_when>
+<thetext>I changed my mind a bit about revert. I think more sensible would be to backport this change [1] instead. It should cover most cases we care about here, i.e. login sessions, since those are not delegation units.
+https://github.com/systemd/systemd/commit/e9db43d5910717a1084924c512bf85e2b8265375</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8668484</commentid>
+<comment_count>69</comment_count>
+<who name="Michael Chapman">redhat-bugzilla</who>
+<bug_when>2015-09-25 05:29:43 -0400</bug_when>
+<thetext>(In reply to Michal Sekletar from comment #68) &gt; I changed my mind a bit about revert. I think more sensible would be to &gt; backport this change [1] instead. It should cover most cases we care about &gt; here, i.e. login sessions, since
+those are not delegation units. Doesn&apos;t Lennart&apos;s comment directly contradict that? &quot;&quot;&quot; I also made a change as part of #1111 (e9db43d) that reenables waiting for cgroup empty events on the legacy hierarchy under certain
+conditions, ... (which won&apos;t do a thing about the session case though, as session scopes are delegation units). &quot;&quot;&quot; I am also worried about how he said this won&apos;t help SSH-parented scopes, since that is the *specific* case
+that bothers me the most: I log into a remote system, make some changes, run &quot;reboot&quot;, and my Bash history doesn&apos;t get saved.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8668611</commentid>
+<comment_count>70</comment_count>
+<who name="Michal Sekletar">msekleta</who>
+<bug_when>2015-09-25 06:17:42 -0400</bug_when>
+<thetext>Hmm, you are probably right. But I am bit puzzled, because on my machine $ systemctl show -p Delegate session-1.scope Delegate=no Anyway, I will ask Lennart.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8669276</commentid>
+<comment_count>71</comment_count>
+<who name="Fedora Update System">updates</who>
+<bug_when>2015-09-25 09:35:13 -0400</bug_when>
+<thetext>systemd-222-6.fc23 has been submitted as an update to Fedora 23. https://bodhi.fedoraproject.org/updates/FEDORA-2015-1e06faabb7</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8671563</commentid>
+<comment_count>72</comment_count>
+<who name="Fedora Update System">updates</who>
+<bug_when>2015-09-26 20:54:55 -0400</bug_when>
+<thetext>systemd-222-6.fc23 has been pushed to the Fedora 23 testing repository. If problems still persist, please make note of it in this bug report. If you want to test the update, you can install it with $ su -c &apos;dnf
+--enablerepo=updates-testing update systemd&apos; You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2015-1e06faabb7</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8689232</commentid>
+<comment_count>73</comment_count>
+<who name="Fedora Update System">updates</who>
+<bug_when>2015-10-03 13:38:46 -0400</bug_when>
+<thetext>systemd-222-6.fc23 has been pushed to the Fedora 23 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8709905</commentid>
+<comment_count>74</comment_count>
+<who name="Hin-Tak Leung">htl10</who>
+<bug_when>2015-10-11 21:39:29 -0400</bug_when>
+<thetext>Argh, this&apos;s what it is - I arrived at the bug from reading F23 common bugs (contemplating upgrades and getting prepared), and realise this is why occasionally I felt the systemd seems to be shutting down a bit too quickly than I felt
+it should, *and* coming back up needing fsck and/or various small things seem to get corrupted. FWIW I am seeing a pattern of systemd devs going for news-headline-worthy speed-claims over anything else. &quot;We shut down faster than anybody
+else!&quot;. A while back systemd was killing gdm if it takes more than 45(?) seconds to start, risking putting older slower systems in limbo, with no GUI and no console, killing gdm mid-boot; I just filed a bug a few hours ago on journald
+self-destructing repeatedly corrupting the journal every 15 minutes when I had a big &apos;git gc&apos; going... What&apos;s wrong with the idea of giving other pieces of software reasonable amount of time to do their work, and patiently wait a bit?</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8710090</commentid>
+<comment_count>75</comment_count>
+<who name="Adam Williamson">awilliam</who>
+<bug_when>2015-10-12 00:06:45 -0400</bug_when>
+<thetext>This isn&apos;t some kind of excessive optimization, it&apos;s more an unfortunate consequence of larger changes which aren&apos;t really anything to do with speed.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8723727</commentid>
+<comment_count>76</comment_count>
+<who name="">bof90</who>
+<bug_when>2015-10-15 07:28:07 -0400</bug_when>
+<thetext>Hi all. Anyone know if an updated package to fix this is likely to get rolled out to fedora 22?</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8804572</commentid>
+<comment_count>77</comment_count>
+<who name="MaxiPunkt">maxantispam</who>
+<bug_when>2015-11-09 13:20:05 -0500</bug_when>
+<thetext>Hi there, I also would appreciate if the fix would be backported to FC22 as well. Currently all programs left open in my favorite desktop-environment (KDE) are being closed after shutdown/reboot, which is very annoying. If this should be a
+separate issue please apologize for the noise.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>8805436</commentid>
+<comment_count>78</comment_count>
+<who name="Neil">ledufff</who>
+<bug_when>2015-11-09 19:32:07 -0500</bug_when>
+<thetext>Lads. https://bugzilla.redhat.com/show_bug.cgi?id=1274537</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9741090</commentid>
+<comment_count>79</comment_count>
+<who name="Bojan Smojver">bojan</who>
+<bug_when>2016-09-25 18:01:41 -0400</bug_when>
+<thetext>I&apos;m going to reopen this. I started losing history again on reboots. x64_64 VM running on ESXi.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9759262</commentid>
+<comment_count>80</comment_count>
+<who name="Chris Smart">fedora</who>
+<bug_when>2016-10-01 18:32:07 -0400</bug_when>
+<thetext>Just adding that it started again with Fedora 24 (and 25) for me also, on real hardware (X1 laptop), so it&apos;s not specific to VM or ESXi.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9773212</commentid>
+<comment_count>81</comment_count>
+<who name="Alexander Ploumistos">alex.ploumistos</who>
+<bug_when>2016-10-07 07:48:47 -0400</bug_when>
+<thetext>Add Fedora 23 to the list. (Currently with systemd-222-16.fc23.x86_64)</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9796047</commentid>
+<comment_count>82</comment_count>
+<who name="Patrick Dung">patrick_dkt</who>
+<bug_when>2016-10-17 04:01:26 -0400</bug_when>
+<thetext>Hello, I have system shutdown script to shutdown databases before poweroff/reboot. The system shutdown script could not shutdown the database timely because some database processes was killed before the database is shutdown properly. The
+databases need to perform recovery process every time when the system start up.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9885432</commentid>
+<comment_count>83</comment_count>
+<who name="Bojan Smojver">bojan</who>
+<bug_when>2016-11-12 16:55:08 -0500</bug_when>
+<thetext>Just had this happen on an upgraded F25 VM. So, not fixed there either.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9885641</commentid>
+<comment_count>84</comment_count>
+<who name="Adam Williamson">awilliam</who>
+<bug_when>2016-11-13 01:19:17 -0500</bug_when>
+<thetext>I think the cause is probably somewhat different at some point, but yes, this does appear to be happening again. All processes are also instakilled on *logout* from GNOME. Not sure about other desktops.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9885650</commentid>
+<comment_count>85</comment_count>
+<who name="Adam Williamson">awilliam</who>
+<bug_when>2016-11-13 02:09:44 -0500</bug_when>
+<thetext>There really hasn&apos;t been any change to systemd particularly in F23 lately which looks like it should cause this. Can anyone provide any more precision on when they observed this behaviour changing? I&apos;ve checked the latest F23, and
+it still has the reversion of the change that originally caused the bug, so it&apos;s definitely not the *same* issue again. F24 and F25 have different code because the &apos;unified hierarchy&apos; thing landed there, but I don&apos;t know the ins
+and outs of that enough to know if that&apos;s a problem.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9885745</commentid>
+<comment_count>86</comment_count>
+<who name="Alexander Ploumistos">alex.ploumistos</who>
+<bug_when>2016-11-13 05:39:36 -0500</bug_when>
+<thetext>(In reply to Adam Williamson from comment #85) &gt; There really hasn&apos;t been any change to systemd particularly in F23 lately &gt; which looks like it should cause this. Can anyone provide any more precision &gt; on when they observed
+this behaviour changing? I think it was about a week before I commented here, so somewhere around October 10. The last commands in root&apos;s history weren&apos;t what I remembered. I have upgraded this system to F25, but I have kept a Fedora 23
+MATE VM, because I need scidavis. Should I run any tests in that one?</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9888894</commentid>
+<comment_count>87</comment_count>
+<who name="Adam Williamson">awilliam</who>
+<bug_when>2016-11-14 11:08:15 -0500</bug_when>
+<thetext>We accepted this as an F23 Final blocker, and several people are reporting it again on F25, so we really should consider it again for F25.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9888918</commentid>
+<comment_count>88</comment_count>
+<who name="Adam Williamson">awilliam</who>
+<bug_when>2016-11-14 11:13:35 -0500</bug_when>
+<thetext>zbyszek, do you have an idea why this has started happening again?</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9889024</commentid>
+<comment_count>89</comment_count>
+<who name="Adam Williamson">awilliam</who>
+<bug_when>2016-11-14 11:43:20 -0500</bug_when>
+<thetext>For the record (as I may not be at the blocker bug meeting), I start as a +/-0 on this. I&apos;m hoping we get more info by the time of / during the meeting.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9889488</commentid>
+<comment_count>90</comment_count>
+<who name="Adam Williamson">awilliam</who>
+<bug_when>2016-11-14 14:35:15 -0500</bug_when>
+<thetext>Discussed at 2016-11-14 blocker review meeting: https://meetbot-raw.fedoraproject.org/fedora-blocker-review/2016-11-14/f25-blocker-review.2016-11-14-17.00.html . We agreed to delay the decision on this bug for further testing and input from
+developers. We may open a new bug and transfer the proposed blocker status there, as this does not seem to have the same root cause as the case from last year.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9889549</commentid>
+<comment_count>91</comment_count>
+<who name="Zbigniew Jędrzejewski-Szmek">zbyszek</who>
+<bug_when>2016-11-14 14:50:33 -0500</bug_when>
+<thetext>Sorry for not looking into this easier. Too many bugs :( I think the following is happening: systemd will not wait for processes to terminate under certain conditions. In this case the relevant one is that Delegate=yes is set for the unit.
+Currently, gnome-terminal runs as systemd --user unit, which means that from the POV of PID1, it is part of user@.service, which has Delegate=yes. So... we have the following conundrum: current code SGIKILLs graphical terminal sessions. If we simply
+always wait, systemd will &quot;hang&quot; (for 180s probably) in some cases during shutdown. Dunno, there&apos;s no nice solution here, but it&apos;s probably better to hang (if it happens rarely) than the current situation. I&apos;ll prep a patch
+to drop the Delegate=yes part of the condition for F25.</thetext>
+</long_desc>
+<long_desc isprivate="0">
+<commentid>9889610</commentid>
+<comment_count>92</comment_count>
+<who name="Adam Williamson">awilliam</who>
+<bug_when>2016-11-14 15:00:59 -0500</bug_when>
+<thetext>I&apos;ve opened a new bug here since the long history could be kinda confusing in this one: https://bugzilla.redhat.com/show_bug.cgi?id=1394937 The original bug here clearly was fixed and remains so, so closing again.</thetext>
+</long_desc>
+
+<attachment isobsolete="0" ispatch="0" isprivate="0">
+<attachid>987257</attachid>
+<date>2015-02-02 16:25:00 -0500</date>
+<delta_ts>2015-02-02 16:25:11 -0500</delta_ts>
+<desc>Output from journalctl -a</desc>
+<filename>journal</filename>
+<type>text/plain</type>
+<size>14181</size>
+<attacher name="Alexander Ploumistos">alex.ploumistos</attacher>
+
+<data encoding="base64">RmViIDAyIDIyOjExOjM3IDxob3N0PiB5dW1bODczM106IFVwZGF0ZWQ6IHNlbGludXgtcG9saWN5 LXRhcmdldGVkLTMuMTMuMS0xMDUuMi5mYzIxLm5vYXJjaApGZWIgMDIgMjI6MTE6MzkgPGhvc3Q+
+IHl1bVs4NzMzXTogVXBkYXRlZDogc2VsaW51eC1wb2xpY3ktZG9jLTMuMTMuMS0xMDUuMi5mYzIx Lm5vYXJjaApGZWIgMDIgMjI6MTE6NTYgPGhvc3Q+IHl1bVs4NzMzXTogVXBkYXRlZDogc2VsaW51 eC1wb2xpY3ktZGV2ZWwtMy4xMy4xLTEwNS4yLmZjMjEubm9hcmNoCkZlYiAwMiAyMjoxMzo0NCA8
+aG9zdD4gZ25vbWUtc2Vzc2lvbls0MDY0XTogKGdub21lLXNldHRpbmdzLWRhZW1vbjo0MjU3KTog aG91c2VrZWVwaW5nLXBsdWdpbi1XQVJOSU5HICoqOiBGYWlsZWQgdG8gZW51bWVyYXRlIGNoaWxk cmVuIG9mIC90bXAvc3lzdGVtZC1wcml2YXRlLTFhZTBkYzYzNDkzNTQ1MDVhZmU3ZWMyOTA1MDM1
+MGQzLWN1cHMuc2VydmljZS12NUo5bFc6IFBlcm1pc3Npb24gZGVuaWVkCkZlYiAwMiAyMjoxMzo0 NCA8aG9zdD4gZ25vbWUtc2Vzc2lvbls0MDY0XTogKGdub21lLXNldHRpbmdzLWRhZW1vbjo0MjU3 KTogaG91c2VrZWVwaW5nLXBsdWdpbi1XQVJOSU5HICoqOiBGYWlsZWQgdG8gZW51bWVyYXRlIGNo
+aWxkcmVuIG9mIC90bXAvc3lzdGVtZC1wcml2YXRlLTFhZTBkYzYzNDkzNTQ1MDVhZmU3ZWMyOTA1 MDM1MGQzLXJ0a2l0LWRhZW1vbi5zZXJ2aWNlLVJuUHhBczogUGVybWlzc2lvbiBkZW5pZWQKRmVi IDAyIDIyOjEzOjQ0IDxob3N0PiBnbm9tZS1zZXNzaW9uWzQwNjRdOiAoZ25vbWUtc2V0dGluZ3Mt
+ZGFlbW9uOjQyNTcpOiBob3VzZWtlZXBpbmctcGx1Z2luLVdBUk5JTkcgKio6IEZhaWxlZCB0byBl bnVtZXJhdGUgY2hpbGRyZW4gb2YgL3RtcC9zeXN0ZW1kLXByaXZhdGUtMWFlMGRjNjM0OTM1NDUw NWFmZTdlYzI5MDUwMzUwZDMtY29sb3JkLnNlcnZpY2UtMFU3Sk04OiBQZXJtaXNzaW9uIGRlbmll
+ZApGZWIgMDIgMjI6MTM6NDQgPGhvc3Q+IGdub21lLXNlc3Npb25bNDA2NF06IChnbm9tZS1zZXR0 aW5ncy1kYWVtb246NDI1Nyk6IGhvdXNla2VlcGluZy1wbHVnaW4tV0FSTklORyAqKjogRmFpbGVk IHRvIGVudW1lcmF0ZSBjaGlsZHJlbiBvZiAvdmFyL3RtcC9zeXN0ZW1kLWNvbG9yZC5zZXJ2aWNl
+LVhVMW9EYkU6IFBlcm1pc3Npb24gZGVuaWVkCkZlYiAwMiAyMjoxMzo0NCA8aG9zdD4gZ25vbWUt c2Vzc2lvbls0MDY0XTogKGdub21lLXNldHRpbmdzLWRhZW1vbjo0MjU3KTogaG91c2VrZWVwaW5n LXBsdWdpbi1XQVJOSU5HICoqOiBGYWlsZWQgdG8gZW51bWVyYXRlIGNoaWxkcmVuIG9mIC92YXIv
+dG1wL3N5c3RlbWQtcnRraXQtZGFlbW9uLnNlcnZpY2UtWFYyd01kMTogUGVybWlzc2lvbiBkZW5p ZWQKRmViIDAyIDIyOjEzOjQ0IDxob3N0PiBnbm9tZS1zZXNzaW9uWzQwNjRdOiAoZ25vbWUtc2V0 dGluZ3MtZGFlbW9uOjQyNTcpOiBob3VzZWtlZXBpbmctcGx1Z2luLVdBUk5JTkcgKio6IEZhaWxl
+ZCB0byBlbnVtZXJhdGUgY2hpbGRyZW4gb2YgL3Zhci90bXAvc3lzdGVtZC1jdXBzLnNlcnZpY2Ut WHE5QVRYZTogUGVybWlzc2lvbiBkZW5pZWQKRmViIDAyIDIyOjEzOjQ0IDxob3N0PiBnbm9tZS1z ZXNzaW9uWzQwNjRdOiAoZ25vbWUtc2V0dGluZ3MtZGFlbW9uOjQyNTcpOiBob3VzZWtlZXBpbmct
+cGx1Z2luLVdBUk5JTkcgKio6IEZhaWxlZCB0byBlbnVtZXJhdGUgY2hpbGRyZW4gb2YgL3Zhci90 bXAvc3lzdGVtZC1jdXBzLnNlcnZpY2UtWHlYejMwZzogUGVybWlzc2lvbiBkZW5pZWQKRmViIDAy IDIyOjEzOjQ0IDxob3N0PiBnbm9tZS1zZXNzaW9uWzQwNjRdOiAoZ25vbWUtc2V0dGluZ3MtZGFl
+bW9uOjQyNTcpOiBob3VzZWtlZXBpbmctcGx1Z2luLVdBUk5JTkcgKio6IEZhaWxlZCB0byBlbnVt ZXJhdGUgY2hpbGRyZW4gb2YgL3Zhci90bXAvc3lzdGVtZC1jb2xvcmQuc2VydmljZS1YMThzVmJk OiBQZXJtaXNzaW9uIGRlbmllZApGZWIgMDIgMjI6MTM6NDQgPGhvc3Q+IGdub21lLXNlc3Npb25b
+NDA2NF06IChnbm9tZS1zZXR0aW5ncy1kYWVtb246NDI1Nyk6IGhvdXNla2VlcGluZy1wbHVnaW4t V0FSTklORyAqKjogRmFpbGVkIHRvIGVudW1lcmF0ZSBjaGlsZHJlbiBvZiAvdmFyL3RtcC9zeXN0 ZW1kLXJ0a2l0LWRhZW1vbi5zZXJ2aWNlLVhrcVpheUc6IFBlcm1pc3Npb24gZGVuaWVkCkZlYiAw
+MiAyMjoxMzo0NCA8aG9zdD4gZ25vbWUtc2Vzc2lvbls0MDY0XTogKGdub21lLXNldHRpbmdzLWRh ZW1vbjo0MjU3KTogaG91c2VrZWVwaW5nLXBsdWdpbi1XQVJOSU5HICoqOiBGYWlsZWQgdG8gZW51 bWVyYXRlIGNoaWxkcmVuIG9mIC92YXIvdG1wL3N5c3RlbWQtY29sb3JkLnNlcnZpY2UtWE1mdEVP
+RzogUGVybWlzc2lvbiBkZW5pZWQKRmViIDAyIDIyOjEzOjQ0IDxob3N0PiBnbm9tZS1zZXNzaW9u WzQwNjRdOiAoZ25vbWUtc2V0dGluZ3MtZGFlbW9uOjQyNTcpOiBob3VzZWtlZXBpbmctcGx1Z2lu LVdBUk5JTkcgKio6IEZhaWxlZCB0byBlbnVtZXJhdGUgY2hpbGRyZW4gb2YgL3Zhci90bXAvc3lz
+dGVtZC1ydGtpdC1kYWVtb24uc2VydmljZS1YUm9WS2c2OiBQZXJtaXNzaW9uIGRlbmllZApGZWIg MDIgMjI6MTM6NDQgPGhvc3Q+IGdub21lLXNlc3Npb25bNDA2NF06IChnbm9tZS1zZXR0aW5ncy1k YWVtb246NDI1Nyk6IGhvdXNla2VlcGluZy1wbHVnaW4tV0FSTklORyAqKjogRmFpbGVkIHRvIGVu
+dW1lcmF0ZSBjaGlsZHJlbiBvZiAvdmFyL3RtcC9zeXN0ZW1kLWN1cHMuc2VydmljZS1YVUVtY3NZ OiBQZXJtaXNzaW9uIGRlbmllZApGZWIgMDIgMjI6MTM6NDQgPGhvc3Q+IGdub21lLXNlc3Npb25b NDA2NF06IChnbm9tZS1zZXR0aW5ncy1kYWVtb246NDI1Nyk6IGhvdXNla2VlcGluZy1wbHVnaW4t
+V0FSTklORyAqKjogRmFpbGVkIHRvIGVudW1lcmF0ZSBjaGlsZHJlbiBvZiAvdmFyL3RtcC9zeXN0 ZW1kLWNvbG9yZC5zZXJ2aWNlLVh5ZEJ3eGs6IFBlcm1pc3Npb24gZGVuaWVkCkZlYiAwMiAyMjox Mzo0NCA8aG9zdD4gZ25vbWUtc2Vzc2lvbls0MDY0XTogKGdub21lLXNldHRpbmdzLWRhZW1vbjo0
+MjU3KTogaG91c2VrZWVwaW5nLXBsdWdpbi1XQVJOSU5HICoqOiBGYWlsZWQgdG8gZW51bWVyYXRl IGNoaWxkcmVuIG9mIC92YXIvdG1wL3N5c3RlbWQtY3Vwcy5zZXJ2aWNlLVh2NWJPTmg6IFBlcm1p c3Npb24gZGVuaWVkCkZlYiAwMiAyMjoxMzo0NCA8aG9zdD4gZ25vbWUtc2Vzc2lvbls0MDY0XTog
+KGdub21lLXNldHRpbmdzLWRhZW1vbjo0MjU3KTogaG91c2VrZWVwaW5nLXBsdWdpbi1XQVJOSU5H ICoqOiBGYWlsZWQgdG8gZW51bWVyYXRlIGNoaWxkcmVuIG9mIC92YXIvdG1wL3N5c3RlbWQtcnRr aXQtZGFlbW9uLnNlcnZpY2UtWEhFR1VYYzogUGVybWlzc2lvbiBkZW5pZWQKRmViIDAyIDIyOjEz
+OjQ0IDxob3N0PiBnbm9tZS1zZXNzaW9uWzQwNjRdOiAoZ25vbWUtc2V0dGluZ3MtZGFlbW9uOjQy NTcpOiBob3VzZWtlZXBpbmctcGx1Z2luLVdBUk5JTkcgKio6IEZhaWxlZCB0byBlbnVtZXJhdGUg Y2hpbGRyZW4gb2YgL3Zhci90bXAvc3lzdGVtZC1jdXBzLnNlcnZpY2UtWDd5VWJiMTogUGVybWlz
+c2lvbiBkZW5pZWQKRmViIDAyIDIyOjEzOjQ0IDxob3N0PiBnbm9tZS1zZXNzaW9uWzQwNjRdOiAo Z25vbWUtc2V0dGluZ3MtZGFlbW9uOjQyNTcpOiBob3VzZWtlZXBpbmctcGx1Z2luLVdBUk5JTkcg Kio6IEZhaWxlZCB0byBlbnVtZXJhdGUgY2hpbGRyZW4gb2YgL3Zhci90bXAvc3lzdGVtZC1ydGtp
+dC1kYWVtb24uc2VydmljZS1YWUtFQkljOiBQZXJtaXNzaW9uIGRlbmllZApGZWIgMDIgMjI6MTM6 NDQgPGhvc3Q+IGdub21lLXNlc3Npb25bNDA2NF06IChnbm9tZS1zZXR0aW5ncy1kYWVtb246NDI1 Nyk6IGhvdXNla2VlcGluZy1wbHVnaW4tV0FSTklORyAqKjogRmFpbGVkIHRvIGVudW1lcmF0ZSBj
+aGlsZHJlbiBvZiAvdmFyL3RtcC9zeXN0ZW1kLWNvbG9yZC5zZXJ2aWNlLVgwd2RRSHE6IFBlcm1p c3Npb24gZGVuaWVkCkZlYiAwMiAyMjoxMzo0NCA8aG9zdD4gZ25vbWUtc2Vzc2lvbls0MDY0XTog KGdub21lLXNldHRpbmdzLWRhZW1vbjo0MjU3KTogaG91c2VrZWVwaW5nLXBsdWdpbi1XQVJOSU5H
+ICoqOiBGYWlsZWQgdG8gZW51bWVyYXRlIGNoaWxkcmVuIG9mIC92YXIvdG1wL2FicnQvUHl0aG9u LTIwMTUtMDEtMjMtMjM6Mjc6MTYtNjczNTogUGVybWlzc2lvbiBkZW5pZWQKRmViIDAyIDIyOjEz OjQ0IDxob3N0PiBnbm9tZS1zZXNzaW9uWzQwNjRdOiAoZ25vbWUtc2V0dGluZ3MtZGFlbW9uOjQy
+NTcpOiBob3VzZWtlZXBpbmctcGx1Z2luLVdBUk5JTkcgKio6IEZhaWxlZCB0byBlbnVtZXJhdGUg Y2hpbGRyZW4gb2YgL3Zhci90bXAvc3lzdGVtZC1wcml2YXRlLTFhZTBkYzYzNDkzNTQ1MDVhZmU3 ZWMyOTA1MDM1MGQzLWNvbG9yZC5zZXJ2aWNlLTcxM1JpaTogUGVybWlzc2lvbiBkZW5pZWQKRmVi
+IDAyIDIyOjEzOjQ0IDxob3N0PiBnbm9tZS1zZXNzaW9uWzQwNjRdOiAoZ25vbWUtc2V0dGluZ3Mt ZGFlbW9uOjQyNTcpOiBob3VzZWtlZXBpbmctcGx1Z2luLVdBUk5JTkcgKio6IEZhaWxlZCB0byBl bnVtZXJhdGUgY2hpbGRyZW4gb2YgL3Zhci90bXAvc3lzdGVtZC1wcml2YXRlLTFhZTBkYzYzNDkz
+NTQ1MDVhZmU3ZWMyOTA1MDM1MGQzLXJ0a2l0LWRhZW1vbi5zZXJ2aWNlLWszWWVTQzogUGVybWlz c2lvbiBkZW5pZWQKRmViIDAyIDIyOjEzOjQ0IDxob3N0PiBnbm9tZS1zZXNzaW9uWzQwNjRdOiAo Z25vbWUtc2V0dGluZ3MtZGFlbW9uOjQyNTcpOiBob3VzZWtlZXBpbmctcGx1Z2luLVdBUk5JTkcg
+Kio6IEZhaWxlZCB0byBlbnVtZXJhdGUgY2hpbGRyZW4gb2YgL3Zhci90bXAvc3lzdGVtZC1wcml2 YXRlLTFhZTBkYzYzNDkzNTQ1MDVhZmU3ZWMyOTA1MDM1MGQzLWN1cHMuc2VydmljZS1vMDU1bGg6 IFBlcm1pc3Npb24gZGVuaWVkCkZlYiAwMiAyMjoxMzo0NSA8aG9zdD4gb3JnLmdub21lLmV2b2x1
+dGlvbi5kYXRhc2VydmVyLlNvdXJjZXMzWzQwNzJdOiAqKiAoZXZvbHV0aW9uLXNvdXJjZS1yZWdp c3RyeTo0MzM1KTogV0FSTklORyAqKjogc2VjcmV0X3NlcnZpY2Vfc2VhcmNoX3N5bmM6IG11c3Qg c3BlY2lmeSBhdCBsZWFzdCBvbmUgYXR0cmlidXRlIHRvIG1hdGNoCkZlYiAwMiAyMjoyMDowMCA8
+aG9zdD4gZ25vbWUtc2Vzc2lvbls0MDY0XTogV2luZG93IG1hbmFnZXIgd2FybmluZzogSW52YWxp ZCBXTV9UUkFOU0lFTlRfRk9SIHdpbmRvdyAweDQyMDAwN2Ygc3BlY2lmaWVkIGZvciAweDQyNmI2 NGIgKEJldHRlclByaXYpLgpGZWIgMDIgMjI6MjA6MzYgPGhvc3Q+IGdub21lLXNlc3Npb25bNDA2
+NF06IFJlY2VpdmVkIHNpZ25hbDoxNS0+J1Rlcm1pbmF0ZWQnCkZlYiAwMiAyMjoyMDozNiA8aG9z dD4gZ25vbWUtc2Vzc2lvbls0MDY0XTogT0sKRmViIDAyIDIyOjIwOjM2IDxob3N0PiBnbm9tZS1z ZXNzaW9uWzQwNjRdOiBSZWNlaXZlZCBzaWduYWw6MTUtPidUZXJtaW5hdGVkJwpGZWIgMDIgMjI6
+MjA6MzYgPGhvc3Q+IHVtb3VudFsxNTQ1MF06IHVtb3VudDogL3Zhci9saWIvbmZzL3JwY19waXBl ZnM6IHRhcmdldCBpcyBidXN5CkZlYiAwMiAyMjoyMDozNiA8aG9zdD4gdW1vdW50WzE1NDUwXTog KEluIHNvbWUgY2FzZXMgdXNlZnVsIGluZm8gYWJvdXQgcHJvY2Vzc2VzIHRoYXQKRmViIDAyIDIy
+OjIwOjM2IDxob3N0PiB1bW91bnRbMTU0NTBdOiB1c2UgdGhlIGRldmljZSBpcyBmb3VuZCBieSBs c29mKDgpIG9yIGZ1c2VyKDEpLikKRmViIDAyIDIyOjIwOjM2IDxob3N0PiBrZXJuZWw6IG5mc2Q6 IGxhc3Qgc2VydmVyIGhhcyBleGl0ZWQsIGZsdXNoaW5nIGV4cG9ydCBjYWNoZQpGZWIgMDIgMjI6
+MjA6MzYgPGhvc3Q+IGJsdWV0b290aGRbOTA2XTogRW5kcG9pbnQgdW5yZWdpc3RlcmVkOiBzZW5k ZXI9OjEuMTEyIHBhdGg9L01lZGlhRW5kcG9pbnQvQTJEUFNvdXJjZQpGZWIgMDIgMjI6MjA6MzYg PGhvc3Q+IGJsdWV0b290aGRbOTA2XTogRW5kcG9pbnQgdW5yZWdpc3RlcmVkOiBzZW5kZXI9OjEu
+MTEyIHBhdGg9L01lZGlhRW5kcG9pbnQvQTJEUFNpbmsKRmViIDAyIDIyOjIwOjM2IDxob3N0PiBi bHVldG9vdGhkWzkwNl06IFRlcm1pbmF0aW5nCkZlYiAwMiAyMjoyMDozNiA8aG9zdD4gY2hyb255 ZFs5MTddOiBjaHJvbnlkIGV4aXRpbmcKRmViIDAyIDIyOjIwOjM2IDxob3N0PiB1cHNkWzE3Njdd
+OiBVc2VyIDx1cHNfdXNlcj5AMTI3LjAuMC4xIGxvZ2dlZCBvdXQgZnJvbSBVUFMgW21nZXVwc10K RmViIDAyIDIyOjIwOjM2IDxob3N0PiBOZXR3b3JrTWFuYWdlclsxMDE0XTogPHdhcm4+ICBlcnJv ciByZXF1ZXN0aW5nIGF1dGggZm9yIG9yZy5mcmVlZGVza3RvcC5OZXR3b3JrTWFuYWdlci53aWZp
+LnNoYXJlLm9wZW46ICg0KSBHREJ1cy5FcnJvcjpvcmcuZnJlZWRlc2t0b3AuREJ1cy5FcnJvci5O b1JlcGx5OiBNZXNzYWdlIGRpZCBub3QgcmVjZWl2ZSBhIHJlcGx5ICh0aW1lb3V0IGJ5IG1lc3Nh Z2UgYnVzKQpGZWIgMDIgMjI6MjA6MzYgPGhvc3Q+IE5ldHdvcmtNYW5hZ2VyWzEwMTRdOiA8d2Fy
+bj4gIGVycm9yIHJlcXVlc3RpbmcgYXV0aCBmb3Igb3JnLmZyZWVkZXNrdG9wLk5ldHdvcmtNYW5h Z2VyLndpZmkuc2hhcmUucHJvdGVjdGVkOiAoNCkgR0RCdXMuRXJyb3I6b3JnLmZyZWVkZXNrdG9w LkRCdXMuRXJyb3IuTm9SZXBseTogTWVzc2FnZSBkaWQgbm90IHJlY2VpdmUgYSByZXBseSAodGlt
+ZW91dCBieSBtZXNzYWdlIGJ1cykKRmViIDAyIDIyOjIwOjM2IDxob3N0PiBNb2RlbU1hbmFnZXJb OTM0XTogPGluZm8+ICBDYXVnaHQgc2lnbmFsLCBzaHV0dGluZyBkb3duLi4uCkZlYiAwMiAyMjoy MDozNiA8aG9zdD4gc3NoZFsxMjA5XTogUmVjZWl2ZWQgc2lnbmFsIDE1OyB0ZXJtaW5hdGluZy4K
+RmViIDAyIDIyOjIwOjM2IDxob3N0PiBibHVldG9vdGhkWzkwNl06IFN0b3BwaW5nIFNEUCBzZXJ2 ZXIKRmViIDAyIDIyOjIwOjM2IDxob3N0PiBibHVldG9vdGhkWzkwNl06IEV4aXQKRmViIDAyIDIy OjIwOjM2IDxob3N0PiBhdmFoaS1kYWVtb25bOTczXTogR290IFNJR1RFUk0sIHF1aXR0aW5nLgpG
+ZWIgMDIgMjI6MjA6MzYgPGhvc3Q+IGF2YWhpLWRhZW1vbls5NzNdOiBMZWF2aW5nIG1ETlMgbXVs dGljYXN0IGdyb3VwIG9uIGludGVyZmFjZSB2aXJicjAuSVB2NCB3aXRoIGFkZHJlc3MgMTkyLjE2 OC54eHgueXl5LgpGZWIgMDIgMjI6MjA6MzYgPGhvc3Q+IGF2YWhpLWRhZW1vbls5NzNdOiBMZWF2
+aW5nIG1ETlMgbXVsdGljYXN0IGdyb3VwIG9uIGludGVyZmFjZSBldGgwLklQdjQgd2l0aCBhZGRy ZXNzIDE5Mi4xNjguenp6LmFhYS4KRmViIDAyIDIyOjIwOjM2IDxob3N0PiBhdmFoaS1kYWVtb25b OTczXTogYXZhaGktZGFlbW9uIDAuNi4zMSBleGl0aW5nLgpGZWIgMDIgMjI6MjA6MzYgPGhvc3Q+
+IE5ldHdvcmtNYW5hZ2VyWzEwMTRdOiA8aW5mbz4gICgwMDowMTowMjowMzowNDowNSk6IGRldmlj ZSBzdGF0ZSBjaGFuZ2U6IGRpc2Nvbm5lY3RlZCAtPiB1bm1hbmFnZWQgKHJlYXNvbiAncmVtb3Zl ZCcpIFszMCAxMCAzNl0KRmViIDAyIDIyOjIwOjM2IDxob3N0PiBhbHNhY3RsWzkwNV06IGFsc2Fj
+dGwgZGFlbW9uIHN0b3BwZWQKRmViIDAyIDIyOjIwOjM2IDxob3N0PiBOZXR3b3JrTWFuYWdlclsx MDE0XTogPGluZm8+ICAoMDY6MDc6MDg6MDk6MTA6MUEpOiBkZXZpY2Ugc3RhdGUgY2hhbmdlOiBk aXNjb25uZWN0ZWQgLT4gdW5tYW5hZ2VkIChyZWFzb24gJ3JlbW92ZWQnKSBbMzAgMTAgMzZdCkZl
+YiAwMiAyMjoyMDozNiA8aG9zdD4gTmV0d29ya01hbmFnZXJbMTAxNF06IDxpbmZvPiAgKDFCOjFD OjFEOjFFOjIwOjIxKTogZGV2aWNlIHN0YXRlIGNoYW5nZTogZGlzY29ubmVjdGVkIC0+IHVubWFu YWdlZCAocmVhc29uICdyZW1vdmVkJykgWzMwIDEwIDM2XQpGZWIgMDIgMjI6MjA6MzYgPGhvc3Q+
+IHVwc2RbMTc2N106IG1haW5sb29wOiBJbnRlcnJ1cHRlZCBzeXN0ZW0gY2FsbApGZWIgMDIgMjI6 MjA6MzYgPGhvc3Q+IHVwc2RbMTc2N106IFNpZ25hbCAxNTogZXhpdGluZwpGZWIgMDIgMjI6MjA6 MzYgPGhvc3Q+IHJwYy5tb3VudGRbMTIyM106IENhdWdodCBzaWduYWwgMTUsIHVuLXJlZ2lzdGVy
+aW5nIGFuZCBleGl0aW5nLgpGZWIgMDIgMjI6MjA6MzYgPGhvc3Q+IE1vZGVtTWFuYWdlcls5MzRd OiA8aW5mbz4gIE1vZGVtTWFuYWdlciBpcyBzaHV0IGRvd24KRmViIDAyIDIyOjIwOjM2IDxob3N0 PiBzeXN0ZW1kWzFdOiB2YXItbGliLW5mcy1ycGNfcGlwZWZzLm1vdW50IG1vdW50IHByb2Nlc3Mg
+ZXhpdGVkLCBjb2RlPWV4aXRlZCBzdGF0dXM9MzIKRmViIDAyIDIyOjIwOjM2IDxob3N0PiBzeXN0 ZW1kWzFdOiBGYWlsZWQgdW5tb3VudGluZyBSUEMgUGlwZSBGaWxlIFN5c3RlbS4KRmViIDAyIDIy OjIwOjM2IDxob3N0PiBzeXN0ZW1kWzFdOiB3cGFfc3VwcGxpY2FudC5zZXJ2aWNlOiBtYWluIHBy
+b2Nlc3MgZXhpdGVkLCBjb2RlPWV4aXRlZCwgc3RhdHVzPTEvRkFJTFVSRQpGZWIgMDIgMjI6MjA6 MzYgPGhvc3Q+IHN5c3RlbWRbMV06IFVuaXQgd3BhX3N1cHBsaWNhbnQuc2VydmljZSBlbnRlcmVk IGZhaWxlZCBzdGF0ZS4KRmViIDAyIDIyOjIwOjM2IDxob3N0PiBzeXN0ZW1kWzFdOiB3cGFfc3Vw
+cGxpY2FudC5zZXJ2aWNlIGZhaWxlZC4KRmViIDAyIDIyOjIwOjM2IDxob3N0PiBnZG1bMTA1Nl06 IEZyZWVpbmcgY29udmVyc2F0aW9uICdnZG0tcGFzc3dvcmQnIHdpdGggYWN0aXZlIGpvYgpGZWIg MDIgMjI6MjA6MzYgPGhvc3Q+IHVwc2RbMTc2N106IFVzZXIgPHVwc191c2VyPkAxMjcuMC4wLjEg
+bG9nZ2VkIG91dCBmcm9tIFVQUyBbbWdldXBzXQpGZWIgMDIgMjI6MjA6MzYgPGhvc3Q+IHVwc2Rb MTc2N106IG1haW5sb29wOiBJbnRlcnJ1cHRlZCBzeXN0ZW0gY2FsbApGZWIgMDIgMjI6MjA6MzYg PGhvc3Q+IHVwc2RbMTc2N106IFNpZ25hbCAxNTogZXhpdGluZwpGZWIgMDIgMjI6MjA6MzYgPGhv
+c3Q+IHVwc2RbMTc2N106IE5ldHdvcmsgVVBTIFRvb2xzIHVwc2QgMi43LjIKRmViIDAyIDIyOjIw OjM2IDxob3N0PiBnZG0tWG9yZy06MFszNTc2XTogKElJKSBldmRldjogTG9naXRlY2ggVW5pZnlp bmcgRGV2aWNlLiBXaXJlbGVzcyBQSUQ6MTAxYTogQ2xvc2UKRmViIDAyIDIyOjIwOjM2IDxob3N0
+PiBnZG0tWG9yZy06MFszNTc2XTogKElJKSBVbmxvYWRNb2R1bGU6ICJldmRldiIKRmViIDAyIDIy OjIwOjM2IDxob3N0PiBnZG0tWG9yZy06MFszNTc2XTogKElJKSBldmRldjogU1RWMDZ4eDogQ2xv c2UKRmViIDAyIDIyOjIwOjM2IDxob3N0PiBnZG0tWG9yZy06MFszNTc2XTogKElJKSBVbmxvYWRN
+b2R1bGU6ICJldmRldiIKRmViIDAyIDIyOjIwOjM2IDxob3N0PiBnZG0tWG9yZy06MFszNTc2XTog KElJKSBldmRldjogTWljcm9zb2Z0IE5hdHVyYWzCriBFcmdvbm9taWMgS2V5Ym9hcmQgNDAwMDog Q2xvc2UKRmViIDAyIDIyOjIwOjM2IDxob3N0PiBnZG0tWG9yZy06MFszNTc2XTogKElJKSBVbmxv
+YWRNb2R1bGU6ICJldmRldiIKRmViIDAyIDIyOjIwOjM2IDxob3N0PiBnZG0tWG9yZy06MFszNTc2 XTogKElJKSBldmRldjogTWljcm9zb2Z0IE5hdHVyYWzCriBFcmdvbm9taWMgS2V5Ym9hcmQgNDAw MDogQ2xvc2UKRmViIDAyIDIyOjIwOjM2IDxob3N0PiBnZG0tWG9yZy06MFszNTc2XTogKElJKSBV
+bmxvYWRNb2R1bGU6ICJldmRldiIKRmViIDAyIDIyOjIwOjM2IDxob3N0PiBnZG0tWG9yZy06MFsz NTc2XTogKElJKSBldmRldjogUG93ZXIgQnV0dG9uOiBDbG9zZQpGZWIgMDIgMjI6MjA6MzYgPGhv c3Q+IGdkbS1Yb3JnLTowWzM1NzZdOiAoSUkpIFVubG9hZE1vZHVsZTogImV2ZGV2IgpGZWIgMDIg
+MjI6MjA6MzYgPGhvc3Q+IGdkbS1Yb3JnLTowWzM1NzZdOiAoSUkpIGV2ZGV2OiBQb3dlciBCdXR0 b246IENsb3NlCkZlYiAwMiAyMjoyMDozNiA8aG9zdD4gZ2RtLVhvcmctOjBbMzU3Nl06IChJSSkg VW5sb2FkTW9kdWxlOiAiZXZkZXYiCkZlYiAwMiAyMjoyMDozNiA8aG9zdD4gZ2RtLVhvcmctOjBb
+MzU3Nl06IChJSSkgTlZJRElBKEdQVS0wKTogRGVsZXRpbmcgR1BVLTAKRmViIDAyIDIyOjIwOjM2 IDxob3N0PiBnZG0tWG9yZy06MFszNTc2XTogKEVFKSBTZXJ2ZXIgdGVybWluYXRlZCBzdWNjZXNz ZnVsbHkgKDApLiBDbG9zaW5nIGxvZyBmaWxlLgpGZWIgMDIgMjI6MjA6MzYgPGhvc3Q+IHVwc21v
+blsxNzcxXTogU2lnbmFsIDE1OiBleGl0aW5nCkZlYiAwMiAyMjoyMDozNiA8aG9zdD4gdXBzbW9u WzE3NzFdOiBOZXR3b3JrIFVQUyBUb29scyB1cHNtb24gMi43LjIKRmViIDAyIDIyOjIwOjM2IDxo b3N0PiBpcHRhYmxlcy5pbml0WzE1NTA2XTogaXB0YWJsZXM6IFNldHRpbmcgY2hhaW5zIHRvIHBv
+bGljeSBBQ0NFUFQ6IG1hbmdsZSBuYXQgZmlsdGVyIFsgIE9LICBdCkZlYiAwMiAyMjoyMDozNiA8 aG9zdD4gaXB0YWJsZXMuaW5pdFsxNTUwNl06IGlwdGFibGVzOiBGbHVzaGluZyBmaXJld2FsbCBy dWxlczogWyAgT0sgIF0KRmViIDAyIDIyOjIwOjM2IDxob3N0PiB1cHNkcnZjdGxbMTU1OTldOiBO
+ZXR3b3JrIFVQUyBUb29scyAtIFVQUyBkcml2ZXIgY29udHJvbGxlciAyLjcuMgpGZWIgMDIgMjI6 MjA6MzYgPGhvc3Q+IG1nZS1zaHV0WzE3NjZdOiBTaWduYWwgMTU6IGV4aXRpbmcKRmViIDAyIDIy OjIwOjM2IDxob3N0PiBOZXR3b3JrTWFuYWdlclsxMDE0XTogPGluZm8+ICBjYXVnaHQgc2lnbmFs
+IDE1LCBzaHV0dGluZyBkb3duIG5vcm1hbGx5LgpGZWIgMDIgMjI6MjA6MzcgPGhvc3Q+IE5ldHdv cmtNYW5hZ2VyWzEwMTRdOiA8aW5mbz4gICgyMjoyMzoyNDoyNToyNjoyNyk6IGRldmljZSBzdGF0 ZSBjaGFuZ2U6IGRpc2Nvbm5lY3RlZCAtPiB1bm1hbmFnZWQgKHJlYXNvbiAncmVtb3ZlZCcpIFsz
+MCAxMCAzNl0KRmViIDAyIDIyOjIwOjM3IDxob3N0PiBOZXR3b3JrTWFuYWdlclsxMDE0XTogPGlu Zm8+ICAodHR5QUNNMCk6IGRldmljZSBzdGF0ZSBjaGFuZ2U6IHVuYXZhaWxhYmxlIC0+IHVubWFu YWdlZCAocmVhc29uICdyZW1vdmVkJykgWzIwIDEwIDM2XQpGZWIgMDIgMjI6MjA6MzcgPGhvc3Q+
+IE5ldHdvcmtNYW5hZ2VyWzEwMTRdOiA8aW5mbz4gICh2aXJicjApOiBicmlkZ2UgcG9ydCB2aXJi cjAtbmljIHdhcyBkZXRhY2hlZApGZWIgMDIgMjI6MjA6MzcgPGhvc3Q+IE5ldHdvcmtNYW5hZ2Vy WzEwMTRdOiA8aW5mbz4gICh2aXJicjAtbmljKTogcmVsZWFzZWQgZnJvbSBtYXN0ZXIgdmlyYnIw
+CkZlYiAwMiAyMjoyMDozNyA8aG9zdD4gTmV0d29ya01hbmFnZXJbMTAxNF06IChOZXR3b3JrTWFu YWdlcjoxMDE0KTogR0xpYi1DUklUSUNBTCAqKjogU291cmNlIElEIDMzIHdhcyBub3QgZm91bmQg d2hlbiBhdHRlbXB0aW5nIHRvIHJlbW92ZSBpdApGZWIgMDIgMjI6MjA6MzcgPGhvc3Q+IE5ldHdv
+cmtNYW5hZ2VyWzEwMTRdOiA8aW5mbz4gIGV4aXRpbmcgKHN1Y2Nlc3MpCkZlYiAwMiAyMjoyMDoz NyA8aG9zdD4gYWNwaWRbOTA4XTogZXhpdGluZwpGZWIgMDIgMjI6MjA6MzcgPGhvc3Q+IGlwdGFi bGVzLmluaXRbMTU1MDZdOiBpcHRhYmxlczogVW5sb2FkaW5nIG1vZHVsZXM6IFsgIE9LICBdCkZl
+YiAwMiAyMjoyMDozNyA8aG9zdD4gYXVkaXRkWzg5Ml06IFRoZSBhdWRpdCBkYWVtb24gaXMgZXhp dGluZy4KRmViIDAyIDIyOjIwOjM3IDxob3N0PiBrZXJuZWw6IGF1ZGl0OiB0eXBlPTEzMDUgYXVk aXQoMTQyMjkwODQzNy40NzU6MzQ4KTogYXVkaXRfcGlkPTAgb2xkPTg5MiBhdWlkPTQyOTQ5Njcy
+OTUgc2VzPTQyOTQ5NjcyOTUgc3Viaj1zeXN0ZW1fdTpzeXN0ZW1fcjphdWRpdGRfdDpzMCByZXM9 MQpGZWIgMDIgMjI6MjA6MzcgPGhvc3Q+IGtlcm5lbDogYXVkaXQ6IHR5cGU9MTEzMSBhdWRpdCgx NDIyOTA4NDM3LjQ4MzozNDkpOiBwaWQ9MSB1aWQ9MCBhdWlkPTQyOTQ5NjcyOTUgc2VzPTQyOTQ5
+NjcyOTUgc3Viaj1zeXN0ZW1fdTpzeXN0ZW1fcjppbml0X3Q6czAgbXNnPScgY29tbT0iYXVkaXRk IiBleGU9Ii91c3IvbGliL3N5c3RlbWQvc3lzdGVtZCIgaG9zdG5hbWU9PyBhZGRyPT8gdGVybWlu YWw9PyByZXM9c3VjY2VzcycKRmViIDAyIDIyOjIwOjM3IDxob3N0PiBrZXJuZWw6IGF1ZGl0OiB0
+eXBlPTExMzEgYXVkaXQoMTQyMjkwODQzNy40ODY6MzUwKTogcGlkPTEgdWlkPTAgYXVpZD00Mjk0 OTY3Mjk1IHNlcz00Mjk0OTY3Mjk1IHN1Ymo9c3lzdGVtX3U6c3lzdGVtX3I6aW5pdF90OnMwIG1z Zz0nIGNvbW09InN5c3RlbWQtdG1wZmlsZXMtc2V0dXAiIGV4ZT0iL3Vzci9saWIvc3lzdGVtZC9z
+eXN0ZW1kIiBob3N0bmFtZT0/IGFkZHI9PyB0ZXJtaW5hbD0/IHJlcz1zdWNjZXNzJwpGZWIgMDIg MjI6MjA6MzcgPGhvc3Q+IGtlcm5lbDogYXVkaXQ6IHR5cGU9MTEzMSBhdWRpdCgxNDIyOTA4NDM3 LjQ4NjozNTEpOiBwaWQ9MSB1aWQ9MCBhdWlkPTQyOTQ5NjcyOTUgc2VzPTQyOTQ5NjcyOTUgc3Vi
+aj1zeXN0ZW1fdTpzeXN0ZW1fcjppbml0X3Q6czAgbXNnPScgY29tbT0iZmVkb3JhLWltcG9ydC1z dGF0ZSIgZXhlPSIvdXNyL2xpYi9zeXN0ZW1kL3N5c3RlbWQiIGhvc3RuYW1lPT8gYWRkcj0/IHRl cm1pbmFsPT8gcmVzPXN1Y2Nlc3MnCkZlYiAwMiAyMjoyMDozNyA8aG9zdD4ga2VybmVsOiBhdWRp
+dDogdHlwZT0xMTMxIGF1ZGl0KDE0MjI5MDg0MzcuNDkxOjM1Mik6IHBpZD0xIHVpZD0wIGF1aWQ9 NDI5NDk2NzI5NSBzZXM9NDI5NDk2NzI5NSBzdWJqPXN5c3RlbV91OnN5c3RlbV9yOmluaXRfdDpz MCBtc2c9JyBjb21tPSJmZWRvcmEtcmVhZG9ubHkiIGV4ZT0iL3Vzci9saWIvc3lzdGVtZC9zeXN0
+ZW1kIiBob3N0bmFtZT0/IGFkZHI9PyB0ZXJtaW5hbD0/IHJlcz1zdWNjZXNzJwpGZWIgMDIgMjI6 MjA6MzcgPGhvc3Q+IHVtb3VudFsxNTY3Nl06IHVtb3VudDogL2Jvb3Q6IHRhcmdldCBpcyBidXN5 CkZlYiAwMiAyMjoyMDozNyA8aG9zdD4gdW1vdW50WzE1Njc2XTogKEluIHNvbWUgY2FzZXMgdXNl
+ZnVsIGluZm8gYWJvdXQgcHJvY2Vzc2VzIHRoYXQKRmViIDAyIDIyOjIwOjM3IDxob3N0PiB1bW91 bnRbMTU2NzZdOiB1c2UgdGhlIGRldmljZSBpcyBmb3VuZCBieSBsc29mKDgpIG9yIGZ1c2VyKDEp LikKRmViIDAyIDIyOjIwOjM3IDxob3N0PiBzeXN0ZW1kWzFdOiBib290Lm1vdW50IG1vdW50IHBy
+b2Nlc3MgZXhpdGVkLCBjb2RlPWV4aXRlZCBzdGF0dXM9MzIKRmViIDAyIDIyOjIwOjM3IDxob3N0 PiBzeXN0ZW1kWzFdOiBGYWlsZWQgdW5tb3VudGluZyAvYm9vdC4KRmViIDAyIDIyOjIwOjM3IDxo b3N0PiBrZXJuZWw6IGF1ZGl0OiB0eXBlPTExMzAgYXVkaXQoMTQyMjkwODQzNy43NDM6MzUzKTog
+cGlkPTEgdWlkPTAgYXVpZD00Mjk0OTY3Mjk1IHNlcz00Mjk0OTY3Mjk1IHN1Ymo9c3lzdGVtX3U6 c3lzdGVtX3I6aW5pdF90OnMwIG1zZz0nIGNvbW09ImRyYWN1dC1zaHV0ZG93biIgZXhlPSIvdXNy L2xpYi9zeXN0ZW1kL3N5c3RlbWQiIGhvc3RuYW1lPT8gYWRkcj0/IHRlcm1pbmFsPT8gcmVzPXN1
+Y2Nlc3MnCkZlYiAwMiAyMjoyMDozOCA8aG9zdD4ga2VybmVsOiBhdWRpdDogdHlwZT0xMTMxIGF1 ZGl0KDE0MjI5MDg0MzguMDc3OjM1NCk6IHBpZD0xIHVpZD0wIGF1aWQ9NDI5NDk2NzI5NSBzZXM9 NDI5NDk2NzI5NSBzdWJqPXN5c3RlbV91OnN5c3RlbV9yOmluaXRfdDpzMCBtc2c9JyBjb21tPSJz
+eXN0ZW1kLXRtcGZpbGVzLXNldHVwLWRldiIgZXhlPSIvdXNyL2xpYi9zeXN0ZW1kL3N5c3RlbWQi IGhvc3RuYW1lPT8gYWRkcj0/IHRlcm1pbmFsPT8gcmVzPXN1Y2Nlc3MnCkZlYiAwMiAyMjoyMDoz OCA8aG9zdD4ga2VybmVsOiBhdWRpdDogdHlwZT0xMTMxIGF1ZGl0KDE0MjI5MDg0MzguMDc4OjM1
+NSk6IHBpZD0xIHVpZD0wIGF1aWQ9NDI5NDk2NzI5NSBzZXM9NDI5NDk2NzI5NSBzdWJqPXN5c3Rl bV91OnN5c3RlbV9yOmluaXRfdDpzMCBtc2c9JyBjb21tPSJzeXN0ZW1kLXJlbW91bnQtZnMiIGV4 ZT0iL3Vzci9saWIvc3lzdGVtZC9zeXN0ZW1kIiBob3N0bmFtZT0/IGFkZHI9PyB0ZXJtaW5hbD0/
+IHJlcz1zdWNjZXNzJwpGZWIgMDIgMjI6MjA6MzggPGhvc3Q+IGtlcm5lbDogYXVkaXQ6IHR5cGU9 MTEzMSBhdWRpdCgxNDIyOTA4NDM4LjA3OTozNTYpOiBwaWQ9MSB1aWQ9MCBhdWlkPTQyOTQ5Njcy OTUgc2VzPTQyOTQ5NjcyOTUgc3Viaj1zeXN0ZW1fdTpzeXN0ZW1fcjppbml0X3Q6czAgbXNnPScg
+Y29tbT0ic3lzdGVtZC1yZWFkYWhlYWQtcmVwbGF5IiBleGU9Ii91c3IvbGliL3N5c3RlbWQvc3lz dGVtZCIgaG9zdG5hbWU9PyBhZGRyPT8gdGVybWluYWw9PyByZXM9c3VjY2VzcycKRmViIDAyIDIy OjIwOjM4IDxob3N0PiBzeXN0ZW1kWzFdOiBTaHV0dGluZyBkb3duLgpGZWIgMDIgMjI6MjA6Mzgg
+PGhvc3Q+IHN5c3RlbWQtam91cm5hbFs1NDVdOiBKb3VybmFsIHN0b3BwZWQK
+</data>
+
+</attachment>
+<attachment isobsolete="0" ispatch="0" isprivate="0">
+<attachid>988850</attachid>
+<date>2015-02-06 07:13:00 -0500</date>
+<delta_ts>2015-02-06 07:13:16 -0500</delta_ts>
+<desc>yum.log excerpt</desc>
+<filename>yum.log</filename>
+<type>text/plain</type>
+<size>12821</size>
+<attacher name="Alexander Ploumistos">alex.ploumistos</attacher>
+
+<data encoding="base64">RmViIDAzIDAxOjA1OjQzIFVwZGF0ZWQ6IG5zcHItNC4xMC44LTEuZmMyMS54ODZfNjQKRmViIDAz IDAxOjA1OjQ0IFVwZGF0ZWQ6IG5zcy11dGlsLTMuMTcuNC0xLmZjMjEueDg2XzY0CkZlYiAwMyAw
+MTowNTo0NSBVcGRhdGVkOiBsaWJzc3NfaWRtYXAtMS4xMi4zLTQuZmMyMS54ODZfNjQKRmViIDAz IDAxOjA1OjQ1IFVwZGF0ZWQ6IGRldmljZS1tYXBwZXItMS4wMi45My0zLmZjMjEueDg2XzY0CkZl YiAwMyAwMTowNTo0NiBVcGRhdGVkOiBkZXZpY2UtbWFwcGVyLWxpYnMtMS4wMi45My0zLmZjMjEu
+eDg2XzY0CkZlYiAwMyAwMTowNTo0NiBVcGRhdGVkOiBkZXZpY2UtbWFwcGVyLWV2ZW50LWxpYnMt MS4wMi45My0zLmZjMjEueDg2XzY0CkZlYiAwMyAwMTowNTo0NyBVcGRhdGVkOiB4b3JnLXgxMS1z ZXJ2ZXItY29tbW9uLTEuMTYuMy0yLmZjMjEueDg2XzY0CkZlYiAwMyAwMTowNTo0NyBVcGRhdGVk
+OiBuc3Mtc29mdG9rbi1mcmVlYmwtMy4xNy40LTEuZmMyMS54ODZfNjQKRmViIDAzIDAxOjA1OjQ4 IFVwZGF0ZWQ6IG5zcy1zb2Z0b2tuLTMuMTcuNC0xLmZjMjEueDg2XzY0CkZlYiAwMyAwMTowNTo0 OCBVcGRhdGVkOiBuc3Mtc3lzaW5pdC0zLjE3LjQtMS5mYzIxLng4Nl82NApGZWIgMDMgMDE6MDU6
+NDkgVXBkYXRlZDogbnNzLTMuMTcuNC0xLmZjMjEueDg2XzY0CkZlYiAwMyAwMTowNTo0OSBVcGRh dGVkOiBkZXZpY2UtbWFwcGVyLWV2ZW50LTEuMDIuOTMtMy5mYzIxLng4Nl82NApGZWIgMDMgMDE6 MDU6NDkgVXBkYXRlZDogbHZtMi1saWJzLTIuMDIuMTE2LTMuZmMyMS54ODZfNjQKRmViIDAzIDAx
+OjA1OjUwIFVwZGF0ZWQ6IGxpYnNzc19uc3NfaWRtYXAtMS4xMi4zLTQuZmMyMS54ODZfNjQKRmVi IDAzIDAxOjA1OjUwIFVwZGF0ZWQ6IHNzc2QtY2xpZW50LTEuMTIuMy00LmZjMjEueDg2XzY0CkZl YiAwMyAwMTowNTo1MiBVcGRhdGVkOiBzc3NkLWNvbW1vbi0xLjEyLjMtNC5mYzIxLng4Nl82NApG
+ZWIgMDMgMDE6MDU6NTIgVXBkYXRlZDogc3NzZC1rcmI1LWNvbW1vbi0xLjEyLjMtNC5mYzIxLng4 Nl82NApGZWIgMDMgMDE6MDU6NTMgVXBkYXRlZDogc3NzZC1jb21tb24tcGFjLTEuMTIuMy00LmZj MjEueDg2XzY0CkZlYiAwMyAwMTowNTo1MyBVcGRhdGVkOiBzc3NkLWFkLTEuMTIuMy00LmZjMjEu
+eDg2XzY0CkZlYiAwMyAwMTowNTo1MyBVcGRhdGVkOiBzc3NkLWtyYjUtMS4xMi4zLTQuZmMyMS54 ODZfNjQKRmViIDAzIDAxOjA1OjU0IFVwZGF0ZWQ6IHNzc2QtbGRhcC0xLjEyLjMtNC5mYzIxLng4 Nl82NApGZWIgMDMgMDE6MDU6NTQgVXBkYXRlZDogc3NzZC1wcm94eS0xLjEyLjMtNC5mYzIxLng4
+Nl82NApGZWIgMDMgMDE6MDU6NTUgVXBkYXRlZDogbGliZmZpLTMuMS03LmZjMjEueDg2XzY0CkZl YiAwMyAwMTowNTo1NSBVcGRhdGVkOiBweXRob24tc3NzZGNvbmZpZy0xLjEyLjMtNC5mYzIxLm5v YXJjaApGZWIgMDMgMDE6MDU6NTUgVXBkYXRlZDogbGliaXBhX2hiYWMtMS4xMi4zLTQuZmMyMS54
+ODZfNjQKRmViIDAzIDAxOjA1OjU2IFVwZGF0ZWQ6IG5zcHItNC4xMC44LTEuZmMyMS5pNjg2CkZl YiAwMyAwMTowNTo1NiBVcGRhdGVkOiBuc3MtdXRpbC0zLjE3LjQtMS5mYzIxLmk2ODYKRmViIDAz IDAxOjA1OjU3IFVwZGF0ZWQ6IG5zcy1zb2Z0b2tuLWZyZWVibC0zLjE3LjQtMS5mYzIxLmk2ODYK
+RmViIDAzIDAxOjA1OjU3IFVwZGF0ZWQ6IHNzc2QtaXBhLTEuMTIuMy00LmZjMjEueDg2XzY0CkZl YiAwMyAwMTowNTo1NyBVcGRhdGVkOiBzc3NkLTEuMTIuMy00LmZjMjEueDg2XzY0CkZlYiAwMyAw MTowNTo1OCBVcGRhdGVkOiBsaWJmZmktZGV2ZWwtMy4xLTcuZmMyMS54ODZfNjQKRmViIDAzIDAx
+OjA1OjU5IFVwZGF0ZWQ6IGx2bTItMi4wMi4xMTYtMy5mYzIxLng4Nl82NApGZWIgMDMgMDE6MDU6 NTkgVXBkYXRlZDogbnNzLXRvb2xzLTMuMTcuNC0xLmZjMjEueDg2XzY0CkZlYiAwMyAwMTowNjow MCBVcGRhdGVkOiB4b3JnLXgxMS1zZXJ2ZXItWGVwaHlyLTEuMTYuMy0yLmZjMjEueDg2XzY0CkZl
+YiAwMyAwMTowNjowMSBVcGRhdGVkOiB4b3JnLXgxMS1zZXJ2ZXItWG9yZy0xLjE2LjMtMi5mYzIx Lng4Nl82NApGZWIgMDMgMDE6MDY6MDEgVXBkYXRlZDogcXd0LTYuMS4yLTEuZmMyMS54ODZfNjQK RmViIDAzIDAxOjA2OjAzIFVwZGF0ZWQ6IGdvb2dsZS10YWxrcGx1Z2luLTUuNDAuMi4wLTEueDg2
+XzY0CkZlYiAwMyAwMTowNjowMyBVcGRhdGVkOiBuc3Mtc29mdG9rbi0zLjE3LjQtMS5mYzIxLmk2 ODYKRmViIDAzIDAxOjA2OjA0IFVwZGF0ZWQ6IG5zcy0zLjE3LjQtMS5mYzIxLmk2ODYKRmViIDAz IDAxOjA2OjA1IFVwZGF0ZWQ6IGRldmljZS1tYXBwZXItbGlicy0xLjAyLjkzLTMuZmMyMS5pNjg2
+CkZlYiAwMyAwMTowNjowNiBVcGRhdGVkOiBsaWJmZmktMy4xLTcuZmMyMS5pNjg2CkZlYiAwMyAw MToxODoyNSBVcGRhdGVkOiBrZGVwaW1saWJzLTQuMTQuNC0xLmZjMjEueDg2XzY0CkZlYiAwMyAw MToxODoyNiBVcGRhdGVkOiBrZGVwaW1saWJzLWFrb25hZGktNC4xNC40LTEuZmMyMS54ODZfNjQK
+RmViIDAzIDAxOjE4OjI2IFVwZGF0ZWQ6IDE6a2RlcGltLXJ1bnRpbWUtbGlicy00LjE0LjQtMS5m YzIxLng4Nl82NApGZWIgMDMgMDE6MTg6MjggVXBkYXRlZDogMTprZGVwaW0tcnVudGltZS00LjE0 LjQtMS5mYzIxLng4Nl82NApGZWIgMDMgMDE6MTg6MjkgVXBkYXRlZDoga2RlcGltLWNvbW1vbi00
+LjE0LjQtMi5mYzIxLng4Nl82NApGZWIgMDMgMDE6MTg6MzAgVXBkYXRlZDoga2xlb3BhdHJhLWxp YnMtNC4xNC40LTIuZmMyMS54ODZfNjQKRmViIDAzIDAxOjE4OjMwIFVwZGF0ZWQ6IGtub3Rlcy00 LjE0LjQtMi5mYzIxLng4Nl82NApGZWIgMDMgMDE6MTg6MzEgVXBkYXRlZDoga25vdGVzLWxpYnMt
+NC4xNC40LTIuZmMyMS54ODZfNjQKRmViIDAzIDAxOjE4OjMxIFVwZGF0ZWQ6IGthZGRyZXNzYm9v ay1saWJzLTQuMTQuNC0yLmZjMjEueDg2XzY0CkZlYiAwMyAwMToxODozMiBVcGRhdGVkOiA3Omtk ZXBpbS1saWJzLTQuMTQuNC0yLmZjMjEueDg2XzY0CkZlYiAwMyAwMToxODozMyBVcGRhdGVkOiBr
+bGVvcGF0cmEtNC4xNC40LTIuZmMyMS54ODZfNjQKRmViIDAzIDAxOjE4OjM0IFVwZGF0ZWQ6IGtt YWlsLWxpYnMtNC4xNC40LTIuZmMyMS54ODZfNjQKRmViIDAzIDAxOjE4OjM1IFVwZGF0ZWQ6IGtt YWlsLTQuMTQuNC0yLmZjMjEueDg2XzY0CkZlYiAwMyAwMToxODozNiBVcGRhdGVkOiBrb3JnYW5p
+emVyLWxpYnMtNC4xNC40LTIuZmMyMS54ODZfNjQKRmViIDAzIDAxOjE4OjM3IFVwZGF0ZWQ6IGtv cmdhbml6ZXItNC4xNC40LTIuZmMyMS54ODZfNjQKRmViIDAzIDAxOjE4OjM3IFVwZGF0ZWQ6IGtu b2RlLWxpYnMtNC4xNC40LTIuZmMyMS54ODZfNjQKRmViIDAzIDAxOjE4OjM5IFVwZGF0ZWQ6IGtu
+b2RlLTQuMTQuNC0yLmZjMjEueDg2XzY0CkZlYiAwMyAwMToxODozOSBVcGRhdGVkOiBrYWRkcmVz c2Jvb2stNC4xNC40LTIuZmMyMS54ODZfNjQKRmViIDAzIDAxOjE4OjQwIFVwZGF0ZWQ6IGtvbnRh Y3QtbGlicy00LjE0LjQtMi5mYzIxLng4Nl82NApGZWIgMDMgMDE6MTg6NDAgVXBkYXRlZDoga29u
+dGFjdC00LjE0LjQtMi5mYzIxLng4Nl82NApGZWIgMDMgMDE6MTg6NDEgVXBkYXRlZDogYWtyZWdh dG9yLWxpYnMtNC4xNC40LTIuZmMyMS54ODZfNjQKRmViIDAzIDAxOjE4OjQxIFVwZGF0ZWQ6IGFr cmVnYXRvci00LjE0LjQtMi5mYzIxLng4Nl82NApGZWIgMDMgMDE6MTg6NDIgVXBkYXRlZDoga2Fs
+YXJtLTQuMTQuNC0yLmZjMjEueDg2XzY0CkZlYiAwMyAwMToxODo0MyBVcGRhdGVkOiBram90cy00 LjE0LjQtMi5mYzIxLng4Nl82NApGZWIgMDMgMDE6MTg6NDMgVXBkYXRlZDogYmxvZ2lsby00LjE0 LjQtMi5mYzIxLng4Nl82NApGZWIgMDMgMDE6MTg6NDQgVXBkYXRlZDoga3RpbWV0cmFja2VyLTQu
+MTQuNC0yLmZjMjEueDg2XzY0CkZlYiAwMyAwMToxODo0NSBVcGRhdGVkOiBraGFuZ21hbi00LjE0 LjMtMy5mYzIxLng4Nl82NApGZWIgMDMgMDE6MTg6NDUgVXBkYXRlZDoga2hhbmdtYW4tbGlicy00 LjE0LjMtMy5mYzIxLng4Nl82NApGZWIgMDMgMDE6MTg6NDUgVXBkYXRlZDoga3N5c2d1YXJkZC00
+LjExLjE1LTMuZmMyMS54ODZfNjQKRmViIDAzIDAxOjE4OjQ2IFVwZGF0ZWQ6IGtzeXNndWFyZC1s aWJzLTQuMTEuMTUtMy5mYzIxLng4Nl82NApGZWIgMDMgMDE6MTg6NDcgVXBkYXRlZDoga3N5c2d1 YXJkLTQuMTEuMTUtMy5mYzIxLng4Nl82NApGZWIgMDMgMDE6MTg6NDcgVXBkYXRlZDogNzprZGVw
+aW0tNC4xNC40LTIuZmMyMS54ODZfNjQKRmViIDAzIDAxOjE4OjQ3IFVwZGF0ZWQ6IGtkZWdyYXBo aWNzLXN0cmlnaS1hbmFseXplci0xNC4xMi4xLTEuZmMyMS54ODZfNjQKRmViIDAzIDAxOjE4OjQ4 IFVwZGF0ZWQ6IGthcG1hbi0xNC4xMi4xLTEuZmMyMS54ODZfNjQKRmViIDAzIDAxOjE4OjUwIFVw
+ZGF0ZWQ6IHN1YnRpdGxlZWRpdG9yLTAuNDEuMC01LmZjMjEueDg2XzY0CkZlYiAwMyAwMToxODo1 MSBVcGRhdGVkOiBrZm91cmlubGluZS0xNC4xMi4xLTEuZmMyMS54ODZfNjQKRmViIDAzIDAxOjE4 OjUxIFVwZGF0ZWQ6IGtjb2xvcmNob29zZXItMTQuMTIuMS0xLmZjMjEueDg2XzY0CkZlYiAwMyAw
+MToxODo1MiBVcGRhdGVkOiBwaWNtaS0xNC4xMi4xLTEuZmMyMS54ODZfNjQKRmViIDAzIDAxOjE4 OjUzIFVwZGF0ZWQ6IGtkZWdyYXBoaWNzLXRodW1ibmFpbGVycy0xNC4xMi4xLTEuZmMyMS54ODZf NjQKRmViIDAzIDAxOjE4OjU1IFVwZGF0ZWQ6IGt0aW1lci0xNC4xMi4xLTEuZmMyMS54ODZfNjQK
+RmViIDAzIDAxOjE4OjU2IFVwZGF0ZWQ6IGRyYWdvbi0xNC4xMi4xLTEuZmMyMS54ODZfNjQKRmVi IDAzIDAxOjE4OjU2IFVwZGF0ZWQ6IGdyYW5hdGllci0xNC4xMi4xLTEuZmMyMS54ODZfNjQKRmVi IDAzIDE0OjMyOjI1IFVwZGF0ZWQ6IG1wbGF5ZXItY29tbW9uLTEuMS0zMi4yMDE1MDEyM3N2bi5m
+YzIxLng4Nl82NApGZWIgMDMgMTQ6MzI6MjcgVXBkYXRlZDogbXBsYXllci0xLjEtMzIuMjAxNTAx MjNzdm4uZmMyMS54ODZfNjQKRmViIDAzIDE0OjMyOjI3IFVwZGF0ZWQ6IG1lbmNvZGVyLTEuMS0z Mi4yMDE1MDEyM3N2bi5mYzIxLng4Nl82NApGZWIgMDMgMjA6NTA6MjQgVXBkYXRlZDogcGVybC1F
+bmNvZGUtTG9jYWxlLTEuMDQtMS5mYzIxLm5vYXJjaApGZWIgMDMgMjA6NTA6MjUgVXBkYXRlZDog cGFja2FnZWRiLWNsaS0yLjctMS5mYzIxLm5vYXJjaApGZWIgMDMgMjA6NTA6MjYgVXBkYXRlZDog cHB0cC0xLjguMC02LmZjMjEueDg2XzY0CkZlYiAwMyAyMDo1NzoxNCBVcGRhdGVkOiAxOmxpYnJl
+b2ZmaWNlLXVyZS00LjMuNS4yLTEyLmZjMjEueDg2XzY0CkZlYiAwMyAyMDo1NzoxOCBJbnN0YWxs ZWQ6IG9jbC1pY2QtMi4wLjQtMy5naXQyMDEzMTAwMS40ZWUyMzFlLmZjMjEueDg2XzY0CkZlYiAw MyAyMDo1NzoyMCBVcGRhdGVkOiBmZm1wZWctbGlicy0yLjQuNi0yLmZjMjEueDg2XzY0CkZlYiAw
+MyAyMDo1NzoyMCBJbnN0YWxsZWQ6IGxpYmF2ZGV2aWNlLTIuNC42LTIuZmMyMS54ODZfNjQKRmVi IDAzIDIwOjU3OjIxIFVwZGF0ZWQ6IGJsdWVmaXNoLTIuMi43LTEuZmMyMS54ODZfNjQKRmViIDAz IDIwOjU3OjIzIFVwZGF0ZWQ6IGJsdWVmaXNoLXNoYXJlZC1kYXRhLTIuMi43LTEuZmMyMS5ub2Fy
+Y2gKRmViIDAzIDIwOjU3OjI2IFVwZGF0ZWQ6IGtkZXBsYXNtYS1hZGRvbnMtNC4xNC4zLTMuZmMy MS54ODZfNjQKRmViIDAzIDIwOjU3OjI2IFVwZGF0ZWQ6IGtkZXBsYXNtYS1hZGRvbnMtbGlicy00 LjE0LjMtMy5mYzIxLng4Nl82NApGZWIgMDMgMjA6NTc6MjggVXBkYXRlZDogMTpsaWJyZW9mZmlj
+ZS1vcGVuc3ltYm9sLWZvbnRzLTQuMy41LjItMTIuZmMyMS5ub2FyY2gKRmViIDAzIDIwOjU3OjQ1 IFVwZGF0ZWQ6IDE6bGlicmVvZmZpY2UtY29yZS00LjMuNS4yLTEyLmZjMjEueDg2XzY0CkZlYiAw MyAyMDo1Nzo0NiBVcGRhdGVkOiAxOmxpYnJlb2ZmaWNlLWNhbGMtNC4zLjUuMi0xMi5mYzIxLng4
+Nl82NApGZWIgMDMgMjA6NTc6NDcgVXBkYXRlZDogMTpsaWJyZW9mZmljZS1pbXByZXNzLTQuMy41 LjItMTIuZmMyMS54ODZfNjQKRmViIDAzIDIwOjU3OjQ4IFVwZGF0ZWQ6IDE6bGlicmVvZmZpY2Ut Z3JhcGhpY2ZpbHRlci00LjMuNS4yLTEyLmZjMjEueDg2XzY0CkZlYiAwMyAyMDo1Nzo0OCBVcGRh
+dGVkOiAxOmxpYnJlb2ZmaWNlLXBkZmltcG9ydC00LjMuNS4yLTEyLmZjMjEueDg2XzY0CkZlYiAw MyAyMDo1Nzo0OSBVcGRhdGVkOiAxOmxpYnJlb2ZmaWNlLWRyYXctNC4zLjUuMi0xMi5mYzIxLng4 Nl82NApGZWIgMDMgMjA6NTc6NDkgVXBkYXRlZDogMTpsaWJyZW9mZmljZS14c2x0ZmlsdGVyLTQu
+My41LjItMTIuZmMyMS54ODZfNjQKRmViIDAzIDIwOjU3OjUwIFVwZGF0ZWQ6IDE6bGlicmVvZmZp Y2UtbWF0aC00LjMuNS4yLTEyLmZjMjEueDg2XzY0CkZlYiAwMyAyMDo1Nzo1MSBVcGRhdGVkOiAx OmxpYnJlb2ZmaWNlLXdyaXRlci00LjMuNS4yLTEyLmZjMjEueDg2XzY0CkZlYiAwMyAyMDo1Nzo1
+NCBJbnN0YWxsZWQ6IGtlcm5lbC1jb3JlLTMuMTguNS0yMDAuZmMyMS54ODZfNjQKRmViIDAzIDIw OjU3OjU4IFVwZGF0ZWQ6IDE6eG9yZy14MTEtZHJ2LW52aWRpYS0zNDB4eC1saWJzLTM0MC43Ni0x LmZjMjEueDg2XzY0CkZlYiAwMyAyMDo1ODowMSBVcGRhdGVkOiAxOnhvcmcteDExLWRydi1udmlk
+aWEtMzQweHgtMzQwLjc2LTEuZmMyMS54ODZfNjQKRmViIDAzIDIwOjU4OjAzIEluc3RhbGxlZDog MTprbW9kLW52aWRpYS0zNDB4eC0zLjE4LjUtMjAwLmZjMjEueDg2XzY0LTM0MC43Ni0xLmZjMjEu Mi54ODZfNjQKRmViIDAzIDIwOjU4OjAzIFVwZGF0ZWQ6IDE6a21vZC1udmlkaWEtMzQweHgtMzQw
+Ljc2LTEuZmMyMS4yLng4Nl82NApGZWIgMDMgMjA6NTg6MDUgVXBkYXRlZDoga2F0ZS1wYXJ0LTQu MTQuMy0zLmZjMjEueDg2XzY0CkZlYiAwMyAyMDo1ODowNSBVcGRhdGVkOiAxOnhvcmcteDExLWRy di1udmlkaWEtMzQweHgta21vZHNyYy0zNDAuNzYtMS5mYzIxLng4Nl82NApGZWIgMDMgMjA6NTg6
+MDUgVXBkYXRlZDogMTpha21vZC1udmlkaWEtMzQweHgtMzQwLjc2LTEuZmMyMS4yLng4Nl82NApG ZWIgMDMgMjA6NTg6MDYgVXBkYXRlZDoga3dyaXRlLTQuMTQuMy0zLmZjMjEueDg2XzY0CkZlYiAw MyAyMDo1ODowOSBVcGRhdGVkOiAxOnhvcmcteDExLWRydi1udmlkaWEtMzQweHgtY3VkYS0zNDAu
+NzYtMS5mYzIxLng4Nl82NApGZWIgMDMgMjA6NTg6MDkgVXBkYXRlZDogMTpsaWJyZW9mZmljZS1m aWx0ZXJzLTQuMy41LjItMTIuZmMyMS54ODZfNjQKRmViIDAzIDIwOjU4OjA5IFVwZGF0ZWQ6IDE6 bGlicmVvZmZpY2Utb2dsdHJhbnMtNC4zLjUuMi0xMi5mYzIxLng4Nl82NApGZWIgMDMgMjA6NTg6
+MTAgVXBkYXRlZDogMTpsaWJyZW9mZmljZS1iYXNlLTQuMy41LjItMTIuZmMyMS54ODZfNjQKRmVi IDAzIDIwOjU4OjEwIFVwZGF0ZWQ6IDE6bGlicmVvZmZpY2UtbGFuZ3BhY2stZW4tNC4zLjUuMi0x Mi5mYzIxLng4Nl82NApGZWIgMDMgMjA6NTg6MTEgVXBkYXRlZDogMTpsaWJyZW9mZmljZS1rZGUt
+NC4zLjUuMi0xMi5mYzIxLng4Nl82NApGZWIgMDMgMjA6NTg6MTIgVXBkYXRlZDogMTpsaWJyZW9m ZmljZS1weXVuby00LjMuNS4yLTEyLmZjMjEueDg2XzY0CkZlYiAwMyAyMDo1ODoxNCBVcGRhdGVk OiAxOmxpYnJlb2ZmaWNlLWxhbmdwYWNrLWVsLTQuMy41LjItMTIuZmMyMS54ODZfNjQKRmViIDAz
+IDIwOjU4OjE1IFVwZGF0ZWQ6IGZmbXBlZy0yLjQuNi0yLmZjMjEueDg2XzY0CkZlYiAwMyAyMDo1 ODoxNiBVcGRhdGVkOiBrbmF2YWxiYXR0bGUtMTQuMTIuMS0xLmZjMjEueDg2XzY0CkZlYiAwMyAy MDo1ODoxNyBVcGRhdGVkOiBrYW1lcmEtMTQuMTIuMS0zLmZjMjEueDg2XzY0CkZlYiAwMyAyMDo1
+ODoxNyBVcGRhdGVkOiBrb2ppLTEuOS4wLTEwLmZjMjEuZ2l0Y2Q0NWU4ODYubm9hcmNoCkZlYiAw MyAyMDo1ODoxOCBVcGRhdGVkOiBqbW9sLTE0LjIuMTItMS4yMDE1LjAxLjIyLmZjMjEubm9hcmNo CkZlYiAwMyAyMDo1ODoxOSBVcGRhdGVkOiBhcHBzdHJlYW0tMC44LjAtMS5mYzIxLng4Nl82NApG
+ZWIgMDMgMjA6NTg6MjEgVXBkYXRlZDoga2JyZWFrb3V0LTE0LjEyLjEtMS5mYzIxLng4Nl82NApG ZWIgMDMgMjA6NTg6MjIgVXBkYXRlZDoga25ldHdhbGstMTQuMTIuMS0xLmZjMjEueDg2XzY0CkZl YiAwMyAyMDo1ODoyNSBVcGRhdGVkOiAxOnhvcmcteDExLWRydi1udmlkaWEtMzQweHgtbGlicy0z
+NDAuNzYtMS5mYzIxLmk2ODYKRmViIDAzIDIxOjAwOjI1IFVwZGF0ZWQ6IDE6a21vZC1udmlkaWEt MzQweHgtMy4xOC4zLTIwMS5mYzIxLng4Nl82NC0zNDAuNzYtMS5mYzIxLjIueDg2XzY0CkZlYiAw NCAwMjozOToxNCBFcmFzZWQ6IDE6a21vZC1udmlkaWEtMzQweHgtMzQwLjc2LTEuZmMyMS4yLng4
+Nl82NApGZWIgMDQgMDI6Mzk6MTUgRXJhc2VkOiAxOmttb2QtbnZpZGlhLTM0MHh4LTMuMTguNS0y MDAuZmMyMS54ODZfNjQtMzQwLjc2LTEuZmMyMS4yLng4Nl82NApGZWIgMDQgMDI6Mzk6MjYgRXJh c2VkOiBrZXJuZWwtY29yZS0zLjE4LjUtMjAwLmZjMjEueDg2XzY0CkZlYiAwNCAxNDo0NzoyMCBV
+cGRhdGVkOiBwb2xraXQtMC4xMTItNy5mYzIxLjEueDg2XzY0CkZlYiAwNCAxNDo0NzoyMSBVcGRh dGVkOiBweXRob24tZW5jaGFudC0xLjYuNi0xLmZjMjEubm9hcmNoCkZlYiAwNCAxNDo0NzoyMiBV cGRhdGVkOiBvcGVuYWwtc29mdC0xLjE2LjAtNC5mYzIxLng4Nl82NApGZWIgMDQgMTQ6NDc6MjIg
+VXBkYXRlZDogcG9sa2l0LTAuMTEyLTcuZmMyMS4xLmk2ODYKRmViIDA0IDE5OjA1OjU1IFVwZGF0 ZWQ6IGRpZ2lrYW0tNC43LjAtMi5mYzIxLng4Nl82NApGZWIgMDQgMTk6MDU6NTggVXBkYXRlZDog ZGlnaWthbS1saWJzLTQuNy4wLTIuZmMyMS54ODZfNjQKRmViIDA0IDE5OjA1OjU4IFVwZGF0ZWQ6
+IG1vY2stMS4yLjYtMS5mYzIxLm5vYXJjaApGZWIgMDQgMTk6MDU6NTkgVXBkYXRlZDogMjptaWNy b2NvZGVfY3RsLTIuMS04LjEuZmMyMS54ODZfNjQKRmViIDA1IDE1OjIyOjUxIFVwZGF0ZWQ6IDE6 eHNjcmVlbnNhdmVyLWJhc2UtNS4zMi00LmZjMjEueDg2XzY0CkZlYiAwNSAxNToyMjo1MyBVcGRh
+dGVkOiAxOnhzY3JlZW5zYXZlci1leHRyYXMtYmFzZS01LjMyLTQuZmMyMS54ODZfNjQKRmViIDA1 IDE1OjIyOjUzIFVwZGF0ZWQ6IDE6eHNjcmVlbnNhdmVyLWdsLWJhc2UtNS4zMi00LmZjMjEueDg2 XzY0CkZlYiAwNSAxNToyMjo1NCBVcGRhdGVkOiAxOnhzY3JlZW5zYXZlci1nbC1leHRyYXMtNS4z
+Mi00LmZjMjEueDg2XzY0CkZlYiAwNSAxNToyMjo1NiBVcGRhdGVkOiAxOnhzY3JlZW5zYXZlci1l eHRyYXMtNS4zMi00LmZjMjEueDg2XzY0CkZlYiAwNSAxNToyMjo1NiBVcGRhdGVkOiB4b3JnLXgx MS1kcnYtc3luYXB0aWNzLTEuOC4xLTIuZmMyMS54ODZfNjQKRmViIDA1IDE1OjIyOjU4IFVwZGF0
+ZWQ6IGxpYmhpZi0wLjEuOC00LmZjMjEueDg2XzY0CkZlYiAwNSAxNToyMjo1OCBVcGRhdGVkOiBw YXRjaC0yLjcuNC0xLmZjMjEueDg2XzY0CkZlYiAwNSAxNTozMTo1MCBVcGRhdGVkOiBzZWxpbnV4 LXBvbGljeS0zLjEzLjEtMTA1LjMuZmMyMS5ub2FyY2gKRmViIDA1IDE1OjMxOjUzIFVwZGF0ZWQ6
+IHNlbGludXgtcG9saWN5LWRvYy0zLjEzLjEtMTA1LjMuZmMyMS5ub2FyY2gKRmViIDA1IDE1OjMy OjEwIFVwZGF0ZWQ6IHNlbGludXgtcG9saWN5LWRldmVsLTMuMTMuMS0xMDUuMy5mYzIxLm5vYXJj aApGZWIgMDUgMTU6MzI6NDQgVXBkYXRlZDogc2VsaW51eC1wb2xpY3ktdGFyZ2V0ZWQtMy4xMy4x
+LTEwNS4zLmZjMjEubm9hcmNoCkZlYiAwNSAxNjo0MzoyNiBVcGRhdGVkOiAxOmxpYnJlb2ZmaWNl LXVyZS00LjMuNi4yLTEuZmMyMS54ODZfNjQKRmViIDA1IDE2OjQzOjMwIEluc3RhbGxlZDogZ2hv c3RzY3JpcHQtY29yZS05LjE1LTYuZmMyMS54ODZfNjQKRmViIDA1IDE2OjQzOjMwIFVwZGF0ZWQ6
+IGdob3N0c2NyaXB0LTkuMTUtNi5mYzIxLng4Nl82NApGZWIgMDUgMTY6NDM6MzAgSW5zdGFsbGVk OiBnaG9zdHNjcmlwdC14MTEtOS4xNS02LmZjMjEueDg2XzY0CkZlYiAwNSAxNjo0MzozMSBVcGRh dGVkOiAxOmxpYnJlb2ZmaWNlLW9wZW5zeW1ib2wtZm9udHMtNC4zLjYuMi0xLmZjMjEubm9hcmNo
+CkZlYiAwNSAxNjo0Mzo0NyBVcGRhdGVkOiAxOmxpYnJlb2ZmaWNlLWNvcmUtNC4zLjYuMi0xLmZj MjEueDg2XzY0CkZlYiAwNSAxNjo0Mzo0OCBVcGRhdGVkOiAxOmxpYnJlb2ZmaWNlLWdyYXBoaWNm aWx0ZXItNC4zLjYuMi0xLmZjMjEueDg2XzY0CkZlYiAwNSAxNjo0Mzo0OCBVcGRhdGVkOiAxOmxp
+YnJlb2ZmaWNlLWRyYXctNC4zLjYuMi0xLmZjMjEueDg2XzY0CkZlYiAwNSAxNjo0Mzo0OSBVcGRh dGVkOiAxOmxpYnJlb2ZmaWNlLXBkZmltcG9ydC00LjMuNi4yLTEuZmMyMS54ODZfNjQKRmViIDA1 IDE2OjQzOjUwIFVwZGF0ZWQ6IDE6bGlicmVvZmZpY2UtaW1wcmVzcy00LjMuNi4yLTEuZmMyMS54
+ODZfNjQKRmViIDA1IDE2OjQzOjUyIFVwZGF0ZWQ6IDE6bGlicmVvZmZpY2UtY2FsYy00LjMuNi4y LTEuZmMyMS54ODZfNjQKRmViIDA1IDE2OjQzOjUyIFVwZGF0ZWQ6IDE6bGlicmVvZmZpY2UtbWF0 aC00LjMuNi4yLTEuZmMyMS54ODZfNjQKRmViIDA1IDE2OjQzOjU0IFVwZGF0ZWQ6IDE6bGlicmVv
+ZmZpY2Utd3JpdGVyLTQuMy42LjItMS5mYzIxLng4Nl82NApGZWIgMDUgMTY6NDM6NTQgVXBkYXRl ZDogMTpsaWJyZW9mZmljZS14c2x0ZmlsdGVyLTQuMy42LjItMS5mYzIxLng4Nl82NApGZWIgMDUg MTY6NDM6NTQgVXBkYXRlZDogMTpsaWJyZW9mZmljZS1maWx0ZXJzLTQuMy42LjItMS5mYzIxLng4
+Nl82NApGZWIgMDUgMTY6NDM6NTUgVXBkYXRlZDogMTpsaWJyZW9mZmljZS1iYXNlLTQuMy42LjIt MS5mYzIxLng4Nl82NApGZWIgMDUgMTY6NDM6NTUgVXBkYXRlZDogMTpsaWJyZW9mZmljZS1vZ2x0 cmFucy00LjMuNi4yLTEuZmMyMS54ODZfNjQKRmViIDA1IDE2OjQzOjU3IFVwZGF0ZWQ6IDE6bGli
+cmVvZmZpY2UtbGFuZ3BhY2stZWwtNC4zLjYuMi0xLmZjMjEueDg2XzY0CkZlYiAwNSAxNjo0Mzo1 OCBVcGRhdGVkOiAxOmxpYnJlb2ZmaWNlLWtkZS00LjMuNi4yLTEuZmMyMS54ODZfNjQKRmViIDA1 IDE2OjQzOjU5IFVwZGF0ZWQ6IDE6bGlicmVvZmZpY2UtcHl1bm8tNC4zLjYuMi0xLmZjMjEueDg2
+XzY0CkZlYiAwNSAxNjo0NDowMCBVcGRhdGVkOiAxOmxpYnJlb2ZmaWNlLWxhbmdwYWNrLWVuLTQu My42LjItMS5mYzIxLng4Nl82NApGZWIgMDUgMTY6NDQ6MDAgVXBkYXRlZDogbGlibWVkaWF3aWtp LTQuNy4wLTIuZmMyMS54ODZfNjQKRmViIDA1IDE2OjQ0OjAxIFVwZGF0ZWQ6IHBpZ3otMi4zLjMt
+MS5mYzIxLng4Nl82NApGZWIgMDUgMTY6NDQ6MDIgVXBkYXRlZDogMTpkb3h5Z2VuLTEuOC45LjEt MS5mYzIxLng4Nl82NApGZWIgMDUgMTg6MDM6MDkgVXBkYXRlZDogMTpsaWJndWVzdGZzLTEuMjgu Ni0xLmZjMjEueDg2XzY0CkZlYiAwNSAxODowMzoxMCBVcGRhdGVkOiBjYWlyby0xLjE0LjAtMS5m
+YzIxLng4Nl82NApGZWIgMDUgMTg6MDM6MTAgVXBkYXRlZDogY2Fpcm8tZGV2ZWwtMS4xNC4wLTEu ZmMyMS54ODZfNjQKRmViIDA1IDE4OjAzOjExIFVwZGF0ZWQ6IGNhaXJvLWdvYmplY3QtMS4xNC4w LTEuZmMyMS54ODZfNjQKRmViIDA1IDE4OjAzOjExIFVwZGF0ZWQ6IDE6cGVybC1TeXMtR3Vlc3Rm
+cy0xLjI4LjYtMS5mYzIxLng4Nl82NApGZWIgMDUgMTg6MDM6MTIgVXBkYXRlZDogMTpsaWJndWVz dGZzLXRvb2xzLWMtMS4yOC42LTEuZmMyMS54ODZfNjQKRmViIDA1IDE4OjAzOjEzIFVwZGF0ZWQ6 IDE6bGliZ3Vlc3Rmcy10b29scy0xLjI4LjYtMS5mYzIxLm5vYXJjaApGZWIgMDUgMTg6MDM6MTMg
+VXBkYXRlZDogY2Fpcm8tZ29iamVjdC1kZXZlbC0xLjE0LjAtMS5mYzIxLng4Nl82NApGZWIgMDUg MTg6MDM6MTQgVXBkYXRlZDogc3FsaXRlLTMuOC44LTIuZmMyMS54ODZfNjQKRmViIDA1IDE4OjAz OjE2IFVwZGF0ZWQ6IG9yY2EtMy4xNC4zLTEuZmMyMS5ub2FyY2gKRmViIDA1IDE4OjAzOjE3IFVw
+ZGF0ZWQ6IGxpYmdwZy1lcnJvci0xLjE3LTIuZmMyMS54ODZfNjQKRmViIDA1IDE4OjAzOjE3IFVw ZGF0ZWQ6IDE6YXV0b2NvcnItZW4tNC4zLjYuMi0xLmZjMjEubm9hcmNoCkZlYiAwNSAxODowMzox OCBVcGRhdGVkOiBjYWlyby0xLjE0LjAtMS5mYzIxLmk2ODYKRmViIDA1IDE4OjAzOjE4IFVwZGF0
+ZWQ6IGNhaXJvLWdvYmplY3QtMS4xNC4wLTEuZmMyMS5pNjg2CkZlYiAwNSAxODowMzoxOCBVcGRh dGVkOiBsaWJncGctZXJyb3ItMS4xNy0yLmZjMjEuaTY4NgpGZWIgMDUgMTg6MDM6MTkgVXBkYXRl ZDogc3FsaXRlLTMuOC44LTIuZmMyMS5pNjg2CkZlYiAwNiAxMzoyNjo1NyBJbnN0YWxsZWQ6IGtl
+cm5lbC1jb3JlLTMuMTguNS0yMDEuZmMyMS54ODZfNjQKRmViIDA2IDEzOjI3OjAzIEluc3RhbGxl ZDoga2VybmVsLW1vZHVsZXMtMy4xOC41LTIwMS5mYzIxLng4Nl82NApGZWIgMDYgMTM6Mjc6MDMg SW5zdGFsbGVkOiBrZXJuZWwtMy4xOC41LTIwMS5mYzIxLng4Nl82NApGZWIgMDYgMTM6Mjc6MDYg
+SW5zdGFsbGVkOiBrZXJuZWwtbW9kdWxlcy1leHRyYS0zLjE4LjUtMjAxLmZjMjEueDg2XzY0CkZl YiAwNiAxMzoyNzowOSBVcGRhdGVkOiBrZXJuZWwtaGVhZGVycy0zLjE4LjUtMjAxLmZjMjEueDg2 XzY0CkZlYiAwNiAxMzoyNzoxMCBVcGRhdGVkOiBmbGFzaC1wbHVnaW4tMTEuMi4yMDIuNDQyLXJl
+bGVhc2UueDg2XzY0CkZlYiAwNiAxMzoyODowOCBJbnN0YWxsZWQ6IGtlcm5lbC1kZXZlbC0zLjE4 LjUtMjAxLmZjMjEueDg2XzY0CkZlYiAwNiAxMzoyOToxMCBJbnN0YWxsZWQ6IDE6a21vZC1udmlk aWEtMzQweHgtMy4xOC41LTIwMS5mYzIxLng4Nl82NC0zNDAuNzYtMS5mYzIxLjIueDg2XzY0CkZl
+YiAwNiAxMzo1OToxOCBVcGRhdGVkOiAyOmdlZGl0LTMuMTQuMy0xLmZjMjEueDg2XzY0Cgo=
+</data>
+
+</attachment>
+
+</bug>
+
+</bugzilla>
