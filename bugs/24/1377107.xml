@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1377107</bug_id>
+          
+          <creation_ts>2016-09-18 10:22:00 -0400</creation_ts>
+          <short_desc>libdwarf Integer Overflow</short_desc>
+          <delta_ts>2016-11-08 10:55:08 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>libdwarf</component>
+          <version>24</version>
+          <rep_platform>All</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>low</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>1379624</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="puzzor">puzzorsj</reporter>
+          <assigned_to name="Tom Hughes">tom</assigned_to>
+          <cc>anemec</cc>
+    
+    
+    <cc>orion</cc>
+    
+    
+    <cc>tom</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>libdwarf-20161001-1.fc25 libdwarf-20160929-1.fc24</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-10-08 22:49:45</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9719186</commentid>
+    <comment_count>0</comment_count>
+      <attachid>1202196</attachid>
+    <who name="puzzor">puzzorsj</who>
+    <bug_when>2016-09-18 10:22:43 -0400</bug_when>
+    <thetext>Created attachment 1202196
+poc and stack trace
+
+# Version
+libdwarf 20160613
+
+# Address Sanitizer Output
+&lt;0&gt; tag: 17 DW_TAG_compile_unit  name: &quot;addrmap.c&quot; FORM 0xe &quot;DW_FORM_strp&quot;
+&lt;1&gt; tag: 46 DW_TAG_subprogram  name: &quot;addr_map_insert&quot; FORM 0xe &quot;DW_FORM_strp&quot;
+ASAN:SIGSEGV
+=================================================================
+==6825== ERROR: AddressSanitizer: SEGV on unknown address 0x0583903c (pc 0xb61f1a98 sp 0xbfa388b4 bp 0xbfa38d08 T0)
+AddressSanitizer can not provide additional info.
+    #0 0xb61f1a97 (/usr/lib/i386-linux-gnu/libasan.so.0+0x1ba97)
+    #1 0xb61e3c0b (/usr/lib/i386-linux-gnu/libasan.so.0+0xdc0b)
+    #2 0x80a21b1 in _dwarf_get_size_of_val /home/fuzzing/fuzzing/dwarf-20160613/libdwarf/dwarf_util.c:210
+    #3 0x8054214 in _dwarf_next_die_info_ptr /home/fuzzing/fuzzing/dwarf-20160613/libdwarf/dwarf_die_deliv.c:1340
+    #4 0x80557a5 in dwarf_child /home/fuzzing/fuzzing/dwarf-20160613/libdwarf/dwarf_die_deliv.c:1640
+    #5 0x804b23f in get_die_and_siblings /home/fuzzing/fuzzing/dwarf-20160613/dwarfexample/./simplereader.c:573
+    #6 0x804b2a8 in get_die_and_siblings /home/fuzzing/fuzzing/dwarf-20160613/dwarfexample/./simplereader.c:579
+    #7 0x804b0a3 in read_cu_list /home/fuzzing/fuzzing/dwarf-20160613/dwarfexample/./simplereader.c:547
+    #8 0x804ab10 in main /home/fuzzing/fuzzing/dwarf-20160613/dwarfexample/./simplereader.c:475
+    #9 0xb600da82 (/lib/i386-linux-gnu/libc.so.6+0x19a82)
+    #10 0x8049040 in _start (/home/fuzzing/fuzzing/dwarf-20160613/dwarfexample/simplereader+0x8049040)
+SUMMARY: AddressSanitizer: SEGV ??:0 ??
+==6825== ABORTING
+
+# PoC
+See poc
+
+# Analysis
+From the call stack we get to know the &quot;val_ptr&quot; caused the Access Violation directly. When we analyzed further, we found this was caused by a integer overflow in dwarf_die_deliv.c. Let&apos;s see the line 1354:
+&quot;info_ptr += sizeofval;&quot;
+In our case, sizeofval will be a very large value and when info_ptr adds this large value, it will cause an overflow and thus we checked the info_ptr with die_info_end, info_ptr will always less than die_info_end.
+See the debug info below:
+&quot;
+Hardware watchpoint 3: info_ptr
+Old value = (Dwarf_Byte_Ptr) 0xb5003b35 &quot;\001U\003Q\001&quot;
+New value = (Dwarf_Byte_Ptr) 0x603903a &lt;error: Cannot access memory at address 0x603903a&gt;
+_dwarf_next_die_info_ptr (die_info_ptr=0xb5003b22 &quot;\002\207&quot;, cu_context=0xb4e03d88, die_info_end=0xb5003db1 &quot;&quot;, cu_info_start=0x0, want_AT_sibling=0, 
+    has_die_child=0xbfffeb10, next_die_ptr_out=0xbfffead0, error=0xbfffec80) at dwarf_die_deliv.c:1355
+1355                if (info_ptr &gt; die_info_end) {
+(gdb) print sizeofval 
+$3 = 1359172869
+(gdb) print info_ptr 
+$4 = (Dwarf_Byte_Ptr) 0x603903a &lt;error: Cannot access memory at address 0x603903a&gt;
+&quot;
+(Note that info_ptr is a Dwarf_Byte_Ptr and sizeofval is Dwarf_Unsigned)
+Later, the program will use this corrupt info_ptr to memcpy.
+
+# Report Timeline
+2016.09.18: Shi Ji(@Puzzor) discovered this issue
+
+# Credit
+Shi Ji(@Puzzor)
+
+# PoC
+Contact us if you need PoC file</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9719188</commentid>
+    <comment_count>1</comment_count>
+    <who name="Tom Hughes">tom</who>
+    <bug_when>2016-09-18 10:23:39 -0400</bug_when>
+    <thetext>Has this been reported upstream?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9719189</commentid>
+    <comment_count>2</comment_count>
+    <who name="puzzor">puzzorsj</who>
+    <bug_when>2016-09-18 10:25:19 -0400</bug_when>
+    <thetext>(In reply to Tom Hughes from comment #1)
+&gt; Has this been reported upstream?
+
+Yes, with external link https://sourceforge.net/p/libdwarf/bugs/3/</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9745020</commentid>
+    <comment_count>3</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-27 02:20:22 -0400</bug_when>
+    <thetext>libdwarf-20160923-1.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-328754be1c</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9745173</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-27 03:20:47 -0400</bug_when>
+    <thetext>libdwarf-20160923-1.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-9b8717537a</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9745742</commentid>
+    <comment_count>5</comment_count>
+    <who name="Tom Hughes">tom</who>
+    <bug_when>2016-09-27 05:33:45 -0400</bug_when>
+    <thetext>*** Bug 1379625 has been marked as a duplicate of this bug. ***</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9758490</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-30 16:24:45 -0400</bug_when>
+    <thetext>libdwarf-20160929-1.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-9b8717537a</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9758901</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-10-01 01:28:08 -0400</bug_when>
+    <thetext>libdwarf-20160929-1.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-328754be1c</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9761460</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-10-03 10:24:29 -0400</bug_when>
+    <thetext>libdwarf-20161001-1.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-9b8717537a</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9775743</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-10-08 22:49:45 -0400</bug_when>
+    <thetext>libdwarf-20161001-1.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9775950</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-10-09 02:21:53 -0400</bug_when>
+    <thetext>libdwarf-20160929-1.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="0"
+              ispatch="0"
+              isprivate="0"
+          >
+            <attachid>1202196</attachid>
+            <date>2016-09-18 10:22:00 -0400</date>
+            <delta_ts>2016-09-18 10:22:43 -0400</delta_ts>
+            <desc>poc and stack trace</desc>
+            <filename>STARLAB20160020.zip</filename>
+            <type>application/zip</type>
+            <size>4485</size>
+            <attacher name="puzzor">puzzorsj</attacher>
+            
+              <data encoding="base64">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
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

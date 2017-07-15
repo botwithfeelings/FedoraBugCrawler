@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1333261</bug_id>
+          
+          <creation_ts>2016-05-05 03:06:00 -0400</creation_ts>
+          <short_desc>Running ipa-server-install produces AVC denials about dirsrv_t and null_device_t</short_desc>
+          <delta_ts>2016-07-18 11:09:24 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>389-ds-base</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>CURRENTRELEASE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Jan Pazdziora">jpazdziora</reporter>
+          <assigned_to name="Rich Megginson">rmeggins</assigned_to>
+          <cc>edewata</cc>
+    
+    
+    <cc>jpazdziora</cc>
+    
+    
+    <cc>mreynolds</cc>
+    
+    
+    <cc>nhosoi</cc>
+    
+    
+    <cc>nkinder</cc>
+    
+    
+    <cc>rmeggins</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-07-18 11:09:24</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9294506</commentid>
+    <comment_count>0</comment_count>
+    <who name="Jan Pazdziora">jpazdziora</who>
+    <bug_when>2016-05-05 03:06:13 -0400</bug_when>
+    <thetext>Description of problem:
+
+When running ipa-server-install on Fedora 24 (Alpha, upgraded with updates-testing), there are errors related to ns-slapd.
+
+Version-Release number of selected component (if applicable):
+
+freeipa-server-4.3.0-3.fc24.x86_64
+389-ds-base-1.3.5.0-1.fc24.x86_64
+selinux-policy-targeted-3.13.1-184.fc24.noarch
+
+How reproducible:
+
+Deterministic.
+
+Steps to Reproduce:
+1. Run ipa-server-install, mostly just accepts the defaults.
+
+Actual results:
+
+Configuring NTP daemon (ntpd)
+  [1/4]: stopping ntpd
+  [2/4]: writing configuration
+  [3/4]: configuring ntpd to start on boot
+  [4/4]: starting ntpd
+Done configuring NTP daemon (ntpd).
+Configuring directory server (dirsrv). Estimated time: 1 minute
+  [1/46]: creating directory server user
+  [2/46]: creating directory server instance
+  [3/46]: restarting directory server
+ipa         : CRITICAL Failed to restart the directory server ([Errno -2] Name or service not known). See the installation log for details.
+  [4/46]: adding default schema
+  [5/46]: enabling memberof plugin
+  [6/46]: enabling winsync plugin
+  [7/46]: configuring replication version plugin
+  [8/46]: enabling IPA enrollment plugin
+  [9/46]: enabling ldapi
+  [10/46]: configuring uniqueness plugin
+  [11/46]: configuring uuid plugin
+  [12/46]: configuring modrdn plugin
+  [13/46]: configuring DNS plugin
+  [14/46]: enabling entryUSN plugin
+  [15/46]: configuring lockout plugin
+  [16/46]: configuring topology plugin
+  [17/46]: creating indices
+  [18/46]: enabling referential integrity plugin
+  [19/46]: configuring certmap.conf
+  [20/46]: configure autobind for root
+  [21/46]: configure new location for managed entries
+  [22/46]: configure dirsrv ccache
+  [23/46]: enabling SASL mapping fallback
+  [24/46]: restarting directory server
+ipa         : CRITICAL Failed to restart the directory server ([Errno -2] Name or service not known). See the installation log for details.
+  [25/46]: adding sasl mappings to the directory
+  [26/46]: adding default layout
+  [27/46]: adding delegation layout
+  [28/46]: creating container for managed entries
+  [29/46]: configuring user private groups
+  [30/46]: configuring netgroups from hostgroups
+
+Expected results:
+
+No errors.
+
+Additional info:
+
+The audit.log has
+
+type=AVC msg=audit(1462431765.051:332): avc:  denied  { setattr } for  pid=22981 comm=&quot;ns-slapd&quot; name=&quot;null&quot; dev=&quot;devtmpfs&quot; ino=1028 scontext=system_u:system_r:dirsrv_t:s0 tcontext=system_u:object_r:null_device_t:s0 tclass=chr_file permissive=0
+type=AVC msg=audit(1462431767.037:336): avc:  denied  { setattr } for  pid=23048 comm=&quot;ns-slapd&quot; name=&quot;null&quot; dev=&quot;devtmpfs&quot; ino=1028 scontext=system_u:system_r:dirsrv_t:s0 tcontext=system_u:object_r:null_device_t:s0 tclass=chr_file permissive=0
+type=AVC msg=audit(1462431769.827:340): avc:  denied  { setattr } for  pid=23136 comm=&quot;ns-slapd&quot; name=&quot;null&quot; dev=&quot;devtmpfs&quot; ino=1028 scontext=system_u:system_r:dirsrv_t:s0 tcontext=system_u:object_r:null_device_t:s0 tclass=chr_file permissive=0
+
+in it.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9294523</commentid>
+    <comment_count>1</comment_count>
+    <who name="Jan Pazdziora">jpazdziora</who>
+    <bug_when>2016-05-05 03:12:14 -0400</bug_when>
+    <thetext>The CRITICAL error was caused by missing localhost entry in /etc/hosts. So that one was a local problem.
+
+The AVC denial is still present though.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9513836</commentid>
+    <comment_count>2</comment_count>
+    <who name="Noriko Hosoi">nhosoi</who>
+    <bug_when>2016-07-15 15:11:23 -0400</bug_when>
+    <thetext>(In reply to Jan Pazdziora from comment #1)
+&gt; The CRITICAL error was caused by missing localhost entry in /etc/hosts. So
+&gt; that one was a local problem.
+&gt; 
+&gt; The AVC denial is still present though.
+
+Hi Jan, do you still see this &quot;avc denied&quot; message in your audit.log?
+
+selinux-policy-3.13.1-190 has this fix for 389-ds-base.
+
+* Mon May 30 2016 Lukas Vrabec &lt;lvrabec@redhat.com&gt; 3.13.1-190 - Directory Server (389-ds-base) has been updated to use systemd-ask-password. In order to function correctly we need the following added to dirsrv.te
+
+If you could update this bug with the latest result, I&apos;d appreciate it.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9514508</commentid>
+    <comment_count>3</comment_count>
+    <who name="Jan Pazdziora">jpazdziora</who>
+    <bug_when>2016-07-16 02:39:35 -0400</bug_when>
+    <thetext>I no longer see these AVC denials with Fedora 24 updates.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9518048</commentid>
+    <comment_count>4</comment_count>
+    <who name="Noriko Hosoi">nhosoi</who>
+    <bug_when>2016-07-18 11:09:24 -0400</bug_when>
+    <thetext>Thank you for the confirmation, Jan!
+
+Closing this bug with currentrelease.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

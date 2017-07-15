@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1372307</bug_id>
+          
+          <creation_ts>2016-09-01 07:35:00 -0400</creation_ts>
+          <short_desc>dnf-automatic does not run etckeeper&apos;s autocommit</short_desc>
+          <delta_ts>2016-12-08 04:49:24 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>dnf</component>
+          <version>24</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>RAWHIDE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords>Triaged</keywords>
+          <priority>high</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Alexander Groß">agross</reporter>
+          <assigned_to name="Jaroslav Mracek">jmracek</assigned_to>
+          <cc>agross</cc>
+    
+    
+    <cc>edgar.hoch</cc>
+    
+    
+    <cc>ignatenko</cc>
+    
+    
+    <cc>jmracek</cc>
+    
+    
+    <cc>jsilhan</cc>
+    
+    
+    <cc>mluscon</cc>
+    
+    
+    <cc>packaging-team-maint</cc>
+    
+    
+    <cc>pnemade</cc>
+    
+    
+    <cc>rpm-software-management</cc>
+    
+    
+    <cc>vmukhame</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-10-04 14:03:54</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9671128</commentid>
+    <comment_count>0</comment_count>
+    <who name="Alexander Groß">agross</who>
+    <bug_when>2016-09-01 07:35:16 -0400</bug_when>
+    <thetext>Description of problem:
+
+Hi!
+
+I use etckeeper to manage my /etc files with git. I was using CentOS 7 with yum and yum-cron before, and yum-cron would auto-commit changes to /etc files after updates. 
+
+I have a Fedora 24 machine with dnf-automatic to essentially get the same automatic update behavior. dnf-automatic does not seem to load dnf plugins like etckeeper, hence changes to /etc due to updated packages are not automatically committed.
+
+Version-Release number of selected component (if applicable):
+
+[root@router ~]# dnf --version
+1.1.10
+  Installed: dnf-0:1.1.10-1.fc24.noarch at 2016-08-20 14:13
+  Built    : Fedora Project at 2016-08-18 14:39
+
+  Installed: rpm-0:4.13.0-0.rc1.27.fc24.x86_64 at 2016-07-13 19:27
+  Built    : Fedora Project at 2016-04-25 13:45
+[root@router ~]# dnf info dnf-automatic
+Last metadata expiration check: 1:18:30 ago on Thu Sep  1 11:58:18 2016.
+Installed Packages
+Name        : dnf-automatic
+Arch        : noarch
+Epoch       : 0
+Version     : 1.1.10
+Release     : 1.fc24
+Size        : 35 k
+Repo        : @System
+From repo   : updates
+Summary     : Alternative CLI to &quot;dnf upgrade&quot; suitable for automatic, regular execution.
+URL         : https://github.com/rpm-software-management/dnf
+License     : GPLv2+ and GPLv2 and GPL
+Description : Alternative CLI to &quot;dnf upgrade&quot; suitable for automatic, regular execution.
+
+How reproducible:
+
+Every time dnf-automatic updates packages that cause changes to files in /etc or new files in /etc.
+
+Steps to Reproduce:
+1. dnf install etckeeper dnf-automatic
+   (Installs etckeeper, etckeeper-dnf, dnf-automatic)
+
+2. cd /etc &amp;&amp; etckeeper init &amp;&amp; etckeeper commit baseline
+
+3. Verify that etckeeper&apos;s dnf integration works by running e.g.:
+   dnf install -y radvd
+   etckeeper vcs log -1
+
+   Should print:
+
+   commit 3cd6be4a98bab8e708d93cc8c18c51656ea2722b
+   Author: root &lt;root@machine&gt;
+   Date:   Thu Sep 1 13:32:36 2016 +0200
+
+       committing changes in /etc after yum run
+
+       Package changes:
+       +0:radvd-2.11-4.fc24.x86_64
+   
+3. sed -i &apos;s/apply_updates = no/apply_update = yes/&apos; /etc/dnf/automatic.conf
+
+4. systemctl enable dnf-automatic.timer &amp;&amp; systemctl start dnf-automatic.timer
+
+5. Wait for updates to appear
+
+Actual results:
+
+Changes to /etc are uncommitted.
+
+Expected results:
+
+Changes to /etc should be committed, like as if I would have run dnf update manually.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9721200</commentid>
+    <comment_count>1</comment_count>
+    <who name="Jaroslav Mracek">jmracek</who>
+    <bug_when>2016-09-19 08:48:09 -0400</bug_when>
+    <thetext>I create pull-request that fix the problem: https://github.com/rpm-software-management/dnf/pull/614</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9765694</commentid>
+    <comment_count>2</comment_count>
+    <who name="Alexander Groß">agross</who>
+    <bug_when>2016-10-04 14:10:11 -0400</bug_when>
+    <thetext>Many thanks!</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9967503</commentid>
+    <comment_count>3</comment_count>
+    <who name="Igor Gnatenko">ignatenko</who>
+    <bug_when>2016-12-08 04:49:24 -0500</bug_when>
+    <thetext>*** Bug 1402631 has been marked as a duplicate of this bug. ***</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1353773</bug_id>
+          
+          <creation_ts>2016-07-07 19:55:00 -0400</creation_ts>
+          <short_desc>java-z3 fails on loading</short_desc>
+          <delta_ts>2016-07-22 20:18:59 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>z3</component>
+          <version>24</version>
+          <rep_platform>All</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>urgent</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Dominique Unruh">3unruh</reporter>
+          <assigned_to name="Jerry James">loganjerry</assigned_to>
+          <cc>3unruh</cc>
+    
+    
+    <cc>loganjerry</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>z3-4.4.1-6.fc24 z3-4.4.1-6.fc23</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes>undefined</cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-07-22 14:23:04</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9489200</commentid>
+    <comment_count>0</comment_count>
+    <who name="Dominique Unruh">3unruh</who>
+    <bug_when>2016-07-07 19:55:56 -0400</bug_when>
+    <thetext>Description of problem:
+
+When loading the Java bindings for Z3 from the java-z3 package, the class fails to initialize due to its inability to load the native library. (The Java bindings are unusable.)
+
+This is not due to the fact that the library is not found, but because the class initialization code calls System.load(&quot;libz3java&quot;) instead of System.loadLibrary(&quot;libz3java&quot;). Note that System.load *must* be called with an absolute path (https://docs.oracle.com/javase/7/docs/api/java/lang/System.html), so the call is invalid, no matter whether the library is on the path.
+
+The problem is not in the upstream code, which uses System.loadLibrary. Instead, the file z3.spec in the Fedora source package contains the lines
+  # Comply with the Java packaging guidelines
+  sed -i &quot;s/\(System\.load\)Library/\1/&quot; scripts/update_api.py
+which replaces System.load by System.loadLibrary.
+
+
+
+Version-Release number of selected component (if applicable):
+
+java-z3-4.4.1-5.fc24.x86_64 (used together OpenJDK 1.8.0_92-b14)
+
+How reproducible:
+
+Always.
+
+
+Steps to Reproduce:
+1. cp /usr/share/doc/z3-doc/examples/java/JavaExample.java . # From package z3-doc
+2. javac -cp /usr/lib/java/com.microsoft.z3.jar:. JavaExample.java 
+3. java -Djava.library.path=/usr/lib64/z3/ -cp /usr/lib/java/com.microsoft.z3.jar:. JavaExample
+
+
+Actual results:
+
+This throws:
+Exception in thread &quot;main&quot; java.lang.UnsatisfiedLinkError: Expecting an absolute path of the library: libz3java
+	at java.lang.Runtime.load0(Runtime.java:806)
+	at java.lang.System.load(System.java:1086)
+	at com.microsoft.z3.Native.&lt;clinit&gt;(Native.java:14)
+	at com.microsoft.z3.Global.ToggleWarningMessages(Global.java:86)
+	at JavaExample.main(JavaExample.java:2286)
+
+
+Expected results:
+
+No exception is thrown, the code executes various examples.
+
+Additional info:
+
+Removing the offending lines from z3.spec probably fixes the problem, but I have not tried it.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9490072</commentid>
+    <comment_count>1</comment_count>
+    <who name="Dominique Unruh">3unruh</who>
+    <bug_when>2016-07-08 05:22:10 -0400</bug_when>
+    <thetext>I tried the suggested fix (removing the lines from z3.spec).
+It solves the problem, but it is not obvious, because one still gets an error message about an unsatisfied link error.
+
+Exception in thread &quot;main&quot; java.lang.UnsatisfiedLinkError: no libz3java in java.library.path
+	at java.lang.ClassLoader.loadLibrary(ClassLoader.java:1867)
+	at java.lang.Runtime.loadLibrary0(Runtime.java:870)
+	at java.lang.System.loadLibrary(System.java:1122)
+	at com.microsoft.z3.Native.&lt;clinit&gt;(Native.java:14)
+	at com.microsoft.z3.Global.ToggleWarningMessages(Global.java:86)
+	at JavaExample.main(JavaExample.java:2286)
+
+This message is misleading and due to the following loading code:
+
+    try { System.loadLibrary(&quot;z3java&quot;); }
+    catch (UnsatisfiedLinkError ex) { System.loadLibrary(&quot;libz3java&quot;); }
+
+The second load-library call will fail, because the convention is that the library name must be given without the &quot;lib&quot; prefix. That means that if the first call fails, we will only see the exception of the second call, making it hard to figure out what fails.
+
+A hotfix is to put liblibz3java into the library path.
+I.e.,
+  cp /usr/lib64/z3/libz3java.so ./liblibz3java.so
+  java -Djava.library.path=. -cp ~/rpmbuild/BUILD/z3-z3-4.4.1/build/com.microsoft.z3.jar:. JavaExample
+
+Now the second call of loadLibrary can work, and we get the actual problem:
+
+Exception in thread &quot;main&quot; java.lang.UnsatisfiedLinkError: /home/unruh/tmp/liblibz3java.so: /home/unruh/tmp/liblibz3java.so: undefined symbol: Z3_mk_fpa_numeral_int_uint
+	at java.lang.ClassLoader$NativeLibrary.load(Native Method)
+	at java.lang.ClassLoader.loadLibrary0(ClassLoader.java:1941)
+	at java.lang.ClassLoader.loadLibrary(ClassLoader.java:1857)
+	at java.lang.Runtime.loadLibrary0(Runtime.java:870)
+	at java.lang.System.loadLibrary(System.java:1122)
+	at com.microsoft.z3.Native.&lt;clinit&gt;(Native.java:14)
+	at com.microsoft.z3.Global.ToggleWarningMessages(Global.java:86)
+	at JavaExample.main(JavaExample.java:2286)
+
+This is because the actual Z3 library (/usr/lib64/libz3.so.0) is not automatically loaded.
+Ideally, the java-z3 code would already load it (with an added loadLibrary(&quot;z3&quot;)-call), but we can also do the following:
+
+LD_PRELOAD=libz3.so.0 java -Djava.library.path=. -cp ~/rpmbuild/BUILD/z3-z3-4.4.1/build/com.microsoft.z3.jar:. JavaExample
+
+Now the file works. (I.e., we get many pages of Z3 related output.)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9506790</commentid>
+    <comment_count>2</comment_count>
+    <who name="Jerry James">loganjerry</who>
+    <bug_when>2016-07-13 17:07:21 -0400</bug_when>
+    <thetext>Thank you for the investigation, Dominique.  Your work saved me a lot of time.  I&apos;ve got a fix that works for me in mock.  Watch for updates appearing soon.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9507644</commentid>
+    <comment_count>3</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-13 23:24:28 -0400</bug_when>
+    <thetext>z3-4.4.1-6.fc23 has been submitted as an update to Fedora 23. https://bodhi.fedoraproject.org/updates/FEDORA-2016-55d7587832</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9507645</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-13 23:24:33 -0400</bug_when>
+    <thetext>z3-4.4.1-6.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-ff256fc129</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9510100</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-14 11:52:58 -0400</bug_when>
+    <thetext>z3-4.4.1-6.fc23 has been pushed to the Fedora 23 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-55d7587832</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9510810</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-14 18:28:14 -0400</bug_when>
+    <thetext>z3-4.4.1-6.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-ff256fc129</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9542242</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-22 14:23:02 -0400</bug_when>
+    <thetext>z3-4.4.1-6.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9542785</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-22 20:18:57 -0400</bug_when>
+    <thetext>z3-4.4.1-6.fc23 has been pushed to the Fedora 23 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

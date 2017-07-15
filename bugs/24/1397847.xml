@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1397847</bug_id>
+          
+          <creation_ts>2016-11-23 08:10:00 -0500</creation_ts>
+          <short_desc>wine-desktop-1.9.23-1 requires wine-sysvinit</short_desc>
+          <delta_ts>2016-12-04 00:25:04 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>wine</component>
+          <version>24</version>
+          <rep_platform>All</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>low</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Iain Arnell">iarnell</reporter>
+          <assigned_to name="Andreas Bierfert">andreas.bierfert</assigned_to>
+          <cc>andreas.bierfert</cc>
+    
+    
+    <cc>besser82</cc>
+    
+    
+    <cc>mike</cc>
+    
+    
+    <cc>stefan</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>wine-1.9.23-2.fc25 wine-1.9.23-2.fc24</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-12-03 21:24:02</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9916175</commentid>
+    <comment_count>0</comment_count>
+    <who name="Iain Arnell">iarnell</who>
+    <bug_when>2016-11-23 08:10:23 -0500</bug_when>
+    <thetext>Description of problem:
+
+The latest wine release now builds and requires wine-sysvinit on Fedora.
+
+
+Version-Release number of selected component (if applicable):
+
+wine-desktop-1.9.23-1
+
+How reproducible:
+
+Every time
+
+
+Steps to Reproduce:
+1. dnf install wine (or with previous wine packages installed, dnf upgrade)
+
+Actual results:
+
+Dependencies resolved.
+===========================================================================================================================================================
+ Package                                          Arch                         Version                                 Repository                     Size
+===========================================================================================================================================================
+Installing:
+ wine-sysvinit                                    noarch                       1.9.23-1.fc24                           updates                        55 k
+
+[snip]
+
+Expected results:
+
+dnf does not install wine-sysvinit
+
+Additional info:
+
+git commit 293b55b35a26a90927f7d6f3df04c8522499ee8b includes the following changes to wine.spec which cause sysvinit sub-package to be built (and required) on Fedora. Those two &quot;%if 0%{?rhel} &lt; 7&quot; lines should also test for Fedora - something like &quot;%if 0%{?rhel} &lt; 7 || 0%{?fedora} &lt; 23&quot; maybe?
+
+
+
+@@ -353,8 +336,9 @@ Requires(postun): systemd
+ %description systemd
+ Register the wine binary handler for windows executables via systemd binfmt
+ handling. See man binfmt.d for further information.
++%endif
+ 
+-%if 0%{?fedora} &lt; 23
++%if 0%{?rhel} &lt; 7
+ %package sysvinit
+ Summary:        SysV initscript for the wine binfmt handler
+ Group:          Applications/Emulators
+
+[snip]
+
+@@ -394,6 +377,9 @@ Requires:       wine-common = %{version}-%{release}
+ %if 0%{?fedora} &gt;= 15 || 0%{?rhel} &gt;= 7
+ Requires:       wine-systemd = %{version}-%{release}
+ %endif
++%if 0%{?rhel} &lt; 7
++Requires:       wine-sysvinit = %{version}-%{release}
++%endif
+ Requires:       hicolor-icon-theme
+ BuildArch:      noarch</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9917098</commentid>
+    <comment_count>1</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-11-23 11:38:58 -0500</bug_when>
+    <thetext>wine-1.9.23-2.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2016-aa50f6b48d</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9917099</commentid>
+    <comment_count>2</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-11-23 11:39:07 -0500</bug_when>
+    <thetext>wine-1.9.23-2.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2016-aa50f6b48d</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9917103</commentid>
+    <comment_count>3</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-11-23 11:39:55 -0500</bug_when>
+    <thetext>wine-1.9.23-2.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-5bdfe5410c</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9929066</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-11-25 04:39:18 -0500</bug_when>
+    <thetext>wine-1.9.23-2.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-5bdfe5410c</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9929120</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-11-25 04:40:34 -0500</bug_when>
+    <thetext>wine-1.9.23-2.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-aa50f6b48d</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9953902</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-03 21:24:02 -0500</bug_when>
+    <thetext>wine-1.9.23-2.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9954002</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-04 00:25:04 -0500</bug_when>
+    <thetext>wine-1.9.23-2.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

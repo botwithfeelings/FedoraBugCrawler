@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1351022</bug_id>
+          
+          <creation_ts>2016-06-29 01:12:00 -0400</creation_ts>
+          <short_desc>bcrypt: &quot;realloc invalid pointer&quot; error for very small files</short_desc>
+          <delta_ts>2016-07-20 00:49:35 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>bcrypt</component>
+          <version>24</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>urgent</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Matthew Cline">matt</reporter>
+          <assigned_to name="Gwyn Ciesla">limburgher</assigned_to>
+          <cc>limburgher</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>bcrypt-1.1-14.fc24 bcrypt-1.1-14.fc22 bcrypt-1.1-14.fc23 bcrypt-1.1-14.el7</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-07-05 00:56:43</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9461429</commentid>
+    <comment_count>0</comment_count>
+    <who name="Matthew Cline">matt</who>
+    <bug_when>2016-06-29 01:12:39 -0400</bug_when>
+    <thetext>If I try to use bcrypt on very small files (like less than 70 bytes) I get this error:
+
+*** Error in `/usr/bin/bcrypt&apos;: realloc(): invalid pointer: 0x0000000000606640 ***
+
+Attempting to get a stacktrace with gdb doesn&apos;t work since the error apparently isn&apos;t a crash, and I don&apos;t know where to set a breakpoint.
+
+This is different than bug 1348122 since it still happens even if the &quot;-r&quot; flag is given, but is similar in that an output file is still generated.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9463800</commentid>
+    <comment_count>1</comment_count>
+    <who name="Gwyn Ciesla">limburgher</who>
+    <bug_when>2016-06-29 09:26:01 -0400</bug_when>
+    <thetext>I was able to encrypt and decrypt files of various sizes without issue, down to 1 Byte, with or without -r.  Is there a non-sensitive file you can share with me that causes this issue?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9466641</commentid>
+    <comment_count>2</comment_count>
+      <attachid>1174292</attachid>
+    <who name="Matthew Cline">matt</who>
+    <bug_when>2016-06-29 21:42:28 -0400</bug_when>
+    <thetext>Created attachment 1174292
+Output of valgrind on bcrypt
+
+Ohhh, it seems that the problem is happening because I&apos;ve set the environmental variable  MALLOC_CHECK_ to 1.  I forgot that I set that for checking my own programs; sorry.
+
+Before I realized that, I downloaded and compiled from Sourceforge the bcrypt 1.1 source, and used valgrind on it.  I&apos;ve attached the valgrind output.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9469878</commentid>
+    <comment_count>3</comment_count>
+    <who name="Gwyn Ciesla">limburgher</who>
+    <bug_when>2016-06-30 14:25:46 -0400</bug_when>
+    <thetext>Ah, ok, so we have non-fatal memory leaks.  I&apos;m not entirely certain of the best method of tightening up the calls in wrapbf.c that are at fault, but I&apos;ll look at it.  If you come up with a working patch I&apos;ll test.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9470139</commentid>
+    <comment_count>4</comment_count>
+      <attachid>1174731</attachid>
+    <who name="Matthew Cline">matt</who>
+    <bug_when>2016-06-30 16:01:36 -0400</bug_when>
+    <thetext>Created attachment 1174731
+Patch to fix fencepost error
+
+It&apos;s not a memory leak, but rather bcrypt reading from and writing to memory that hasn&apos;t been allocated.  This is caused by a fencepost error in padInput() in rwfile.c, leading bcrypt to accessing a single byte of unallocated memory after the realloc()&apos;d region that should have been included by realloc().  The attached patch fixes the problem, with both MALLOC_CHECK_ and valgrind showing that everything is working fine.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9470150</commentid>
+    <comment_count>5</comment_count>
+    <who name="Gwyn Ciesla">limburgher</who>
+    <bug_when>2016-06-30 16:10:45 -0400</bug_when>
+    <thetext>So it does, thanks!  I&apos;ll get this out to all branches ASAP.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9470192</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-06-30 16:33:12 -0400</bug_when>
+    <thetext>bcrypt-1.1-14.fc22 has been submitted as an update to Fedora 22. https://bodhi.fedoraproject.org/updates/FEDORA-2016-18ef7d9719</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9470193</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-06-30 16:33:18 -0400</bug_when>
+    <thetext>bcrypt-1.1-14.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-be5192647e</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9470194</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-06-30 16:33:22 -0400</bug_when>
+    <thetext>bcrypt-1.1-14.fc23 has been submitted as an update to Fedora 23. https://bodhi.fedoraproject.org/updates/FEDORA-2016-23f91effd7</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9470195</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-06-30 16:33:25 -0400</bug_when>
+    <thetext>bcrypt-1.1-14.el7 has been submitted as an update to Fedora EPEL 7. https://bodhi.fedoraproject.org/updates/FEDORA-EPEL-2016-bd5ba01da3</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9474209</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-02 16:21:00 -0400</bug_when>
+    <thetext>bcrypt-1.1-14.el7 has been pushed to the Fedora EPEL 7 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-EPEL-2016-bd5ba01da3</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9474226</commentid>
+    <comment_count>11</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-02 16:24:32 -0400</bug_when>
+    <thetext>bcrypt-1.1-14.fc22 has been pushed to the Fedora 22 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-18ef7d9719</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9474275</commentid>
+    <comment_count>12</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-02 16:30:52 -0400</bug_when>
+    <thetext>bcrypt-1.1-14.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-be5192647e</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9474349</commentid>
+    <comment_count>13</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-02 16:56:05 -0400</bug_when>
+    <thetext>bcrypt-1.1-14.fc23 has been pushed to the Fedora 23 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-23f91effd7</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9479799</commentid>
+    <comment_count>14</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-05 00:56:41 -0400</bug_when>
+    <thetext>bcrypt-1.1-14.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9498538</commentid>
+    <comment_count>15</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-11 22:21:27 -0400</bug_when>
+    <thetext>bcrypt-1.1-14.fc22 has been pushed to the Fedora 22 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9498586</commentid>
+    <comment_count>16</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-11 22:25:25 -0400</bug_when>
+    <thetext>bcrypt-1.1-14.fc23 has been pushed to the Fedora 23 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9530588</commentid>
+    <comment_count>17</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-20 00:49:33 -0400</bug_when>
+    <thetext>bcrypt-1.1-14.el7 has been pushed to the Fedora EPEL 7 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="0"
+              ispatch="0"
+              isprivate="0"
+          >
+            <attachid>1174292</attachid>
+            <date>2016-06-29 21:42:00 -0400</date>
+            <delta_ts>2016-06-29 21:42:28 -0400</delta_ts>
+            <desc>Output of valgrind on bcrypt</desc>
+            <filename>valgrind.log</filename>
+            <type>text/plain</type>
+            <size>2663</size>
+            <attacher name="Matthew Cline">matt</attacher>
+            
+              <data encoding="base64">PT04MzU9PSBNZW1jaGVjaywgYSBtZW1vcnkgZXJyb3IgZGV0ZWN0b3IKPT04MzU9PSBDb3B5cmln
+aHQgKEMpIDIwMDItMjAxNSwgYW5kIEdOVSBHUEwnZCwgYnkgSnVsaWFuIFNld2FyZCBldCBhbC4K
+PT04MzU9PSBVc2luZyBWYWxncmluZC0zLjExLjAgYW5kIExpYlZFWDsgcmVydW4gd2l0aCAtaCBm
+b3IgY29weXJpZ2h0IGluZm8KPT04MzU9PSBDb21tYW5kOiAuL2JjcnlwdCAtYyAtciBURVNULnR4
+dAo9PTgzNT09IApFbmNyeXB0aW9uIGtleToKQWdhaW46Cj09ODM1PT0gSW52YWxpZCB3cml0ZSBv
+ZiBzaXplIDIKPT04MzU9PSAgICBhdCAweDRDMzAwRTY6IG1lbWNweUBHTElCQ18yLjIuNSAodmdf
+cmVwbGFjZV9zdHJtZW0uYzoxMDE3KQo9PTgzNT09ICAgIGJ5IDB4NDAyNDIxOiBCRkVuY3J5cHQg
+KHdyYXBiZi5jOjI0KQo9PTgzNT09ICAgIGJ5IDB4NDAxMTdDOiBtYWluIChtYWluLmM6MTkzKQo9
+PTgzNT09ICBBZGRyZXNzIDB4NTQxMWJjOCBpcyA3MiBieXRlcyBpbnNpZGUgYSBibG9jayBvZiBz
+aXplIDczIGFsbG9jJ2QKPT04MzU9PSAgICBhdCAweDRDMkRDNTc6IHJlYWxsb2MgKHZnX3JlcGxh
+Y2VfbWFsbG9jLmM6Nzg1KQo9PTgzNT09ICAgIGJ5IDB4NDAxQTRGOiBwYWRJbnB1dCAocndmaWxl
+LmM6MzUpCj09ODM1PT0gICAgYnkgMHg0MDExNTU6IG1haW4gKG1haW4uYzoxODkpCj09ODM1PT0g
+Cj09ODM1PT0gSW52YWxpZCByZWFkIG9mIHNpemUgNAo9PTgzNT09ICAgIGF0IDB4NDAyNDcyOiBC
+RkVuY3J5cHQgKHdyYXBiZi5jOjM0KQo9PTgzNT09ICAgIGJ5IDB4NDAxMTdDOiBtYWluIChtYWlu
+LmM6MTkzKQo9PTgzNT09ICBBZGRyZXNzIDB4NTQxMWJjNiBpcyA3MCBieXRlcyBpbnNpZGUgYSBi
+bG9jayBvZiBzaXplIDczIGFsbG9jJ2QKPT04MzU9PSAgICBhdCAweDRDMkRDNTc6IHJlYWxsb2Mg
+KHZnX3JlcGxhY2VfbWFsbG9jLmM6Nzg1KQo9PTgzNT09ICAgIGJ5IDB4NDAxQTRGOiBwYWRJbnB1
+dCAocndmaWxlLmM6MzUpCj09ODM1PT0gICAgYnkgMHg0MDExNTU6IG1haW4gKG1haW4uYzoxODkp
+Cj09ODM1PT0gCj09ODM1PT0gSW52YWxpZCB3cml0ZSBvZiBzaXplIDQKPT04MzU9PSAgICBhdCAw
+eDQwMjQ5NjogQkZFbmNyeXB0ICh3cmFwYmYuYzozOCkKPT04MzU9PSAgICBieSAweDQwMTE3Qzog
+bWFpbiAobWFpbi5jOjE5MykKPT04MzU9PSAgQWRkcmVzcyAweDU0MTFiYzYgaXMgNzAgYnl0ZXMg
+aW5zaWRlIGEgYmxvY2sgb2Ygc2l6ZSA3MyBhbGxvYydkCj09ODM1PT0gICAgYXQgMHg0QzJEQzU3
+OiByZWFsbG9jICh2Z19yZXBsYWNlX21hbGxvYy5jOjc4NSkKPT04MzU9PSAgICBieSAweDQwMUE0
+RjogcGFkSW5wdXQgKHJ3ZmlsZS5jOjM1KQo9PTgzNT09ICAgIGJ5IDB4NDAxMTU1OiBtYWluICht
+YWluLmM6MTg5KQo9PTgzNT09IAo9PTgzNT09IEludmFsaWQgcmVhZCBvZiBzaXplIDEKPT04MzU9
+PSAgICBhdCAweDRDMzJFODg6IF9fR0lfbWVtcGNweSAodmdfcmVwbGFjZV9zdHJtZW0uYzoxNTA4
+KQo9PTgzNT09ICAgIGJ5IDB4NTBDNzU0RDogX0lPX2RlZmF1bHRfeHNwdXRuIChpbiAvdXNyL2xp
+YjY0L2xpYmMtMi4yMy5zbykKPT04MzU9PSAgICBieSAweDUwQzUxQ0Q6IF9JT19maWxlX3hzcHV0
+bkBAR0xJQkNfMi4yLjUgKGluIC91c3IvbGliNjQvbGliYy0yLjIzLnNvKQo9PTgzNT09ICAgIGJ5
+IDB4NTBCQTdBNTogZndyaXRlIChpbiAvdXNyL2xpYjY0L2xpYmMtMi4yMy5zbykKPT04MzU9PSAg
+ICBieSAweDQwMUNBNzogd3JpdGVmaWxlIChyd2ZpbGUuYzo5NikKPT04MzU9PSAgICBieSAweDQw
+MTA1NjogbWFpbiAobWFpbi5jOjIwMykKPT04MzU9PSAgQWRkcmVzcyAweDU0MTFiYzkgaXMgMCBi
+eXRlcyBhZnRlciBhIGJsb2NrIG9mIHNpemUgNzMgYWxsb2MnZAo9PTgzNT09ICAgIGF0IDB4NEMy
+REM1NzogcmVhbGxvYyAodmdfcmVwbGFjZV9tYWxsb2MuYzo3ODUpCj09ODM1PT0gICAgYnkgMHg0
+MDFBNEY6IHBhZElucHV0IChyd2ZpbGUuYzozNSkKPT04MzU9PSAgICBieSAweDQwMTE1NTogbWFp
+biAobWFpbi5jOjE4OSkKPT04MzU9PSAKPT04MzU9PSAKPT04MzU9PSBIRUFQIFNVTU1BUlk6Cj09
+ODM1PT0gICAgIGluIHVzZSBhdCBleGl0OiAyMDMgYnl0ZXMgaW4gNiBibG9ja3MKPT04MzU9PSAg
+IHRvdGFsIGhlYXAgdXNhZ2U6IDE4IGFsbG9jcywgMTIgZnJlZXMsIDEwLDgwMiBieXRlcyBhbGxv
+Y2F0ZWQKPT04MzU9PSAKPT04MzU9PSBMRUFLIFNVTU1BUlk6Cj09ODM1PT0gICAgZGVmaW5pdGVs
+eSBsb3N0OiAyMDMgYnl0ZXMgaW4gNiBibG9ja3MKPT04MzU9PSAgICBpbmRpcmVjdGx5IGxvc3Q6
+IDAgYnl0ZXMgaW4gMCBibG9ja3MKPT04MzU9PSAgICAgIHBvc3NpYmx5IGxvc3Q6IDAgYnl0ZXMg
+aW4gMCBibG9ja3MKPT04MzU9PSAgICBzdGlsbCByZWFjaGFibGU6IDAgYnl0ZXMgaW4gMCBibG9j
+a3MKPT04MzU9PSAgICAgICAgIHN1cHByZXNzZWQ6IDAgYnl0ZXMgaW4gMCBibG9ja3MKPT04MzU9
+PSBSZXJ1biB3aXRoIC0tbGVhay1jaGVjaz1mdWxsIHRvIHNlZSBkZXRhaWxzIG9mIGxlYWtlZCBt
+ZW1vcnkKPT04MzU9PSAKPT04MzU9PSBGb3IgY291bnRzIG9mIGRldGVjdGVkIGFuZCBzdXBwcmVz
+c2VkIGVycm9ycywgcmVydW4gd2l0aDogLXYKPT04MzU9PSBFUlJPUiBTVU1NQVJZOiA1IGVycm9y
+cyBmcm9tIDQgY29udGV4dHMgKHN1cHByZXNzZWQ6IDAgZnJvbSAwKQo=
+</data>
+
+          </attachment>
+          <attachment
+              isobsolete="0"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1174731</attachid>
+            <date>2016-06-30 16:01:00 -0400</date>
+            <delta_ts>2016-06-30 16:01:36 -0400</delta_ts>
+            <desc>Patch to fix fencepost error</desc>
+            <filename>bcrypt.patch</filename>
+            <type>text/plain</type>
+            <size>394</size>
+            <attacher name="Matthew Cline">matt</attacher>
+            
+              <data encoding="base64">ZGlmZiAtdXIgYmNyeXB0LU9SSUcvcndmaWxlLmMgYmNyeXB0LTEuMS9yd2ZpbGUuYwotLS0gYmNy
+eXB0LU9SSUcvcndmaWxlLmMJMjAwMi0wOS0xMiAxNzowMzowMS4wMDAwMDAwMDAgLTA3MDAKKysr
+IGJjcnlwdC0xLjEvcndmaWxlLmMJMjAxNi0wNi0zMCAxMjo1MzowOC41Njg3MzMyNTEgLTA3MDAK
+QEAgLTMyLDcgKzMyLDcgQEAKICAgICByID0gaiAtIHN6OwogCiAgIGlmICggciA8IGopIHsKLSAg
+ICBpZiAoKCppbnB1dCA9IHJlYWxsb2MoKmlucHV0LCBzeiArIHIgKyAxKSkgPT0gTlVMTCkKKyAg
+ICBpZiAoKCppbnB1dCA9IHJlYWxsb2MoKmlucHV0LCBzeiArIHIgKyAyKSkgPT0gTlVMTCkKICAg
+ICAgIG1lbWVycm9yKCk7CiAKICAgICBtZW1zZXQoKmlucHV0K3N6LCAwLCByICsgMSk7Cg==
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

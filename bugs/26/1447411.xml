@@ -1,0 +1,365 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1447411</bug_id>
+          
+          <creation_ts>2017-05-02 12:19:00 -0400</creation_ts>
+          <short_desc>sssd-kcm should not run as unconfined_service_t</short_desc>
+          <delta_ts>2017-06-09 14:58:38 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>selinux-policy</component>
+          <version>26</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>1448060</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Lukas Slebodnik">lslebodn</reporter>
+          <assigned_to name="Lukas Vrabec">lvrabec</assigned_to>
+          <cc>dominick.grift</cc>
+    
+    
+    <cc>dwalsh</cc>
+    
+    
+    <cc>lvrabec</cc>
+    
+    
+    <cc>mgrepl</cc>
+    
+    
+    <cc>plautrba</cc>
+    
+    
+    <cc>pmoore</cc>
+    
+    
+    <cc>ssekidde</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>selinux-policy-3.13.1-254.fc26</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-06-09 14:58:38</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10379647</commentid>
+    <comment_count>0</comment_count>
+    <who name="Lukas Slebodnik">lslebodn</who>
+    <bug_when>2017-05-02 12:19:55 -0400</bug_when>
+    <thetext>SELinux is preventing systemd from create access on the unix_stream_socket Unknown.
+
+*****  Plugin catchall (100. confidence) suggests   **************************
+
+If you believe that systemd should be allowed create access on the Unknown unix_stream_socket by default.
+Then you should report this as a bug.
+You can generate a local policy module to allow this access.
+Do
+allow this access for now by executing:
+# ausearch -c &apos;systemd&apos; --raw | audit2allow -M my-systemd
+# semodule -X 300 -i my-systemd.pp
+
+
+Additional Information:
+Source Context                system_u:system_r:init_t:s0
+Target Context                system_u:system_r:unconfined_service_t:s0
+Target Objects                Unknown [ unix_stream_socket ]
+Source                        systemd
+Source Path                   systemd
+Port                          &lt;Unknown&gt;
+Host                          vm-058-043.example.com
+Source RPM Packages           
+Target RPM Packages           
+Policy RPM                    selinux-policy-3.13.1-251.fc26.noarch
+Selinux Enabled               True
+Policy Type                   targeted
+Enforcing Mode                Enforcing
+Host Name                     vm-058-043.example.com
+Platform                      Linux vm-058-043.example.com
+                              4.11.0-0.rc8.git0.1.fc26.x86_64 #1 SMP Mon Apr 24
+                              15:42:54 UTC 2017 x86_64 x86_64
+Alert Count                   1
+First Seen                    2017-05-02 18:00:30 CEST
+Last Seen                     2017-05-02 18:00:30 CEST
+Local ID                      5ac9a2c2-e4fb-4ad1-97e6-e46f3aab16cd
+
+Raw Audit Messages
+type=AVC msg=audit(1493740830.125:704): avc:  denied  { create } for  pid=1 comm=&quot;systemd&quot; scontext=system_u:system_r:init_t:s0 tcontext=system_u:system_r:unconfined_service_t:s0 tclass=unix_stream_socket permissive=0
+
+
+Hash: systemd,init_t,unconfined_service_t,unix_stream_socket,create</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10379655</commentid>
+    <comment_count>1</comment_count>
+    <who name="Lukas Slebodnik">lslebodn</who>
+    <bug_when>2017-05-02 12:22:17 -0400</bug_when>
+    <thetext>How to reproduce:
+dnf install --nogpgcheck --enablerepo=rawhide sssd-kcm // will backport to f26 in few weeks :-) 
+systemctl enable sssd-secrets.socket sssd-kcm.socket
+systemctl start sssd-kcm.socket
+
+AVCs in permissive mode
+
+type=AVC msg=audit(05/02/2017 18:01:25.561:727) : avc:  denied  { create } for  pid=1 comm=systemd scontext=system_u:system_r:init_t:s0 tcontext=system_u:system_r:unconfined_service_t:s0 tclass=unix_stream_socket permissive=1 
+----
+type=AVC msg=audit(05/02/2017 18:01:25.561:728) : avc:  denied  { setopt } for  pid=1 comm=systemd scontext=system_u:system_r:init_t:s0 tcontext=system_u:system_r:unconfined_service_t:s0 tclass=unix_stream_socket permissive=1 
+----
+type=AVC msg=audit(05/02/2017 18:01:25.562:729) : avc:  denied  { bind } for  pid=1 comm=systemd scontext=system_u:system_r:init_t:s0 tcontext=system_u:system_r:unconfined_service_t:s0 tclass=unix_stream_socket permissive=1 
+----
+type=AVC msg=audit(05/02/2017 18:01:25.563:730) : avc:  denied  { listen } for  pid=1 comm=systemd path=/run/.heim_org.h5l.kcm-socket scontext=system_u:system_r:init_t:s0 tcontext=system_u:system_r:unconfined_service_t:s0 tclass=unix_stream_socket permissive=1</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10379661</commentid>
+    <comment_count>2</comment_count>
+    <who name="Lukas Slebodnik">lslebodn</who>
+    <bug_when>2017-05-02 12:25:58 -0400</bug_when>
+    <thetext>There is also an AVC when using sssd-kcm.
+sssd-kcm store KRB5 tickets in sssd-secrets and there is deny to write there.
+
+Enforcing:
+type=AVC msg=audit(05/02/2017 18:13:11.178:894) : avc:  denied  { write } for  pid=3252 comm=sssd_kcm name=secrets.socket dev=&quot;tmpfs&quot; ino=49715 scontext=system_u:system_r:sssd_t:s0 tcontext=system_u:object_r:sssd_var_run_t:s0 tclass=sock_file permissive=0 
+
+Permissive:
+type=AVC msg=audit(05/02/2017 18:15:50.917:932) : avc:  denied  { write } for  pid=3317 comm=sssd_kcm name=secrets.socket dev=&quot;tmpfs&quot; ino=49769 scontext=system_u:system_r:sssd_t:s0 tcontext=system_u:object_r:sssd_var_run_t:s0 tclass=sock_file permissive=1
+
+SELinux is preventing sssd_kcm from write access on the sock_file secrets.socket.
+
+*****  Plugin catchall (100. confidence) suggests   **************************
+
+If you believe that sssd_kcm should be allowed write access on the secrets.socket sock_file by default.
+Then you should report this as a bug.
+You can generate a local policy module to allow this access.
+Do
+allow this access for now by executing:
+# ausearch -c &apos;sssd_kcm&apos; --raw | audit2allow -M my-sssdkcm
+# semodule -X 300 -i my-sssdkcm.pp
+
+
+Additional Information:
+Source Context                system_u:system_r:sssd_t:s0
+Target Context                system_u:object_r:sssd_var_run_t:s0
+Target Objects                secrets.socket [ sock_file ]
+Source                        sssd_kcm
+Source Path                   sssd_kcm
+Port                          &lt;Unknown&gt;
+Host                          vm-058-043.example.com
+Source RPM Packages           
+Target RPM Packages           
+Policy RPM                    selinux-policy-3.13.1-251.fc26.noarch
+Selinux Enabled               True
+Policy Type                   targeted
+Enforcing Mode                Enforcing
+Host Name                     vm-058-043.example.com
+Platform                      Linux vm-058-043.example.com
+                              4.11.0-0.rc8.git0.1.fc26.x86_64 #1 SMP Mon Apr 24
+                              15:42:54 UTC 2017 x86_64 x86_64
+Alert Count                   7
+First Seen                    2017-05-02 18:06:19 CEST
+Last Seen                     2017-05-02 18:13:11 CEST
+Local ID                      a2fe4f0e-d1af-4482-8559-6264a8190e6d
+
+Raw Audit Messages
+type=AVC msg=audit(1493741591.178:894): avc:  denied  { write } for  pid=3252 comm=&quot;sssd_kcm&quot; name=&quot;secrets.socket&quot; dev=&quot;tmpfs&quot; ino=49715 scontext=system_u:system_r:sssd_t:s0 tcontext=system_u:object_r:sssd_var_run_t:s0 tclass=sock_file permissive=0
+
+
+Hash: sssd_kcm,sssd_t,sssd_var_run_t,sock_file,write</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10385887</commentid>
+    <comment_count>3</comment_count>
+    <who name="Lukas Slebodnik">lslebodn</who>
+    <bug_when>2017-05-04 08:58:34 -0400</bug_when>
+    <thetext>PR: https://github.com/fedora-selinux/selinux-policy-contrib/pull/11</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10414530</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-15 17:15:14 -0400</bug_when>
+    <thetext>selinux-policy-3.13.1-254.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-7f762b31f8</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10415422</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-16 02:10:21 -0400</bug_when>
+    <thetext>selinux-policy-3.13.1-254.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-7f762b31f8</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10416399</commentid>
+    <comment_count>6</comment_count>
+    <who name="Lukas Slebodnik">lslebodn</who>
+    <bug_when>2017-05-16 07:08:30 -0400</bug_when>
+    <thetext>There is missing transition rule for sockets
+
+And I do not understand why there is a wrong file context
+sh# matchpathcon /var/run/.heim_org.h5l.kcm-socket /run/.heim_org.h5l.kcm-socket /usr/libexec/sssd/sssd_kcm 
+/var/run/.heim_org.h5l.kcm-socket       system_u:object_r:var_run_t:s0
+/run/.heim_org.h5l.kcm-socket   system_u:object_r:var_run_t:s0
+/usr/libexec/sssd/sssd_kcm      system_u:object_r:sssd_exec_t:s0
+
+sh# rpm -q selinux-policy
+selinux-policy-3.13.1-254.fc26.noarch</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10420227</commentid>
+    <comment_count>7</comment_count>
+    <who name="Lukas Vrabec">lvrabec</who>
+    <bug_when>2017-05-17 05:57:09 -0400</bug_when>
+    <thetext>Lukas,
+
+This commit is missing in -254.fc26 package: 
+
+commit 8fd96cc5dadad1abb10a7a60b62bef887cd8361d
+Author: Lukas Vrabec &lt;lvrabec@redhat.com&gt;
+Date:   Tue May 16 15:06:26 2017 +0200
+
+    Allow sssd_t domain creating sock files labeled as sssd_var_run_t in /var/run/
+
+It was fixed after update of -254.fc26. Fix will be part of -255.fc26</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10420447</commentid>
+    <comment_count>8</comment_count>
+    <who name="Lukas Slebodnik">lslebodn</who>
+    <bug_when>2017-05-17 06:48:05 -0400</bug_when>
+    <thetext>(In reply to Lukas Vrabec from comment #7)
+&gt; Lukas,
+&gt; 
+&gt; This commit is missing in -254.fc26 package: 
+&gt; 
+&gt; commit 8fd96cc5dadad1abb10a7a60b62bef887cd8361d
+&gt; Author: Lukas Vrabec &lt;lvrabec@redhat.com&gt;
+&gt; Date:   Tue May 16 15:06:26 2017 +0200
+&gt; 
+&gt;     Allow sssd_t domain creating sock files labeled as sssd_var_run_t in
+&gt; /var/run/
+&gt; 
+&gt; It was fixed after update of -254.fc26. Fix will be part of -255.fc26
+
+It is not related to transition. I build my own rpms with this patch and still have this problem. You can see it in seaserch output. But it does not explain why matchpathcon says *var_run_t* instead of *sssd_var_run_t*
+
+sh# rpm -q selinux-policy
+selinux-policy-3.13.1-254.fc26.ls.1495009265.noarch
+
+sh# sesearch -T -s sssd_t -t var_run_t
+type_transition sssd_t var_run_t:dir sssd_var_run_t;
+type_transition sssd_t var_run_t:file sssd_var_run_t;
+type_transition sssd_t var_run_t:sock_file sssd_var_run_t;
+
+sh# matchpathcon /var/run/.heim_org.h5l.kcm-socket /run/.heim_org.h5l.kcm-socket /usr/libexec/sssd/sssd_kcm 
+/var/run/.heim_org.h5l.kcm-socket       system_u:object_r:var_run_t:s0
+/run/.heim_org.h5l.kcm-socket   system_u:object_r:var_run_t:s0
+/usr/libexec/sssd/sssd_kcm      system_u:object_r:sssd_exec_t:s0</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10420492</commentid>
+    <comment_count>9</comment_count>
+    <who name="Lukas Slebodnik">lslebodn</who>
+    <bug_when>2017-05-17 07:01:09 -0400</bug_when>
+    <thetext>It kind of works with following diff (removed double dash).
+But I have no idea why it works well in el7 with double dash
+
+diff --git a/sssd.fc b/sssd.fc
+index 47b49ea17..e98b2def3 100644
+--- a/sssd.fc
++++ b/sssd.fc
+@@ -27,4 +27,4 @@
+ 
+ /var/run/sssd.pid      --      gen_context(system_u:object_r:sssd_var_run_t,s0)
+ /var/run/secrets.socket                gen_context(system_u:object_r:sssd_var_run_t,s0)
+-/var/run/.heim_org.h5l.kcm-socket      --      gen_context(system_u:object_r:sssd_var_run_t,s0)
++/var/run/.heim_org.h5l.kcm-socket              gen_context(system_u:object_r:sssd_var_run_t,s0)
+
+sh# matchpathcon /var/run/.heim_org.h5l.kcm-socket /run/.heim_org.h5l.kcm-socket /usr/libexec/sssd/sssd_kcm 
+/var/run/.heim_org.h5l.kcm-socket       system_u:object_r:sssd_var_run_t:s0
+/run/.heim_org.h5l.kcm-socket   system_u:object_r:sssd_var_run_t:s0
+/usr/libexec/sssd/sssd_kcm      system_u:object_r:sssd_exec_t:s0</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10421573</commentid>
+    <comment_count>10</comment_count>
+    <who name="Lukas Slebodnik">lslebodn</who>
+    <bug_when>2017-05-17 10:55:12 -0400</bug_when>
+    <thetext>Previous issue seems to be fixed by patch https://github.com/fedora-selinux/selinux-policy-contrib/pull/12
+
+
+But there is still wrong context after starting socket with systemctl.
+
+sh# systemctl stop sssd-kcm.{socket,service}
+sh# rm -f /var/run/.heim_org.h5l.kcm-socket
+
+sh# systemctl start sssd-kcm
+sh# ls -lZ /var/run/.heim_org.h5l.kcm-socket
+srw-rw-rw-. 1 root root system_u:object_r:sssd_var_run_t:s0 0 May 17 16:50 /var/run/.heim_org.h5l.kcm-socket
+
+sh# systemctl stop sssd-kcm.{socket,service}
+sh# rm -f /var/run/.heim_org.h5l.kcm-socket
+sh# systemctl start sssd-kcm.socket
+
+sh# ls -lZ /var/run/.heim_org.h5l.kcm-socket
+srw-rw-rw-. 1 root root system_u:object_r:var_run_t:s0 0 May 17 16:50 /var/run/.heim_org.h5l.kcm-socket
+
+
+sh# matchpathcon /var/run/.heim_org.h5l.kcm-socket /run/.heim_org.h5l.kcm-socket /usr/libexec/sssd/sssd_kcm 
+/var/run/.heim_org.h5l.kcm-socket       system_u:object_r:sssd_var_run_t:s0
+/run/.heim_org.h5l.kcm-socket   system_u:object_r:sssd_var_run_t:s0
+/usr/libexec/sssd/sssd_kcm      system_u:object_r:sssd_exec_t:s0
+
+sh# semanage fcontext -l | grep heim_org
+/var/run/\.heim_org\.h5l\.kcm-socket               socket             system_u:object_r:sssd_var_run_t:s0</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10494011</commentid>
+    <comment_count>11</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-09 14:58:38 -0400</bug_when>
+    <thetext>selinux-policy-3.13.1-254.fc26 has been pushed to the Fedora 26 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1239213</bug_id>
+          
+          <creation_ts>2015-07-04 08:54:00 -0400</creation_ts>
+          <short_desc>iptables: can&apos;t link against libiptc</short_desc>
+          <delta_ts>2016-06-09 16:18:22 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>kernel</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>RAWHIDE</resolution>
+          
+          <see_also>https://bugzilla.redhat.com/show_bug.cgi?id=1300256</see_also>
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords>Reopened</keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>1240533</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Ruben Kerkhof">ruben</reporter>
+          <assigned_to name="Kernel Maintainer List">kernel-maint</assigned_to>
+          <cc>gansalmon</cc>
+    
+    
+    <cc>itamar</cc>
+    
+    
+    <cc>jonathan</cc>
+    
+    
+    <cc>jpopelka</cc>
+    
+    
+    <cc>kernel-maint</cc>
+    
+    
+    <cc>madhu.chinakonda</cc>
+    
+    
+    <cc>mchehab</cc>
+    
+    
+    <cc>ppisar</cc>
+    
+    
+    <cc>psimerda</cc>
+    
+    
+    <cc>rh</cc>
+    
+    
+    <cc>twoerner</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-06-09 16:18:22</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>8406220</commentid>
+    <comment_count>0</comment_count>
+    <who name="Ruben Kerkhof">ruben</who>
+    <bug_when>2015-07-04 08:54:31 -0400</bug_when>
+    <thetext>Description of problem:
+
+The following code fails:
+
+#include &lt;libiptc/libiptc.h&gt;
+
+void main() {
+}
+
+ruben@wodan: iptables-test$ gcc test.c 
+In file included from /usr/include/netinet/ip.h:24:0,
+                 from /usr/include/libiptc/ipt_kernel_headers.h:9,
+                 from /usr/include/libiptc/libiptc.h:6,
+                 from test.c:1:
+/usr/include/linux/in.h:26:3: error: redeclaration of enumerator ‘IPPROTO_IP’
+   IPPROTO_IP = 0,  /* Dummy protocol for TCP  */
+   ^
+/usr/include/netinet/in.h:42:5: note: previous definition of ‘IPPROTO_IP’ was here
+     IPPROTO_IP = 0,    /* Dummy protocol for TCP.  */
+     ^
+
+and lots more.
+
+It seems that both the glibc headers and the kernel headers are included by libiptc.h, and they both define IPPROTO_IP and co.
+
+
+Version-Release number of selected component (if applicable):
+ruben@wodan: ~$ rpm -q iptables
+iptables-1.4.21-15.fc23.x86_64
+ruben@wodan: ~$ uname -r
+4.2.0-0.rc0.git4.1.fc23.x86_64
+
+
+This breaks collectd&apos;s iptables plugin.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8414988</commentid>
+    <comment_count>1</comment_count>
+    <who name="Petr Pisar">ppisar</who>
+    <bug_when>2015-07-07 04:45:48 -0400</bug_when>
+    <thetext>This happens when upgrading kernel-headers from 4.1.0-1.fc23 to 4.2.0-0.rc0.git1.1.fc23.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8443367</commentid>
+    <comment_count>2</comment_count>
+    <who name="Jan Kurik">jkurik</who>
+    <bug_when>2015-07-15 09:50:39 -0400</bug_when>
+    <thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 23 development cycle.
+Changing version to &apos;23&apos;.
+
+(As we did not run this process for some time, it could affect also pre-Fedora 23 development
+cycle bugs. We are very sorry. It will help us with cleanup during Fedora 23 End Of Life. Thank you.)
+
+More information and reason for this action is here:
+https://fedoraproject.org/wiki/BugZappers/HouseKeeping/Fedora23</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9091878</commentid>
+    <comment_count>3</comment_count>
+    <who name="Jan Kurik">jkurik</who>
+    <bug_when>2016-02-24 08:25:19 -0500</bug_when>
+    <thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 24 development cycle.
+Changing version to &apos;24&apos;.
+
+More information and reason for this action is here:
+https://fedoraproject.org/wiki/Fedora_Program_Management/HouseKeeping/Fedora24#Rawhide_Rebase</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9234030</commentid>
+    <comment_count>4</comment_count>
+    <who name="Thomas Woerner">twoerner</who>
+    <bug_when>2016-04-13 12:47:11 -0400</bug_when>
+    <thetext>This has been fixed in kernel headers and is not an issue anymore.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9235631</commentid>
+    <comment_count>5</comment_count>
+    <who name="Petr Pisar">ppisar</who>
+    <bug_when>2016-04-14 02:49:33 -0400</bug_when>
+    <thetext>Are you sure? 
+
+# rpm -q iptables-devel kernel-headers
+iptables-devel-1.6.0-1.fc25.x86_64
+kernel-headers-4.6.0-0.rc3.git0.1.fc25.x86_64
+
+# printf &apos;#include &lt;libiptc/libiptc.h&gt;\n&apos; | gcc -c -x c -
+In file included from /usr/include/libiptc/ipt_kernel_headers.h:13:0,
+                 from /usr/include/libiptc/libiptc.h:6,
+                 from &lt;stdin&gt;:1:
+/usr/include/linux/if.h:71:2: error: redeclaration of enumerator ‘IFF_UP’
+  IFF_UP    = 1&lt;&lt;0,  /* sysfs */
+  ^</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9237215</commentid>
+    <comment_count>6</comment_count>
+    <who name="Thomas Woerner">twoerner</who>
+    <bug_when>2016-04-14 10:14:27 -0400</bug_when>
+    <thetext>Oups, this is an issue in F25, still.
+
+I am sorry for closing.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9304930</commentid>
+    <comment_count>7</comment_count>
+    <who name="Thomas Woerner">twoerner</who>
+    <bug_when>2016-05-09 09:42:40 -0400</bug_when>
+    <thetext>Reassigning to kernel. See #1300256.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9304952</commentid>
+    <comment_count>8</comment_count>
+    <who name="Pavel Šimerda (pavlix)">psimerda</who>
+    <bug_when>2016-05-09 09:46:37 -0400</bug_when>
+    <thetext>(In reply to Thomas Woerner from comment #7)
+&gt; Reassigning to kernel. See #1300256.
+
+A duplicate now?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9402330</commentid>
+    <comment_count>9</comment_count>
+    <who name="Ruben Kerkhof">ruben</who>
+    <bug_when>2016-06-09 16:18:22 -0400</bug_when>
+    <thetext>Since https://bugzilla.redhat.com/show_bug.cgi?id=1300256, which is actually a duplicate of this bug, has been fixed, let&apos;s close this too.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

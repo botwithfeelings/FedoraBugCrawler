@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1336951</bug_id>
+          
+          <creation_ts>2016-05-17 17:23:00 -0400</creation_ts>
+          <short_desc>l2tp connection fails to start</short_desc>
+          <delta_ts>2016-06-22 02:48:26 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>NetworkManager-l2tp</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Vadim Raskhozhev">iamdexpl</reporter>
+          <assigned_to name="Ivan Romanov">drizt</assigned_to>
+          <cc>doug</cc>
+    
+    
+    <cc>drizt</cc>
+    
+    
+    <cc>psimerda</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-06-22 02:48:26</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9335135</commentid>
+    <comment_count>0</comment_count>
+    <who name="Vadim Raskhozhev">iamdexpl</who>
+    <bug_when>2016-05-17 17:23:32 -0400</bug_when>
+    <thetext>Description of problem:
+
+My ISP provides the Internet through l2tp vpn and it&apos;s been working for years. Recently I updated Fedora to not-yet-released 24 and found that NetworkManager-l2tp fails to start saying &apos;&lt;warn&gt;  [1463430382.6571] vpn-connection[0x56203d44b200,9b218a64-7248-4b8c-9dd3-dea859389abb,&quot;beeline-l2tp&quot;,0]: Timed out waiting for the service to start&apos; in NetworkManager.service log. After downgrading NetworkManager to .fc23 it is running well again.
+
+The connection in question:
+
+[connection]
+id=beeline-l2tp
+uuid=9b218a64-7248-4b8c-9dd3-dea859389abb
+type=vpn
+autoconnect=false
+permissions=
+secondaries=
+timestamp=1463166479
+
+[vpn]
+gateway=tp.internet.beeline.ru
+require-mppe=yes
+user=&lt;Correct login name&gt;
+password-flags=0
+service-type=org.freedesktop.NetworkManager.l2tp
+
+[vpn-secrets]
+password=&lt;Correct password&gt;
+
+[ipv4]
+dns-search=
+ignore-auto-dns=true
+may-fail=false
+method=auto
+route-metric=0
+
+[ipv6]
+dns-search=
+ip6-privacy=0
+method=ignore
+
+(cutting off username and password values due to obvious reason; deadly sure they are correct)
+
+Version-Release number of selected component (if applicable):
+
+NetworkManager-1.2.2-1.fc24.x86_64.rpm
+NetworkManager-l2tp-1.2.0-1.fc24.x86_64.rpm
+(do not work; maybe NM-l2tp-1.2.2 would?)
+
+NetworkManager-1.0.12-2.fc23.x86_64.rpm
+NetworkManager-l2tp-0.9.8.7-4.fc23.x86_64.rpm
+(do work; actually, I downgraded all the NM-stuff from `rpm -qa --qf &apos;%{name} &apos; NetworkManager\*`)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9370639</commentid>
+    <comment_count>1</comment_count>
+    <who name="Douglas Kosovic">doug</who>
+    <bug_when>2016-05-31 00:22:49 -0400</bug_when>
+    <thetext>I&apos;ve taken over maintaining the NetworkManager-l2tp source code :
+  https://github.com/nm-l2tp/network-manager-l2tp
+
+For NetworkManager 1.0 based Fedora 23, you need to use NetworkManager-l2tp version 1.0.2. Versions before 1.0.0 won&apos;t work.
+
+For NetworkManager 1.2 based Fedora 24, you need to use NetworkManager-l2tp version 1.2.2. Version 1.2.0 had issues.
+
+There are issues contacting the NetworkManager-l2tp RPM maintainer as his email address bounces. So I emailed someone else.
+
+
+My update request for NetworkManager-l2tp to 1.2.2 on Fedora 24 :
+  https://bugzilla.redhat.com/show_bug.cgi?id=1336282
+and the RPM has been pushed to the Fedora 24 testing repository.
+
+As for Fedora 23, keep your eye on the bottom of the following:
+  https://bugzilla.redhat.com/show_bug.cgi?id=887674
+
+With the new RPMs, be sure to also install NetworkManager-l2tp-gnome</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9439415</commentid>
+    <comment_count>2</comment_count>
+    <who name="Douglas Kosovic">doug</who>
+    <bug_when>2016-06-22 02:48:26 -0400</bug_when>
+    <thetext>NetworkManager-l2tp 1.2.2-1.fc24 and 1.0.2-2.fc24 RPMs should resolve the issues.
+
+Minor correction to what I wrote in my previous comment:
+
+For IPsec support on Fedora 23, NetworkManager-l2tp versions before 1.0.0 won&apos;t work, but L2TP support was okay.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

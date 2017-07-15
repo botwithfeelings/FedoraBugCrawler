@@ -1,0 +1,375 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1376446</bug_id>
+          
+          <creation_ts>2016-09-15 08:47:00 -0400</creation_ts>
+          <short_desc>segfault when Reapplying slave connection, without changes</short_desc>
+          <delta_ts>2017-02-28 05:28:27 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>NetworkManager</component>
+          <version>26</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>RAWHIDE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>1376784</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Ondrej Lichtner">olichtne</reporter>
+          <assigned_to name="Beniamino Galvani">bgalvani</assigned_to>
+          <cc>bgalvani</cc>
+    
+    
+    <cc>dcbw</cc>
+    
+    
+    <cc>fgiudici</cc>
+    
+    
+    <cc>lkundrak</cc>
+    
+    
+    <cc>psimerda</cc>
+    
+    
+    <cc>thaller</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-02-28 05:28:27</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9710872</commentid>
+    <comment_count>0</comment_count>
+      <attachid>1201204</attachid>
+    <who name="Ondrej Lichtner">olichtne</who>
+    <bug_when>2016-09-15 08:47:12 -0400</bug_when>
+    <thetext>Created attachment 1201204
+Python script reproducing the issue
+
+Description of problem:
+When I try to call Reapply of a bond slave ethernet connection NetworkManager crashes with a segfault (based on log in journalctl). This is using the interface exposed over D-Bus, using python.
+
+Version-Release number of selected component (if applicable):
+NetworkManager-1.4.0-4.fc26.x86_64
+
+How reproducible:
+always
+
+Steps to Reproduce:
+1. add bond connection
+2. add slave ethernet connection
+3. activate bond connection
+4. activate slave connection
+5. call Reapply on the device that the slave connection is applied on
+
+Actual results:
+Crash with segfault.
+
+Expected results:
+Nothing happens. Maybe an error of an invalid or &quot;empty&quot; operation.
+
+
+Additional info:
+python reproducer attached, example use:
+./nm_reproducer.py ens9 52:54:00:38:c4:24</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9713056</commentid>
+    <comment_count>1</comment_count>
+      <attachid>1201521</attachid>
+    <who name="Beniamino Galvani">bgalvani</who>
+    <bug_when>2016-09-15 23:20:13 -0400</bug_when>
+    <thetext>Created attachment 1201521
+[PATCH] device: fix crash reapplying connection to slave devices</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9713516</commentid>
+    <comment_count>2</comment_count>
+    <who name="Thomas Haller">thaller</who>
+    <bug_when>2016-09-16 03:50:37 -0400</bug_when>
+    <thetext>(In reply to Beniamino Galvani from comment #1)
+&gt; Created attachment 1201521 [details]
+&gt; [PATCH] device: fix crash reapplying connection to slave devices
+
+Maybe
+
+	method_old = s_ip4_old ?
+		nm_setting_ip_config_get_method (s_ip4_old) :
+		NM_SETTING_IP4_CONFIG_METHOD_DISABLED;
+
+should be
+
+	method_old = s_ip4_old ? nm_setting_ip_config_get_method (s_ip4_old) : NULL;
+
+and use nm_streq0() below.
+
+A s_ip4_old==NULL means that it is a slave. A slave doesn&apos;t really have ip4.method=DISABLED, it has no IPv4 altogether. Thus, I&apos;d rather compare the NULL there directly, instead of coercing the method to DISABLED.
+
+
+Of course, in reality it doesn&apos;t make a difference, because reapply does not handle the change slave to non-slave or vice versa. Thus, old and new are always either both NULL, or both non-NULL. But still seems more logical to me.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9713621</commentid>
+    <comment_count>3</comment_count>
+    <who name="Beniamino Galvani">bgalvani</who>
+    <bug_when>2016-09-16 04:34:56 -0400</bug_when>
+    <thetext>(In reply to Thomas Haller from comment #2)
+&gt; A s_ip4_old==NULL means that it is a slave. A slave doesn&apos;t really have
+&gt; ip4.method=DISABLED, it has no IPv4 altogether. Thus, I&apos;d rather compare the
+&gt; NULL there directly, instead of coercing the method to DISABLED.
+&gt; 
+&gt; 
+&gt; Of course, in reality it doesn&apos;t make a difference, because reapply does not
+&gt; handle the change slave to non-slave or vice versa. Thus, old and new are
+&gt; always either both NULL, or both non-NULL. But still seems more logical to
+&gt; me.
+
+I tried to make it consistent with function nm_utils_get_ip_config_method() which returns DISABLED/IGNORE for slaves (we can&apos;t use that function because it needs a connection).
+
+But as you said, there is really no difference in this case, both ways look fine to me.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9714134</commentid>
+    <comment_count>4</comment_count>
+    <who name="Thomas Haller">thaller</who>
+    <bug_when>2016-09-16 08:04:01 -0400</bug_when>
+    <thetext>(In reply to Beniamino Galvani from comment #3)
+&gt; (In reply to Thomas Haller from comment #2)
+
+ok. lgtm then.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9714218</commentid>
+    <comment_count>5</comment_count>
+    <who name="Francesco Giudici">fgiudici</who>
+    <bug_when>2016-09-16 08:17:26 -0400</bug_when>
+    <thetext>lgtm</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9714296</commentid>
+    <comment_count>6</comment_count>
+    <who name="Beniamino Galvani">bgalvani</who>
+    <bug_when>2016-09-16 08:33:17 -0400</bug_when>
+    <thetext>Patch applied to master:
+
+https://cgit.freedesktop.org/NetworkManager/NetworkManager/commit/?id=8f92ead6e2a9082d5aa4a885680308b4516d70ae
+
+and nm-1-4:
+
+https://cgit.freedesktop.org/NetworkManager/NetworkManager/commit/?h=nm-1-4&amp;id=dbb67694cbc51eb639bd5d7d60d1455e4f5a449a</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10191267</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora End Of Life">jkurik</who>
+    <bug_when>2017-02-28 05:18:32 -0500</bug_when>
+    <thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 26 development cycle.
+Changing version to &apos;26&apos;.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10191429</commentid>
+    <comment_count>8</comment_count>
+    <who name="Thomas Haller">thaller</who>
+    <bug_when>2017-02-28 05:28:27 -0500</bug_when>
+    <thetext>rawhide currently has NM 1.6.0, which has the fix. Closing.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="0"
+              ispatch="0"
+              isprivate="0"
+          >
+            <attachid>1201204</attachid>
+            <date>2016-09-15 08:47:00 -0400</date>
+            <delta_ts>2016-09-15 08:47:12 -0400</delta_ts>
+            <desc>Python script reproducing the issue</desc>
+            <filename>nm_reproducer.py</filename>
+            <type>text/x-python</type>
+            <size>2712</size>
+            <attacher name="Ondrej Lichtner">olichtne</attacher>
+            
+              <data encoding="base64">IyEvdXNyL2Jpbi9weXRob24KCmltcG9ydCBkYnVzCmltcG9ydCBzb2NrZXQKaW1wb3J0IHV1aWQK
+aW1wb3J0IHRpbWUKaW1wb3J0IHN5cwoKTk1fQlVTID0gIm9yZy5mcmVlZGVza3RvcC5OZXR3b3Jr
+TWFuYWdlciIKT0JKX1BSRSA9ICIvb3JnL2ZyZWVkZXNrdG9wL05ldHdvcmtNYW5hZ2VyIgpJRl9Q
+UkUgPSBOTV9CVVMKCmJ1cyA9IGRidXMuU3lzdGVtQnVzKCkKCm5tX29iaiA9IGJ1cy5nZXRfb2Jq
+ZWN0KE5NX0JVUywgT0JKX1BSRSkKbm1faWYgPSBkYnVzLkludGVyZmFjZShubV9vYmosIElGX1BS
+RSkKCiMgRVRICmV0aG5hbWUgPXN5cy5hcmd2WzFdCmh3YWRkciA9IHN5cy5hcmd2WzJdCmh3X251
+bXMgPSBod2FkZHIuc3BsaXQoJzonKQphZGRyX2J5dGVzID0gW10KZm9yIGkgaW4gaHdfbnVtczoK
+CWFkZHJfYnl0ZXMuYXBwZW5kKGludChpLCBiYXNlPTE2KSkKaHdhZGRyID0gZGJ1cy5BcnJheShh
+ZGRyX2J5dGVzLCAneScpCgptYXN0ZXJfdXVpZCA9IHN0cih1dWlkLnV1aWQ0KCkpCgpjb25uZWN0
+aW9uID0gZGJ1cy5EaWN0aW9uYXJ5KHsKICAgICc4MDItMy1ldGhlcm5ldCc6IGRidXMuRGljdGlv
+bmFyeSh7J21hYy1hZGRyZXNzJzogaHdhZGRyfSwgc2lnbmF0dXJlPSdzdicpLAogICAgJ2Nvbm5l
+Y3Rpb24nOiBkYnVzLkRpY3Rpb25hcnkoewogICAgICAgICAgICAnaW50ZXJmYWNlLW5hbWUnOiBl
+dGhuYW1lLAogICAgICAgICAgICAndHlwZSc6ICc4MDItMy1ldGhlcm5ldCcsCiAgICAgICAgICAg
+ICdhdXRvY29ubmVjdCc6IGRidXMuQm9vbGVhbihGYWxzZSksCiAgICAgICAgICAgICd1dWlkJzog
+c3RyKHV1aWQudXVpZDQoKSksCiAgICAgICAgICAgICdpZCc6ICdsbnN0X2V0aGNvbid9LCBzaWdu
+YXR1cmU9J3N2JyksCiAgICAnaXB2NCc6IGRidXMuRGljdGlvbmFyeSh7J21ldGhvZCc6ICdkaXNh
+YmxlZCd9LCBzaWduYXR1cmU9J3N2JyksCiAgICAnaXB2Nic6IGRidXMuRGljdGlvbmFyeSh7J21l
+dGhvZCc6ICdpZ25vcmUnfSwgc2lnbmF0dXJlPSdzdicpfSwgc2lnbmF0dXJlPSdzYXtzdn0nKQoK
+c2V0dGluZ3Nfb2JqID0gYnVzLmdldF9vYmplY3QoTk1fQlVTLCBPQkpfUFJFICsgIi9TZXR0aW5n
+cyIpCnNldHRpbmdzX2lmID0gZGJ1cy5JbnRlcmZhY2Uoc2V0dGluZ3Nfb2JqLCBJRl9QUkUgKyAi
+LlNldHRpbmdzIikKY29uX29ial9wYXRoID0gc2V0dGluZ3NfaWYuQWRkQ29ubmVjdGlvbihjb25u
+ZWN0aW9uKQoKIyBCT05ECmJfY29ubmVjdGlvbiA9IGRidXMuRGljdGlvbmFyeSh7CiAgICAgICAg
+J2JvbmQnOiBkYnVzLkRpY3Rpb25hcnkoewogICAgICAgICAgICAgICAgJ2ludGVyZmFjZS1uYW1l
+JzogInRfYm9uZDAiLAogICAgICAgICAgICAgICAgJ29wdGlvbnMnOiBkYnVzLkRpY3Rpb25hcnko
+eydtb2RlJzogJ2FjdGl2ZS1iYWNrdXAnfSwgc2lnbmF0dXJlPSJzcyIpfSksCiAgICAgICAgJ2lw
+djQnOiBkYnVzLkRpY3Rpb25hcnkoeydtZXRob2QnOiAnZGlzYWJsZWQnfSwgc2lnbmF0dXJlPSdz
+dicpLAogICAgICAgICdpcHY2JzogZGJ1cy5EaWN0aW9uYXJ5KHsnbWV0aG9kJzogJ2lnbm9yZSd9
+LCBzaWduYXR1cmU9J3N2JyksCiAgICAgICAgJ2Nvbm5lY3Rpb24nOiBkYnVzLkRpY3Rpb25hcnko
+ewogICAgICAgICAgICAgICAgJ3R5cGUnOiAnYm9uZCcsCiAgICAgICAgICAgICAgICAnYXV0b2Nv
+bm5lY3QnOiBkYnVzLkJvb2xlYW4oRmFsc2UpLAogICAgICAgICAgICAgICAgJ3V1aWQnOiBtYXN0
+ZXJfdXVpZCwKICAgICAgICAgICAgICAgICdpZCc6ICJ0X2JvbmQwX2NvbiJ9KX0pCgpiX2Nvbl9v
+YmpfcGF0aCA9IHNldHRpbmdzX2lmLkFkZENvbm5lY3Rpb24oYl9jb25uZWN0aW9uKQoKY29ubmVj
+dGlvblsnY29ubmVjdGlvbiddWydzbGF2ZS10eXBlJ10gPSAiYm9uZCIKY29ubmVjdGlvblsnY29u
+bmVjdGlvbiddWydtYXN0ZXInXSA9IG1hc3Rlcl91dWlkCgpjb25fb2JqID0gYnVzLmdldF9vYmpl
+Y3QoTk1fQlVTLCBjb25fb2JqX3BhdGgpCmNvbl9pZiA9IGRidXMuSW50ZXJmYWNlKGNvbl9vYmos
+IElGX1BSRSArICIuU2V0dGluZ3MuQ29ubmVjdGlvbiIpCmNvbl9pZi5VcGRhdGUoY29ubmVjdGlv
+bikKCmJfYWNvbl9vYmpfcGF0aCA9IG5tX2lmLkFjdGl2YXRlQ29ubmVjdGlvbihiX2Nvbl9vYmpf
+cGF0aCwiLyIsICIvIikKYWNvbl9vYmpfcGF0aCA9IG5tX2lmLkFjdGl2YXRlQ29ubmVjdGlvbihj
+b25fb2JqX3BhdGgsIi8iLCAiLyIpCgphY3RfY29uID0gYnVzLmdldF9vYmplY3QoTk1fQlVTLCBh
+Y29uX29ial9wYXRoKQphY3RfY29uX3Byb3BzID0gZGJ1cy5JbnRlcmZhY2UoYWN0X2NvbiwgIm9y
+Zy5mcmVlZGVza3RvcC5EQnVzLlByb3BlcnRpZXMiKQoKX0FDT05fQUNUSVZBVEVEID0gMgoKdGlt
+ZXIgPSAwCndoaWxlIHRpbWVyIDwgMTA6CglpZiBhY3RfY29uX3Byb3BzLkdldChJRl9QUkUgKyAi
+LkNvbm5lY3Rpb24uQWN0aXZlIiwgIlN0YXRlIikgPT0gX0FDT05fQUNUSVZBVEVEOgoJCXByaW50
+ICJBY3RpdmF0ZWQiCgkJYnJlYWsKCWVsc2U6CgkJcHJpbnQgIk5vdCBhY3RpdmF0ZWQiCgl0aW1l
+LnNsZWVwKDEpCgl0aW1lciArPSAxCgpkZXZpY2Vfb2JqX3BhdGggPSBubV9pZi5HZXREZXZpY2VC
+eUlwSWZhY2UoZXRobmFtZSkKZGV2X29iaiA9IGJ1cy5nZXRfb2JqZWN0KE5NX0JVUywgZGV2aWNl
+X29ial9wYXRoKQpkZXZfaWYgPSBkYnVzLkludGVyZmFjZShkZXZfb2JqLCBJRl9QUkUgKyAiLkRl
+dmljZSIpCgpkZXZfaWYuUmVhcHBseSgiIiwgMCwgMCkK
+</data>
+
+          </attachment>
+          <attachment
+              isobsolete="0"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1201521</attachid>
+            <date>2016-09-15 23:20:00 -0400</date>
+            <delta_ts>2016-09-15 23:20:13 -0400</delta_ts>
+            <desc>[PATCH] device: fix crash reapplying connection to slave devices</desc>
+            <filename>0001-device-fix-crash-reapplying-connection-to-slave-devi.patch</filename>
+            <type>text/plain</type>
+            <size>3966</size>
+            <attacher name="Beniamino Galvani">bgalvani</attacher>
+            
+              <data encoding="base64">RnJvbSBjY2MwNTlhYzU4MjQyY2ZkMzQ5YTQzODVhYTZmNDg3ZDlmYThjZTE0IE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBCZW5pYW1pbm8gR2FsdmFuaSA8YmdhbHZhbmlAcmVkaGF0LmNv
+bT4KRGF0ZTogRnJpLCAxNiBTZXAgMjAxNiAwNToxMjo0NSArMDIwMApTdWJqZWN0OiBbUEFUQ0hd
+IGRldmljZTogZml4IGNyYXNoIHJlYXBwbHlpbmcgY29ubmVjdGlvbiB0byBzbGF2ZSBkZXZpY2Vz
+CgpTbGF2ZSBkZXZpY2VzIGRvbid0IGhhdmUgSVB2NCBhbmQgSVB2NiBjb25maWd1cmF0aW9uIGFu
+ZCBzbyBzcGVjaWFsCmNhcmUgbXVzdCBiZSB0YWtlbiB3aGVuIGNvbXBhcmluZyB0aGVpciBtZXRo
+b2RzLgoKaHR0cHM6Ly9idWd6aWxsYS5yZWRoYXQuY29tL3Nob3dfYnVnLmNnaT9pZD0xMzc2NDQ2
+Ci0tLQogc3JjL2RldmljZXMvbm0tZGV2aWNlLmMgfCAyMiArKysrKysrKysrKysrKysrKystLS0t
+CiAxIGZpbGUgY2hhbmdlZCwgMTggaW5zZXJ0aW9ucygrKSwgNCBkZWxldGlvbnMoLSkKCmRpZmYg
+LS1naXQgYS9zcmMvZGV2aWNlcy9ubS1kZXZpY2UuYyBiL3NyYy9kZXZpY2VzL25tLWRldmljZS5j
+CmluZGV4IGU4ZGVlYjcuLjI0MzgzNmYgMTAwNjQ0Ci0tLSBhL3NyYy9kZXZpY2VzL25tLWRldmlj
+ZS5jCisrKyBiL3NyYy9kZXZpY2VzL25tLWRldmljZS5jCkBAIC03ODE0LDMwICs3ODE0LDM3IEBA
+IF9oYXNoX2NoZWNrX2ludmFsaWRfa2V5c19pbXBsIChHSGFzaFRhYmxlICpoYXNoLCBjb25zdCBj
+aGFyICpzZXR0aW5nX25hbWUsIEdFcnJvCiAjZGVmaW5lIF9oYXNoX2NoZWNrX2ludmFsaWRfa2V5
+cyhoYXNoLCBzZXR0aW5nX25hbWUsIGVycm9yLCAuLi4pIF9oYXNoX2NoZWNrX2ludmFsaWRfa2V5
+c19pbXBsIChoYXNoLCBzZXR0aW5nX25hbWUsIGVycm9yLCAoKGNvbnN0IGNoYXIgKltdKSB7IF9f
+VkFfQVJHU19fLCBOVUxMIH0pKQogCiB2b2lkCiBubV9kZXZpY2VfcmVhY3RpdmF0ZV9pcDRfY29u
+ZmlnIChOTURldmljZSAqc2VsZiwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIE5N
+U2V0dGluZ0lQQ29uZmlnICpzX2lwNF9vbGQsCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICBOTVNldHRpbmdJUENvbmZpZyAqc19pcDRfbmV3KQogewogCU5NRGV2aWNlUHJpdmF0ZSAq
+cHJpdjsKKwljb25zdCBjaGFyICptZXRob2Rfb2xkLCAqbWV0aG9kX25ldzsKIAogCWdfcmV0dXJu
+X2lmX2ZhaWwgKE5NX0lTX0RFVklDRSAoc2VsZikpOwogCXByaXYgPSBOTV9ERVZJQ0VfR0VUX1BS
+SVZBVEUgKHNlbGYpOwogCiAJaWYgKHByaXYtPmlwNF9zdGF0ZSAhPSBJUF9OT05FKSB7CiAJCWdf
+Y2xlYXJfb2JqZWN0ICgmcHJpdi0+Y29uX2lwNF9jb25maWcpOwogCQlnX2NsZWFyX29iamVjdCAo
+JnByaXYtPmV4dF9pcDRfY29uZmlnKTsKIAkJcHJpdi0+Y29uX2lwNF9jb25maWcgPSBubV9pcDRf
+Y29uZmlnX25ldyAobm1fZGV2aWNlX2dldF9pcF9pZmluZGV4IChzZWxmKSk7CiAJCW5tX2lwNF9j
+b25maWdfbWVyZ2Vfc2V0dGluZyAocHJpdi0+Y29uX2lwNF9jb25maWcsCiAJCSAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgc19pcDRfbmV3LAogCQkgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgIG5tX2RldmljZV9nZXRfaXA0X3JvdXRlX21ldHJpYyAoc2VsZikpOwogCi0JCWlmIChzdHJj
+bXAgKG5tX3NldHRpbmdfaXBfY29uZmlnX2dldF9tZXRob2QgKHNfaXA0X25ldyksCi0JCSAgICAg
+ICAgICAgIG5tX3NldHRpbmdfaXBfY29uZmlnX2dldF9tZXRob2QgKHNfaXA0X29sZCkpKSB7CisJ
+CW1ldGhvZF9vbGQgPSBzX2lwNF9vbGQgPworCQkJbm1fc2V0dGluZ19pcF9jb25maWdfZ2V0X21l
+dGhvZCAoc19pcDRfb2xkKSA6CisJCQlOTV9TRVRUSU5HX0lQNF9DT05GSUdfTUVUSE9EX0RJU0FC
+TEVEOworCQltZXRob2RfbmV3ID0gc19pcDRfbmV3ID8KKwkJCW5tX3NldHRpbmdfaXBfY29uZmln
+X2dldF9tZXRob2QgKHNfaXA0X25ldykgOgorCQkJTk1fU0VUVElOR19JUDRfQ09ORklHX01FVEhP
+RF9ESVNBQkxFRDsKKworCQlpZiAoIW5tX3N0cmVxMCAobWV0aG9kX29sZCwgbWV0aG9kX25ldykp
+IHsKIAkJCV9jbGVhbnVwX2lwNF9wcmUgKHNlbGYsIENMRUFOVVBfVFlQRV9ERUNPTkZJR1VSRSk7
+CiAJCQlfc2V0X2lwX3N0YXRlIChzZWxmLCBBRl9JTkVULCBJUF9XQUlUKTsKIAkJCWlmICghbm1f
+ZGV2aWNlX2FjdGl2YXRlX3N0YWdlM19pcDRfc3RhcnQgKHNlbGYpKQogCQkJCV9MT0dXIChMT0dE
+X0lQNCwgIkZhaWxlZCB0byBhcHBseSBJUHY0IGNvbmZpZ3VyYXRpb24iKTsKIAkJfSBlbHNlIHsK
+IAkJCWlmICghaXA0X2NvbmZpZ19tZXJnZV9hbmRfYXBwbHkgKHNlbGYsIE5VTEwsIFRSVUUsIE5V
+TEwpKQogCQkJCV9MT0dXIChMT0dEX0lQNCwgIkZhaWxlZCB0byByZWFwcGx5IElQdjQgY29uZmln
+dXJhdGlvbiIpOwogCQl9CkBAIC03ODQ1LDMwICs3ODUyLDM3IEBAIG5tX2RldmljZV9yZWFjdGl2
+YXRlX2lwNF9jb25maWcgKE5NRGV2aWNlICpzZWxmLAogfQogCiB2b2lkCiBubV9kZXZpY2VfcmVh
+Y3RpdmF0ZV9pcDZfY29uZmlnIChOTURldmljZSAqc2VsZiwKICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgIE5NU2V0dGluZ0lQQ29uZmlnICpzX2lwNl9vbGQsCiAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICBOTVNldHRpbmdJUENvbmZpZyAqc19pcDZfbmV3KQogewogCU5N
+RGV2aWNlUHJpdmF0ZSAqcHJpdjsKKwljb25zdCBjaGFyICptZXRob2Rfb2xkLCAqbWV0aG9kX25l
+dzsKIAogCWdfcmV0dXJuX2lmX2ZhaWwgKE5NX0lTX0RFVklDRSAoc2VsZikpOwogCXByaXYgPSBO
+TV9ERVZJQ0VfR0VUX1BSSVZBVEUgKHNlbGYpOwogCiAJaWYgKHByaXYtPmlwNl9zdGF0ZSAhPSBJ
+UF9OT05FKSB7CiAJCWdfY2xlYXJfb2JqZWN0ICgmcHJpdi0+Y29uX2lwNl9jb25maWcpOwogCQln
+X2NsZWFyX29iamVjdCAoJnByaXYtPmV4dF9pcDZfY29uZmlnKTsKIAkJcHJpdi0+Y29uX2lwNl9j
+b25maWcgPSBubV9pcDZfY29uZmlnX25ldyAobm1fZGV2aWNlX2dldF9pcF9pZmluZGV4IChzZWxm
+KSk7CiAJCW5tX2lwNl9jb25maWdfbWVyZ2Vfc2V0dGluZyAocHJpdi0+Y29uX2lwNl9jb25maWcs
+CiAJCSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgc19pcDZfbmV3LAogCQkgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgIG5tX2RldmljZV9nZXRfaXA2X3JvdXRlX21ldHJpYyAoc2VsZikp
+OwogCi0JCWlmIChzdHJjbXAgKG5tX3NldHRpbmdfaXBfY29uZmlnX2dldF9tZXRob2QgKHNfaXA2
+X25ldyksCi0JCSAgICAgICAgICAgIG5tX3NldHRpbmdfaXBfY29uZmlnX2dldF9tZXRob2QgKHNf
+aXA2X29sZCkpKSB7CisJCW1ldGhvZF9vbGQgPSBzX2lwNl9vbGQgPworCQkJbm1fc2V0dGluZ19p
+cF9jb25maWdfZ2V0X21ldGhvZCAoc19pcDZfb2xkKSA6CisJCQlOTV9TRVRUSU5HX0lQNl9DT05G
+SUdfTUVUSE9EX0lHTk9SRTsKKwkJbWV0aG9kX25ldyA9IHNfaXA2X25ldyA/CisJCQlubV9zZXR0
+aW5nX2lwX2NvbmZpZ19nZXRfbWV0aG9kIChzX2lwNl9uZXcpIDoKKwkJCU5NX1NFVFRJTkdfSVA2
+X0NPTkZJR19NRVRIT0RfSUdOT1JFOworCisJCWlmICghbm1fc3RyZXEwIChtZXRob2Rfb2xkLCBt
+ZXRob2RfbmV3KSkgewogCQkJX2NsZWFudXBfaXA2X3ByZSAoc2VsZiwgQ0xFQU5VUF9UWVBFX0RF
+Q09ORklHVVJFKTsKIAkJCV9zZXRfaXBfc3RhdGUgKHNlbGYsIEFGX0lORVQ2LCBJUF9XQUlUKTsK
+IAkJCWlmICghbm1fZGV2aWNlX2FjdGl2YXRlX3N0YWdlM19pcDZfc3RhcnQgKHNlbGYpKQogCQkJ
+CV9MT0dXIChMT0dEX0lQNiwgIkZhaWxlZCB0byBhcHBseSBJUHY2IGNvbmZpZ3VyYXRpb24iKTsK
+IAkJfSBlbHNlIHsKIAkJCWlmICghaXA2X2NvbmZpZ19tZXJnZV9hbmRfYXBwbHkgKHNlbGYsIFRS
+VUUsIE5VTEwpKQogCQkJCV9MT0dXIChMT0dEX0lQNCwgIkZhaWxlZCB0byByZWFwcGx5IElQdjYg
+Y29uZmlndXJhdGlvbiIpOwogCQl9Ci0tIAoyLjcuNAoK
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

@@ -1,0 +1,560 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1360688</bug_id>
+          
+          <creation_ts>2016-07-27 06:51:00 -0400</creation_ts>
+          <short_desc>event decoding changed 4.4.7 -&gt; 4.6.4 breaking user space apps.</short_desc>
+          <delta_ts>2016-09-14 07:02:08 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>kernel</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Alec Leamas">leamas.alec</reporter>
+          <assigned_to name="Kernel Maintainer List">kernel-maint</assigned_to>
+          <cc>gansalmon</cc>
+    
+    
+    <cc>itamar</cc>
+    
+    
+    <cc>jonathan</cc>
+    
+    
+    <cc>kernel-maint</cc>
+    
+    
+    <cc>labbott</cc>
+    
+    
+    <cc>madhu.chinakonda</cc>
+    
+    
+    <cc>mchehab</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>kernel-4.8.0-0.rc5.git1.1.fc25 kernel-4.7.3-200.fc24</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-09-13 14:10:00</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9557605</commentid>
+    <comment_count>0</comment_count>
+      <attachid>1184587</attachid>
+    <who name="Alec Leamas">leamas.alec</who>
+    <bug_when>2016-07-27 06:51:06 -0400</bug_when>
+    <thetext>Created attachment 1184587
+logs from 4.4.7
+
+Description of problem:
+
+
+Version-Release number of selected component (if applicable):
+
+
+How reproducible:
+
+
+Steps to Reproduce using kernels 4.4.7 and 4..6.4:
+1. Connect a IR remote supported by the kernel
+2. Run ir-keytable -t
+3  Keep a button like volume up pressed for several  seconds
+3. Inspect the resulting output
+
+Actual results:
+
+Output differs
+
+
+Expected results:
+
+Output should be the same
+
+
+Additional info:
+
+This breaks lirc, which expect output as of 4.4.7 and before.
+
+Reportedly, 4.5.1 also emitted output like 4.4.7. Not confirmed by me, though.
+
+The issue is discussed on the lirc mailing list [1]
+
+Attaching ir-keytable logs form 4.4.7 and 4.6.4
+
+
+
+[1] https://sourceforge.net/p/lirc/mailman/lirc-list/thread/1440225416.1242925.1468076347736.JavaMail.yahoo%40mail.yahoo.com/#msg35224277</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9557610</commentid>
+    <comment_count>1</comment_count>
+      <attachid>1184589</attachid>
+    <who name="Alec Leamas">leamas.alec</who>
+    <bug_when>2016-07-27 06:51:49 -0400</bug_when>
+    <thetext>Created attachment 1184589
+4.6.4  log</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9559554</commentid>
+    <comment_count>2</comment_count>
+    <who name="Laura Abbott">labbott</who>
+    <bug_when>2016-07-27 11:47:00 -0400</bug_when>
+    <thetext>We&apos;ve had breakages before (see https://bugzilla.redhat.com/show_bug.cgi?id=1260862) and they need to be reported to the upstream kernel maintainer directly. Can you run a git bisect to identify which commit specifically broke things?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9573695</commentid>
+    <comment_count>3</comment_count>
+    <who name="Alec Leamas">leamas.alec</who>
+    <bug_when>2016-08-01 12:15:59 -0400</bug_when>
+    <thetext>After some days of multitasking (bisecting &amp; harvesting currant):
+
+
+first bad commit: [078600f514a12fd763ac84c86af68ef5b5267563] [media] rc-core: allow calling rc_open with device not initialized
+
+Given what (not) happened to bug #1260862, perhaps you could file the kernel bug? Obviously, not much happens when I file one :(</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9573701</commentid>
+    <comment_count>4</comment_count>
+      <attachid>1186453</attachid>
+    <who name="Alec Leamas">leamas.alec</who>
+    <bug_when>2016-08-01 12:19:11 -0400</bug_when>
+    <thetext>Created attachment 1186453
+Bisecty log</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9593479</commentid>
+    <comment_count>5</comment_count>
+    <who name="Alec Leamas">leamas.alec</who>
+    <bug_when>2016-08-08 08:48:29 -0400</bug_when>
+    <thetext>OK then... filed bug, see https://sourceforge.net/p/lirc/mailman/message/35267107/. Sent to maintainers as of get_maintainers.pl on the seemingly bad commit.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9594965</commentid>
+    <comment_count>6</comment_count>
+    <who name="Alec Leamas">leamas.alec</who>
+    <bug_when>2016-08-08 13:47:23 -0400</bug_when>
+    <thetext>Seems that this has been resolved upstream: http://www.spinics.net/lists/linux-media/msg103384.html. Leaving this bug open until the fix lands in fedora kernel.
+
+@laura: Any chance of adding the upstream patch  to current, broken kernel?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9599430</commentid>
+    <comment_count>7</comment_count>
+    <who name="Laura Abbott">labbott</who>
+    <bug_when>2016-08-09 13:59:19 -0400</bug_when>
+    <thetext>I don&apos;t see an ack from the maintainer on it. The merge window just closed a few days ago so I&apos;d like to give it a little more time to see if anyone has any objections. If there&apos;s been no response by Friday we can bring it into Fedora.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9628022</commentid>
+    <comment_count>8</comment_count>
+    <who name="Alec Leamas">leamas.alec</who>
+    <bug_when>2016-08-18 14:56:53 -0400</bug_when>
+    <thetext>@laura: That was last Friday, time flies. Do you expect anything from me here?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9631164</commentid>
+    <comment_count>9</comment_count>
+    <who name="Laura Abbott">labbott</who>
+    <bug_when>2016-08-19 12:47:34 -0400</bug_when>
+    <thetext>Can you get me the patch to bring in? If you are on the e-mail thread it would also be good to send another request for review.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9648764</commentid>
+    <comment_count>10</comment_count>
+      <attachid>1193994</attachid>
+    <who name="Alec Leamas">leamas.alec</who>
+    <bug_when>2016-08-25 08:00:10 -0400</bug_when>
+    <thetext>Created attachment 1193994
+rc_core: restore repeat events.
+
+Sorry, I missed your message somehow. Too much noise.
+
+Anyway, attaching a patch. I have submitted builds at copr [1], but the system seems flooded with large builds (and I add another one), so it will take some time. Perhaps some admin in some timezone can fix things. I will return once I have verified this patch, but needs clear my desk for now.
+
+I&apos;m not on that list, and I don&apos;t have the skills to make something meaningful there, I guess. So, I havn&apos;t requested a review. Should I, given all this?
+
+[1] https://copr.fedorainfracloud.org/coprs/leamas/lirc-0.9.4-preview/</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9651470</commentid>
+    <comment_count>11</comment_count>
+    <who name="Alec Leamas">leamas.alec</who>
+    <bug_when>2016-08-25 21:48:55 -0400</bug_when>
+    <thetext>nirik into action, COPR builders OK again and indeed, the patch works fine.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9660947</commentid>
+    <comment_count>12</comment_count>
+    <who name="Laura Abbott">labbott</who>
+    <bug_when>2016-08-29 16:53:22 -0400</bug_when>
+    <thetext>I&apos;ll pull the patch into branches. In the interest of encouraging upstream, start another e-mail thread on linux-media@vger.kernel.org indicating the problem and pointing to the patch as a solution. Make sure to e-mail maintainers (Mauro Carvalho Chehab plus Hans Verkuil) along with the patch author.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9687714</commentid>
+    <comment_count>13</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-07 13:53:08 -0400</bug_when>
+    <thetext>kernel-4.8.0-0.rc5.git1.1.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2016-0f0a455d84</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9691334</commentid>
+    <comment_count>14</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-08 11:41:38 -0400</bug_when>
+    <thetext>kernel-4.7.3-200.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-f9d5f8f03f</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9691337</commentid>
+    <comment_count>15</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-08 11:42:24 -0400</bug_when>
+    <thetext>kernel-4.7.3-100.fc23 has been submitted as an update to Fedora 23. https://bodhi.fedoraproject.org/updates/FEDORA-2016-91fb402c7f</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9692881</commentid>
+    <comment_count>16</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-09 02:26:07 -0400</bug_when>
+    <thetext>kernel-4.8.0-0.rc5.git1.1.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-0f0a455d84</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9695049</commentid>
+    <comment_count>17</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-09 13:56:35 -0400</bug_when>
+    <thetext>kernel-4.7.3-100.fc23 has been pushed to the Fedora 23 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-91fb402c7f</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9699661</commentid>
+    <comment_count>18</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-12 11:27:35 -0400</bug_when>
+    <thetext>kernel-4.7.3-200.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-f9d5f8f03f</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9704357</commentid>
+    <comment_count>19</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-13 14:09:55 -0400</bug_when>
+    <thetext>kernel-4.8.0-0.rc5.git1.1.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9704889</commentid>
+    <comment_count>20</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-13 18:22:43 -0400</bug_when>
+    <thetext>kernel-4.7.3-200.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9705164</commentid>
+    <comment_count>21</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-13 21:18:49 -0400</bug_when>
+    <thetext>kernel-4.7.3-100.fc23 has been pushed to the Fedora 23 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9706753</commentid>
+    <comment_count>22</comment_count>
+    <who name="Alec Leamas">leamas.alec</who>
+    <bug_when>2016-09-14 07:02:08 -0400</bug_when>
+    <thetext>(In reply to Laura Abbott from comment #12)
+&gt; In the interest of encouraging upstream,
+&gt; start another e-mail thread on linux-media@vger.kernel.org indicating the
+&gt; problem and pointing to the patch as a solution. Make sure to e-mail
+&gt; maintainers (Mauro Carvalho Chehab plus Hans Verkuil) along with the patch
+&gt; author.
+
+For the record: http://www.spinics.net/lists/linux-media/msg105457.html</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="0"
+              ispatch="0"
+              isprivate="0"
+          >
+            <attachid>1184587</attachid>
+            <date>2016-07-27 06:51:00 -0400</date>
+            <delta_ts>2016-07-27 06:51:06 -0400</delta_ts>
+            <desc>logs from 4.4.7</desc>
+            <filename>ir-keytable.log-4.4.7</filename>
+            <type>text/plain</type>
+            <size>2603</size>
+            <attacher name="Alec Leamas">leamas.alec</attacher>
+            
+              <data encoding="base64">W21rQHNub3JrZW4gZGFlbW9uc10kIHVuYW1lIC1hCkxpbnV4IHNub3JrZW4gNC40LjctMzAwLmZj
+MjMueDg2XzY0ICMxIFNNUCBXZWQgQXByIDEzIDAyOjUyOjUyIFVUQyAyMDE2IHg4Nl82NCB4ODZf
+NjQgeDg2XzY0IEdOVS9MaW51eApbbWtAc25vcmtlbiBkYWVtb25zXSQgaXIta2V5dGFibGUgLXQK
+VGVzdGluZyBldmVudHMuIFBsZWFzZSwgcHJlc3MgQ1RSTC1DIHRvIGFib3J0LgoxNDY5NjE1OTAw
+LjIzNjEzNzogZXZlbnQgdHlwZSBFVl9NU0MoMHgwNCk6IHNjYW5jb2RlID0gMHg4MDBmMDQxMAox
+NDY5NjE1OTAwLjIzNjEzNzogZXZlbnQgdHlwZSBFVl9LRVkoMHgwMSkga2V5X2Rvd246IEtFWV9W
+T0xVTUVVUCgweDAwNzMpCjE0Njk2MTU5MDAuMjM2MTM3OiBldmVudCB0eXBlIEVWX1NZTigweDAw
+KS4KMTQ2OTYxNTkwMC4zNDI5OTY6IGV2ZW50IHR5cGUgRVZfTVNDKDB4MDQpOiBzY2FuY29kZSA9
+IDB4ODAwZjA0MTAKMTQ2OTYxNTkwMC4zNDI5OTY6IGV2ZW50IHR5cGUgRVZfU1lOKDB4MDApLgox
+NDY5NjE1OTAwLjQ0ODAzNDogZXZlbnQgdHlwZSBFVl9NU0MoMHgwNCk6IHNjYW5jb2RlID0gMHg4
+MDBmMDQxMAoxNDY5NjE1OTAwLjQ0ODAzNDogZXZlbnQgdHlwZSBFVl9TWU4oMHgwMCkuCjE0Njk2
+MTU5MDAuNTU0OTg5OiBldmVudCB0eXBlIEVWX01TQygweDA0KTogc2NhbmNvZGUgPSAweDgwMGYw
+NDEwCjE0Njk2MTU5MDAuNTU0OTg5OiBldmVudCB0eXBlIEVWX1NZTigweDAwKS4KMTQ2OTYxNTkw
+MC42NjAxMjA6IGV2ZW50IHR5cGUgRVZfTVNDKDB4MDQpOiBzY2FuY29kZSA9IDB4ODAwZjA0MTAK
+MTQ2OTYxNTkwMC42NjAxMjA6IGV2ZW50IHR5cGUgRVZfU1lOKDB4MDApLgoxNDY5NjE1OTAwLjcz
+Njk4MzogZXZlbnQgdHlwZSBFVl9LRVkoMHgwMSkga2V5X2Rvd246IEtFWV9WT0xVTUVVUCgweDAw
+NzMpCjE0Njk2MTU5MDAuNzM2OTgzOiBldmVudCB0eXBlIEVWX1NZTigweDAwKS4KMTQ2OTYxNTkw
+MC43NjcwMjA6IGV2ZW50IHR5cGUgRVZfTVNDKDB4MDQpOiBzY2FuY29kZSA9IDB4ODAwZjA0MTAK
+MTQ2OTYxNTkwMC43NjcwMjA6IGV2ZW50IHR5cGUgRVZfU1lOKDB4MDApLgoxNDY5NjE1OTAwLjg2
+MjAzMzogZXZlbnQgdHlwZSBFVl9LRVkoMHgwMSkga2V5X2Rvd246IEtFWV9WT0xVTUVVUCgweDAw
+NzMpCjE0Njk2MTU5MDAuODYyMDMzOiBldmVudCB0eXBlIEVWX1NZTigweDAwKS4KMTQ2OTYxNTkw
+MC44NzIwODk6IGV2ZW50IHR5cGUgRVZfTVNDKDB4MDQpOiBzY2FuY29kZSA9IDB4ODAwZjA0MTAK
+MTQ2OTYxNTkwMC44NzIwODk6IGV2ZW50IHR5cGUgRVZfU1lOKDB4MDApLgoxNDY5NjE1OTAwLjk3
+OTAyNTogZXZlbnQgdHlwZSBFVl9NU0MoMHgwNCk6IHNjYW5jb2RlID0gMHg4MDBmMDQxMAoxNDY5
+NjE1OTAwLjk3OTAyNTogZXZlbnQgdHlwZSBFVl9TWU4oMHgwMCkuCjE0Njk2MTU5MDAuOTg2OTg1
+OiBldmVudCB0eXBlIEVWX0tFWSgweDAxKSBrZXlfZG93bjogS0VZX1ZPTFVNRVVQKDB4MDA3MykK
+MTQ2OTYxNTkwMC45ODY5ODU6IGV2ZW50IHR5cGUgRVZfU1lOKDB4MDApLgoxNDY5NjE1OTAxLjA4
+NDIwMDogZXZlbnQgdHlwZSBFVl9NU0MoMHgwNCk6IHNjYW5jb2RlID0gMHg4MDBmMDQxMAoxNDY5
+NjE1OTAxLjA4NDIwMDogZXZlbnQgdHlwZSBFVl9TWU4oMHgwMCkuCjE0Njk2MTU5MDEuMTExOTk2
+OiBldmVudCB0eXBlIEVWX0tFWSgweDAxKSBrZXlfZG93bjogS0VZX1ZPTFVNRVVQKDB4MDA3MykK
+MTQ2OTYxNTkwMS4xMTE5OTY6IGV2ZW50IHR5cGUgRVZfU1lOKDB4MDApLgoxNDY5NjE1OTAxLjE5
+MDkxODogZXZlbnQgdHlwZSBFVl9NU0MoMHgwNCk6IHNjYW5jb2RlID0gMHg4MDBmMDQxMAoxNDY5
+NjE1OTAxLjE5MDkxODogZXZlbnQgdHlwZSBFVl9TWU4oMHgwMCkuCjE0Njk2MTU5MDEuMjM3MDU5
+OiBldmVudCB0eXBlIEVWX0tFWSgweDAxKSBrZXlfZG93bjogS0VZX1ZPTFVNRVVQKDB4MDA3MykK
+MTQ2OTYxNTkwMS4yMzcwNTk6IGV2ZW50IHR5cGUgRVZfU1lOKDB4MDApLgoxNDY5NjE1OTAxLjI5
+NjEzMzogZXZlbnQgdHlwZSBFVl9NU0MoMHgwNCk6IHNjYW5jb2RlID0gMHg4MDBmMDQxMAoxNDY5
+NjE1OTAxLjI5NjEzMzogZXZlbnQgdHlwZSBFVl9TWU4oMHgwMCkuCjE0Njk2MTU5MDEuMzYyMDEw
+OiBldmVudCB0eXBlIEVWX0tFWSgweDAxKSBrZXlfZG93bjogS0VZX1ZPTFVNRVVQKDB4MDA3MykK
+MTQ2OTYxNTkwMS4zNjIwMTA6IGV2ZW50IHR5cGUgRVZfU1lOKDB4MDApLgoxNDY5NjE1OTAxLjQz
+MDk0NjogZXZlbnQgdHlwZSBFVl9NU0MoMHgwNCk6IHNjYW5jb2RlID0gMHg4MDBmMDQxMAoxNDY5
+NjE1OTAxLjQzMDk0NjogZXZlbnQgdHlwZSBFVl9TWU4oMHgwMCkuCjE0Njk2MTU5MDEuNDg2OTc5
+OiBldmVudCB0eXBlIEVWX0tFWSgweDAxKSBrZXlfZG93bjogS0VZX1ZPTFVNRVVQKDB4MDA3MykK
+MTQ2OTYxNTkwMS40ODY5Nzk6IGV2ZW50IHR5cGUgRVZfU1lOKDB4MDApLgoxNDY5NjE1OTAxLjYx
+MjA1MjogZXZlbnQgdHlwZSBFVl9LRVkoMHgwMSkga2V5X2Rvd246IEtFWV9WT0xVTUVVUCgweDAw
+NzMpCjE0Njk2MTU5MDEuNjEyMDUyOiBldmVudCB0eXBlIEVWX1NZTigweDAwKS4KMTQ2OTYxNTkw
+MS42ODAwMzM6IGV2ZW50IHR5cGUgRVZfS0VZKDB4MDEpIGtleQo=
+</data>
+
+          </attachment>
+          <attachment
+              isobsolete="0"
+              ispatch="0"
+              isprivate="0"
+          >
+            <attachid>1184589</attachid>
+            <date>2016-07-27 06:51:00 -0400</date>
+            <delta_ts>2016-07-27 06:51:49 -0400</delta_ts>
+            <desc>4.6.4  log</desc>
+            <filename>ir-keytable.log-4.6.4</filename>
+            <type>text/plain</type>
+            <size>1800</size>
+            <attacher name="Alec Leamas">leamas.alec</attacher>
+            
+              <data encoding="base64">JCB1bmFtZSAtYQpMaW51eCBzbm9ya2VuIDQuNi40LTIwMS5mYzIzLng4Nl82NCAjMSBTTVAgVHVl
+IEp1bCAxMiAxMTo0Mzo1OSBVVEMgMjAxNiB4ODZfNjQgeDg2XzY0IHg4Nl82NCBHTlUvTGludXgK
+JCBpci1rZXl0YWJsZSAtdApUZXN0aW5nIGV2ZW50cy4gUGxlYXNlLCBwcmVzcyBDVFJMLUMgdG8g
+YWJvcnQuCjE0Njk2MTU2MjQuMDc4NTUyOiBldmVudCB0eXBlIEVWX01TQygweDA0KTogc2NhbmNv
+ZGUgPSAweDgwMGYwNDEwCjE0Njk2MTU2MjQuMDc4NTUyOiBldmVudCB0eXBlIEVWX0tFWSgweDAx
+KSBrZXlfZG93bjogS0VZX1ZPTFVNRVVQKDB4MDA3MykKMTQ2OTYxNTYyNC4wNzg1NTI6IGV2ZW50
+IHR5cGUgRVZfU1lOKDB4MDApLgoxNDY5NjE1NjI0LjE4NTQxNjogZXZlbnQgdHlwZSBFVl9NU0Mo
+MHgwNCk6IHNjYW5jb2RlID0gMHg4MDBmMDQxMAoxNDY5NjE1NjI0LjE4NTQxNjogZXZlbnQgdHlw
+ZSBFVl9TWU4oMHgwMCkuCjE0Njk2MTU2MjQuMjkwNzk0OiBldmVudCB0eXBlIEVWX01TQygweDA0
+KTogc2NhbmNvZGUgPSAweDgwMGYwNDEwCjE0Njk2MTU2MjQuMjkwNzk0OiBldmVudCB0eXBlIEVW
+X1NZTigweDAwKS4KMTQ2OTYxNTYyNC4zOTc1NDM6IGV2ZW50IHR5cGUgRVZfTVNDKDB4MDQpOiBz
+Y2FuY29kZSA9IDB4ODAwZjA0MTAKMTQ2OTYxNTYyNC4zOTc1NDM6IGV2ZW50IHR5cGUgRVZfU1lO
+KDB4MDApLgoxNDY5NjE1NjI0LjUwMjc5NDogZXZlbnQgdHlwZSBFVl9NU0MoMHgwNCk6IHNjYW5j
+b2RlID0gMHg4MDBmMDQxMAoxNDY5NjE1NjI0LjUwMjc5NDogZXZlbnQgdHlwZSBFVl9TWU4oMHgw
+MCkuCjE0Njk2MTU2MjQuNjA5NTI3OiBldmVudCB0eXBlIEVWX01TQygweDA0KTogc2NhbmNvZGUg
+PSAweDgwMGYwNDEwCjE0Njk2MTU2MjQuNjA5NTI3OiBldmVudCB0eXBlIEVWX1NZTigweDAwKS4K
+MTQ2OTYxNTYyNC43MTQ3MTc6IGV2ZW50IHR5cGUgRVZfTVNDKDB4MDQpOiBzY2FuY29kZSA9IDB4
+ODAwZjA0MTAKMTQ2OTYxNTYyNC43MTQ3MTc6IGV2ZW50IHR5cGUgRVZfU1lOKDB4MDApLgoxNDY5
+NjE1NjI0LjgyMTY3MjogZXZlbnQgdHlwZSBFVl9NU0MoMHgwNCk6IHNjYW5jb2RlID0gMHg4MDBm
+MDQxMAoxNDY5NjE1NjI0LjgyMTY3MjogZXZlbnQgdHlwZSBFVl9TWU4oMHgwMCkuCjE0Njk2MTU2
+MjQuOTI2NjczOiBldmVudCB0eXBlIEVWX01TQygweDA0KTogc2NhbmNvZGUgPSAweDgwMGYwNDEw
+CjE0Njk2MTU2MjQuOTI2NjczOiBldmVudCB0eXBlIEVWX1NZTigweDAwKS4KMTQ2OTYxNTYyNS4w
+MzM2NDQ6IGV2ZW50IHR5cGUgRVZfTVNDKDB4MDQpOiBzY2FuY29kZSA9IDB4ODAwZjA0MTAKMTQ2
+OTYxNTYyNS4wMzM2NDQ6IGV2ZW50IHR5cGUgRVZfU1lOKDB4MDApLgoxNDY5NjE1NjI1LjEzODk3
+OTogZXZlbnQgdHlwZSBFVl9NU0MoMHgwNCk6IHNjYW5jb2RlID0gMHg4MDBmMDQxMAoxNDY5NjE1
+NjI1LjEzODk3OTogZXZlbnQgdHlwZSBFVl9TWU4oMHgwMCkuCjE0Njk2MTU2MjUuMjQ1NzYzOiBl
+dmVudCB0eXBlIEVWX01TQygweDA0KTogc2NhbmNvZGUgPSAweDgwMGYwNDEwCjE0Njk2MTU2MjUu
+MjQ1NzYzOiBldmVudCB0eXBlIEVWX1NZTigweDAwKS4KMTQ2OTYxNTYyNS4zNzk1OTA6IGV2ZW50
+IHR5cGUgRVZfTVNDKDB4MDQpOiBzY2FuY29kZSA9IDB4ODAwZjA0MTAKMTQ2OTYxNTYyNS4zNzk1
+OTA6IGV2ZW50IHR5cGUgRVZfU1lOKDB4MDApLgoxNDY5NjE1NjI1LjYyOTQzMjogZXZlbnQgdHlw
+ZSBFVl9LRVkoMHgwMSkga2V5X3VwOiBLRVlfVk9MVU1FVVAoMHgwMDczKQoxNDY5NjE1NjI1LjYy
+OTQzMjogZXZlbnQgdHlwZSBFVl9TWU4oMHgwMCkuCgoK
+</data>
+
+          </attachment>
+          <attachment
+              isobsolete="0"
+              ispatch="0"
+              isprivate="0"
+          >
+            <attachid>1186453</attachid>
+            <date>2016-08-01 12:19:00 -0400</date>
+            <delta_ts>2016-08-01 12:19:11 -0400</delta_ts>
+            <desc>Bisecty log</desc>
+            <filename>bisect.log</filename>
+            <type>text/plain</type>
+            <size>3040</size>
+            <attacher name="Alec Leamas">leamas.alec</attacher>
+            
+              <data encoding="base64">IyBiYWQ6IFszMTBjYTU5ZDFmMWNlZDE5M2MyOTZlMmVjZDg2N2I5ZjdmYjFkMjk3XSBMaW51eCA0
+LjYuNAojIGdvb2Q6IFtiNDAxMDhiODI2ZWQ5ZTFjNTU4ZjczYjlkYmFiYjhkODBkZWQyNjhiXSBM
+aW51eCA0LjQuNwpnaXQgYmlzZWN0IHN0YXJ0ICd2NC42LjQnICd2NC40LjcnCiMgZ29vZDogW2Fm
+ZDJmZjliN2UxYjM2NzE3MmYxOGJhN2Y2OTNkZmI2MmJkY2IyZGNdIExpbnV4IDQuNApnaXQgYmlz
+ZWN0IGdvb2QgYWZkMmZmOWI3ZTFiMzY3MTcyZjE4YmE3ZjY5M2RmYjYyYmRjYjJkYwojIGdvb2Q6
+IFs4MTA4MTNjNDdhNTY0NDE2ZjYzMDZhZTIxNGUyNjYxMzY2Yzk4N2E3XSBNZXJnZSBnaXQ6Ly9n
+aXQua2VybmVsLm9yZy9wdWIvc2NtL2xpbnV4L2tlcm5lbC9naXQvZGF2ZW0vbmV0CmdpdCBiaXNl
+Y3QgZ29vZCA4MTA4MTNjNDdhNTY0NDE2ZjYzMDZhZTIxNGUyNjYxMzY2Yzk4N2E3CiMgYmFkOiBb
+MTIwMGI2ODA5ZGZkOWQ3M2JjNGM3ZGI3NmQyODhjMzVmYTRiMmViZV0gTWVyZ2UgZ2l0Oi8vZ2l0
+Lmtlcm5lbC5vcmcvcHViL3NjbS9saW51eC9rZXJuZWwvZ2l0L2RhdmVtL25ldC1uZXh0CmdpdCBi
+aXNlY3QgYmFkIDEyMDBiNjgwOWRmZDlkNzNiYzRjN2RiNzZkMjg4YzM1ZmE0YjJlYmUKIyBiYWQ6
+IFs0OGQxMGJkYTFmMmM2OTk4MDYwMWE2MTE5NDAxNWJiMDc5MGZiN2FiXSBNZXJnZSB0YWcgJ3Vz
+Yi00LjYtcmMxJyBvZiBnaXQ6Ly9naXQua2VybmVsLm9yZy9wdWIvc2NtL2xpbnV4L2tlcm5lbC9n
+aXQvZ3JlZ2toL3VzYgpnaXQgYmlzZWN0IGJhZCA0OGQxMGJkYTFmMmM2OTk4MDYwMWE2MTE5NDAx
+NWJiMDc5MGZiN2FiCiMgZ29vZDogWzI3N2VkYmFiZjZmZWNlMDU3YjE0ZmI2ZGI1ZTNhMzRlMDBm
+NDJmNDJdIE1lcmdlIHRhZyAncG0rYWNwaS00LjYtcmMxLTEnIG9mIGdpdDovL2dpdC5rZXJuZWwu
+b3JnL3B1Yi9zY20vbGludXgva2VybmVsL2dpdC9yYWZhZWwvbGludXgtcG0KZ2l0IGJpc2VjdCBn
+b29kIDI3N2VkYmFiZjZmZWNlMDU3YjE0ZmI2ZGI1ZTNhMzRlMDBmNDJmNDIKIyBiYWQ6IFs3MDQ3
+NzM3MWRjMzUwNzQ2ZDEwNDMxZDc0ZjBmMjEzYThkNTk5MjRjXSBNZXJnZSBicmFuY2ggJ2xpbnVz
+JyBvZiBnaXQ6Ly9naXQua2VybmVsLm9yZy9wdWIvc2NtL2xpbnV4L2tlcm5lbC9naXQvaGVyYmVy
+dC9jcnlwdG8tMi42CmdpdCBiaXNlY3QgYmFkIDcwNDc3MzcxZGMzNTA3NDZkMTA0MzFkNzRmMGYy
+MTNhOGQ1OTkyNGMKIyBnb29kOiBbODc1OTk1N2I3N2FjMWI1YjViZGZhYzViYTA0OTc4OTEwN2U4
+NTE5MF0gTWVyZ2UgdGFnICdsaWJudmRpbW0tZm9yLTQuNicgb2YgZ2l0Oi8vZ2l0Lmtlcm5lbC5v
+cmcvcHViL3NjbS9saW51eC9rZXJuZWwvZ2l0L252ZGltbS9udmRpbW0KZ2l0IGJpc2VjdCBnb29k
+IDg3NTk5NTdiNzdhYzFiNWI1YmRmYWM1YmEwNDk3ODkxMDdlODUxOTAKIyBnb29kOiBbZTc2YmVh
+OWFiZDE0YTNhM2FmMTAyZmUzMGM1ZTlkZDFiMmU0NGQ3Ml0gW21lZGlhXSBkaWIwMDkwOiBkbyB0
+aGUgcmlnaHQgdGhpbmcgaWYgcmZfcmFtcCBpcyBOVUxMCmdpdCBiaXNlY3QgZ29vZCBlNzZiZWE5
+YWJkMTRhM2EzYWYxMDJmZTMwYzVlOWRkMWIyZTQ0ZDcyCiMgYmFkOiBbYmFjZTNkYjVkYTk3MGM0
+ZDRmODBhMWZmYTk4OGVjNjZjN2Y2YThmNV0gTWVyZ2UgdGFnICdtZWRpYS92NC42LTEnIG9mIGdp
+dDovL2dpdC5rZXJuZWwub3JnL3B1Yi9zY20vbGludXgva2VybmVsL2dpdC9tY2hlaGFiL2xpbnV4
+LW1lZGlhCmdpdCBiaXNlY3QgYmFkIGJhY2UzZGI1ZGE5NzBjNGQ0ZjgwYTFmZmE5ODhlYzY2Yzdm
+NmE4ZjUKIyBiYWQ6IFtiNWE0NDJhYWI0ODc4NDg5NDU1NTIwOTgwZDU3OGNlNjY1MDMzNDY1XSBb
+bWVkaWFdIGFkdjc2MDQ6IGZpeCBTUEEgcmVnaXN0ZXIgbG9jYXRpb24gZm9yIEFEVjc2MTIKZ2l0
+IGJpc2VjdCBiYWQgYjVhNDQyYWFiNDg3ODQ4OTQ1NTUyMDk4MGQ1NzhjZTY2NTAzMzQ2NQojIGdv
+b2Q6IFtmOTBjNWQ3OWU1MTU2ZTUyM2E2YmQ1NjBiN2RhNzZlODQyOTkyMjI5XSBbbWVkaWFdIG1l
+ZGlhOiBhdTA4MjgtY29yZSByZWdpc3RlciBlbnRpdHlfbm90aWZ5IGhvb2sKZ2l0IGJpc2VjdCBn
+b29kIGY5MGM1ZDc5ZTUxNTZlNTIzYTZiZDU2MGI3ZGE3NmU4NDI5OTIyMjkKIyBnb29kOiBbNjY0
+NzE2YWQwMTNmY2VhYTllNTU0MTAwYTQyZjk5YTQ2MGRlMzQ0MF0gTWVyZ2UgYnJhbmNoICd2NGxf
+Zm9yX2xpbnVzJyBpbnRvIHBhdGNod29yawpnaXQgYmlzZWN0IGdvb2QgNjY0NzE2YWQwMTNmY2Vh
+YTllNTU0MTAwYTQyZjk5YTQ2MGRlMzQ0MAojIGJhZDogWzJhYmQxZjQzYzI0MmU3OWM5ZGIxMDUw
+YTMzNDRjYzI5NjVlYjc3ZTNdIFttZWRpYV0gbXgzX2NhbWVyYTogdXNlICVwYWQgZm9ybWF0IHN0
+cmluZyBmb3IgZG1hX2Rkcl90CmdpdCBiaXNlY3QgYmFkIDJhYmQxZjQzYzI0MmU3OWM5ZGIxMDUw
+YTMzNDRjYzI5NjVlYjc3ZTMKIyBiYWQ6IFs5ODIyZjQxNzNmODRjYjdjNTkyZWRiNWUxNDc4Yjc5
+MDNmNjlkMDE4XSBbbWVkaWFdIGF1MDgyODogdXNlIHY0bDJfbWNfY3JlYXRlX21lZGlhX2dyYXBo
+KCkKZ2l0IGJpc2VjdCBiYWQgOTgyMmY0MTczZjg0Y2I3YzU5MmVkYjVlMTQ3OGI3OTAzZjY5ZDAx
+OAojIGJhZDogWzA3ODYwMGY1MTRhMTJmZDc2M2FjODRjODZhZjY4ZWY1YjUyNjc1NjNdIFttZWRp
+YV0gcmMtY29yZTogYWxsb3cgY2FsbGluZyByY19vcGVuIHdpdGggZGV2aWNlIG5vdCBpbml0aWFs
+aXplZApnaXQgYmlzZWN0IGJhZCAwNzg2MDBmNTE0YTEyZmQ3NjNhYzg0Yzg2YWY2OGVmNWI1MjY3
+NTYzCiMgZ29vZDogWzg3Mjk0ZTlkYjUwZjM0YWMwMDJlMzI2NjliMmZmNzRiNzJkNjM1ODRdIFtt
+ZWRpYV0gbWVkaWEuaDogdXNlIGhleCB2YWx1ZXMgZm9yIElGIGFuZCBBVURJTyBlbnRpdGllcyB0
+b28KZ2l0IGJpc2VjdCBnb29kIDg3Mjk0ZTlkYjUwZjM0YWMwMDJlMzI2NjliMmZmNzRiNzJkNjM1
+ODQKIyBmaXJzdCBiYWQgY29tbWl0OiBbMDc4NjAwZjUxNGExMmZkNzYzYWM4NGM4NmFmNjhlZjVi
+NTI2NzU2M10gW21lZGlhXSByYy1jb3JlOiBhbGxvdyBjYWxsaW5nIHJjX29wZW4gd2l0aCBkZXZp
+Y2Ugbm90IGluaXRpYWxpemVkCg==
+</data>
+
+          </attachment>
+          <attachment
+              isobsolete="0"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1193994</attachid>
+            <date>2016-08-25 08:00:00 -0400</date>
+            <delta_ts>2016-08-25 08:00:10 -0400</delta_ts>
+            <desc>rc_core: restore repeat events.</desc>
+            <filename>0847-Adding-patch-for-1260862.patch</filename>
+            <type>text/plain</type>
+            <size>2544</size>
+            <attacher name="Alec Leamas">leamas.alec</attacher>
+            
+              <data encoding="base64">RnJvbSAyYjUzYmQ4YjAxYjJkMGUzYzJhYmM3NmFmNDA0YmVjMGYyZThhNjkwIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBBbGVjIExlYW1hcyA8bGVhbWFzLmFsZWNAZ21haWwuY29tPgpE
+YXRlOiBUaHUsIDI1IEF1ZyAyMDE2IDEzOjUwOjA3ICswMjAwClN1YmplY3Q6IFtQQVRDSF0gQWRk
+aW5nIHBhdGNoIGZvciAjMTI2MDg2MgoKLS0tCiBrZXJuZWwuc3BlYyAgICAgICAgICAgICAgICAg
+ICAgIHwgIDMgKysrCiByYy1jb3JlLWZpeC1yZXBlYXQtZXZlbnRzLnBhdGNoIHwgNDYgKysrKysr
+KysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysKIDIgZmlsZXMgY2hhbmdlZCwgNDkg
+aW5zZXJ0aW9ucygrKQogY3JlYXRlIG1vZGUgMTAwNjQ0IHJjLWNvcmUtZml4LXJlcGVhdC1ldmVu
+dHMucGF0Y2gKCmRpZmYgLS1naXQgYS9rZXJuZWwuc3BlYyBiL2tlcm5lbC5zcGVjCmluZGV4IGU1
+Y2Y1NWEuLmFlMDMwY2EgMTAwNjQ0Ci0tLSBhL2tlcm5lbC5zcGVjCisrKyBiL2tlcm5lbC5zcGVj
+CkBAIC02MjEsNiArNjIxLDkgQEAgUGF0Y2g4NDU6IEhJRC1taWNyb3NvZnQtQWRkLVN1cmZhY2Ut
+NC10eXBlLWNvdmVyLXByby00LUpQLnBhdGNoCiAjcmhieiAxMzY2MjI0CiBQYXRjaDg0NjogaTgw
+NDItc2V0LXVwLXNoYXJlZC1wczJfY21kX211dGV4LWZvci1hdXgtcG9ydHMucGF0Y2gKIAorI3Jo
+Yno6IDEyNjA4NjIKK1BhdGNoODQ3OiByYy1jb3JlLWZpeC1yZXBlYXQtZXZlbnRzLnBhdGNoCisK
+ICMgRU5EIE9GIFBBVENIIERFRklOSVRJT05TCiAKICVlbmRpZgpkaWZmIC0tZ2l0IGEvcmMtY29y
+ZS1maXgtcmVwZWF0LWV2ZW50cy5wYXRjaCBiL3JjLWNvcmUtZml4LXJlcGVhdC1ldmVudHMucGF0
+Y2gKbmV3IGZpbGUgbW9kZSAxMDA2NDQKaW5kZXggMDAwMDAwMC4uYzdiZmNlMgotLS0gL2Rldi9u
+dWxsCisrKyBiL3JjLWNvcmUtZml4LXJlcGVhdC1ldmVudHMucGF0Y2gKQEAgLTAsMCArMSw0NiBA
+QAorRnJvbTogIk9sZSBFcm5zdCA8b2xlYm93bGVAdW5rbm93bi5uZXQ+IgorRGF0ZTogU2F0LCAz
+MCBKdWwgMjAxNiAxNToxOToyNyArMDIwMAorU3ViamVjdDogUGFydGx5IHJldmVydCAiW21lZGlh
+XSByYy1jb3JlOiBhbGxvdyBjYWxsaW5nIHJjX29wZW4gd2l0aCBkZXZpY2Ugbm90IGluaXRpYWxp
+emVkIgorCitUaGlzIHBhcnRseSByZXZlcnRzIGNvbW1pdCAwNzg2MDBmNTE0YTEyZmQ3NjNhYzg0
+Yzg2YWY2OGVmNWI1MjY3NTYzLgorCitEdWUgdG8gdGhlIHJlbG9jYXRpb24gb2YgaW5wdXRfcmVn
+aXN0ZXJfZGV2aWNlKCkgY2FsbCwgaG9sZGluZyBkb3duIGEKK2J1dHRvbiBvbiBhbiBJUiByZW1v
+dGUgbm8gbG9uZ2VyIHJlc3VsdGVkIGluIHJlcGVhdGVkIGtleSBkb3duIGV2ZW50cy4KKworU2Vl
+OiBodHRwOi8vd3d3LnNwaW5pY3MubmV0L2xpc3RzL2xpbnV4LW1lZGlhL21zZzEwMzM4NC5odG1s
+CisKK1NpZ25lZC1vZmYtYnk6IE9sZSBFcm5zdCA8b2xlYm93bGVAeHh4eHh4eD4KKy0tLQorIGRy
+aXZlcnMvbWVkaWEvcmMvcmMtbWFpbi5jIHwgOSArKysrLS0tLS0KKyAxIGZpbGUgY2hhbmdlZCwg
+NCBpbnNlcnRpb25zKCspLCA1IGRlbGV0aW9ucygtKQorCitkaWZmIC0tZ2l0IGEvZHJpdmVycy9t
+ZWRpYS9yYy9yYy1tYWluLmMgYi9kcml2ZXJzL21lZGlhL3JjL3JjLW1haW4uYworaW5kZXggOGU3
+ZjI5Mi4uMjZmZDYzYiAxMDA2NDQKKy0tLSBhL2RyaXZlcnMvbWVkaWEvcmMvcmMtbWFpbi5jCisr
+KysgYi9kcml2ZXJzL21lZGlhL3JjL3JjLW1haW4uYworQEAgLTE0NjAsNiArMTQ2MCwxMCBAQCBp
+bnQgcmNfcmVnaXN0ZXJfZGV2aWNlKHN0cnVjdCByY19kZXYgKmRldikKKyAJZGV2LT5pbnB1dF9k
+ZXYtPnBoeXMgPSBkZXYtPmlucHV0X3BoeXM7CisgCWRldi0+aW5wdXRfZGV2LT5uYW1lID0gZGV2
+LT5pbnB1dF9uYW1lOworCisrCXJjID0gaW5wdXRfcmVnaXN0ZXJfZGV2aWNlKGRldi0+aW5wdXRf
+ZGV2KTsKKysJaWYgKHJjKQorKwkJZ290byBvdXRfdGFibGU7CisrCisgCS8qCisgCSAqIERlZmF1
+bHQgZGVsYXkgb2YgMjUwbXMgaXMgdG9vIHNob3J0IGZvciBzb21lIHByb3RvY29scywgZXNwZWNp
+YWxseQorIAkgKiBzaW5jZSB0aGUgdGltZW91dCBpcyBjdXJyZW50bHkgc2V0IHRvIDI1MG1zLiBJ
+bmNyZWFzZSBpdCB0byA1MDBtcywKK0BAIC0xNDc1LDExICsxNDc5LDYgQEAgaW50IHJjX3JlZ2lz
+dGVyX2RldmljZShzdHJ1Y3QgcmNfZGV2ICpkZXYpCisgCSAqLworIAlkZXYtPmlucHV0X2Rldi0+
+cmVwW1JFUF9QRVJJT0RdID0gMTI1OworCistCS8qIHJjX29wZW4gd2lsbCBiZSBjYWxsZWQgaGVy
+ZSAqLworLQlyYyA9IGlucHV0X3JlZ2lzdGVyX2RldmljZShkZXYtPmlucHV0X2Rldik7CistCWlm
+IChyYykKKy0JCWdvdG8gb3V0X3RhYmxlOworLQorIAlwYXRoID0ga29iamVjdF9nZXRfcGF0aCgm
+ZGV2LT5kZXYua29iaiwgR0ZQX0tFUk5FTCk7CisgCWRldl9pbmZvKCZkZXYtPmRldiwgIiVzIGFz
+ICVzXG4iLAorIAkJZGV2LT5pbnB1dF9uYW1lID86ICJVbnNwZWNpZmllZCBkZXZpY2UiLCBwYXRo
+ID86ICJOL0EiKTsKKy0tCisyLjkuMAorCi0tIAoyLjUuNQoK
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

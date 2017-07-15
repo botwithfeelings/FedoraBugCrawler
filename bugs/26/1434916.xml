@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1434916</bug_id>
+          
+          <creation_ts>2017-03-22 11:12:00 -0400</creation_ts>
+          <short_desc>httpd.service: Failed with result timeout</short_desc>
+          <delta_ts>2017-04-01 13:33:18 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>httpd</component>
+          <version>26</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>high</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Morten Stevens">mstevens</reporter>
+          <assigned_to name="Luboš Uhliarik">luhliari</assigned_to>
+          <cc>atu</cc>
+    
+    
+    <cc>jkaluza</cc>
+    
+    
+    <cc>jorton</cc>
+    
+    
+    <cc>luhliari</cc>
+    
+    
+    <cc>mstevens</cc>
+    
+    
+    <cc>pahan</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>httpd-2.4.25-5.fc26</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-04-01 13:33:18</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10265440</commentid>
+    <comment_count>0</comment_count>
+    <who name="Morten Stevens">mstevens</who>
+    <bug_when>2017-03-22 11:12:55 -0400</bug_when>
+    <thetext>Description of problem:
+
+httpd.service: Failed with result timeout
+httpd.service: Unit entered failed state.
+
+Version-Release number of selected component (if applicable):
+
+httpd-2.4.25-4.fc26.x86_64
+
+How reproducible:
+
+Steps to Reproduce:
+1. Install fedora rawhide (clean install)
+2. dnf install httpd
+3. systemctl start httpd
+4. systemctl stop httpd
+
+Actual results:
+
+Mar 22 16:07:53 fc26 systemd: Stopping The Apache HTTP Server...
+Mar 22 16:09:23 fc26 systemd: httpd.service: State &apos;stop-sigterm&apos; timed out. Killing.
+Mar 22 16:09:23 fc26 systemd: httpd.service: Killing process 2818 (httpd) with signal SIGKILL.
+Mar 22 16:09:23 fc26 systemd: httpd.service: Killing process 2819 (httpd) with signal SIGKILL.
+Mar 22 16:09:23 fc26 systemd: httpd.service: Killing process 2820 (httpd) with signal SIGKILL.
+Mar 22 16:09:23 fc26 systemd: httpd.service: Killing process 2821 (httpd) with signal SIGKILL.
+Mar 22 16:09:23 fc26 systemd: httpd.service: Killing process 2822 (httpd) with signal SIGKILL.
+Mar 22 16:09:23 fc26 systemd: httpd.service: Killing process 2823 (httpd) with signal SIGKILL.
+Mar 22 16:09:23 fc26 systemd: httpd.service: Main process exited, code=killed, status=9/KILL
+Mar 22 16:09:23 fc26 systemd: httpd.service: Killing process 2822 (httpd) with signal SIGKILL.
+Mar 22 16:09:23 fc26 systemd: Stopped The Apache HTTP Server.
+Mar 22 16:09:23 fc26 systemd: httpd.service: Unit entered failed state.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10277452</commentid>
+    <comment_count>1</comment_count>
+    <who name="Anton Guda">atu</who>
+    <bug_when>2017-03-26 09:02:31 -0400</bug_when>
+    <thetext>It seems to me a deadlock in apr part, and especially for inner &quot;OPTIONS&quot; request. 3-4 previous httpd rpm build suffer from it.
+
+(gdb) bt
+#0  0x00007f03be3c7471 in pthread_cond_destroy@@GLIBC_2.3.2 () from target:/lib64/libpthread.so.0
+#1  0x00007f03be5f4f6e in run_cleanups (cref=&lt;optimized out&gt;) at memory/unix/apr_pools.c:2352
+#2  apr_pool_destroy (pool=0x55a87e09d838) at memory/unix/apr_pools.c:814
+#3  0x00007f03be5f4f4d in apr_pool_destroy (pool=0x55a87e099798) at memory/unix/apr_pools.c:811
+#4  0x00007f03b3008fbc in clean_child_exit (code=code@entry=0) at prefork.c:230
+#5  0x00007f03b30094a2 in child_main (child_num_arg=child_num_arg@entry=6, child_bucket=child_bucket@entry=0) at prefork.c:
+#6  0x00007f03b3009883 in make_child (s=0x55a87db08400, slot=6, bucket=0) at prefork.c:834
+#7  0x00007f03b300a50d in perform_idle_server_maintenance (p=&lt;optimized out&gt;) at prefork.c:942
+#8  prefork_run (_pconf=&lt;optimized out&gt;, plog=&lt;optimized out&gt;, s=&lt;optimized out&gt;) at prefork.c:1138
+#9  0x000055a87bc0861e in ap_run_mpm (pconf=0x55a87dae1168, plog=0x55a87db0e388, s=0x55a87db08400) at mpm_common.c:94
+#10 0x000055a87bc00dbd in main (argc=&lt;optimized out&gt;, argv=&lt;optimized out&gt;) at main.c:783
+
+(gdb) frame 2
+#2  apr_pool_destroy (pool=0x55a87e09d838) at memory/unix/apr_pools.c:814
+814         run_cleanups(&amp;pool-&gt;cleanups);
+(gdb) p pool
+$1 = (apr_pool_t *) 0x55a87e09d838
+(gdb) p pool-&gt;cleanups
+$2 = (cleanup_t *) 0x55a87e09d9d8</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10277720</commentid>
+    <comment_count>2</comment_count>
+    <who name="Morten Stevens">mstevens</who>
+    <bug_when>2017-03-26 20:23:33 -0400</bug_when>
+    <thetext>Fedora 26 is also affected. Changed it to F26.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10278379</commentid>
+    <comment_count>3</comment_count>
+    <who name="Joe Orton">jorton</who>
+    <bug_when>2017-03-27 04:45:21 -0400</bug_when>
+    <thetext>What modules do you have installed?   rpm -qf /etc/httpd/conf*.d/*</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10278818</commentid>
+    <comment_count>4</comment_count>
+    <who name="Morten Stevens">mstevens</who>
+    <bug_when>2017-03-27 07:56:06 -0400</bug_when>
+    <thetext>(In reply to Joe Orton from comment #3)
+&gt; What modules do you have installed?   rpm -qf /etc/httpd/conf*.d/*
+
+httpd-2.4.25-5.fc27.x86_64
+cacti-1.1.0-1.fc27.noarch
+php-7.1.3-3.fc27.x86_64
+phpMyAdmin-4.6.6-2.fc26.noarch
+httpd-filesystem-2.4.25-5.fc27.noarch
+mod_ssl-2.4.25-5.fc27.x86_64
+httpd-2.4.25-5.fc27.x86_64
+httpd-2.4.25-5.fc27.x86_64
+httpd-2.4.25-5.fc27.x86_64
+httpd-2.4.25-5.fc27.x86_64
+httpd-2.4.25-5.fc27.x86_64
+httpd-2.4.25-5.fc27.x86_64
+httpd-2.4.25-5.fc27.x86_64
+httpd-2.4.25-5.fc27.x86_64
+mod_ssl-2.4.25-5.fc27.x86_64
+httpd-2.4.25-5.fc27.x86_64
+httpd-2.4.25-5.fc27.x86_64
+php-7.1.3-3.fc27.x86_64
+httpd-2.4.25-5.fc27.x86_64</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10279965</commentid>
+    <comment_count>6</comment_count>
+    <who name="Joe Orton">jorton</who>
+    <bug_when>2017-03-27 12:05:49 -0400</bug_when>
+    <thetext>I think it&apos;s mod_http2.
+
+To workaround disable mod_http2, e.g.:
+
+sed -i &apos;/http2/s,\(.*\),#\1,&apos; /etc/httpd/conf.modules.d/00-base.conf</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10280114</commentid>
+    <comment_count>8</comment_count>
+    <who name="Joe Orton">jorton</who>
+    <bug_when>2017-03-27 12:37:54 -0400</bug_when>
+    <thetext>Lubos I wonder if it&apos;s one of the mod_http2 changes in 2.4.x upstream since 2.4.25
+
+  *) mod_http2: moving session cleanup to pre_close hook to avoid races with
+     modules already shut down and slave connections still operating.
+     [Stefan Eissing]
+
+or
+
+  *) mod_http2: regression fix on PR 59348, on graceful restart, ongoing 
+     streams are finished normally before the final GOAWAY is sent. 
+     [Stefan Eissing, &lt;slavko gmail.com&gt;]
+
+^ ... this is like a graceful restart, we use &quot;graceful stop.&quot;</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10280747</commentid>
+    <comment_count>9</comment_count>
+    <who name="Morten Stevens">mstevens</who>
+    <bug_when>2017-03-27 15:11:50 -0400</bug_when>
+    <thetext>(In reply to Joe Orton from comment #6)
+&gt; I think it&apos;s mod_http2.
+&gt; 
+&gt; To workaround disable mod_http2, e.g.:
+&gt; 
+&gt; sed -i &apos;/http2/s,\(.*\),#\1,&apos; /etc/httpd/conf.modules.d/00-base.conf
+
+Yeah, this is it. After disabling mod_http2 it works fine to stop and restart httpd.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10282796</commentid>
+    <comment_count>11</comment_count>
+    <who name="Luboš Uhliarik">luhliari</who>
+    <bug_when>2017-03-28 07:12:12 -0400</bug_when>
+    <thetext>I can confirm, patch [1] fixes the issue. I will commit it to rawhide and F26 ASAP + add it to Bodhi.
+
+[1] https://svn.apache.org/viewvc?view=revision&amp;revision=1787141</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10283270</commentid>
+    <comment_count>12</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-28 09:06:30 -0400</bug_when>
+    <thetext>httpd-2.4.25-5.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-9e69f156ea</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10284471</commentid>
+    <comment_count>13</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-28 13:54:43 -0400</bug_when>
+    <thetext>httpd-2.4.25-5.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-9e69f156ea</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10296945</commentid>
+    <comment_count>14</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-01 13:33:18 -0400</bug_when>
+    <thetext>httpd-2.4.25-5.fc26 has been pushed to the Fedora 26 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1380615</bug_id>
+          
+          <creation_ts>2016-09-30 03:19:00 -0400</creation_ts>
+          <short_desc>Coolkey cards do not work in Fedora</short_desc>
+          <delta_ts>2017-01-13 22:51:13 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>pcsc-lite-ccid</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>1373164</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Jakub Jelen">jjelen</reporter>
+          <assigned_to name="Bob Relyea">rrelyea</assigned_to>
+          <cc>klember</cc>
+    
+    
+    <cc>ludovic.rousseau</cc>
+    
+    
+    <cc>nmavrogi</cc>
+    
+    
+    <cc>rrelyea</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>pcsc-lite-ccid-1.4.26-1.fc25</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-01-13 22:51:13</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9756242</commentid>
+    <comment_count>0</comment_count>
+    <who name="Jakub Jelen">jjelen</who>
+    <bug_when>2016-09-30 03:19:39 -0400</bug_when>
+    <thetext>Description of problem:
+The Coolkey cards are detected in the RHEL, but not in Fedora. It is caused by different voltages, that are not tried somehow, if I understand it well.
+
+Version-Release number of selected component (if applicable):
+pcsc-lite-ccid-1.4.23-1.fc24.x86_64
+
+How reproducible:
+deterministic
+
+Steps to Reproduce:
+1. Insert a Coolkey card in the card reader (OMNIKEY AG CardMan 3121)
+2. Run pcsc_scan
+
+Actual results:
+The slot reports &quot;Unresponsive card&quot;
+
+Expected results:
+Card should get recognized properly &quot;by default&quot; and should be readable using coolkey pkcs11 driver.
+
+Additional info:
+The behavior can be worked around by modification of the file
+
+    /usr/lib64/pcsc/drivers/ifd-ccid.bundle/Contents/Info.plist
+
+by changing 0x0000 in the snippet below to the 0x0020
+
+        &lt;key&gt;ifdDriverOptions&lt;/key&gt;
+        &lt;string&gt;0x0020&lt;/string&gt;
+
+and restart pcscd (systemctl restart pcscd)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9756297</commentid>
+    <comment_count>1</comment_count>
+    <who name="Ludovic Rousseau">ludovic.rousseau</who>
+    <bug_when>2016-09-30 03:42:48 -0400</bug_when>
+    <thetext>I am surprised. I have not changed the voltage selection code since a long time.
+
+Can you generate a pcscd trace as described in https://pcsclite.alioth.debian.org/ccid.html#support for both the working RHEL and the non working Fedora?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9756446</commentid>
+    <comment_count>4</comment_count>
+    <who name="Jakub Jelen">jjelen</who>
+    <bug_when>2016-09-30 04:48:32 -0400</bug_when>
+    <thetext>Lodivic, this is not caused by any change in pcsc-lite-ccid. The reason why it works in RHEL is caused our patch applied there (and for some reason not upstream).
+
+From the working log we can see that this card answers to 3V:
+
+00000010 commands.c:244:CmdPowerOn Card absent or mute
+00000003 commands.c:273:CmdPowerOn() Power up with 1.8V failed. Try with 3V.
+[...]
+00000018 eventhandler.c:403:EHStatusHandlerThread() powerState: POWER_STATE_POWERED
+
+Similar log with the failed run without the above modification of the Info.plist:
+
+00000014 commands.c:244:CmdPowerOn Card absent or mute
+00000003 ifdhandler.c:1210:IFDHPowerICC() PowerUp failed
+
+I don&apos;t have physical RHEL7 so I am not sure how the log looks in RHEL7. But the related patch was added as a result of the bug #1033788 and can be found (for example) in the CentOS 7 sources:
+https://git.centos.org/blob/rpms!pcsc-lite-ccid/3dd85f55c8aacfa0704849e7b6cf46d4970b747b/SOURCES!ccid-1.4.10-voltage.patch
+
+Not sure if this is upstream-wise or the voltage would be better changed in the XML. Bob will be able to refer more I guess.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9757283</commentid>
+    <comment_count>5</comment_count>
+    <who name="Ludovic Rousseau">ludovic.rousseau</who>
+    <bug_when>2016-09-30 08:46:40 -0400</bug_when>
+    <thetext>If you need to patch the CCID driver you may just change a line in src/ifdhandler.c:
+
+--- /var/folders/sg/t7kts8_n6j13n11r6_tgr36r0000gn/T//x9Zq69_ifdhandler.c   2016-09-30 14:25:39.000000000 +0200
++++ src/ifdhandler.c    2016-09-30 14:25:27.000000000 +0200
+@@ -65,7 +65,7 @@ static pthread_mutex_t ifdh_context_mute
+ 
+ int LogLevel = DEBUG_LEVEL_CRITICAL | DEBUG_LEVEL_INFO;
+ int DriverOptions = 0;
+-int PowerOnVoltage = VOLTAGE_5V;
++int PowerOnVoltage = VOLTAGE_1_8V;
+ static int DebugInitialized = FALSE;
+ 
+ /* local functions */
+
+Note that the driver patch is NOT equivalent to changing the Info.plist file.
+The order of the different voltages is not the same.
+
+
+Jakub, can you post the ATR of the Coolkey card please? You can use pcsc_scan to get it.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9757455</commentid>
+    <comment_count>6</comment_count>
+    <who name="Jakub Jelen">jjelen</who>
+    <bug_when>2016-09-30 09:35:58 -0400</bug_when>
+    <thetext>Yes. The above was workaround as explicitly mentioned in the description of the bug.
+
+The result of the scan looks like this (the card is not in your database):
+
+Fri Sep 30 15:34:33 2016
+Reader 0: OMNIKEY AG CardMan 3121 00 00
+  Card state: Card inserted, 
+  ATR: 3B FF 14 00 FF 81 31 FE 45 80 25 A0 00 00 00 56 57 53 43 36 35 30 03 03 38
+
+ATR: 3B FF 14 00 FF 81 31 FE 45 80 25 A0 00 00 00 56 57 53 43 36 35 30 03 03 38
++ TS = 3B --&gt; Direct Convention
++ T0 = FF, Y(1): 1111, K: 15 (historical bytes)
+  TA(1) = 14 --&gt; Fi=372, Di=8, 46.5 cycles/ETU
+    86021 bits/s at 4 MHz, fMax for Fi = 5 MHz =&gt; 107526 bits/s
+  TB(1) = 00 --&gt; VPP is not electrically connected
+  TC(1) = FF --&gt; Extra guard time: 255 (special value)
+  TD(1) = 81 --&gt; Y(i+1) = 1000, Protocol T = 1 
+-----
+  TD(2) = 31 --&gt; Y(i+1) = 0011, Protocol T = 1 
+-----
+  TA(3) = FE --&gt; IFSC: 254
+  TB(3) = 45 --&gt; Block Waiting Integer: 4 - Character Waiting Integer: 5
++ Historical bytes: 80 25 A0 00 00 00 56 57 53 43 36 35 30 03 03
+  Category indicator byte: 80 (compact TLV data object)
+    Tag: 2, len: 5 (issuer identification number, ISO 7812-1)
+      Issuer identification number: A0 00 00 00 56
+    Tag: 5, len: 7 (card issuer&apos;s data)
+      Card issuer data: 53 43 36 35 30 03 03
++ TCK = 38 (correct checksum)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9757778</commentid>
+    <comment_count>7</comment_count>
+    <who name="Ludovic Rousseau">ludovic.rousseau</who>
+    <bug_when>2016-09-30 10:55:41 -0400</bug_when>
+    <thetext>Thanks Jakub. I was expecting a Class indication (to indicate supported voltage) in TA(i) (i&gt;2). But that is not the case :-(
+
+You can submit your card using https://smartcard-atr.appspot.com/parse?ATR=3BFF1400FF8131FE458025A000000056575343363530030338</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9761229</commentid>
+    <comment_count>8</comment_count>
+    <who name="Nikos Mavrogiannopoulos">nmavrogi</who>
+    <bug_when>2016-10-03 09:39:32 -0400</bug_when>
+    <thetext>(In reply to Ludovic Rousseau from comment #5)
+&gt; If you need to patch the CCID driver you may just change a line in
+&gt; src/ifdhandler.c:
+&gt; 
+&gt; --- /var/folders/sg/t7kts8_n6j13n11r6_tgr36r0000gn/T//x9Zq69_ifdhandler.c  
+&gt; 2016-09-30 14:25:39.000000000 +0200
+&gt; +++ src/ifdhandler.c    2016-09-30 14:25:27.000000000 +0200
+&gt; @@ -65,7 +65,7 @@ static pthread_mutex_t ifdh_context_mute
+&gt;  
+&gt;  int LogLevel = DEBUG_LEVEL_CRITICAL | DEBUG_LEVEL_INFO;
+&gt;  int DriverOptions = 0;
+&gt; -int PowerOnVoltage = VOLTAGE_5V;
+&gt; +int PowerOnVoltage = VOLTAGE_1_8V;
+&gt;  static int DebugInitialized = FALSE;
+
+Ludo was there a reason in not having it upstream?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9761393</commentid>
+    <comment_count>9</comment_count>
+    <who name="Jakub Jelen">jjelen</who>
+    <bug_when>2016-10-03 10:15:17 -0400</bug_when>
+    <thetext>(In reply to Nikos Mavrogiannopoulos from comment #8)
+&gt; Ludo was there a reason in not having it upstream?
+
+AFAIK, it was the thing what Bob was trying to point out, that having it this way (or through the config) would slow down the card recognition for most of the cards (trying the lower voltages first, when most of our cards need 5V).
+
+What was Bob trying to achieve was to try the 5V first and the lower later to remove the timeout penalty.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9761810</commentid>
+    <comment_count>10</comment_count>
+    <who name="Ludovic Rousseau">ludovic.rousseau</who>
+    <bug_when>2016-10-03 12:09:39 -0400</bug_when>
+    <thetext>(In reply to Nikos Mavrogiannopoulos from comment #8)
+&gt; (In reply to Ludovic Rousseau from comment #5)
+&gt; &gt; If you need to patch the CCID driver you may just change a line in
+&gt; &gt; src/ifdhandler.c:
+&gt; &gt; 
+&gt; &gt; --- /var/folders/sg/t7kts8_n6j13n11r6_tgr36r0000gn/T//x9Zq69_ifdhandler.c  
+&gt; &gt; 2016-09-30 14:25:39.000000000 +0200
+&gt; &gt; +++ src/ifdhandler.c    2016-09-30 14:25:27.000000000 +0200
+&gt; &gt; @@ -65,7 +65,7 @@ static pthread_mutex_t ifdh_context_mute
+&gt; &gt;  
+&gt; &gt;  int LogLevel = DEBUG_LEVEL_CRITICAL | DEBUG_LEVEL_INFO;
+&gt; &gt;  int DriverOptions = 0;
+&gt; &gt; -int PowerOnVoltage = VOLTAGE_5V;
+&gt; &gt; +int PowerOnVoltage = VOLTAGE_1_8V;
+&gt; &gt;  static int DebugInitialized = FALSE;
+&gt; 
+&gt; Ludo was there a reason in not having it upstream?
+
+This bug report made me think again about the problem.
+After some documentation reading (ISO 7816-3 and CCID) I pushed my proposed change upstream.
+https://alioth.debian.org/plugins/scmgit/cgi-bin/gitweb.cgi?p=pcsclite/CCID.git;a=commitdiff;h=ea7bedd2b3d30a884f43544c44f87ef779f011ef
+
+The performance penalty is a good remark. I have not made time measurement. Jakub, do you have numbers so we can compare the 1.8V -&gt; 3V -&gt; 5V strategy that is now implemented upstream and the 5V -&gt; 1.8V -&gt; 3V implemented in the RedHat patch?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9763843</commentid>
+    <comment_count>11</comment_count>
+    <who name="Jakub Jelen">jjelen</who>
+    <bug_when>2016-10-04 03:44:42 -0400</bug_when>
+    <thetext>Thanks.
+I don&apos;t have the numbers and I did not notice the speed difference on my laptop with PIV cards when I was changing the configuration in the Info.plist. But it might have been more significant years ago, when the patch was written (for RHEL6). Still, Bob can bring some more light into the case and made my assumptions more clear.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9765507</commentid>
+    <comment_count>12</comment_count>
+    <who name="Ludovic Rousseau">ludovic.rousseau</who>
+    <bug_when>2016-10-04 12:46:46 -0400</bug_when>
+    <thetext>I made some tests. The speed difference may depend on the reader you use. In my case I get a x1.96 slowdown in the worst case (from 110 ms to 216 ms). An delay of 100 ms is not really noticeable at the human level. And that was the worst case with all the smart cards in my test.
+
+My proposal to change src/ifdhandler.c is bogus and does not work.
+I used the RedHat patch with some minor changes.
+
+See https://alioth.debian.org/plugins/scmgit/cgi-bin/gitweb.cgi?p=pcsclite/CCID.git;a=commitdiff;h=df1173ee2f33ca0cf79090e4eb817b24a15c2d00</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9809902</commentid>
+    <comment_count>13</comment_count>
+    <who name="Bob Relyea">rrelyea</who>
+    <bug_when>2016-10-20 21:25:16 -0400</bug_when>
+    <thetext>I implemented the Redhat patch because it was for RHEL and I didn&apos;t want to risk breaking customers of 5V cards. I think Ludovic&apos;s fix is probably the preferable fix. I expect low voltage cards to be come increasingly more common now that most readers and software support them.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9809908</commentid>
+    <comment_count>14</comment_count>
+    <who name="Bob Relyea">rrelyea</who>
+    <bug_when>2016-10-20 21:26:40 -0400</bug_when>
+    <thetext>In any case we should follow whatever Ludovic implements upstream in fedora.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10042624</commentid>
+    <comment_count>15</comment_count>
+    <who name="Ludovic Rousseau">ludovic.rousseau</who>
+    <bug_when>2017-01-07 13:21:46 -0500</bug_when>
+    <thetext>The fix is now included in CCID 1.4.26
+https://ludovicrousseau.blogspot.fr/2017/01/new-version-of-libccid-1426.html</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10044994</commentid>
+    <comment_count>16</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-09 07:09:32 -0500</bug_when>
+    <thetext>pcsc-lite-ccid-1.4.26-1.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-bf5c27db38</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10047704</commentid>
+    <comment_count>17</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-09 22:27:37 -0500</bug_when>
+    <thetext>pcsc-lite-ccid-1.4.26-1.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-bf5c27db38</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10063140</commentid>
+    <comment_count>18</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-13 22:51:13 -0500</bug_when>
+    <thetext>pcsc-lite-ccid-1.4.26-1.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

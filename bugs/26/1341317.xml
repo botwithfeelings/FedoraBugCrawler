@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1341317</bug_id>
+          
+          <creation_ts>2016-05-31 15:41:00 -0400</creation_ts>
+          <short_desc>SELinux causes Xen startup failures; Xen utilities to hang when writing to xenbus</short_desc>
+          <delta_ts>2017-06-12 09:44:43 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>selinux-policy-targeted</component>
+          <version>26</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>CURRENTRELEASE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>high</priority>
+          <bug_severity>high</bug_severity>
+          <target_milestone>---</target_milestone>
+          <dependson>1322625</dependson>
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="W. Michael Petullo">mike</reporter>
+          <assigned_to name="Miroslav Grepl">mgrepl</assigned_to>
+          <cc>dwalsh</cc>
+    
+    
+    <cc>ketuzsezr</cc>
+    
+    
+    <cc>lantw44</cc>
+    
+    
+    <cc>lvrabec</cc>
+    
+    
+    <cc>m.a.young</cc>
+    
+    
+    <cc>mike</cc>
+    
+    
+    <cc>robinlee.sysu</cc>
+    
+    
+    <cc>virt-maint</cc>
+          <qa_contact name="Ben Levenson">benl</qa_contact>
+          
+          <cf_fixed_in>selinux-policy-3.13.1-257.fc26</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-06-12 09:44:43</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9374005</commentid>
+    <comment_count>0</comment_count>
+    <who name="W. Michael Petullo">mike</who>
+    <bug_when>2016-05-31 15:41:02 -0400</bug_when>
+    <thetext>Description of problem:
+A number of xen utilities, including &quot;xl list&quot; and xentop, hang on Fedora 24 with Xen 4.6.1.
+
+Version-Release number of selected component (if applicable):
+xen-4.6.1-10.fc24.x86_64
+xen-runtime-4.6.1-10.fc24.x86_64
+kernel-4.5.5-300.fc24.x86_64
+
+How reproducible:
+Everytime
+
+Steps to Reproduce:
+1. Boot Fedora 24 as Xen Dom0
+2. Run &quot;xl list&quot; or xentop
+
+Actual results:
+Both commands hang before providing any useful output.
+
+Additional info:
+Running &quot;xl list&quot; in strace provides the following. This seems to indicate that the hang occurs when the utility writes to /dev/xen/xenbus.
+
+access(&quot;/dev/xen/xenbus&quot;, F_OK)         = 0
+stat(&quot;/dev/xen/xenbus&quot;, {st_mode=S_IFCHR|0600, st_rdev=makedev(10, 62), ...}) = 0
+open(&quot;/dev/xen/xenbus&quot;, O_RDWR)         = 6
+open(&quot;/etc/xen/xl.conf&quot;, O_RDONLY)      = 7
+fstat(7, {st_mode=S_IFREG|0644, st_size=33, ...}) = 0
+fstat(7, {st_mode=S_IFREG|0644, st_size=33, ...}) = 0
+read(7, &quot;vif.default.script = \&quot;vif-ethos\&quot;&quot;..., 4096) = 33
+close(7)                                = 0
+ioctl(5, _IOC(0, 0x50, 0x00, 0x30), 0x7ffdafc79e90) = 262150
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_LOCKED, -1, 0) = 0x7fef0d788000
+madvise(0x7fef0d788000, 4096, MADV_DONTFORK) = 0
+ioctl(5, _IOC(0, 0x50, 0x00, 0x30), 0x7ffdafc79e90) = 0
+ioctl(5, _IOC(0, 0x50, 0x00, 0x30), 0x7ffdafc79e90) = 0
+ioctl(5, _IOC(0, 0x50, 0x00, 0x30), 0x7ffdafc79e90) = 0
+ioctl(5, _IOC(0, 0x50, 0x00, 0x30), 0x7ffdafc79e90) = 0
+ioctl(5, _IOC(0, 0x50, 0x00, 0x30), 0x7ffdafc79e90) = 0
+ioctl(5, _IOC(0, 0x50, 0x00, 0x30), 0x7ffdafc79e90) = 4096
+ioctl(5, _IOC(0, 0x50, 0x00, 0x30), 0x7ffdafc79e90) = 0
+mmap(NULL, 102400, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_LOCKED, -1, 0) = 0x7fef0d76f000
+madvise(0x7fef0d76f000, 102400, MADV_DONTFORK) = 0
+ioctl(5, _IOC(0, 0x50, 0x00, 0x30), 0x7ffdafc61c70) = 0
+madvise(0x7fef0d76f000, 102400, MADV_DOFORK) = 0
+munmap(0x7fef0d76f000, 102400)          = 0
+mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_LOCKED, -1, 0) = 0x7fef0d786000
+madvise(0x7fef0d786000, 8192, MADV_DONTFORK) = 0
+ioctl(5, _IOC(0, 0x50, 0x00, 0x30), 0x7ffdafc60c70) = 0
+madvise(0x7fef0d786000, 8192, MADV_DOFORK) = 0
+munmap(0x7fef0d786000, 8192)            = 0
+fstat(1, {st_mode=S_IFCHR|0620, st_rdev=makedev(136, 4), ...}) = 0
+write(1, &quot;Name                            &quot;..., 73Name                                        ID   Mem VCPUs	State	Time(s)
+) = 73
+rt_sigaction(SIGPIPE, {SIG_IGN, [], SA_RESTORER, 0x7fef0ca7cc10}, {SIG_DFL, [], 0}, 8) = 0
+write(6, &quot;\2\0\0\0\0\0\0\0\0\0\0\0\25\0\0\0&quot;, 16) = 16
+write(6, &quot;/local/domain/0/name\0&quot;, 21</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9374396</commentid>
+    <comment_count>1</comment_count>
+    <who name="W. Michael Petullo">mike</who>
+    <bug_when>2016-05-31 18:32:25 -0400</bug_when>
+    <thetext>Seems SELinux related. More to follow.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9377323</commentid>
+    <comment_count>2</comment_count>
+    <who name="W. Michael Petullo">mike</who>
+    <bug_when>2016-06-01 09:39:48 -0400</bug_when>
+    <thetext>Xen will begin to function properly with:
+
+setenforce 0
+systemctl restart systemd-modules-load
+systemctl start xenstored
+systemctl restart xenconsoled
+setenforce 1
+
+When I run these commands with dontaudit off, I get:
+
+type=MAC_STATUS msg=audit(1464788327.257:1644): enforcing=0 old_enforcing=1 auid=4294967295 ses=4294967295
+type=USER_AVC msg=audit(1464788327.257:1645): pid=928 uid=81 auid=4294967295 ses=4294967295 subj=system_u:system_r:system_dbusd_t:s0-s0:c0.c1023 msg=&apos;avc:  received setenforce notice (enforcing=0)  exe=&quot;/usr/bin/dbus-daemon&quot; sauid=81 hostname=? addr=? terminal=?&apos;
+type=USER_AVC msg=audit(1464788332.323:1646): pid=1 uid=0 auid=4294967295 ses=4294967295 subj=system_u:system_r:init_t:s0 msg=&apos;avc:  received setenforce notice (enforcing=1)  exe=&quot;/usr/lib/systemd/systemd&quot; sauid=0 hostname=? addr=? terminal=?&apos;
+type=USER_AVC msg=audit(1464788332.323:1647): pid=1 uid=0 auid=4294967295 ses=4294967295 subj=system_u:system_r:init_t:s0 msg=&apos;avc:  received setenforce notice (enforcing=0)  exe=&quot;/usr/lib/systemd/systemd&quot; sauid=0 hostname=? addr=? terminal=?&apos;
+type=SERVICE_STOP msg=audit(1464788332.324:1648): pid=1 uid=0 auid=4294967295 ses=4294967295 subj=system_u:system_r:init_t:s0 msg=&apos;unit=systemd-modules-load comm=&quot;systemd&quot; exe=&quot;/usr/lib/systemd/systemd&quot; hostname=? addr=? terminal=? res=success&apos;
+type=AVC msg=audit(1464788332.341:1649): avc:  denied  { read write } for  pid=1 comm=&quot;systemd&quot; path=&quot;socket:[54377]&quot; dev=&quot;sockfs&quot; ino=54377 scontext=system_u:system_r:init_t:s0 tcontext=system_u:system_r:kernel_t:s0 tclass=unix_stream_socket permissive=1
+type=SERVICE_START msg=audit(1464788332.345:1650): pid=1 uid=0 auid=4294967295 ses=4294967295 subj=system_u:system_r:init_t:s0 msg=&apos;unit=systemd-modules-load comm=&quot;systemd&quot; exe=&quot;/usr/lib/systemd/systemd&quot; hostname=? addr=? terminal=? res=success&apos;
+type=AVC msg=audit(1464788342.735:1651): avc:  denied  { rlimitinh } for  pid=3449 comm=&quot;grep&quot; scontext=system_u:system_r:init_t:s0 tcontext=system_u:system_r:unconfined_service_t:s0 tclass=process permissive=1
+type=AVC msg=audit(1464788342.735:1652): avc:  denied  { siginh } for  pid=3449 comm=&quot;grep&quot; scontext=system_u:system_r:init_t:s0 tcontext=system_u:system_r:unconfined_service_t:s0 tclass=process permissive=1
+type=AVC msg=audit(1464788342.735:1653): avc:  denied  { noatsecure } for  pid=3449 comm=&quot;grep&quot; scontext=system_u:system_r:init_t:s0 tcontext=system_u:system_r:unconfined_service_t:s0 tclass=process permissive=1
+type=AVC msg=audit(1464788342.751:1654): avc:  denied  { rlimitinh } for  pid=3461 comm=&quot;xenstored&quot; scontext=system_u:system_r:init_t:s0 tcontext=system_u:system_r:xenstored_t:s0 tclass=process permissive=1
+type=AVC msg=audit(1464788342.751:1655): avc:  denied  { noatsecure } for  pid=3461 comm=&quot;xenstored&quot; scontext=system_u:system_r:init_t:s0 tcontext=system_u:system_r:xenstored_t:s0 tclass=process permissive=1
+type=AVC msg=audit(1464788342.781:1656): avc:  denied  { net_admin } for  pid=3461 comm=&quot;xenstored&quot; capability=12  scontext=system_u:system_r:xenstored_t:s0 tcontext=system_u:system_r:xenstored_t:s0 tclass=capability permissive=1
+type=SERVICE_START msg=audit(1464788342.815:1657): pid=1 uid=0 auid=4294967295 ses=4294967295 subj=system_u:system_r:init_t:s0 msg=&apos;unit=xenstored comm=&quot;systemd&quot; exe=&quot;/usr/lib/systemd/systemd&quot; hostname=? addr=? terminal=? res=success&apos;
+type=SERVICE_STOP msg=audit(1464788350.109:1658): pid=1 uid=0 auid=4294967295 ses=4294967295 subj=system_u:system_r:init_t:s0 msg=&apos;unit=xenconsoled comm=&quot;systemd&quot; exe=&quot;/usr/lib/systemd/systemd&quot; hostname=? addr=? terminal=? res=success&apos;
+type=SERVICE_START msg=audit(1464788350.135:1659): pid=1 uid=0 auid=4294967295 ses=4294967295 subj=system_u:system_r:init_t:s0 msg=&apos;unit=xenconsoled comm=&quot;systemd&quot; exe=&quot;/usr/lib/systemd/systemd&quot; hostname=? addr=? terminal=? res=success&apos;
+type=AVC msg=audit(1464788350.137:1660): avc:  denied  { rlimitinh } for  pid=3480 comm=&quot;xenconsoled&quot; scontext=system_u:system_r:init_t:s0 tcontext=system_u:system_r:xenconsoled_t:s0 tclass=process permissive=1
+type=AVC msg=audit(1464788350.137:1661): avc:  denied  { noatsecure } for  pid=3480 comm=&quot;xenconsoled&quot; scontext=system_u:system_r:init_t:s0 tcontext=system_u:system_r:xenconsoled_t:s0 tclass=process permissive=1
+type=AVC msg=audit(1464788350.139:1662): avc:  denied  { sys_resource } for  pid=3480 comm=&quot;xenconsoled&quot; capability=24  scontext=system_u:system_r:xenconsoled_t:s0 tcontext=system_u:system_r:xenconsoled_t:s0 tclass=capability permissive=1</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9617445</commentid>
+    <comment_count>3</comment_count>
+    <who name="Miroslav Grepl">mgrepl</who>
+    <bug_when>2016-08-16 02:44:46 -0400</bug_when>
+    <thetext>Michael,
+I apologize. I dropped ball on this bug.
+
+Is there a chance you could try to add this local policy
+
+# cat mypol.cil
+(allow xenstored_t xenstored_t (capability (net_admin)))
+
+# semodule -i mypol.cim
+
+and re-test it?
+
+Thank you.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9650364</commentid>
+    <comment_count>4</comment_count>
+    <who name="W. Michael Petullo">mike</who>
+    <bug_when>2016-08-25 19:12:01 -0400</bug_when>
+    <thetext>I am using selinux-policy-3.13.1-191.12.fc24.noarch, and now both the Xen and VirtualBox modules load on boot. It appears that this is fixed on my computer. See also bug #1322625.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10340330</commentid>
+    <comment_count>5</comment_count>
+    <who name="Robin Lee">robinlee.sysu</who>
+    <bug_when>2017-04-18 03:24:21 -0400</bug_when>
+    <thetext>*** Bug 1334511 has been marked as a duplicate of this bug. ***</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10340337</commentid>
+    <comment_count>6</comment_count>
+    <who name="Robin Lee">robinlee.sysu</who>
+    <bug_when>2017-04-18 03:26:26 -0400</bug_when>
+    <thetext>Persist in Fedora 26 Alpha
+# rpm -qa selinux\*
+selinux-policy-targeted-3.13.1-249.fc26.noarch
+selinux-policy-3.13.1-249.fc26.noarch</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10376507</commentid>
+    <comment_count>7</comment_count>
+    <who name="W. Michael Petullo">mike</who>
+    <bug_when>2017-05-01 11:16:40 -0400</bug_when>
+    <thetext>I was mistaken in comment #4. I suspect that my custom policy work remained after I installed the package cited in the comment. This problem does indeed seem to remain.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

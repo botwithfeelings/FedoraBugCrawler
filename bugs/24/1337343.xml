@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1337343</bug_id>
+          
+          <creation_ts>2016-05-18 18:19:00 -0400</creation_ts>
+          <short_desc>Upgrade to Fedora 24 breaks linkchecker</short_desc>
+          <delta_ts>2016-07-28 19:55:13 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>linkchecker</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>1358471</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="W. Michael Petullo">mike</reporter>
+          <assigned_to name="W. Michael Petullo">redhat</assigned_to>
+          <cc>cstratak</cc>
+    
+    
+    <cc>i</cc>
+    
+    
+    <cc>keesdejong+bugs</cc>
+    
+    
+    <cc>redhat</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>linkchecker-9.3-5.fc24</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-07-28 19:55:13</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      <flag name="needinfo"
+          id="2727693"
+          type_id="16"
+          status="?"
+          setter="cstratak"
+          requestee="redhat"
+    />
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9338838</commentid>
+    <comment_count>0</comment_count>
+    <who name="W. Michael Petullo">mike</who>
+    <bug_when>2016-05-18 18:19:02 -0400</bug_when>
+    <thetext>Description of problem:
+I found that linkchecker no longer works after upgrading from Fedora 23 to 24.
+
+Version-Release number of selected component (if applicable):
+linkchecker-9.3-4.fc24.x86_64
+python-2.7.11-4.fc24.x86_64
+
+How reproducible:
+Every time
+
+Steps to Reproduce:
+1. Upgrade to Fedora 24
+2. Run linkchecker
+
+Actual results:
+$ linkchecker 
+This program requires Python requests 2.2.0 or later.
+$ rpm -q python
+python-2.7.11-4.fc24.x86_64</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9345043</commentid>
+    <comment_count>1</comment_count>
+    <who name="W. Michael Petullo">mike</who>
+    <bug_when>2016-05-20 11:06:20 -0400</bug_when>
+    <thetext>I found this in linkchecker&apos;s __init__.py:
+
+import requests
+if requests.__version__ &lt;= &apos;2.2.0&apos;:
+    raise SystemExit(&quot;This program requires Python requests 2.2.0 or later.&quot;)
+
+This lexicographical order check malfunctions on Fedora 24 because of the use of requests 2.10.0.
+
+Another user reported this upstream:
+
+https://github.com/wummel/linkchecker/issues/649</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9522930</commentid>
+    <comment_count>2</comment_count>
+    <who name="Charalampos Stratakis">cstratak</who>
+    <bug_when>2016-07-19 08:34:47 -0400</bug_when>
+    <thetext>Upstream commit where this is fixed:
+
+https://github.com/wummel/linkchecker/commit/c2ce810c3fb00b895a841a7be6b2e78c64e7b042
+
+However a newer version including this fix is not yet released. Maintainer could you backport the patch or use a git snapshot?
+
+This currently breaks builds of python-docs with the same error message.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9523186</commentid>
+    <comment_count>3</comment_count>
+      <attachid>1181632</attachid>
+    <who name="Charalampos Stratakis">cstratak</who>
+    <bug_when>2016-07-19 08:52:55 -0400</bug_when>
+    <thetext>Created attachment 1181632
+python-requests version error fix
+
+Here is a patch for the package sources that fixes the issue.
+
+It would be great if you could fix it in rawhide as well as F24.
+
+Thank you for your time.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9529545</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-19 17:05:42 -0400</bug_when>
+    <thetext>linkchecker-9.3-5.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-7aae6a4b50</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9535246</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-21 00:22:19 -0400</bug_when>
+    <thetext>linkchecker-9.3-5.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-7aae6a4b50</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9535743</commentid>
+    <comment_count>6</comment_count>
+    <who name="Charalampos Stratakis">cstratak</who>
+    <bug_when>2016-07-21 04:23:01 -0400</bug_when>
+    <thetext>*** Bug 1340043 has been marked as a duplicate of this bug. ***</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9565093</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-28 19:55:10 -0400</bug_when>
+    <thetext>linkchecker-9.3-5.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="0"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1181632</attachid>
+            <date>2016-07-19 08:52:00 -0400</date>
+            <delta_ts>2016-07-19 08:52:55 -0400</delta_ts>
+            <desc>python-requests version error fix</desc>
+            <filename>0001-Fix-python-requests-version-error.patch</filename>
+            <type>text/plain</type>
+            <size>3040</size>
+            <attacher name="Charalampos Stratakis">cstratak</attacher>
+            
+              <data encoding="base64">RnJvbSBlZDMwMTkzZTE3ZTc4ODM2MDQyNGI4OWVkM2JkZTI4N2YyMDdlMDI2IE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBDaGFyYWxhbXBvcyBTdHJhdGFraXMgPGNzdHJhdGFrQHJlZGhh
+dC5jb20+CkRhdGU6IFR1ZSwgMTkgSnVsIDIwMTYgMTQ6NTE6MzUgKzAyMDAKU3ViamVjdDogW1BB
+VENIXSBGaXggcHl0aG9uLXJlcXVlc3RzIHZlcnNpb24gZXJyb3IKCi0tLQogZml4LXJlcXVlc3Rz
+LXZlcnNpb24tYnVnLnBhdGNoIHwgMzAgKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrCiBs
+aW5rY2hlY2tlci5zcGVjICAgICAgICAgICAgICAgfCAgOSArKysrKysrKy0KIDIgZmlsZXMgY2hh
+bmdlZCwgMzggaW5zZXJ0aW9ucygrKSwgMSBkZWxldGlvbigtKQogY3JlYXRlIG1vZGUgMTAwNjQ0
+IGZpeC1yZXF1ZXN0cy12ZXJzaW9uLWJ1Zy5wYXRjaAoKZGlmZiAtLWdpdCBhL2ZpeC1yZXF1ZXN0
+cy12ZXJzaW9uLWJ1Zy5wYXRjaCBiL2ZpeC1yZXF1ZXN0cy12ZXJzaW9uLWJ1Zy5wYXRjaApuZXcg
+ZmlsZSBtb2RlIDEwMDY0NAppbmRleCAwMDAwMDAwLi42NTExNTVkCi0tLSAvZGV2L251bGwKKysr
+IGIvZml4LXJlcXVlc3RzLXZlcnNpb24tYnVnLnBhdGNoCkBAIC0wLDAgKzEsMzAgQEAKK0Zyb20g
+MjJkYzNkMGM0OWM5MzQwODY2Y2U5MzBiMmY3ODYxZDI2NzFjYzk2NSBNb24gU2VwIDE3IDAwOjAw
+OjAwIDIwMDEKK0Zyb206IENoYXJhbGFtcG9zIFN0cmF0YWtpcyA8Y3N0cmF0YWtAcmVkaGF0LmNv
+bT4KK0RhdGU6IFR1ZSwgMTkgSnVsIDIwMTYgMTQ6Mzg6MTQgKzAyMDAKK1N1YmplY3Q6IFtQQVRD
+SF0gRml4IHJlcXVlc3RzIHZlcnNpb24gYnVnCisKKy0tLQorIGxpbmtjaGVjay9fX2luaXRfXy5w
+eSB8IDYgKysrLS0tCisgMSBmaWxlIGNoYW5nZWQsIDMgaW5zZXJ0aW9ucygrKSwgMyBkZWxldGlv
+bnMoLSkKKworZGlmZiAtLWdpdCBhL2xpbmtjaGVjay9fX2luaXRfXy5weSBiL2xpbmtjaGVjay9f
+X2luaXRfXy5weQoraW5kZXggNTYyNDg1NS4uMjMxYTdjNCAxMDA2NDQKKy0tLSBhL2xpbmtjaGVj
+ay9fX2luaXRfXy5weQorKysrIGIvbGlua2NoZWNrL19faW5pdF9fLnB5CitAQCAtMjQsMTAgKzI0
+LDEwIEBAIGltcG9ydCBzeXMKKyAjIE5lZWRzIFB5dGhvbiA+PSAyLjcuMiB3aGljaCBmaXhlZCBo
+dHRwOi8vYnVncy5weXRob24ub3JnL2lzc3VlMTE0NjcKKyBpZiBub3QgKGhhc2F0dHIoc3lzLCAn
+dmVyc2lvbl9pbmZvJykgb3IKKyAgICAgICAgIHN5cy52ZXJzaW9uX2luZm8gPCAoMiwgNywgMiwg
+J2ZpbmFsJywgMCkpOgorLSAgICByYWlzZSBTeXN0ZW1FeGl0KCJUaGlzIHByb2dyYW0gcmVxdWly
+ZXMgUHl0aG9uIDIuNy4yIG9yIGxhdGVyLiIpCisrICAgIGltcG9ydCBwbGF0Zm9ybQorKyAgICB2
+ZXJzaW9uID0gcGxhdGZvcm0ucHl0aG9uX3ZlcnNpb24oKQorKyAgICByYWlzZSBTeXN0ZW1FeGl0
+KCJUaGlzIHByb2dyYW0gcmVxdWlyZXMgUHl0aG9uIDIuNy4yIG9yIGxhdGVyIGluc3RlYWQgb2Yg
+JXMuIiAlIHZlcnNpb24pCisgaW1wb3J0IHJlcXVlc3RzCistaWYgcmVxdWVzdHMuX192ZXJzaW9u
+X18gPD0gJzIuMi4wJzoKKy0gICAgcmFpc2UgU3lzdGVtRXhpdCgiVGhpcyBwcm9ncmFtIHJlcXVp
+cmVzIFB5dGhvbiByZXF1ZXN0cyAyLjIuMCBvciBsYXRlci4iKQorIAorIGltcG9ydCBvcworICMg
+YWRkIHRoZSBjdXN0b20gbGlua2NoZWNrX2RucyBkaXJlY3RvcnkgdG8gc3lzLnBhdGgKKy0tIAor
+Mi43LjQKKwpkaWZmIC0tZ2l0IGEvbGlua2NoZWNrZXIuc3BlYyBiL2xpbmtjaGVja2VyLnNwZWMK
+aW5kZXggZTIzMTMwYS4uOTkwMWQ0NSAxMDA2NDQKLS0tIGEvbGlua2NoZWNrZXIuc3BlYworKysg
+Yi9saW5rY2hlY2tlci5zcGVjCkBAIC0xLDYgKzEsNiBAQAogTmFtZTogICAgICAgICAgIGxpbmtj
+aGVja2VyCiBWZXJzaW9uOiAgICAgICAgOS4zCi1SZWxlYXNlOiAgICAgICAgNSV7P2Rpc3R9CitS
+ZWxlYXNlOiAgICAgICAgNiV7P2Rpc3R9CiBTdW1tYXJ5OiAgICAgICAgQ2hlY2sgSFRNTCBkb2N1
+bWVudHMgZm9yIGJyb2tlbiBsaW5rcwogTGljZW5zZTogICAgICAgIEdQTHYyCiBVUkw6ICAgICAg
+ICAgICAgaHR0cDovL3d1bW1lbC5naXRodWIuaW8vbGlua2NoZWNrZXIvCkBAIC0xMyw2ICsxMyw4
+IEBAIEJ1aWxkUmVxdWlyZXM6ICBweXRob24tc2V0dXB0b29scwogQnVpbGRSZXF1aXJlczogIHF0
+NC1kZXZlbAogUmVxdWlyZXM6ICAgICAgIHB5dGhvbi1yZXF1ZXN0cwogCitQYXRjaDA6IGZpeC1y
+ZXF1ZXN0cy12ZXJzaW9uLWJ1Zy5wYXRjaAorCiAlZGVzY3JpcHRpb24KIExpbmtDaGVja2VyIGlz
+IGEgd2Vic2l0ZSB2YWxpZGF0b3IuIExpbmtDaGVja2VyIGNoZWNrcyBsaW5rcyBpbiB3ZWIgZG9j
+dW1lbnRzIG9yIGZ1bGwgd2Vic2l0ZXMuCiAKQEAgLTQ1LDYgKzQ3LDggQEAgVGhpcyBwYWNrYWdl
+IGNvbnRhaW5zIGEgR1VJIHByb2dyYW0gZm9yICV7bmFtZX0uCiAlcHJlcAogJXNldHVwIC1xbiBM
+aW5rQ2hlY2tlci0le3ZlcnNpb259CiAKKyVwYXRjaDAgLXAxCisKICVidWlsZAogbWFrZSAtQyBk
+b2MvaHRtbC8KIENGTEFHUz0iJXtvcHRmbGFnc30iICV7X19weXRob24yfSBzZXR1cC5weSBidWls
+ZApAQCAtODEsNiArODUsOSBAQCBkZXNrdG9wLWZpbGUtdmFsaWRhdGUgJXtidWlsZHJvb3R9JXtf
+ZGF0YWRpcn0vYXBwbGljYXRpb25zL2xpbmtjaGVja2VyLWd1aS5kZXNrdAogJXtfZGF0YWRpcn0v
+cGl4bWFwcy9saW5rY2hlY2tlci5wbmcKIAogJWNoYW5nZWxvZworKiBUdWUgSnVsIDE5IDIwMTYg
+Q2hhcmFsYW1wb3MgU3RyYXRha2lzIDxjc3RyYXRha0ByZWRoYXQuY29tPiAtIDkuMy02CistIEJh
+Y2twb3J0IHVwc3RyZWFtIHBhdGNoIHRvIGZpeCBweXRob24tcmVxdWVzdHMgdmVyc2lvbiBlcnJv
+cgorCiAqIFR1ZSBKdWwgMTkgMjAxNiBGZWRvcmEgUmVsZWFzZSBFbmdpbmVlcmluZyA8cmVsLWVu
+Z0BsaXN0cy5mZWRvcmFwcm9qZWN0Lm9yZz4gLSA5LjMtNQogLSBodHRwczovL2ZlZG9yYXByb2pl
+Y3Qub3JnL3dpa2kvQ2hhbmdlcy9BdXRvbWF0aWNfUHJvdmlkZXNfZm9yX1B5dGhvbl9SUE1fUGFj
+a2FnZXMKIAotLSAKMi43LjQKCg==
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1412204</bug_id>
+          
+          <creation_ts>2017-01-11 09:17:00 -0500</creation_ts>
+          <short_desc>rust network test suite stuck</short_desc>
+          <delta_ts>2017-06-20 09:50:39 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>rust</component>
+          <version>25</version>
+          <rep_platform>s390x</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>CURRENTRELEASE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>467765</blocked>
+    
+    
+    <blocked>1410952</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Dan Horák">dan</reporter>
+          <assigned_to name="Rust SIG">rust-sig</assigned_to>
+          <cc>bugproxy</cc>
+    
+    
+    <cc>hannsj_uhl</cc>
+    
+    
+    <cc>jistone</cc>
+    
+    
+    <cc>TicoTimo</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-06-20 09:50:39</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          <external_bugs name="IBM Linux Technology Center">150481</external_bugs>
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10052929</commentid>
+    <comment_count>0</comment_count>
+    <who name="Dan Horák">dan</who>
+    <bug_when>2017-01-11 09:17:41 -0500</bug_when>
+    <thetext>rust network tests are stuck in F-24 and F-25 with following in the build.log
+...
+test net::tcp::tests::listen_localhost ... ok
+test net::tcp::tests::multiple_connect_interleaved_greedy_schedule ... ok
+test net::tcp::tests::multiple_connect_interleaved_lazy_schedule ... ok
+test net::tcp::tests::multiple_connect_serial ... ok
+test net::tcp::tests::nodelay ... ok
+test net::tcp::tests::partial_read ... test net::tcp::tests::partial_read has been running for over 60 seconds
+
+this is from a single CPU builder
+
+strace says:
+[root@fedora2 ~]# strace -p 15604
+strace: Process 15604 attached
+futex(0x2aa430c3064, FUTEX_WAIT_PRIVATE, 731, NULL
+
+^Cstrace: Process 15604 detached
+ &lt;detached ...&gt;
+
+gdb says:
+(gdb) attach 15604
+Attaching to process 15604
+[New LWP 16084]
+warning: .dynamic section for &quot;target:/lib64/libnss_myhostname.so.2&quot; is not at the expected address (wrong library or version mismatch?)
+warning: .dynamic section for &quot;target:/lib64/libselinux.so.1&quot; is not at the expected address (wrong library or version mismatch?)
+warning: .dynamic section for &quot;target:/lib64/libcap.so.2&quot; is not at the expected address (wrong library or version mismatch?)
+Missing separate debuginfo for target:/lib64/libdl.so.2
+Try: dnf --enablerepo=&apos;*debug*&apos; install /usr/lib/debug/.build-id/38/593be8033a61a0499ee4e28870e60ab80bbea4.debug
+Missing separate debuginfo for target:/lib64/libpthread.so.0
+Try: dnf --enablerepo=&apos;*debug*&apos; install /usr/lib/debug/.build-id/bb/99d4fe8c2865e9f48573fb449d0e1769d55bb8.debug
+warning: Expected absolute pathname for libpthread in the inferior, but got target:/lib64/libpthread.so.0.
+warning: Unable to find libthread_db matching inferior&apos;s thread library, thread debugging will not be available.
+Missing separate debuginfo for target:/lib64/libgcc_s.so.1
+Try: dnf --enablerepo=&apos;*debug*&apos; install /usr/lib/debug/.build-id/10/881b8838e53886f108b2127a1413911411ed37.debug
+Missing separate debuginfo for target:/lib64/libc.so.6
+Try: dnf --enablerepo=&apos;*debug*&apos; install /usr/lib/debug/.build-id/41/850117e1e0b3c4740b575c86ee5b0f73d54a12.debug
+Missing separate debuginfo for target:/lib/ld64.so.1
+Try: dnf --enablerepo=&apos;*debug*&apos; install /usr/lib/debug/.build-id/5a/8703e244406d2953cd2bde426de7789dfa4a6e.debug
+Missing separate debuginfo for target:/lib64/libm.so.6
+Try: dnf --enablerepo=&apos;*debug*&apos; install /usr/lib/debug/.build-id/f3/a157f9f2ad9e951184189b497633341b030a95.debug
+Missing separate debuginfo for target:/lib64/libnss_files.so.2
+Try: dnf --enablerepo=&apos;*debug*&apos; install /usr/lib/debug/.build-id/52/fedee1ab9055a8e577e80c6bb793e5c4d03a09.debug
+Missing separate debuginfo for target:/lib64/libnss_dns.so.2
+Try: dnf --enablerepo=&apos;*debug*&apos; install /usr/lib/debug/.build-id/79/63fe15529e79342d127cd0dfc9fc066cc12f64.debug
+Missing separate debuginfo for target:/lib64/libresolv.so.2
+Try: dnf --enablerepo=&apos;*debug*&apos; install /usr/lib/debug/.build-id/88/6e62846eed661a4c4eb069d5d5bc37e2568e19.debug
+Missing separate debuginfo for target:/lib64/libnss_myhostname.so.2
+Try: dnf --enablerepo=&apos;*debug*&apos; install /usr/lib/debug/.build-id/e6/00892dc4b3dffc066301b122dd57c380aff27a.debug
+Missing separate debuginfo for target:/lib64/libselinux.so.1
+Try: dnf --enablerepo=&apos;*debug*&apos; install /usr/lib/debug/.build-id/b5/2444da828bbd039796fa6db6a1a36822ef092d.debug
+Missing separate debuginfo for target:/lib64/libcap.so.2
+Try: dnf --enablerepo=&apos;*debug*&apos; install /usr/lib/debug/.build-id/d3/868bd1d051c8edfdff64e5312a79ad35ae040a.debug
+Missing separate debuginfo for target:/lib64/librt.so.1
+Try: dnf --enablerepo=&apos;*debug*&apos; install /usr/lib/debug/.build-id/7d/baf95deeefda8c14af99dc2ec1d1aa494720f4.debug
+Missing separate debuginfo for target:/lib64/libpcre.so.1
+Try: dnf --enablerepo=&apos;*debug*&apos; install /usr/lib/debug/.build-id/0d/8b4758547c001d3132199637dc873c33e9a2e9.debug
+warning: Expected absolute pathname for libpthread in the inferior, but got target:/lib64/libpthread.so.0.
+warning: Unable to find libthread_db matching inferior&apos;s thread library, thread debugging will not be available.
+0x000003ffba40e2ac in pthread_rwlock_tryrdlock () from target:/lib64/libpthread.so.0
+(gdb) where
+#0  0x000003ffba40e2ac in pthread_rwlock_tryrdlock () from target:/lib64/libpthread.so.0
+#1  0x0000000000000020 in ?? ()
+Backtrace stopped: previous frame inner to this frame (corrupt stack?)
+
+The complains are probably due the chroot environment (F-25 chroot on F-24).
+
+
+Version-Release number of selected component (if applicable):
+rust-1.14.0-1.fc25
+llvm-3.8.1-2.fc25
+glibc-2.24-4.fc25.s390x
+
+rust-1.14.0-1.fc24
+llvm-3.8.1-2.fc24
+glibc-2.23.1-11.fc24.s390x
+
+kernel-4.8.4-200.fc24.s390x (kernel on builder)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10053043</commentid>
+    <comment_count>1</comment_count>
+    <who name="Dan Horák">dan</who>
+    <bug_when>2017-01-11 09:43:50 -0500</bug_when>
+    <thetext>potential real cause is in bug 1410052</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10055228</commentid>
+    <comment_count>2</comment_count>
+    <who name="Josh Stone">jistone</who>
+    <bug_when>2017-01-11 19:31:33 -0500</bug_when>
+    <thetext>I believe this is another codegen bug in LLVM 3.8.  All of the rawhide s390x builds have been fine, so I think we can rule out kernel problems in the builder.  Then I tried a test binary compiled in f25, running in a rawhide chroot, and that still hangs, so it doesn&apos;t seem to be fixed by newer glibc etc.  Then I tried in f25 with the bundled LLVM (3.9-ish), and that has been working perfectly!
+
+As for blaming pthread_rwlock_tryrdlock, the gdb errors need to be resolved before you can trust the reported locations.  I had similar errors as you trying to attach in the chroot, and found that the buildids that gdb was looking at were from the host versions of those libraries.  (I&apos;m not even sure how it&apos;s getting there from the chroot!)
+
+But it does work to launch the test binary directly from gdb, then I see:
+
+(gdb) info threads
+  Id   Target Id         Frame
+* 1    Thread 0x3fffdd022a0 (LWP 52925) &quot;stdtest-s390x-u&quot; 0x000003fffdfb162e in __pthread_cond_timedwait (cond=0x2aa002c7060, mutex=0x2aa002c7010, abstime=0x3ffffffaeb8) at pthread_cond_timedwait.c:198
+  3    Thread 0x3fffdb00910 (LWP 52929) &quot;net::tcp::tests&quot; __pthread_cond_wait (cond=0x3fff0000a20, mutex=0x3fff00014b0) at pthread_cond_wait.c:189
+  17   Thread 0x3fffdd00910 (LWP 52943) &quot;net::tcp::tests&quot; __pthread_cond_wait (cond=0x3fff8000d90, mutex=0x3fff8001100) at pthread_cond_wait.c:189
+
+Thread 1 is just the main thread spawning tests.
+
+(gdb) thread 3
+[Switching to thread 3 (Thread 0x3fffdb00910 (LWP 52929))]
+#0  __pthread_cond_wait (cond=0x3fff0000a20, mutex=0x3fff00014b0) at pthread_cond_wait.c:189
+189           __pthread_disable_asynccancel (cbuffer.oldtype);
+(gdb) backtrace
+#0  __pthread_cond_wait (cond=0x3fff0000a20, mutex=0x3fff00014b0) at pthread_cond_wait.c:189
+#1  0x000002aa0016fc4a in std::sys::imp::condvar::Condvar::wait (self=&lt;optimized out&gt;, mutex=&lt;optimized out&gt;) at /builddir/build/BUILD/rustc-1.14.0/src/libstd/sys/unix/condvar.rs:64
+#2  std::sys_common::condvar::Condvar::wait (self=&lt;optimized out&gt;, mutex=&lt;optimized out&gt;) at /builddir/build/BUILD/rustc-1.14.0/src/libstd/sys_common/condvar.rs:51
+#3  std::sync::condvar::Condvar::wait&lt;bool&gt; (self=&lt;optimized out&gt;, guard=...) at /builddir/build/BUILD/rustc-1.14.0/src/libstd/sync/condvar.rs:125
+#4  0x000002aa0007cfc2 in std::thread::park () at /builddir/build/BUILD/rustc-1.14.0/src/libstd/thread/mod.rs:466
+#5  0x000002aa0014d212 in std::sync::mpsc::blocking::WaitToken::wait (self=...) at /builddir/build/BUILD/rustc-1.14.0/src/libstd/sync/mpsc/blocking.rs:81
+#6  std::sync::mpsc::shared::Packet&lt;(std::net::tcp::TcpStream, std::net::addr::SocketAddr)&gt;::recv&lt;(std::net::tcp::TcpStream, std::net::addr::SocketAddr)&gt; (self=&lt;optimized out&gt;, deadline=...)
+    at /builddir/build/BUILD/rustc-1.14.0/src/libstd/sync/mpsc/shared.rs:237
+#7  std::sync::mpsc::Receiver&lt;(std::net::tcp::TcpStream, std::net::addr::SocketAddr)&gt;::recv&lt;(std::net::tcp::TcpStream, std::net::addr::SocketAddr)&gt; (self=&lt;optimized out&gt;) at /builddir/build/BUILD/rustc-1.14.0/src/libstd/sync/mpsc/mod.rs:883
+#8  0x000002aa001c4708 in std::net::tcp::tests::clone_accept_concurrent::{{closure}} (addr=...) at /builddir/build/BUILD/rustc-1.14.0/src/libstd/net/tcp.rs:996
+#9  0x000002aa000eb55c in std::net::tcp::tests::each_ip (f=...) at /builddir/build/BUILD/rustc-1.14.0/src/libstd/net/tcp.rs:444
+#10 std::net::tcp::tests::clone_accept_concurrent () at /builddir/build/BUILD/rustc-1.14.0/src/libstd/net/tcp.rs:974
+#11 0x000002aa001d6616 in test::run_test::{{closure}} () at /builddir/build/BUILD/rustc-1.14.0/src/libtest/lib.rs:1265
+[...]
+
+(gdb) thread 17
+[Switching to thread 17 (Thread 0x3fffdd00910 (LWP 52943))]
+#0  __pthread_cond_wait (cond=0x3fff8000d90, mutex=0x3fff8001100) at pthread_cond_wait.c:189
+189           __pthread_disable_asynccancel (cbuffer.oldtype);
+(gdb) backtrace
+#0  __pthread_cond_wait (cond=0x3fff8000d90, mutex=0x3fff8001100) at pthread_cond_wait.c:189
+#1  0x000002aa0016fc4a in std::sys::imp::condvar::Condvar::wait (self=&lt;optimized out&gt;, mutex=&lt;optimized out&gt;) at /builddir/build/BUILD/rustc-1.14.0/src/libstd/sys/unix/condvar.rs:64
+#2  std::sys_common::condvar::Condvar::wait (self=&lt;optimized out&gt;, mutex=&lt;optimized out&gt;) at /builddir/build/BUILD/rustc-1.14.0/src/libstd/sys_common/condvar.rs:51
+#3  std::sync::condvar::Condvar::wait&lt;bool&gt; (self=&lt;optimized out&gt;, guard=...) at /builddir/build/BUILD/rustc-1.14.0/src/libstd/sync/condvar.rs:125
+#4  0x000002aa0007cfc2 in std::thread::park () at /builddir/build/BUILD/rustc-1.14.0/src/libstd/thread/mod.rs:466
+#5  0x000002aa00135bd8 in std::sync::mpsc::blocking::WaitToken::wait (self=...) at /builddir/build/BUILD/rustc-1.14.0/src/libstd/sync/mpsc/blocking.rs:81
+#6  std::sync::mpsc::shared::Packet&lt;()&gt;::recv&lt;()&gt; (self=&lt;optimized out&gt;, deadline=...) at /builddir/build/BUILD/rustc-1.14.0/src/libstd/sync/mpsc/shared.rs:237
+#7  0x000002aa0014b9ae in std::sync::mpsc::Receiver&lt;()&gt;::recv&lt;()&gt; (self=&lt;optimized out&gt;) at /builddir/build/BUILD/rustc-1.14.0/src/libstd/sync/mpsc/mod.rs:883
+#8  0x000002aa001c280c in std::net::tcp::tests::clone_while_reading::{{closure}} (addr=...) at /builddir/build/BUILD/rustc-1.14.0/src/libstd/net/tcp.rs:949
+#9  0x000002aa000eb36c in std::net::tcp::tests::each_ip (f=...) at /builddir/build/BUILD/rustc-1.14.0/src/libstd/net/tcp.rs:444
+#10 std::net::tcp::tests::clone_while_reading () at /builddir/build/BUILD/rustc-1.14.0/src/libstd/net/tcp.rs:916
+#11 0x000002aa001d6616 in test::run_test::{{closure}} () at /builddir/build/BUILD/rustc-1.14.0/src/libtest/lib.rs:1265
+
+In both cases, they are stuck in a mpsc channel recv[1] at the end of their respective tests, waiting for their sub-threads to exit.  But we can see in GDB that there are no other threads, so those must have already exited and we missed their mpsc send!
+[1] https://doc.rust-lang.org/std/sync/mpsc/struct.Receiver.html#method.recv
+
+If I run just the sync::mpsc tests, it also gets stuck.  I think we&apos;re only seeing it get stuck in net::tcp because those are alphabetically first and happen to also use mpsc.  Rust runs tests in parallel up to the number of CPUs, so once we get a hung test for each CPU, we&apos;re hosed.
+
+
+TL;DR Rust&apos;s mpsc is misbehaving, but then it works with any LLVM 3.9, so it appears to be a codegen issue with 3.8.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10093065</commentid>
+    <comment_count>3</comment_count>
+    <who name="Fedora Admin XMLRPC Client">fedora-admin-xmlrpc</who>
+    <bug_when>2017-01-24 13:42:05 -0500</bug_when>
+    <thetext>This package has changed ownership in the Fedora Package Database.  Reassigning to the new owner of this component.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10523363</commentid>
+    <comment_count>4</comment_count>
+    <who name="Dan Horák">dan</who>
+    <bug_when>2017-06-20 09:50:39 -0400</bug_when>
+    <thetext>resolved via bug 1410952 (llvm got updated to 3.9 in F-25)</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

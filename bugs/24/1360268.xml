@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1360268</bug_id>
+          
+          <creation_ts>2016-07-26 07:38:00 -0400</creation_ts>
+          <short_desc>Duplicate collation entries</short_desc>
+          <delta_ts>2016-11-19 16:10:35 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>389-ds-base</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="DaveG">daveg</reporter>
+          <assigned_to name="Noriko Hosoi">nhosoi</assigned_to>
+          <cc>daveg</cc>
+    
+    
+    <cc>edewata</cc>
+    
+    
+    <cc>mreynolds</cc>
+    
+    
+    <cc>nhosoi</cc>
+    
+    
+    <cc>nkinder</cc>
+    
+    
+    <cc>rmeggins</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>389-ds-base-1.3.5.15-1.fc24 389-ds-base-1.3.5.15-1.fc25</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-11-05 20:25:51</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9551486</commentid>
+    <comment_count>0</comment_count>
+    <who name="DaveG">daveg</who>
+    <bug_when>2016-07-26 07:38:16 -0400</bug_when>
+    <thetext>Description of problem:
+
+Desktop LDAP clients have trouble accessing FreeIPA via LDAP.
+GQ crashes when accessing objects. Can display object hierarchy and schema but fails as soon as it accesses and object (leaf).
+Luma can access and display objects but reports many errors:
+ERROR: [base.backend.ObjectClassAttributeInfo/MainThread]: Could not fetch LDAP schema from server. Reason:
+NAME not unique for ( 2.16.840.1.113730.3.3.2.211.1 NAME &apos;caseIgnoreOrderingMatch-sk&apos; DESC &apos;sk&apos; SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+
+
+Version-Release number of selected component (if applicable):
+
+freeipa-admintools-4.3.1-1.fc24.noarch
+freeipa-common-4.3.1-1.fc24.noarch
+freeipa-server-common-4.3.1-1.fc24.noarch
+freeipa-client-common-4.3.1-1.fc24.noarch
+freeipa-client-4.3.1-1.fc24.x86_64
+freeipa-server-4.3.1-1.fc24.x86_64
+389-ds-base-libs-1.3.5.10-1.fc24.x86_64
+389-ds-base-1.3.5.10-1.fc24.x86_64
+
+
+How reproducible:
+
+Always.
+
+
+Steps to Reproduce:
+1. Install freeipa and create instance.
+2. Access the LDAP service using a desktop client.
+
+
+Actual results:
+
+See above.
+
+
+Expected results:
+
+Should work.
+
+
+Additional info:
+
+My FreeIPA instance started life some time ago and has been upgraded a number of times so I tried a new VM installation and it has exactly the same issue. That implies that it is not an upgrade issue.
+
+Since GQ can see the schema tree I used that. It shows some duplicate entries under {server}/matchingRules:
+
+Name				OID
+...
+caseIgnoreOrderingMatch-sk	2.16.840.1.113730.3.3.2.42.1
+caseIgnoreOrderingMatch-sk	2.16.840.1.113730.3.3.2.211.1
+caseIgnoreOrderingMatch-sl	2.16.840.1.113730.3.3.2.43.1
+caseIgnoreOrderingMatch-sl	2.16.840.1.113730.3.3.2.212.1
+caseIgnoreOrderingMatch-sq	2.16.840.1.113730.3.3.2.44.1
+caseIgnoreOrderingMatch-sq	2.16.840.1.113730.3.3.2.213.1
+...
+
+It looks like these languages are being added twice.
+All other entries are unique (I think).
+
+Just guessing but the probable cause is:
+https://git.fedorahosted.org/cgit/389/ds.git/tree/ldap/schema/slapd-collations.conf#n58
+https://git.fedorahosted.org/cgit/389/ds.git/tree/ldap/schema/slapd-collations.conf#n59
+https://git.fedorahosted.org/cgit/389/ds.git/tree/ldap/schema/slapd-collations.conf#n61
+then:
+https://git.fedorahosted.org/cgit/389/ds.git/tree/ldap/schema/slapd-collations.conf#n227
+https://git.fedorahosted.org/cgit/389/ds.git/tree/ldap/schema/slapd-collations.conf#n228
+https://git.fedorahosted.org/cgit/389/ds.git/tree/ldap/schema/slapd-collations.conf#n229
+
+I think the second batch of entries is for sub-languages but they also appear to add the main language too which is defined in the first batch.
+
+Commit?
+https://git.fedorahosted.org/cgit/389/ds.git/commit/ldap/schema/slapd-collations.conf?id=e0c78d5b87d4d798a936eba9c90f5db5347bcb3c</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9553835</commentid>
+    <comment_count>1</comment_count>
+    <who name="Noriko Hosoi">nhosoi</who>
+    <bug_when>2016-07-26 13:00:51 -0400</bug_when>
+    <thetext>Upstream ticket:
+https://fedorahosted.org/389/ticket/48936</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9553836</commentid>
+    <comment_count>2</comment_count>
+    <who name="Noriko Hosoi">nhosoi</who>
+    <bug_when>2016-07-26 13:03:18 -0400</bug_when>
+    <thetext>Thank you for the report.
+
+Could it be possible to share the steps how to reproduce the problem?
+
+Also, it&apos;d be helpful if you could share the access and errors log files in /var/log/dirsrv/slapd-INSTANCE.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9554697</commentid>
+    <comment_count>3</comment_count>
+    <who name="DaveG">daveg</who>
+    <bug_when>2016-07-26 16:55:13 -0400</bug_when>
+    <thetext>My only experience with 389-ds is through freeipa-server.
+
+I have been using gq desktop LDAP client to inspect the LDAP data maintained by freeipa, check service account entries etc. It just crashes now, as noted.
+
+That stopped working a while back (months?) so I tried the luma desktop LDAP client. After configuring for anonymous access it shows the duplicate name errors but keeps running.
+
+The freeipa instance is still functional and, as far as I can tell, it is not throwing any errors.
+
+389-ds does not appear to be throwing any errors either. The error log just has start, stop, SSL cypher messages, plugins... Nothing interesting.
+
+Looks like 389-ds itself is OK but GUI clients that use schema for display are hitting this duplicate entry issue. I doubt many applications use or access the schema tree.
+
+So, to reproduce, try the luma desktop client on any recent 389-ds instance, configure an anonymous bind to the server, enable error messages and try browsing the tree. Should show the same errors.
+
+I&apos;m fairly sure the problem is in the cited git commit - new sub-languages added separately rather than added to the originals.
+
+If you need the error logs, let me know.
+
+--DaveG.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9554750</commentid>
+    <comment_count>4</comment_count>
+    <who name="Noriko Hosoi">nhosoi</who>
+    <bug_when>2016-07-26 17:22:22 -0400</bug_when>
+    <thetext>Thanks for your response, Dave.
+
+I&apos;m curious how the collation is being used in your environment.  
+Do you have indexes based upon some language? 
+What does this command line return?
+# grep nsMatchingRule /etc/dirsrv/slapd-*/dse.ldif
+
+Or are you running server side sorting searches?  If you could share your access log, it may tell us some idea...
+
+Thanks,
+--noriko</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9554865</commentid>
+    <comment_count>5</comment_count>
+    <who name="DaveG">daveg</who>
+    <bug_when>2016-07-26 18:20:37 -0400</bug_when>
+    <thetext>First:
+# grep nsMatchingRule /etc/dirsrv/slapd-*/dse.ldif
+nsMatchingRule: integerOrderingMatch
+nsMatchingRule: integerOrderingMatch
+nsMatchingRule: integerOrderingMatch
+nsMatchingRule: integerOrderingMatch
+nsMatchingRule: integerOrderingMatch
+nsMatchingRule: integerOrderingMatch
+nsMatchingRule: integerOrderingMatch
+nsMatchingRule: integerOrderingMatch
+
+LDAP instance is &quot;stock&quot; freeipa, external CA, no DNS.
+No custom indexes.
+
+Using desktop GUI LDAP clients to explore data.
+
+Tried a &quot;fix&quot; that appears to work for me:
+Commented out lines 58-60 in /etc/dirsrv/slapd-*/slapd-collations.conf and restarted ipa.service.
+(Not sure which entries are correct (lines 58-60 or 227-229))
+No more errors reported in the luma client.
+
+-DaveG
+
+P.S.
+Looks like the gq client is no longer maintained and still crashes. There are other similar BZ reports for it so I&apos;ll stop using that.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9567058</commentid>
+    <comment_count>6</comment_count>
+    <who name="DaveG">daveg</who>
+    <bug_when>2016-07-29 09:01:01 -0400</bug_when>
+    <thetext>Not sure of the exact syntax but I think this is what was intended:
+
+--- /etc/dirsrv/config/slapd-collations.conf	2016-07-01 21:46:48.000000000 +0100
++++ /etc/dirsrv/slapd-EXAMPLE-ORG/slapd-collations.conf	2016-07-29 13:50:49.128677795 +0100
+@@ -224,9 +224,9 @@
+ collation ru RU &quot;&quot; 1 3	2.16.840.1.113730.3.3.2.208.1	ru-RU
+ collation ru UA &quot;&quot; 1 3	2.16.840.1.113730.3.3.2.209.1	ru-UA
+ collation si &quot;&quot; &quot;&quot; 1 3	2.16.840.1.113730.3.3.2.210.1	si	si-LK
+-collation sk &quot;&quot; &quot;&quot; 1 3	2.16.840.1.113730.3.3.2.211.1	sk	sk-SK
+-collation sl &quot;&quot; &quot;&quot; 1 3	2.16.840.1.113730.3.3.2.212.1	sl	sl-SI
+-collation sq &quot;&quot; &quot;&quot; 1 3	2.16.840.1.113730.3.3.2.213.1	sq	sq-AL
++collation sk SK &quot;&quot; 1 3	2.16.840.1.113730.3.3.2.211.1	sk-SK
++collation sl SI &quot;&quot; 1 3	2.16.840.1.113730.3.3.2.212.1	sl-SI
++collation sq AL &quot;&quot; 1 3	2.16.840.1.113730.3.3.2.213.1	sq-AL
+ collation sr Cyrl &quot;&quot; 1 3	2.16.840.1.113730.3.3.2.214.1	sr-Cyrl
+ collation sr Cyrl BA 1 3	2.16.840.1.113730.3.3.2.215.1	sr-Cyrl-BA
+ collation sr Cyrl ME 1 3	2.16.840.1.113730.3.3.2.216.1	sr-Cyrl-ME
+
+The commit noted above added the base language again, causing the duplication.
+This works for me.
+
+--DaveG.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9567914</commentid>
+    <comment_count>7</comment_count>
+    <who name="Noriko Hosoi">nhosoi</who>
+    <bug_when>2016-07-29 13:07:05 -0400</bug_when>
+    <thetext>Thank you, Dave.  
+
+We verified that the lines in slapd-collation.conf you reported caused the regression.  It will be fixed in the next 389-ds-base build for F24.
+
+Thanks!</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9855360</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-11-03 16:44:40 -0400</bug_when>
+    <thetext>389-ds-base-1.3.5.15-1.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-8660c7656f</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9855647</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-11-03 17:17:15 -0400</bug_when>
+    <thetext>389-ds-base-1.3.5.15-1.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2016-8f9d466bcc</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9863772</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-11-04 23:34:26 -0400</bug_when>
+    <thetext>389-ds-base-1.3.5.15-1.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-8660c7656f</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9864198</commentid>
+    <comment_count>11</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-11-05 14:59:26 -0400</bug_when>
+    <thetext>389-ds-base-1.3.5.15-1.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-8f9d466bcc</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9864382</commentid>
+    <comment_count>12</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-11-05 20:25:51 -0400</bug_when>
+    <thetext>389-ds-base-1.3.5.15-1.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9905805</commentid>
+    <comment_count>13</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-11-19 16:10:35 -0500</bug_when>
+    <thetext>389-ds-base-1.3.5.15-1.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

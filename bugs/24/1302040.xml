@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1302040</bug_id>
+          
+          <creation_ts>2016-01-26 10:47:00 -0500</creation_ts>
+          <short_desc>rpm BUILDHOST set to container name</short_desc>
+          <delta_ts>2016-10-22 00:01:28 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>mock</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>low</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          <dependson>1309367</dependson>
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Matthew Gyurgyik">matthew</reporter>
+          <assigned_to name="Miroslav Suchý">msuchy</assigned_to>
+          <cc>jdisnard</cc>
+    
+    
+    <cc>mebrown</cc>
+    
+    
+    <cc>msimacek</cc>
+    
+    
+    <cc>msuchy</cc>
+    
+    
+    <cc>praiskup</cc>
+    
+    
+    <cc>williams</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>mock-1.3.2-1.fc25</cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-10-22 00:01:28</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9011150</commentid>
+    <comment_count>0</comment_count>
+    <who name="Matthew Gyurgyik">matthew</who>
+    <bug_when>2016-01-26 10:47:26 -0500</bug_when>
+    <thetext>Description of problem:
+
+RPMs built inside an spawn container have BUILDHOST set to the container name. 
+
+Version-Release number of selected component (if applicable):
+mock-1.2.14
+
+Actual results:
+[mirror3 x86_64]$ rpm -qp pl-gcc-4.9.3-1.el7.centos.x86_64.rpm --queryformat &apos;%{BUILDHOST}&apos;; echo
+df7024de14094835a1a71f83dd915217
+
+
+Expected results:
+BUILDHOST should be the name of the host operating system.
+
+
+Additional info:
+Inside a container, I ran
+
+$ hostname foo.example.com
+$ rpmbuild --rebuild foo.src.rpm
+
+And the resulting RPM had BUILDHOST=foo.example.com (which is different than the machine name).
+
+This would require the hostname utility be installed. But theoretically hostname could be run before issuing the rpmbuild command.
+
+No idea if this is the best approach. I&apos;d be glad to take a stab at patch if you want try this method.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9072457</commentid>
+    <comment_count>1</comment_count>
+    <who name="Miroslav Suchý">msuchy</who>
+    <bug_when>2016-02-17 10:47:52 -0500</bug_when>
+    <thetext>hostname is not available in base container
+
+It would be nice if rpmbuild has option to define hostname. Currently it is not possible because rpmbuild call directly gethostbyname().
+I will prefer this over installing other dependency inside of container.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9094630</commentid>
+    <comment_count>2</comment_count>
+    <who name="Jan Kurik">jkurik</who>
+    <bug_when>2016-02-24 10:53:04 -0500</bug_when>
+    <thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 24 development cycle.
+Changing version to &apos;24&apos;.
+
+More information and reason for this action is here:
+https://fedoraproject.org/wiki/Fedora_Program_Management/HouseKeeping/Fedora24#Rawhide_Rebase</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9784470</commentid>
+    <comment_count>3</comment_count>
+    <who name="Miroslav Suchý">msuchy</who>
+    <bug_when>2016-10-12 08:40:51 -0400</bug_when>
+    <thetext>Resolved by commits:
+* 9a12844 change hostname in container [RHBZ#1302040]
+* e8c3b32 example how to change hostname in container [RHBZ#1302040]
+
+Note that it works only for F25+ chroots (does not matter what OS is used as host).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9803649</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-10-19 04:30:03 -0400</bug_when>
+    <thetext>mock-1.3.2-1.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-07f2f5e2c9</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9812773</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-10-22 00:01:28 -0400</bug_when>
+    <thetext>mock-1.3.2-1.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1379110</bug_id>
+          
+          <creation_ts>2016-09-24 23:31:00 -0400</creation_ts>
+          <short_desc>IP&apos;s show as banned, but aren&apos;t</short_desc>
+          <delta_ts>2016-10-09 02:20:36 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>fail2ban</component>
+          <version>24</version>
+          <rep_platform>All</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>high</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Gerald Cox">gbcox</reporter>
+          <assigned_to name="Orion Poplawski">orion</assigned_to>
+          <cc>athmanem</cc>
+    
+    
+    <cc>axel.thimm</cc>
+    
+    
+    <cc>jonathan.underwood</cc>
+    
+    
+    <cc>orion</cc>
+    
+    
+    <cc>vedran</cc>
+    
+    
+    <cc>vonsch</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>fail2ban-0.9.5-3.fc24</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-10-09 02:20:36</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9740591</commentid>
+    <comment_count>0</comment_count>
+    <who name="Gerald Cox">gbcox</who>
+    <bug_when>2016-09-24 23:31:42 -0400</bug_when>
+    <thetext>Description of problem:
+I&apos;m not sure exactly how long this has been going on, but just noticed it within the last week.  In my log, I show that addresses are being banned but I keep getting retries - so they aren&apos;t.  I tested this myself, and sure enough fail2ban shows the traffic as being banned, but apparently is not.  
+
+Below is the fail2ban log... notice where I get valid hits, followed by an &quot;already banned&quot; message.  
+
+The &quot;ipset list&quot; command also shows the ip address listed.  In the sample below I just included a sample, but all the ban commands show up in the ipset list.
+
+This was working, but now apparently, not so much.  If I manually enter a firewall-cmd to ban, it works... but if I enter the command manually through fail2ban-client it shows that it is banned (as per the log) and shows up in ipset... but doesn&apos;t block any traffic.
+
+2016-09-24 20:17:14,393 fail2ban.actions        [17595]: NOTICE  [sshd] Ban 91.224.160.131
+2016-09-24 20:17:14,530 fail2ban.actions        [17595]: NOTICE  [sshd] Ban 91.224.160.184
+2016-09-24 20:17:14,675 fail2ban.actions        [17595]: NOTICE  [sshd] Ban 91.224.161.103
+2016-09-24 20:17:14,811 fail2ban.actions        [17595]: NOTICE  [sshd] Ban 91.224.161.69
+2016-09-24 20:17:14,947 fail2ban.actions        [17595]: NOTICE  [sshd] 116.31.116.16 already banned
+2016-09-24 20:17:20,250 fail2ban.filter         [17595]: INFO    [sshd] Found 116.31.116.16
+2016-09-24 20:17:22,254 fail2ban.filter         [17595]: INFO    [sshd] Found 116.31.116.16
+2016-09-24 20:17:24,999 fail2ban.filter         [17595]: INFO    [sshd] Found 116.31.116.16
+2016-09-24 20:17:27,499 fail2ban.filter         [17595]: INFO    [sshd] Found 116.31.116.16
+2016-09-24 20:18:19,251 fail2ban.filter         [17595]: INFO    [sshd] Found 116.31.116.16
+2016-09-24 20:18:20,028 fail2ban.actions        [17595]: NOTICE  [sshd] 116.31.116.16 already banned
+2016-09-24 20:18:20,500 fail2ban.filter         [17595]: INFO    [sshd] Found 116.31.116.16
+2016-09-24 20:18:22,753 fail2ban.filter         [17595]: INFO    [sshd] Found 116.31.116.16
+
+
+ipset list
+Name: fail2ban-sshd
+Type: hash:ip
+Revision: 4
+Header: family inet hashsize 1024 maxelem 65536 timeout 2592000
+Size in memory: 12704
+References: 0
+Members:
+14.175.62.142 timeout 4294433
+14.175.101.234 timeout 4294433
+59.148.215.44 timeout 4294445
+169.44.131.51 timeout 4294436
+91.224.160.131 timeout 4294447
+118.233.14.92 timeout 4294431
+
+
+
+Version-Release number of selected component (if applicable):
+rpm -qa | grep fail2ban
+fail2ban-firewalld-0.9.4-5.fc24.noarch
+fail2ban-server-0.9.4-5.fc24.noarch
+fail2ban-sendmail-0.9.4-5.fc24.noarch
+fail2ban-0.9.4-5.fc24.noarch</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9740592</commentid>
+    <comment_count>1</comment_count>
+    <who name="Gerald Cox">gbcox</who>
+    <bug_when>2016-09-24 23:35:11 -0400</bug_when>
+    <thetext>Here is the workaround command I&apos;ve been using as the entries show up in the log, but it kind of defeats the purpose of fail2ban if I have to manually check the log and issue block commands:
+
+firewall-cmd --zone=home --add-rich-rule=&apos;rule family=&quot;ipv4&quot; source address=&quot;116.31.116.16&quot; drop</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9740896</commentid>
+    <comment_count>2</comment_count>
+    <who name="Gerald Cox">gbcox</who>
+    <bug_when>2016-09-25 11:30:06 -0400</bug_when>
+    <thetext>I believe I have found the problem...
+
+firewall-cmd --direct --get-all-rules
+ipv4 filter INPUT 0 -p tcp -m multiport --dports ssh -m set --match-set fail2ban-sshd src -j REJECT --reject-with icmp-port-unreachable
+
+This is the default rule being created... it isn&apos;t blocking traffic.
+
+To get it to work I needed to change &quot;REJECT --reject-with icmp-port-unreachable&quot; to &quot;DROP&quot;
+
+However, to do this, I had to manually change the firewallcmd-ipset.conf file 
+&lt;blocktype&gt; variable to the fixed value DROP as follows:
+
+actionstart = ipset create fail2ban-&lt;name&gt; hash:ip timeout &lt;bantime&gt;
+              firewall-cmd --direct --add-rule ipv4 filter &lt;chain&gt; 0 -p &lt;protocol&gt; -m multiport --dports &lt;port&gt; -m set --match-set fail2ban-&lt;name&gt; src -j &lt;blocktype&gt;
+
+actionstop = firewall-cmd --direct --remove-rule ipv4 filter &lt;chain&gt; 0 -p &lt;protocol&gt; -m multiport --dports &lt;port&gt; -m set --match-set fail2ban-&lt;name&gt; src -j &lt;blocktype&gt;
+             ipset flush fail2ban-&lt;name&gt;
+             ipset destroy fail2ban-&lt;name&gt;
+
+to
+
+actionstart = ipset create fail2ban-&lt;name&gt; hash:ip timeout &lt;bantime&gt;
+              firewall-cmd --direct --add-rule ipv4 filter &lt;chain&gt; 0 -p &lt;protocol&gt; -m multiport --dports &lt;port&gt; -m set --match-set fail2ban-&lt;name&gt; src -j DROP
+
+actionstop = firewall-cmd --direct --remove-rule ipv4 filter &lt;chain&gt; 0 -p &lt;protocol&gt; -m multiport --dports &lt;port&gt; -m set --match-set fail2ban-&lt;name&gt; src -j DROP
+             ipset flush fail2ban-&lt;name&gt;
+             ipset destroy fail2ban-&lt;name&gt;
+
+
+If I read the documentation correction, I should be able to simple create a file
+iptables-blocktype.local which will override the &lt;blocktype&gt; defaults...
+
+[DEFAULT]
+
+blocktype = DROP
+
+It doesn&apos;t work...</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9740902</commentid>
+    <comment_count>3</comment_count>
+    <who name="Gerald Cox">gbcox</who>
+    <bug_when>2016-09-25 11:57:28 -0400</bug_when>
+    <thetext>I found where apparently the file should be:
+
+iptables-common.local now instead of iptables-blocktype.local
+
+I created it as follows:
+
+[Init]
+
+blocktype = DROP
+
+
+So that works around the issue, but we probably shouldn&apos;t have a command that doesn&apos;t work as the default - unless I&apos;m missing something...</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9740952</commentid>
+    <comment_count>4</comment_count>
+    <who name="Gerald Cox">gbcox</who>
+    <bug_when>2016-09-25 14:15:02 -0400</bug_when>
+    <thetext>Well, I still have it working but the whole DROP vs REJECT reason for failure was a red herring - although the exercise allowed me to figure out how to change the default via iptables-common.local
+
+What I found was at times when fail2ban is shutdown, for whatever reason the ipfilter rule:  firewall-cmd --direct --get-all-rules isn&apos;t deleted - and apparently this somehow causes the ban functionality to not work when fail2ban is restarted.  
+
+I found that if I manually delete the rule when this happens before restarting fail2ban that circumvents the issue.  I did notice there is a new release of fail2ban while going through all of this... maybe that fixes the issue.  I haven&apos;t been able to figure out causes the issue.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9743501</commentid>
+    <comment_count>5</comment_count>
+    <who name="Gerald Cox">gbcox</who>
+    <bug_when>2016-09-26 13:45:02 -0400</bug_when>
+    <thetext>Sorry for all the comments, thought I&apos;d add one last one for people who may encounter this issue so they don&apos;t have to drudge through all my blather above:
+
+If you notice that things aren&apos;t being banned correctly, first shutdown fail2ban
+
+systemctl stop fail2ban.service
+
+Then, check to see if there are any &quot;--match-set fail2ban-sshd&quot; rules:
+
+firewall-cmd --direct --get-all-rules
+
+There shouldn&apos;t be... if you notice that there are, get rid of them by:
+copying the rule:  starts with:  ipv4 filter ... 
+
+issue the command:  
+firewall-cmd --permanent --direct --remove-rule &lt;paste line copied here&gt;
+
+Now you should be able to start fail2ban:  
+systemctl start fail2ban.service
+
+if you reissue the:
+filewall-cmd --direct --get-all-rules
+
+you&apos;ll notice that the &quot;--match-set fail2ban-sshd&quot; rule has been recreated.
+
+Whenever you shutdown fail2ban, this rule should be deleted.  At times, and I haven&apos;t figured out why... it isn&apos;t - and it appears this causes an issue with things being banned.  At least that is what I have observed.
+
+The other thing I learned (as mentioned above) is that if you want to change the default behavior of the ban from REJECT to DROP you need to create the
+
+iptables-common.local
+
+file as mentioned in comment #3.
+
+You&apos;ll find references on the web and in some of the actual files in fail2ban  to &quot;iptables-blocktype.local&quot; - this doesn&apos;t work.  Not sure if it used to be called that and they changed their mind or it has some other function now.  In any event... it doesn&apos;t work to change the default behavior... for that, use iptables-common.local</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9762837</commentid>
+    <comment_count>6</comment_count>
+    <who name="Orion Poplawski">orion</who>
+    <bug_when>2016-10-03 18:07:24 -0400</bug_when>
+    <thetext>FWIW - I can&apos;t reproduce this on rawhide with 0.9.5, so I&apos;m hoping it will be fixed with the update.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9766568</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-10-04 22:26:00 -0400</bug_when>
+    <thetext>fail2ban-0.9.5-3.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-7db83f651b</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9774355</commentid>
+    <comment_count>8</comment_count>
+    <who name="Gerald Cox">gbcox</who>
+    <bug_when>2016-10-07 16:22:46 -0400</bug_when>
+    <thetext>Just left feedback on bodhi... appears to have fixed the issue.  Thanks!</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9775925</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-10-09 02:20:36 -0400</bug_when>
+    <thetext>fail2ban-0.9.5-3.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

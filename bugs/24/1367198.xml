@@ -1,0 +1,334 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1367198</bug_id>
+          
+          <creation_ts>2016-08-15 16:21:00 -0400</creation_ts>
+          <short_desc>chromium should depend on semanage</short_desc>
+          <delta_ts>2016-10-21 11:51:42 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>chromium</component>
+          <version>24</version>
+          <rep_platform>All</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords>Reopened</keywords>
+          <priority>unspecified</priority>
+          <bug_severity>low</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Cristian Ciupitu">cristian.ciupitu</reporter>
+          <assigned_to name="Tom &quot;spot&quot; Callaway">tcallawa</assigned_to>
+          <cc>pnemade</cc>
+    
+    
+    <cc>tcallawa</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>chromium-52.0.2743.116-9.fc24 chromium-52.0.2743.116-10.fc25 chromium-52.0.2743.116-10.fc23 chromium-53.0.2785.143-1.el7</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-10-21 11:51:42</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9616379</commentid>
+    <comment_count>0</comment_count>
+    <who name="Cristian Ciupitu">cristian.ciupitu</who>
+    <bug_when>2016-08-15 16:21:34 -0400</bug_when>
+    <thetext>Description of problem:
+chromium install scripts run semanage, but chromium does not depend on the package providing semanage.
+
+Version-Release number of selected component (if applicable):
+chromium-52.0.2743.116-1.fc24.x86_64
+
+How reproducible:
+Every time 
+
+Steps to Reproduce:
+1. Make sure semanage is not installed, e.g. you have a minimal Fedora install, but SELinux is enabled (the default).
+2. Install chromium, e.g. by running `dnf install chromium`.
+
+Actual results:
+  Installing  : chromium-libs-52.0.2743.116-1.fc24.x86_64       17/19
+  Installing  : u2f-hidraw-policy-1.0.2-2.fc24.x86_64           18/19
+  Installing  : chromium-52.0.2743.116-1.fc24.x86_64            19/19
+/var/tmp/rpm-tmp.NNrJyb: line 4: semanage: command not found
+/var/tmp/rpm-tmp.NNrJyb: line 5: semanage: command not found
+/var/tmp/rpm-tmp.NNrJyb: line 6: semanage: command not found
+  Verifying   : chromium-52.0.2743.116-1.fc24.x86_64             1/19
+
+Expected results:
+No errors
+
+Additional info:
+semanage seems to be part of policycoreutils-python-utils:
+# rpm -q -f /sbin/semanage
+policycoreutils-python-utils-2.5-13.fc24.x86_64</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9617655</commentid>
+    <comment_count>1</comment_count>
+    <who name="Parag Nemade">pnemade</who>
+    <bug_when>2016-08-16 03:56:08 -0400</bug_when>
+    <thetext>Should following in spec
+Requires(post): /sbin/semanage
+be actually written as
+Requires(post): /usr/sbin/semanage
+?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9618157</commentid>
+    <comment_count>2</comment_count>
+    <who name="Cristian Ciupitu">cristian.ciupitu</who>
+    <bug_when>2016-08-16 06:24:33 -0400</bug_when>
+    <thetext>(In reply to Parag Nemade from comment #1)
+
+Not in my current version:
+[root@localhost ~]# rpm -q --requires chromium-52.0.2743.116-1.fc24.x86_64 | grep semanage
+[root@localhost ~]#</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9618734</commentid>
+    <comment_count>3</comment_count>
+    <who name="Parag Nemade">pnemade</who>
+    <bug_when>2016-08-16 08:39:02 -0400</bug_when>
+    <thetext>Hi Cristian,
+   I picked the latest from koji -&gt; http://koji.fedoraproject.org/koji/packageinfo?packageID=22672</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9620746</commentid>
+    <comment_count>4</comment_count>
+    <who name="Cristian Ciupitu">cristian.ciupitu</who>
+    <bug_when>2016-08-16 19:30:32 -0400</bug_when>
+    <thetext>http://koji.fedoraproject.org/koji/rpminfo?rpmID=7966309 doesn&apos;t list semanage as far as I can see.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9621113</commentid>
+    <comment_count>5</comment_count>
+    <who name="Parag Nemade">pnemade</who>
+    <bug_when>2016-08-17 00:17:50 -0400</bug_when>
+    <thetext>You need to check in binary rpms not source rpm. See this http://koji.fedoraproject.org/koji/rpminfo?rpmID=7966310</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9623673</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-17 13:34:35 -0400</bug_when>
+    <thetext>chromium-52.0.2743.116-9.el7 has been submitted as an update to Fedora EPEL 7. https://bodhi.fedoraproject.org/updates/FEDORA-EPEL-2016-19c0d6b4b2</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9623679</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-17 13:35:03 -0400</bug_when>
+    <thetext>chromium-52.0.2743.116-9.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-3431daeaf0</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9623685</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-17 13:35:23 -0400</bug_when>
+    <thetext>chromium-52.0.2743.116-9.fc23 has been submitted as an update to Fedora 23. https://bodhi.fedoraproject.org/updates/FEDORA-2016-6a35f3eeea</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9623693</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-17 13:35:45 -0400</bug_when>
+    <thetext>chromium-52.0.2743.116-9.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2016-95d9b62ed3</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9624074</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-17 15:51:53 -0400</bug_when>
+    <thetext>chromium-52.0.2743.116-9.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-95d9b62ed3</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9624697</commentid>
+    <comment_count>11</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-17 21:50:05 -0400</bug_when>
+    <thetext>chromium-52.0.2743.116-9.fc23 has been pushed to the Fedora 23 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-6a35f3eeea</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9624731</commentid>
+    <comment_count>12</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-17 21:51:04 -0400</bug_when>
+    <thetext>chromium-52.0.2743.116-9.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-3431daeaf0</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9625040</commentid>
+    <comment_count>13</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-18 00:18:23 -0400</bug_when>
+    <thetext>chromium-52.0.2743.116-9.el7 has been pushed to the Fedora EPEL 7 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-EPEL-2016-19c0d6b4b2</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9649224</commentid>
+    <comment_count>14</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-25 09:54:26 -0400</bug_when>
+    <thetext>chromium-52.0.2743.116-9.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9653028</commentid>
+    <comment_count>15</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-26 09:32:50 -0400</bug_when>
+    <thetext>chromium-52.0.2743.116-10.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2016-2a0c80295c</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9653038</commentid>
+    <comment_count>16</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-26 09:33:26 -0400</bug_when>
+    <thetext>chromium-52.0.2743.116-10.fc23 has been submitted as an update to Fedora 23. https://bodhi.fedoraproject.org/updates/FEDORA-2016-3a8d9311f8</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9655881</commentid>
+    <comment_count>17</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-27 08:53:10 -0400</bug_when>
+    <thetext>chromium-52.0.2743.116-10.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-2a0c80295c</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9656574</commentid>
+    <comment_count>18</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-27 18:21:41 -0400</bug_when>
+    <thetext>chromium-52.0.2743.116-10.fc23 has been pushed to the Fedora 23 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-3a8d9311f8</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9660624</commentid>
+    <comment_count>19</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-29 15:25:46 -0400</bug_when>
+    <thetext>chromium-52.0.2743.116-11.el7 has been submitted as an update to Fedora EPEL 7. https://bodhi.fedoraproject.org/updates/FEDORA-EPEL-2016-e82affa05e</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9667664</commentid>
+    <comment_count>20</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-31 09:49:45 -0400</bug_when>
+    <thetext>chromium-52.0.2743.116-11.el7 has been pushed to the Fedora EPEL 7 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-EPEL-2016-e82affa05e</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9668321</commentid>
+    <comment_count>21</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-31 12:28:34 -0400</bug_when>
+    <thetext>chromium-52.0.2743.116-10.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9694861</commentid>
+    <comment_count>22</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-09 12:54:44 -0400</bug_when>
+    <thetext>chromium-52.0.2743.116-10.fc23 has been pushed to the Fedora 23 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9695226</commentid>
+    <comment_count>23</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-09 15:07:50 -0400</bug_when>
+    <thetext>chromium-53.0.2785.101-1.el7 has been submitted as an update to Fedora EPEL 7. https://bodhi.fedoraproject.org/updates/FEDORA-EPEL-2016-6d70ae9a57</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9695868</commentid>
+    <comment_count>24</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-10 01:48:41 -0400</bug_when>
+    <thetext>chromium-53.0.2785.101-1.el7 has been pushed to the Fedora EPEL 7 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-EPEL-2016-6d70ae9a57</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9708578</commentid>
+    <comment_count>25</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-14 15:28:28 -0400</bug_when>
+    <thetext>chromium-53.0.2785.113-1.el7 has been submitted as an update to Fedora EPEL 7. https://bodhi.fedoraproject.org/updates/FEDORA-EPEL-2016-449d647265</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9712719</commentid>
+    <comment_count>26</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-15 19:52:06 -0400</bug_when>
+    <thetext>chromium-53.0.2785.113-1.el7 has been pushed to the Fedora EPEL 7 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-EPEL-2016-449d647265</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9750729</commentid>
+    <comment_count>27</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-28 12:19:43 -0400</bug_when>
+    <thetext>chromium-53.0.2785.116-1.el7 has been pushed to the Fedora EPEL 7 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-EPEL-2016-bf5b9b3332</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9764659</commentid>
+    <comment_count>28</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-10-04 09:19:35 -0400</bug_when>
+    <thetext>chromium-53.0.2785.143-1.el7 has been pushed to the Fedora EPEL 7 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-EPEL-2016-387d58ef27</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9811806</commentid>
+    <comment_count>29</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-10-21 11:51:42 -0400</bug_when>
+    <thetext>chromium-53.0.2785.143-1.el7 has been pushed to the Fedora EPEL 7 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

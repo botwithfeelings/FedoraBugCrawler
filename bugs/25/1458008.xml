@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1458008</bug_id>
+          
+          <creation_ts>2017-06-01 14:21:00 -0400</creation_ts>
+          <short_desc>test builtin gives wrong result when file modification times differ below whole seconds</short_desc>
+          <delta_ts>2017-07-07 19:06:56 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>bash</component>
+          <version>25</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords>EasyFix, Patch</keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>1458178</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Roman Žilka">rzilka</reporter>
+          <assigned_to name="Siteshwar Vashisht">svashisht</assigned_to>
+          <cc>admiller</cc>
+    
+    
+    <cc>jskarvad</cc>
+    
+    
+    <cc>kdudka</cc>
+    
+    
+    <cc>svashisht</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>bash-4.4.12-6.fc26</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-07-07 19:06:56</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10469932</commentid>
+    <comment_count>0</comment_count>
+    <who name="Roman Žilka">rzilka</who>
+    <bug_when>2017-06-01 14:21:04 -0400</bug_when>
+    <thetext>If the mtimes of two files differ by less than 1 second while the component of secs in the same in both timestamps, the command &quot;[ file1 -nt/-ot file2 ]&quot; gives a wrong result. Here &apos;[&apos; is the bash builtin.
+
+Version-Release number of selected component (if applicable):
+bash-4.3.43-4.fc25.x86_64
+bash-4.2.46-20.el7_2.x86_64 (RHEL 7.3)
+
+Steps to Reproduce:
+$ while true; do touch a; sleep 0.6; touch b; stat a b|grep Modify; [ b -nt a ] &amp;&amp; echo test_cmd_ok; echo; done
+
+Actual results:
+
+Modify: 2017-06-01 19:31:05.699921567 +0200
+Modify: 2017-06-01 19:31:06.303918131 +0200
+test_cmd_ok
+
+Modify: 2017-06-01 19:31:06.309918097 +0200
+Modify: 2017-06-01 19:31:06.913914657 +0200
+
+Modify: 2017-06-01 19:31:06.918914629 +0200
+Modify: 2017-06-01 19:31:07.522911187 +0200
+test_cmd_ok
+
+Modify: 2017-06-01 19:31:07.527911159 +0200
+Modify: 2017-06-01 19:31:08.132907713 +0200
+test_cmd_ok
+
+Modify: 2017-06-01 19:31:08.137907685 +0200
+Modify: 2017-06-01 19:31:08.742904235 +0200
+
+Modify: 2017-06-01 19:31:08.748904201 +0200
+Modify: 2017-06-01 19:31:09.351900765 +0200
+test_cmd_ok
+
+Modify: 2017-06-01 19:31:09.357900731 +0200
+Modify: 2017-06-01 19:31:09.961897294 +0200
+
+Modify: 2017-06-01 19:31:09.967897260 +0200
+Modify: 2017-06-01 19:31:10.570893817 +0200
+test_cmd_ok
+
+Modify: 2017-06-01 19:31:10.576893783 +0200
+Modify: 2017-06-01 19:31:11.180890345 +0200
+test_cmd_ok
+
+Modify: 2017-06-01 19:31:11.186890311 +0200
+Modify: 2017-06-01 19:31:11.789886880 +0200
+
+Modify: 2017-06-01 19:31:11.795886846 +0200
+Modify: 2017-06-01 19:31:12.399883404 +0200
+test_cmd_ok
+
+
+Expected results:
+
+Modify: 2017-06-01 19:31:05.699921567 +0200
+Modify: 2017-06-01 19:31:06.303918131 +0200
+test_cmd_ok
+
+Modify: 2017-06-01 19:31:06.309918097 +0200
+Modify: 2017-06-01 19:31:06.913914657 +0200
+test_cmd_ok
+
+Modify: 2017-06-01 19:31:06.918914629 +0200
+Modify: 2017-06-01 19:31:07.522911187 +0200
+test_cmd_ok
+
+Modify: 2017-06-01 19:31:07.527911159 +0200
+Modify: 2017-06-01 19:31:08.132907713 +0200
+test_cmd_ok
+
+Modify: 2017-06-01 19:31:08.137907685 +0200
+Modify: 2017-06-01 19:31:08.742904235 +0200
+test_cmd_ok
+
+Modify: 2017-06-01 19:31:08.748904201 +0200
+Modify: 2017-06-01 19:31:09.351900765 +0200
+test_cmd_ok
+
+Modify: 2017-06-01 19:31:09.357900731 +0200
+Modify: 2017-06-01 19:31:09.961897294 +0200
+test_cmd_ok
+
+Modify: 2017-06-01 19:31:09.967897260 +0200
+Modify: 2017-06-01 19:31:10.570893817 +0200
+test_cmd_ok
+
+Modify: 2017-06-01 19:31:10.576893783 +0200
+Modify: 2017-06-01 19:31:11.180890345 +0200
+test_cmd_ok
+
+Modify: 2017-06-01 19:31:11.186890311 +0200
+Modify: 2017-06-01 19:31:11.789886880 +0200
+test_cmd_ok
+
+Modify: 2017-06-01 19:31:11.795886846 +0200
+Modify: 2017-06-01 19:31:12.399883404 +0200
+test_cmd_ok
+
+
+Additional info:
+Note that the &apos;[&apos; command from coreutils works as expected.
+
+A quick recursive grep of the filesystem reveals a certain number of instances of &quot;[ -nt/-ot&quot; in files belonging to some common packages like elfutils, git, grub as well as sendmail and postfix (at least in RHEL). I came accross this bug while debugging weird behavior of /etc/mail/make (part of sendmail, called e.g. from its systemd unit file) which wouldn&apos;t refresh the main config file sometimes if called in fast repetition.
+
+As far as RHEL is concerned, this issue might be of interest to the developers of packages that call &quot;[ -nt/-ot&quot;. I&apos;m at least adding CC: sendmail/posftix&apos;s Jaroslav Skarvada.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10471271</commentid>
+    <comment_count>1</comment_count>
+    <who name="Kamil Dudka">kdudka</who>
+    <bug_when>2017-06-02 02:57:37 -0400</bug_when>
+    <thetext>Thank you for reporting the bug!
+
+This seems to be caused by the get_stat_mtime_ns() function returning 0 because of STAT_TIMESPEC and STAT_TIMESPEC_NS not being defined.
+
+The autoconf tests check for sub-second precision for atime only, so we end up with HAVE_STRUCT_STAT_ST_ATIMESPEC_TV_NSEC not being defined.  But it doe not mean that we cannot obtain mtime with sub-second precision.  In fact, strace shows that bash gets precise enough data but, if I stop gdb in timespec_cmp(), the tv_nsec fields are always zero.
+
+Note that this bug is specific to bash.  ksh, zsh, and coreutils seem compare mtime with sub-second precision.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10473873</commentid>
+    <comment_count>2</comment_count>
+    <who name="Siteshwar Vashisht">svashisht</who>
+    <bug_when>2017-06-02 20:47:05 -0400</bug_when>
+    <thetext>https://lists.gnu.org/archive/html/bug-bash/2017-06/msg00010.html</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10499543</commentid>
+    <comment_count>3</comment_count>
+    <who name="Siteshwar Vashisht">svashisht</who>
+    <bug_when>2017-06-12 22:25:38 -0400</bug_when>
+    <thetext>Fixed in upstream http://git.savannah.gnu.org/cgit/bash.git/commit/?id=b90cb5a280ebb8ac03306a5b19aea6b997c71ee7</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10557858</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-30 12:08:29 -0400</bug_when>
+    <thetext>bash-4.4.12-6.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-2b6507886b</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10559181</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-07-01 16:54:20 -0400</bug_when>
+    <thetext>bash-4.4.12-6.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-2b6507886b</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10576066</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-07-07 19:06:56 -0400</bug_when>
+    <thetext>bash-4.4.12-6.fc26 has been pushed to the Fedora 26 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

@@ -1,0 +1,380 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1449643</bug_id>
+          
+          <creation_ts>2017-05-10 08:03:00 -0400</creation_ts>
+          <short_desc>Running groupadd produces AVC denials about net_admin and write to system_dbusd_var_run_t</short_desc>
+          <delta_ts>2017-06-15 17:43:29 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>selinux-policy</component>
+          <version>26</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard>AcceptedBlocker</status_whiteboard>
+          <keywords>Regression, SELinux</keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>1349188</blocked>
+    
+    
+    <blocked>1349189</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Jan Pazdziora">jpazdziora</reporter>
+          <assigned_to name="Lukas Vrabec">lvrabec</assigned_to>
+          <cc>arturpolak1</cc>
+    
+    
+    <cc>awilliam</cc>
+    
+    
+    <cc>bugzilla</cc>
+    
+    
+    <cc>dominick.grift</cc>
+    
+    
+    <cc>dwalsh</cc>
+    
+    
+    <cc>jfrieben</cc>
+    
+    
+    <cc>jpazdziora</cc>
+    
+    
+    <cc>kanelxake</cc>
+    
+    
+    <cc>kparal</cc>
+    
+    
+    <cc>lennart_reuther</cc>
+    
+    
+    <cc>lvrabec</cc>
+    
+    
+    <cc>mgrepl</cc>
+    
+    
+    <cc>plautrba</cc>
+    
+    
+    <cc>pmoore</cc>
+    
+    
+    <cc>proski</cc>
+    
+    
+    <cc>pvrabec</cc>
+    
+    
+    <cc>robatino</cc>
+    
+    
+    <cc>securedigitalco</cc>
+    
+    
+    <cc>ssekidde</cc>
+    
+    
+    <cc>tmraz</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>selinux-policy-3.13.1-257.fc26</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-06-12 09:05:31</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10400210</commentid>
+    <comment_count>0</comment_count>
+    <who name="Jan Pazdziora">jpazdziora</who>
+    <bug_when>2017-05-10 08:03:29 -0400</bug_when>
+    <thetext>Description of problem:
+
+Installing libcgroup seems to run groupadd which in turn produces AVC denials.
+
+Version-Release number of selected component (if applicable):
+
+shadow-utils-4.3.1-3.fc26.x86_64
+kernel-4.11.0-0.rc8.git0.1.fc26.x86_64
+selinux-policy-3.13.1-249.fc26.noarch
+libcgroup-0.41-11.fc26.x86_64
+
+How reproducible:
+
+Deterministic.
+
+Steps to Reproduce:
+1. dnf install -y libcgroup
+2. Check audit.log.
+
+Actual results:
+
+type=AVC msg=audit(1494387026.407:124): avc:  denied  { net_admin } for  pid=1244 comm=&quot;groupadd&quot; capability=12  scontext=system_u:unconfined_r:groupadd_t:s0 tcontext=system_u:unconfined_r:groupadd_t:s0 tclass=capability permissive=0
+type=AVC msg=audit(1494387026.407:125): avc:  denied  { net_admin } for  pid=1244 comm=&quot;groupadd&quot; capability=12  scontext=system_u:unconfined_r:groupadd_t:s0 tcontext=system_u:unconfined_r:groupadd_t:s0 tclass=capability permissive=0
+
+type=AVC msg=audit(1494387026.407:126): avc:  denied  { write } for  pid=1244 comm=&quot;groupadd&quot; name=&quot;system_bus_socket&quot; dev=&quot;tmpfs&quot; ino=14232 scontext=system_u:unconfined_r:groupadd_t:s0 tcontext=system_u:object_r:system_dbusd_var_run_t:s0 tclass=sock_file permissive=0
+
+Expected results:
+
+No AVC denials.
+
+Additional info:
+
+Filing against shadow-utils in case this is something which needs to be addressed in groupadd, rather than in selinux-policy.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10400464</commentid>
+    <comment_count>2</comment_count>
+    <who name="Tomas Mraz">tmraz</who>
+    <bug_when>2017-05-10 08:49:16 -0400</bug_when>
+    <thetext>Lukáš, can you please look at it? I don&apos;t think this is something solvable by groupadd itself.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10408369</commentid>
+    <comment_count>3</comment_count>
+    <who name="Tomas Mraz">tmraz</who>
+    <bug_when>2017-05-12 11:51:16 -0400</bug_when>
+    <thetext>I see only the first AVC - net_admin denial when I try to reproduce. This is legitimate and caused by kernel.
+
+I do not see the dbus related one.
+
+What is in your /etc/nsswitch.conf.
+
+Is this running in container or regular install?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10413315</commentid>
+    <comment_count>4</comment_count>
+    <who name="Jan Pazdziora">jpazdziora</who>
+    <bug_when>2017-05-15 10:20:47 -0400</bug_when>
+    <thetext>This is regular, on host install. The nsswitch.conf contains
+
+passwd:      sss files systemd
+shadow:     files sss
+group:       sss files systemd
+
+#hosts:     db files nisplus nis dns
+hosts:      files dns myhostname
+
+# Example - obey only what nisplus tells us...
+#services:   nisplus [NOTFOUND=return] files
+#networks:   nisplus [NOTFOUND=return] files
+#protocols:  nisplus [NOTFOUND=return] files
+#rpc:        nisplus [NOTFOUND=return] files
+#ethers:     nisplus [NOTFOUND=return] files
+#netmasks:   nisplus [NOTFOUND=return] files
+
+bootparams: nisplus [NOTFOUND=return] files
+
+ethers:     files
+netmasks:   files
+networks:   files
+protocols:  files
+rpc:        files
+services:   files sss
+
+netgroup:   nisplus sss
+
+publickey:  nisplus
+
+automount:  files nisplus
+aliases:    files nisplus</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10413324</commentid>
+    <comment_count>6</comment_count>
+    <who name="Jan Pazdziora">jpazdziora</who>
+    <bug_when>2017-05-15 10:21:47 -0400</bug_when>
+    <thetext>Sorry for clearing the wrong needinfo.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10413360</commentid>
+    <comment_count>7</comment_count>
+    <who name="Tomas Mraz">tmraz</who>
+    <bug_when>2017-05-15 10:27:54 -0400</bug_when>
+    <thetext>I&apos;d expect some dbus communication from the systemd module. So if it is now by default there (should it really really be there?) there could be some dbus accesses by all processes possible.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10420366</commentid>
+    <comment_count>8</comment_count>
+    <who name="Lukas Vrabec">lvrabec</who>
+    <bug_when>2017-05-17 06:31:47 -0400</bug_when>
+    <thetext>I&apos;m not able reproduce this bug and get SELinux denials from description. But if dbus communication is excepted I have no problem to allow it. 
+
+Moving this issue to selinux-policy component.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10420380</commentid>
+    <comment_count>9</comment_count>
+    <who name="Lukas Vrabec">lvrabec</who>
+    <bug_when>2017-05-17 06:33:37 -0400</bug_when>
+    <thetext>*** Bug 1416961 has been marked as a duplicate of this bug. ***</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10420382</commentid>
+    <comment_count>10</comment_count>
+    <who name="Lukas Vrabec">lvrabec</who>
+    <bug_when>2017-05-17 06:33:41 -0400</bug_when>
+    <thetext>*** Bug 1416962 has been marked as a duplicate of this bug. ***</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10462903</commentid>
+    <comment_count>12</comment_count>
+    <who name="Kamil Páral">kparal</who>
+    <bug_when>2017-05-31 07:15:23 -0400</bug_when>
+    <thetext>Description of problem:
+This happened during a default installation of F26 Beta 1.3 Workstation Live.
+
+Version-Release number of selected component:
+selinux-policy-3.13.1-251.fc26.noarch
+
+Additional info:
+reporter:       libreport-2.9.1
+hashmarkername: setroubleshoot
+kernel:         4.11.0-2.fc26.x86_64
+type:           libreport</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10462912</commentid>
+    <comment_count>13</comment_count>
+    <who name="Kamil Páral">kparal</who>
+    <bug_when>2017-05-31 07:17:04 -0400</bug_when>
+    <thetext>Proposing as a F26 Final blocker:
+&quot;There must be no SELinux denial notifications or crash notifications on boot of or during installation from a release-blocking live image, or at first login after a default install of a release-blocking desktop. &quot;
+https://fedoraproject.org/wiki/Fedora_26_Final_Release_Criteria#SELinux_and_crash_notifications</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10476747</commentid>
+    <comment_count>14</comment_count>
+    <who name="Kamil Páral">kparal</who>
+    <bug_when>2017-06-05 06:29:13 -0400</bug_when>
+    <thetext>Description of problem:
+The same as in https://bugzilla.redhat.com/show_bug.cgi?id=1416964#c7 . I was installing bzflag from repos.
+
+Version-Release number of selected component:
+selinux-policy-3.13.1-254.fc26.noarch
+
+Additional info:
+reporter:       libreport-2.9.1
+hashmarkername: setroubleshoot
+kernel:         4.11.3-300.fc26.x86_64
+type:           libreport</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10477398</commentid>
+    <comment_count>15</comment_count>
+    <who name="Peter Hjalmarsson">kanelxake</who>
+    <bug_when>2017-06-05 09:41:57 -0400</bug_when>
+    <thetext>Description of problem:
+Ran &quot;dnf upgrade -y --refresh&quot;
+
+Version-Release number of selected component:
+selinux-policy-3.13.1-254.fc26.noarch
+
+Additional info:
+reporter:       libreport-2.9.1
+hashmarkername: setroubleshoot
+kernel:         4.11.3-300.fc26.x86_64
+type:           libreport</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10478027</commentid>
+    <comment_count>16</comment_count>
+    <who name="Pavel Roskin">proski</who>
+    <bug_when>2017-06-05 12:06:31 -0400</bug_when>
+    <thetext>Description of problem:
+Running &quot;sudo dnf -y upgrade --refresh&quot;
+
+
+Additional info:
+reporter:       libreport-2.9.1
+hashmarkername: setroubleshoot
+kernel:         4.11.3-300.fc26.x86_64
+type:           libreport</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10478451</commentid>
+    <comment_count>17</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2017-06-05 14:58:30 -0400</bug_when>
+    <thetext>Discussed at 2017-06-05 blocker review meeting: https://meetbot-raw.fedoraproject.org/fedora-blocker-review/2017-06-05/f26-blocker-review.2017-06-05-16.01.html . Accepted as a blocker per Kamil&apos;s claim that it happens during a default Workstation install, as a violation of criterion &quot;There must be no SELinux denial notifications or crash notifications on boot of or during installation from a release-blocking live image, or at first login after a default install of a release-blocking desktop.&quot;</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10489027</commentid>
+    <comment_count>18</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-08 07:09:43 -0400</bug_when>
+    <thetext>selinux-policy-3.13.1-257.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-6a43388229</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10494901</commentid>
+    <comment_count>19</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-09 21:09:36 -0400</bug_when>
+    <thetext>selinux-policy-3.13.1-257.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-6a43388229</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10497806</commentid>
+    <comment_count>20</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-12 09:05:31 -0400</bug_when>
+    <thetext>selinux-policy-3.13.1-257.fc26 has been pushed to the Fedora 26 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10503316</commentid>
+    <comment_count>21</comment_count>
+    <who name="Jesse">securedigitalco</who>
+    <bug_when>2017-06-13 22:30:25 -0400</bug_when>
+    <thetext>Description of problem:
+Not sure just found this bug, possible from a program script or code from Kodi program??
+
+Version-Release number of selected component:
+selinux-policy-3.13.1-249.fc26.noarch
+selinux-policy-3.13.1-257.fc26.noarch
+
+Additional info:
+reporter:       libreport-2.9.1
+hashmarkername: setroubleshoot
+kernel:         4.11.4-300.fc26.x86_64
+type:           libreport</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

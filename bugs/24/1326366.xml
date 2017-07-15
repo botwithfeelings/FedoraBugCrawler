@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1326366</bug_id>
+          
+          <creation_ts>2016-04-12 10:23:00 -0400</creation_ts>
+          <short_desc>wrong epoll_event struct for ppc64le/ppc64</short_desc>
+          <delta_ts>2016-04-17 19:42:01 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>golang</component>
+          <version>24</version>
+          <rep_platform>ppc64</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>high</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>1071880</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Ngo Than">than</reporter>
+          <assigned_to name="Jakub Čajka">jcajka</assigned_to>
+          <cc>admiller</cc>
+    
+    
+    <cc>amurdaca</cc>
+    
+    
+    <cc>golang-updates</cc>
+    
+    
+    <cc>jcajka</cc>
+    
+    
+    <cc>lemenkov</cc>
+    
+    
+    <cc>renich</cc>
+    
+    
+    <cc>s</cc>
+    
+    
+    <cc>vbatts</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>golang-1.6.1-1.fc24</cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-04-17 19:42:01</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9229610</commentid>
+    <comment_count>0</comment_count>
+    <who name="Ngo Than">than</who>
+    <bug_when>2016-04-12 10:23:16 -0400</bug_when>
+    <thetext>Description of problem:
+The epoll_event structure is defined incorrectly which causes the failures in fsnotify.
+
+Version-Release number of selected component (if applicable):
+golang-1.6-1
+
+How reproducible:
+rebuild golang-github-go-fsnotify-fsnotify on powerpc
+
+Actual results:
+--- FAIL: TestPollerWithData (0.00s)
+        inotify_poller_test.go:85: expected poller to return true
+--- FAIL: TestPollerWithClose (0.00s)
+        inotify_poller_test.go:119: expected poller to return true
+--- FAIL: TestPollerWithWakeupAndData (0.00s)
+        inotify_poller_test.go:140: expected poller to return true
+--- FAIL: TestPollerConcurrent (0.05s)
+        inotify_poller_test.go:197: expected true
+--- FAIL: TestInotifyCloseCreate (0.05s)
+        inotify_test.go:135: Took too long to wait for event
+--- FAIL: TestInotifyStress (5.00s)
+        inotify_test.go:237: Expected at least 50 creates, got 0
+--- FAIL: TestFsnotifyMultipleOperations (0.66s)
+        integration_test.go:156: incorrect number of create events received after 500 ms (0 vs 2)
+--- FAIL: TestFsnotifyMultipleCreates (0.75s)
+        integration_test.go:283: incorrect number of create events received after 500 ms (0 vs 2)
+--- FAIL: TestFsnotifyDirOnly (0.55s)
+        integration_test.go:385: incorrect number of create events received after 500 ms (0 vs 1)
+--- FAIL: TestFsnotifyDeleteWatchedDir (0.50s)
+        integration_test.go:463: did not receive at least 2 delete events, received 0 after 500 ms
+--- FAIL: TestFsnotifySubDir (0.71s)
+        integration_test.go:542: incorrect number of create events received after 500 ms (0 vs 2)
+--- FAIL: TestFsnotifyRename (0.51s)
+        integration_test.go:622: fsnotify rename events have not been received after 500 ms
+--- FAIL: TestFsnotifyRenameToCreate (0.52s)
+        integration_test.go:698: fsnotify create events have not been received after 500 ms
+--- FAIL: TestFsnotifyRenameToOverwrite (0.50s)
+        integration_test.go:786: fsnotify events have not been received after 500 ms
+--- FAIL: TestFsnotifyAttrib (0.51s)
+        integration_test.go:925: fsnotify attribute events have not received after 500 ms
+--- FAIL: TestFsnotifyFakeSymlink (0.50s)
+        integration_test.go:1042: Created bogus symlink
+        integration_test.go:1057: fsnotify create events were not received after 500 ms
+
+Expected results:
+it should be built fine on ppc64
+
+Additional info:
+this issue is fixed in golang upstream. I also backported the fix for current golang-1.6 in fedora and confirmed that
+it fixes this epoll issue. The golang-github-go-fsnotify-fsnotify also built fine with new fixed golang.
+The backported fix will be attached in next comment</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9229620</commentid>
+    <comment_count>1</comment_count>
+      <attachid>1146469</attachid>
+    <who name="Ngo Than">than</who>
+    <bug_when>2016-04-12 10:26:25 -0400</bug_when>
+    <thetext>Created attachment 1146469
+attach the backported fix for epoll struct on power64</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9233305</commentid>
+    <comment_count>2</comment_count>
+    <who name="Jakub Čajka">jcajka</who>
+    <bug_when>2016-04-13 09:42:18 -0400</bug_when>
+    <thetext>upstream issue https://github.com/golang/go/issues/15135</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9233328</commentid>
+    <comment_count>3</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-04-13 09:46:34 -0400</bug_when>
+    <thetext>golang-1.6.1-1.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-2940ad5550</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9234777</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-04-13 17:23:08 -0400</bug_when>
+    <thetext>golang-1.6.1-1.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-2940ad5550</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9242909</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-04-17 19:41:41 -0400</bug_when>
+    <thetext>golang-1.6.1-1.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="0"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1146469</attachid>
+            <date>2016-04-12 10:26:00 -0400</date>
+            <delta_ts>2016-04-12 10:26:25 -0400</delta_ts>
+            <desc>attach the backported fix for epoll struct on power64</desc>
+            <filename>golang-1.6-epoll-power64.patch</filename>
+            <type>text/plain</type>
+            <size>4529</size>
+            <attacher name="Ngo Than">than</attacher>
+            
+              <data encoding="base64">ZGlmZiAtdXAgZ28vc3JjL3N5c2NhbGwvdHlwZXNfbGludXguZ28udGhhbiBnby9zcmMvc3lzY2Fs
+bC90eXBlc19saW51eC5nbwotLS0gZ28vc3JjL3N5c2NhbGwvdHlwZXNfbGludXguZ28udGhhbgky
+MDE2LTA0LTEyIDA5OjQ5OjQ2LjY5OTMzMzA5MSAtMDQwMAorKysgZ28vc3JjL3N5c2NhbGwvdHlw
+ZXNfbGludXguZ28JMjAxNi0wNC0xMiAwOTo1MDoxOC44NTk4NTY1MjUgLTA0MDAKQEAgLTEwNSw2
+ICsxMDUsOSBAQCBzdHJ1Y3QgbXlfZXBvbGxfZXZlbnQgewogCS8vIGFsaWdubWVudCByZXF1aXJl
+bWVudHMgb2YgRUFCSQogCWludDMyX3QgcGFkRmQ7CiAjZW5kaWYKKyNpZmRlZiAgX19wb3dlcnBj
+NjRfXworCWludDMyX3QgX3BhZEZkOworI2VuZGlmCiAJaW50MzJfdCBmZDsKIAlpbnQzMl90IHBh
+ZDsKIH07CmRpZmYgLXVwIGdvL3NyYy9zeXNjYWxsL3p0eXBlc19saW51eF9wcGM2NC5nby50aGFu
+IGdvL3NyYy9zeXNjYWxsL3p0eXBlc19saW51eF9wcGM2NC5nbwotLS0gZ28vc3JjL3N5c2NhbGwv
+enR5cGVzX2xpbnV4X3BwYzY0LmdvLnRoYW4JMjAxNi0wNC0xMiAwOTo1MDoyNy40OTk5OTcyOTgg
+LTA0MDAKKysrIGdvL3NyYy9zeXNjYWxsL3p0eXBlc19saW51eF9wcGM2NC5nbwkyMDE2LTA0LTEy
+IDA5OjU0OjI3LjU5MzkwOTE5MSAtMDQwMApAQCAtMTEzLDkgKzExMyw5IEBAIHR5cGUgU3RhdF90
+IHN0cnVjdCB7CiAJQXRpbSAgICAgICBUaW1lc3BlYwogCU10aW0gICAgICAgVGltZXNwZWMKIAlD
+dGltICAgICAgIFRpbWVzcGVjCi0JWF9fdW51c2VkNCB1aW50NjQKLQlYX191bnVzZWQ1IHVpbnQ2
+NAotCVhfX3VudXNlZDYgdWludDY0CisJXyAgICAgICAgICB1aW50NjQKKwlfICAgICAgICAgIHVp
+bnQ2NAorCV8gICAgICAgICAgdWludDY0CiB9CiAKIHR5cGUgU3RhdGZzX3Qgc3RydWN0IHsKQEAg
+LTE0Myw3ICsxNDMsNyBAQCB0eXBlIERpcmVudCBzdHJ1Y3QgewogfQogCiB0eXBlIEZzaWQgc3Ry
+dWN0IHsKLQlYX192YWwgWzJdaW50MzIKKwlfIFsyXWludDMyCiB9CiAKIHR5cGUgRmxvY2tfdCBz
+dHJ1Y3QgewpAQCAtMjQ3LDcgKzI0Nyw2IEBAIHR5cGUgQ21zZ2hkciBzdHJ1Y3QgewogCUxlbiAg
+ICAgICAgICB1aW50NjQKIAlMZXZlbCAgICAgICAgaW50MzIKIAlUeXBlICAgICAgICAgaW50MzIK
+LQlYX19jbXNnX2RhdGEgWzBddWludDgKIH0KIAogdHlwZSBJbmV0NFBrdGluZm8gc3RydWN0IHsK
+QEAgLTM2MSw3ICszNjAsNyBAQCBjb25zdCAoCiAJSUZMQV9MSU5LSU5GTyAgICAgICA9IDB4MTIK
+IAlJRkxBX05FVF9OU19QSUQgICAgID0gMHgxMwogCUlGTEFfSUZBTElBUyAgICAgICAgPSAweDE0
+Ci0JSUZMQV9NQVggICAgICAgICAgICA9IDB4MjIKKwlJRkxBX01BWCAgICAgICAgICAgID0gMHgy
+NQogCVJUX1NDT1BFX1VOSVZFUlNFICAgPSAweDAKIAlSVF9TQ09QRV9TSVRFICAgICAgID0gMHhj
+OAogCVJUX1NDT1BFX0xJTksgICAgICAgPSAweGZkCkBAIC00NTQsNyArNDUzLDcgQEAgdHlwZSBS
+dEF0dHIgc3RydWN0IHsKIAogdHlwZSBJZkluZm9tc2cgc3RydWN0IHsKIAlGYW1pbHkgICAgIHVp
+bnQ4Ci0JWF9faWZpX3BhZCB1aW50OAorCV8gICAgICAgICAgdWludDgKIAlUeXBlICAgICAgIHVp
+bnQxNgogCUluZGV4ICAgICAgaW50MzIKIAlGbGFncyAgICAgIHVpbnQzMgpAQCAtNTExLDcgKzUx
+MCw2IEBAIHR5cGUgSW5vdGlmeUV2ZW50IHN0cnVjdCB7CiAJTWFzayAgIHVpbnQzMgogCUNvb2tp
+ZSB1aW50MzIKIAlMZW4gICAgdWludDMyCi0JTmFtZSAgIFswXXVpbnQ4CiB9CiAKIGNvbnN0IFNp
+emVvZklub3RpZnlFdmVudCA9IDB4MTAKQEAgLTUzMiw2ICs1MzAsMTUgQEAgdHlwZSBQdHJhY2VS
+ZWdzIHN0cnVjdCB7CiAJUmVzdWx0ICAgIHVpbnQ2NAogfQogCit0eXBlIHB0cmFjZVBzdyBzdHJ1
+Y3QgeworfQorCit0eXBlIHB0cmFjZUZwcmVncyBzdHJ1Y3QgeworfQorCit0eXBlIHB0cmFjZVBl
+ciBzdHJ1Y3QgeworfQorCiB0eXBlIEZkU2V0IHN0cnVjdCB7CiAJQml0cyBbMTZdaW50NjQKIH0K
+QEAgLTU1MSw3ICs1NTgsNyBAQCB0eXBlIFN5c2luZm9fdCBzdHJ1Y3QgewogCVRvdGFsaGlnaCB1
+aW50NjQKIAlGcmVlaGlnaCAgdWludDY0CiAJVW5pdCAgICAgIHVpbnQzMgotCVhfZiAgICAgICBb
+MF11aW50OAorCV8gICAgICAgICBbMF11aW50OAogCVBhZF9jZ29fMSBbNF1ieXRlCiB9CiAKQEAg
+LTU3NSw2ICs1ODIsNyBAQCB0eXBlIFVzdGF0X3Qgc3RydWN0IHsKIAogdHlwZSBFcG9sbEV2ZW50
+IHN0cnVjdCB7CiAJRXZlbnRzIHVpbnQzMgorCV8gICAgICBpbnQzMgogCUZkICAgICBpbnQzMgog
+CVBhZCAgICBpbnQzMgogfQpkaWZmIC11cCBnby9zcmMvc3lzY2FsbC96dHlwZXNfbGludXhfcHBj
+NjRsZS5nby50aGFuIGdvL3NyYy9zeXNjYWxsL3p0eXBlc19saW51eF9wcGM2NGxlLmdvCi0tLSBn
+by9zcmMvc3lzY2FsbC96dHlwZXNfbGludXhfcHBjNjRsZS5nby50aGFuCTIwMTYtMDQtMTIgMDk6
+NTQ6MzcuMTM0MDY0NjI5IC0wNDAwCisrKyBnby9zcmMvc3lzY2FsbC96dHlwZXNfbGludXhfcHBj
+NjRsZS5nbwkyMDE2LTA0LTEyIDA5OjU4OjExLjA5NzU1MDc3MiAtMDQwMApAQCAtMTA1LDcgKzEw
+NSw3IEBAIHR5cGUgU3RhdF90IHN0cnVjdCB7CiAJTW9kZSAgICAgICAgICAgICAgIHVpbnQzMgog
+CVVpZCAgICAgICAgICAgICAgICB1aW50MzIKIAlHaWQgICAgICAgICAgICAgICAgdWludDMyCi0J
+WF9fcGFkMiAgICAgICAgICAgIGludDMyCisJXyAgICAgICAgICAgICAgICAgIGludDMyCiAJUmRl
+diAgICAgICAgICAgICAgIHVpbnQ2NAogCVNpemUgICAgICAgICAgICAgICBpbnQ2NAogCUJsa3Np
+emUgICAgICAgICAgICBpbnQ2NApAQCAtMTEzLDkgKzExMyw5IEBAIHR5cGUgU3RhdF90IHN0cnVj
+dCB7CiAJQXRpbSAgICAgICAgICAgICAgIFRpbWVzcGVjCiAJTXRpbSAgICAgICAgICAgICAgIFRp
+bWVzcGVjCiAJQ3RpbSAgICAgICAgICAgICAgIFRpbWVzcGVjCi0JWF9fZ2xpYmNfcmVzZXJ2ZWQ0
+IHVpbnQ2NAotCVhfX2dsaWJjX3Jlc2VydmVkNSB1aW50NjQKLQlYX19nbGliY19yZXNlcnZlZDYg
+dWludDY0CisJXyAgICAgICAgICAgICAgICAgIHVpbnQ2NAorCV8gICAgICAgICAgICAgICAgICB1
+aW50NjQKKwlfICAgICAgICAgICAgICAgICAgdWludDY0CiB9CiAKIHR5cGUgU3RhdGZzX3Qgc3Ry
+dWN0IHsKQEAgLTE0Myw3ICsxNDMsNyBAQCB0eXBlIERpcmVudCBzdHJ1Y3QgewogfQogCiB0eXBl
+IEZzaWQgc3RydWN0IHsKLQlYX192YWwgWzJdaW50MzIKKwlfIFsyXWludDMyCiB9CiAKIHR5cGUg
+RmxvY2tfdCBzdHJ1Y3QgewpAQCAtMjQ3LDcgKzI0Nyw2IEBAIHR5cGUgQ21zZ2hkciBzdHJ1Y3Qg
+ewogCUxlbiAgICAgICAgICB1aW50NjQKIAlMZXZlbCAgICAgICAgaW50MzIKIAlUeXBlICAgICAg
+ICAgaW50MzIKLQlYX19jbXNnX2RhdGEgWzBddWludDgKIH0KIAogdHlwZSBJbmV0NFBrdGluZm8g
+c3RydWN0IHsKQEAgLTM2MSw3ICszNjAsNyBAQCBjb25zdCAoCiAJSUZMQV9MSU5LSU5GTyAgICAg
+ICA9IDB4MTIKIAlJRkxBX05FVF9OU19QSUQgICAgID0gMHgxMwogCUlGTEFfSUZBTElBUyAgICAg
+ICAgPSAweDE0Ci0JSUZMQV9NQVggICAgICAgICAgICA9IDB4MjIKKwlJRkxBX01BWCAgICAgICAg
+ICAgID0gMHgyMwogCVJUX1NDT1BFX1VOSVZFUlNFICAgPSAweDAKIAlSVF9TQ09QRV9TSVRFICAg
+ICAgID0gMHhjOAogCVJUX1NDT1BFX0xJTksgICAgICAgPSAweGZkCkBAIC00NTQsNyArNDUzLDcg
+QEAgdHlwZSBSdEF0dHIgc3RydWN0IHsKIAogdHlwZSBJZkluZm9tc2cgc3RydWN0IHsKIAlGYW1p
+bHkgICAgIHVpbnQ4Ci0JWF9faWZpX3BhZCB1aW50OAorCV8gICAgICAgICAgdWludDgKIAlUeXBl
+ICAgICAgIHVpbnQxNgogCUluZGV4ICAgICAgaW50MzIKIAlGbGFncyAgICAgIHVpbnQzMgpAQCAt
+NTExLDcgKzUxMCw2IEBAIHR5cGUgSW5vdGlmeUV2ZW50IHN0cnVjdCB7CiAJTWFzayAgIHVpbnQz
+MgogCUNvb2tpZSB1aW50MzIKIAlMZW4gICAgdWludDMyCi0JTmFtZSAgIFswXXVpbnQ4CiB9CiAK
+IGNvbnN0IFNpemVvZklub3RpZnlFdmVudCA9IDB4MTAKQEAgLTUzMiw2ICs1MzAsMTUgQEAgdHlw
+ZSBQdHJhY2VSZWdzIHN0cnVjdCB7CiAJUmVzdWx0ICAgIHVpbnQ2NAogfQogCit0eXBlIHB0cmFj
+ZVBzdyBzdHJ1Y3QgeworfQorCit0eXBlIHB0cmFjZUZwcmVncyBzdHJ1Y3QgeworfQorCit0eXBl
+IHB0cmFjZVBlciBzdHJ1Y3QgeworfQorCiB0eXBlIEZkU2V0IHN0cnVjdCB7CiAJQml0cyBbMTZd
+aW50NjQKIH0KQEAgLTU1MSw3ICs1NTgsNyBAQCB0eXBlIFN5c2luZm9fdCBzdHJ1Y3QgewogCVRv
+dGFsaGlnaCB1aW50NjQKIAlGcmVlaGlnaCAgdWludDY0CiAJVW5pdCAgICAgIHVpbnQzMgotCVhf
+ZiAgICAgICBbMF11aW50OAorCV8gICAgICAgICBbMF11aW50OAogCVBhZF9jZ29fMSBbNF1ieXRl
+CiB9CiAKQEAgLTU3NSw2ICs1ODIsNyBAQCB0eXBlIFVzdGF0X3Qgc3RydWN0IHsKIAogdHlwZSBF
+cG9sbEV2ZW50IHN0cnVjdCB7CiAJRXZlbnRzIHVpbnQzMgorCV8gICAgICBpbnQzMgogCUZkICAg
+ICBpbnQzMgogCVBhZCAgICBpbnQzMgogfQo=
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

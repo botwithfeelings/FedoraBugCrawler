@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1398153</bug_id>
+          
+          <creation_ts>2016-11-24 03:38:00 -0500</creation_ts>
+          <short_desc>Segfault in qemu if clipboard sync is disabled</short_desc>
+          <delta_ts>2016-12-11 14:27:13 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>spice</component>
+          <version>25</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Alexander Wigen">alex</reporter>
+          <assigned_to name="Christophe Fergeau">cfergeau</assigned_to>
+          <cc>alexl</cc>
+    
+    
+    <cc>alon</cc>
+    
+    
+    <cc>amit.shah</cc>
+    
+    
+    <cc>berrange</cc>
+    
+    
+    <cc>cfergeau</cc>
+    
+    
+    <cc>crobinso</cc>
+    
+    
+    <cc>dwmw2</cc>
+    
+    
+    <cc>hdegoede</cc>
+    
+    
+    <cc>itamar</cc>
+    
+    
+    <cc>jforbes</cc>
+    
+    
+    <cc>marcandre.lureau</cc>
+    
+    
+    <cc>pbonzini</cc>
+    
+    
+    <cc>rjones</cc>
+    
+    
+    <cc>sandmann</cc>
+    
+    
+    <cc>uril</cc>
+    
+    
+    <cc>virt-maint</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>spice-0.13.3-1.fc25</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-12-11 14:27:13</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9918943</commentid>
+    <comment_count>0</comment_count>
+    <who name="Alexander Wigen">alex</who>
+    <bug_when>2016-11-24 03:38:55 -0500</bug_when>
+    <thetext>Description of problem:
+
+Trying to launch a VM with clipboard sync disabled causes a segfault.
+
+
+Version-Release number of selected component (if applicable):
+
+qemu-2.7.0-7.fc25.x86_64
+spice-server-0.13.2-1.fc25.x86_64
+spice-gtk3-devel-0.33-2.fc25.x86_64
+spice-gtk3-0.33-2.fc25.x86_64
+spice-glib-0.33-2.fc25.x86_64
+spice-gtk-tools-0.33-2.fc25.x86_64
+spice-protocol-0.12.12-1.fc25.noarch
+spice-glib-devel-0.33-2.fc25.x86_64
+
+How reproducible:
+
+1. Setup a VM with spice graphics
+2. Edit the VM xml and add to the  &lt;graphics&gt; section:
+      &lt;clipboard copypaste=&apos;no&apos;/&gt;
+3. Attempt to launch the VM.
+
+Actual results:
+
+kernel: qemu-system-x86[20008]: segfault at 20 ip 00007fb4e1e103fd sp 00007ffe08d922e8 error 4 in libspice-server.so.1.12.0[7fb4e1dcb000+120000]
+systemd[1]: Started Process Core Dump (PID 20035/UID 0).
+audit[1]: SERVICE_START pid=1 uid=0 auid=4294967295 ses=4294967295 msg=&apos;unit=systemd-coredump@4-20035-0 comm=&quot;systemd&quot; exe=&quot;/usr/lib/systemd/systemd&quot; hostname=? addr=? terminal=? res=success&apos;
+systemd-coredump[20036]: Process 20008 (qemu-system-x86) of user 0 dumped core.
+                                                        
+                                                        Stack trace of thread 20008:
+                                                        #0  0x00007fb4e1e103fd spice_server_set_agent_copypaste (libspice-server.so.1)
+                                                        #1  0x00005637e488d976 qemu_spice_init (qemu-system-x86_64)
+                                                        #2  0x00005637e460415a main (qemu-system-x86_64)
+                                                        #3  0x00007fb4e0080401 __libc_start_main (libc.so.6)
+                                                        #4  0x00005637e460a27a _start (qemu-system-x86_64)
+                                                        
+                                                        Stack trace of thread 20032:
+                                                        #0  0x00007fb4e0436c7d __nanosleep (libpthread.so.0)
+                                                        #1  0x00007fb4e45491e8 g_usleep (libglib-2.0.so.0)
+                                                        #2  0x00005637e4964a84 call_rcu_thread (qemu-system-x86_64)
+                                                        #3  0x00007fb4e042d6ca start_thread (libpthread.so.0)
+                                                        #4  0x00007fb4e0167f6f __clone (libc.so.6)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9921585</commentid>
+    <comment_count>1</comment_count>
+    <who name="Christophe Fergeau">cfergeau</who>
+    <bug_when>2016-11-24 07:23:22 -0500</bug_when>
+    <thetext>This should be fixed in the upstream 0.13.3 release. This version is already built in rawhide, and I intend to push it to f25 too. In the mean time I&apos;ve started a scratch build at http://koji.fedoraproject.org/koji/taskinfo?taskID=16596307 if you want to try it.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9945642</commentid>
+    <comment_count>2</comment_count>
+    <who name="Alexander Wigen">alex</who>
+    <bug_when>2016-11-30 20:53:19 -0500</bug_when>
+    <thetext>Hi Christophe,
+
+Thanks the referenced build resolves the issue.
+
+Cheers,
+Alex</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9963908</commentid>
+    <comment_count>3</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-07 05:04:14 -0500</bug_when>
+    <thetext>spice-0.13.3-1.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2016-577a5e0a2e</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9966816</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-07 23:55:34 -0500</bug_when>
+    <thetext>spice-0.13.3-1.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-577a5e0a2e</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9974961</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-11 14:27:13 -0500</bug_when>
+    <thetext>spice-0.13.3-1.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

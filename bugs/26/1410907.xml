@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1410907</bug_id>
+          
+          <creation_ts>2017-01-06 15:01:00 -0500</creation_ts>
+          <short_desc>gdb-add-index is not run</short_desc>
+          <delta_ts>2017-03-31 10:35:41 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>rpm</component>
+          <version>26</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords>Regression, Reopened</keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Jan Kratochvil">jan.kratochvil</reporter>
+          <assigned_to>packaging-team-maint</assigned_to>
+          <cc>dov.grobgeld</cc>
+    
+    
+    <cc>ignatenko</cc>
+    
+    
+    <cc>jan.kratochvil</cc>
+    
+    
+    <cc>kardos.lubos</cc>
+    
+    
+    <cc>mjw</cc>
+    
+    
+    <cc>nmiell</cc>
+    
+    
+    <cc>packaging-team-maint</cc>
+    
+    
+    <cc>pknirsch</cc>
+    
+    
+    <cc>pmatilai</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>rpm-4.13.0-11.fc26 rpm-4.13.0.1-1.fc24 rpm-4.13.0.1-1.fc25</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-02-28 20:20:58</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10041667</commentid>
+    <comment_count>0</comment_count>
+    <who name="Jan Kratochvil">jan.kratochvil</who>
+    <bug_when>2017-01-06 15:01:22 -0500</bug_when>
+    <thetext>Description of problem:
+F-25 and Rawhide binaries no longer contain .gdb_index section which accelerates loading of *.debug files into GDB.
+
+Version-Release number of selected component (if applicable):
+PASS: F-22:    rpm-build-4.12.0.1-17.fc22.x86_64
+FAIL: F-23:    rpm-build-4.13.0-1.fc23.x86_64
+FAIL: F-24:    rpm-build-4.13.0-1.fc24.x86_64
+FAIL: F-25:    rpm-build-4.13.0-10.fc26.x86_64
+FAIL: Rawhide: rpm-build-4.13.0-6.fc25.x86_64
+
+How reproducible:
+Always.
+
+Steps to Reproduce:
+rpmbuild ...
+readelf -S built-debuginfo-*/usr/lib/debug/usr/bin/foo.debug |grep gdb_index
+
+Actual results:
+&lt;nothing&gt;
+
+Expected results:
+  [34] .gdb_index        PROGBITS         0000000000000000  0001968d
+
+Additional info:
+
+It was broken by:
+https://github.com/rpm-software-management/rpm.git
+commit 41c4dcf507e2208585d6dc0952f59686a3a69d69
+Author: Mark Wielaard &lt;mjw@redhat.com&gt;
+Date:   Tue Jun 14 17:07:10 2016 +0200
+    Don&apos;t use hardcoded paths to tools/scripts in find-debuginfo.sh.
+-  [ -x /usr/bin/gdb-add-index ] &amp;&amp; /usr/bin/gdb-add-index &quot;$f&quot; &gt; /dev/null 2&gt;&amp;1
++  [ type gdb-add-index &gt;/dev/null 2&gt;&amp;1 &amp;&amp; gdb-add-index &quot;$f&quot; &gt; /dev/null 2&gt;&amp;1
+
+It was later fixed by:
+https://github.com/rpm-software-management/rpm.git
+commit 67d3df338875ad5d9601e360bfdbd4289f271bc1
+Author: Mark Wielaard &lt;mjw@redhat.com&gt;
+Date:   Tue Jun 14 17:07:14 2016 +0200
+    Make adding GDB index sections configurable.
+-  [ type gdb-add-index &gt;/dev/null 2&gt;&amp;1 &amp;&amp; gdb-add-index &quot;$f&quot; &gt; /dev/null 2&gt;&amp;1
++    if type gdb-add-index &gt;/dev/null 2&gt;&amp;1; then
++      gdb-add-index &quot;$f&quot;
+
+But Fedora rpms contain the regressed variant between these two commits:
+rpm-build-4.12.0.1-17.fc22.x86_64/usr/lib/rpm/find-debuginfo.sh:  [ -x /usr/bin/gdb-add-index ] &amp;&amp; /usr/bin/gdb-add-index &quot;$f&quot; &gt; /dev/null 2&gt;&amp;1
+rpm-build-4.13.0-1.fc23.x86_64/usr/lib/rpm/find-debuginfo.sh:     [ type gdb-add-index &gt;/dev/null 2&gt;&amp;1 &amp;&amp; gdb-add-index &quot;$f&quot; &gt; /dev/null 2&gt;&amp;1
+rpm-build-4.13.0-1.fc24.x86_64/usr/lib/rpm/find-debuginfo.sh:     [ type gdb-add-index &gt;/dev/null 2&gt;&amp;1 &amp;&amp; gdb-add-index &quot;$f&quot; &gt; /dev/null 2&gt;&amp;1
+rpm-build-4.13.0-6.fc25.x86_64/usr/lib/rpm/find-debuginfo.sh:     [ type gdb-add-index &gt;/dev/null 2&gt;&amp;1 &amp;&amp; gdb-add-index &quot;$f&quot; &gt; /dev/null 2&gt;&amp;1
+rpm-build-4.13.0-10.fc26.x86_64/usr/lib/rpm/find-debuginfo.sh:    [ type gdb-add-index &gt;/dev/null 2&gt;&amp;1 &amp;&amp; gdb-add-index &quot;$f&quot; &gt; /dev/null 2&gt;&amp;1</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10044245</commentid>
+    <comment_count>1</comment_count>
+    <who name="Panu Matilainen">pmatilai</who>
+    <bug_when>2017-01-09 02:31:43 -0500</bug_when>
+    <thetext>Ack, will fix.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10088761</commentid>
+    <comment_count>2</comment_count>
+    <who name="Panu Matilainen">pmatilai</who>
+    <bug_when>2017-01-23 09:06:51 -0500</bug_when>
+    <thetext>Fixed in rawhide as of rpm-4.13.0-11.fc26.
+
+As for other Fedora versions, the idea is to provide this and other fixes via upstream bugfix release.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10153201</commentid>
+    <comment_count>3</comment_count>
+    <who name="Jan Kratochvil">jan.kratochvil</who>
+    <bug_when>2017-02-16 07:30:33 -0500</bug_when>
+    <thetext>*** Bug 1422836 has been marked as a duplicate of this bug. ***</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10181640</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-24 08:36:31 -0500</bug_when>
+    <thetext>rpm-4.13.0.1-1.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-beb25f1953</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10181733</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-24 08:59:33 -0500</bug_when>
+    <thetext>rpm-4.13.0.1-1.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2017-54078f9dd2</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10183335</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-24 19:53:29 -0500</bug_when>
+    <thetext>rpm-4.13.0.1-1.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-54078f9dd2</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10183364</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-24 20:52:21 -0500</bug_when>
+    <thetext>rpm-4.13.0.1-1.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-beb25f1953</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10191845</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora End Of Life">jkurik</who>
+    <bug_when>2017-02-28 05:54:13 -0500</bug_when>
+    <thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 26 development cycle.
+Changing version to &apos;26&apos;.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10195659</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-28 20:20:58 -0500</bug_when>
+    <thetext>rpm-4.13.0.1-1.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10195680</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-28 20:24:54 -0500</bug_when>
+    <thetext>rpm-4.13.0.1-1.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10294587</commentid>
+    <comment_count>11</comment_count>
+    <who name="Jan Kratochvil">jan.kratochvil</who>
+    <bug_when>2017-03-31 10:35:41 -0400</bug_when>
+    <thetext>*** Bug 1401091 has been marked as a duplicate of this bug. ***</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

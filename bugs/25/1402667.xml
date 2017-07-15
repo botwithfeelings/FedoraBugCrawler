@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1402667</bug_id>
+          
+          <creation_ts>2016-12-08 00:47:00 -0500</creation_ts>
+          <short_desc>nfs home can not be mounted after latest policycoreutils update</short_desc>
+          <delta_ts>2016-12-12 18:59:23 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>selinux-policy</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>high</priority>
+          <bug_severity>high</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="cornel panceac">cpanceac</reporter>
+          <assigned_to name="Lukas Vrabec">lvrabec</assigned_to>
+          <cc>dominick.grift</cc>
+    
+    
+    <cc>dwalsh</cc>
+    
+    
+    <cc>lvrabec</cc>
+    
+    
+    <cc>mgrepl</cc>
+    
+    
+    <cc>plautrba</cc>
+    
+    
+    <cc>pmoore</cc>
+    
+    
+    <cc>ssekidde</cc>
+    
+    
+    <cc>vmojzis</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>selinux-policy-3.13.1-225.3.fc25</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-12-12 18:59:23</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9966898</commentid>
+    <comment_count>0</comment_count>
+    <who name="cornel panceac">cpanceac</who>
+    <bug_when>2016-12-08 00:47:31 -0500</bug_when>
+    <thetext>Description of problem:
+After latest policycore update my nfs home directories are no longer mounted.
+
+Version-Release number of selected component (if applicable):
+policycoreutils-2.5-19.fc25.x86_64
+selinux-policy-3.13.1-224.fc25.noarch
+
+
+How reproducible:
+always
+
+
+Steps to Reproduce:
+1.start computer
+2.
+3.
+
+Actual results:
+nfs home is not mounted
+
+Expected results:
+nfs home is mounted
+
+Additional info:
+they are mounted if i set selinux to permissive, which my default for now.
+
+what i&apos;ve did:
+touch .autorelabel n /
+setroubleshoot:
+{ ausearch -c &apos;systemd&apos; --raw | audit2allow -M my-systemd
+semodule -X 300 -i my-systemd.pp }
+^repeatedly^
+
+it seems that those policies do not actually help, selinux loops by blocking same set of about three access types fro systemd (bind, setopt, and create, if my memory serves me well)
+
+Here&apos;s the most recent example:
+
+SELinux is preventing systemd from &apos;bind&apos; accesses on the udp_socket port None.
+
+*****  Plugin catchall (100. confidence) suggests   **************************
+
+If you believe that systemd should be allowed bind access on the port None udp_socket by default.
+Then you should report this as a bug.
+You can generate a local policy module to allow this access.
+Do
+allow this access for now by executing:
+# ausearch -c &apos;systemd&apos; --raw | audit2allow -M my-systemd
+# semodule -X 300 -i my-systemd.pp
+
+Additional Information:
+Source Context                system_u:system_r:init_t:s0
+Target Context                system_u:system_r:unconfined_service_t:s0
+Target Objects                port None [ udp_socket ]
+Source                        systemd
+Source Path                   systemd
+Port                          &lt;Unknown&gt;
+Host                          (removed)
+Source RPM Packages           
+Target RPM Packages           
+Policy RPM                    selinux-policy-3.13.1-224.fc25.noarch
+Selinux Enabled               True
+Policy Type                   targeted
+Enforcing Mode                Enforcing
+Host Name                     (removed)
+Platform                      Linux (removed) 4.8.11-300.fc25.x86_64 #1 SMP Mon
+                              Nov 28 18:24:51 UTC 2016 x86_64 x86_64
+Alert Count                   1
+First Seen                    2016-12-08 07:35:12 EET
+Last Seen                     2016-12-08 07:35:12 EET
+Local ID                      6fdd6332-ad80-435c-9a50-d661795b454c</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9967398</commentid>
+    <comment_count>1</comment_count>
+    <who name="Lukas Vrabec">lvrabec</who>
+    <bug_when>2016-12-08 04:36:56 -0500</bug_when>
+    <thetext>Hi Cornel, 
+
+Could you reproduce it with following build? 
+http://koji.fedoraproject.org/koji/buildinfo?buildID=823463
+
+This build should fix it. 
+
+Thanks,
+Lukas.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9967510</commentid>
+    <comment_count>2</comment_count>
+    <who name="cornel panceac">cpanceac</who>
+    <bug_when>2016-12-08 04:51:19 -0500</bug_when>
+    <thetext>Hi Lukas,
+
+This is affecting my only home pc that was upgraded last evening. I will test and provide feedback about 8 hours from now, once i&apos;ll get back home.
+
+Thank you.
+Cornel</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9968937</commentid>
+    <comment_count>3</comment_count>
+    <who name="cornel panceac">cpanceac</who>
+    <bug_when>2016-12-08 11:55:50 -0500</bug_when>
+    <thetext>Hi Lukas,
+
+This is NOT fixing it. I&apos;m back to permissive mode.
+
+selinux-policy-3.13.1-225.2.fc25.noarch
+
+Regards,
+Cornel</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9971558</commentid>
+    <comment_count>4</comment_count>
+    <who name="cornel panceac">cpanceac</who>
+    <bug_when>2016-12-09 08:33:30 -0500</bug_when>
+    <thetext>Hi Lukas,
+What means this status, &quot;POST&quot;?
+Is there a new release that you expect it to fix this? v -225 does not fix it.
+Or maybe there&apos;s also a policycoreutils update i need to apply?
+Regards,
+Cornel</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9971571</commentid>
+    <comment_count>5</comment_count>
+    <who name="Lukas Vrabec">lvrabec</who>
+    <bug_when>2016-12-09 08:37:03 -0500</bug_when>
+    <thetext>Issue fixed here:
+http://koji.fedoraproject.org/koji/buildinfo?buildID=823721
+
+Package will be in fedora repo soon</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9971587</commentid>
+    <comment_count>6</comment_count>
+    <who name="cornel panceac">cpanceac</who>
+    <bug_when>2016-12-09 08:41:21 -0500</bug_when>
+    <thetext>Thank you Lukas.
+Gonna test later in the evening and provide feedback.
+Regards,
+Cornel</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9971615</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-09 08:48:15 -0500</bug_when>
+    <thetext>selinux-policy-3.13.1-225.3.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2016-f24b3ddc6a</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9972902</commentid>
+    <comment_count>8</comment_count>
+    <who name="cornel panceac">cpanceac</who>
+    <bug_when>2016-12-09 16:16:18 -0500</bug_when>
+    <thetext>This is fixed by -225.3
+Thank you Lukas.
+Regards,
+Cornel
+
+ps
+i would&apos;ve tested earlier but my isp cut my internet connection, a good oportunity for my eyes to rest a bit ;)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9973333</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-09 22:58:46 -0500</bug_when>
+    <thetext>selinux-policy-3.13.1-225.3.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-f24b3ddc6a</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9978832</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-12 18:59:23 -0500</bug_when>
+    <thetext>selinux-policy-3.13.1-225.3.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

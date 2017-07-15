@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1462711</bug_id>
+          
+          <creation_ts>2017-06-19 07:42:00 -0400</creation_ts>
+          <short_desc>cannot start VMs after upgrade from Fedora 25 to 26 Beta</short_desc>
+          <delta_ts>2017-07-11 18:43:00 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>gnome-boxes</component>
+          <version>26</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>CURRENTRELEASE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>medium</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Mark Chandler">mcl</reporter>
+          <assigned_to name="Christophe Fergeau">cfergeau</assigned_to>
+          <cc>cfergeau</cc>
+    
+    
+    <cc>feborges</cc>
+    
+    
+    <cc>fidencio</cc>
+    
+    
+    <cc>gnome-sig</cc>
+    
+    
+    <cc>marcandre.lureau</cc>
+    
+    
+    <cc>virt-maint</cc>
+    
+    
+    <cc>zeeshanak</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-07-11 18:43:00</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10517945</commentid>
+    <comment_count>0</comment_count>
+    <who name="Mark Chandler">mcl</who>
+    <bug_when>2017-06-19 07:42:27 -0400</bug_when>
+    <thetext>Description of problem:
+
+VMs created through gnome-boxes in Fedora 25 and previously working, now cannot be started from the Boxes app after upgrading to Fedora 26beta.
+
+gnome-boxes-3.24.0-3.fc26.x86_64
+
+
+How reproducible:
+Always
+
+Steps to Reproduce:
+1. Open gnome-boxes
+2. Right-click on VM
+3. Select &quot;Open in a New Window&quot;
+
+Actual results:
+VM doesn&apos;t start. Error message is &quot;Failed to start &apos;VM&apos;&quot;.
+
+Expected results:
+VM starts
+
+Additional info:
+
+Running gnome-boxes from the command line and starting a VM gives the following warning:
+&quot;(gnome-boxes:13607): Boxes-WARNING **: machine.vala:611: Failed to start &lt;VM&gt;: Unable to start domain: the CPU is incompatible with host CPU: Host CPU does not provide required features: monitor, svm
+&quot;
+
+virsh list --all, doesn&apos;t show anything
+libvirtd is up and running
+I can still see what I think are the VMs in ~/.local/share/gnome-boxes/images. But the names are not right. They&apos;re &quot;fedora25-wor&quot; and &quot;fedora25-wor-2&quot;.
+In ~/.config/gnome-boxes/sources/&apos;QEMU Session&apos;, I can see the definitions for the VMs with the correct names
+.config/libvirt/storage/gnome-boxes.xml has a definition for the images directoy above.
+THe .config/libvirt/qemu directory has xml files for both VMs, with the correct titles and the names of the images above.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10535746</commentid>
+    <comment_count>1</comment_count>
+    <who name="Mark Chandler">mcl</who>
+    <bug_when>2017-06-23 10:59:34 -0400</bug_when>
+    <thetext>Looks like a qemu problem as per this forum post
+https://forum.manjaro.org/t/virtual-machines-in-gnome-boxes-wont-start/24312
+F26 uses qemu-2.9.0-1.fc26
+F25 uses qemu-2.7.1-6.fc25</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10535780</commentid>
+    <comment_count>2</comment_count>
+    <who name="Mark Chandler">mcl</who>
+    <bug_when>2017-06-23 11:06:47 -0400</bug_when>
+    <thetext>Seems as though Ryzen isn&apos;t well supported in qemu 2.9.0.
+My system is using a Ryzen CPU.
+
+# cat /proc/cpuinfo 
+processor	: 0
+vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 1
+model name	: AMD Ryzen 7 1800X Eight-Core Processor
+stepping	: 1
+microcode	: 0x800111c
+cpu MHz		: 2200.000
+cache size	: 512 KB
+physical id	: 0
+siblings	: 16
+core id		: 0
+cpu cores	: 8
+apicid		: 0
+initial apicid	: 0
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 13
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_l2 mwaitx hw_pstate vmmcall fsgsbase bmi1 avx2 smep bmi2 rdseed adx smap clflushopt sha_ni xsaveopt xsavec xgetbv1 xsaves clzero irperf arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic overflow_recov succor smca
+bugs		: fxsave_leak sysret_ss_attrs null_seg
+bogomips	: 7199.81
+TLB size	: 2560 4K pages
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 48 bits physical, 48 bits virtual
+power management: ts ttp tm hwpstate eff_freq_ro [13] [14]</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10540276</commentid>
+    <comment_count>3</comment_count>
+    <who name="Mark Chandler">mcl</who>
+    <bug_when>2017-06-26 09:02:39 -0400</bug_when>
+    <thetext>I&apos;ve managed to work around the problem by editing the vm config and adding two &quot;feature policy&quot; entries in the CPU definition. I used &quot;virsh edit &lt;vm&gt;&quot; to do this.
+
+The new entries can be seen in the following extract from the config:
+  &lt;cpu mode=&apos;custom&apos; match=&apos;exact&apos; check=&apos;partial&apos;&gt;
+    &lt;model fallback=&apos;allow&apos;&gt;Opteron_G3&lt;/model&gt;
+    &lt;topology sockets=&apos;1&apos; cores=&apos;8&apos; threads=&apos;2&apos;/&gt;
+    &lt;feature policy=&apos;disable&apos; name=&apos;svm&apos;/&gt;
+    &lt;feature policy=&apos;disable&apos; name=&apos;monitor&apos;/&gt;
+  &lt;/cpu&gt;
+
+This allows the VM to start, but I&apos;m not sure if there are any other consequences of running the config like this.
+
+I found this hint from here: https://github.com/vagrant-libvirt/vagrant-libvirt/issues/667</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10584702</commentid>
+    <comment_count>4</comment_count>
+    <who name="Mark Chandler">mcl</who>
+    <bug_when>2017-07-11 18:43:00 -0400</bug_when>
+    <thetext>This problem appears to be worked-around in the latest qemu packages. From the changelog of qemu:
+* Tue Jul 04 2017 Adam Williamson &lt;awilliam@redhat.com&gt; - 2:2.9.0-1.fc26.1
+- Disable some qmp commands to work around an issue with libvirt 3.2
+
+With this upgrade, I was able to start a new VM.
+
+Also, after removing the &quot;feature policy&quot; entries, old VMs started again.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1374090</bug_id>
+          
+          <creation_ts>2016-09-07 19:37:00 -0400</creation_ts>
+          <short_desc>Static network configuration defined in kickstart loaded from hard disk not applied to installed system</short_desc>
+          <delta_ts>2016-09-29 12:51:18 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>anaconda</component>
+          <version>25</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>high</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Adam Williamson">awilliam</reporter>
+          <assigned_to name="Radek Vykydal">rvykydal</assigned_to>
+          <cc>anaconda-maint-list</cc>
+    
+    
+    <cc>dcbw</cc>
+    
+    
+    <cc>fgiudici</cc>
+    
+    
+    <cc>g.kaviyarasu</cc>
+    
+    
+    <cc>jonathan</cc>
+    
+    
+    <cc>lkundrak</cc>
+    
+    
+    <cc>mkolman</cc>
+    
+    
+    <cc>psimerda</cc>
+    
+    
+    <cc>rvykydal</cc>
+    
+    
+    <cc>thaller</cc>
+    
+    
+    <cc>vanmeeuwen+fedora</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-09-29 12:51:18</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9688541</commentid>
+    <comment_count>0</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2016-09-07 19:37:10 -0400</bug_when>
+    <thetext>Since Fedora-25-20160904.n.0 , one of our openQA tests has failed on every compose. That test uses a kickstart that looks like this:
+
+install
+cdrom
+bootloader --location=mbr
+network --device=link --activate --bootproto=static --ip=10.0.2.101 --netmask=255.255.255.0 --gateway=10.0.2.2 --hostname=client001.domain.local --nameserver=10.0.2.100
+lang en_US.UTF-8
+keyboard us
+timezone --utc America/New_York
+clearpart --all
+autopart
+%packages
+@^server-product-environment
+%end
+rootpw anaconda
+reboot
+realm join --one-time-password=monkeys ipa001.domain.local
+
+The kickstart is loaded from a hard disk (it is not retrieved over the network). The network it&apos;s on has no DHCP server. When the installed system boots, it has no network connectivity. With Fedora-25-20160903.n.0 and earlier, this worked fine.
+
+I reproduced the issue locally with a similar kickstart, slightly tweaked for my local network settings and with a smaller package set to save install time - https://www.happyassassin.net/temp/static.ks .
+
+If I load that kickstart over the network - i.e. inst.ks=https://www.happyassassin.net/temp/static.ks - I don&apos;t hit the bug. The installed system does use the specified static network configuration (so with my modified kickstart, it comes up with IP 192.168.1.105 , which is not in my DHCP server&apos;s range so I know it&apos;s not just getting it by luck).
+
+However, if I load the kickstart from a hard disk attached to the VM, I *can* reproduce the bug. The installed system does not use the static configuration specified in the kickstart. In my case the connection comes up via DHCP, because I have a DHCP server on my network, but the bug is really the same - the configuration in the kickstart is not applied.
+
+In the installed system, there is no /etc/sysconfig/network-scripts/ifcfg-(interface) file at all - there is only ifcfg-lo . The string &apos;192.168.1.105&apos; does not appear in any file in the whole of /etc. /var/log/anaconda/ifcfg.log does not show the static config values in its &apos;all settings&apos; list.
+
+When I load the kickstart over the network instead of from a hard disk, there *is* a /etc/sysconfig/network-scripts/ifcfg-ens3 in the installed system, with the appropriate config values, and the comment &quot;# Generated by parse-kickstart&quot; . /var/log/anaconda/ifcfg.log *does* show the static config values in its &apos;all settings&apos; list.
+
+I&apos;m assigning this to NetworkManager because anaconda did not change between Fedora-25-20160903.n.0 and Fedora-25-20160904.n.0 , but NetworkManager did - it went from 1.4.0-0.5.git20160621.072358da.fc25 to 1.4.0-2.fc25 . There may well be some kind of NM&lt;-&gt;anaconda interaction involved, though.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9689505</commentid>
+    <comment_count>1</comment_count>
+    <who name="Radek Vykydal">rvykydal</who>
+    <bug_when>2016-09-08 04:07:47 -0400</bug_when>
+    <thetext>I am pretty sure this issue has the same cause as bug #1371338, which also appeared in 0904: https://bugzilla.redhat.com/show_bug.cgi?id=1371338#c16. What the bugs have in common is that ifcfg files are not created in initramfs and their creating in anaconda after switch root fails.
+
+Should be fixed in anaconda-25.21-1.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9754716</commentid>
+    <comment_count>2</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2016-09-29 12:51:18 -0400</bug_when>
+    <thetext>Yeah, the openQA test is passing now, so this must be fine.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

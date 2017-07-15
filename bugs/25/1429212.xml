@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1429212</bug_id>
+          
+          <creation_ts>2017-03-05 11:43:00 -0500</creation_ts>
+          <short_desc>Sendmail cannot be started when installed from repository</short_desc>
+          <delta_ts>2017-03-08 05:06:45 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>sendmail</component>
+          <version>25</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>CURRENTRELEASE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>high</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Panos Kavalagios">Panagiotis.Kavalagios</reporter>
+          <assigned_to name="Jaroslav Škarvada">jskarvad</assigned_to>
+          <cc>jskarvad</cc>
+    
+    
+    <cc>olysonek</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-03-08 05:01:53</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10209025</commentid>
+    <comment_count>0</comment_count>
+    <who name="Panos Kavalagios">Panagiotis.Kavalagios</who>
+    <bug_when>2017-03-05 11:43:54 -0500</bug_when>
+    <thetext>Description of problem:
+Sendmail is not started, when installed.
+
+
+Version-Release number of selected component (if applicable):
+sendmail-8.15.2-8.fc25.x86_64
+
+
+How reproducible:
+Install and start sendmail.
+
+
+Steps to Reproduce:
+1. dnf install sendmail
+2. systemctl enable sendmail
+3. systemctl start sendmail
+
+Actual results:
+An error occurs about the makemap command that is missing.
+
+
+Expected results:
+The sendmail should have been started successfully.
+
+
+Additional info:
+There is an erroneous link of /usr/bin/makemap pointing to /usr/sbin/makemap that does not exist. After fixing the link to point to /usr/sbin/makemap.sendmail it continues to cause an error:
+Mar  5 18:42:29 dragon systemd: Starting Sendmail Mail Transport Agent...
+Mar  5 18:42:29 dragon sendmail: -bd is not supported by sSMTP
+Mar  5 18:42:29 dragon systemd: sendmail.service: PID file /run/sendmail.pid not readable (yet?) after start: No such file or directory
+Mar  5 18:42:29 dragon systemd: Failed to start Sendmail Mail Transport Agent.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10209395</commentid>
+    <comment_count>1</comment_count>
+    <who name="Jaroslav Škarvada">jskarvad</who>
+    <bug_when>2017-03-05 18:04:55 -0500</bug_when>
+    <thetext>It seems you have SSMTP as your default MTA, run:
+# alternatives --config mta
+
+and select sendmail, or just uninstall ssmtp.
+
+Also setting alternatives to the auto-mode should be sufficient (this is the distribution default):
+# alternatives --auto mta</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10219723</commentid>
+    <comment_count>2</comment_count>
+    <who name="Panos Kavalagios">Panagiotis.Kavalagios</who>
+    <bug_when>2017-03-08 04:07:00 -0500</bug_when>
+    <thetext>I confirm that the issue was resolved with the provided instructions. I have also removed ssmtp. If there is no issue with the installation of sendmail that should have taken care of the /etc/alternatives/mta configuration as a post installation step, the ticket can be closed.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10219942</commentid>
+    <comment_count>3</comment_count>
+    <who name="Jaroslav Škarvada">jskarvad</who>
+    <bug_when>2017-03-08 05:01:53 -0500</bug_when>
+    <thetext>Thanks for info. IIRC there was an bug that ssmtp got accidentally higher alternatives priority than sendmail and was brought in during the installation by some wrong dependency. This should be fixed now. But the buggy ssmtp package got to some installation media and this could be the result of it. Unfortunately we cannot fix released media, but installation from the current repo should work OK. So closing this bug.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10219967</commentid>
+    <comment_count>4</comment_count>
+    <who name="Jaroslav Škarvada">jskarvad</who>
+    <bug_when>2017-03-08 05:06:45 -0500</bug_when>
+    <thetext>At the moment ssmtp uses alternatives priority 30 and sendmail 90, so in auto mode (which is the default) the sendmail should take over.
+
+ssmtp-2.64-16.fc25
+sendmail-8.15.2-9.fc25</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

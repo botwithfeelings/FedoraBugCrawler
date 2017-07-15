@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1394556</bug_id>
+          
+          <creation_ts>2016-11-13 09:16:00 -0500</creation_ts>
+          <short_desc>polyc script fails due to unnecessary -l options</short_desc>
+          <delta_ts>2017-02-10 09:47:39 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>polyml</component>
+          <version>24</version>
+          <rep_platform>i686</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Rob A">rda</reporter>
+          <assigned_to name="Jerry James">loganjerry</assigned_to>
+          <cc>dmoerner</cc>
+    
+    
+    <cc>loganjerry</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>polyml-5.6-3.fc25 polyml-5.6-3.fc24</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-02-10 09:20:52</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9885887</commentid>
+    <comment_count>0</comment_count>
+    <who name="Rob A">rda</who>
+    <bug_when>2016-11-13 09:16:19 -0500</bug_when>
+    <thetext>Description of problem:
+
+The script polyc that is intended to compile a free-standing ML
+program fails due to unnecessary -l options on g++ command line.
+
+Version-Release number of selected component (if applicable):
+
+
+How reproducible:
+
+
+Steps to Reproduce:
+1. Create simple ML program:
+cat &gt;hw.ML &lt;&lt;!
+fun main () = print &quot;Hello World!\n&quot;;
+!
+2. Attempt to compile it:
+polyc -o hw hw.ML
+
+Actual results:
+/usr/bin/ld: cannot find -lffi
+/usr/bin/ld: cannot find -lgmp
+collect2: error: ld returned 1 exit status
+
+Expected results:
+Generation of an executable called hw 
+
+Additional info:
+
+Removing &quot;-lffi -lgmp&quot; from the line beginning&quot;LIBS=&quot;
+in the script fixes the problem.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9885986</commentid>
+    <comment_count>1</comment_count>
+    <who name="Jerry James">loganjerry</who>
+    <bug_when>2016-11-13 12:46:56 -0500</bug_when>
+    <thetext>Thanks for the bug report, Rob.  This simple example obviously doesn&apos;t need either gmp or libffi, but I wonder how more complex sources are handled.  That is, does the polyml compiler ever generate calls directly into gmp or libffi, or does it only generate calls into libpolyml (which is already linked with gmp and libffi)?  If the former, then removing those link commands is wrong; we should instead make the main package Requires: gmp-devel and Requires: libffi-devel.  If the latter, then removing them is the right thing to do.
+
+I see that polyc also adds rpaths on %{_libdir}, which is unnecessary.  I&apos;ll remove those while fixing your bug report.
+
+I&apos;ll try to figure this out ASAP and push some new builds.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10073947</commentid>
+    <comment_count>2</comment_count>
+    <who name="Daniel Moerner">dmoerner</who>
+    <bug_when>2017-01-17 18:15:37 -0500</bug_when>
+    <thetext>I think the right thing is to remove -lffi and -lgmp from polyc.
+
+I did some basic tests with gmp, since it&apos;s the easy case. Grepping shows that we only need gmp-devel when gmp.h is included in libpolyml/arb.cpp if polysml is configured with --enable-gmp. So we should expect that polyc is just calling libpolysml and not calling gmp directly.
+
+In fact, if we compile polyml with gmp and then test a function from PolyML.IntInf implemented with gmp, removing -lgmp from polyc doesn&apos;t produce any failures:
+
+cp /usr/bin/polyc .
+sed -i &apos;s/-lgmp//&apos; ./polyc
+cat &gt; test.ML &lt;&lt;EOF
+fun main() = if PolyML.IntInf.gcd(10, 15) = 5 then print &quot;GCD works!\n&quot; else print &quot;GCD isn&apos;t working.\n&quot;; 
+EOF
+./polyc -o test test.ML
+./test
+
+In an arbitrary mock with polyml installed, this outputs: &quot;GCD works!&quot; We can confirm that it&apos;s actually calling libgmp with gdb: (There is probably a more elegant way to do this.)
+gdb test
+(gdb) rbreak .
+(gdb) run
+...
+(gdb) c
+...
+(gdb) c
+...
+(gdb) c
+...
+Breakpoint 1, 0x00007ffff6637a98 in _init () from /usr/lib64/libgmp.so.10
+
+I think this gives evidence that we can safely remove -lgmp from polyc.
+
+With libffi I don&apos;t have an easy test case like this since I&apos;m not that familiar with polyml&apos;s C interface. (The documentation is mostly about the old CInterface implementation and not the new Foreign implementation.) But just by reading off the code it again looks like dependence on libffi-devel is limited to libpolyml itself, and so I see no reason why we&apos;d have to link -lffi on top of this.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10088974</commentid>
+    <comment_count>3</comment_count>
+    <who name="Daniel Moerner">dmoerner</who>
+    <bug_when>2017-01-23 10:00:23 -0500</bug_when>
+    <thetext>I submitted an upstream issue report: https://github.com/polyml/polyml/issues/76</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10093668</commentid>
+    <comment_count>4</comment_count>
+    <who name="Jerry James">loganjerry</who>
+    <bug_when>2017-01-24 17:41:43 -0500</bug_when>
+    <thetext>Thanks for doing the legwork, Daniel.  I&apos;ll remove the unnecessary -l options and the unnecessary rpath and push new builds.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10093797</commentid>
+    <comment_count>5</comment_count>
+    <who name="Daniel Moerner">dmoerner</who>
+    <bug_when>2017-01-24 19:19:03 -0500</bug_when>
+    <thetext>Great, sounds good, Jerry.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10093827</commentid>
+    <comment_count>6</comment_count>
+    <who name="Jerry James">loganjerry</who>
+    <bug_when>2017-01-24 19:26:40 -0500</bug_when>
+    <thetext>Unfortunately the build failed on ppc64 and ppc64le.  I got the ppc64le failure sorted and filed an upstream bug report, but the latest attempt is failing on ppc64 in a way that doesn&apos;t look easy to debug:
+
+https://koji.fedoraproject.org/koji/taskinfo?taskID=17405232
+
+It could well be an endianness issue, since that is the only 64-bit big endian architecture.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10114901</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-02 00:40:36 -0500</bug_when>
+    <thetext>polyml-5.6-3.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-90c442c61e</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10114902</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-02 00:40:43 -0500</bug_when>
+    <thetext>polyml-5.6-3.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2017-255497c225</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10117371</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-02 16:50:03 -0500</bug_when>
+    <thetext>polyml-5.6-3.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-255497c225</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10117485</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-02 17:50:28 -0500</bug_when>
+    <thetext>polyml-5.6-3.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-90c442c61e</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10138222</commentid>
+    <comment_count>11</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-10 09:20:52 -0500</bug_when>
+    <thetext>polyml-5.6-3.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10138356</commentid>
+    <comment_count>12</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-10 09:47:39 -0500</bug_when>
+    <thetext>polyml-5.6-3.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

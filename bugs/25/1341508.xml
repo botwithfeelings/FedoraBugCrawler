@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1341508</bug_id>
+          
+          <creation_ts>2016-06-01 04:24:00 -0400</creation_ts>
+          <short_desc>Package with non-tracking local branch doesn&apos;t work well even with --module-name</short_desc>
+          <delta_ts>2017-02-15 00:41:35 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>rpkg</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>CURRENTRELEASE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Pavol Babinčák">pbabinca</reporter>
+          <assigned_to>cqi</assigned_to>
+          <cc>bochecha</cc>
+    
+    
+    <cc>cqi</cc>
+    
+    
+    <cc>dennis</cc>
+    
+    
+    <cc>egarver</cc>
+    
+    
+    <cc>lsedlar</cc>
+    
+    
+    <cc>pbabinca</cc>
+    
+    
+    <cc>s</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-02-15 00:41:35</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9376079</commentid>
+    <comment_count>0</comment_count>
+    <who name="Pavol Babinčák">pbabinca</who>
+    <bug_when>2016-06-01 04:24:55 -0400</bug_when>
+    <thetext>Description of problem:
+If one decides to use --dist and --module-name at the same time for the branch which isn&apos;t remote-tracking any it will fail.
+
+Version-Release number of selected component (if applicable):
+pyrpkg-1.40-1
+
+How reproducible:
+Always
+
+Steps to Reproduce:
+1. $ rhpkg co netsniff-ng &amp;&amp; cd ./netsniff-ng
+2. $ git co -b bz1302500
+3. $ git branch
+* bz1302500
+4. $ rhpkg --module-name &quot;netsniff-ng&quot; --dist rhel-7.3 scratch-build
+Failed to get ns_module_name from Git url or pushurl
+...
+
+Actual results:
+Task with parameter
+Source: git://pkgs.foo.bar/rpms/None?#7dca8c1fd84f380fafcf886d47adf86ea7abfadf
+is created. Note *None* part of the URL.
+
+Expected results:
+Task with parameter
+Source: git://pkgs.foo.bar/rpms/netsniff-ng?#7dca8c1fd84f380fafcf886d47adf86ea7abfadf
+should be created.
+
+
+Additional info:
+Eric (in CC) is the original reporter.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9377372</commentid>
+    <comment_count>1</comment_count>
+    <who name="Eric Garver">egarver</who>
+    <bug_when>2016-06-01 09:52:18 -0400</bug_when>
+    <thetext>There is a workaround, although I don&apos;t understand _why_ this works.
+
+If you create a local branch that matches the --dist, then it works.
+e.g.
+
+  $ git branch rhel-7.3 origin/rhel-7.3
+
+Note: You do _not_ need to have the --dist branch checked out. You can still be on the non-tracking private branch.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9377418</commentid>
+    <comment_count>2</comment_count>
+    <who name="Pavol Babinčák">pbabinca</who>
+    <bug_when>2016-06-01 10:01:40 -0400</bug_when>
+    <thetext>Normal way to invoke rhpkg is *without* --dist and --module-name. And then module-name is determined from the current checkouted repository and dist is determined by some matching on active branch. Matching on actual branch is done without full regex so if you want to use automagic of rhpkg (or any other *pkg built on the top of pyrpkg) you can have private branch named:
+
+private-bz1302500-rhel-7.3
+
+and then rhpkg scratch-build should work.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9548849</commentid>
+    <comment_count>3</comment_count>
+    <who name="Jan Kurik">jkurik</who>
+    <bug_when>2016-07-26 00:12:45 -0400</bug_when>
+    <thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 25 development cycle.
+Changing version to &apos;25&apos;.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9781805</commentid>
+    <comment_count>4</comment_count>
+    <who name="">cqi</who>
+    <bug_when>2016-10-11 12:07:11 -0400</bug_when>
+    <thetext>I reproduce this by following the steps, but get different error,
+
+rhpkg clone -a patchutils
+cd patchutils
+rhpkg switch-branch rhel-7.3
+git co -b bz1302500
+rhpkg --module-name patchutils --dist rhel-7.3 scratch-build
+Could not execute scratch_build: You must push your changes to the remote repo
+
+Related to bug 1325775.
+
+Both of them belong to same issue, that is local branch is not tracking a remote branch, which results in failure of getting branch.name.remote and branch.name.merge from repo in check_repo method, and eventually the exception is not handled well.
+
+As for this bug, rhpkg overrides check_repo, that reports the message &quot;You must push your changes to the remote repo&quot;. So, a possible solution to fix would be (two steps)
+
+* to see if it is necessary to keep rhpkg&apos;s version of check_repo, if it&apos;s possible to merge rhpkg and rpkg&apos;s ones.
+
+* handle exception from getting config from repo properly for any local branch that is not tracking a remote branch.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10129851</commentid>
+    <comment_count>5</comment_count>
+    <who name="">cqi</who>
+    <bug_when>2017-02-08 00:37:07 -0500</bug_when>
+    <thetext>rhpkg is able to detect the branch that is not tracking remote branch, and reports
+
+Could not execute scratch_build: Branch bz1302500 does not track remote branch.
+Use the following command to fix that:
+    git branch -u origin/REMOTE_BRANCH_NAME</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

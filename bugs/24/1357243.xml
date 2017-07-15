@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1357243</bug_id>
+          
+          <creation_ts>2016-07-17 03:39:00 -0400</creation_ts>
+          <short_desc>Missing language and wave files.</short_desc>
+          <delta_ts>2016-08-16 18:20:46 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>inadyn-mt</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>medium</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Thomas Mohaupt">thomas.mohaupt</reporter>
+          <assigned_to name="Michael Cronenworth">mike</assigned_to>
+          <cc>jochen</cc>
+    
+    
+    <cc>mike</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>inadyn-mt-2.28.06-1.fc24 inadyn-mt-2.28.06-1.fc23</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-08-16 15:24:01</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9515166</commentid>
+    <comment_count>0</comment_count>
+    <who name="Thomas Mohaupt">thomas.mohaupt</who>
+    <bug_when>2016-07-17 03:39:02 -0400</bug_when>
+    <thetext>Description of problem:
+inadyn-mt is unable to open a language file and the default wave file. 
+
+Version-Release number of selected component (if applicable):
+Fedora release 24 (Twenty Four) (vagrant box &quot;fedora/24-cloud-base&quot;)
+inadyn-mt-2.24.49-2.fc24.x86_64
+
+How reproducible:
+
+Steps to Reproduce:
+1. vagrant init fedora/24-cloud-base; vagrant up --provider virtualbox
+2. vagrant ssh
+3. sudo yum install inadyn-mt
+4. inadyn -h
+
+Actual results:
+[vagrant@localhost ~]$ inadyn -h
+Sun Jul 17 07:34:55 2016: W:LANG: Cannot open language file.  Will use english defaults, or default override (--lang_file &lt;path/file_name&gt;...)
+Sun Jul 17 07:34:55 2016: W:INADYN: Could not open default wave file, extra/wav/alarm.wav.  Using default, ./alarm.wav...
+Sun Jul 17 07:34:55 2016: W:GETCMD: Missing option value at position 3 (&apos;--username&apos;)
+[ right help content as expected ]
+Sun Jul 17 07:34:55 2016: W:MAIN: Main: Error &apos;RC_CMD_PARSER_INVALID_OPTION_ARGUMENT&apos; (0x51).
+
+Expected results:
+Just the help
+
+Additional info:</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9543033</commentid>
+    <comment_count>1</comment_count>
+    <who name="Thomas Mohaupt">thomas.mohaupt</who>
+    <bug_when>2016-07-23 09:09:07 -0400</bug_when>
+    <thetext>The reason is that it searches in subdirs of /usr/inadym-mt/ instead of /usr/share/inadym-mt. 
+
+I was able to fix it in the SRPM package. I set the prefix to /usr/share - then it searches in /usr/share/inadym-mt and is able to load the default files:
+/usr/share/inadyn-mt/lang/en.lng
+/usr/share/inadyn-mt/extra/servers_additional.cfg
+/usr/share/inadyn-mt/extra/wav/alarm.wav
+
+ThoMo</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9543034</commentid>
+    <comment_count>2</comment_count>
+      <attachid>1183094</attachid>
+    <who name="Thomas Mohaupt">thomas.mohaupt</who>
+    <bug_when>2016-07-23 09:10:33 -0400</bug_when>
+    <thetext>Created attachment 1183094
+set prefix to /usr/share when calling configure
+
+Patch for SRPM spec file</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9567990</commentid>
+    <comment_count>3</comment_count>
+    <who name="Fedora Admin XMLRPC Client">fedora-admin-xmlrpc</who>
+    <bug_when>2016-07-29 13:28:24 -0400</bug_when>
+    <thetext>This package has changed ownership in the Fedora Package Database.  Reassigning to the new owner of this component.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9589417</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-05 12:10:08 -0400</bug_when>
+    <thetext>inadyn-mt-2.28.06-1.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-cf9db62e78</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9589425</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-05 12:12:41 -0400</bug_when>
+    <thetext>inadyn-mt-2.28.06-1.fc23 has been submitted as an update to Fedora 23. https://bodhi.fedoraproject.org/updates/FEDORA-2016-3c59bfae33</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9596034</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-08 21:23:17 -0400</bug_when>
+    <thetext>inadyn-mt-2.28.06-1.fc23 has been pushed to the Fedora 23 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-3c59bfae33</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9596077</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-08 21:27:17 -0400</bug_when>
+    <thetext>inadyn-mt-2.28.06-1.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-cf9db62e78</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9620238</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-16 15:23:53 -0400</bug_when>
+    <thetext>inadyn-mt-2.28.06-1.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9620647</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-16 18:20:43 -0400</bug_when>
+    <thetext>inadyn-mt-2.28.06-1.fc23 has been pushed to the Fedora 23 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="0"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1183094</attachid>
+            <date>2016-07-23 09:10:00 -0400</date>
+            <delta_ts>2016-07-23 09:10:33 -0400</delta_ts>
+            <desc>set prefix to /usr/share when calling configure</desc>
+            <filename>inadyn-mt-spec.patch</filename>
+            <type>text/plain</type>
+            <size>281</size>
+            <attacher name="Thomas Mohaupt">thomas.mohaupt</attacher>
+            
+              <data encoding="base64">LS0tIFNQRUNTL2luYWR5bi1tdC5zcGVjLm9yaWcJMjAxNi0wNy0yMyAxNTowMToyNC4yOTQ0Nzk0
+NzggKzAyMDAKKysrIFNQRUNTL2luYWR5bi1tdC5zcGVjCTIwMTYtMDctMjMgMTI6NTQ6NTAuMDQy
+MzMzMDI5ICswMjAwCkBAIC00Niw3ICs0Niw3IEBACiAlYnVpbGQKIHJtIC1yZiBiaW4vCiBhdXRv
+cmVjb25mCi0lY29uZmlndXJlIAorJWNvbmZpZ3VyZSAtLXByZWZpeD0vdXNyL3NoYXJlCiBtYWtl
+ICV7P19zbXBfbWZsYWdzfSBDRkxBR1M9IiRSUE1fT1BUX0ZMQUdTIgogCiAlaW5zdGFsbAo=
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

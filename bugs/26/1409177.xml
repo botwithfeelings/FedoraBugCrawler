@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1409177</bug_id>
+          
+          <creation_ts>2016-12-29 20:57:00 -0500</creation_ts>
+          <short_desc>Kickstart installs fail with Python 3.6</short_desc>
+          <delta_ts>2017-03-02 18:37:36 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>anaconda</component>
+          <version>26</version>
+          <rep_platform>All</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>RAWHIDE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard>AcceptedBlocker</status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>urgent</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>1349184</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Adam Williamson">awilliam</reporter>
+          <assigned_to name="Anaconda Maintenance Team">anaconda-maint-list</assigned_to>
+          <cc>anaconda-maint-list</cc>
+    
+    
+    <cc>dustymabe</cc>
+    
+    
+    <cc>g.kaviyarasu</cc>
+    
+    
+    <cc>gmarr</cc>
+    
+    
+    <cc>jonathan</cc>
+    
+    
+    <cc>mkolman</cc>
+    
+    
+    <cc>robatino</cc>
+    
+    
+    <cc>vanmeeuwen+fedora</cc>
+    
+    
+    <cc>vponcova</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>anaconda-26.18-1</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-03-02 18:37:36</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          <external_bugs name="Python">29113</external_bugs>
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10024721</commentid>
+    <comment_count>0</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2016-12-29 20:57:59 -0500</bug_when>
+    <thetext>Since Python 3.6 landed in Rawhide, all kickstart installs fail. This seems to be because python3 is broken in the anaconda dracut environment. A Python traceback appears in the journal when you attempt to install with a kickstart; you can reproduce the same traceback by booting the installer image with &apos;rd.break&apos; and just trying to run &apos;python3&apos; from the dracut environment. It ends with:
+
+  File &quot;/usr/lib64/python3.6/sysconfig.py&quot;, line 424, in _init_posix
+    _temp = __import__(name, globals(), locals(), [&apos;build_time_vars&apos;], 0)
+ModuleNotFoundError: No module named &apos;_sysconfigdata_m_mlinux_x86_64-linux-gnu&apos;
+
+(well, on x86_64; on other arches it&apos;d look a bit different, of course).
+
+This seems to be because /usr/lib64/python3.6/_sysconfigdata_m_linux_x86_64-linux-gnu.py (or other arch equivalent) is not included in the initramfs.
+
+AFAICT, the script /usr/lib/dracut/modules.d/80anaconda/python-deps - from anaconda-dracut - is used to include Python bits in the anaconda initramfs. It&apos;s called like this, in module-setup.sh:
+
+    # python deps for parse-kickstart. DOUBLE WOOOO
+    PYTHONHASHSEED=42 $moddir/python-deps $moddir/parse-kickstart $moddir/driver_updates.py | while read dep; do
+        case &quot;$dep&quot; in
+            *.so) inst_library $dep ;;
+            *.py) inst_simple $dep ;;
+            *) inst $dep ;;
+        esac
+    done
+
+so let&apos;s see what it prints out for those files:
+
+[adamw@adam 80anaconda]$ ./python-deps ./parse-kickstart ./driver_updates.py | grep sysconfig
+/usr/lib64/python3.6/distutils/sysconfig.py
+/usr/lib64/python3.6/sysconfig.py
+[adamw@adam 80anaconda]$
+
+...yeah, it does not detect that _sysconfigdata_m_linux_x86_64-linux-gnu.py is needed, by the looks of it.
+
+I haven&apos;t had time yet to further debug why that is. It does look like python-deps has a kind of override dict for things that it can&apos;t detect properly, called alsoNeeded, so we might just have to put it in there, but I&apos;ll dig in a bit more to see.
+
+Proposing as an Alpha blocker - this violates &quot;The scripted installation mechanism must provide a working function for creating local user accounts, including the ability to specify a hashed password, and for specifying a hashed password for the root account.&quot;, because *nothing* about the &apos;scripted installation mechanism&apos; works at all. https://fedoraproject.org/wiki/Fedora_26_Alpha_Release_Criteria#scripted-user-creation</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10024725</commentid>
+    <comment_count>1</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2016-12-29 21:02:43 -0500</bug_when>
+    <thetext>oh, to add the missing piece of the puzzle, the relevant upstream change here seems to be this one:
+
+https://github.com/python/cpython/commit/a6431f2c8cf4783c2fd522b2f6ee04c3c204237f
+
+note particularly the change in sysconfig.py from:
+
+    from _sysconfigdata import build_time_vars
+
+to:
+
+    name = &apos;_sysconfigdata_&apos; + sys.abiflags
+    _temp = __import__(name, globals(), locals(), [&apos;build_time_vars&apos;], 0)
+    build_time_vars = _temp.build_time_vars
+
+I&apos;m guessing it&apos;s the use of __import__ there that python-deps can&apos;t handle.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10024728</commentid>
+    <comment_count>2</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2016-12-29 21:16:57 -0500</bug_when>
+    <thetext>I figured that since modulefinder is part of the standard lib and it&apos;s failing to find a module used by the very core of Python itself, this would be worth reporting upstream, so I did:
+
+https://bugs.python.org/issue29113</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10035860</commentid>
+    <comment_count>3</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2017-01-04 18:38:34 -0500</bug_when>
+    <thetext>https://github.com/rhinstaller/anaconda/pull/923</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10040839</commentid>
+    <comment_count>4</comment_count>
+    <who name="Vendula Poncova">vponcova</who>
+    <bug_when>2017-01-06 09:51:37 -0500</bug_when>
+    <thetext>Merged to rawhide.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10046454</commentid>
+    <comment_count>5</comment_count>
+    <who name="Geoffrey Marr">gmarr</who>
+    <bug_when>2017-01-09 13:20:23 -0500</bug_when>
+    <thetext>Discussed during the 2017-01-09 blocker review meeting: [1]
+
+The decision to classify this bug as an &quot;AcceptedBlocker&quot; was made as it violates the following criteria:
+
+&quot;The scripted installation mechanism must provide a working function for creating local user accounts, including the ability to specify a hashed password, and for specifying a hashed password for the root account.&quot; (as the &apos;scripted installation mechanism&apos; is entirely broken)
+
+[1] https://meetbot.fedoraproject.org/fedora-blocker-review/2017-01-09/f26-blocker-review.2017-01-09-17.00.txt</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10191801</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora End Of Life">jkurik</who>
+    <bug_when>2017-02-28 05:51:28 -0500</bug_when>
+    <thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 26 development cycle.
+Changing version to &apos;26&apos;.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10204103</commentid>
+    <comment_count>7</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2017-03-02 18:37:36 -0500</bug_when>
+    <thetext>Kickstart installs confirmed working in current Rawhide (and 26, most likely).</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

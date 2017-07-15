@@ -1,0 +1,411 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1343132</bug_id>
+          
+          <creation_ts>2016-06-06 11:12:00 -0400</creation_ts>
+          <short_desc>Dangling symlink /etc/systemd/system/syslog.service</short_desc>
+          <delta_ts>2017-02-08 23:20:23 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>rsyslog</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          <see_also>https://bugzilla.redhat.com/show_bug.cgi?id=1055421</see_also>
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords>Reopened</keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Jan Pazdziora">jpazdziora</reporter>
+          <assigned_to name="Jiří Vymazal">jvymazal</assigned_to>
+          <cc>admiller</cc>
+    
+    
+    <cc>bruno</cc>
+    
+    
+    <cc>dustymabe</cc>
+    
+    
+    <cc>jlieskov</cc>
+    
+    
+    <cc>jpazdziora</cc>
+    
+    
+    <cc>jvymazal</cc>
+    
+    
+    <cc>kevin</cc>
+    
+    
+    <cc>lkundrak</cc>
+    
+    
+    <cc>mah.darade</cc>
+    
+    
+    <cc>pvrabec</cc>
+    
+    
+    <cc>vanmeeuwen+fedora</cc>
+    
+    
+    <cc>ville.skytta</cc>
+    
+    
+    <cc>vpavlin</cc>
+    
+    
+    <cc>zbyszek</cc>
+    
+    
+    <cc>zing</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>rsyslog-8.24.0-1.fc25 rsyslog-8.24.0-2.fc25</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-02-08 23:20:23</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9390687</commentid>
+    <comment_count>0</comment_count>
+    <who name="Jan Pazdziora">jpazdziora</who>
+    <bug_when>2016-06-06 11:12:52 -0400</bug_when>
+    <thetext>Description of problem:
+
+The Docker image fedora:23 contains symlink /etc/systemd/system/syslog.service which points to /usr/lib/systemd/system/rsyslog.service which does not exist. 
+
+Version-Release number of selected component (if applicable):
+
+fedora:23
+fedora:rawhide
+
+How reproducible:
+
+Deterministic.
+
+Steps to Reproduce:
+1. $ docker run --rm -ti fedora:23 ls -la /etc/systemd/system/syslog.service /usr/lib/systemd/system/rsyslog.service
+
+Actual results:
+
+ls: cannot access /usr/lib/systemd/system/rsyslog.service: No such file or directory
+lrwxrwxrwx. 1 root root 39 Mar  4 05:18 /etc/systemd/system/syslog.service -&gt; /usr/lib/systemd/system/rsyslog.service
+
+Expected results:
+
+No dangling symlink.
+
+Additional info:
+
+Dangling symlinks are not nice and they have the potential to confuse things when systemd in containers is used.  Probably just remove /etc/systemd/system/syslog.service, or point it to some better target.
+
+This is a copy of https://fedorahosted.org/spin-kickstarts/ticket/60.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9391915</commentid>
+    <comment_count>1</comment_count>
+    <who name="Kevin Fenzi">kevin</who>
+    <bug_when>2016-06-06 18:01:28 -0400</bug_when>
+    <thetext>Well, it would be good to find out what makes this file and make it stop doing so, but I am not sure what that is. ;( 
+
+Does it appear on a non container install?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9392851</commentid>
+    <comment_count>2</comment_count>
+    <who name="Jan Pazdziora">jpazdziora</who>
+    <bug_when>2016-06-07 02:49:04 -0400</bug_when>
+    <thetext>The file exists on non-container Fedora 23 installation. It is not owned by any package.
+
+It seems to come from:
+
+$ rpm -q --scripts systemd | grep -1 syslog
+
+# Stop-gap until rsyslog.rpm does this on its own. (This is supposed
+# to fail when the link already exists)
+ln -s /usr/lib/systemd/system/rsyslog.service /etc/systemd/system/syslog.service &gt;/dev/null 2&gt;&amp;1 || :</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9395710</commentid>
+    <comment_count>3</comment_count>
+    <who name="Kevin Fenzi">kevin</who>
+    <bug_when>2016-06-07 16:33:22 -0400</bug_when>
+    <thetext>Adding a systemd maintainer here to look at why that rsyslog bit is still there. ;)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9396167</commentid>
+    <comment_count>4</comment_count>
+    <who name="Zbigniew Jędrzejewski-Szmek">zbyszek</who>
+    <bug_when>2016-06-07 21:36:55 -0400</bug_when>
+    <thetext>Yeah, I&apos;m not sure why systemd is providing this (it&apos;s an alias syslog.service → rsyslog.service). If anything rsyslog should have that. I&apos;d be happy to drop it.
+
+(But note that it shouldn&apos;t cause any problems. Systemd doesn&apos;t really care where the symlink points).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9396179</commentid>
+    <comment_count>5</comment_count>
+    <who name="Zbigniew Jędrzejewski-Szmek">zbyszek</who>
+    <bug_when>2016-06-07 21:46:54 -0400</bug_when>
+    <thetext>Does rsyslog need the syslog.service → rsyslog.service alias? If yes, let&apos;s move the symlink to rsyslog. Afterwards, we&apos;ll drop it from systemd (should not be an issue to have it in two place temporarily).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9396609</commentid>
+    <comment_count>6</comment_count>
+    <who name="Jan Pazdziora">jpazdziora</who>
+    <bug_when>2016-06-08 02:22:52 -0400</bug_when>
+    <thetext>If something, the symlink likely should live in /usr and not in /etc because /etc is reserved for admin&apos;s local modifications.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9463001</commentid>
+    <comment_count>7</comment_count>
+    <who name="Ville Skyttä">ville.skytta</who>
+    <bug_when>2016-06-29 06:09:09 -0400</bug_when>
+    <thetext>FWIW, /usr/lib/systemd/system/syslog.socket documents that the &quot;Best way to achieve&quot; this would be to simply uncomment the current &quot;;Alias=syslog.service&quot; in rsyslog.service.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9463458</commentid>
+    <comment_count>8</comment_count>
+    <who name="Zbigniew Jędrzejewski-Szmek">zbyszek</who>
+    <bug_when>2016-06-29 08:13:30 -0400</bug_when>
+    <thetext>No, not really. The Alias= setting only works after the unit is loaded. If nothing refers to rsyslog.service, but something wants syslog.service, it will not work. A symlink is better, if all use cases are to be supported.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9928164</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora End Of Life">jkurik</who>
+    <bug_when>2016-11-25 04:13:29 -0500</bug_when>
+    <thetext>This message is a reminder that Fedora 23 is nearing its end of life.
+Approximately 4 (four) weeks from now Fedora will stop maintaining
+and issuing updates for Fedora 23. It is Fedora&apos;s policy to close all
+bug reports from releases that are no longer maintained. At that time
+this bug will be closed as EOL if it remains open with a Fedora  &apos;version&apos;
+of &apos;23&apos;.
+
+Package Maintainer: If you wish for this bug to remain open because you
+plan to fix it in a currently maintained version, simply change the &apos;version&apos; 
+to a later Fedora version.
+
+Thank you for reporting this issue and we are sorry that we were not 
+able to fix it before Fedora 23 is end of life. If you would still like 
+to see this bug fixed and are able to reproduce it against a later version 
+of Fedora, you are encouraged  change the &apos;version&apos; to a later Fedora 
+version prior this bug is closed as described in the policy above.
+
+Although we aim to fix as many bugs as possible during every release&apos;s 
+lifetime, sometimes those efforts are overtaken by events. Often a 
+more recent Fedora release includes newer upstream software that fixes 
+bugs or makes them obsolete.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9930116</commentid>
+    <comment_count>11</comment_count>
+    <who name="Jan Pazdziora">jpazdziora</who>
+    <bug_when>2016-11-25 09:13:06 -0500</bug_when>
+    <thetext>Issue still present:
+
+# for i in 23 24 25 rawhide ; do echo fedora:$i: ; docker run --rm -ti fedora:$i ls -la /etc/systemd/system/syslog.service /usr/lib/systemd/system/rsyslog.service ; donefedora:23:
+ls: cannot access /usr/lib/systemd/system/rsyslog.service: No such file or directory
+lrwxrwxrwx. 1 root root 39 Jun 20 05:17 /etc/systemd/system/syslog.service -&gt; /usr/lib/systemd/system/rsyslog.service
+fedora:24:
+ls: cannot access &apos;/usr/lib/systemd/system/rsyslog.service&apos;: No such file or directory
+lrwxrwxrwx. 1 root root 39 Aug 15 05:18 /etc/systemd/system/syslog.service -&gt; /usr/lib/systemd/system/rsyslog.service
+fedora:25:
+ls: cannot access &apos;/usr/lib/systemd/system/rsyslog.service&apos;: No such file or directory
+lrwxrwxrwx. 1 root root 39 Nov 15 20:04 /etc/systemd/system/syslog.service -&gt; /usr/lib/systemd/system/rsyslog.service
+fedora:rawhide:
+ls: cannot access &apos;/usr/lib/systemd/system/rsyslog.service&apos;: No such file or directory
+lrwxrwxrwx. 1 root root 39 Nov  7 11:00 /etc/systemd/system/syslog.service -&gt; /usr/lib/systemd/system/rsyslog.service</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10060207</commentid>
+    <comment_count>12</comment_count>
+      <attachid>1240269</attachid>
+    <who name="Jiří Vymazal">jvymazal</who>
+    <bug_when>2017-01-13 04:27:31 -0500</bug_when>
+    <thetext>Created attachment 1240269
+proposed patch</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10060216</commentid>
+    <comment_count>13</comment_count>
+    <who name="Jiří Vymazal">jvymazal</who>
+    <bug_when>2017-01-13 04:29:40 -0500</bug_when>
+    <thetext>added a patch do do symlink in rsyslog package, it will be included in rsyslog-8.24.0, therefore you can drop it from systemd after it rolls out</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10061018</commentid>
+    <comment_count>14</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-13 09:05:30 -0500</bug_when>
+    <thetext>rsyslog-8.24.0-1.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-f1200343ac</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10061213</commentid>
+    <comment_count>15</comment_count>
+    <who name="Jan Pazdziora">jpazdziora</who>
+    <bug_when>2017-01-13 10:16:35 -0500</bug_when>
+    <thetext>The patch which adds
+
+ln -s /usr/lib/systemd/system/rsyslog.service /etc/systemd/system/syslog.service &gt;/dev/null 2&gt;&amp;1 || :
+
+breaks requirements per man systemd.unit(5) which says
+
+       │/etc/systemd/system     │ Local configuration │
+
+The symlink IMHO should be
+
+ln -s /usr/lib/systemd/system/rsyslog.service /usr/lib/systemd/system/syslog.service &gt;/dev/null 2&gt;&amp;1 || :</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10063220</commentid>
+    <comment_count>16</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-14 01:21:33 -0500</bug_when>
+    <thetext>rsyslog-8.24.0-1.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-f1200343ac</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10065546</commentid>
+    <comment_count>17</comment_count>
+      <attachid>1241167</attachid>
+    <who name="Jiří Vymazal">jvymazal</who>
+    <bug_when>2017-01-16 05:44:52 -0500</bug_when>
+    <thetext>Created attachment 1241167
+proposed patch</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10065550</commentid>
+    <comment_count>18</comment_count>
+    <who name="Jiří Vymazal">jvymazal</who>
+    <bug_when>2017-01-16 05:45:47 -0500</bug_when>
+    <thetext>edited proposed patch to conform to systemd doc</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10065643</commentid>
+    <comment_count>19</comment_count>
+    <who name="Jiří Vymazal">jvymazal</who>
+    <bug_when>2017-01-16 06:22:22 -0500</bug_when>
+    <thetext>After considering https://bugzilla.redhat.com/show_bug.cgi?id=1055421#c2 and systemd syslog doc: https://www.freedesktop.org/wiki/Software/systemd/syslog/ removing proposed patch entirely, leaving this to service alias (enabled in rsyslog 8.24.0)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10067762</commentid>
+    <comment_count>20</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-16 14:52:02 -0500</bug_when>
+    <thetext>rsyslog-8.24.0-1.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10071778</commentid>
+    <comment_count>21</comment_count>
+    <who name="Jiří Vymazal">jvymazal</who>
+    <bug_when>2017-01-17 09:09:46 -0500</bug_when>
+    <thetext>re-opening because symlink removal done in 8.24.0.1-2</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10071786</commentid>
+    <comment_count>22</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-17 09:10:33 -0500</bug_when>
+    <thetext>rsyslog-8.24.0-2.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-83155d0a69</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10073758</commentid>
+    <comment_count>23</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-17 16:51:15 -0500</bug_when>
+    <thetext>rsyslog-8.24.0-2.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-83155d0a69</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10133133</commentid>
+    <comment_count>24</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-08 23:20:23 -0500</bug_when>
+    <thetext>rsyslog-8.24.0-2.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="1"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1240269</attachid>
+            <date>2017-01-13 04:27:00 -0500</date>
+            <delta_ts>2017-01-16 05:44:52 -0500</delta_ts>
+            <desc>proposed patch</desc>
+            <filename>rsyslog_deamon-symlink.patch</filename>
+            <type>text/plain</type>
+            <size>436</size>
+            <attacher name="Jiří Vymazal">jvymazal</attacher>
+            
+              <data encoding="base64">LS0tIHJzeXNsb2cuc3BlYy5vcmlnCTIwMTctMDEtMTMgMTA6MjM6MjQuMTQ3NjY5NjIxICswMTAw
+CisrKyByc3lzbG9nLnNwZWMJMjAxNy0wMS0xMyAxMDoyNDo1MC40MTQzMjkxMTAgKzAxMDAKQEAg
+LTM4MSw2ICszODEsMTAgQEAKIGRvbmUKICVzeXN0ZW1kX3Bvc3QgcnN5c2xvZy5zZXJ2aWNlCiAK
+KyMgTWFrZSBzeW1saW5rIGZvciBzeXNsb2cgc2VydmljZS4gKFRoaXMgaXMgc3VwcG9zZWQKKyMg
+dG8gZmFpbCB3aGVuIHRoZSBsaW5rIGFscmVhZHkgZXhpc3RzIC0gZS5nLiBkb25lIGJ5IHN5c3Rl
+bWQpCitsbiAtcyAvdXNyL2xpYi9zeXN0ZW1kL3N5c3RlbS9yc3lzbG9nLnNlcnZpY2UgL2V0Yy9z
+eXN0ZW1kL3N5c3RlbS9zeXNsb2cuc2VydmljZSA+L2Rldi9udWxsIDI+JjEgfHwgOgorCiAlcHJl
+dW4KICVzeXN0ZW1kX3ByZXVuIHJzeXNsb2cuc2VydmljZQogCg==
+</data>
+
+          </attachment>
+          <attachment
+              isobsolete="1"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1241167</attachid>
+            <date>2017-01-16 05:44:00 -0500</date>
+            <delta_ts>2017-01-16 06:20:38 -0500</delta_ts>
+            <desc>proposed patch</desc>
+            <filename>rsyslog_deamon-symlink.patch</filename>
+            <type>text/plain</type>
+            <size>440</size>
+            <attacher name="Jiří Vymazal">jvymazal</attacher>
+            
+              <data encoding="base64">LS0tIHJzeXNsb2cuc3BlYy5vcmlnCTIwMTctMDEtMTYgMTA6MjM6MjQuMTQ3NjY5NjIxICswMTAw
+CisrKyByc3lzbG9nLnNwZWMJMjAxNy0wMS0xNiAxMDoyNDo1MC40MTQzMjkxMTAgKzAxMDAKQEAg
+LTM4MSw2ICszODEsMTAgQEAKIGRvbmUKICVzeXN0ZW1kX3Bvc3QgcnN5c2xvZy5zZXJ2aWNlCiAK
+KyMgTWFrZSBzeW1saW5rIGZvciBzeXNsb2cgc2VydmljZS4gKFRoaXMgaXMgc3VwcG9zZWQKKyMg
+dG8gZmFpbCB3aGVuIHRoZSBsaW5rIGFscmVhZHkgZXhpc3RzIC0gZS5nLiBkb25lIGJ5IHN5c3Rl
+bWQpCitsbiAtcyAvdXNyL2xpYi9zeXN0ZW1kL3N5c3RlbS9yc3lzbG9nLnNlcnZpY2UgL3Vzci9s
+aWIvc3lzdGVtZC9zeXN0ZW0vc3lzbG9nLnNlcnZpY2UgPi9kZXYvbnVsbCAyPiYxIHx8IDoKKwog
+JXByZXVuCiAlc3lzdGVtZF9wcmV1biByc3lzbG9nLnNlcnZpY2UKIAo=
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

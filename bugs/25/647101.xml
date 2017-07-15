@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>647101</bug_id>
+          
+          <creation_ts>2010-10-27 04:19:00 -0400</creation_ts>
+          <short_desc>jabberd.spec does not use conditional build support macros</short_desc>
+          <delta_ts>2016-07-29 02:50:02 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>jabberd</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>low</priority>
+          <bug_severity>medium</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Till Maas">opensource</reporter>
+          <assigned_to name="Dominic Hopf">dmaphy</assigned_to>
+          <cc>adrian</cc>
+    
+    
+    <cc>dmaphy</cc>
+    
+    
+    <cc>mcepl</cc>
+    
+    
+    <cc>opensource</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>jabberd-2.4.0-2.el7</cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-07-29 02:50:02</cf_last_closed>
+          <cf_type>---</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>3237920</commentid>
+    <comment_count>0</comment_count>
+    <who name="Till Maas">opensource</who>
+    <bug_when>2010-10-27 04:19:57 -0400</bug_when>
+    <thetext>Description of problem:
+rpm provides macros like %bcond_with to make it possible to use --with/--without from rpmbuild. Documentation about this can be found here:
+http://rpm.org/wiki/PackagerDocs/ConditionalBuilds
+
+jabberd.spec supports conditional building, but does not uses these macros and therefore makes the spec harder to read.
+
+Version-Release number of selected component (if applicable):
+jabberd-2.2.11-1.el5</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>3239790</commentid>
+    <comment_count>1</comment_count>
+    <who name="Dominic Hopf">dmaphy</who>
+    <bug_when>2010-10-27 19:14:50 -0400</bug_when>
+    <thetext>Thanks very much for reporting this, Till. I will take care of this issue.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>3242227</commentid>
+    <comment_count>2</comment_count>
+    <who name="Dominic Hopf">dmaphy</who>
+    <bug_when>2010-10-28 17:55:03 -0400</bug_when>
+    <thetext>I actually am not sure, if I understood your report right, Till. As far as I understood the documentation, %bcond_with supports passing arguments to the configure script beginning with &quot;--with&quot; or &quot;--without&quot;.
+
+I guess when claiming on the readability of the spec file, you mean right that part in the spec file, where the arguments are passed to the spec file? If yes, I can fully understand this and second that. Thus I really appreciate this report and like to improve the package where I can.
+
+The thing I don&apos;t understand here is: Does this bcond-thing also support arguments beginning with &quot;--enable&quot; and &quot;--disable&quot;? If so, this actually is not mentioned in the documentation you linked. If not, your criticism on the readability would not apply to the %configure section in the spec file. In that case, which specific section in the spec file do you suggest to improve with this?
+
+I could imagine you mean the BuildRequire stuff from line 15 to 20, but I&apos;m not sure with this and a bit confused anyway. I&apos;d be glad if you could bring a bit more light into this dark. :)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>3243778</commentid>
+    <comment_count>3</comment_count>
+    <who name="Till Maas">opensource</who>
+    <bug_when>2010-10-29 13:38:31 -0400</bug_when>
+    <thetext>Uh, I did not notice that the with-macros need to be converted into disable/enable strings. I guess this is worth a rpm feature request. But there is one more advantage of using %bcond_with, then one can easily spot at the beginning of the spec, which build conditionals are used and whether they are enabled or disabled by default.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>3244723</commentid>
+    <comment_count>4</comment_count>
+    <who name="Dominic Hopf">dmaphy</who>
+    <bug_when>2010-10-30 14:08:48 -0400</bug_when>
+    <thetext>I tried to implement this with
+
+SRPM: http://dmaphy.fedorapeople.org/jabberd2/jabberd-2.2.11-3.fc14.src.rpm
+
+Let me know what you think. :)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>3244724</commentid>
+    <comment_count>5</comment_count>
+    <who name="Dominic Hopf">dmaphy</who>
+    <bug_when>2010-10-30 14:14:54 -0400</bug_when>
+    <thetext>Wrote a feature request at the RPM tracker: http://rpm.org/ticket/187. :)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>3292620</commentid>
+    <comment_count>6</comment_count>
+    <who name="Dominic Hopf">dmaphy</who>
+    <bug_when>2010-11-09 18:29:31 -0500</bug_when>
+    <thetext>I just noticed the above package won&apos;t build in mock because of unresolved dependencies. Seems I just tested the build with &apos;rpmbuild -ba&apos;, that was working because I have the required packages installed anyway. I&apos;ll work on this and keep you up-to-date. :)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9349619</commentid>
+    <comment_count>7</comment_count>
+    <who name="Matěj Cepl">mcepl</who>
+    <bug_when>2016-05-23 08:04:59 -0400</bug_when>
+    <thetext>Guys, some SPEC nits are probably not reason to update package in EPEL-5. WONTFIX?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9352113</commentid>
+    <comment_count>8</comment_count>
+    <who name="Till Maas">opensource</who>
+    <bug_when>2016-05-23 17:54:47 -0400</bug_when>
+    <thetext>(In reply to Matěj Cepl from comment #7)
+&gt; Guys, some SPEC nits are probably not reason to update package in EPEL-5.
+&gt; WONTFIX?
+
+It does not need to be the only change. However, I think it would still be a good idea to do this in Rawhide, so it might get into EPEL-8.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9358144</commentid>
+    <comment_count>9</comment_count>
+    <who name="Adrian Reber">adrian</who>
+    <bug_when>2016-05-25 11:17:16 -0400</bug_when>
+    <thetext>Thanks for bringing this up again.
+
+Unfortunately I don&apos;t understand what actually is requested. The conditional build works but the wrong macros are used? Can you describe in more details what is requested? If RPM does not support expand the macros to --enable-something it does not make much sense, from my point of view, to keep this bug open. If something can be made better I am happy to change it or apply a patch (even better). Or somebody else can apply the patch.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9462838</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-06-29 05:16:02 -0400</bug_when>
+    <thetext>jabberd-2.4.0-2.el7 has been submitted as an update to Fedora EPEL 7. https://bodhi.fedoraproject.org/updates/FEDORA-EPEL-2016-85e0b3ae41</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9470413</commentid>
+    <comment_count>11</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-06-30 18:18:50 -0400</bug_when>
+    <thetext>jabberd-2.4.0-2.el7 has been pushed to the Fedora EPEL 7 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-EPEL-2016-85e0b3ae41</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9548873</commentid>
+    <comment_count>12</comment_count>
+    <who name="Jan Kurik">jkurik</who>
+    <bug_when>2016-07-26 00:14:19 -0400</bug_when>
+    <thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 25 development cycle.
+Changing version to &apos;25&apos;.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9565925</commentid>
+    <comment_count>13</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-29 02:49:57 -0400</bug_when>
+    <thetext>jabberd-2.4.0-2.el7 has been pushed to the Fedora EPEL 7 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

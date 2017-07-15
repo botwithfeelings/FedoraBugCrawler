@@ -1,0 +1,480 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1433459</bug_id>
+          
+          <creation_ts>2017-03-17 12:47:00 -0400</creation_ts>
+          <short_desc>long boot times - selinux denials causes cloud-init to take a long time</short_desc>
+          <delta_ts>2017-06-09 15:01:09 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>fedora-release</component>
+          <version>26</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Dusty Mabe">dustymabe</reporter>
+          <assigned_to name="Dennis Gilmore">dennis</assigned_to>
+          <cc>awilliam</cc>
+    
+    
+    <cc>dennis</cc>
+    
+    
+    <cc>jdisnard</cc>
+    
+    
+    <cc>kellin</cc>
+    
+    
+    <cc>kevin</cc>
+    
+    
+    <cc>mboddu</cc>
+    
+    
+    <cc>nb</cc>
+    
+    
+    <cc>pbrobinson</cc>
+    
+    
+    <cc>sgallagh</cc>
+    
+    
+    <cc>zbyszek</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>fedora-release-26-0.7</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-06-09 15:01:09</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10250377</commentid>
+    <comment_count>0</comment_count>
+    <who name="Dusty Mabe">dustymabe</who>
+    <bug_when>2017-03-17 12:47:58 -0400</bug_when>
+    <thetext>Description of problem:
+
+I&apos;m seeing an issue on the fedora cloud base image but I assume that it affects other images. The issue is that the system takes a long time to boot because it is waiting on systemd-networkd-wait-online.service, but at least on the cloud image we don&apos;t use networkd, so that is an invalid thing to wait on:
+
+
+Mar 17 13:34:22 localhost.localdomain systemd[1]: Network Service is not active.
+Mar 17 13:34:22 localhost.localdomain systemd[1]: Dependency failed for Wait for Network to be Configured.
+Mar 17 13:34:22 localhost.localdomain systemd[1]: systemd-networkd-wait-online.service: Job systemd-networkd-wait-online.service/start failed with result &apos;dependency&apos;.
+
+Some investigation with sgallagh showed this:
+
+[root@cloudhost ~]# cd /usr/lib/systemd/system-preset/ 
+[root@cloudhost system-preset]# grep systemd-networkd-wait-online ./*
+./90-systemd.preset:enable systemd-networkd-wait-online.service
+
+
+Version-Release number of selected component (if applicable):
+https://kojipkgs.fedoraproject.org/compose/26/Fedora-26-20170316.0/compose/CloudImages/x86_64/images/Fedora-Cloud-Base-26_Alpha-1.1.x86_64.qcow2
+
+systemd-233-2.fc26.x86_64
+fedora-release-26-0.5.noarch
+
+How reproducible:
+always</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10250749</commentid>
+    <comment_count>1</comment_count>
+    <who name="Kevin Fenzi">kevin</who>
+    <bug_when>2017-03-17 15:39:01 -0400</bug_when>
+    <thetext>See: 
+
+https://pagure.io/fedora-release/pull-request/86
+and
+https://pagure.io/fedora-release/pull-request/87</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10250890</commentid>
+    <comment_count>2</comment_count>
+    <who name="Fedora Blocker Bugs Application">blockerbugs</who>
+    <bug_when>2017-03-17 16:39:29 -0400</bug_when>
+    <thetext>Proposed as a Freeze Exception for 26-alpha by Fedora user sgallagh using the blocker tracking app because:
+
+ This is a low-risk change that avoids an issue where systemd reports the system being in degraded mode because it is unable to start networkd on boot.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10255455</commentid>
+    <comment_count>3</comment_count>
+    <who name="Dusty Mabe">dustymabe</who>
+    <bug_when>2017-03-20 14:01:18 -0400</bug_when>
+    <thetext>the above PRs have been merged. Is there an rpm built with these changes in it?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10260256</commentid>
+    <comment_count>4</comment_count>
+    <who name="Stephen Gallagher">sgallagh</who>
+    <bug_when>2017-03-21 07:55:35 -0400</bug_when>
+    <thetext>(In reply to Dusty Mabe from comment #3)
+&gt; the above PRs have been merged. Is there an rpm built with these changes in
+&gt; it?
+
+Not yet. We need someone from rel-eng to create it.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10266161</commentid>
+    <comment_count>5</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2017-03-22 15:15:09 -0400</bug_when>
+    <thetext>+1 FE.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10266163</commentid>
+    <comment_count>6</comment_count>
+    <who name="Jon Disnard">jdisnard</who>
+    <bug_when>2017-03-22 15:15:18 -0400</bug_when>
+    <thetext>+1 FE</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10266164</commentid>
+    <comment_count>7</comment_count>
+    <who name="Nick Bebout">nb</who>
+    <bug_when>2017-03-22 15:16:11 -0400</bug_when>
+    <thetext>+1 FE</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10266199</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-22 15:28:04 -0400</bug_when>
+    <thetext>fedora-release-26-0.6 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-90bcb067bf</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10266218</commentid>
+    <comment_count>9</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2017-03-22 15:36:13 -0400</bug_when>
+    <thetext>That&apos;s +3/+4 FE, marking accepted.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10270111</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-23 10:25:24 -0400</bug_when>
+    <thetext>fedora-release-26-0.6 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-90bcb067bf</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10273349</commentid>
+    <comment_count>11</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2017-03-23 21:02:14 -0400</bug_when>
+    <thetext>So, I looked into this a bit before just blindly karma&apos;ing the update, and it&apos;s a bit strange.
+
+I tested a Workstation live image, and it doesn&apos;t have this problem. The boot is not held up by this service, and this service doesn&apos;t actually start.
+
+So I thought maybe it&apos;s disabled, but it isn&apos;t:
+
+[root@localhost-live test]# systemctl is-enabled systemd-networkd-wait-online.service
+enabled
+
+yet it shows as inactive:
+
+[root@localhost-live test]# systemctl status systemd-networkd-wait-online.servie 
+● systemd-networkd-wait-online.service - Wait for Network to be Configured
+   Loaded: loaded (/usr/lib/systemd/system/systemd-networkd-wait-online.service;
+   Active: inactive (dead)
+     Docs: man:systemd-networkd-wait-online.service(8)
+
+so I looked at the unit file, and it has this:
+
+Requisite=systemd-networkd.service
+
+What does &quot;Requisite&quot; mean? Well, from the systemd.unit man page:
+
+       Requisite=
+           Similar to Requires=. However, if the units listed here are not
+           started already, they will not be started and the transaction will
+           fail immediately.
+
+i.e., if I&apos;m reading it correctly, this basically means &quot;if systemd-networkd isn&apos;t active, don&apos;t run this service&quot;.
+
+So I&apos;m actually not convinced by this change, without further investigation. It seems to me that leaving this service enabled by default *should* be the right thing to do, as it should mean that if someone decides to enable systemd-networkd.service after install, the system will properly wait for the network to come up before boot proceeds. If we disable this service by default, then people who want to use systemd-networkd will need to know or figure out that they should *also* enable this service, and I don&apos;t think that&apos;s going to be obvious at all, and it doesn&apos;t seem like the right thing to do to require this of them.
+
+Zbigniew, do you have any thoughts here?
+
+Can someone take another look at this and see if they can figure out why this service is actually active on the cloud images at all? Is systemd-networkd.service actually starting up, for some reason, on those images?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10273386</commentid>
+    <comment_count>12</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2017-03-23 21:18:35 -0400</bug_when>
+    <thetext>Bit more confusing data here...I tried enabling systemd-networkd.service on my WS install and rebooting. Noted:
+
+1) Boot takes longer
+2) It doesn&apos;t actually bring the network up (even though this is a VM so I&apos;d expect it to be able to just automatically bring up the only interface via DHCP)
+3) systemd-networkd-wait-online.service *still* shows as inactive and has no log messages, though systemd-networkd.service shows as active</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10273497</commentid>
+    <comment_count>13</comment_count>
+    <who name="Kevin Fenzi">kevin</who>
+    <bug_when>2017-03-23 23:09:14 -0400</bug_when>
+    <thetext>Well, note that the cloud image uses the old &apos;network&apos; service. This won&apos;t matter with NetworkManager and nothing uses systemd-networkd out of the box. 
+
+It seems to fix the bug here. 
+
+1. boot f26 alpha rc2 cloud image: 
+systemd-analyze: 
+Startup finished in 631ms (kernel) + 1.220s (initrd) + 3min 50.711s (userspace) = 3min 52.564s
+
+
+2. systemctl disable systemd-networkd-wait-online
+3. reboot: 
+
+$ systemd-analyze 
+Startup finished in 645ms (kernel) + 1.150s (initrd) + 15.166s (userspace) = 16.963s</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10273565</commentid>
+    <comment_count>14</comment_count>
+    <who name="Dusty Mabe">dustymabe</who>
+    <bug_when>2017-03-24 00:37:17 -0400</bug_when>
+    <thetext>Kevin, the test that you did doesn&apos;t mean anything because on 2nd boot even without disabling that service the system boots up fast.
+
+
+I agree with Adam. When I was first looking into this I couldn&apos;t quite figure it out and then stephen seemed like he knew the answer so I stopped looking into it. Now i&apos;m back.
+
+Another thing to note is that we see this on the Atomic Host qcow images we produce nightly, which use NetworkManager. So we see it on cloud base images, which use legacy network scripts, and Atomic Host, which uses NetworkManager.
+
+So why don&apos;t we see it on other images that use NM? What&apos;s common between the images we do see this problem on? --&gt; cloud-init. and...
+
+[root@cloudhost ~]# systemd-analyze blame | head -n 3
+    3min 22.161s cloud-init.service
+          5.627s network.service
+          2.310s cloud-init-local.service
+
+Then I started to look at the journal from around this time. There are quite a few selinux denials (reported in bug https://bugzilla.redhat.com/show_bug.cgi?id=1435310). 
+
+It turns out if I set enforcing=0 on the kernel command line then the system boots up fine.
+
+So, this is not a bug with systemd-networkd-wait-online.service. It is actually a symptom of selinux denials which cause cloud-init to take a long time to start. The solution to BZ1435310 should resolve this issue.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10274694</commentid>
+    <comment_count>15</comment_count>
+    <who name="Stephen Gallagher">sgallagh</who>
+    <bug_when>2017-03-24 08:56:57 -0400</bug_when>
+    <thetext>(In reply to Adam Williamson from comment #11)
+&gt; What does &quot;Requisite&quot; mean? Well, from the systemd.unit man page:
+&gt; 
+&gt;        Requisite=
+&gt;            Similar to Requires=. However, if the units listed here are not
+&gt;            started already, they will not be started and the transaction will
+&gt;            fail immediately.
+&gt; 
+&gt; i.e., if I&apos;m reading it correctly, this basically means &quot;if systemd-networkd
+&gt; isn&apos;t active, don&apos;t run this service&quot;.
+
+This is accurate, but incomplete. What it *also* means is that this service will be marked as *failed* if systemd-networkd.service isn&apos;t running. In other words, it&apos;s asserting that it is an invalid configuration to try to start systemd-networkd-wait-online.service if systemd-networkd.service isn&apos;t enabled.
+
+If you run `systemctl status` (with no arguments), you will note that it is reporting: &quot;State: degraded&quot;. So if nothing else, this patch resolves that misconfiguration.
+
+That being said, I see your point with regards to making sure the systemd-networkd-wait-online.service should always be started with the systemd-networkd.service, so I think the correct solution there would be to add &quot;Also=systemd-networkd-wait-online.service&quot; to the systemd-networkd.service [Install] selection (and the reverse on the other side).
+
+Zbigniew: what do you think about that?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10274716</commentid>
+    <comment_count>16</comment_count>
+    <who name="Stephen Gallagher">sgallagh</who>
+    <bug_when>2017-03-24 08:59:08 -0400</bug_when>
+    <thetext>Also, given that we have a different bug already to track the SELinux denial issue, can we leave this bug tracking the &quot;State: Degraded&quot; issue?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10274819</commentid>
+    <comment_count>17</comment_count>
+    <who name="Dusty Mabe">dustymabe</who>
+    <bug_when>2017-03-24 09:26:15 -0400</bug_when>
+    <thetext>I&apos;ll let adamw decide that. The problem I was originally reporting turned out to have a different root cause than what we thought, so I changed the title accordingly.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10274960</commentid>
+    <comment_count>18</comment_count>
+    <who name="Dusty Mabe">dustymabe</who>
+    <bug_when>2017-03-24 09:58:29 -0400</bug_when>
+    <thetext>I&apos;ll also note that I don&apos;t see a degraded state on an install from a live workstation ISO:
+
+```
+[root@localhost-live ~]# systemctl status systemd-networkd-wait-online.service 
+● systemd-networkd-wait-online.service - Wait for Network to be Configured
+   Loaded: loaded (/usr/lib/systemd/system/systemd-networkd-wait-online.service; enabled; vendor preset: enabled)
+   Active: inactive (dead)
+     Docs: man:systemd-networkd-wait-online.service(8)
+[root@localhost-live ~]# journalctl | grep wait
+Mar 24 09:44:03 localhost-live audit[1]: SERVICE_START pid=1 uid=0 auid=4294967295 ses=4294967295 subj=system_u:system_r:init_t:s0 msg=&apos;unit=plymouth-quit-wait comm=&quot;systemd&quot; exe=&quot;/usr/lib/systemd/systemd&quot; hostname=? addr=? terminal=? res=success&apos;
+Mar 24 09:44:03 localhost-live audit[1]: SERVICE_STOP pid=1 uid=0 auid=4294967295 ses=4294967295 subj=system_u:system_r:init_t:s0 msg=&apos;unit=plymouth-quit-wait comm=&quot;systemd&quot; exe=&quot;/usr/lib/systemd/systemd&quot; hostname=? addr=? terminal=? res=success&apos;
+```</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10275466</commentid>
+    <comment_count>19</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2017-03-24 11:48:59 -0400</bug_when>
+    <thetext>I&apos;m fine with having this bug track the &apos;degraded&apos; issue, but please come up with a precise description of the scenario, because as Dusty and I found, I don&apos;t think you have that yet. It doesn&apos;t seem to be the case that &apos;any system with systemd-networkd-wait-online.service enabled and systemd-networkd.service disabled winds up in degraded state&apos;.
+
+I&apos;ll transfer the accepted FE status to the SELinux bug, since we voted on the symptom that turned out to be caused by that bug. This could be proposed again on its merits after the description is corrected.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10276711</commentid>
+    <comment_count>20</comment_count>
+    <who name="Zbigniew Jędrzejewski-Szmek">zbyszek</who>
+    <bug_when>2017-03-25 00:09:50 -0400</bug_when>
+    <thetext>(In reply to Stephen Gallagher from comment #15)
+&gt; (In reply to Adam Williamson from comment #11)
+&gt; &gt; What does &quot;Requisite&quot; mean? Well, from the systemd.unit man page:
+&gt; &gt; 
+&gt; &gt;        Requisite=
+&gt; &gt;            Similar to Requires=. However, if the units listed here are not
+&gt; &gt;            started already, they will not be started and the transaction will
+&gt; &gt;            fail immediately.
+&gt; &gt; 
+&gt; &gt; i.e., if I&apos;m reading it correctly, this basically means &quot;if systemd-networkd
+&gt; &gt; isn&apos;t active, don&apos;t run this service&quot;.
+&gt; 
+&gt; This is accurate, but incomplete. What it *also* means is that this service
+&gt; will be marked as *failed* if systemd-networkd.service isn&apos;t running.
+Yes.
+
+&gt; If you run `systemctl status` (with no arguments), you will note that it is
+&gt; reporting: &quot;State: degraded&quot;. So if nothing else, this patch resolves that
+&gt; misconfiguration.
+Yes.
+
+Note that systemd-networkd-wait-online.service has WantedBy=network-online.target
+(not m-u.target), so it&apos;s not activated unless network-online.target
+itself is activated. So the issue with systemd-networkd-wait-online.service
+timing out requires systemd-networkd.service to be disabled *and*
+systemd-networkd-wait-online.service to be enabled *and*
+network-online.target to be enabled or pulled in by something.
+
+&gt; That being said, I see your point with regards to making sure the
+&gt; systemd-networkd-wait-online.service should always be started with the
+&gt; systemd-networkd.service, so I think the correct solution there would be to
+&gt; add &quot;Also=systemd-networkd-wait-online.service&quot; to the
+&gt; systemd-networkd.service [Install] selection (and the reverse on the other
+&gt; side).
+Yeah, that makes a lot of sense → https://github.com/systemd/systemd/pull/5635.
+
+Nevertheless, I think the PR for Fedora presets still makes sense, even if PR5635
+goes in.
+
+(In reply to Adam Williamson from comment #12)
+&gt; Bit more confusing data here...I tried enabling systemd-networkd.service on
+&gt; my WS install and rebooting. Noted:
+&gt;
+&gt; 2) It doesn&apos;t actually bring the network up (even though this is a VM so I&apos;d
+&gt; expect it to be able to just automatically bring up the only interface via
+&gt; DHCP)
+No default configuration is provided. So enabling systmed-networkd by itself
+does not do anything (except for containers, where some default &quot;safe&quot; config
+is provided for veths).
+
+&gt; 3) systemd-networkd-wait-online.service *still* shows as inactive and has no
+&gt; log messages, though systemd-networkd.service shows as active
+What about network-online.target? If that is not activated,
+systemd-networkd-wait-online.service is not started either.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10331578</commentid>
+    <comment_count>21</comment_count>
+    <who name="Dusty Mabe">dustymabe</who>
+    <bug_when>2017-04-12 22:41:03 -0400</bug_when>
+    <thetext>what&apos;s the resolution around this?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10356485</commentid>
+    <comment_count>22</comment_count>
+    <who name="Stephen Gallagher">sgallagh</who>
+    <bug_when>2017-04-24 08:53:38 -0400</bug_when>
+    <thetext>(In reply to Dusty Mabe from comment #21)
+&gt; what&apos;s the resolution around this?
+
+We pushed the change in the default presets, but it was unclear if this was in fact the root cause of your issue. Are you still experiencing the problem on recent branched composes? If so, we may need to investigate other possible causes.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10356627</commentid>
+    <comment_count>23</comment_count>
+    <who name="Dusty Mabe">dustymabe</who>
+    <bug_when>2017-04-24 09:25:35 -0400</bug_when>
+    <thetext>we are not having the &quot;long boot times&quot; issue any longer. This was fixed in https://bugzilla.redhat.com/show_bug.cgi?id=1435310.
+
+We do still see the `Job systemd-networkd-wait-online.service/start failed with result &apos;dependency&apos;` issue, though, which turned out to not be the root cause of our problem, but is still a (mostly cosmetic) failure during boot.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10357299</commentid>
+    <comment_count>24</comment_count>
+    <who name="Stephen Gallagher">sgallagh</who>
+    <bug_when>2017-04-24 11:45:11 -0400</bug_when>
+    <thetext>(In reply to Dusty Mabe from comment #23)
+&gt; we are not having the &quot;long boot times&quot; issue any longer. This was fixed in
+&gt; https://bugzilla.redhat.com/show_bug.cgi?id=1435310.
+&gt; 
+&gt; We do still see the `Job systemd-networkd-wait-online.service/start failed
+&gt; with result &apos;dependency&apos;` issue, though, which turned out to not be the root
+&gt; cause of our problem, but is still a (mostly cosmetic) failure during boot.
+
+That&apos;s because it seems that there hasn&apos;t been a rebuilt `fedora-release` package yet. That should happen soon as there are several other changes queued up in there.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10423533</commentid>
+    <comment_count>25</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-17 21:20:18 -0400</bug_when>
+    <thetext>fedora-release-26-0.7 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-6b842d9c19</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10426815</commentid>
+    <comment_count>26</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-18 15:04:22 -0400</bug_when>
+    <thetext>fedora-release-26-0.7 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-6b842d9c19</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10494052</commentid>
+    <comment_count>27</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-09 15:01:09 -0400</bug_when>
+    <thetext>fedora-release-26-0.7 has been pushed to the Fedora 26 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

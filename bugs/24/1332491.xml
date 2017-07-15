@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1332491</bug_id>
+          
+          <creation_ts>2016-05-03 06:46:00 -0400</creation_ts>
+          <short_desc>NetworkManager-openconnect not saving username in dialog</short_desc>
+          <delta_ts>2016-10-14 22:49:53 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>NetworkManager</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords>Reopened</keywords>
+          <priority>unspecified</priority>
+          <bug_severity>low</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Matthias Meier">matthias.j.meier</reporter>
+          <assigned_to name="Lubomir Rintel">lkundrak</assigned_to>
+          <cc>dcbw</cc>
+    
+    
+    <cc>dwmw2</cc>
+    
+    
+    <cc>fgiudici</cc>
+    
+    
+    <cc>jan</cc>
+    
+    
+    <cc>joachim.backes</cc>
+    
+    
+    <cc>kevinmustaqim</cc>
+    
+    
+    <cc>lkundrak</cc>
+    
+    
+    <cc>lrintel</cc>
+    
+    
+    <cc>psimerda</cc>
+    
+    
+    <cc>rderooy</cc>
+    
+    
+    <cc>thaller</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>NetworkManager-1.2.4-3.fc24</cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-10-14 22:49:53</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      <flag name="needinfo"
+          id="2782869"
+          type_id="16"
+          status="-"
+          setter="thaller"
+    />
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9287747</commentid>
+    <comment_count>0</comment_count>
+    <who name="Matthias Meier">matthias.j.meier</who>
+    <bug_when>2016-05-03 06:46:54 -0400</bug_when>
+    <thetext>Description of problem:
+When connecting with NetworkManager-openconnect on Fedora 23 and before, the  username and password could be saved. On Fedora 24 (Alpha-7) only the password is saved but the username field is empty, so the username has to be entered each time newly.
+
+Version-Release number of selected component (if applicable):
+ 1.2.0-1.fc24
+
+How reproducible:
+Connect to a vpn twice
+
+Steps to Reproduce:
+1. enter vpn connection 
+2. connect and check password save dialog
+3. disconnect and connect again
+
+Actual results:
+username is not shown in dialog (only password bullets)
+login failed is shown if connecting witout entering the username again.
+
+Expected results:
+username should be shown as well 
+
+Additional info:</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9356696</commentid>
+    <comment_count>1</comment_count>
+    <who name="Robert de Rooy">rderooy</who>
+    <bug_when>2016-05-25 03:54:07 -0400</bug_when>
+    <thetext>Seeing the same problem here on F24 Beta
+
+$ rpm -qa|grep openconnect
+openconnect-7.06-4.fc24.x86_64
+NetworkManager-openconnect-1.2.2-1.fc24.x86_64</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9356704</commentid>
+    <comment_count>2</comment_count>
+    <who name="David Woodhouse">dwmw2</who>
+    <bug_when>2016-05-25 03:56:29 -0400</bug_when>
+    <thetext>Going to blame NM itself for this. Will strip the stored username from my own config (it was there before I upgraded) and attempt to reproduce...</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9356712</commentid>
+    <comment_count>3</comment_count>
+    <who name="David Woodhouse">dwmw2</who>
+    <bug_when>2016-05-25 03:59:18 -0400</bug_when>
+    <thetext>Note: NM-openconnect &quot;makes up&quot; secrets as it goes, to remember the authentication form entries (the &apos;input&apos; ones, not the &apos;password&apos; ones which end up being stored via libsecret.
+
+So at the first *authentication*, because the server offers a form named &apos;main&apos; which has a &apos;username&apos; field, I end up with the auth-dialog spitting out an extra secret that was never previously known, which (in F23 and previously at least) resulted in:
+
+# grep form: /etc/NetworkManager/system-connections/Intel\ AnyConnect\ VPN 
+form:main:password-flags=1
+form:main:username=david.woodhouse@intel.com</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9446055</commentid>
+    <comment_count>4</comment_count>
+    <who name="Matthias Meier">matthias.j.meier</who>
+    <bug_when>2016-06-23 08:09:09 -0400</bug_when>
+    <thetext>The problem still exists in final Fedora 24.
+
+Is there a workaround?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9474775</commentid>
+    <comment_count>5</comment_count>
+    <who name="Lubomir Rintel">lrintel</who>
+    <bug_when>2016-07-03 07:13:26 -0400</bug_when>
+    <thetext>https://cgit.freedesktop.org/NetworkManager/NetworkManager/log/?h=lr/openconnect-secrets-rh1332491</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9478794</commentid>
+    <comment_count>6</comment_count>
+    <who name="Thomas Haller">thaller</who>
+    <bug_when>2016-07-04 10:39:54 -0400</bug_when>
+    <thetext>&gt;&gt; setting-vpn: get the flags property name only up to the first &quot;:&quot; in secret 
+
+According to example from comment 3,
+
+  form:main:password-flags=1
+  form:main:username=david.woodhouse@intel.com
+
+it seems the secret name would be &quot;form:main:username&quot;. Wouldn&apos;t the patch then lookup for &quot;form-main-flags&quot;? How does that fit with &quot;form:main:password-flags&quot;?
+Surely the patch does it right, but the commit message does not explain the meaning of the &apos;:&apos;. It should show concrete examples of what openconnect does, and why we would truncate secret names at a colon.
+
+
+It seems to me, that NMSettingVpn:get_secret_flags() should instead allow for a missing flags entry, but also consider whether there is an entry in the secrets.
+
+Having a password in the @secrets hash, but no flags in @data, might anyway be considered in inconsistent state. I think, NMSettingVpn should treat &quot;name&quot; as secret if at least one of the following is true:
+
+  - @secrets hash has an entry &quot;name&quot;.
+  - @data hash has an entry &quot;name&quot; + &quot;-flags&quot;.
+
+If the flags entry is missing, it should assume &quot;0&quot;.
+
+
+Above would make sense to me, regardless of any openconnect hacks. Wouldn&apos;t that fix the openconnect issue?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9478908</commentid>
+    <comment_count>7</comment_count>
+    <who name="David Woodhouse">dwmw2</who>
+    <bug_when>2016-07-04 11:31:04 -0400</bug_when>
+    <thetext>(In reply to Thomas Haller from comment #6)
+&gt; It seems to me, that NMSettingVpn:get_secret_flags() should instead allow
+&gt; for a missing flags entry, but also consider whether there is an entry in
+&gt; the secrets.
+
+...
+
+&gt; Above would make sense to me, regardless of any openconnect hacks. Wouldn&apos;t
+&gt; that fix the openconnect issue?
+
+As far as I was aware, that was how it always worked.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9478915</commentid>
+    <comment_count>8</comment_count>
+    <who name="David Woodhouse">dwmw2</who>
+    <bug_when>2016-07-04 11:35:36 -0400</bug_when>
+    <thetext>Ah, I had missed the fact that this was known to have been broken in https://cgit.freedesktop.org/NetworkManager/NetworkManager/commit/?id=1424f249e
+
+An alternative suggestion... let us return *data* from the auth-dialog to be stored for future connections, not just secrets. I can set the flags explicitly then.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9483299</commentid>
+    <comment_count>9</comment_count>
+    <who name="Joachim Backes">joachim.backes</who>
+    <bug_when>2016-07-06 02:24:02 -0400</bug_when>
+    <thetext>(In reply to Robert de Rooy from comment #1)
+
+Seeing the same problem here with the released F24 (Workstation)
+
+openconnect-7.06-4.fc24.x86_64
+NetworkManager-openconnect-1.2.2-1.fc24.x86_64
+NetworkManager-1.2.2-2.fc24.x86_64</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9635318</commentid>
+    <comment_count>10</comment_count>
+    <who name="Lubomir Rintel">lrintel</who>
+    <bug_when>2016-08-22 06:12:26 -0400</bug_when>
+    <thetext>This is what was merged to essentially restore the old behavior: https://cgit.freedesktop.org/NetworkManager/NetworkManager/commit/?id=9b96bfaa722f3cccf0df3a3bca6e8f227643f94f
+
+While extending the auth helper protocol certainly makes sense, it also takes more work to do and a change in the VPN client as well. We could do that in future, but for now this is probably sufficient.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9635324</commentid>
+    <comment_count>11</comment_count>
+    <who name="Lubomir Rintel">lrintel</who>
+    <bug_when>2016-08-22 06:13:17 -0400</bug_when>
+    <thetext>Released in https://bodhi.fedoraproject.org/updates/FEDORA-2016-fade485364 (1.2.4-2.fc24)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9677728</commentid>
+    <comment_count>12</comment_count>
+    <who name="Nurul Huda Mustaqim">kevinmustaqim</who>
+    <bug_when>2016-09-04 09:57:01 -0400</bug_when>
+    <thetext>I faced the same problem on Fedora 24 Workstation
+
+Name        : openconnect
+Arch        : x86_64
+Epoch       : 0
+Version     : 7.07
+Release     : 2.fc24
+
+Name        : NetworkManager
+Arch        : x86_64
+Epoch       : 1
+Version     : 1.2.4
+
+
+Name        : NetworkManager-openconnect
+Arch        : x86_64
+Epoch       : 0
+Version     : 1.2.2
+Release     : 1.fc24</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9781771</commentid>
+    <comment_count>13</comment_count>
+    <who name="David Woodhouse">dwmw2</who>
+    <bug_when>2016-10-11 11:57:50 -0400</bug_when>
+    <thetext>This still isn&apos;t working for me with NetworkManager-1.2.4-2.fc24
+
+I provision a network with nmcli, and the &apos;save_passwords&apos; secret is never set even though the auth-dialog returns it.
+
+If I manually add save_passwords-flags=0 to the vpn.data when provisioning, it does get saved.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9784113</commentid>
+    <comment_count>14</comment_count>
+    <who name="Thomas Haller">thaller</who>
+    <bug_when>2016-10-12 06:58:30 -0400</bug_when>
+    <thetext>9b96bfaa722f3cccf0df3a3bca6e8f227643f94f was never backported to nm-1-2 branch, and is thus not in any libnm-1.2.* up to now.
+
+I cherry-picked the patch upstream: https://cgit.freedesktop.org/NetworkManager/NetworkManager/commit/?id=bb45adeda0bf427ada23b09daf970b0757e82d60</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9786973</commentid>
+    <comment_count>15</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-10-13 00:52:10 -0400</bug_when>
+    <thetext>NetworkManager-1.2.4-3.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-9317b4b65b</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9792806</commentid>
+    <comment_count>16</comment_count>
+    <who name="Matthias Meier">matthias.j.meier</who>
+    <bug_when>2016-10-14 11:25:46 -0400</bug_when>
+    <thetext>Thanks a log David and Thomas, it works with NetworkManager-1.2.4-3.fc24 !</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9794069</commentid>
+    <comment_count>17</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-10-14 22:49:53 -0400</bug_when>
+    <thetext>NetworkManager-1.2.4-3.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

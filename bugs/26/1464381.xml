@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1464381</bug_id>
+          
+          <creation_ts>2017-06-23 05:55:00 -0400</creation_ts>
+          <short_desc>The test for fallback realm for GSSAPI ccache selection is failing</short_desc>
+          <delta_ts>2017-06-29 03:49:47 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>krb5</component>
+          <version>26</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>RAWHIDE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>medium</priority>
+          <bug_severity>medium</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Patrik Kis">pkis</reporter>
+          <assigned_to name="Robbie Harwood">rharwood</assigned_to>
+          <cc>abokovoy</cc>
+    
+    
+    <cc>mrogers</cc>
+    
+    
+    <cc>nalin</cc>
+    
+    
+    <cc>npmccallum</cc>
+    
+    
+    <cc>rharwood</cc>
+    
+    
+    <cc>tibbs</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>krb5-1.15.1-13.fc27</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-06-26 16:37:10</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10534647</commentid>
+    <comment_count>0</comment_count>
+    <who name="Patrik Kis">pkis</who>
+    <bug_when>2017-06-23 05:55:12 -0400</bug_when>
+    <thetext>Description of problem:
+
+The commit pulled from http://krbdev.mit.edu/rt/Ticket/Display.html?id=8549 seems have a fix and also a test for it. It was added to F25 and F26 in Use-fallback-realm-for-GSSAPI-ccache-selection.patch.
+
+The issue is that the the test t_ccselect.py is failing the the new part. I&apos;m not sure if the issue is in the test or fix as the upstream ticket is not reviewed yet.
+
+Version-Release number of selected component (if applicable):
+krb5-1.14.4-7.fc25
+krb5-1.15.1-8.fc26
+
+How reproducible:
+always
+
+Steps to Reproduce:
+
+# PYTHONPATH=../../util VALGRIND=&quot;&quot; python ./t_ccselect.py -v
+*** [1] Executing: /root/rpmbuild/BUILD/krb5-1.15.1/src/kadmin/dbutil/kdb5_util create -W -s -P master
+Loading random data
+Initializing database &apos;/var/kerberos/krb5kdc/principal&apos; for realm &apos;KRBTEST.COM&apos;,
+master key name &apos;K/M@KRBTEST.COM&apos;
+*** [1] Completed with return code 0
+*** [2] Executing: /root/rpmbuild/BUILD/krb5-1.15.1/src/kadmin/cli/kadmin.local addprinc -randkey host/qeos-100.lab.eng.rdu2.redhat.com@KRBTEST.COM
+*** [2] Completed with return code 0
+*** [3] Executing: /root/rpmbuild/BUILD/krb5-1.15.1/src/kadmin/cli/kadmin.local ktadd -k /root/rpmbuild/BUILD/krb5-1.15.1/src/tests/gssapi/testdir/keytab -norandkey host/qeos-100.lab.eng.rdu2.redhat.com@KRBTEST.COM
+Entry for principal host/qeos-100.lab.eng.rdu2.redhat.com@KRBTEST.COM with kvno 1, encryption type aes256-cts-hmac-sha1-96 added to keytab WRFILE:/root/rpmbuild/BUILD/krb5-1.15.1/src/tests/gssapi/testdir/keytab.
+Entry for principal host/qeos-100.lab.eng.rdu2.redhat.com@KRBTEST.COM with kvno 1, encryption type aes128-cts-hmac-sha1-96 added to keytab WRFILE:/root/rpmbuild/BUILD/krb5-1.15.1/src/tests/gssapi/testdir/keytab.
+*** [3] Completed with return code 0
+*** [4] Starting: /root/rpmbuild/BUILD/krb5-1.15.1/src/kdc/krb5kdc -n
+krb5kdc: starting...
+*** [4] Started with pid 28906
+*** [5] Executing: /root/rpmbuild/BUILD/krb5-1.15.1/src/kadmin/dbutil/kdb5_util create -W -s -P master
+Loading random data
+Initializing database &apos;/var/kerberos/krb5kdc/principal&apos; for realm &apos;KRBTEST2.COM&apos;,
+master key name &apos;K/M@KRBTEST2.COM&apos;
+*** [5] Completed with return code 0
+*** [6] Executing: /root/rpmbuild/BUILD/krb5-1.15.1/src/kadmin/cli/kadmin.local addprinc -randkey host/qeos-100.lab.eng.rdu2.redhat.com@KRBTEST2.COM
+*** [6] Completed with return code 0
+*** [7] Executing: /root/rpmbuild/BUILD/krb5-1.15.1/src/kadmin/cli/kadmin.local ktadd -k /root/rpmbuild/BUILD/krb5-1.15.1/src/tests/gssapi/testdir/r2/keytab -norandkey host/qeos-100.lab.eng.rdu2.redhat.com@KRBTEST2.COM
+Entry for principal host/qeos-100.lab.eng.rdu2.redhat.com@KRBTEST2.COM with kvno 1, encryption type aes256-cts-hmac-sha1-96 added to keytab WRFILE:/root/rpmbuild/BUILD/krb5-1.15.1/src/tests/gssapi/testdir/r2/keytab.
+Entry for principal host/qeos-100.lab.eng.rdu2.redhat.com@KRBTEST2.COM with kvno 1, encryption type aes128-cts-hmac-sha1-96 added to keytab WRFILE:/root/rpmbuild/BUILD/krb5-1.15.1/src/tests/gssapi/testdir/r2/keytab.
+*** [7] Completed with return code 0
+*** [8] Starting: /root/rpmbuild/BUILD/krb5-1.15.1/src/kdc/krb5kdc -n
+krb5kdc: starting...
+*** [8] Started with pid 28910
+*** [9] Executing: ./t_ccselect p:host/qeos-100.lab.eng.rdu2.redhat.com@KRBTEST.COM -
+gss_acquire_cred: Unspecified GSS failure.  Minor code may provide more information
+gss_acquire_cred: No Kerberos credentials available (default cache: /root/rpmbuild/BUILD/krb5-1.15.1/src/tests/gssapi/testdir/ccache)
+*** [9] Completed with return code 1
+*** [10] Executing: /root/rpmbuild/BUILD/krb5-1.15.1/src/kadmin/cli/kadmin.local addprinc -pw alice28902 alice@KRBTEST.COM
+*** [10] Completed with return code 0
+*** [11] Executing: /root/rpmbuild/BUILD/krb5-1.15.1/src/kadmin/cli/kadmin.local addprinc -pw bob28902 bob@KRBTEST.COM
+*** [11] Completed with return code 0
+*** [12] Executing: /root/rpmbuild/BUILD/krb5-1.15.1/src/kadmin/cli/kadmin.local addprinc -pw zaphod28902 zaphod@KRBTEST2.COM
+*** [12] Completed with return code 0
+*** [13] Executing: /root/rpmbuild/BUILD/krb5-1.15.1/src/kadmin/cli/kadmin.local addprinc -randkey host/localhost
+*** [13] Completed with return code 0
+*** [14] Executing: /root/rpmbuild/BUILD/krb5-1.15.1/src/kadmin/cli/kadmin.local addprinc -randkey host/localhost
+*** [14] Completed with return code 0
+*** [15] Executing: /root/rpmbuild/BUILD/krb5-1.15.1/src/kadmin/cli/kadmin.local addprinc -randkey host/foo.krbtest.com
+*** [15] Completed with return code 0
+*** [16] Executing: /root/rpmbuild/BUILD/krb5-1.15.1/src/kadmin/cli/kadmin.local addprinc -randkey host/foo.krbtest2.com
+*** [16] Completed with return code 0
+*** [17] Executing: /root/rpmbuild/BUILD/krb5-1.15.1/src/kadmin/cli/kadmin.local ktadd -k /root/rpmbuild/BUILD/krb5-1.15.1/src/tests/gssapi/testdir/keytab -norandkey host/localhost
+Entry for principal host/localhost with kvno 1, encryption type aes256-cts-hmac-sha1-96 added to keytab WRFILE:/root/rpmbuild/BUILD/krb5-1.15.1/src/tests/gssapi/testdir/keytab.
+Entry for principal host/localhost with kvno 1, encryption type aes128-cts-hmac-sha1-96 added to keytab WRFILE:/root/rpmbuild/BUILD/krb5-1.15.1/src/tests/gssapi/testdir/keytab.
+*** [17] Completed with return code 0
+*** [18] Executing: /root/rpmbuild/BUILD/krb5-1.15.1/src/kadmin/cli/kadmin.local ktadd -k /root/rpmbuild/BUILD/krb5-1.15.1/src/tests/gssapi/testdir/r2/keytab -norandkey host/localhost
+Entry for principal host/localhost with kvno 1, encryption type aes256-cts-hmac-sha1-96 added to keytab WRFILE:/root/rpmbuild/BUILD/krb5-1.15.1/src/tests/gssapi/testdir/r2/keytab.
+Entry for principal host/localhost with kvno 1, encryption type aes128-cts-hmac-sha1-96 added to keytab WRFILE:/root/rpmbuild/BUILD/krb5-1.15.1/src/tests/gssapi/testdir/r2/keytab.
+*** [18] Completed with return code 0
+*** [19] Executing: /root/rpmbuild/BUILD/krb5-1.15.1/src/kadmin/cli/kadmin.local ktadd -k /root/rpmbuild/BUILD/krb5-1.15.1/src/tests/gssapi/testdir/keytab -norandkey host/foo.krbtest.com
+Entry for principal host/foo.krbtest.com with kvno 1, encryption type aes256-cts-hmac-sha1-96 added to keytab WRFILE:/root/rpmbuild/BUILD/krb5-1.15.1/src/tests/gssapi/testdir/keytab.
+Entry for principal host/foo.krbtest.com with kvno 1, encryption type aes128-cts-hmac-sha1-96 added to keytab WRFILE:/root/rpmbuild/BUILD/krb5-1.15.1/src/tests/gssapi/testdir/keytab.
+*** [19] Completed with return code 0
+*** [20] Executing: /root/rpmbuild/BUILD/krb5-1.15.1/src/kadmin/cli/kadmin.local ktadd -k /root/rpmbuild/BUILD/krb5-1.15.1/src/tests/gssapi/testdir/r2/keytab -norandkey host/foo.krbtest2.com
+Entry for principal host/foo.krbtest2.com with kvno 1, encryption type aes256-cts-hmac-sha1-96 added to keytab WRFILE:/root/rpmbuild/BUILD/krb5-1.15.1/src/tests/gssapi/testdir/r2/keytab.
+Entry for principal host/foo.krbtest2.com with kvno 1, encryption type aes128-cts-hmac-sha1-96 added to keytab WRFILE:/root/rpmbuild/BUILD/krb5-1.15.1/src/tests/gssapi/testdir/r2/keytab.
+*** [20] Completed with return code 0
+*** [21] Executing: /root/rpmbuild/BUILD/krb5-1.15.1/src/clients/kinit/kinit alice@KRBTEST.COM
+Password for alice@KRBTEST.COM: 
+*** [21] Completed with return code 0
+*** [22] Executing: /root/rpmbuild/BUILD/krb5-1.15.1/src/clients/kinit/kinit zaphod@KRBTEST2.COM
+Password for zaphod@KRBTEST2.COM: 
+*** [22] Completed with return code 0
+*** [23] Executing: ./t_ccselect p:host/qeos-100.lab.eng.rdu2.redhat.com@KRBTEST.COM p:alice@KRBTEST.COM
+alice@KRBTEST.COM
+*** [23] Completed with return code 0
+*** [24] Executing: ./t_ccselect p:host/qeos-100.lab.eng.rdu2.redhat.com@KRBTEST2.COM p:zaphod@KRBTEST2.COM
+zaphod@KRBTEST2.COM
+*** [24] Completed with return code 0
+*** [25] Executing: ./t_ccselect p:host/qeos-100.lab.eng.rdu2.redhat.com@KRBTEST.COM
+alice@KRBTEST.COM
+*** [25] Completed with return code 0
+*** [26] Executing: ./t_ccselect p:host/qeos-100.lab.eng.rdu2.redhat.com@KRBTEST.COM -
+alice@KRBTEST.COM
+*** [26] Completed with return code 0
+*** [27] Executing: ./t_ccselect p:host/qeos-100.lab.eng.rdu2.redhat.com@KRBTEST2.COM
+zaphod@KRBTEST2.COM
+*** [27] Completed with return code 0
+*** [28] Executing: ./t_ccselect p:host/qeos-100.lab.eng.rdu2.redhat.com@KRBTEST2.COM -
+zaphod@KRBTEST2.COM
+*** [28] Completed with return code 0
+*** [29] Executing: ./t_ccselect p:host/qeos-100.lab.eng.rdu2.redhat.com@
+zaphod@KRBTEST2.COM
+*** [29] Completed with return code 0
+*** [30] Executing: ./t_ccselect h:host@foo.krbtest2.com
+gss_init_sec_context: Unspecified GSS failure.  Minor code may provide more information
+gss_init_sec_context: Cannot find KDC for realm &quot;KRBTEST2.COM&quot;
+*** [30] Completed with return code 1
+*** [31] Executing: ./t_ccselect h:host@foo.krbtest.com
+alice@KRBTEST.COM
+*** [31] Completed with return code 0
+*** [32] Executing: ./t_ccselect h:host@foo.krbtest2.com
+zaphod@KRBTEST2.COM
+*** [32] Completed with return code 0
+*** [33] Executing: ./t_ccselect h:host@localhost
+alice@KRBTEST.COM
+*** [33] Completed with return code 0
+*** [34] Executing: ./t_ccselect h:host@localhost
+zaphod@KRBTEST2.COM
+*** [34] Completed with return code 0
+*** [35] Executing: /root/rpmbuild/BUILD/krb5-1.15.1/src/clients/kinit/kinit bob@KRBTEST.COM
+Password for bob@KRBTEST.COM: 
+*** [35] Completed with return code 0
+*** [36] Executing: ./t_ccselect p:host/qeos-100.lab.eng.rdu2.redhat.com@KRBTEST.COM
+alice@KRBTEST.COM
+*** [36] Completed with return code 0
+*** [37] Executing: ./t_ccselect h:host@localhost
+zaphod@KRBTEST2.COM
+*** [37] Completed with return code 0
+*** [38] Executing: ./t_ccselect p:host/qeos-100.lab.eng.rdu2.redhat.com@
+bob@KRBTEST.COM
+*** [38] Completed with return code 0
+*** Failure: Expected error not seen when k5identity selects bad principal.
+*** Last command (#38): ./t_ccselect p:host/qeos-100.lab.eng.rdu2.redhat.com@
+*** Output of last command:
+bob@KRBTEST.COM
+
+Use --debug=NUM to run a command under a debugger.  Use
+--stop-after=NUM to stop after a daemon is started in order to
+attach to it with a debugger.  Use --help to see other options.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10535737</commentid>
+    <comment_count>1</comment_count>
+    <who name="Robbie Harwood">rharwood</who>
+    <bug_when>2017-06-23 10:56:40 -0400</bug_when>
+    <thetext>(In reply to Patrik Kis from comment #0)
+&gt; Description of problem:
+&gt; 
+&gt; The commit pulled from http://krbdev.mit.edu/rt/Ticket/Display.html?id=8549
+&gt; seems have a fix and also a test for it. It was added to F25 and F26 in
+&gt; Use-fallback-realm-for-GSSAPI-ccache-selection.patch.
+&gt; 
+&gt; The issue is that the the test t_ccselect.py is failing the the new part.
+&gt; I&apos;m not sure if the issue is in the test or fix as the upstream ticket is
+&gt; not reviewed yet.
+
+That ticket is actually tied to PR#606, which has merged: https://github.com/krb5/krb5/pull/606  (Upstream&apos;s ticketing doesn&apos;t have a notion of review-before-commit, so &quot;reviewed&quot; on RT means &quot;merged upstream&quot;, basically.)
+
+I will look into what broke here.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10540258</commentid>
+    <comment_count>2</comment_count>
+    <who name="Patrik Kis">pkis</who>
+    <bug_when>2017-06-26 08:58:56 -0400</bug_when>
+    <thetext>(In reply to Robbie Harwood from comment #1)
+&gt; (In reply to Patrik Kis from comment #0)
+&gt; &gt; Description of problem:
+&gt; &gt; 
+&gt; &gt; The commit pulled from http://krbdev.mit.edu/rt/Ticket/Display.html?id=8549
+&gt; &gt; seems have a fix and also a test for it. It was added to F25 and F26 in
+&gt; &gt; Use-fallback-realm-for-GSSAPI-ccache-selection.patch.
+&gt; &gt; 
+&gt; &gt; The issue is that the the test t_ccselect.py is failing the the new part.
+&gt; &gt; I&apos;m not sure if the issue is in the test or fix as the upstream ticket is
+&gt; &gt; not reviewed yet.
+&gt; 
+&gt; That ticket is actually tied to PR#606, which has merged:
+&gt; https://github.com/krb5/krb5/pull/606  (Upstream&apos;s ticketing doesn&apos;t have a
+&gt; notion of review-before-commit, so &quot;reviewed&quot; on RT means &quot;merged upstream&quot;,
+&gt; basically.)
+&gt; 
+I didn&apos;t know that.
+
+&gt; I will look into what broke here.
+
+Thank you.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10541654</commentid>
+    <comment_count>3</comment_count>
+    <who name="Robbie Harwood">rharwood</who>
+    <bug_when>2017-06-26 16:37:10 -0400</bug_when>
+    <thetext>This is just test suite breakage, fortunately.
+
+Due to #1464381, I have had to disable running tests on ppc64le for the time being.  (Unrelated to this, just poorly timed.)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10552147</commentid>
+    <comment_count>4</comment_count>
+    <who name="Patrik Kis">pkis</who>
+    <bug_when>2017-06-29 03:49:47 -0400</bug_when>
+    <thetext>Thanks for the investigation.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

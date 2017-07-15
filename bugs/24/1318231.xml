@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1318231</bug_id>
+          
+          <creation_ts>2016-03-16 06:23:00 -0400</creation_ts>
+          <short_desc>fstrim on raid6 failed</short_desc>
+          <delta_ts>2016-10-09 04:37:14 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>kernel</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>CURRENTRELEASE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Zhang Yi">yizhan</reporter>
+          <assigned_to name="Kernel Maintainer List">kernel-maint</assigned_to>
+          <cc>gansalmon</cc>
+    
+    
+    <cc>itamar</cc>
+    
+    
+    <cc>Jes.Sorensen</cc>
+    
+    
+    <cc>jonathan</cc>
+    
+    
+    <cc>kernel-maint</cc>
+    
+    
+    <cc>madhu.chinakonda</cc>
+    
+    
+    <cc>mchehab</cc>
+    
+    
+    <cc>xni</cc>
+    
+    
+    <cc>yizhan</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          <cf_clone_of>1307091</cf_clone_of>
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-10-09 04:37:14</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9152366</commentid>
+    <comment_count>0</comment_count>
+    <who name="Zhang Yi">yizhan</who>
+    <bug_when>2016-03-16 06:23:21 -0400</bug_when>
+    <thetext>Description of problem:
+fstrim on raid6 failed
+
+Version-Release number of selected component (if applicable):
+# rpm -qa mdadm
+mdadm-3.3.4-3.fc24.x86_64
+# uname -r
+4.5.0-0.rc7.git0.2.fc24.x86_64
+
+How reproducible:
+100%
+
+Steps to Reproduce:
+echo Y &gt;/sys/module/raid456/parameters/devices_handle_discard_safely
+mdadm -CR /dev/md0 -l6 -n8 /dev/sdb[1-3] /dev/sdb[5-9]
+mdadm --wait /dev/md0
+mkfs.ext4 /dev/md0
+mount /dev/md0 /mnt
+fstrim /mnt
+
+Actual results:
+
+
+Expected results:
+
+
+Additional info:
+# cat /sys/block/sdb/queue/discard_zeroes_data 
+1
+# cat /sys/module/raid456/parameters/devices_handle_discard_safely 
+Y
+# mdadm -D /dev/md0 
+/dev/md0:
+        Version : 1.2
+  Creation Time : Wed Mar 16 17:17:35 2016
+     Raid Level : raid6
+     Array Size : 31432704 (29.98 GiB 32.19 GB)
+  Used Dev Size : 5238784 (5.00 GiB 5.36 GB)
+   Raid Devices : 8
+  Total Devices : 8
+    Persistence : Superblock is persistent
+
+    Update Time : Wed Mar 16 18:07:59 2016
+          State : clean 
+ Active Devices : 8
+Working Devices : 8
+ Failed Devices : 0
+  Spare Devices : 0
+
+         Layout : left-symmetric
+     Chunk Size : 512K
+
+           Name : dhcp-12-149.nay.redhat.com:0  (local to host dhcp-12-149.nay.redhat.com)
+           UUID : c1c01dd2:c07c109e:38b71f1e:ff3c587f
+         Events : 17
+
+    Number   Major   Minor   RaidDevice State
+       0       8       17        0      active sync   /dev/sdb1
+       1       8       18        1      active sync   /dev/sdb2
+       2       8       19        2      active sync   /dev/sdb3
+       3       8       21        3      active sync   /dev/sdb5
+       4       8       22        4      active sync   /dev/sdb6
+       5       8       23        5      active sync   /dev/sdb7
+       6       8       24        6      active sync   /dev/sdb8
+       7       8       25        7      active sync   /dev/sdb9
+
+# mount | grep md0
+/dev/md0 on /mnt type ext4 (rw,relatime,seclabel,stripe=768,data=ordered)
+# fstrim /mnt
+fstrim: /mnt: the discard operation is not supported</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9153225</commentid>
+    <comment_count>1</comment_count>
+    <who name="Jes Sorensen">Jes.Sorensen</who>
+    <bug_when>2016-03-16 10:10:38 -0400</bug_when>
+    <thetext>I believe this is fixed by this patch I already pushed to the upstream MD
+maintainer, and will rippled down into Fedora through upstream updates:
+
+commit e7597e69dec59b65c5525db1626b9d34afdfa678
+Author: Jes Sorensen &lt;Jes.Sorensen@redhat.com&gt;
+Date:   Tue Feb 16 16:44:24 2016 -0500
+
+    md/raid5: Compare apples to apples (or sectors to sectors)
+    
+    &apos;max_discard_sectors&apos; is in sectors, while &apos;stripe&apos; is in bytes.
+    
+    This fixes the problem where DISCARD would get disabled on some larger
+    RAID5 configurations (6 or more drives in my testing), while it worked
+    as expected with smaller configurations.
+    
+    Fixes: 620125f2bf8 (&quot;MD: raid5 trim support&quot;)
+    Cc: stable@vger.kernel.org v3.7+
+    Signed-off-by: Jes Sorensen &lt;Jes.Sorensen@redhat.com&gt;
+    Signed-off-by: Shaohua Li &lt;shli@fb.com&gt;
+
+Cheers,
+Jes</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9738942</commentid>
+    <comment_count>2</comment_count>
+    <who name="Laura Abbott">labbott</who>
+    <bug_when>2016-09-23 15:21:22 -0400</bug_when>
+    <thetext>*********** MASS BUG UPDATE **************
+ 
+We apologize for the inconvenience.  There is a large number of bugs to go through and several of them have gone stale.  Due to this, we are doing a mass bug update across all of the Fedora 24 kernel bugs.
+ 
+Fedora 24 has now been rebased to 4.7.4-200.fc24.  Please test this kernel update (or newer) and let us know if you issue has been resolved or if it is still present with the newer kernel.
+ 
+If you have moved on to Fedora 25, and are still experiencing this issue, please change the version to Fedora 25.
+ 
+If you experience different issues, please open a new bug report for those.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9776074</commentid>
+    <comment_count>3</comment_count>
+    <who name="Zhang Yi">yizhan</who>
+    <bug_when>2016-10-09 04:37:14 -0400</bug_when>
+    <thetext>Verified with [1], close as CURRENTRELEASE.
+
+[1] 
+4.7.5-200.fc24.x86_64
+mdadm-3.4-2.fc24.x86_64
+
+Thanks
+Yi</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

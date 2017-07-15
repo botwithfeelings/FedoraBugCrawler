@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1335158</bug_id>
+          
+          <creation_ts>2016-05-11 09:00:00 -0400</creation_ts>
+          <short_desc>time zone selector graphics looks blurry on a hidpi screen</short_desc>
+          <delta_ts>2016-06-29 15:05:25 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>libtimezonemap</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>RAWHIDE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Andreas Nilsson">anilsson</reporter>
+          <assigned_to name="David Shea">dshea</assigned_to>
+          <cc>anaconda-maint-list</cc>
+    
+    
+    <cc>dshea</cc>
+    
+    
+    <cc>g.kaviyarasu</cc>
+    
+    
+    <cc>glesage</cc>
+    
+    
+    <cc>jonathan</cc>
+    
+    
+    <cc>vanmeeuwen+fedora</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>libtimezonemap-0.4.5-3</cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-06-29 15:05:25</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9316897</commentid>
+    <comment_count>0</comment_count>
+    <who name="Andreas Nilsson">anilsson</who>
+    <bug_when>2016-05-11 09:00:32 -0400</bug_when>
+    <thetext>When installing the Fedora 24 Beta release on my Lenovo Yoga Pro 3 I noticed the time zone selector graphics looks all blurry. The laptop has a 3200x1800 screen, so I guess it&apos;s a hidpi issue.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9316969</commentid>
+    <comment_count>1</comment_count>
+    <who name="Garrett LeSage">glesage</who>
+    <bug_when>2016-05-11 09:17:27 -0400</bug_when>
+    <thetext>This seems to be the result of &apos;libtimezonemap&apos; using to-size PNGs which are blurry-upscaled to 2× instead of using native high-res versions (which do not exist at this time).
+
+The files in question are at /usr/share/libtimezonemap/ui/
+
+One solution would be to re-render the PNGs at 2× and use those on high-res displays.
+
+Another solution would be to use vector graphics (SVGs) instead.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9317195</commentid>
+    <comment_count>2</comment_count>
+    <who name="David Shea">dshea</who>
+    <bug_when>2016-05-11 09:55:14 -0400</bug_when>
+    <thetext>There is SVG data for the map in the upstream source, http://bazaar.launchpad.net/~timezonemap-team/timezonemap/trunk/files/head:/src/data/. time_zones_countryInfo-orig.svg is the whole thing, with the individual zones defined as layers in inkscape.
+
+However, no one involved in this really knows what they&apos;re doing in inkscape. Is it possible to rearrange the SVG in a way that the individual layers could be extracted, or to export individual layers as SVG in a way that won&apos;t take up a huge amount of space or take forever to render?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9321569</commentid>
+    <comment_count>3</comment_count>
+    <who name="Garrett LeSage">glesage</who>
+    <bug_when>2016-05-12 11:14:03 -0400</bug_when>
+    <thetext>It is definitely possible to do either (reference the SVG in pieces or split it apart into multiple files).
+
+This really depends on the rendering engine that&apos;s used to show the SVG, but you can refer to it with a document fragment and a bit of special CSS embedded inside the SVG document.
+
+Reference: https://css-tricks.com/svg-fragment-identifiers-work/
+
+
+Example, with a modified version of the SVG @:
+http://people.redhat.com/glesage/tmp/timezone/time_zones_countryInfo-mod.svg
+
+By default, this shows up blank... but you can add a document identifier to show a particular &lt;g&gt; element by its ID.
+
+http://people.redhat.com/glesage/tmp/timezone/time_zones_countryInfo-mod.svg#m0
+http://people.redhat.com/glesage/tmp/timezone/time_zones_countryInfo-mod.svg#m5
+http://people.redhat.com/glesage/tmp/timezone/time_zones_countryInfo-mod.svg#p1
+
+I&apos;ve rewritten the SVG to duplicate the values of the Inkscape-specific &lt;g&gt;-based layer elements&apos; inkscape:label attributes into the IDs for the each group, in addition to a little bit of custom CSS in the &lt;def&gt; (as mentioned above in the block with the css-tricks link).
+
+
+However, this is nice and all, but the SVG renderer must support the feature. Web browsers do... but I&apos;m not sure if librsvg (or whatever else used in GTK+) can do this.
+
+So... if this dynamic rendering is not adequate, I would be happy to provide a means to split the file into parts next week, either into separate SVG elements or PNG files at multiple resolutions (I guess 1× and 2× scaling).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9338553</commentid>
+    <comment_count>4</comment_count>
+    <who name="David Shea">dshea</who>
+    <bug_when>2016-05-18 15:48:41 -0400</bug_when>
+    <thetext>(In reply to Garrett LeSage from comment #3)
+&gt; Example, with a modified version of the SVG @:
+&gt; http://people.redhat.com/glesage/tmp/timezone/time_zones_countryInfo-mod.svg
+
+Holy crap. Huge thanks for this, I&apos;ll try seeing what librsvg can do with this in the next few days.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9355755</commentid>
+    <comment_count>5</comment_count>
+    <who name="David Shea">dshea</who>
+    <bug_when>2016-05-24 17:27:50 -0400</bug_when>
+    <thetext>https://code.launchpad.net/~dshea/timezonemap/svg-only/+merge/295631</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9356863</commentid>
+    <comment_count>6</comment_count>
+    <who name="Garrett LeSage">glesage</who>
+    <bug_when>2016-05-25 04:46:53 -0400</bug_when>
+    <thetext>If speed is an issue, it should be possible to simplify the SVG a bit, which would reduce its file size and complexity. It would be lossy, but probably not noticeable on screens.
+
+The tools used for this are:
+
+- scour — https://github.com/codedread/scour
+(also baked into Inkscape when choosing &quot;Optimized SVG&quot; in the save dialog)
+
+- svgo — https://github.com/svg/svgo
+(has a simple web frontend @ https://jakearchibald.github.io/svgomg/)
+
+Both tools have different options to simplify SVGs and reduce the filesize. Depending on the options given to either tool, as well as the SVG being modified, it is possible to have something that looks virtually identical, but less complex and much smaller in file size.
+
+(Of course, give either tool the wrong values and you have something that looks more like scribbles than the original SVG.)
+
+The original source SVGs should always be preserved; these tools are both for generating distributed SVGs to be used on the web or in software.
+
+
+If SVG optimization were to happen on the file, I&apos;d strongly suggest making sure there aren&apos;t issues with the result. For example: we wouldn&apos;t want to wipe out Madagascar (they can&apos;t shut down their ports to SVG over-optimization).
+
+Also, it would be good to measure the speed difference to make sure optimization would actually help in a real-world context, naturally (more than just a handful of milliseconds).
+
+
+Note: I have used the above mentioned tools many times and can vouch for their effectiveness and accuracy, provided settings aren&apos;t too drastic.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9357911</commentid>
+    <comment_count>7</comment_count>
+    <who name="David Shea">dshea</who>
+    <bug_when>2016-05-25 10:15:46 -0400</bug_when>
+    <thetext>(In reply to Garrett LeSage from comment #6)
+
+&gt; The original source SVGs should always be preserved; these tools are both
+&gt; for generating distributed SVGs to be used on the web or in software.
+
+I honestly don&apos;t think that&apos;s an issue here. The SVG is traced from another map, probably the CIA World Factbook time zone PDF, and is full of a lot of unnecessary junk. I ran it through svgomg, and even after putting all the whitespace back by resaving in inkscape the file size and time to render are cut in half (400ish to 200ish milliseconds to render the background to a cairo surface, clicks are noticeably faster). I&apos;ll just go with that. Thanks.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9465994</commentid>
+    <comment_count>8</comment_count>
+    <who name="David Shea">dshea</who>
+    <bug_when>2016-06-29 15:05:25 -0400</bug_when>
+    <thetext>Built for rawhide.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

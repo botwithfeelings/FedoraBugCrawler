@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1383513</bug_id>
+          
+          <creation_ts>2016-10-10 17:43:00 -0400</creation_ts>
+          <short_desc>ImportError: cannot import name Event</short_desc>
+          <delta_ts>2016-10-22 03:54:53 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>rtlsdr-scanner</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords>Reopened</keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Robert Bost">bostrt</reporter>
+          <assigned_to name="Jaroslav Škarvada">jskarvad</assigned_to>
+          <cc>jskarvad</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>rtlsdr-scanner-1.0.22497.10311-1.fc25 rtlsdr-scanner-1.0.22497.10311-1.fc24</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-10-18 07:30:22</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9779672</commentid>
+    <comment_count>0</comment_count>
+    <who name="Robert Bost">bostrt</who>
+    <bug_when>2016-10-10 17:43:19 -0400</bug_when>
+    <thetext>Description of problem:
+Cannot start rtlsdr-scanner app
+
+
+Version-Release number of selected component (if applicable):
+rtlsdr-scanner-1.0.22298.18049-2.fc24.noarch
+
+
+How reproducible: Always.
+
+
+Steps to Reproduce:
+# rtlsdr_scan 
+Traceback (most recent call last):
+  File &quot;/usr/bin/rtlsdr_scan&quot;, line 52, in &lt;module&gt;
+    from cli import Cli
+  File &quot;/usr/lib/python2.7/site-packages/rtlsdr-scanner/cli.py&quot;, line 37, in &lt;module&gt;
+    from events import Event
+ImportError: cannot import name Event</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9783846</commentid>
+    <comment_count>1</comment_count>
+    <who name="Jaroslav Škarvada">jskarvad</who>
+    <bug_when>2016-10-12 05:14:09 -0400</bug_when>
+    <thetext>Hmm, strange, but I am unable to reproduce. I tried on two different machines. The events.py is installed by the rtlsdr-scanner package and the Event class is there and I can also run the scanner without problem. Maybe your rtlsdr-scanner installation is damaged, try:
+$ rpm -qV rtlsdr-scanner
+
+or maybe, there is an events.py from different package that loads instead (but this would be even more strange), please provide output of the:
+
+$ python -v /usr/bin/rtlsdr_scan</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9784615</commentid>
+    <comment_count>2</comment_count>
+    <who name="Robert Bost">bostrt</who>
+    <bug_when>2016-10-12 09:06:31 -0400</bug_when>
+    <thetext>That was it, there&apos;s another package called events:
+
+# python -v /usr/bin/rtlsdr_scan 2&gt;&amp;1 | grep events
+import events # directory /usr/lib/python2.7/site-packages/events
+# /usr/lib/python2.7/site-packages/events/__init__.pyc matches /usr/lib/python2.7/site-packages/events/__init__.py
+import events # precompiled from /usr/lib/python2.7/site-packages/events/__init__.pyc
+# /usr/lib/python2.7/site-packages/events/events.pyc matches /usr/lib/python2.7/site-packages/events/events.py
+import events.events # precompiled from /usr/lib/python2.7/site-packages/events/events.pyc
+    from events import Event
+# cleanup[1] events
+# cleanup[1] events.events
+
+# sudo pip uninstall events
+Uninstalling Events-0.2.1:
+[...]
+
+# rtlsdr_events
+&lt;gui launches&gt;
+
+Is there a way to allow the Events package to be installed from pip alongside rtlsdr-scanner and its internal events module?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9784917</commentid>
+    <comment_count>3</comment_count>
+    <who name="Jaroslav Škarvada">jskarvad</who>
+    <bug_when>2016-10-12 10:18:29 -0400</bug_when>
+    <thetext>(In reply to Robert Bost from comment #2)
+&gt; That was it, there&apos;s another package called events:
+&gt; 
+&gt; # python -v /usr/bin/rtlsdr_scan 2&gt;&amp;1 | grep events
+&gt; import events # directory /usr/lib/python2.7/site-packages/events
+&gt; # /usr/lib/python2.7/site-packages/events/__init__.pyc matches
+&gt; /usr/lib/python2.7/site-packages/events/__init__.py
+&gt; import events # precompiled from
+&gt; /usr/lib/python2.7/site-packages/events/__init__.pyc
+&gt; # /usr/lib/python2.7/site-packages/events/events.pyc matches
+&gt; /usr/lib/python2.7/site-packages/events/events.py
+&gt; import events.events # precompiled from
+&gt; /usr/lib/python2.7/site-packages/events/events.pyc
+&gt;     from events import Event
+&gt; # cleanup[1] events
+&gt; # cleanup[1] events.events
+&gt; 
+&gt; # sudo pip uninstall events
+&gt; Uninstalling Events-0.2.1:
+&gt; [...]
+&gt; 
+&gt; # rtlsdr_events
+&gt; &lt;gui launches&gt;
+&gt; 
+&gt; Is there a way to allow the Events package to be installed from pip
+&gt; alongside rtlsdr-scanner and its internal events module?
+
+Thanks for info.
+
+Mixing distribution RPM with 3rd party package manager (PIP) is IMHO unsupported.
+
+Events is not provided by any Fedora RPM, so there is nothing to fix:
+$ dnf provides &apos;/usr/lib/python2.7/site-packages/events/*&apos;
+
+I think the main problem is that the &apos;events&apos; you use imports events.py in its __init__.py. Why it does it? But this is really not Fedora bug. The rtlsdr-scanenr package use correct import which should correctly utilize loading paths, i.e. there is nothing to fix.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9784936</commentid>
+    <comment_count>4</comment_count>
+    <who name="Jaroslav Škarvada">jskarvad</who>
+    <bug_when>2016-10-12 10:22:15 -0400</bug_when>
+    <thetext>(In reply to Jaroslav Škarvada from comment #3)
+&gt; I think the main problem is that the &apos;events&apos; you use imports events.py in
+&gt; its __init__.py. Why it does it? But this is really not Fedora bug. The
+&gt; rtlsdr-scanenr package use correct import which should correctly utilize
+&gt; loading paths, i.e. there is nothing to fix.
+
+Incorrect, hmm, interesting that it doesn&apos;t work with the default paths, I will check it.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9784941</commentid>
+    <comment_count>5</comment_count>
+    <who name="Jaroslav Škarvada">jskarvad</who>
+    <bug_when>2016-10-12 10:24:31 -0400</bug_when>
+    <thetext>https://docs.python.org/3/whatsnew/2.5.html#pep-328-absolute-and-relative-imports</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9784951</commentid>
+    <comment_count>6</comment_count>
+    <who name="Jaroslav Škarvada">jskarvad</who>
+    <bug_when>2016-10-12 10:27:02 -0400</bug_when>
+    <thetext>So the default behaviour changed in Python 2.7 to absolute imports. While there is currently no conflict at the moment with distribution packages it maybe worth to fix it, reopening.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9788897</commentid>
+    <comment_count>7</comment_count>
+    <who name="Jaroslav Škarvada">jskarvad</who>
+    <bug_when>2016-10-13 10:27:10 -0400</bug_when>
+    <thetext>Upstream pull request not only fixing this bug, but also trying to do proper modularization of the code:
+https://github.com/EarToEarOak/RTLSDR-Scanner/pull/28</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9790398</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-10-13 23:20:33 -0400</bug_when>
+    <thetext>rtlsdr-scanner-1.0.22497.10311-1.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-f5f29a57d5</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9790481</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-10-14 00:55:41 -0400</bug_when>
+    <thetext>rtlsdr-scanner-1.0.22497.10311-1.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-ce05cb672d</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9800481</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-10-18 07:30:22 -0400</bug_when>
+    <thetext>rtlsdr-scanner-1.0.22497.10311-1.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9812870</commentid>
+    <comment_count>11</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-10-22 03:54:53 -0400</bug_when>
+    <thetext>rtlsdr-scanner-1.0.22497.10311-1.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

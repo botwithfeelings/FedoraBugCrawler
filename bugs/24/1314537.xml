@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1314537</bug_id>
+          
+          <creation_ts>2016-03-03 16:03:00 -0500</creation_ts>
+          <short_desc>python-importanize - requires both python2 and python3</short_desc>
+          <delta_ts>2016-04-21 21:26:17 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>python-importanize</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>1285816</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="William Moreno">williamjmorenor</reporter>
+          <assigned_to name="Sundeep Anand">suanand</assigned_to>
+          <cc>pviktori</cc>
+    
+    
+    <cc>suanand</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>python-importanize-0.4.1-5.fc23</cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-04-21 21:26:17</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9119368</commentid>
+    <comment_count>0</comment_count>
+    <who name="William Moreno">williamjmorenor</who>
+    <bug_when>2016-03-03 16:03:02 -0500</bug_when>
+    <thetext>Hi, there is a issue in the spec with a colition in %{_bindir}
+
+You have:
+
+%install
+%py2_install
+rm -fr %{buildroot}%{python2_sitelib}/tests
+%py3_install
+rm -fr %{buildroot}%{python3_sitelib}/tests
+
+And then in both packages:
+
+%{_bindir}/%{pypi_name}
+
+You should update your spec to something like:
+
+%install
+%py2_install
+mv %{buildroot}/%{_bindir}/%{pypi_name} %{buildroot}/%{_bindir}/%{pypi_name}-py2 
+
+And then in the python2 subpackage:
+%{_bindir}/%{pypi_name}-py2
+
+By the way, you must provide a python2 subpackage and use the python-provides macro.
+
+See:
+https://fedoraproject.org/wiki/Packaging:Python#Avoiding_collisions_between_the_python_2_and_python_3_stacks</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9120732</commentid>
+    <comment_count>1</comment_count>
+    <who name="Petr Viktorin">pviktori</who>
+    <bug_when>2016-03-04 04:53:19 -0500</bug_when>
+    <thetext>Actually, the guidelines specify how the scripts should be named, so that users can use a sane &quot;default&quot; but also explicitly request a specific version:
+https://fedoraproject.org/wiki/Packaging:Python#Naming
+
+There are two cases:
+1) If the script works the same under both python2 and python3, only the python3 scripts can be packaged
+
+2) Otherwise, there should be /usr/bin/script, /usr/bin/script-2, /usr/bin/script-2.7 for Python 2, and /usr/bin/script-3, /usr/bin/script-3.5 for Python 3.
+You can do that like this:
+
+%py3_install
+mv %{buildroot}/%{_bindir}/%{pypi_name} %{buildroot}/%{_bindir}/%{pypi_name}-3 
+ln -s %{buildroot}/%{_bindir}/%{pypi_name}-3 %{buildroot}/%{_bindir}/%{pypi_name}-%{python3_version}
+
+%py2_install
+ln -s %{buildroot}/%{_bindir}/%{pypi_name} %{buildroot}/%{_bindir}/%{pypi_name}-%2
+ln -s %{buildroot}/%{_bindir}/%{pypi_name} %{buildroot}/%{_bindir}/%{pypi_name}-%{python2_version}</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9121021</commentid>
+    <comment_count>2</comment_count>
+    <who name="Sundeep Anand">suanand</who>
+    <bug_when>2016-03-04 07:09:22 -0500</bug_when>
+    <thetext>Thanks!
+Have updated SPEC - as of now kept /usr/bin/script and /usr/bin/script-3
+Working around error: Symlink points to BuildRoot
+
+Koji Scratch build:
+http://koji.fedoraproject.org/koji/taskinfo?taskID=13225981</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9121061</commentid>
+    <comment_count>3</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-03-04 07:18:05 -0500</bug_when>
+    <thetext>python-importanize-0.4.1-4.fc23 has been submitted as an update to Fedora 23. https://bodhi.fedoraproject.org/updates/FEDORA-2016-d662304333</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9121081</commentid>
+    <comment_count>4</comment_count>
+    <who name="Petr Viktorin">pviktori</who>
+    <bug_when>2016-03-04 07:25:37 -0500</bug_when>
+    <thetext>Right, sorry! The symlink targets don&apos;t need a directory.
+
+ln -s %{pypi_name}-3 %{buildroot}/%{_bindir}/%{pypi_name}-%{python3_version}</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9122673</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-03-04 21:22:40 -0500</bug_when>
+    <thetext>python-importanize-0.4.1-4.fc23 has been pushed to the Fedora 23 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-d662304333</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9145510</commentid>
+    <comment_count>6</comment_count>
+    <who name="Sundeep Anand">suanand</who>
+    <bug_when>2016-03-14 05:18:21 -0400</bug_when>
+    <thetext>Thanks!
+Have updated SPEC and Package.
+
+SPEC URL: https://bitbucket.org/sundeep_co_in/python-pkgs/downloads/python-importanize.spec
+SRPM URL: https://bitbucket.org/sundeep_co_in/python-pkgs/downloads/python-importanize-0.4.1-4.fc23.src.rpm
+
+Koji Scratch Build: http://koji.fedoraproject.org/koji/taskinfo?taskID=13342442</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9145673</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-03-14 06:09:18 -0400</bug_when>
+    <thetext>python-importanize-0.4.1-5.fc23 has been submitted as an update to Fedora 23. https://bodhi.fedoraproject.org/updates/FEDORA-2016-25398488a9</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9153564</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-03-16 11:24:03 -0400</bug_when>
+    <thetext>python-importanize-0.4.1-5.fc23 has been pushed to the Fedora 23 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-25398488a9</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9259466</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-04-21 21:26:15 -0400</bug_when>
+    <thetext>python-importanize-0.4.1-5.fc23 has been pushed to the Fedora 23 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

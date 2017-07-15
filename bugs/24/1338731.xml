@@ -1,0 +1,761 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1338731</bug_id>
+          
+          <creation_ts>2016-05-23 07:00:00 -0400</creation_ts>
+          <short_desc>DNS not flushed on VPN up/down.</short_desc>
+          <delta_ts>2016-09-06 07:56:06 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>NetworkManager</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="David Woodhouse">dwmw2</reporter>
+          <assigned_to name="Lubomir Rintel">lkundrak</assigned_to>
+          <cc>bgalvani</cc>
+    
+    
+    <cc>dcbw</cc>
+    
+    
+    <cc>fgiudici</cc>
+    
+    
+    <cc>jpazdziora</cc>
+    
+    
+    <cc>lkundrak</cc>
+    
+    
+    <cc>psimerda</cc>
+    
+    
+    <cc>thaller</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>NetworkManager-1.2.2-2.fc24</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-06-18 14:46:48</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9349407</commentid>
+    <comment_count>0</comment_count>
+    <who name="David Woodhouse">dwmw2</who>
+    <bug_when>2016-05-23 07:00:02 -0400</bug_when>
+    <thetext>When I join the company VPN, DNS results (mostly NXDOMAIN) are not flushed from the cache until/unless I manually kick dnsmasq to forget them...
+
+[dwoodhou@i7 ~]$ host -t a viggo.jf.intel.com
+Host viggo.jf.intel.com not found: 3(NXDOMAIN)
+[dwoodhou@i7 ~]$ nmcli con up &apos;Intel AnyConnect VPN&apos;
+A password is required to connect to &apos;Intel AnyConnect VPN&apos;.
+Warning: password for &apos;vpn.secrets.gateway&apos; not given in &apos;passwd-file&apos; and nmcli cannot ask without &apos;--ask&apos; option.
+VPN connection successfully activated (D-Bus active path: /org/freedesktop/NetworkManager/ActiveConnection/15)
+[dwoodhou@i7 ~]$ host -t a viggo.jf.intel.com
+Host viggo.jf.intel.com not found: 3(NXDOMAIN)
+[dwoodhou@i7 ~]$ sudo killall -HUP dnsmasq
+[dwoodhou@i7 ~]$ host -t a viggo.jf.intel.com
+viggo.jf.intel.com has address 10.54.39.121
+
+
+The converse problem occurs when I take the VPN down.
+
+[dwoodhou@i7 ~]$ host -t a viggo.jf.intel.com
+viggo.jf.intel.com has address 10.54.39.121
+[dwoodhou@i7 ~]$ nmcli con down &apos;Intel AnyConnect VPN&apos;
+Connection &apos;Intel AnyConnect VPN&apos; successfully deactivated (D-Bus active path: /org/freedesktop/NetworkManager/ActiveConnection/15)
+[dwoodhou@i7 ~]$ host -t a viggo.jf.intel.com
+viggo.jf.intel.com has address 10.54.39.121
+[dwoodhou@i7 ~]$ sudo killall -HUP dnsmasq
+[dwoodhou@i7 ~]$ host -t a viggo.jf.intel.com
+Host viggo.jf.intel.com not found: 3(NXDOMAIN)
+
+
+We can debate whether this is a dnsmasq or a NetworkManager bug. Personally, I think schizoDNS (where you get a different view of the *same* domain depending on where the query comes from) is an utterly stupid setup, and people should be using non-public domains for internal stuff ($COMPANY.internal). And thus, dnsmasq shouldn&apos;t necessarily *expect* to throw away its cache for a given domain, just because you point it at a different nameserver for that domain. (And also... what if you just *add* a new nameserver? What if you just take one away? When do we flush the cache? Every time anything is changed?)
+
+Might be nice if dnsmasq did have an option to do a selective flush though, and allowed NetworkManager to flush *only* the domains which it&apos;s changing.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9351170</commentid>
+    <comment_count>1</comment_count>
+      <attachid>1160687</attachid>
+    <who name="Beniamino Galvani">bgalvani</who>
+    <bug_when>2016-05-23 11:29:08 -0400</bug_when>
+    <thetext>Created attachment 1160687
+[PATCH] dns: clear dnsmasq cache after an update
+
+(In reply to David Woodhouse from comment #0)
+&gt; We can debate whether this is a dnsmasq or a NetworkManager bug. Personally,
+&gt; I think schizoDNS (where you get a different view of the *same* domain
+&gt; depending on where the query comes from) is an utterly stupid setup, and
+&gt; people should be using non-public domains for internal stuff
+&gt; ($COMPANY.internal). And thus, dnsmasq shouldn&apos;t necessarily *expect* to
+&gt; throw away its cache for a given domain, just because you point it at a
+&gt; different nameserver for that domain. (And also... what if you just *add* a
+&gt; new nameserver? What if you just take one away? When do we flush the cache?
+&gt; Every time anything is changed?)
+
+I don&apos;t think it&apos;s so bad to clear the cache every time there is a
+change (before switching to D-Bus updates, dnsmasq was restarted every
+time, and thus the cache always implicitly flushed).
+
+Maybe in the future it would be nice to implement a smarter update
+logic, but for the moment I think the attached patch is enough.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9352209</commentid>
+    <comment_count>2</comment_count>
+      <attachid>1160687</attachid>
+    <who name="David Woodhouse">dwmw2</who>
+    <bug_when>2016-05-23 19:16:10 -0400</bug_when>
+    <thetext>Comment on attachment 1160687
+[PATCH] dns: clear dnsmasq cache after an update
+
+There&apos;s a ClearCache D-Bus method. Might it be nicer (and perhaps less likely to trigger SELinux and other permissions issues) to use that instead?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9354089</commentid>
+    <comment_count>3</comment_count>
+      <attachid>1161027</attachid>
+    <who name="Beniamino Galvani">bgalvani</who>
+    <bug_when>2016-05-24 08:35:58 -0400</bug_when>
+    <thetext>Created attachment 1161027
+[PATCH v2 1/2] dns/dnsmasq: cancel pending update on dispose</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9354091</commentid>
+    <comment_count>4</comment_count>
+      <attachid>1161028</attachid>
+    <who name="Beniamino Galvani">bgalvani</who>
+    <bug_when>2016-05-24 08:36:34 -0400</bug_when>
+    <thetext>Created attachment 1161028
+[PATCH v2 2/2] dns: clear dnsmasq cache after an update</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9354107</commentid>
+    <comment_count>5</comment_count>
+    <who name="Beniamino Galvani">bgalvani</who>
+    <bug_when>2016-05-24 08:39:58 -0400</bug_when>
+    <thetext>(In reply to David Woodhouse from comment #2)
+&gt; Comment on attachment 1160687 [details]
+&gt; [PATCH] dns: clear dnsmasq cache after an update
+&gt; 
+&gt; There&apos;s a ClearCache D-Bus method. Might it be nicer (and perhaps less
+&gt; likely to trigger SELinux and other permissions issues) to use that instead?
+
+Yeah, good point, requesting the flush through D-Bus is indeed a better idea; I&apos;ve updated the patches.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9358437</commentid>
+    <comment_count>6</comment_count>
+    <who name="Thomas Haller">thaller</who>
+    <bug_when>2016-05-25 12:28:34 -0400</bug_when>
+    <thetext>Both patches lgtm.
+
+
+Except, I wonder... we always call SetServerEx when there is a DNS update, even if the actual configuration didn&apos;t change.
+Can it not happen, that with this change we flush the cache too often?
+
+Maybe we should remember the settings that we applied last time, and if they didn&apos;t change, not flush the cache?
+
+
+Maybe in update() we could do:
+
+
+-    g_clear_pointer (&amp;priv-&gt;set_server_ex_args, g_variant_unref);
+-    priv-&gt;set_server_ex_args = g_variant_ref_sink (g_variant_new (&quot;(aas)...
++    args = g_variant_new (&quot;(aas)&quot;, ...
++    if (  priv-&gt;set_server_ex_args
++        &amp;&amp; g_variant_equal (args, priv-&gt;set_server_ex_args))
++        g_variant_unref (args);
++    else {
++        g_clear_pointer (&amp;priv-&gt;set_server_ex_args, g_variant_unref);
++        priv-&gt;set_server_ex_args = g_variant_ref_sink (args);
++    }
+
+?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9358451</commentid>
+    <comment_count>7</comment_count>
+    <who name="Thomas Haller">thaller</who>
+    <bug_when>2016-05-25 12:30:08 -0400</bug_when>
+    <thetext>(In reply to Thomas Haller from comment #6)
+&gt; +    if (  priv-&gt;set_server_ex_args
+&gt; +        &amp;&amp; g_variant_equal (args, priv-&gt;set_server_ex_args))
+
+Ah, of course, we should not compare with priv-&gt;set_server_ex_args, but somehow remember the last argument for a successfull SetServerEx...</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9358493</commentid>
+    <comment_count>8</comment_count>
+    <who name="Beniamino Galvani">bgalvani</who>
+    <bug_when>2016-05-25 12:45:14 -0400</bug_when>
+    <thetext>(In reply to Thomas Haller from comment #6)
+&gt; Both patches lgtm.
+&gt; 
+&gt; Except, I wonder... we always call SetServerEx when there is a DNS update,
+&gt; even if the actual configuration didn&apos;t change.
+&gt; Can it not happen, that with this change we flush the cache too often?
+
+The DNS manager computes a hash of the configuration to detect if it really changed or not, and doesn&apos;t call update() if it&apos;s not necessary; so I think we don&apos;t have to care about that in the plugin.
+
+OTOH, if the user forces a re-write of DNS configuration through SIGUSR1, the DNS manager skips the hash check and forces a dnsmasq update, and now a flush of the cache. In my opinion this is also desirable. What do you think?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9358506</commentid>
+    <comment_count>9</comment_count>
+    <who name="Thomas Haller">thaller</who>
+    <bug_when>2016-05-25 12:50:36 -0400</bug_when>
+    <thetext>(In reply to Beniamino Galvani from comment #8)
+&gt; (In reply to Thomas Haller from comment #6)
+&gt; &gt; Both patches lgtm.
+&gt; &gt; 
+&gt; &gt; Except, I wonder... we always call SetServerEx when there is a DNS update,
+&gt; &gt; even if the actual configuration didn&apos;t change.
+&gt; &gt; Can it not happen, that with this change we flush the cache too often?
+&gt; 
+&gt; The DNS manager computes a hash of the configuration to detect if it really
+&gt; changed or not, and doesn&apos;t call update() if it&apos;s not necessary; so I think
+&gt; we don&apos;t have to care about that in the plugin.
+&gt; 
+&gt; OTOH, if the user forces a re-write of DNS configuration through SIGUSR1,
+&gt; the DNS manager skips the hash check and forces a dnsmasq update, and now a
+&gt; flush of the cache. In my opinion this is also desirable. What do you think?
+
+Yeah, that sounds all right.
+
+ACK to both patches.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9366110</commentid>
+    <comment_count>10</comment_count>
+    <who name="Dan Williams">dcbw</who>
+    <bug_when>2016-05-27 14:03:40 -0400</bug_when>
+    <thetext>ACK on both patches.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9366853</commentid>
+    <comment_count>11</comment_count>
+    <who name="Beniamino Galvani">bgalvani</who>
+    <bug_when>2016-05-28 03:47:19 -0400</bug_when>
+    <thetext>Patches applied to master:
+
+https://cgit.freedesktop.org/NetworkManager/NetworkManager/commit/?id=d376787ce1a9e8c4990ed98be143ab892c9d29ed
+https://cgit.freedesktop.org/NetworkManager/NetworkManager/commit/?id=4feb58b50b9fd6caceda83bab907ad107ad8ed01
+
+and nm-1-2:
+
+https://cgit.freedesktop.org/NetworkManager/NetworkManager/commit/?h=nm-1-2&amp;id=7541ca0692668070e48adfc5fa8e4c6501600e16
+https://cgit.freedesktop.org/NetworkManager/NetworkManager/commit/?h=nm-1-2&amp;id=a701e5b7ba35a0730d756ab0c1b15f0414bee592</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9382625</commentid>
+    <comment_count>12</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-06-02 15:58:17 -0400</bug_when>
+    <thetext>NetworkManager-1.2.2-2.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-5bbc872851</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9384048</commentid>
+    <comment_count>13</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-06-03 05:25:36 -0400</bug_when>
+    <thetext>NetworkManager-1.2.2-2.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-5bbc872851</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9430188</commentid>
+    <comment_count>14</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-06-18 14:46:44 -0400</bug_when>
+    <thetext>NetworkManager-1.2.2-2.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9679804</commentid>
+    <comment_count>15</comment_count>
+    <who name="Jan Pazdziora">jpazdziora</who>
+    <bug_when>2016-09-05 10:18:17 -0400</bug_when>
+    <thetext>Is it possible that this fix somehow got lost in NetworkManager-1.2.4-2.fc24.
+
+Even if I see dnsmasq[11494]: cleared cache shown in journal, I seem to be getting the queries answered locally number rising with no query sent to the VPN-ed upstream nameserver.
+
+This happens when I setup VPN, stop it (in new NetworkManager applet (I&apos;m on XFCE) there no longer is a separate item in the menu so I just uncheck the VPN entry) and I setup VPN again. The second time VPN is enabled, DNS just seems to act weird.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9679867</commentid>
+    <comment_count>16</comment_count>
+    <who name="Beniamino Galvani">bgalvani</who>
+    <bug_when>2016-09-05 10:42:51 -0400</bug_when>
+    <thetext>(In reply to Jan Pazdziora from comment #15)
+&gt; Is it possible that this fix somehow got lost in NetworkManager-1.2.4-2.fc24.
+&gt; 
+&gt; Even if I see dnsmasq[11494]: cleared cache shown in journal, I seem to be
+&gt; getting the queries answered locally number rising with no query sent to the
+&gt; VPN-ed upstream nameserver.
+&gt; 
+&gt; This happens when I setup VPN, stop it (in new NetworkManager applet (I&apos;m on
+&gt; XFCE) there no longer is a separate item in the menu so I just uncheck the
+&gt; VPN entry) and I setup VPN again. The second time VPN is enabled, DNS just
+&gt; seems to act weird.
+
+If you execute:
+
+ echo log-queries &gt; /etc/NetworkManager/dnsmasq.d/log-queries
+
+then restart NM and connect to the VPN, you should see that dnsmasq queries the upstream servers again after the cache gets cleared:
+
+  dnsmasq[21395]: cleared cache
+  ...
+  dnsmasq[21395]: query[A] test.com from 127.0.0.1
+  dnsmasq[21395]: forwarded test.com to 192.168.1.1
+
+as opposed to:
+
+  dnsmasq[21395]: cached test.com is 1.2.3.4
+
+Is this correct?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9680129</commentid>
+    <comment_count>17</comment_count>
+    <who name="Jan Pazdziora">jpazdziora</who>
+    <bug_when>2016-09-05 12:20:18 -0400</bug_when>
+    <thetext>(In reply to Beniamino Galvani from comment #16)
+&gt; 
+&gt; If you execute:
+&gt; 
+&gt;  echo log-queries &gt; /etc/NetworkManager/dnsmasq.d/log-queries
+
+Useful setting, thank you.
+
+&gt; then restart NM and connect to the VPN, you should see that dnsmasq queries
+&gt; the upstream servers again after the cache gets cleared:
+&gt; 
+&gt;   dnsmasq[21395]: cleared cache
+&gt;   ...
+&gt;   dnsmasq[21395]: query[A] test.com from 127.0.0.1
+&gt;   dnsmasq[21395]: forwarded test.com to 192.168.1.1
+&gt; 
+&gt; as opposed to:
+&gt; 
+&gt;   dnsmasq[21395]: cached test.com is 1.2.3.4
+&gt; 
+&gt; Is this correct?
+
+Actually, I get
+
+   dnsmasq[21395]: query[A] test.com from 127.0.0.1
+
+and nothing else, while the VPN is on.
+
+When I turn the VPN off, I get back to the
+
+    dnsmasq[18748]: query[A] test.com from 127.0.0.1
+    dnsmasq[18748]: forwarded test.com to 85.86.87.88
+    dnsmasq[18748]: reply test.com is NODATA-IPv4
+
+So in case of the second VPN activation, I get neither &quot;forwarder&quot;, nor &quot;cached&quot; line in the journal.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9680134</commentid>
+    <comment_count>18</comment_count>
+    <who name="Jan Pazdziora">jpazdziora</who>
+    <bug_when>2016-09-05 12:23:40 -0400</bug_when>
+    <thetext>I see this behaviour both with dnsmasq-2.75-4.fc24.x86_64 and dnsmasq-2.76-1.fc24.x86_64, should dnsmasq be the culprit.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9680183</commentid>
+    <comment_count>19</comment_count>
+    <who name="Beniamino Galvani">bgalvani</who>
+    <bug_when>2016-09-05 13:10:05 -0400</bug_when>
+    <thetext>Hi, do you see NM sending the upstream VPN server list to dnsmasq in
+the logs?
+
+If the servers are correctly added, I think you are hitting bug
+1367772, which makes dnsmasq fail to send requests out when a virtual
+device is destroyed and recreated (like in case of a VPN reconnection)
+due to wrong caching of request sockets.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9680297</commentid>
+    <comment_count>20</comment_count>
+    <who name="Jan Pazdziora">jpazdziora</who>
+    <bug_when>2016-09-05 13:57:01 -0400</bug_when>
+    <thetext>(In reply to Beniamino Galvani from comment #19)
+&gt; Hi, do you see NM sending the upstream VPN server list to dnsmasq in
+&gt; the logs?
+
+Yes, there are records like
+
+dnsmasq[24083]: using nameserver 10.11.12.13#53 for domain example.com
+
+in journal.
+
+&gt; If the servers are correctly added, I think you are hitting bug
+&gt; 1367772, which makes dnsmasq fail to send requests out when a virtual
+&gt; device is destroyed and recreated (like in case of a VPN reconnection)
+&gt; due to wrong caching of request sockets.
+
+Thanks.
+
+I&apos;ve been only experiencing the problematic behaviour for the past few days since I&apos;ve upgraded by Fedora 24 installation. The Fedora 24 GA had dnsmasq-2.75-4.fc24.x86_64.rpm in it and I&apos;m pretty sure things where working fine for a couple of weeks / months. Bug 1367772 says the issue is present on dnsmasq-2.66-17.el7.x86_64 ... but on Fedora 24 was working fine for a while.
+
+I do not rule out that it&apos;s the same bug ... but we had newer version of dnsmasq working fine for some time.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9680323</commentid>
+    <comment_count>21</comment_count>
+    <who name="Thomas Haller">thaller</who>
+    <bug_when>2016-09-05 14:09:22 -0400</bug_when>
+    <thetext>(In reply to Jan Pazdziora from comment #20)
+&gt; 
+&gt; I&apos;ve been only experiencing the problematic behaviour for the past few days
+&gt; since I&apos;ve upgraded by Fedora 24 installation. The Fedora 24 GA had
+&gt; dnsmasq-2.75-4.fc24.x86_64.rpm in it and I&apos;m pretty sure things where
+&gt; working fine for a couple of weeks / months. Bug 1367772 says the issue is
+&gt; present on dnsmasq-2.66-17.el7.x86_64 ... but on Fedora 24 was working fine
+&gt; for a while.
+&gt; 
+&gt; I do not rule out that it&apos;s the same bug ... but we had newer version of
+&gt; dnsmasq working fine for some time.
+
+what are the versions of NetworkManager where you didn&apos;t have the issue, and which versions have the issue for you?
+
+in the past, NM would not reconfigure dnsmasq via D-Bus but respawn it every time. That only changed with releases 1.2.2 and 1.4.0.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9681011</commentid>
+    <comment_count>22</comment_count>
+    <who name="Jan Pazdziora">jpazdziora</who>
+    <bug_when>2016-09-06 01:23:00 -0400</bug_when>
+    <thetext>I don&apos;t know the exact versions. But it worked fine on Fedora 24 for some time, and I&apos;ve upgraded to Fedora 24 day after GA. Looking at http://dl.fedoraproject.org/pub/fedora/linux/releases/24/Everything/x86_64/os/Packages/n/ the GA version was NetworkManager-1.2.2-1.fc24.x86_64.rpm so I&apos;d say that it worked with 1.2.2.
+
+Is there a way to go back to respawning dnsmasq with current NetworkManager?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9681349</commentid>
+    <comment_count>23</comment_count>
+    <who name="Beniamino Galvani">bgalvani</who>
+    <bug_when>2016-09-06 03:41:31 -0400</bug_when>
+    <thetext>Hi, I think the issue started after we added the interface name to
+nameservers sent to dnsmasq to prevent responses from the wrong
+interface. That was in 1.2.4.
+
+Currently there isn&apos;t a way to revert the old behavior. For Fedora
+either the dnsmasq package needs to be rebuilt with the fix, or we
+should revert the dnsmasq-interface commit.
+
+In the meanwhile, a ugly workaround would be to add a dispatcher
+script to reconfigure DNS when a VPN goes up:
+
+cat &lt;&lt;&apos;EOF&apos; &gt; /etc/NetworkManager/dispatcher.d/99-dnsmasq-vpn.sh
+#!/bin/sh
+[ &quot;$2&quot; = vpn-up ] &amp;&amp; killall -HUP NetworkManager
+exit 0
+EOF
+chmod +x /etc/NetworkManager/dispatcher.d/99-dnsmasq-vpn.sh</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9681368</commentid>
+    <comment_count>24</comment_count>
+    <who name="Jan Pazdziora">jpazdziora</who>
+    <bug_when>2016-09-06 03:51:37 -0400</bug_when>
+    <thetext>(In reply to Beniamino Galvani from comment #23)
+&gt; Hi, I think the issue started after we added the interface name to
+&gt; nameservers sent to dnsmasq to prevent responses from the wrong
+&gt; interface. That was in 1.2.4.
+
+I guess we need new bugzilla, right? No matter if it ends up on dnsmasq or on NetworkManager. Would you like to file that, since you seem to have some insight into what is actually wrong?
+
+Thank you, Jan</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9682133</commentid>
+    <comment_count>25</comment_count>
+    <who name="Beniamino Galvani">bgalvani</who>
+    <bug_when>2016-09-06 07:56:06 -0400</bug_when>
+    <thetext>(In reply to Jan Pazdziora from comment #24)
+&gt; (In reply to Beniamino Galvani from comment #23)
+&gt; &gt; Hi, I think the issue started after we added the interface name to
+&gt; &gt; nameservers sent to dnsmasq to prevent responses from the wrong
+&gt; &gt; interface. That was in 1.2.4.
+&gt; 
+&gt; I guess we need new bugzilla, right? No matter if it ends up on dnsmasq or
+&gt; on NetworkManager. Would you like to file that, since you seem to have some
+&gt; insight into what is actually wrong?
+
+Hi, I think this must be fixed in dnsmasq. I&apos;ve filed bug 1373485 for that.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="1"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1160687</attachid>
+            <date>2016-05-23 11:29:00 -0400</date>
+            <delta_ts>2016-05-24 08:35:58 -0400</delta_ts>
+            <desc>[PATCH] dns: clear dnsmasq cache after an update</desc>
+            <filename>0001-dns-clear-dnsmasq-cache-after-an-update.patch</filename>
+            <type>text/plain</type>
+            <size>3972</size>
+            <attacher name="Beniamino Galvani">bgalvani</attacher>
+            
+              <data encoding="base64">RnJvbSAwMTcxMzFkMGFjMGM1NjE1ZDUyYjEwZmE1OTE1YTgyYmE0ZGU2OTkyIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBCZW5pYW1pbm8gR2FsdmFuaSA8YmdhbHZhbmlAcmVkaGF0LmNv
+bT4KRGF0ZTogTW9uLCAyMyBNYXkgMjAxNiAxNzowNTo1MiArMDIwMApTdWJqZWN0OiBbUEFUQ0hd
+IGRuczogY2xlYXIgZG5zbWFzcSBjYWNoZSBhZnRlciBhbiB1cGRhdGUKCldoZW4gdGhlIGxpc3Qg
+b2YgRE5TIHNlcnZlcnMgY2hhbmdlcywgb2xkIEROUyBlbnRyaWVzIGNhY2hlZCBieQpkbnNtYXNx
+IG11c3QgYmUgZmx1c2hlZCBhcyB0aGUgYW5zd2VycyByZXR1cm5lZCBieSBuZXcgc2VydmVycyBt
+YXkgYmUKZGlmZmVyZW50IChlc3BlY2lhbGx5LCBvbGQgTlhET01BSU4gZW50cmllcyBtYXkgbm93
+IGJlIHZhbGlkKS4gU2VuZApTSUdIVVAgdG8gZG5zbWFzcSB0byBmb3JjZSBhIGNhY2hlIGZsdXNo
+LgoKaHR0cHM6Ly9idWd6aWxsYS5yZWRoYXQuY29tL3Nob3dfYnVnLmNnaT9pZD0xMzM4NzMxCi0t
+LQogc3JjL2Rucy1tYW5hZ2VyL25tLWRucy1kbnNtYXNxLmMgfCAgNyArKysrKystCiBzcmMvZG5z
+LW1hbmFnZXIvbm0tZG5zLXBsdWdpbi5jICB8IDEyICsrKysrKysrKysrKwogc3JjL2Rucy1tYW5h
+Z2VyL25tLWRucy1wbHVnaW4uaCAgfCAgMSArCiAzIGZpbGVzIGNoYW5nZWQsIDE5IGluc2VydGlv
+bnMoKyksIDEgZGVsZXRpb24oLSkKCmRpZmYgLS1naXQgYS9zcmMvZG5zLW1hbmFnZXIvbm0tZG5z
+LWRuc21hc3EuYyBiL3NyYy9kbnMtbWFuYWdlci9ubS1kbnMtZG5zbWFzcS5jCmluZGV4IDVjYWZi
+MjcuLjExN2YzYmUgMTAwNjQ0Ci0tLSBhL3NyYy9kbnMtbWFuYWdlci9ubS1kbnMtZG5zbWFzcS5j
+CisrKyBiL3NyYy9kbnMtbWFuYWdlci9ubS1kbnMtZG5zbWFzcS5jCkBAIC0xNSwxNiArMTUsMTcg
+QEAKICAqIFlvdSBzaG91bGQgaGF2ZSByZWNlaXZlZCBhIGNvcHkgb2YgdGhlIEdOVSBHZW5lcmFs
+IFB1YmxpYyBMaWNlbnNlIGFsb25nCiAgKiB3aXRoIHRoaXMgcHJvZ3JhbTsgaWYgbm90LCB3cml0
+ZSB0byB0aGUgRnJlZSBTb2Z0d2FyZSBGb3VuZGF0aW9uLCBJbmMuLAogICogNTEgRnJhbmtsaW4g
+U3RyZWV0LCBGaWZ0aCBGbG9vciwgQm9zdG9uLCBNQSAwMjExMC0xMzAxIFVTQS4KICAqCiAgKi8K
+IAogI2luY2x1ZGUgIm5tLWRlZmF1bHQuaCIKIAorI2luY2x1ZGUgPGVycm5vLmg+CiAjaW5jbHVk
+ZSA8c3RkbGliLmg+CiAjaW5jbHVkZSA8dW5pc3RkLmg+CiAjaW5jbHVkZSA8c3lzL3R5cGVzLmg+
+CiAjaW5jbHVkZSA8c3lzL3dhaXQuaD4KICNpbmNsdWRlIDxhcnBhL2luZXQuaD4KICNpbmNsdWRl
+IDxzeXMvc3RhdC5oPgogI2luY2x1ZGUgPGxpbnV4L2lmLmg+CiAKQEAgLTI5MiwxOCArMjkzLDIy
+IEBAIGRuc21hc3FfdXBkYXRlX2RvbmUgKEdPYmplY3QgKnNvdXJjZSwgR0FzeW5jUmVzdWx0ICpy
+ZXMsIGdwb2ludGVyIHVzZXJfZGF0YSkKIAlOTURuc0Ruc21hc3EgKnNlbGYgPSBOTV9ETlNfRE5T
+TUFTUSAodXNlcl9kYXRhKTsKIAlOTURuc0Ruc21hc3FQcml2YXRlICpwcml2ID0gTk1fRE5TX0RO
+U01BU1FfR0VUX1BSSVZBVEUgKHNlbGYpOwogCWdzX2ZyZWVfZXJyb3IgR0Vycm9yICplcnJvciA9
+IE5VTEw7CiAJZ3NfdW5yZWZfdmFyaWFudCBHVmFyaWFudCAqcmVzcG9uc2UgPSBOVUxMOwogCiAJ
+cmVzcG9uc2UgPSBnX2RidXNfcHJveHlfY2FsbF9maW5pc2ggKHByaXYtPmRuc21hc3EsIHJlcywg
+JmVycm9yKTsKIAlpZiAoIXJlc3BvbnNlKQogCQlfTE9HVyAoImRuc21hc3EgdXBkYXRlIGZhaWxl
+ZDogJXMiLCBlcnJvci0+bWVzc2FnZSk7Ci0JZWxzZQorCWVsc2UgewogCQlfTE9HRCAoImRuc21h
+c3EgdXBkYXRlIHN1Y2Nlc3NmdWwiKTsKKwkJLyogQ2xlYXIgZG5zbWFzcSBjYWNoZSAqLworCQlp
+ZiAoIW5tX2Ruc19wbHVnaW5fY2hpbGRfc2VuZF9zaWduYWwgKE5NX0ROU19QTFVHSU4gKHNlbGYp
+LCBTSUdIVVApKQorCQkJX0xPR1cgKCJlcnJvciBzZW5kaW5nIFNJR0hVUCB0byBkbnNtYXNxOiAl
+ZCIsIGVycm5vKTsKKwl9CiB9CiAKIHN0YXRpYyB2b2lkCiBzZW5kX2Ruc21hc3FfdXBkYXRlIChO
+TURuc0Ruc21hc3EgKnNlbGYpCiB7CiAJTk1EbnNEbnNtYXNxUHJpdmF0ZSAqcHJpdiA9IE5NX0RO
+U19ETlNNQVNRX0dFVF9QUklWQVRFIChzZWxmKTsKIAogCWlmICghcHJpdi0+c2V0X3NlcnZlcl9l
+eF9hcmdzKQpkaWZmIC0tZ2l0IGEvc3JjL2Rucy1tYW5hZ2VyL25tLWRucy1wbHVnaW4uYyBiL3Ny
+Yy9kbnMtbWFuYWdlci9ubS1kbnMtcGx1Z2luLmMKaW5kZXggMzhlYWYwNi4uOWYxZmZiNSAxMDA2
+NDQKLS0tIGEvc3JjL2Rucy1tYW5hZ2VyL25tLWRucy1wbHVnaW4uYworKysgYi9zcmMvZG5zLW1h
+bmFnZXIvbm0tZG5zLXBsdWdpbi5jCkBAIC0xNCwxNiArMTQsMTggQEAKICAqIDUxIEZyYW5rbGlu
+IFN0cmVldCwgRmlmdGggRmxvb3IsIEJvc3RvbiwgTUEgMDIxMTAtMTMwMSBVU0EuCiAgKgogICog
+Q29weXJpZ2h0IChDKSAyMDEwIC0gMjAxMiBSZWQgSGF0LCBJbmMuCiAgKgogICovCiAKICNpbmNs
+dWRlICJubS1kZWZhdWx0LmgiCiAKKyNpbmNsdWRlIDxlcnJuby5oPgorI2luY2x1ZGUgPHNpZ25h
+bC5oPgogI2luY2x1ZGUgPHN0cmluZy5oPgogI2luY2x1ZGUgPHN0ZGxpYi5oPgogI2luY2x1ZGUg
+PHVuaXN0ZC5oPgogI2luY2x1ZGUgPHN5cy90eXBlcy5oPgogI2luY2x1ZGUgPHN5cy93YWl0Lmg+
+CiAKICNpbmNsdWRlICJubS1jb3JlLWludGVybmFsLmgiCiAKQEAgLTIzOCwxNiArMjQwLDI2IEBA
+IG5tX2Ruc19wbHVnaW5fY2hpbGRfa2lsbCAoTk1EbnNQbHVnaW4gKnNlbGYpCiAJCXByaXYtPnBp
+ZCA9IDA7CiAJCWdfY2xlYXJfcG9pbnRlciAoJnByaXYtPnByb2duYW1lLCBnX2ZyZWUpOwogCX0K
+IAlfY2xlYXJfcGlkZmlsZSAoc2VsZik7CiAKIAlyZXR1cm4gVFJVRTsKIH0KIAorZ2Jvb2xlYW4K
+K25tX2Ruc19wbHVnaW5fY2hpbGRfc2VuZF9zaWduYWwgKE5NRG5zUGx1Z2luICpzZWxmLCBpbnQg
+c2lnbmFsKQoreworCU5NRG5zUGx1Z2luUHJpdmF0ZSAqcHJpdiA9IE5NX0ROU19QTFVHSU5fR0VU
+X1BSSVZBVEUgKHNlbGYpOworCisJZ19yZXR1cm5fdmFsX2lmX2ZhaWwgKHByaXYtPnBpZCwgRkFM
+U0UpOworCWVycm5vID0gMDsKKwlyZXR1cm4ga2lsbCAocHJpdi0+cGlkLCBzaWduYWwpID09IDA7
+Cit9CisKIC8qKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKi8KIAog
+c3RhdGljIHZvaWQKIG5tX2Ruc19wbHVnaW5faW5pdCAoTk1EbnNQbHVnaW4gKnNlbGYpCiB7CiB9
+CiAKIHN0YXRpYyB2b2lkCmRpZmYgLS1naXQgYS9zcmMvZG5zLW1hbmFnZXIvbm0tZG5zLXBsdWdp
+bi5oIGIvc3JjL2Rucy1tYW5hZ2VyL25tLWRucy1wbHVnaW4uaAppbmRleCBkNzE1NTgyLi40YmI4
+MTAzIDEwMDY0NAotLS0gYS9zcmMvZG5zLW1hbmFnZXIvbm0tZG5zLXBsdWdpbi5oCisrKyBiL3Ny
+Yy9kbnMtbWFuYWdlci9ubS1kbnMtcGx1Z2luLmgKQEAgLTk5LDExICs5OSwxMiBAQCBnYm9vbGVh
+biBubV9kbnNfcGx1Z2luX3VwZGF0ZSAoTk1EbnNQbHVnaW4gKnNlbGYsCiAgKiBhbmQgdGhlIHBp
+ZGZpbGUgd2lsbCBiZSBkZWxldGVkLgogICovCiBHUGlkIG5tX2Ruc19wbHVnaW5fY2hpbGRfc3Bh
+d24gKE5NRG5zUGx1Z2luICpzZWxmLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBj
+b25zdCBjaGFyICoqYXJndiwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgY29uc3Qg
+Y2hhciAqcGlkZmlsZSwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgY29uc3QgY2hh
+ciAqa2lsbF9tYXRjaCk7CiAKIGdib29sZWFuIG5tX2Ruc19wbHVnaW5fY2hpbGRfa2lsbCAoTk1E
+bnNQbHVnaW4gKnNlbGYpOworZ2Jvb2xlYW4gbm1fZG5zX3BsdWdpbl9jaGlsZF9zZW5kX3NpZ25h
+bCAoTk1EbnNQbHVnaW4gKnNlbGYsIGludCBzaWduYWwpOwogCiAjZW5kaWYgLyogX19ORVRXT1JL
+TUFOQUdFUl9ETlNfUExVR0lOX0hfXyAqLwogCi0tIAoyLjUuNQoK
+</data>
+
+          </attachment>
+          <attachment
+              isobsolete="0"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1161027</attachid>
+            <date>2016-05-24 08:35:00 -0400</date>
+            <delta_ts>2016-05-24 08:35:58 -0400</delta_ts>
+            <desc>[PATCH v2 1/2] dns/dnsmasq: cancel pending update on dispose</desc>
+            <filename>0001-dns-dnsmasq-cancel-pending-update-on-dispose.patch</filename>
+            <type>text/plain</type>
+            <size>3816</size>
+            <attacher name="Beniamino Galvani">bgalvani</attacher>
+            
+              <data encoding="base64">RnJvbSAwNDM3YWJiZWY3YjI4OTkwMWFkYzg3YzQ4MWRkNjYyNGNhN2IxNmQxIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBCZW5pYW1pbm8gR2FsdmFuaSA8YmdhbHZhbmlAcmVkaGF0LmNv
+bT4KRGF0ZTogVHVlLCAyNCBNYXkgMjAxNiAxMzo0MTo0NCArMDIwMApTdWJqZWN0OiBbUEFUQ0gg
+djIgMS8yXSBkbnMvZG5zbWFzcTogY2FuY2VsIHBlbmRpbmcgdXBkYXRlIG9uIGRpc3Bvc2UKClRo
+ZXJlIG1pZ2h0IGJlIGEgcGVuZGluZyAiU2V0U2VydmVyc0V4IiBELUJ1cyBjYWxsIHdoZW4gdGhl
+IHBsdWdpbiBpcwpkZXN0cm95ZWQsIGVuc3VyZSBpdCBnZXRzIGNhbmNlbGVkLgotLS0KIHNyYy9k
+bnMtbWFuYWdlci9ubS1kbnMtZG5zbWFzcS5jIHwgMjEgKysrKysrKysrKysrKysrKy0tLS0tCiAx
+IGZpbGUgY2hhbmdlZCwgMTYgaW5zZXJ0aW9ucygrKSwgNSBkZWxldGlvbnMoLSkKCmRpZmYgLS1n
+aXQgYS9zcmMvZG5zLW1hbmFnZXIvbm0tZG5zLWRuc21hc3EuYyBiL3NyYy9kbnMtbWFuYWdlci9u
+bS1kbnMtZG5zbWFzcS5jCmluZGV4IDVjYWZiMjcuLjQ1ZWMzNTMgMTAwNjQ0Ci0tLSBhL3NyYy9k
+bnMtbWFuYWdlci9ubS1kbnMtZG5zbWFzcS5jCisrKyBiL3NyYy9kbnMtbWFuYWdlci9ubS1kbnMt
+ZG5zbWFzcS5jCkBAIC00NCwxNiArNDQsMTcgQEAgR19ERUZJTkVfVFlQRSAoTk1EbnNEbnNtYXNx
+LCBubV9kbnNfZG5zbWFzcSwgTk1fVFlQRV9ETlNfUExVR0lOKQogI2RlZmluZSBDT05GRElSIE5N
+Q09ORkRJUiAiL2Ruc21hc3EuZCIKIAogI2RlZmluZSBETlNNQVNRX0RCVVNfU0VSVklDRSAib3Jn
+LmZyZWVkZXNrdG9wLk5ldHdvcmtNYW5hZ2VyLmRuc21hc3EiCiAjZGVmaW5lIEROU01BU1FfREJV
+U19QQVRIICIvdWsvb3JnL3RoZWtlbGxleXMvZG5zbWFzcSIKIAogdHlwZWRlZiBzdHJ1Y3Qgewog
+CUdEQnVzUHJveHkgKmRuc21hc3E7CiAJR0NhbmNlbGxhYmxlICpkbnNtYXNxX2NhbmNlbGxhYmxl
+OworCUdDYW5jZWxsYWJsZSAqdXBkYXRlX2NhbmNlbGxhYmxlOwogCWdib29sZWFuIHJ1bm5pbmc7
+CiAKIAlHVmFyaWFudCAqc2V0X3NlcnZlcl9leF9hcmdzOwogfSBOTURuc0Ruc21hc3FQcml2YXRl
+OwogCiAvKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
+KioqKioqKioqKioqKioqKioqKioqKioqKiovCiAKICNkZWZpbmUgX05NTE9HX0RPTUFJTiAgICAg
+ICAgIExPR0RfRE5TCkBAIC0yODIsMjQgKzI4MywzMCBAQCBhZGRfaXBfY29uZmlnX2RhdGEgKE5N
+RG5zRG5zbWFzcSAqc2VsZiwgR1ZhcmlhbnRCdWlsZGVyICpzZXJ2ZXJzLCBjb25zdCBOTURuc0lQ
+QwogCQkgICAgICAgICAgICAgICAgICAgICAgIChOTUlQNkNvbmZpZyAqKSBkYXRhLT5jb25maWcs
+CiAJCSAgICAgICAgICAgICAgICAgICAgICAgZGF0YS0+aWZhY2UsCiAJCSAgICAgICAgICAgICAg
+ICAgICAgICAgZGF0YS0+dHlwZSA9PSBOTV9ETlNfSVBfQ09ORklHX1RZUEVfVlBOKTsKIAl9IGVs
+c2UKIAkJZ19yZXR1cm5fdmFsX2lmX3JlYWNoZWQgKEZBTFNFKTsKIH0KIAogc3RhdGljIHZvaWQK
+LWRuc21hc3FfdXBkYXRlX2RvbmUgKEdPYmplY3QgKnNvdXJjZSwgR0FzeW5jUmVzdWx0ICpyZXMs
+IGdwb2ludGVyIHVzZXJfZGF0YSkKK2Ruc21hc3FfdXBkYXRlX2RvbmUgKEdEQnVzUHJveHkgKnBy
+b3h5LCBHQXN5bmNSZXN1bHQgKnJlcywgZ3BvaW50ZXIgdXNlcl9kYXRhKQogewotCU5NRG5zRG5z
+bWFzcSAqc2VsZiA9IE5NX0ROU19ETlNNQVNRICh1c2VyX2RhdGEpOwotCU5NRG5zRG5zbWFzcVBy
+aXZhdGUgKnByaXYgPSBOTV9ETlNfRE5TTUFTUV9HRVRfUFJJVkFURSAoc2VsZik7CisJTk1EbnNE
+bnNtYXNxICpzZWxmOworCU5NRG5zRG5zbWFzcVByaXZhdGUgKnByaXY7CiAJZ3NfZnJlZV9lcnJv
+ciBHRXJyb3IgKmVycm9yID0gTlVMTDsKIAlnc191bnJlZl92YXJpYW50IEdWYXJpYW50ICpyZXNw
+b25zZSA9IE5VTEw7CiAKLQlyZXNwb25zZSA9IGdfZGJ1c19wcm94eV9jYWxsX2ZpbmlzaCAocHJp
+di0+ZG5zbWFzcSwgcmVzLCAmZXJyb3IpOworCXJlc3BvbnNlID0gZ19kYnVzX3Byb3h5X2NhbGxf
+ZmluaXNoIChwcm94eSwgcmVzLCAmZXJyb3IpOworCWlmIChnX2Vycm9yX21hdGNoZXMgKGVycm9y
+LCBHX0lPX0VSUk9SLCBHX0lPX0VSUk9SX0NBTkNFTExFRCkpCisJCXJldHVybjsKKworCXNlbGYg
+PSBOTV9ETlNfRE5TTUFTUSAodXNlcl9kYXRhKTsKKwlwcml2ID0gTk1fRE5TX0ROU01BU1FfR0VU
+X1BSSVZBVEUgKHNlbGYpOworCiAJaWYgKCFyZXNwb25zZSkKIAkJX0xPR1cgKCJkbnNtYXNxIHVw
+ZGF0ZSBmYWlsZWQ6ICVzIiwgZXJyb3ItPm1lc3NhZ2UpOwogCWVsc2UKIAkJX0xPR0QgKCJkbnNt
+YXNxIHVwZGF0ZSBzdWNjZXNzZnVsIik7CiB9CiAKIHN0YXRpYyB2b2lkCiBzZW5kX2Ruc21hc3Ff
+dXBkYXRlIChOTURuc0Ruc21hc3EgKnNlbGYpCkBAIC0zMDcsMjIgKzMxNCwyNSBAQCBzZW5kX2Ru
+c21hc3FfdXBkYXRlIChOTURuc0Ruc21hc3EgKnNlbGYpCiAJTk1EbnNEbnNtYXNxUHJpdmF0ZSAq
+cHJpdiA9IE5NX0ROU19ETlNNQVNRX0dFVF9QUklWQVRFIChzZWxmKTsKIAogCWlmICghcHJpdi0+
+c2V0X3NlcnZlcl9leF9hcmdzKQogCQlyZXR1cm47CiAKIAlpZiAocHJpdi0+cnVubmluZykgewog
+CQlfTE9HRCAoInRyeWluZyB0byB1cGRhdGUgZG5zbWFzcSBuYW1lc2VydmVycyIpOwogCisJCW5t
+X2NsZWFyX2dfY2FuY2VsbGFibGUgKCZwcml2LT51cGRhdGVfY2FuY2VsbGFibGUpOworCQlwcml2
+LT51cGRhdGVfY2FuY2VsbGFibGUgPSBnX2NhbmNlbGxhYmxlX25ldyAoKTsKKwogCQlnX2RidXNf
+cHJveHlfY2FsbCAocHJpdi0+ZG5zbWFzcSwKIAkJICAgICAgICAgICAgICAgICAgICJTZXRTZXJ2
+ZXJzRXgiLAogCQkgICAgICAgICAgICAgICAgICAgcHJpdi0+c2V0X3NlcnZlcl9leF9hcmdzLAog
+CQkgICAgICAgICAgICAgICAgICAgR19EQlVTX0NBTExfRkxBR1NfTk9ORSwKIAkJICAgICAgICAg
+ICAgICAgICAgIC0xLAotCQkgICAgICAgICAgICAgICAgICAgTlVMTCwKKwkJICAgICAgICAgICAg
+ICAgICAgIHByaXYtPnVwZGF0ZV9jYW5jZWxsYWJsZSwKIAkJICAgICAgICAgICAgICAgICAgIChH
+QXN5bmNSZWFkeUNhbGxiYWNrKSBkbnNtYXNxX3VwZGF0ZV9kb25lLAogCQkgICAgICAgICAgICAg
+ICAgICAgc2VsZik7CiAJCWdfY2xlYXJfcG9pbnRlciAoJnByaXYtPnNldF9zZXJ2ZXJfZXhfYXJn
+cywgZ192YXJpYW50X3VucmVmKTsKIAl9IGVsc2UKIAkJX0xPR0QgKCJkbnNtYXNxIG5vdCBmb3Vu
+ZCBvbiB0aGUgYnVzLiBUaGUgbmFtZXNlcnZlciB1cGRhdGUgd2lsbCBiZSBzZW50IHdoZW4gZG5z
+bWFzcSBhcHBlYXJzIik7CiB9CiAKIHN0YXRpYyB2b2lkCkBAIC01MzUsMTYgKzU0NSwxNyBAQCBu
+bV9kbnNfZG5zbWFzcV9pbml0IChOTURuc0Ruc21hc3EgKnNlbGYpCiB9CiAKIHN0YXRpYyB2b2lk
+CiBkaXNwb3NlIChHT2JqZWN0ICpvYmplY3QpCiB7CiAJTk1EbnNEbnNtYXNxUHJpdmF0ZSAqcHJp
+diA9IE5NX0ROU19ETlNNQVNRX0dFVF9QUklWQVRFIChvYmplY3QpOwogCiAJbm1fY2xlYXJfZ19j
+YW5jZWxsYWJsZSAoJnByaXYtPmRuc21hc3FfY2FuY2VsbGFibGUpOworCW5tX2NsZWFyX2dfY2Fu
+Y2VsbGFibGUgKCZwcml2LT51cGRhdGVfY2FuY2VsbGFibGUpOwogCiAJZ19jbGVhcl9vYmplY3Qg
+KCZwcml2LT5kbnNtYXNxKTsKIAogCWdfY2xlYXJfcG9pbnRlciAoJnByaXYtPnNldF9zZXJ2ZXJf
+ZXhfYXJncywgZ192YXJpYW50X3VucmVmKTsKIAogCUdfT0JKRUNUX0NMQVNTIChubV9kbnNfZG5z
+bWFzcV9wYXJlbnRfY2xhc3MpLT5kaXNwb3NlIChvYmplY3QpOwogfQogCi0tIAoyLjUuNQoK
+</data>
+
+          </attachment>
+          <attachment
+              isobsolete="0"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1161028</attachid>
+            <date>2016-05-24 08:36:00 -0400</date>
+            <delta_ts>2016-05-24 08:36:34 -0400</delta_ts>
+            <desc>[PATCH v2 2/2] dns: clear dnsmasq cache after an update</desc>
+            <filename>0002-dns-clear-dnsmasq-cache-after-an-update.patch</filename>
+            <type>text/plain</type>
+            <size>2778</size>
+            <attacher name="Beniamino Galvani">bgalvani</attacher>
+            
+              <data encoding="base64">RnJvbSA0MGNhZWVjNzEyZThjNDJiNzQyNjMyYTNkZmFlOTE4ZTkxODgxMGE5IE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBCZW5pYW1pbm8gR2FsdmFuaSA8YmdhbHZhbmlAcmVkaGF0LmNv
+bT4KRGF0ZTogVHVlLCAyNCBNYXkgMjAxNiAxNDoxNDoyNSArMDIwMApTdWJqZWN0OiBbUEFUQ0gg
+djIgMi8yXSBkbnM6IGNsZWFyIGRuc21hc3EgY2FjaGUgYWZ0ZXIgYW4gdXBkYXRlCgpXaGVuIHRo
+ZSBsaXN0IG9mIEROUyBzZXJ2ZXJzIGNoYW5nZXMsIG9sZCBETlMgZW50cmllcyBjYWNoZWQgYnkK
+ZG5zbWFzcSBtdXN0IGJlIGludmFsaWRhdGVkIGFzIHRoZSBhbnN3ZXJzIHJldHVybmVkIGJ5IG5l
+dyBzZXJ2ZXJzIG1heQpiZSBkaWZmZXJlbnQgKGVzcGVjaWFsbHksIG9sZCBOWERPTUFJTiBlbnRy
+aWVzIG1heSBub3cgYmUgdmFsaWQpLiBDYWxsCnRoZSBkbnNtYXNxICJDbGVhckNhY2hlIiBELUJ1
+cyBtZXRob2QgdG8gYWNoaWV2ZSB0aGlzLgoKaHR0cHM6Ly9idWd6aWxsYS5yZWRoYXQuY29tL3No
+b3dfYnVnLmNnaT9pZD0xMzM4NzMxCi0tLQogc3JjL2Rucy1tYW5hZ2VyL25tLWRucy1kbnNtYXNx
+LmMgfCAzMSArKysrKysrKysrKysrKysrKysrKysrKysrKysrKy0tCiAxIGZpbGUgY2hhbmdlZCwg
+MjkgaW5zZXJ0aW9ucygrKSwgMiBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9zcmMvZG5zLW1h
+bmFnZXIvbm0tZG5zLWRuc21hc3EuYyBiL3NyYy9kbnMtbWFuYWdlci9ubS1kbnMtZG5zbWFzcS5j
+CmluZGV4IDQ1ZWMzNTMuLmFkOGRhZjEgMTAwNjQ0Ci0tLSBhL3NyYy9kbnMtbWFuYWdlci9ubS1k
+bnMtZG5zbWFzcS5jCisrKyBiL3NyYy9kbnMtbWFuYWdlci9ubS1kbnMtZG5zbWFzcS5jCkBAIC0y
+ODMsMzQgKzI4Myw2MSBAQCBhZGRfaXBfY29uZmlnX2RhdGEgKE5NRG5zRG5zbWFzcSAqc2VsZiwg
+R1ZhcmlhbnRCdWlsZGVyICpzZXJ2ZXJzLCBjb25zdCBOTURuc0lQQwogCQkgICAgICAgICAgICAg
+ICAgICAgICAgIChOTUlQNkNvbmZpZyAqKSBkYXRhLT5jb25maWcsCiAJCSAgICAgICAgICAgICAg
+ICAgICAgICAgZGF0YS0+aWZhY2UsCiAJCSAgICAgICAgICAgICAgICAgICAgICAgZGF0YS0+dHlw
+ZSA9PSBOTV9ETlNfSVBfQ09ORklHX1RZUEVfVlBOKTsKIAl9IGVsc2UKIAkJZ19yZXR1cm5fdmFs
+X2lmX3JlYWNoZWQgKEZBTFNFKTsKIH0KIAogc3RhdGljIHZvaWQKK2Ruc21hc3FfY2xlYXJfY2Fj
+aGVfZG9uZSAoR0RCdXNQcm94eSAqcHJveHksIEdBc3luY1Jlc3VsdCAqcmVzLCBncG9pbnRlciB1
+c2VyX2RhdGEpCit7CisJTk1EbnNEbnNtYXNxICpzZWxmOworCWdzX2ZyZWVfZXJyb3IgR0Vycm9y
+ICplcnJvciA9IE5VTEw7CisJZ3NfdW5yZWZfdmFyaWFudCBHVmFyaWFudCAqcmVzcG9uc2UgPSBO
+VUxMOworCisJcmVzcG9uc2UgPSBnX2RidXNfcHJveHlfY2FsbF9maW5pc2ggKHByb3h5LCByZXMs
+ICZlcnJvcik7CisJaWYgKGdfZXJyb3JfbWF0Y2hlcyAoZXJyb3IsIEdfSU9fRVJST1IsIEdfSU9f
+RVJST1JfQ0FOQ0VMTEVEKSkKKwkJcmV0dXJuOworCisJc2VsZiA9IE5NX0ROU19ETlNNQVNRICh1
+c2VyX2RhdGEpOworCisJaWYgKCFyZXNwb25zZSkKKwkJX0xPR1cgKCJkbnNtYXNxIGNhY2hlIGNs
+ZWFyIGZhaWxlZDogJXMiLCBlcnJvci0+bWVzc2FnZSk7CisJZWxzZQorCQlfTE9HRCAoImRuc21h
+c3EgdXBkYXRlIHN1Y2Nlc3NmdWwsIGNhY2hlIGNsZWFyZWQiKTsKK30KKworc3RhdGljIHZvaWQK
+IGRuc21hc3FfdXBkYXRlX2RvbmUgKEdEQnVzUHJveHkgKnByb3h5LCBHQXN5bmNSZXN1bHQgKnJl
+cywgZ3BvaW50ZXIgdXNlcl9kYXRhKQogewogCU5NRG5zRG5zbWFzcSAqc2VsZjsKIAlOTURuc0Ru
+c21hc3FQcml2YXRlICpwcml2OwogCWdzX2ZyZWVfZXJyb3IgR0Vycm9yICplcnJvciA9IE5VTEw7
+CiAJZ3NfdW5yZWZfdmFyaWFudCBHVmFyaWFudCAqcmVzcG9uc2UgPSBOVUxMOwogCiAJcmVzcG9u
+c2UgPSBnX2RidXNfcHJveHlfY2FsbF9maW5pc2ggKHByb3h5LCByZXMsICZlcnJvcik7CiAJaWYg
+KGdfZXJyb3JfbWF0Y2hlcyAoZXJyb3IsIEdfSU9fRVJST1IsIEdfSU9fRVJST1JfQ0FOQ0VMTEVE
+KSkKIAkJcmV0dXJuOwogCiAJc2VsZiA9IE5NX0ROU19ETlNNQVNRICh1c2VyX2RhdGEpOwogCXBy
+aXYgPSBOTV9ETlNfRE5TTUFTUV9HRVRfUFJJVkFURSAoc2VsZik7CiAKIAlpZiAoIXJlc3BvbnNl
+KQogCQlfTE9HVyAoImRuc21hc3EgdXBkYXRlIGZhaWxlZDogJXMiLCBlcnJvci0+bWVzc2FnZSk7
+Ci0JZWxzZQotCQlfTE9HRCAoImRuc21hc3EgdXBkYXRlIHN1Y2Nlc3NmdWwiKTsKKwllbHNlIHsK
+KwkJZ19kYnVzX3Byb3h5X2NhbGwgKHByaXYtPmRuc21hc3EsCisJCSAgICAgICAgICAgICAgICAg
+ICAiQ2xlYXJDYWNoZSIsCisJCSAgICAgICAgICAgICAgICAgICBOVUxMLAorCQkgICAgICAgICAg
+ICAgICAgICAgR19EQlVTX0NBTExfRkxBR1NfTk9ORSwKKwkJICAgICAgICAgICAgICAgICAgIC0x
+LAorCQkgICAgICAgICAgICAgICAgICAgcHJpdi0+dXBkYXRlX2NhbmNlbGxhYmxlLAorCQkgICAg
+ICAgICAgICAgICAgICAgKEdBc3luY1JlYWR5Q2FsbGJhY2spIGRuc21hc3FfY2xlYXJfY2FjaGVf
+ZG9uZSwKKwkJICAgICAgICAgICAgICAgICAgIHNlbGYpOworCX0KIH0KIAogc3RhdGljIHZvaWQK
+IHNlbmRfZG5zbWFzcV91cGRhdGUgKE5NRG5zRG5zbWFzcSAqc2VsZikKIHsKIAlOTURuc0Ruc21h
+c3FQcml2YXRlICpwcml2ID0gTk1fRE5TX0ROU01BU1FfR0VUX1BSSVZBVEUgKHNlbGYpOwogCiAJ
+aWYgKCFwcml2LT5zZXRfc2VydmVyX2V4X2FyZ3MpCi0tIAoyLjUuNQoK
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

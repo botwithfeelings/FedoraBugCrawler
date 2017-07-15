@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1336960</bug_id>
+          
+          <creation_ts>2016-05-17 18:18:00 -0400</creation_ts>
+          <short_desc>systemctl preset fails due to missing [Install] section in unit file</short_desc>
+          <delta_ts>2016-07-23 14:48:58 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>systemd</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="René Genz">liebundartig</reporter>
+          <assigned_to>systemd-maint</assigned_to>
+          <cc>dennis</cc>
+    
+    
+    <cc>jdisnard</cc>
+    
+    
+    <cc>johannbg</cc>
+    
+    
+    <cc>kevin</cc>
+    
+    
+    <cc>lnykryn</cc>
+    
+    
+    <cc>msekleta</cc>
+    
+    
+    <cc>muadda</cc>
+    
+    
+    <cc>pbrobinson</cc>
+    
+    
+    <cc>sgallagh</cc>
+    
+    
+    <cc>s</cc>
+    
+    
+    <cc>systemd-maint</cc>
+    
+    
+    <cc>zbyszek</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>systemd-229-9.fc24</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-07-23 14:48:58</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9335287</commentid>
+    <comment_count>0</comment_count>
+    <who name="René Genz">liebundartig</who>
+    <bug_when>2016-05-17 18:18:07 -0400</bug_when>
+    <thetext>Description of problem:
+Warning message during installation of package fedora-release-workstation.
+
+Version-Release number of selected component (if applicable):
+fedora-release-workstation-24-0.16.noarch
+
+How reproducible:
+100%
+
+Steps to Reproduce:
+1. start fresh installation on computer with Fedora 24 and select group &apos;minimal&apos;
+2. after reboot in terminal: su -c &apos;dnf group install -y workstation-product-environment&apos;
+
+Actual results:
+The unit files have no [Install] section. They are not meant to be enabled
+using systemctl.
+Possible reasons for having this kind of units are:
+1) A unit may be statically enabled by being symlinked from another unit&apos;s
+   .wants/ or .requires/ directory.
+2) A unit&apos;s purpose may be to act as a helper for some other unit which has
+   a requirement dependency on it.
+3) A unit may be started when needed via activation (socket, path, timer,
+   D-Bus, udev, scripted systemctl call, ...).
+
+
+Expected results:
+No warning message.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9338172</commentid>
+    <comment_count>1</comment_count>
+    <who name="Dennis Gilmore">dennis</who>
+    <bug_when>2016-05-18 13:15:25 -0400</bug_when>
+    <thetext>fedora-release does not call systemctl enable but does tell the presets to take effect. you do not give enough infomration to redirect or fix the issue. at the least we need to see the full output of the transaction to try and determine what is happening.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9338706</commentid>
+    <comment_count>2</comment_count>
+    <who name="René Genz">liebundartig</who>
+    <bug_when>2016-05-18 17:00:17 -0400</bug_when>
+    <thetext>I could not find a component for the package &apos;fedora-release-workstation&apos;, hence I selected &apos;fedora-release&apos;.
+The error message led me to believe &apos;systemctl enable&apos; is used.
+
+Steps to reproduce can be simplified:
+1. reinstall computer with Fedora 24 using installation group &apos;minimal&apos;
+2. after installation and reboot in terminal: su -c &apos;dnf install -y fedora-release-workstation&apos;
+
+
+Actual results:
+su -c &apos;dnf install -y fedora-release-workstation&apos;
+Failed to set locale, defaulting to C
+Last metadata expiration check: 0:57:36 ago on Wed May 18 19:23:28 2016.
+Dependencies resolved.
+================================================================================================
+ Package                                     Arch     Version           Repository         Size
+================================================================================================
+Installing:
+ NetworkManager-config-connectivity-fedora   x86_64   1:1.2.2-1.fc24    updates-testing   104 k
+ fedora-release-workstation                  noarch   24-0.16           fedora             23 k
+
+Transaction Summary
+================================================================================================
+Install  2 Packages
+
+Total download size: 126 k
+Installed size: 1.9 k
+Downloading Packages:
+(1/2): fedora-release-workstation-24-0.16.noarch.rpm            390 kB/s |  23 kB     00:00    
+(2/2): NetworkManager-config-connectivity-fedora-1.2.2-1.fc24.x 469 kB/s | 104 kB     00:00    
+------------------------------------------------------------------------------------------------
+Total                                                           146 kB/s | 126 kB     00:00     
+Running transaction check
+Transaction check succeeded.
+Running transaction test
+Transaction test succeeded.
+Running transaction
+  Installing  : NetworkManager-config-connectivity-fedora-1:1.2.2-1.fc24.x86_64             1/2 
+  Installing  : fedora-release-workstation-24-0.16.noarch                                   2/2 
+The unit files have no [Install] section. They are not meant to be enabled
+using systemctl.
+Possible reasons for having this kind of units are:
+1) A unit may be statically enabled by being symlinked from another unit&apos;s
+   .wants/ or .requires/ directory.
+2) A unit&apos;s purpose may be to act as a helper for some other unit which has
+   a requirement dependency on it.
+3) A unit may be started when needed via activation (socket, path, timer,
+   D-Bus, udev, scripted systemctl call, ...).
+  Verifying   : fedora-release-workstation-24-0.16.noarch                                   1/2 
+  Verifying   : NetworkManager-config-connectivity-fedora-1:1.2.2-1.fc24.x86_64             2/2 
+
+Installed:
+  NetworkManager-config-connectivity-fedora.x86_64 1:1.2.2-1.fc24                               
+  fedora-release-workstation.noarch 24-0.16</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9339429</commentid>
+    <comment_count>3</comment_count>
+    <who name="Zbigniew Jędrzejewski-Szmek">zbyszek</who>
+    <bug_when>2016-05-19 00:57:55 -0400</bug_when>
+    <thetext>I guess it&apos;s systemctl preset misbehaving. It shouldn&apos;t print the hint with -q.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9340723</commentid>
+    <comment_count>4</comment_count>
+    <who name="Zbigniew Jędrzejewski-Szmek">zbyszek</who>
+    <bug_when>2016-05-19 08:20:44 -0400</bug_when>
+    <thetext>https://github.com/systemd/systemd/pull/3295</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9340870</commentid>
+    <comment_count>5</comment_count>
+    <who name="Stephen Gallagher">sgallagh</who>
+    <bug_when>2016-05-19 08:54:34 -0400</bug_when>
+    <thetext>I&apos;m not really comfortable just papering over this; we should really try to figure out which preset has been specified for a unit with no install section. That&apos;s got to be a bug.
+
+The odd thing is that in this situation, only sshd.socket and sshd.service should be getting the `systemctl preset -q` treatment, and both of those have [Install] sections.
+
+Beyond that, we shouldn&apos;t even be calling systemctl preset at all here, because convert_to_edition.lua should be skipping it when we&apos;re adding fedora-release-workstation after initial installation.
+
+Zbigniew, is it possible there&apos;s a file trigger or something happening that&apos;s calling the presets, rather than actually the %post scripts?
+
+And if that&apos;s the case, is it just calling `systemctl preset` for all presets? Because that&apos;s unexpected behavior. I wrote the convert_to_edition.lua script explicitly for the purposes of not changing the configured services just because you installed a new package. If file-triggers are causing all of the presets to be re-processed, that&apos;s going to cause problems.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9341176</commentid>
+    <comment_count>6</comment_count>
+    <who name="Zbigniew Jędrzejewski-Szmek">zbyszek</who>
+    <bug_when>2016-05-19 10:16:57 -0400</bug_when>
+    <thetext>There&apos;s two sides to this:
+- from fedora-release point of view, units which have no [Install] section should indeed not be specified in presets, because it has a curated whitelist.
+- from systemd point of view, we want to allow people to add units to presets which cannot be enabled, but potentially might be in the future, etc.
+
+So we probably want to do both, i.e. fix -q, and maybe remove some units from presets in fedora-presets.
+
+&gt;  is it possible there&apos;s a file trigger or something happening that&apos;s calling the presets
+
+I don&apos;t think so.
+
+fedora-release-workstation-24-0.16.noarch.rpm has no scripts, triggers, or filetriggers, and systemd has filetriggers, but they only call daemon-reload. fedora-release-* remains as the likely culprit.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9341230</commentid>
+    <comment_count>7</comment_count>
+    <who name="Zbigniew Jędrzejewski-Szmek">zbyszek</who>
+    <bug_when>2016-05-19 10:27:44 -0400</bug_when>
+    <thetext>Oh, wait, it&apos;s a bug in systemd after all. It is fixed in git (there was a bunch of work in this area), but not in F24, so I missed that. So yeah, all is fine with fedora-relase.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9341235</commentid>
+    <comment_count>8</comment_count>
+    <who name="Zbigniew Jędrzejewski-Szmek">zbyszek</who>
+    <bug_when>2016-05-19 10:29:31 -0400</bug_when>
+    <thetext>... the bug is that &quot;systemctl preset sshd.socket sshd.service&quot; prints a warning. It shouldn&apos;t because both of those files have good [Install] sections.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9341342</commentid>
+    <comment_count>9</comment_count>
+    <who name="Stephen Gallagher">sgallagh</who>
+    <bug_when>2016-05-19 10:51:39 -0400</bug_when>
+    <thetext>OK, but there&apos;s still a bug in fedora-release-workstation somewhere, because it shouldn&apos;t actually be calling `systemctl preset sshd.socket sshd.service`. (Changing the default presets just because someone installed this package later is unexpected).
+
+The convert_to_edition.lua package should be reading /usr/lib/variant, seeing that it&apos;s already &quot;nonproduct&quot; and then making no changes. (The only time that it should actually apply the preset is if it&apos;s called during initial installation of the system, since we don&apos;t set /usr/lib/variant until %posttrans.
+
+My best guess is that for some reason, /usr/lib/variant isn&apos;t getting set in %posttrans of the fedora-release package, and so the later installation of fedora-release-workstation is unintentionally changing the system from nonproduct to Workstation.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9341439</commentid>
+    <comment_count>10</comment_count>
+    <who name="Zbigniew Jędrzejewski-Szmek">zbyszek</who>
+    <bug_when>2016-05-19 11:18:37 -0400</bug_when>
+    <thetext>The bug is easily reproducible:
+
+$ sudo dnf -y --releasever=24 --installroot=/var/lib/machines/fedora-24 --disablerepo=&apos;*&apos; --enablerepo=fedora --enablerepo=updates install @&quot;Minimal install&quot;
+$ sudo systemd-nspawn -M fedora-24 passwd -d root
+$ sudo systemd-nspawn -M fedora-24 -b
+# dnf install -y fedora-release-workstation</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9341502</commentid>
+    <comment_count>11</comment_count>
+    <who name="Stephen Gallagher">sgallagh</who>
+    <bug_when>2016-05-19 11:30:04 -0400</bug_when>
+    <thetext>Yeah, I&apos;ve confirmed there&apos;s a bug in the %posttrans script of the fedora-release package. I&apos;m working up a patch right now.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9342054</commentid>
+    <comment_count>12</comment_count>
+    <who name="Stephen Gallagher">sgallagh</who>
+    <bug_when>2016-05-19 12:29:01 -0400</bug_when>
+    <thetext>Patches for fedora-release submitted to pagure.io.
+
+https://pagure.io/fedora-release/pull-request/47
+https://pagure.io/fedora-release/pull-request/48</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9342124</commentid>
+    <comment_count>13</comment_count>
+    <who name="René Genz">liebundartig</who>
+    <bug_when>2016-05-19 12:50:14 -0400</bug_when>
+    <thetext>I am honored to learn from your comments. Thanks for the fix :)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9535458</commentid>
+    <comment_count>14</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-21 02:47:27 -0400</bug_when>
+    <thetext>systemd-229-9.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-47bda25e7a</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9538135</commentid>
+    <comment_count>15</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-21 14:53:06 -0400</bug_when>
+    <thetext>systemd-229-9.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-47bda25e7a</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9543232</commentid>
+    <comment_count>16</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-23 14:48:14 -0400</bug_when>
+    <thetext>systemd-229-9.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

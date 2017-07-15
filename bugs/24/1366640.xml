@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1366640</bug_id>
+          
+          <creation_ts>2016-08-12 09:40:00 -0400</creation_ts>
+          <short_desc>FreeIPA DNSSEC component is broken: systemd is not able to create socket /run/opendnssec/engine.sock</short_desc>
+          <delta_ts>2016-09-21 20:22:50 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>selinux-policy</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords>Regression</keywords>
+          <priority>medium</priority>
+          <bug_severity>medium</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Petr Spacek">pspacek</reporter>
+          <assigned_to name="Lukas Vrabec">lvrabec</assigned_to>
+          <cc>dominick.grift</cc>
+    
+    
+    <cc>dwalsh</cc>
+    
+    
+    <cc>lvrabec</cc>
+    
+    
+    <cc>mgrepl</cc>
+    
+    
+    <cc>plautrba</cc>
+    
+    
+    <cc>pspacek</cc>
+    
+    
+    <cc>richard.berg</cc>
+    
+    
+    <cc>tomek</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>selinux-policy-3.13.1-191.16.fc24</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-09-21 20:22:50</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9611099</commentid>
+    <comment_count>0</comment_count>
+    <who name="Petr Spacek">pspacek</who>
+    <bug_when>2016-08-12 09:40:52 -0400</bug_when>
+    <thetext>Description of problem:
+FreeIPA DNSSEC component is broken because of SELinux policy disallowing proper service communication.
+
+There is socket activated service ipa-ods-exporter:
+$ systemctl  cat ipa-ods-exporter.socket
+# /usr/lib/systemd/system/ipa-ods-exporter.socket
+[Socket]
+ListenStream=/var/run/opendnssec/engine.sock
+
+[Install]
+WantedBy=sockets.target
+
+
+Apparently the current policy prevents systemd from creating the socket:
+
+
+Version-Release number of selected component (if applicable):
+selinux-policy-3.13.1-191.10.fc24.noarch
+freeipa-server-4.3.2-1.fc24.x86_64
+systemd-229-12.fc24.x86_64
+
+How reproducible:
+100 %
+
+Steps to Reproduce:
+1. install FreeIPA: ipa-server-install --ds-password=&quot;$ADMINPW&quot; --admin-password=&quot;$ADMINPW&quot; &quot;--domain=$(echo $DOMAIN | tr &quot;[:upper:]&quot; &quot;[:lower:]&quot;)&quot; --realm=&quot;$(echo $DOMAIN | tr &quot;[:lower:]&quot; &quot;[:upper:]&quot;)&quot; --unattended --setup-dns --auto-forwarders
+2. install DNSSEC component of FreeIPA: ipa-dns-install --unattended --dnssec-master --forwarder=&lt;IP address of an DNS server&gt;
+3. check logs of ipa-ods-exporter.socket systemd unit
+
+Actual results:
+systemd[1]: ipa-ods-exporter.socket: Failed to listen on sockets: Permission denied
+systemd[1]: Failed to listen on ipa-ods-exporter.socket.
+
+
+Expected results:
+The service should run.
+
+Additional info:
+In permissive mode, I can see this:
+$ sudo ausearch -m avc
+----
+time-&gt;Fri Aug 12 15:23:39 2016
+type=AVC msg=audit(1471008219.050:264): avc:  denied  { create } for  pid=1 comm=&quot;systemd&quot; scontext=system_u:system_r:init_t:s0 tcontext=system_u:system_r:unconfined_service_t:s0 tclass=unix_stream_socket permissive=1
+----
+time-&gt;Fri Aug 12 15:23:39 2016
+type=AVC msg=audit(1471008219.050:265): avc:  denied  { setopt } for  pid=1 comm=&quot;systemd&quot; scontext=system_u:system_r:init_t:s0 tcontext=system_u:system_r:unconfined_service_t:s0 tclass=unix_stream_socket permissive=1
+----
+time-&gt;Fri Aug 12 15:23:39 2016
+type=AVC msg=audit(1471008219.050:266): avc:  denied  { bind } for  pid=1 comm=&quot;systemd&quot; scontext=system_u:system_r:init_t:s0 tcontext=system_u:system_r:unconfined_service_t:s0 tclass=unix_stream_socket permissive=1
+----
+time-&gt;Fri Aug 12 15:23:39 2016
+type=AVC msg=audit(1471008219.050:267): avc:  denied  { listen } for  pid=1 comm=&quot;systemd&quot; path=&quot;/run/opendnssec/engine.sock&quot; scontext=system_u:system_r:init_t:s0 tcontext=system_u:system_r:unconfined_service_t:s0 tclass=unix_stream_socket permissive=1
+
+
+This used to work in the past so it is an regression, I&apos;m just not sure from which version.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9611181</commentid>
+    <comment_count>1</comment_count>
+    <who name="Petr Spacek">pspacek</who>
+    <bug_when>2016-08-12 09:56:47 -0400</bug_when>
+    <thetext>More information about environment where it worked can be found here:
+https://fedorahosted.org/freeipa/ticket/5870</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9619727</commentid>
+    <comment_count>2</comment_count>
+    <who name="Lukas Vrabec">lvrabec</who>
+    <bug_when>2016-08-16 12:29:25 -0400</bug_when>
+    <thetext>Hi, 
+
+How was opendnssec daemon started?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9621285</commentid>
+    <comment_count>3</comment_count>
+    <who name="Petr Spacek">pspacek</who>
+    <bug_when>2016-08-17 02:36:42 -0400</bug_when>
+    <thetext>It was not started at all. Supposedly the service should be started by systemd using socket activation. The problem is that systemd is not able to even create the named socket (file), so we are not even close to starting anything.
+
+Error messages in &quot;Actual results&quot; above are directly from systemd, not from the OpenDNSSEC daemon.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9712033</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-15 13:24:39 -0400</bug_when>
+    <thetext>selinux-policy-3.13.1-191.16.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-fe39b806b6</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9712859</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-15 20:52:16 -0400</bug_when>
+    <thetext>selinux-policy-3.13.1-191.16.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-fe39b806b6</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9732048</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-21 20:22:50 -0400</bug_when>
+    <thetext>selinux-policy-3.13.1-191.16.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

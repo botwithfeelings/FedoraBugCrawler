@@ -1,0 +1,828 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1434897</bug_id>
+          
+          <creation_ts>2017-03-22 10:45:00 -0400</creation_ts>
+          <short_desc>docker tries to push to registry.redhat.com</short_desc>
+          <delta_ts>2017-04-09 01:58:06 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>docker</component>
+          <version>26</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Dusty Mabe">dustymabe</reporter>
+          <assigned_to name="Antonio Murdaca">amurdaca</assigned_to>
+          <cc>adimania</cc>
+    
+    
+    <cc>admiller</cc>
+    
+    
+    <cc>amurdaca</cc>
+    
+    
+    <cc>dwalsh</cc>
+    
+    
+    <cc>ichavero</cc>
+    
+    
+    <cc>jcajka</cc>
+    
+    
+    <cc>lsm5</cc>
+    
+    
+    <cc>marianne</cc>
+    
+    
+    <cc>miminar</cc>
+    
+    
+    <cc>nalin</cc>
+    
+    
+    <cc>riek</cc>
+    
+    
+    <cc>vbatts</cc>
+    
+    
+    <cc>walters</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>docker-1.13.1-6.git5be1549.fc26</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-04-09 01:58:06</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10265311</commentid>
+    <comment_count>0</comment_count>
+    <who name="Dusty Mabe">dustymabe</who>
+    <bug_when>2017-03-22 10:45:51 -0400</bug_when>
+    <thetext>Description of problem:
+
+when I docker push on Fedora it is trying to push to registry.redhat.com. This is not the behavior in fedora 25. I assume it is a mistake and the configuration needs to be taken out.
+
+```
+[root@vanilla-f26atomic ~]# docker push dustymabe/fedora-min 
+The push refers to a repository [registry.access.redhat.com/dustymabe/fedora-min]
+6d6fcb84c31f: Preparing 
+error parsing HTTP 405 response body: invalid character &apos;&lt;&apos; looking for beginning of value: &quot;&lt;!DOCTYPE HTML PUBLIC \&quot;-//W3C//DTD HTML 3.2 Final//EN\&quot;&gt;\n&lt;title&gt;405 Method Not Allowed&lt;/title&gt;\n&lt;h1&gt;Method Not Allowed&lt;/h1&gt;\n&lt;p&gt;The method POST is not allowed for the requested URL.&lt;/p&gt;\n&quot;
+```
+
+Version-Release number of selected component (if applicable):
+docker-1.13.1-3.git5be1549.fc26.x86_64</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10265352</commentid>
+    <comment_count>1</comment_count>
+    <who name="Antonio Murdaca">amurdaca</who>
+    <bug_when>2017-03-22 10:54:11 -0400</bug_when>
+    <thetext>This has changed in https://bugzilla.redhat.com/show_bug.cgi?id=1384202
+
+Even if the related bug says &quot;for searching purposes&quot; afaict, there&apos;s no way to tell docker to just use the RH registry to search for images. Hence we added that.
+I&apos;m not sure what to do here honestly. My preference would be to drop this from Fedora.
+
+Both Dan(s), what do you think?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10265621</commentid>
+    <comment_count>2</comment_count>
+    <who name="Daniel Walsh">dwalsh</who>
+    <bug_when>2017-03-22 12:01:22 -0400</bug_when>
+    <thetext>Well this would be an issue with RHEL also.  If we setup the tools to 
+
+--block-registry=all --add-registry registry.access.redhat.com --add-registry=docker.io
+
+Does this fix the issue, where I can continue to pull from redhat or docker and default to pushing to docker.io?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10265739</commentid>
+    <comment_count>3</comment_count>
+    <who name="Dusty Mabe">dustymabe</who>
+    <bug_when>2017-03-22 12:27:30 -0400</bug_when>
+    <thetext>even if we are able to achieve that behavior do we really want to default to pulling from the red hat registry when the openness of that registry could change?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10265847</commentid>
+    <comment_count>4</comment_count>
+    <who name="Daniel Walsh">dwalsh</who>
+    <bug_when>2017-03-22 13:02:59 -0400</bug_when>
+    <thetext>You can get credentials for RHEL on a Fedora host, so you could get a developer license and use that content.  Daniel Riek requested that change for that reason.
+
+Bottom line is we have the same issue on RHEL systems.  Dusty could you make the change to the /etc/sysconfig/docker and see if it solves your issue.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10266203</commentid>
+    <comment_count>5</comment_count>
+    <who name="Antonio Murdaca">amurdaca</who>
+    <bug_when>2017-03-22 15:29:07 -0400</bug_when>
+    <thetext>(In reply to Daniel Walsh from comment #2)
+&gt; Well this would be an issue with RHEL also.  If we setup the tools to 
+&gt; 
+&gt; --block-registry=all --add-registry registry.access.redhat.com
+&gt; --add-registry=docker.io
+&gt; 
+&gt; Does this fix the issue, where I can continue to pull from redhat or docker
+&gt; and default to pushing to docker.io?
+
+Dan, I wouldn&apos;t block all registries. That means the user could just push/pull/search on RH registry and docker.io - which seems weird in Fedora at least.
+
+I&apos;ll check how this impacts RHEL though (hadn&apos;t a chance till now).
+
+To summarize:
+
+- the original BZ wanted the ability to __docker search__ the RH registry for images (nothing to do with push/pull)
+- the original BZ resolution added the rhel registry as the default one, making pushing images just go to the RH registry (which is plain wrong to me, both in RHEL and Fedora)
+- so, let&apos;s check if pushing an unqualified image in RHEL with the default add-registry causes the push to go to the RH registry (which will fail as it&apos;s read-only)
+- to workaround the point above, one could push with a qualified image (e.g. docker push docker.io/myawesomeimage
+- research if it could be possible to enhance the registry patch we carry to search on additional registries w/o impacting push/pull operations</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10266228</commentid>
+    <comment_count>6</comment_count>
+    <who name="Dusty Mabe">dustymabe</who>
+    <bug_when>2017-03-22 15:38:58 -0400</bug_when>
+    <thetext>(In reply to Daniel Walsh from comment #2)
+&gt; Well this would be an issue with RHEL also.  If we setup the tools to 
+&gt; 
+&gt; --block-registry=all --add-registry registry.access.redhat.com
+&gt; --add-registry=docker.io
+&gt; 
+&gt; Does this fix the issue, where I can continue to pull from redhat or docker
+&gt; and default to pushing to docker.io?
+
+No, even with those options I still default to pointing to registry.access.redhat.com.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10269677</commentid>
+    <comment_count>7</comment_count>
+    <who name="Colin Walters">walters</who>
+    <bug_when>2017-03-23 09:06:52 -0400</bug_when>
+    <thetext>I&apos;ll still say I think that all we should do is add a flag to disable the &quot;foo&quot; → &quot;docker.io/foo&quot; auto-mapping.  With that flag on, *everyone* is on equal terms.
+
+Yes, indeed this means people will need to type:
+docker pull registry.access.redhat.com/rhel7, but the solution to that is to shorten the URL IMO (redhat.io/rhel7) ?
+
+Searching registry.access.redhat.com but *not* registry.fedoraproject.org seems weird to me for example.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10269698</commentid>
+    <comment_count>8</comment_count>
+    <who name="Colin Walters">walters</who>
+    <bug_when>2017-03-23 09:12:45 -0400</bug_when>
+    <thetext>Also, with this flag it&apos;s then `docker search -r/--registry docker.io term1 term2` ?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10269732</commentid>
+    <comment_count>10</comment_count>
+    <who name="Antonio Murdaca">amurdaca</who>
+    <bug_when>2017-03-23 09:20:27 -0400</bug_when>
+    <thetext>The only downside to a flag which removes the auto-mapping is that we&apos;ll break *lots* of people/customers who have &quot;FROM fedora&quot; in their Dockerfiles.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10269801</commentid>
+    <comment_count>11</comment_count>
+    <who name="Colin Walters">walters</who>
+    <bug_when>2017-03-23 09:33:35 -0400</bug_when>
+    <thetext>Not just Dockerfiles of course, but Kubernetes pod definitions etc etc.
+
+But we only have to pull the bandaid off once.  And don&apos;t we want people saying `FROM registry.fedoraproject.org/fedora` Or alternatively, `docker.io/fedora`.
+
+Note I&apos;m not arguing for having this flag on by default.  What I am arguing is we should:
+
+ - Implement it, including the `docker search --registry &lt;registry&gt;`
+ - Encourage people to use it, and gradually fix up our own Dockerfiles/&quot;Kubefiles&quot;
+ - Don&apos;t add hacks that muddy the waters like injecting &quot;our own&quot; registries - that gets into messy (and political) topics like search priorities.  Even among our 3 distributions!  With the &quot;no auto-docker.io&quot; flag, everyone is equal.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10269920</commentid>
+    <comment_count>13</comment_count>
+    <who name="Daniel Walsh">dwalsh</who>
+    <bug_when>2017-03-23 09:56:53 -0400</bug_when>
+    <thetext>Kubernetes always pulls with the fully qualified name,  This only applies to the docker CLI.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10269992</commentid>
+    <comment_count>14</comment_count>
+    <who name="Dusty Mabe">dustymabe</who>
+    <bug_when>2017-03-23 10:09:28 -0400</bug_when>
+    <thetext>Are there not plenty of kube yaml files that people use that don&apos;t use the fully qualified name? My experience has been that specifying just &apos;fedora&apos; would work when defining a pod in kube land. Maybe my memory serves me wrong.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10270031</commentid>
+    <comment_count>15</comment_count>
+    <who name="Daniel Walsh">dwalsh</who>
+    <bug_when>2017-03-23 10:11:53 -0400</bug_when>
+    <thetext>Well that would be a problem as we move to alternative CRI like CRI-O and RKT which certainly do not have a hard coded docker.io in them.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10284157</commentid>
+    <comment_count>16</comment_count>
+    <who name="Dusty Mabe">dustymabe</who>
+    <bug_when>2017-03-28 12:04:43 -0400</bug_when>
+    <thetext>If we can&apos;t find a solution to this problem soon, can we remove the push plugin from Fedora until a proper solution is found?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10284443</commentid>
+    <comment_count>17</comment_count>
+    <who name="Antonio Murdaca">amurdaca</who>
+    <bug_when>2017-03-28 13:48:58 -0400</bug_when>
+    <thetext>(In reply to Dusty Mabe from comment #16)
+&gt; If we can&apos;t find a solution to this problem soon, can we remove the push
+&gt; plugin from Fedora until a proper solution is found?
+
+we need to remove the &quot;--add-registry&quot; stuff from /etc/sysconfig/docker - this issue seems unrelated to the docker push plugin.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10284446</commentid>
+    <comment_count>18</comment_count>
+    <who name="Dusty Mabe">dustymabe</who>
+    <bug_when>2017-03-28 13:50:01 -0400</bug_when>
+    <thetext>(In reply to Antonio Murdaca from comment #17)
+&gt; we need to remove the &quot;--add-registry&quot; stuff from /etc/sysconfig/docker -
+&gt; this issue seems unrelated to the docker push plugin.
+
+oops, sorry. Thought it was related.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10284854</commentid>
+    <comment_count>19</comment_count>
+    <who name="Dusty Mabe">dustymabe</who>
+    <bug_when>2017-03-28 16:06:28 -0400</bug_when>
+    <thetext>(In reply to Daniel Walsh from comment #2)
+&gt; Well this would be an issue with RHEL also.  If we setup the tools to 
+&gt; 
+&gt; --block-registry=all --add-registry registry.access.redhat.com
+&gt; --add-registry=docker.io
+&gt; 
+&gt; Does this fix the issue, where I can continue to pull from redhat or docker
+&gt; and default to pushing to docker.io?
+
+This works if I explicitly add docker.io as the first --add-registry by having the following in my /etc/sysconfig/docker:
+
+ADD_REGISTRY=&apos;--add-registry docker.io --add-registry registry.access.redhat.com&apos;
+
+I did not apply --block-registry=all. I was also able to pull from the different registries, but it will try them in order.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10284897</commentid>
+    <comment_count>20</comment_count>
+    <who name="Antonio Murdaca">amurdaca</who>
+    <bug_when>2017-03-28 16:21:12 -0400</bug_when>
+    <thetext>(In reply to Dusty Mabe from comment #19)
+&gt; (In reply to Daniel Walsh from comment #2)
+&gt; &gt; Well this would be an issue with RHEL also.  If we setup the tools to 
+&gt; &gt; 
+&gt; &gt; --block-registry=all --add-registry registry.access.redhat.com
+&gt; &gt; --add-registry=docker.io
+&gt; &gt; 
+&gt; &gt; Does this fix the issue, where I can continue to pull from redhat or docker
+&gt; &gt; and default to pushing to docker.io?
+&gt; 
+&gt; This works if I explicitly add docker.io as the first --add-registry by
+&gt; having the following in my /etc/sysconfig/docker:
+&gt; 
+&gt; ADD_REGISTRY=&apos;--add-registry docker.io --add-registry
+&gt; registry.access.redhat.com&apos;
+&gt;
+
+The question is - is this configuration searching in our RH registry when someone does &quot;docker search rhel&quot;? or it goes just to docker.io (which was why the RH registry was added first)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10284920</commentid>
+    <comment_count>21</comment_count>
+      <attachid>1267131</attachid>
+    <who name="Dusty Mabe">dustymabe</who>
+    <bug_when>2017-03-28 16:33:51 -0400</bug_when>
+    <thetext>Created attachment 1267131
+dockersearch.txt
+
+It searches both registries, but the (potentially disturbing) docker.io results are first.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10284945</commentid>
+    <comment_count>22</comment_count>
+    <who name="Daniel Walsh">dwalsh</who>
+    <bug_when>2017-03-28 16:48:12 -0400</bug_when>
+    <thetext>This is ok for now, and I think we should add a new field, --default-pushregistry or something like that so that you can specify multiple read registries in order and one default push reg.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10294687</commentid>
+    <comment_count>23</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-31 10:55:50 -0400</bug_when>
+    <thetext>docker-1.13.1-6.git5be1549.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-80cdb3361d</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10297140</commentid>
+    <comment_count>24</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-01 20:51:17 -0400</bug_when>
+    <thetext>docker-1.13.1-6.git5be1549.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-80cdb3361d</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10316978</commentid>
+    <comment_count>25</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-09 01:58:06 -0400</bug_when>
+    <thetext>docker-1.13.1-6.git5be1549.fc26 has been pushed to the Fedora 26 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="0"
+              ispatch="0"
+              isprivate="0"
+          >
+            <attachid>1267131</attachid>
+            <date>2017-03-28 16:33:00 -0400</date>
+            <delta_ts>2017-03-28 16:33:51 -0400</delta_ts>
+            <desc>dockersearch.txt</desc>
+            <filename>dockersearch.txt</filename>
+            <type>text/plain</type>
+            <size>25130</size>
+            <attacher name="Dusty Mabe">dustymabe</attacher>
+            
+              <data encoding="base64">SU5ERVggICAgICAgIE5BTUUgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgIERFU0NSSVBUSU9OICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgIFNUQVJTICAgICBPRkZJQ0lBTCAgIEFVVE9NQVRFRApkb2NrZXIu
+aW8gICAgZG9ja2VyLmlvL3JpY2h4c2wvcmhlbDcgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgUkhFTCA3IGltYWdlIHdpdGggbWluaW1hbCBpbnN0YWxsYXRp
+b24gICAgICAgICAgMiAgICAgICAgICAgICAgICAgICAgCmRvY2tlci5pbyAgICBkb2NrZXIuaW8v
+cmljaHhzbC9yaGVsNyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICBSSEVMIDcgaW1hZ2Ugd2l0aCBtaW5pbWFsIGluc3RhbGxhdGlvbiAgICAgICAgICAyICAg
+ICAgICAgICAgICAgICAgICAKZG9ja2VyLmlvICAgIGRvY2tlci5pby9ibHVlZGF0YS9yaGVsNyAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFJIRUwtNy54IGJh
+c2UgY29udGFpbmVyIGltYWdlcyAgICAgICAgICAgICAgICAgIDEgICAgICAgICAgICAgICAgICAg
+IApkb2NrZXIuaW8gICAgZG9ja2VyLmlvL2JsdWVkYXRhL3JoZWw3ICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgUkhFTC03LnggYmFzZSBjb250YWluZXIgaW1h
+Z2VzICAgICAgICAgICAgICAgICAgMSAgICAgICAgICAgICAgICAgICAgCmRvY2tlci5pbyAgICBk
+b2NrZXIuaW8vY2xpY2syY2xvdWQvYXNwbmV0LTQuNS1yaGVsNyAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICBBIFJIRUw3IGJhc2VkIEFTUC5ORVQgaW1hZ2UgZm9yIHVzZSB3aXRoIE8u
+Li4gICAxICAgICAgICAgICAgICAgICAgICAKZG9ja2VyLmlvICAgIGRvY2tlci5pby9jbGljazJj
+bG91ZC9hc3BuZXQtNC41LXJoZWw3ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIEEg
+UkhFTDcgYmFzZWQgQVNQLk5FVCBpbWFnZSBmb3IgdXNlIHdpdGggTy4uLiAgIDEgICAgICAgICAg
+ICAgICAgICAgIApkb2NrZXIuaW8gICAgZG9ja2VyLmlvL3NhbWRvcmFuL3JoZWw3LWFuc2libGUg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgQ29udGFpbmVyIGZvciB0ZXN0
+aW5nIEFuc2libGUgcGxheWJvb2tzIGFuLi4uICAgMSAgICAgICAgICAgICAgICAgICAgCmRvY2tl
+ci5pbyAgICBkb2NrZXIuaW8vc2FtZG9yYW4vcmhlbDctYW5zaWJsZSAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICBDb250YWluZXIgZm9yIHRlc3RpbmcgQW5zaWJsZSBwbGF5
+Ym9va3MgYW4uLi4gICAxICAgICAgICAgICAgICAgICAgICAKZG9ja2VyLmlvICAgIGRvY2tlci5p
+by9iZW5ha2EvcmhlbDcgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDAg
+ICAgICAgICAgICAgICAgICAgIApkb2NrZXIuaW8gICAgZG9ja2VyLmlvL2JlbmFrYS9yaGVsNyAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMCAgICAgICAgICAgICAgICAg
+ICAgCmRvY2tlci5pbyAgICBkb2NrZXIuaW8vY2FpcWlhbi9yaGVsNyAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAwICAgICAgICAgICAgICAgICAgICAKZG9ja2VyLmlvICAg
+IGRvY2tlci5pby9jYWlxaWFuL3JoZWw3ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgIDAgICAgICAgICAgICAgICAgICAgIApkb2NrZXIuaW8gICAgZG9ja2VyLmlvL2NoYXJs
+ZXNwb3J0d29vZGlpL3JoZWw3ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+UmVkIEhhdCBFbnRlcnByaXNlIExpbnV4IDcgSW1hZ2VzICAgICAgICAgICAgICAgMCAgICAgICAg
+ICAgICAgICAgICAgCmRvY2tlci5pbyAgICBkb2NrZXIuaW8vY2hhcmxlc3BvcnR3b29kaWkvcmhl
+bDcgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBSZWQgSGF0IEVudGVycHJp
+c2UgTGludXggNyBJbWFnZXMgICAgICAgICAgICAgICAwICAgICAgICAgICAgICAgICAgICAKZG9j
+a2VyLmlvICAgIGRvY2tlci5pby9lbWJhYnkvcmhlbDcgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgIFJIRUwgNyAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgIDAgICAgICAgICAgICAgICAgICAgIApkb2NrZXIuaW8gICAgZG9ja2Vy
+LmlvL2VtYmFieS9yaGVsNyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgUkhFTCA3ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+MCAgICAgICAgICAgICAgICAgICAgCmRvY2tlci5pbyAgICBkb2NrZXIuaW8vZzExbi9yaGVsNyAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAwICAgICAgICAgICAgICAg
+ICAgICAKZG9ja2VyLmlvICAgIGRvY2tlci5pby9nMTFuL3JoZWw3ICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgIDAgICAgICAgICAgICAgICAgICAgIApkb2NrZXIuaW8g
+ICAgZG9ja2VyLmlvL2dhbmc5MjkvcmhlbDcuMSAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgaW1wb3J0IFJIRUw3LjEgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgMCAgICAgICAgICAgICAgICAgICAgW09LXQpkb2NrZXIuaW8gICAgZG9ja2VyLmlv
+L2dhbmc5MjkvcmhlbDcuMSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgaW1wb3J0IFJIRUw3LjEgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMCAg
+ICAgICAgICAgICAgICAgICAgW09LXQpkb2NrZXIuaW8gICAgZG9ja2VyLmlvL2phaG5kYWkvcmhl
+bDcgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgQ2xlYW4g
+aW1hZ2UgZm9yIEZFVCB1c2VyLiBCeSBSSEVMNy4yICAgICAgICAgICAgMCAgICAgICAgICAgICAg
+ICAgICAgCmRvY2tlci5pbyAgICBkb2NrZXIuaW8vamFobmRhaS9yaGVsNyAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBDbGVhbiBpbWFnZSBmb3IgRkVUIHVz
+ZXIuIEJ5IFJIRUw3LjIgICAgICAgICAgICAwICAgICAgICAgICAgICAgICAgICAKZG9ja2VyLmlv
+ICAgIGRvY2tlci5pby9qaW5vN3ZhcmdoZXNlL3JoZWw3LWFwYWNoZSAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgIEJhc2UgUkhFTDcgLSBIVFRQRCBhbmQgUEhQIENvbnRhaW5lciAg
+ICAgICAgICAgIDAgICAgICAgICAgICAgICAgICAgIApkb2NrZXIuaW8gICAgZG9ja2VyLmlvL2pp
+bm83dmFyZ2hlc2UvcmhlbDctYXBhY2hlICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgQmFzZSBSSEVMNyAtIEhUVFBEIGFuZCBQSFAgQ29udGFpbmVyICAgICAgICAgICAgMCAgICAg
+ICAgICAgICAgICAgICAgCmRvY2tlci5pbyAgICBkb2NrZXIuaW8vamlubzd2YXJnaGVzZS9yaGVs
+Ny1tYXJpYWRiICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBCYXNlIFJIRUw3IHdp
+dGggTWFyaWFEQiAgICAgICAgICAgICAgICAgICAgICAgICAwICAgICAgICAgICAgICAgICAgICAK
+ZG9ja2VyLmlvICAgIGRvY2tlci5pby9qaW5vN3ZhcmdoZXNlL3JoZWw3LW1hcmlhZGIgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgIEJhc2UgUkhFTDcgd2l0aCBNYXJpYURCICAgICAg
+ICAgICAgICAgICAgICAgICAgIDAgICAgICAgICAgICAgICAgICAgIApkb2NrZXIuaW8gICAgZG9j
+a2VyLmlvL2xpbmcvcmhlbDcgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgMCAgICAgICAgICAgICAgICAgICAgCmRvY2tlci5pbyAgICBkb2NrZXIuaW8vbGluZy9yaGVs
+NyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAwICAgICAgICAgICAg
+ICAgICAgICAKZG9ja2VyLmlvICAgIGRvY2tlci5pby9saW9uZWxtYW40NS9yaGVsNyAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFJlZCBIYXQgRW50ZXJwcmlzZSBM
+aW51eCBTZXJ2ZXIgcmVsZWFzZSA3LnggICAgIDAgICAgICAgICAgICAgICAgICAgIApkb2NrZXIu
+aW8gICAgZG9ja2VyLmlvL2xpb25lbG1hbjQ1L3JoZWw3ICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgUmVkIEhhdCBFbnRlcnByaXNlIExpbnV4IFNlcnZlciByZWxl
+YXNlIDcueCAgICAgMCAgICAgICAgICAgICAgICAgICAgCmRvY2tlci5pbyAgICBkb2NrZXIuaW8v
+bGxrb29sai9yaGVsNyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAwICAg
+ICAgICAgICAgICAgICAgICAKZG9ja2VyLmlvICAgIGRvY2tlci5pby9sbGtvb2xqL3JoZWw3ICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDAgICAgICAgICAgICAgICAgICAg
+IApkb2NrZXIuaW8gICAgZG9ja2VyLmlvL21hcnBoL3JoZWw3ICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgMCAgICAgICAgICAgICAgICAgICAgCmRvY2tlci5pbyAgICBk
+b2NrZXIuaW8vbWFycGgvcmhlbDcgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAwICAgICAgICAgICAgICAgICAgICAKZG9ja2VyLmlvICAgIGRvY2tlci5pby9uYnNhbnRv
+c2gvcmhlbDcgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDAgICAgICAgICAg
+ICAgICAgICAgIApkb2NrZXIuaW8gICAgZG9ja2VyLmlvL25ic2FudG9zaC9yaGVsNyAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMCAgICAgICAgICAgICAgICAgICAgCmRvY2tl
+ci5pbyAgICBkb2NrZXIuaW8vcWl4aWUvcmhlbDcgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAwICAgICAgICAgICAgICAgICAgICAKZG9ja2VyLmlvICAgIGRvY2tlci5p
+by9xaXhpZS9yaGVsNyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDAg
+ICAgICAgICAgICAgICAgICAgIApkb2NrZXIuaW8gICAgZG9ja2VyLmlvL3JlZGR5Y2hhbmRhMTIz
+NDUvcmhlbDcgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMCAgICAgICAgICAgICAgICAg
+ICAgCmRvY2tlci5pbyAgICBkb2NrZXIuaW8vcmVkZHljaGFuZGExMjM0NS9yaGVsNyAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAwICAgICAgICAgICAgICAgICAgICAKZG9ja2VyLmlvICAg
+IGRvY2tlci5pby9zYWlrcmlzaG5hbWFuZGF2YS9yaGVsNyAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgIDAgICAgICAgICAgICAgICAgICAgIApkb2NrZXIuaW8gICAgZG9ja2VyLmlvL3NhaWty
+aXNobmFtYW5kYXZhL3JoZWw3ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMCAgICAgICAg
+ICAgICAgICAgICAgCmRvY2tlci5pbyAgICBkb2NrZXIuaW8vc2NyaXB0aWNvL3JoZWw3ICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAwICAgICAgICAgICAgICAgICAgICAKZG9j
+a2VyLmlvICAgIGRvY2tlci5pby9zY3JpcHRpY28vcmhlbDcgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgIDAgICAgICAgICAgICAgICAgICAgIApkb2NrZXIuaW8gICAgZG9ja2Vy
+LmlvL3NoeXUvcmhlbDcgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+MCAgICAgICAgICAgICAgICAgICAgCmRvY2tlci5pbyAgICBkb2NrZXIuaW8vc2h5dS9yaGVsNyAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAwICAgICAgICAgICAgICAg
+ICAgICAKZG9ja2VyLmlvICAgIGRvY2tlci5pby90ZWFtaHQvcmhlbDcgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgIDAgICAgICAgICAgICAgICAgICAgIApkb2NrZXIuaW8g
+ICAgZG9ja2VyLmlvL3RlYW1odC9yaGVsNyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgMCAgICAgICAgICAgICAgICAgICAgCmRvY2tlci5pbyAgICBkb2NrZXIuaW8vdHJy
+cGEvcmhlbDcgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAwICAgICAg
+ICAgICAgICAgICAgICAKZG9ja2VyLmlvICAgIGRvY2tlci5pby90cnJwYS9yaGVsNyAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDAgICAgICAgICAgICAgICAgICAgIApy
+ZWRoYXQuY29tICAgcmVnaXN0cnktYXBwZGltYWdlcy5yaGNsb3VkLmNvbS9yaGVsNy9hcHBkeW5h
+bWljcyAgICAgICAgICAgICAgICAgICAgICAgQXBwRHluYW1pY3MgaXMgYSBwb3dlcmZ1bCwgZWFz
+eS10by11c2UgQXBwLi4uICAgMCAgICAgICAgICAgICAgICAgICAgCnJlZGhhdC5jb20gICByZWdp
+c3RyeS1ibGFja2R1Y2todWIucmhjbG91ZC5jb20vcmhlbDcvc2Nhbm5lciAgICAgICAgICAgICAg
+ICAgICAgICAgICBUaGUgQmxhY2sgRHVjayBTY2FubmVyIHdvcmtzIGluIGNvbmp1bmN0aW8uLi4g
+ICAwICAgICAgICAgICAgICAgICAgICAKcmVkaGF0LmNvbSAgIHJlZ2lzdHJ5LWNsaWNrMmNsb3Vk
+aW5jLnJoY2xvdWQuY29tL3JoZWw3L2NsaWNrMmNsb3VkLWFzcG5ldC1zMmkgICAgICAgIFRoaXMg
+aXMgYW4gQVNQLk5FVCA0LjUgaW1hZ2UgaW50ZW5kZWQgZm9yIC4uLiAgIDAgICAgICAgICAgICAg
+ICAgICAgIApyZWRoYXQuY29tICAgcmVnaXN0cnktY291Y2hiYXNlLnJoY2xvdWQuY29tL3JoZWw3
+L2NvdWNoYmFzZSAgICAgICAgICAgICAgICAgICAgICAgICAgW0NvdWNoYmFzZSBTZXJ2ZXJdKGh0
+dHA6Ly93d3cuY291Y2hiYXNlLmNvLi4uICAgMCAgICAgICAgICAgICAgICAgICAgCnJlZGhhdC5j
+b20gICByZWdpc3RyeS1jcmF0ZWlvLnJoY2xvdWQuY29tL3JoZWw3L2NyYXRlaW8gICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICBDcmF0ZSBpcyBhIHNjYWxhYmxlLCBkaXN0cmlidXRlZCBOb1NR
+TCBkYXQuLi4gICAwICAgICAgICAgICAgICAgICAgICAKcmVkaGF0LmNvbSAgIHJlZ2lzdHJ5LWNy
+dW5jaHlkYXRhLnJoY2xvdWQuY29tL2NydW5jaHlkYXRhL2NydW5jaHktcG9zdGdyZXNxbDo5LjQu
+NCAgIFBvc3RncmVTUUwgOS40IENlcnRpZmllZCBDb250YWluZXIgcHJvdmlkZS4uLiAgIDAgICAg
+ICAgICAgICAgICAgICAgIApyZWRoYXQuY29tICAgcmVnaXN0cnktaGFwcm94eW9yZy5yaGNsb3Vk
+LmNvbS9oYXByb3h5L3JoZWwtaGFwcm94eToxLjUuMTIgICAgICAgICAgICAgSEFQcm94eSBpcyBh
+IHJlbGlhYmxlLCBmZWF0dXJlIHJpY2gsIGhpZ2ggLi4uICAgMCAgICAgICAgICAgICAgICAgICAg
+CnJlZGhhdC5jb20gICByZWdpc3RyeS1pcm9ubXEucmhjbG91ZC5jb20vaXJvbi9yaGVsNy1pcm9u
+bXE6bGl0ZSAgICAgICAgICAgICAgICAgICAgICBJcm9uTVEgaXMgYSByZWxpYWJsZSBjbG91ZC1u
+YXRpdmUgbWVzc2FnZSAuLi4gICAwICAgICAgICAgICAgICAgICAgICAKcmVkaGF0LmNvbSAgIHJl
+Z2lzdHJ5LW1hcmlhZGJjb3JwLnJoY2xvdWQuY29tL3JoZWw3L21hcmlhZGItZW50ZXJwcmlzZS1z
+ZXJ2ZXI6MTAuMCAgIE1hcmlhREIgRW50ZXJwcmlzZSBTZXJ2ZXIgaXMgYSBoYXJkZW5lZCwgRS4u
+LiAgIDAgICAgICAgICAgICAgICAgICAgIApyZWRoYXQuY29tICAgcmVnaXN0cnktbmdpbnhpbmMu
+cmhjbG91ZC5jb20vbmdpbngvcmhlbDctbmdpbng6MS45LjIgICAgICAgICAgICAgICAgICAgUnVu
+IGJ5IHRoZSBidXNpZXN0IHdlYiBzaXRlcyBvbiB0aGUgSW50ZXJuLi4uICAgMCAgICAgICAgICAg
+ICAgICAgICAgCnJlZGhhdC5jb20gICByZWdpc3RyeS1ucnBhcnRuZXJzLnJoY2xvdWQuY29tL3Jo
+ZWw3L25ld3JlbGljICAgICAgICAgICAgICAgICAgICAgICAgICBOZXcgUmVsaWMgaXMgYW4gYXBw
+bGljYXRpb24gcGVyZm9ybWFuY2UgbW8uLi4gICAwICAgICAgICAgICAgICAgICAgICAKcmVkaGF0
+LmNvbSAgIHJlZ2lzdHJ5LXRyZW1vbG9zZWN1cml0eS5yaGNsb3VkLmNvbS9yaGVsNy91bmlzb24g
+ICAgICAgICAgICAgICAgICAgICAgIFRyZW1vbG8gU2VjdXJpdHnigJlzIFVuaXNvbiBjb21iaW5l
+cyB0aGUgaWRlLi4uICAgMCAgICAgICAgICAgICAgICAgICAgCnJlZGhhdC5jb20gICByZWdpc3Ry
+eS5hY2Nlc3MucmVkaGF0LmNvbS9kb3RuZXQvZG90bmV0Y29yZS0xMC1yaGVsNyAgICAgICAgICAg
+ICAgICAgICAuTkVUIENvcmUgMS4wIGZvciBSSEVMICAgICAgICAgICAgICAgICAgICAgICAgICAw
+ICAgICAgICAgICAgICAgICAgICAKcmVkaGF0LmNvbSAgIHJlZ2lzdHJ5LmFjY2Vzcy5yZWRoYXQu
+Y29tL2RvdG5ldC9kb3RuZXRjb3JlLTExLXJoZWw3ICAgICAgICAgICAgICAgICAgIC5ORVQgQ29y
+ZSAxLjEgZm9yIFJIRUwgICAgICAgICAgICAgICAgICAgICAgICAgIDAgICAgICAgICAgICAgICAg
+ICAgIApyZWRoYXQuY29tICAgcmVnaXN0cnkuYWNjZXNzLnJlZGhhdC5jb20vb3BlbnNoaWZ0My9q
+ZW5raW5zLTEtcmhlbDcgICAgICAgICAgICAgICAgICAgSmVua2lucyBpbWFnZSB3aGljaCBjYW4g
+YmUgdXNlZCB0byBzZXQgdXAgLi4uICAgMCAgICAgICAgICAgICAgICAgICAgCnJlZGhhdC5jb20g
+ICByZWdpc3RyeS5hY2Nlc3MucmVkaGF0LmNvbS9vcGVuc2hpZnQzL2plbmtpbnMtMi1yaGVsNyAg
+ICAgICAgICAgICAgICAgICBUaGlzIGltYWdlIHByb3ZpZGVzIGEgSmVua2lucyBzZXJ2ZXIsIHBy
+aW0uLi4gICAwICAgICAgICAgICAgICAgICAgICAKcmVkaGF0LmNvbSAgIHJlZ2lzdHJ5LmFjY2Vz
+cy5yZWRoYXQuY29tL29wZW5zaGlmdDMvamVua2lucy1zbGF2ZS1iYXNlLXJoZWw3ICAgICAgICAg
+IEEgYmFzZSB0aGF0IG90aGVyIGplbmtpbnMgc2xhdmUgaW1hZ2VzIGNhbi4uLiAgIDAgICAgICAg
+ICAgICAgICAgICAgIApyZWRoYXQuY29tICAgcmVnaXN0cnkuYWNjZXNzLnJlZGhhdC5jb20vb3Bl
+bnNoaWZ0My9qZW5raW5zLXNsYXZlLW1hdmVuLXJoZWw3ICAgICAgICAgQSBqZW5raW5zIG1hdmVu
+IHNsYXZlIGltYWdlLiAgICAgICAgICAgICAgICAgICAgMCAgICAgICAgICAgICAgICAgICAgCnJl
+ZGhhdC5jb20gICByZWdpc3RyeS5hY2Nlc3MucmVkaGF0LmNvbS9vcGVuc2hpZnQzL2plbmtpbnMt
+c2xhdmUtbm9kZWpzLXJoZWw3ICAgICAgICBBIEplbmtpbnMgbm9kZWpzIHNsYXZlIGltYWdlLiAg
+ICAgICAgICAgICAgICAgICAwICAgICAgICAgICAgICAgICAgICAKcmVkaGF0LmNvbSAgIHJlZ2lz
+dHJ5LmFjY2Vzcy5yZWRoYXQuY29tL29wZW5zaGlmdDMvbW9uZ29kYi0yNC1yaGVsNyAgICAgICAg
+ICAgICAgICAgIE1vbmdvREIgMi40IE5vU1FMIGRhdGFiYXNlIHNlcnZlciAgICAgICAgICAgICAg
+IDAgICAgICAgICAgICAgICAgICAgIApyZWRoYXQuY29tICAgcmVnaXN0cnkuYWNjZXNzLnJlZGhh
+dC5jb20vb3BlbnNoaWZ0My9teXNxbC01NS1yaGVsNyAgICAgICAgICAgICAgICAgICAgTXlTUUwg
+NS41IFNRTCBkYXRhYmFzZSBzZXJ2ZXIgICAgICAgICAgICAgICAgICAgMCAgICAgICAgICAgICAg
+ICAgICAgCnJlZGhhdC5jb20gICByZWdpc3RyeS5hY2Nlc3MucmVkaGF0LmNvbS9vcGVuc2hpZnQz
+L25vZGVqcy0wMTAtcmhlbDcgICAgICAgICAgICAgICAgICBOb2RlSlMgMC4xMCBwbGF0Zm9ybSBm
+b3IgYnVpbGRpbmcgYW5kIHJ1bm4uLi4gICAwICAgICAgICAgICAgICAgICAgICAKcmVkaGF0LmNv
+bSAgIHJlZ2lzdHJ5LmFjY2Vzcy5yZWRoYXQuY29tL29wZW5zaGlmdDMvcGVybC01MTYtcmhlbDcg
+ICAgICAgICAgICAgICAgICAgIFBlcmwgNS4xNiBwbGF0Zm9ybSBmb3IgYnVpbGRpbmcgYW5kIHJ1
+bm5pbi4uLiAgIDAgICAgICAgICAgICAgICAgICAgIApyZWRoYXQuY29tICAgcmVnaXN0cnkuYWNj
+ZXNzLnJlZGhhdC5jb20vb3BlbnNoaWZ0My9waHAtNTUtcmhlbDcgICAgICAgICAgICAgICAgICAg
+ICAgUEhQIDUuNSBwbGF0Zm9ybSBmb3IgYnVpbGRpbmcgYW5kIHJ1bm5pbmcgLi4uICAgMCAgICAg
+ICAgICAgICAgICAgICAgCnJlZGhhdC5jb20gICByZWdpc3RyeS5hY2Nlc3MucmVkaGF0LmNvbS9v
+cGVuc2hpZnQzL3Bvc3RncmVzcWwtOTItcmhlbDcgICAgICAgICAgICAgICBQb3N0Z3JlU1FMIDku
+MiBkYXRhYmFzZSBzZXJ2ZXIgICAgICAgICAgICAgICAgICAwICAgICAgICAgICAgICAgICAgICAK
+cmVkaGF0LmNvbSAgIHJlZ2lzdHJ5LmFjY2Vzcy5yZWRoYXQuY29tL29wZW5zaGlmdDMvcHl0aG9u
+LTMzLXJoZWw3ICAgICAgICAgICAgICAgICAgIFB5dGhvbiAzLjMgcGxhdGZvcm0gZm9yIGJ1aWxk
+aW5nIGFuZCBydW5uaS4uLiAgIDAgICAgICAgICAgICAgICAgICAgIApyZWRoYXQuY29tICAgcmVn
+aXN0cnkuYWNjZXNzLnJlZGhhdC5jb20vb3BlbnNoaWZ0My9ydWJ5LTIwLXJoZWw3ICAgICAgICAg
+ICAgICAgICAgICAgUnVieSAyLjAgcGxhdGZvcm0gZm9yIGJ1aWxkaW5nIGFuZCBydW5uaW5nLi4u
+ICAgMCAgICAgICAgICAgICAgICAgICAgCnJlZGhhdC5jb20gICByZWdpc3RyeS5hY2Nlc3MucmVk
+aGF0LmNvbS9yaGNlcGgvcmhjZXBoLTEuMy1yaGVsNyAgICAgICAgICAgICAgICAgICAgICBSZWQg
+SGF0IENlcGggU3RvcmFnZSAxLjMgKHNlbGVjdGFibGUgZGFlbW8uLi4gICAwICAgICAgICAgICAg
+ICAgICAgICAKcmVkaGF0LmNvbSAgIHJlZ2lzdHJ5LmFjY2Vzcy5yZWRoYXQuY29tL3JoY2VwaC9y
+aGNlcGgtMi1yaGVsNyAgICAgICAgICAgICAgICAgICAgICAgIFJlZCBIYXQgQ2VwaCBTdG9yYWdl
+IDIgKHNlbGVjdGFibGUgZGFlbW9uIC4uLiAgIDAgICAgICAgICAgICAgICAgICAgIApyZWRoYXQu
+Y29tICAgcmVnaXN0cnkuYWNjZXNzLnJlZGhhdC5jb20vcmhlbCAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgVGhpcyBwbGF0Zm9ybSBpbWFnZSBwcm92aWRlcyBhIG1pbmlt
+YWwgcnVuLi4uICAgMCAgICAgICAgICAgICAgICAgICAgCnJlZGhhdC5jb20gICByZWdpc3RyeS5h
+Y2Nlc3MucmVkaGF0LmNvbS9yaGVsLWF0b21pYyAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICBSZWQgSGF0IEVudGVycHJpc2UgTGludXggQXRvbWljIEltYWdlIGlzIGEuLi4gICAwICAg
+ICAgICAgICAgICAgICAgICAKcmVkaGF0LmNvbSAgIHJlZ2lzdHJ5LmFjY2Vzcy5yZWRoYXQuY29t
+L3JoZWw2ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFRoaXMgcGxhdGZv
+cm0gaW1hZ2UgcHJvdmlkZXMgYSBtaW5pbWFsIHJ1bi4uLiAgIDAgICAgICAgICAgICAgICAgICAg
+IApyZWRoYXQuY29tICAgcmVnaXN0cnkuYWNjZXNzLnJlZGhhdC5jb20vcmhlbDYuNSAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgVGhpcyBwbGF0Zm9ybSBpbWFnZSBwcm92aWRl
+cyBhIG1pbmltYWwgcnVuLi4uICAgMCAgICAgICAgICAgICAgICAgICAgCnJlZGhhdC5jb20gICBy
+ZWdpc3RyeS5hY2Nlc3MucmVkaGF0LmNvbS9yaGVsNi42ICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICBUaGlzIHBsYXRmb3JtIGltYWdlIHByb3ZpZGVzIGEgbWluaW1hbCBydW4u
+Li4gICAwICAgICAgICAgICAgICAgICAgICAKcmVkaGF0LmNvbSAgIHJlZ2lzdHJ5LmFjY2Vzcy5y
+ZWRoYXQuY29tL3JoZWw2LjcgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFRo
+aXMgcGxhdGZvcm0gaW1hZ2UgcHJvdmlkZXMgYSBtaW5pbWFsIHJ1bi4uLiAgIDAgICAgICAgICAg
+ICAgICAgICAgIApyZWRoYXQuY29tICAgcmVnaXN0cnkuYWNjZXNzLnJlZGhhdC5jb20vcmhlbDYu
+OCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgVGhpcyBwbGF0Zm9ybSBpbWFn
+ZSBwcm92aWRlcyBhIG1pbmltYWwgcnVuLi4uICAgMCAgICAgICAgICAgICAgICAgICAgCnJlZGhh
+dC5jb20gICByZWdpc3RyeS5hY2Nlc3MucmVkaGF0LmNvbS9yaGVsNi45ICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICBUaGlzIHBsYXRmb3JtIGltYWdlIHByb3ZpZGVzIGEgbWlu
+aW1hbCBydW4uLi4gICAwICAgICAgICAgICAgICAgICAgICAKcmVkaGF0LmNvbSAgIHJlZ2lzdHJ5
+LmFjY2Vzcy5yZWRoYXQuY29tL3JoZWw2L3JoZWwgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgIFRoaXMgcGxhdGZvcm0gaW1hZ2UgcHJvdmlkZXMgYSBtaW5pbWFsIHJ1bi4uLiAgIDAg
+ICAgICAgICAgICAgICAgICAgIApyZWRoYXQuY29tICAgcmVnaXN0cnkuYWNjZXNzLnJlZGhhdC5j
+b20vcmhlbDcgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgVGhpcyBwbGF0
+Zm9ybSBpbWFnZSBwcm92aWRlcyBhIG1pbmltYWwgcnVuLi4uICAgMCAgICAgICAgICAgICAgICAg
+ICAgCnJlZGhhdC5jb20gICByZWdpc3RyeS5hY2Nlc3MucmVkaGF0LmNvbS9yaGVsNy1hdG9taWMg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBSZWQgSGF0IEVudGVycHJpc2UgTGludXgg
+QXRvbWljIEltYWdlIGlzIGEuLi4gICAwICAgICAgICAgICAgICAgICAgICAKcmVkaGF0LmNvbSAg
+IHJlZ2lzdHJ5LmFjY2Vzcy5yZWRoYXQuY29tL3JoZWw3LjAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgIFRoaXMgcGxhdGZvcm0gaW1hZ2UgcHJvdmlkZXMgYSBtaW5pbWFsIHJ1
+bi4uLiAgIDAgICAgICAgICAgICAgICAgICAgIApyZWRoYXQuY29tICAgcmVnaXN0cnkuYWNjZXNz
+LnJlZGhhdC5jb20vcmhlbDcuMSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+VGhpcyBwbGF0Zm9ybSBpbWFnZSBwcm92aWRlcyBhIG1pbmltYWwgcnVuLi4uICAgMCAgICAgICAg
+ICAgICAgICAgICAgCnJlZGhhdC5jb20gICByZWdpc3RyeS5hY2Nlc3MucmVkaGF0LmNvbS9yaGVs
+Ny4yICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBUaGlzIHBsYXRmb3JtIGlt
+YWdlIHByb3ZpZGVzIGEgbWluaW1hbCBydW4uLi4gICAwICAgICAgICAgICAgICAgICAgICAKcmVk
+aGF0LmNvbSAgIHJlZ2lzdHJ5LmFjY2Vzcy5yZWRoYXQuY29tL3JoZWw3LjMgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgIFRoaXMgcGxhdGZvcm0gaW1hZ2UgcHJvdmlkZXMgYSBt
+aW5pbWFsIHJ1bi4uLiAgIDAgICAgICAgICAgICAgICAgICAgIApyZWRoYXQuY29tICAgcmVnaXN0
+cnkuYWNjZXNzLnJlZGhhdC5jb20vcmhlbDcvY29ja3BpdC13cyAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgQ29ja3BpdC13cyBleHBvc2VzIHRoZSB3ZWJzZXJ2aWNlcyBpbnRlcmZhLi4uICAg
+MCAgICAgICAgICAgICAgICAgICAgCnJlZGhhdC5jb20gICByZWdpc3RyeS5hY2Nlc3MucmVkaGF0
+LmNvbS9yaGVsNy9ldGNkICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBldGNkIHBy
+b3ZpZGVzIGEgZGlzdHJpYnV0ZWQga2V5IHZhbHVlIHN0b3IuLi4gICAwICAgICAgICAgICAgICAg
+ICAgICAKcmVkaGF0LmNvbSAgIHJlZ2lzdHJ5LmFjY2Vzcy5yZWRoYXQuY29tL3JoZWw3L2V0Y2Qz
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGV0Y2QgcHJvdmlkZXMgYSBkaXN0cmli
+dXRlZCBrZXkgdmFsdWUgc3Rvci4uLiAgIDAgICAgICAgICAgICAgICAgICAgIApyZWRoYXQuY29t
+ICAgcmVnaXN0cnkuYWNjZXNzLnJlZGhhdC5jb20vcmhlbDcvZmxhbm5lbCAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgRmxhbm5lbCBpcyBhbiBldGNkIGRyaXZlbiBhZGRyZXNzIG1hbmFn
+ZW1lLi4uICAgMCAgICAgICAgICAgICAgICAgICAgCnJlZGhhdC5jb20gICByZWdpc3RyeS5hY2Nl
+c3MucmVkaGF0LmNvbS9yaGVsNy9pcGEtc2VydmVyICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICBSZWQgSGF0IElkZW50aXR5IE1hbmFnZW1lbnQgaXMgYW4gaW50ZWdyYXQuLi4gICAwICAgICAg
+ICAgICAgICAgICAgICAKcmVkaGF0LmNvbSAgIHJlZ2lzdHJ5LmFjY2Vzcy5yZWRoYXQuY29tL3Jo
+ZWw3L2t1YmVybmV0ZXMtYXBpc2VydmVyICAgICAgICAgICAgICAgICAgIFRoZSBLdWJlcm5ldGVz
+IEFQSSBzZXJ2ZXIgdmFsaWRhdGVzIGFuZCBjby4uLiAgIDAgICAgICAgICAgICAgICAgICAgIApy
+ZWRoYXQuY29tICAgcmVnaXN0cnkuYWNjZXNzLnJlZGhhdC5jb20vcmhlbDcva3ViZXJuZXRlcy1j
+b250cm9sbGVyLW1nciAgICAgICAgICAgICAgVGhlIEt1YmVybmV0ZXMgY29udHJvbGxlciBtYW5h
+Z2VyIHdhdGNoZXMgLi4uICAgMCAgICAgICAgICAgICAgICAgICAgCnJlZGhhdC5jb20gICByZWdp
+c3RyeS5hY2Nlc3MucmVkaGF0LmNvbS9yaGVsNy9rdWJlcm5ldGVzLXNjaGVkdWxlciAgICAgICAg
+ICAgICAgICAgICBUaGUgS3ViZXJuZXRlcyBzY2hlZHVsZXIgd2F0Y2hlcyBmb3IgbmV3IHUuLi4g
+ICAwICAgICAgICAgICAgICAgICAgICAKcmVkaGF0LmNvbSAgIHJlZ2lzdHJ5LmFjY2Vzcy5yZWRo
+YXQuY29tL3JoZWw3L29wZW5zY2FwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIE9wZW5T
+Q0FQLURhZW1vbiBjb250YWluZXIgaW1hZ2UgdGhhdCBwcm92aS4uLiAgIDAgICAgICAgICAgICAg
+ICAgICAgIApyZWRoYXQuY29tICAgcmVnaXN0cnkuYWNjZXNzLnJlZGhhdC5jb20vcmhlbDcvcG9k
+LWluZnJhc3RydWN0dXJlICAgICAgICAgICAgICAgICAgICAgT3BlblNoaWZ0IENvbnRhaW5lciBQ
+bGF0Zm9ybSBJbmZyYXN0cnVjdHVyLi4uICAgMCAgICAgICAgICAgICAgICAgICAgCnJlZGhhdC5j
+b20gICByZWdpc3RyeS5hY2Nlc3MucmVkaGF0LmNvbS9yaGVsNy9yaGVsICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICBUaGlzIHBsYXRmb3JtIGltYWdlIHByb3ZpZGVzIGEgbWluaW1h
+bCBydW4uLi4gICAwICAgICAgICAgICAgICAgICAgICAKcmVkaGF0LmNvbSAgIHJlZ2lzdHJ5LmFj
+Y2Vzcy5yZWRoYXQuY29tL3JoZWw3L3JoZWwtYXRvbWljICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgIFJlZCBIYXQgRW50ZXJwcmlzZSBMaW51eCBBdG9taWMgSW1hZ2UgaXMgYS4uLiAgIDAgICAg
+ICAgICAgICAgICAgICAgIApyZWRoYXQuY29tICAgcmVnaXN0cnkuYWNjZXNzLnJlZGhhdC5jb20v
+cmhlbDcvcmhlbC10b29scyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgUHJvdmlkZXMgdGhl
+IGNvcmUgc3lzdGVtcyBhZG1pbmlzdHJhdG9yIGFuLi4uICAgMCAgICAgICAgICAgICAgICAgICAg
+CnJlZGhhdC5jb20gICByZWdpc3RyeS5hY2Nlc3MucmVkaGF0LmNvbS9yaGVsNy9yc3lzbG9nICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICBBIGNvbnRhaW5lcml6ZWQgdmVyc2lvbiBvZiB0
+aGUgcnN5c2xvZyB1dGkuLi4gICAwICAgICAgICAgICAgICAgICAgICAKcmVkaGF0LmNvbSAgIHJl
+Z2lzdHJ5LmFjY2Vzcy5yZWRoYXQuY29tL3JoZWw3L3NhZGMgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgIEEgY29udGFpbmVyaXplZCB2ZXJzaW9uIG9mIHRoZSBzeXNzdGF0IGRhdC4u
+LiAgIDAgICAgICAgICAgICAgICAgICAgIApyZWRoYXQuY29tICAgcmVnaXN0cnkuYWNjZXNzLnJl
+ZGhhdC5jb20vcmhlbDcvc3NzZCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgU3lz
+dGVtIFNlY3VyaXR5IFNlcnZpY2VzIERhZW1vbiAoU1NTRCkgcHJvLi4uICAgMCAgICAgICAgICAg
+ICAgICAgICAgCnJlZGhhdC5jb20gICByZWdpc3RyeS5hY2Nlc3MucmVkaGF0LmNvbS9yaGV2NC9y
+aGV2bS1ndWVzdC1hZ2VudCAgICAgICAgICAgICAgICAgICAgICBUaGUgcmhldm0tZ3Vlc3QtYWdl
+bnQgaXMgcHJvdmlkaW5nIGluZm9ybWEuLi4gICAwICAgICAgICAgICAgICAgICAgICAKcmVkaGF0
+LmNvbSAgIHJlZ2lzdHJ5LmFjY2Vzcy5yZWRoYXQuY29tL3JoZ3MzL3JoZ3Mtc2VydmVyLXJoZWw3
+ICAgICAgICAgICAgICAgICAgICAgIGNvbnRhaW5lcml6ZWQgUmVkIEhhdCBHbHVzdGVyIFN0b3Jh
+Z2UgaW1hZy4uLiAgIDAgICAgICAgICAgICAgICAgICAgIApyZWRoYXQuY29tICAgcmVnaXN0cnku
+YWNjZXNzLnJlZGhhdC5jb20vcmhnczMvcmhncy12b2xtYW5hZ2VyLXJoZWw3ICAgICAgICAgICAg
+ICAgICAgTWFuYWdlbWVudCBTZXJ2aWNlIEluc3RhbmNlIHJlc3BvbnNpYmxlIGZvLi4uICAgMCAg
+ICAgICAgICAgICAgICAgICAgCnJlZGhhdC5jb20gICByZWdpc3RyeS5hY2Nlc3MucmVkaGF0LmNv
+bS9yaHNjbC1iZXRhL2RldnRvb2xzZXQtNi1wZXJmdG9vbHMtcmhlbDcgICAgICBUaGlzIGlzIGEg
+ZGV2dG9vbHNldC02LXBlcmZ0b29scyBiYXNlIGltYWdlLiAgICAwICAgICAgICAgICAgICAgICAg
+ICAKcmVkaGF0LmNvbSAgIHJlZ2lzdHJ5LmFjY2Vzcy5yZWRoYXQuY29tL3Joc2NsLWJldGEvZGV2
+dG9vbHNldC02LXRvb2xjaGFpbi1yaGVsNyAgICAgIFRoaXMgaXMgYSBkZXZ0b29sc2V0LTYtdG9v
+Y2hhaW4gYmFzZSBpbWFnZS4gICAgIDAgICAgICAgICAgICAgICAgICAgIApyZWRoYXQuY29tICAg
+cmVnaXN0cnkuYWNjZXNzLnJlZGhhdC5jb20vcmhzY2wtYmV0YS9tb25nb2RiLTMyLXJoZWw3ICAg
+ICAgICAgICAgICAgICAgTW9uZ29EQiBzZXJ2ZXIgMy4yIGZvciBPcGVuU2hpZnQgYW5kIGdlbmVy
+Li4uICAgMCAgICAgICAgICAgICAgICAgICAgCnJlZGhhdC5jb20gICByZWdpc3RyeS5hY2Nlc3Mu
+cmVkaGF0LmNvbS9yaHNjbC1iZXRhL215c3FsLTU3LXJoZWw3ICAgICAgICAgICAgICAgICAgICBE
+b2NrZXIgaW1hZ2UgZm9yIHJ1bm5pbmcgTXlTUUwgNS43IHNlcnZlci4uLi4gICAwICAgICAgICAg
+ICAgICAgICAgICAKcmVkaGF0LmNvbSAgIHJlZ2lzdHJ5LmFjY2Vzcy5yZWRoYXQuY29tL3Joc2Ns
+LWJldGEvcGVybC01MjQtcmhlbDcgICAgICAgICAgICAgICAgICAgIFBsYXRmb3JtIGZvciBidWls
+ZGluZyBhbmQgcnVubmluZyBQZXJsIDUuMi4uLiAgIDAgICAgICAgICAgICAgICAgICAgIApyZWRo
+YXQuY29tICAgcmVnaXN0cnkuYWNjZXNzLnJlZGhhdC5jb20vcmhzY2wtYmV0YS9waHAtNTYtcmhl
+bDcgICAgICAgICAgICAgICAgICAgICAgUEhQIDUuNiBwbGF0Zm9ybSBmb3IgYnVpbGRpbmcgYW5k
+IHJ1bm5pbmcgLi4uICAgMCAgICAgICAgICAgICAgICAgICAgCnJlZGhhdC5jb20gICByZWdpc3Ry
+eS5hY2Nlc3MucmVkaGF0LmNvbS9yaHNjbC1iZXRhL3BocC03MC1yaGVsNyAgICAgICAgICAgICAg
+ICAgICAgICBQSFAgNy4wIHBsYXRmb3JtIGZvciBidWlsZGluZyBhbmQgcnVubmluZyAuLi4gICAw
+ICAgICAgICAgICAgICAgICAgICAKcmVkaGF0LmNvbSAgIHJlZ2lzdHJ5LmFjY2Vzcy5yZWRoYXQu
+Y29tL3Joc2NsLWJldGEvcHl0aG9uLTM1LXJoZWw3ICAgICAgICAgICAgICAgICAgIFB5dGhvbiAz
+LjUgcGxhdGZvcm0gZm9yIGJ1aWxkaW5nIGFuZCBydW5uaS4uLiAgIDAgICAgICAgICAgICAgICAg
+ICAgIApyZWRoYXQuY29tICAgcmVnaXN0cnkuYWNjZXNzLnJlZGhhdC5jb20vcmhzY2wtYmV0YS9y
+ZWRpcy0zMi1yaGVsNyAgICAgICAgICAgICAgICAgICAgUmVkaXMgaW4tbWVtb3J5IGRhdGEgc3Ry
+dWN0dXJlIHN0b3JlLCB1c2VkLi4uICAgMCAgICAgICAgICAgICAgICAgICAgCnJlZGhhdC5jb20g
+ICByZWdpc3RyeS5hY2Nlc3MucmVkaGF0LmNvbS9yaHNjbC1iZXRhL3J1YnktMjMtcmhlbDcgICAg
+ICAgICAgICAgICAgICAgICBSdWJ5IDIuMyBwbGF0Zm9ybSBmb3IgYnVpbGRpbmcgYW5kIHJ1bm5p
+bmcuLi4gICAwICAgICAgICAgICAgICAgICAgICAKcmVkaGF0LmNvbSAgIHJlZ2lzdHJ5LmFjY2Vz
+cy5yZWRoYXQuY29tL3Joc2NsLWJldGEvdGhlcm1vc3RhdC0xNi1hZ2VudC1yaGVsNyAgICAgICAg
+IFRoZXJtb3N0YXQgMS42IGFnZW50IHN1aXRhYmxlIGZvciBtb25pdG9yaS4uLiAgIDAgICAgICAg
+ICAgICAgICAgICAgIApyZWRoYXQuY29tICAgcmVnaXN0cnkuYWNjZXNzLnJlZGhhdC5jb20vcmhz
+Y2wtYmV0YS90aGVybW9zdGF0LTE2LXN0b3JhZ2UtcmhlbDcgICAgICAgVGhlcm1vc3RhdCAxLjYg
+c3RvcmFnZSBmb3IgZGF0YSBjb2xsZWN0ZWQgLi4uICAgMCAgICAgICAgICAgICAgICAgICAgCnJl
+ZGhhdC5jb20gICByZWdpc3RyeS5hY2Nlc3MucmVkaGF0LmNvbS9yaHNjbC9kZXZ0b29sc2V0LTQt
+cGVyZnRvb2xzLXJoZWw3ICAgICAgICAgICBEZXZlbG9wZXIgdG9vbHNldCBwZXJmdG9vbHMgICAg
+ICAgICAgICAgICAgICAgICAwICAgICAgICAgICAgICAgICAgICAKcmVkaGF0LmNvbSAgIHJlZ2lz
+dHJ5LmFjY2Vzcy5yZWRoYXQuY29tL3Joc2NsL2RldnRvb2xzZXQtNC10b29sY2hhaW4tcmhlbDcg
+ICAgICAgICAgIERldmVsb3BlciB0b29sc2V0IHRvb2xjaGFpbiAgICAgICAgICAgICAgICAgICAg
+IDAgICAgICAgICAgICAgICAgICAgIApyZWRoYXQuY29tICAgcmVnaXN0cnkuYWNjZXNzLnJlZGhh
+dC5jb20vcmhzY2wvZGV2dG9vbHNldC02LXBlcmZ0b29scy1yaGVsNyAgICAgICAgICAgVGhpcyBp
+cyBhIGRldnRvb2xzZXQtNi1wZXJmdG9vbHMgYmFzZSBpbWFnZS4gICAgMCAgICAgICAgICAgICAg
+ICAgICAgCnJlZGhhdC5jb20gICByZWdpc3RyeS5hY2Nlc3MucmVkaGF0LmNvbS9yaHNjbC9kZXZ0
+b29sc2V0LTYtdG9vbGNoYWluLXJoZWw3ICAgICAgICAgICBUaGlzIGlzIGEgZGV2dG9vbHNldC02
+LXRvb2xjaGFpbiBiYXNlIGltYWdlLiAgICAwICAgICAgICAgICAgICAgICAgICAKcmVkaGF0LmNv
+bSAgIHJlZ2lzdHJ5LmFjY2Vzcy5yZWRoYXQuY29tL3Joc2NsL2h0dHBkLTI0LXJoZWw3ICAgICAg
+ICAgICAgICAgICAgICAgICAgIEFwYWNoZSBIVFRQIDIuNCBTZXJ2ZXIgICAgICAgICAgICAgICAg
+ICAgICAgICAgIDAgICAgICAgICAgICAgICAgICAgIApyZWRoYXQuY29tICAgcmVnaXN0cnkuYWNj
+ZXNzLnJlZGhhdC5jb20vcmhzY2wvbWFyaWFkYi0xMDAtcmhlbDcgICAgICAgICAgICAgICAgICAg
+ICAgTWFyaWFEQiAxMC4wIFNRTCBkYXRhYmFzZSBzZXJ2ZXIgICAgICAgICAgICAgICAgMCAgICAg
+ICAgICAgICAgICAgICAgCnJlZGhhdC5jb20gICByZWdpc3RyeS5hY2Nlc3MucmVkaGF0LmNvbS9y
+aHNjbC9tYXJpYWRiLTEwMS1yaGVsNyAgICAgICAgICAgICAgICAgICAgICBNYXJpYURCIHNlcnZl
+ciAxMC4xIGZvciBPcGVuU2hpZnQgYW5kIGdlbmUuLi4gICAwICAgICAgICAgICAgICAgICAgICAK
+cmVkaGF0LmNvbSAgIHJlZ2lzdHJ5LmFjY2Vzcy5yZWRoYXQuY29tL3Joc2NsL21vbmdvZGItMjYt
+cmhlbDcgICAgICAgICAgICAgICAgICAgICAgIE1vbmdvREIgMi42IE5vU1FMIGRhdGFiYXNlIHNl
+cnZlciAgICAgICAgICAgICAgIDAgICAgICAgICAgICAgICAgICAgIApyZWRoYXQuY29tICAgcmVn
+aXN0cnkuYWNjZXNzLnJlZGhhdC5jb20vcmhzY2wvbW9uZ29kYi0zMi1yaGVsNyAgICAgICAgICAg
+ICAgICAgICAgICAgTW9uZ29EQiBzZXJ2ZXIgMy4yIGZvciBPcGVuU2hpZnQgYW5kIGdlbmVyLi4u
+ICAgMCAgICAgICAgICAgICAgICAgICAgCnJlZGhhdC5jb20gICByZWdpc3RyeS5hY2Nlc3MucmVk
+aGF0LmNvbS9yaHNjbC9teXNxbC01Ni1yaGVsNyAgICAgICAgICAgICAgICAgICAgICAgICBNeVNR
+TCA1LjYgU1FMIGRhdGFiYXNlIHNlcnZlciAgICAgICAgICAgICAgICAgICAwICAgICAgICAgICAg
+ICAgICAgICAKcmVkaGF0LmNvbSAgIHJlZ2lzdHJ5LmFjY2Vzcy5yZWRoYXQuY29tL3Joc2NsL215
+c3FsLTU3LXJoZWw3ICAgICAgICAgICAgICAgICAgICAgICAgIERvY2tlciBpbWFnZSBmb3IgcnVu
+bmluZyBNeVNRTCA1Ljcgc2VydmVyLi4uLiAgIDAgICAgICAgICAgICAgICAgICAgIApyZWRoYXQu
+Y29tICAgcmVnaXN0cnkuYWNjZXNzLnJlZGhhdC5jb20vcmhzY2wvbmdpbngtMTYtcmhlbDcgICAg
+ICAgICAgICAgICAgICAgICAgICAgTmdpbnggMS42IHNlcnZlciBhbmQgYSByZXZlcnNlIHByb3h5
+IHNlcnZlciAgICAgMCAgICAgICAgICAgICAgICAgICAgCnJlZGhhdC5jb20gICByZWdpc3RyeS5h
+Y2Nlc3MucmVkaGF0LmNvbS9yaHNjbC9uZ2lueC0xOC1yaGVsNyAgICAgICAgICAgICAgICAgICAg
+ICAgICBOZ2lueCAxLjggc2VydmVyIGFuZCBhIHJldmVyc2UgcHJveHkgc2VydmVyICAgICAwICAg
+ICAgICAgICAgICAgICAgICAKcmVkaGF0LmNvbSAgIHJlZ2lzdHJ5LmFjY2Vzcy5yZWRoYXQuY29t
+L3Joc2NsL25vZGVqcy00LXJoZWw3ICAgICAgICAgICAgICAgICAgICAgICAgIE5vZGUuanMgNCBw
+bGF0Zm9ybSBmb3IgYnVpbGRpbmcgYW5kIHJ1bm5pbi4uLiAgIDAgICAgICAgICAgICAgICAgICAg
+IApyZWRoYXQuY29tICAgcmVnaXN0cnkuYWNjZXNzLnJlZGhhdC5jb20vcmhzY2wvcGFzc2VuZ2Vy
+LTQwLXJoZWw3ICAgICAgICAgICAgICAgICAgICAgUGh1c2lvbiBQYXNzZW5nZXLCriAzLjAgd2Vi
+IHNlcnZlciBhbmQgYXBwbC4uLiAgIDAgICAgICAgICAgICAgICAgICAgIApyZWRoYXQuY29tICAg
+cmVnaXN0cnkuYWNjZXNzLnJlZGhhdC5jb20vcmhzY2wvcGVybC01MjAtcmhlbDcgICAgICAgICAg
+ICAgICAgICAgICAgICAgUGVybCA1LjIwIHBsYXRmb3JtIGZvciBidWlsZGluZyBhbmQgcnVubmlu
+Li4uICAgMCAgICAgICAgICAgICAgICAgICAgCnJlZGhhdC5jb20gICByZWdpc3RyeS5hY2Nlc3Mu
+cmVkaGF0LmNvbS9yaHNjbC9wZXJsLTUyNC1yaGVsNyAgICAgICAgICAgICAgICAgICAgICAgICBQ
+bGF0Zm9ybSBmb3IgYnVpbGRpbmcgYW5kIHJ1bm5pbmcgUGVybCA1LjIuLi4gICAwICAgICAgICAg
+ICAgICAgICAgICAKcmVkaGF0LmNvbSAgIHJlZ2lzdHJ5LmFjY2Vzcy5yZWRoYXQuY29tL3Joc2Ns
+L3BocC01Ni1yaGVsNyAgICAgICAgICAgICAgICAgICAgICAgICAgIFBIUCA1LjYgcGxhdGZvcm0g
+Zm9yIGJ1aWxkaW5nIGFuZCBydW5uaW5nIC4uLiAgIDAgICAgICAgICAgICAgICAgICAgIApyZWRo
+YXQuY29tICAgcmVnaXN0cnkuYWNjZXNzLnJlZGhhdC5jb20vcmhzY2wvcGhwLTcwLXJoZWw3ICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgUEhQIDcuMCBwbGF0Zm9ybSBmb3IgYnVpbGRpbmcgYW5k
+IHJ1bm5pbmcgLi4uICAgMCAgICAgICAgICAgICAgICAgICAgCnJlZGhhdC5jb20gICByZWdpc3Ry
+eS5hY2Nlc3MucmVkaGF0LmNvbS9yaHNjbC9wb3N0Z3Jlc3FsLTk0LXJoZWw3ICAgICAgICAgICAg
+ICAgICAgICBQb3N0Z3JlU1FMIDkuNCBTUUwgZGF0YWJhc2Ugc2VydmVyICAgICAgICAgICAgICAw
+ICAgICAgICAgICAgICAgICAgICAKcmVkaGF0LmNvbSAgIHJlZ2lzdHJ5LmFjY2Vzcy5yZWRoYXQu
+Y29tL3Joc2NsL3Bvc3RncmVzcWwtOTUtcmhlbDcgICAgICAgICAgICAgICAgICAgIFBvc3RncmVT
+UUwgc2VydmVyIDkuNSBmb3IgT3BlblNoaWZ0IGFuZCBnZS4uLiAgIDAgICAgICAgICAgICAgICAg
+ICAgIApyZWRoYXQuY29tICAgcmVnaXN0cnkuYWNjZXNzLnJlZGhhdC5jb20vcmhzY2wvcHl0aG9u
+LTI3LXJoZWw3ICAgICAgICAgICAgICAgICAgICAgICAgUHl0aG9uIDIuNyBwbGF0Zm9ybSBmb3Ig
+YnVpbGRpbmcgYW5kIHJ1bm5pLi4uICAgMCAgICAgICAgICAgICAgICAgICAgCnJlZGhhdC5jb20g
+ICByZWdpc3RyeS5hY2Nlc3MucmVkaGF0LmNvbS9yaHNjbC9weXRob24tMzQtcmhlbDcgICAgICAg
+ICAgICAgICAgICAgICAgICBQeXRob24gMy40IHBsYXRmb3JtIGZvciBidWlsZGluZyBhbmQgcnVu
+bmkuLi4gICAwICAgICAgICAgICAgICAgICAgICAKcmVkaGF0LmNvbSAgIHJlZ2lzdHJ5LmFjY2Vz
+cy5yZWRoYXQuY29tL3Joc2NsL3B5dGhvbi0zNS1yaGVsNyAgICAgICAgICAgICAgICAgICAgICAg
+IFB5dGhvbiAzLjUgcGxhdGZvcm0gZm9yIGJ1aWxkaW5nIGFuZCBydW5uaS4uLiAgIDAgICAgICAg
+ICAgICAgICAgICAgIApyZWRoYXQuY29tICAgcmVnaXN0cnkuYWNjZXNzLnJlZGhhdC5jb20vcmhz
+Y2wvcmVkaXMtMzItcmhlbDcgICAgICAgICAgICAgICAgICAgICAgICAgUmVkaXMgaW4tbWVtb3J5
+IGRhdGEgc3RydWN0dXJlIHN0b3JlLCB1c2VkLi4uICAgMCAgICAgICAgICAgICAgICAgICAgCnJl
+ZGhhdC5jb20gICByZWdpc3RyeS5hY2Nlc3MucmVkaGF0LmNvbS9yaHNjbC9yb3ItNDEtcmhlbDcg
+ICAgICAgICAgICAgICAgICAgICAgICAgICBQbGF0Zm9ybSBmb3IgYnVpbGRpbmcgYW5kIHJ1bm5p
+bmcgUnVieSBvbiAuLi4gICAwICAgICAgICAgICAgICAgICAgICAKcmVkaGF0LmNvbSAgIHJlZ2lz
+dHJ5LmFjY2Vzcy5yZWRoYXQuY29tL3Joc2NsL3Jvci00Mi1yaGVsNyAgICAgICAgICAgICAgICAg
+ICAgICAgICAgIFJ1Ynkgb24gUmFpbHMgNC4yIHBsYXRmb3JtIGZvciBidWlsZGluZyBhbi4uLiAg
+IDAgICAgICAgICAgICAgICAgICAgIApyZWRoYXQuY29tICAgcmVnaXN0cnkuYWNjZXNzLnJlZGhh
+dC5jb20vcmhzY2wvcnVieS0yMi1yaGVsNyAgICAgICAgICAgICAgICAgICAgICAgICAgUnVieSAy
+LjIgcGxhdGZvcm0gZm9yIGJ1aWxkaW5nIGFuZCBydW5uaW5nLi4uICAgMCAgICAgICAgICAgICAg
+ICAgICAgCnJlZGhhdC5jb20gICByZWdpc3RyeS5hY2Nlc3MucmVkaGF0LmNvbS9yaHNjbC9ydWJ5
+LTIzLXJoZWw3ICAgICAgICAgICAgICAgICAgICAgICAgICBSdWJ5IDIuMyBwbGF0Zm9ybSBmb3Ig
+YnVpbGRpbmcgYW5kIHJ1bm5pbmcuLi4gICAwICAgICAgICAgICAgICAgICAgICAKcmVkaGF0LmNv
+bSAgIHJlZ2lzdHJ5LmFjY2Vzcy5yZWRoYXQuY29tL3Joc2NsL3MyaS1iYXNlLXJoZWw3ICAgICAg
+ICAgICAgICAgICAgICAgICAgIEJhc2UgaW1hZ2UgZGVsaXZlcnMgYWxsIHRoZSBlc3NlbnRpYWwg
+bGlici4uLiAgIDAgICAgICAgICAgICAgICAgICAgIApyZWRoYXQuY29tICAgcmVnaXN0cnkuYWNj
+ZXNzLnJlZGhhdC5jb20vcmhzY2wvdGhlcm1vc3RhdC0xLWFnZW50LXJoZWw3ICAgICAgICAgICAg
+ICAgVGhlcm1vc3RhdCBBZ2VudCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMCAgICAg
+ICAgICAgICAgICAgICAgCnJlZGhhdC5jb20gICByZWdpc3RyeS5hY2Nlc3MucmVkaGF0LmNvbS9y
+aHNjbC90aGVybW9zdGF0LTE2LWFnZW50LXJoZWw3ICAgICAgICAgICAgICBUaGVybW9zdGF0IDEu
+NiBhZ2VudCBzdWl0YWJsZSBmb3IgbW9uaXRvcmkuLi4gICAwICAgICAgICAgICAgICAgICAgICAK
+cmVkaGF0LmNvbSAgIHJlZ2lzdHJ5LmFjY2Vzcy5yZWRoYXQuY29tL3Joc2NsL3RoZXJtb3N0YXQt
+MTYtc3RvcmFnZS1yaGVsNyAgICAgICAgICAgIFRoZXJtb3N0YXQgMS42IHN0b3JhZ2UgZm9yIGRh
+dGEgY29sbGVjdGVkIC4uLiAgIDAgICAgICAgICAgICAgICAgICAgIApyZWRoYXQuY29tICAgcmVn
+aXN0cnkuYWNjZXNzLnJlZGhhdC5jb20vcmhzY2wvdmFybmlzaC00LXJoZWw3ICAgICAgICAgICAg
+ICAgICAgICAgICAgVmFybmlzaCA0IGhpZ2gtcGVyZm9ybWFuY2UgSFRUUCBhY2NlbGVyYXRvciAg
+ICAgMCAgICAgICAgICAgICAgICAgICAgCnJlZGhhdC5jb20gICByaGVsNy4zLWJldGEvcmhlbDcu
+MyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBUaGlz
+IHBsYXRmb3JtIGltYWdlIHByb3ZpZGVzIGEgbWluaW1hbCBydW4uLi4gICAwICAgICAgICAgICAg
+ICAgICAgICAKcmVkaGF0LmNvbSAgIHJodjQuMS1iZXRhL292aXJ0LWd1ZXN0LWFnZW50ICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFRoZSBvdmlydC1ndWVzdC1hZ2Vu
+dCBpcyBwcm92aWRpbmcgaW5mb3JtYS4uLiAgIDAgICAgICAgICAgICAgICAgICAgIAo=
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1353911</bug_id>
+          
+          <creation_ts>2016-07-08 07:49:00 -0400</creation_ts>
+          <short_desc>audisp writes bogus lines to its plugins</short_desc>
+          <delta_ts>2016-08-01 09:10:42 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>audit</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>CURRENTRELEASE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords>Reopened</keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>1352611</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Marius Vollmer">mvollmer</reporter>
+          <assigned_to name="Steve Grubb">sgrubb</assigned_to>
+          <cc>omoris</cc>
+    
+    
+    <cc>plautrba</cc>
+    
+    
+    <cc>sgrubb</cc>
+    
+    
+    <cc>stefw</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>audit-2.6.5-1.fc24 audit-2.6.5-1.fc23</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-08-01 09:10:28</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9490780</commentid>
+    <comment_count>0</comment_count>
+    <who name="Marius Vollmer">mvollmer</who>
+    <bug_when>2016-07-08 07:49:52 -0400</bug_when>
+    <thetext>Description of problem:
+
+audisp writes lines to its plugins that auparse will reject.  This causes sedispatch to miss all alerts.
+
+
+Version-Release number of selected component (if applicable):
+audit-2.6.2-1.fc24.x86_64
+
+How reproducible:
+Always
+
+Steps to Reproduce:
+
+Listen to what audispd writes.
+# strace -e write -s100 -p $(pgrep audispd)
+
+Create some AVCs
+# setenforce 1
+# mkdir xxx
+# cd xxx
+# cp /usr/bin/ls ls
+# chcon -t httpd_exec_t ls
+# runcon -u system_u -r system_r -t httpd_t -- ./ls  /home/*
+
+Actual results:
+
+write(6, &quot;node=localhost.localdomain type=AVC msg=type=AVC msg=audit(1467977545.048:251): avc:  denied  { read&quot;..., 288) = 288
+write(6, &quot;node=localhost.localdomain type=AVC msg=type=AVC msg=audit(1467977545.050:252): avc:  denied  { read&quot;..., 291) = 291
+
+Note the &quot;msg=type=AVC&quot; part.  It looks like &quot;type=AVC msg=&quot; is repeated.
+
+Expected results:
+
+write(6, &quot;node=localhost.localdomain type=AVC msg=audit(1467978365.390:231): avc:  denied  { read } for  pid=1&quot;..., 275) = 275
+write(6, &quot;node=localhost.localdomain type=AVC msg=audit(1467978365.392:232): avc:  denied  { read } for  pid=1&quot;..., 277) = 277
+
+This is what I get with audit-2.5.2-1.fc24.x86_64.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9490921</commentid>
+    <comment_count>1</comment_count>
+    <who name="Marius Vollmer">mvollmer</who>
+    <bug_when>2016-07-08 08:35:09 -0400</bug_when>
+    <thetext>Setting &quot;log_format = ENRICHED&quot; in /etc/auditd.conf seems to fix this.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9490932</commentid>
+    <comment_count>2</comment_count>
+    <who name="Ondrej Moriš">omoris</who>
+    <bug_when>2016-07-08 08:39:48 -0400</bug_when>
+    <thetext>It should work with both RAW and ENRICHED.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9490943</commentid>
+    <comment_count>3</comment_count>
+    <who name="Marius Vollmer">mvollmer</who>
+    <bug_when>2016-07-08 08:43:03 -0400</bug_when>
+    <thetext>&gt; It should work with both RAW and ENRICHED.
+
+Yes, but it&apos;s broken with RAW.  Or are you saying that you can&apos;t reproduce the bug?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9490999</commentid>
+    <comment_count>4</comment_count>
+    <who name="Ondrej Moriš">omoris</who>
+    <bug_when>2016-07-08 09:04:53 -0400</bug_when>
+    <thetext>(In reply to Marius Vollmer from comment #3)
+&gt; &gt; It should work with both RAW and ENRICHED.
+&gt; 
+&gt; Yes, but it&apos;s broken with RAW.  Or are you saying that you can&apos;t reproduce
+&gt; the bug?
+
+No, no, I just wanted to say that it is still a bug even though it works with ENRICHED. I can reproduce it with 2.6.2-3.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9491009</commentid>
+    <comment_count>5</comment_count>
+    <who name="Marius Vollmer">mvollmer</who>
+    <bug_when>2016-07-08 09:08:33 -0400</bug_when>
+    <thetext>(In reply to Ondrej Moriš from comment #4)
+ 
+&gt; No, no, I just wanted to say that it is still a bug even though it works
+&gt; with ENRICHED. I can reproduce it with 2.6.2-3.
+
+Ahh, sorry for not reading carefully enough.  Great that you can reproduce it!</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9491285</commentid>
+    <comment_count>6</comment_count>
+    <who name="Steve Grubb">sgrubb</who>
+    <bug_when>2016-07-08 10:40:11 -0400</bug_when>
+    <thetext>This is fixed in upstream commit 1335. I will be doing an audit package release today. This should be in rawhide soon after.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9491620</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-08 12:45:24 -0400</bug_when>
+    <thetext>audit-2.6.4-1.fc23 has been submitted as an update to Fedora 23. https://bodhi.fedoraproject.org/updates/FEDORA-2016-939e4bf1ee</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9491621</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-08 12:45:30 -0400</bug_when>
+    <thetext>audit-2.6.4-1.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-e6aad21df2</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9491960</commentid>
+    <comment_count>9</comment_count>
+    <who name="Stef Walter">stefw</who>
+    <bug_when>2016-07-08 15:15:43 -0400</bug_when>
+    <thetext>This issue was caught by Cockpit integration tests. One can see it occurs here: https://github.com/cockpit-project/cockpit/issues/4678</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9492012</commentid>
+    <comment_count>10</comment_count>
+    <who name="Steve Grubb">sgrubb</who>
+    <bug_when>2016-07-08 16:02:59 -0400</bug_when>
+    <thetext>There is still a problem in audispd. I&apos;ll respin the package with a patch when I solve the new problem.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9493130</commentid>
+    <comment_count>11</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-08 18:23:35 -0400</bug_when>
+    <thetext>audit-2.6.4-2.fc23 has been submitted as an update to Fedora 23. https://bodhi.fedoraproject.org/updates/FEDORA-2016-e92dd01965</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9493131</commentid>
+    <comment_count>12</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-08 18:23:41 -0400</bug_when>
+    <thetext>audit-2.6.4-2.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-b2a627d294</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9494012</commentid>
+    <comment_count>13</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-09 23:52:26 -0400</bug_when>
+    <thetext>audit-2.6.4-2.fc23 has been pushed to the Fedora 23 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-e92dd01965</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9494501</commentid>
+    <comment_count>14</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-10 11:57:41 -0400</bug_when>
+    <thetext>audit-2.6.4-2.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-b2a627d294</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9500237</commentid>
+    <comment_count>15</comment_count>
+    <who name="Petr Lautrbach">plautrba</who>
+    <bug_when>2016-07-12 02:54:48 -0400</bug_when>
+    <thetext>audit-2.6.4-2.fc24.x86_64 still generates malformed events with &quot;msg=type=AVC&quot; field when log_format is RAW</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9507680</commentid>
+    <comment_count>16</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-13 23:53:25 -0400</bug_when>
+    <thetext>audit-2.6.4-2.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9511861</commentid>
+    <comment_count>17</comment_count>
+    <who name="Marius Vollmer">mvollmer</who>
+    <bug_when>2016-07-15 04:00:54 -0400</bug_when>
+    <thetext>(In reply to Petr Lautrbach from comment #15)
+&gt; audit-2.6.4-2.fc24.x86_64 still generates malformed events with
+&gt; &quot;msg=type=AVC&quot; field when log_format is RAW
+
+I can confirm this.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9512253</commentid>
+    <comment_count>18</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-15 06:23:09 -0400</bug_when>
+    <thetext>audit-2.6.4-2.fc23 has been pushed to the Fedora 23 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9512805</commentid>
+    <comment_count>19</comment_count>
+    <who name="Steve Grubb">sgrubb</who>
+    <bug_when>2016-07-15 09:05:10 -0400</bug_when>
+    <thetext>Please test with audit-2.6.5-1 which is now in Fedora 24 updates-testing.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9572844</commentid>
+    <comment_count>20</comment_count>
+    <who name="Steve Grubb">sgrubb</who>
+    <bug_when>2016-08-01 08:19:32 -0400</bug_when>
+    <thetext>Any objections to closing this? Setroubleshoot should be working now.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9572863</commentid>
+    <comment_count>21</comment_count>
+    <who name="Petr Lautrbach">plautrba</who>
+    <bug_when>2016-08-01 08:25:18 -0400</bug_when>
+    <thetext>Works for me.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9573024</commentid>
+    <comment_count>22</comment_count>
+    <who name="Ondrej Moriš">omoris</who>
+    <bug_when>2016-08-01 08:59:42 -0400</bug_when>
+    <thetext>Successfully verified.
+
+# rpm -q audit
+audit-2.6.5-1.fc24.x86_64
+# setenforce 1
+# mkdir xxx
+# cd xxx
+# cp /usr/bin/ls ls
+# chcon -t httpd_exec_t ls
+# strace -e all  -s100 -p $(pgrep audispd) &gt;out 2&gt;&amp;1 &amp;
+[1] 2307
+# runcon -u system_u -r system_r -t httpd_t -- ./ls  /home/
+# cat out 
+strace: Process 2180 attached
+futex(0x55e33046b124, FUTEX_WAIT_PRIVATE, 51, NULL) = 0
+futex(0x55e33046b160, FUTEX_WAKE_PRIVATE, 1) = 0
+sendto(5, &quot;&lt;14&gt;Aug  1 08:54:57 audispd: node=intentionally_deleted type=AVC msg=audit(1470056097.645&quot;..., 300, MSG_NOSIGNAL, NULL, 0) = 300
+futex(0x55e33046b124, FUTEX_WAIT_PRIVATE, 53, NULL</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9573071</commentid>
+    <comment_count>23</comment_count>
+    <who name="Steve Grubb">sgrubb</who>
+    <bug_when>2016-08-01 09:10:28 -0400</bug_when>
+    <thetext>Thanks for reporting the issue and your patience.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

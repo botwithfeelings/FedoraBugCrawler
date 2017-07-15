@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1409130</bug_id>
+          
+          <creation_ts>2016-12-29 12:48:00 -0500</creation_ts>
+          <short_desc>SELinux is preventing rm from &apos;remove_name&apos; accesses on the directory rfkill-saved.</short_desc>
+          <delta_ts>2017-01-11 02:24:45 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>selinux-policy</component>
+          <version>25</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard>abrt_hash:7431235c3eae033744fe0f0859df4b83000743ec41d4c36826cc1375bad39e94;</status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="GS">gvs234</reporter>
+          <assigned_to name="Lukas Vrabec">lvrabec</assigned_to>
+          <cc>dominick.grift</cc>
+    
+    
+    <cc>dwalsh</cc>
+    
+    
+    <cc>lvrabec</cc>
+    
+    
+    <cc>mgrepl</cc>
+    
+    
+    <cc>plautrba</cc>
+    
+    
+    <cc>pmoore</cc>
+    
+    
+    <cc>ssekidde</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>selinux-policy-3.13.1-225.6.fc25</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-01-11 02:24:45</cf_last_closed>
+          <cf_type>---</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10024436</commentid>
+    <comment_count>0</comment_count>
+    <who name="GS">gvs234</who>
+    <bug_when>2016-12-29 12:48:15 -0500</bug_when>
+    <thetext>Description of problem:
+SELinux is preventing rm from &apos;remove_name&apos; accesses on the directory rfkill-saved.
+
+*****  Plugin catchall_labels (83.8 confidence) suggests   *******************
+
+If you want to allow rm to have remove_name access on the rfkill-saved directory
+Then you need to change the label on rfkill-saved
+Do
+# semanage fcontext -a -t FILE_TYPE &apos;rfkill-saved&apos;
+where FILE_TYPE is one of the following: sysfs_t, tlp_var_run_t, var_run_t.
+Then execute:
+restorecon -v &apos;rfkill-saved&apos;
+
+
+*****  Plugin catchall (17.1 confidence) suggests   **************************
+
+If you believe that rm should be allowed remove_name access on the rfkill-saved directory by default.
+Then you should report this as a bug.
+You can generate a local policy module to allow this access.
+Do
+allow this access for now by executing:
+# ausearch -c &apos;rm&apos; --raw | audit2allow -M my-rm
+# semodule -X 300 -i my-rm.pp
+
+Additional Information:
+Source Context                system_u:system_r:tlp_t:s0
+Target Context                system_u:object_r:var_lib_t:s0
+Target Objects                rfkill-saved [ dir ]
+Source                        rm
+Source Path                   rm
+Port                          &lt;Unknown&gt;
+Host                          (removed)
+Source RPM Packages           
+Target RPM Packages           
+Policy RPM                    selinux-policy-3.13.1-225.3.fc25.noarch
+Selinux Enabled               True
+Policy Type                   targeted
+Enforcing Mode                Enforcing
+Host Name                     (removed)
+Platform                      Linux (removed) 4.8.15-300.fc25.x86_64 #1 SMP Thu
+                              Dec 15 23:10:23 UTC 2016 x86_64 x86_64
+Alert Count                   1
+First Seen                    2016-12-29 12:33:48 EST
+Last Seen                     2016-12-29 12:33:48 EST
+Local ID                      f0a6cf5c-3c9f-4887-8ce4-9fbb3ffb8dd2
+
+Raw Audit Messages
+type=AVC msg=audit(1483032828.815:139): avc:  denied  { remove_name } for  pid=1295 comm=&quot;rm&quot; name=&quot;rfkill-saved&quot; dev=&quot;dm-1&quot; ino=3030211 scontext=system_u:system_r:tlp_t:s0 tcontext=system_u:object_r:var_lib_t:s0 tclass=dir permissive=1
+
+
+Hash: rm,tlp_t,var_lib_t,dir,remove_name
+
+Version-Release number of selected component:
+selinux-policy-3.13.1-225.3.fc25.noarch
+
+Additional info:
+reporter:       libreport-2.8.0
+hashmarkername: setroubleshoot
+kernel:         4.8.15-300.fc25.x86_64
+type:           libreport</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10043515</commentid>
+    <comment_count>1</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-08 17:23:57 -0500</bug_when>
+    <thetext>selinux-policy-3.13.1-225.6.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-66d634473a</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10047686</commentid>
+    <comment_count>2</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-09 22:26:36 -0500</bug_when>
+    <thetext>selinux-policy-3.13.1-225.6.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-66d634473a</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10051681</commentid>
+    <comment_count>3</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-11 02:24:45 -0500</bug_when>
+    <thetext>selinux-policy-3.13.1-225.6.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

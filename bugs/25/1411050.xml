@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1411050</bug_id>
+          
+          <creation_ts>2017-01-07 16:16:00 -0500</creation_ts>
+          <short_desc>sudo NOEXEC broken in F25</short_desc>
+          <delta_ts>2017-05-22 04:00:16 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>sudo</component>
+          <version>25</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>CURRENTRELEASE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords>Triaged</keywords>
+          <priority>unspecified</priority>
+          <bug_severity>high</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Citadel">bugzilla</reporter>
+          <assigned_to name="Tomas Sykora">tosykora</assigned_to>
+          <cc>bugzilla</cc>
+    
+    
+    <cc>dkopecek</cc>
+    
+    
+    <cc>kzak</cc>
+    
+    
+    <cc>rsroka</cc>
+    
+    
+    <cc>tosykora</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-05-22 04:00:16</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10042697</commentid>
+    <comment_count>0</comment_count>
+    <who name="Citadel">bugzilla</who>
+    <bug_when>2017-01-07 16:16:24 -0500</bug_when>
+    <thetext>Description of problem:
+The NOEXEC tag causes less (and probably other commands) to fail in sudo.
+
+Version-Release number of selected component (if applicable):
+sudo-1.8.18p1-1.fc25.x86_64
+
+How reproducible:
+100%
+
+Steps to Reproduce:
+1. Add the following entry to sudoers, replacing username, hostname, and /some/restricted/file as appropriate.
+  username hostname=(root) NOEXEC: NOPASSWD: /usr/bin/less /some/restricted/file
+2. As user &quot;username&quot;, run
+  sudo /usr/bin/less /some/restricted/file
+
+Actual results:
+/usr/bin/less: symbol lookup error: /usr/libexec/sudo/sudo_noexec.so: undefined symbol: dlsym
+
+Expected results:
+less should run, viewing /some/restricted/file
+
+Additional info:
+This appears to be related to https://bugzilla.redhat.com/show_bug.cgi?id=1384982</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10170657</commentid>
+    <comment_count>1</comment_count>
+    <who name="Tomas Sykora">tosykora</who>
+    <bug_when>2017-02-21 07:46:12 -0500</bug_when>
+    <thetext>Hi,
+
+I used your reproducer:
+foo localhost=(root) NOEXEC: NOPASSWD: /usr/bin/less /home/foo/test
+
+where /home/foo/test is an ordinary file. I could not reproduce it. What did you mean by a restricted file? Must it be something special? less command normally worked for me.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10187258</commentid>
+    <comment_count>2</comment_count>
+    <who name="Citadel">bugzilla</who>
+    <bug_when>2017-02-27 10:47:48 -0500</bug_when>
+    <thetext>By restricted file, I just mean a file that only root can access (owned by root, only readable by owner).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10197888</commentid>
+    <comment_count>3</comment_count>
+    <who name="Tomas Sykora">tosykora</who>
+    <bug_when>2017-03-01 10:17:44 -0500</bug_when>
+    <thetext>I still can&apos;t reproduce it. But, from the upstream changelog: &quot;Need to link sudo_noexec.so with -ldl for dlsym() on some platforms. Otherwise, the wordexp(3) wrapper will fail due to an undefined symbol.&quot; It seems that could be the issue. 
+
+And the upstream commit in sudo 1.8.19: https://www.sudo.ws/repos/sudo/rev/120a317ce25b</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10376432</commentid>
+    <comment_count>4</comment_count>
+    <who name="Citadel">bugzilla</who>
+    <bug_when>2017-05-01 10:42:12 -0400</bug_when>
+    <thetext>Why is this flagged as needinfo?  I do not see a new question since the last one that I answered.
+
+I have no idea why you cannot reproduce this.  Are you certain that you are testing sudo-1.8.18p1-1.fc25.x86_64?  I just tried the latest Fedora 25 package (sudo-1.8.19p2-1.fc25.x86_64) and the problem is fixed.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10432431</commentid>
+    <comment_count>5</comment_count>
+    <who name="Daniel Kopeček">dkopecek</who>
+    <bug_when>2017-05-22 04:00:16 -0400</bug_when>
+    <thetext>(In reply to Citadel from comment #4)
+&gt; Why is this flagged as needinfo?  I do not see a new question since the last
+&gt; one that I answered.
+&gt; 
+&gt; I have no idea why you cannot reproduce this.  Are you certain that you are
+&gt; testing sudo-1.8.18p1-1.fc25.x86_64?  I just tried the latest Fedora 25
+&gt; package (sudo-1.8.19p2-1.fc25.x86_64) and the problem is fixed.
+
+Great, thanks for the info. Closing.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

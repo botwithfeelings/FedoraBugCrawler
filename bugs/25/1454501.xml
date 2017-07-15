@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1454501</bug_id>
+          
+          <creation_ts>2017-05-22 20:02:00 -0400</creation_ts>
+          <short_desc>MinGW CMake macro causes CPack packaging to fail.</short_desc>
+          <delta_ts>2017-06-02 10:40:52 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>mingw-filesystem</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>CURRENTRELEASE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Alex Puchades">alex94puchades</reporter>
+          <assigned_to name="Kalev Lember">klember</assigned_to>
+          <cc>alex94puchades</cc>
+    
+    
+    <cc>drizt</cc>
+    
+    
+    <cc>erik-fedora</cc>
+    
+    
+    <cc>extras-qa</cc>
+    
+    
+    <cc>hobbes1069</cc>
+    
+    
+    <cc>kalevlember</cc>
+    
+    
+    <cc>klember</cc>
+    
+    
+    <cc>rjones</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          <cf_clone_of>1152696</cf_clone_of>
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-06-02 10:40:52</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10437434</commentid>
+    <comment_count>0</comment_count>
+    <who name="Alex Puchades">alex94puchades</who>
+    <bug_when>2017-05-22 20:02:24 -0400</bug_when>
+    <thetext>I&apos;m running Fedora 25 and this bug is still present.
+
+$ rpm -q mingw64-filesystem
+mingw64-filesystem-101-1.fc25.noarch
+
++++ This bug was initially created as a clone of Bug #1152696 +++
+
+Description of problem:
+The mingw{32,64}-cmake command uses absolute paths to specify certain locations. If the cmake configuration honors these paths then it breaks CPack which does a fake install for packaging purposes.
+
+Version-Release number of selected component (if applicable):
+mingw32-filesystem-99-3.fc20.noarch
+
+Actual results:
+An error is generated:
+Run CPack packaging tool...
+/usr/bin/cpack --config ./CPackConfig.cmake
+CPack: Create package using NSIS
+CPack: Install projects
+CPack: - Run preinstall target for: codec2
+CPack: - Install project: codec2
+CMake Error at /home/build/mingw32/codec2/src/cmake_install.cmake:37 (message):
+  ABSOLUTE path INSTALL DESTINATION forbidden (by caller):
+  /usr/i686-w64-mingw32/sys-root/mingw/lib/libcodec2.dll.a
+
+Expected results:
+Package is created correctly.
+
+Additional info:
+The main problem seems to be CMAKE_INSTALL_LIBDIR...
+
+$ rpm -E %{mingw32_cmake}
+unset $(/usr/bin/env | egrep &apos;^(w+)=(.*)$&apos; | egrep -vw &apos;PWD|USER|LANG&apos; | /usr/bin/cut -d= -f1);
+  if test -z &quot;$PATH_ORIG&quot; ; then
+    PATH_ORIG=&quot;$PATH&quot;; export PATH_ORIG;
+  fi;
+  PATH=&quot;/usr/i686-w64-mingw32/sys-root/mingw/bin:$PATH_ORIG&quot;; export PATH;
+  HOST_CC=gcc; export HOST_CC;
+  unset PKG_CONFIG_PATH;
+  _PREFIX=&quot;/usr/bin/i686-w64-mingw32-&quot;;
+  for i in `ls -1 ${_PREFIX}* | grep -v &apos;gcc-&apos;`; do
+    x=`echo $i|sed &quot;s,${_PREFIX},,&quot;|tr &quot;a-z+-.&quot; &quot;A-ZX__&quot;`;
+    declare -x $x=&quot;$i&quot; ; export $x;
+  done;
+  unset _PREFIX;
+  CC=&quot;${MINGW32_CC:-i686-w64-mingw32-gcc}&quot;; export CC;
+  CFLAGS=&quot;${MINGW32_CFLAGS:- -O2 -g -pipe -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions --param=ssp-buffer-size=4}&quot;; export CFLAGS;
+  CPPFLAGS=&quot;${MINGW32_CPPFLAGS:-}&quot;; export CPPFLAGS;
+  if [ -x &quot;/usr/bin/i686-w64-mingw32-g++&quot; ]; then
+    CXX=&quot;${MINGW32_CXX:-i686-w64-mingw32-g++}&quot;; export CXX;
+    CXXFLAGS=&quot;${MINGW32_CXXFLAGS:- -O2 -g -pipe -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions --param=ssp-buffer-size=4}&quot;; export CXXFLAGS;
+  else
+    CXX=; export CXX;
+    ac_cv_prog_CXX=no; export ac_cv_prog_CXX;
+    CXXFLAGS=; export CXXFLAGS;
+  fi;
+  LDFLAGS=&quot;${MINGW32_LDFLAGS:-}&quot;; export LDFLAGS;
+  for i in `ls /usr/i686-w64-mingw32/sys-root/mingw/bin/*|grep -- &quot;-config$&quot;` ; do
+    x=`basename $i|tr &quot;a-z+-.&quot; &quot;A-ZX_&quot;`;
+    declare -x $x=&quot;$i&quot; ; export $x;
+  done;
+  unset x i ;
+  PKG_CONFIG_LIBDIR=&quot;/usr/i686-w64-mingw32/sys-root/mingw/lib/pkgconfig:/usr/i686-w64-mingw32/sys-root/mingw/share/pkgconfig&quot;; export PKG_CONFIG_LIBDIR;
+  if test -f CMakeLists.txt; then __mingw32_topdir=.; \
+  elif test -f ../CMakeLists.txt; then __mingw32_topdir=..; \
+  else __mingw32_topdir=&quot;&quot;; fi; \
+  PATH=/usr/i686-w64-mingw32/bin:$PATH /usr/bin/cmake \
+        -DCMAKE_VERBOSE_MAKEFILE=ON \
+        -DCMAKE_INSTALL_PREFIX:PATH=/usr/i686-w64-mingw32/sys-root/mingw \
+        -DCMAKE_INSTALL_LIBDIR:PATH=/usr/i686-w64-mingw32/sys-root/mingw/lib \
+        -DINCLUDE_INSTALL_DIR:PATH=/usr/i686-w64-mingw32/sys-root/mingw/include \
+        -DLIB_INSTALL_DIR:PATH=/usr/i686-w64-mingw32/sys-root/mingw/lib \
+        -DSYSCONF_INSTALL_DIR:PATH=/usr/i686-w64-mingw32/sys-root/mingw/etc \
+        -DSHARE_INSTALL_PREFIX:PATH=/usr/i686-w64-mingw32/sys-root/mingw/share \
+        -DCMAKE_SKIP_RPATH:BOOL=ON \
+        -DBUILD_SHARED_LIBS:BOOL=ON \
+        -DCMAKE_TOOLCHAIN_FILE=/usr/share/mingw/Toolchain-mingw32.cmake \
+        ${MINGW_CMAKE_ARGS} \
+        ${MINGW32_CMAKE_ARGS} \
+        &quot;$@&quot; $__mingw32_topdir
+
+--- Additional comment from Jaroslav Reznik on 2015-03-03 11:22:06 EST ---
+
+This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 22 development cycle.
+Changing version to &apos;22&apos;.
+
+More information and reason for this action is here:
+https://fedoraproject.org/wiki/Fedora_Program_Management/HouseKeeping/Fedora22
+
+--- Additional comment from Fedora Update System on 2015-04-11 16:33:55 EDT ---
+
+mingw-filesystem-100-1.fc22 has been submitted as an update for Fedora 22.
+https://admin.fedoraproject.org/updates/mingw-filesystem-100-1.fc22
+
+--- Additional comment from Fedora Update System on 2015-04-11 16:34:36 EDT ---
+
+mingw-filesystem-100-1.fc21 has been submitted as an update for Fedora 21.
+https://admin.fedoraproject.org/updates/mingw-filesystem-100-1.fc21
+
+--- Additional comment from Fedora Update System on 2015-04-11 16:35:07 EDT ---
+
+mingw-filesystem-100-1.fc20 has been submitted as an update for Fedora 20.
+https://admin.fedoraproject.org/updates/mingw-filesystem-100-1.fc20
+
+--- Additional comment from Fedora Update System on 2015-04-12 14:00:17 EDT ---
+
+Package mingw-filesystem-100-1.fc22:
+* should fix your issue,
+* was pushed to the Fedora 22 testing repository,
+* should be available at your local mirror within two days.
+Update it with:
+# su -c &apos;yum update --enablerepo=updates-testing mingw-filesystem-100-1.fc22&apos;
+as soon as you are able to.
+Please go to the following url:
+https://admin.fedoraproject.org/updates/FEDORA-2015-6042/mingw-filesystem-100-1.fc22
+then log in and leave karma (feedback).
+
+--- Additional comment from Fedora Update System on 2015-04-21 14:28:19 EDT ---
+
+mingw-filesystem-100-1.fc22 has been pushed to the Fedora 22 stable repository.  If problems still persist, please make note of it in this bug report.
+
+--- Additional comment from Fedora Update System on 2015-04-21 15:00:14 EDT ---
+
+mingw-filesystem-100-1.fc21 has been pushed to the Fedora 21 stable repository.  If problems still persist, please make note of it in this bug report.
+
+--- Additional comment from Fedora Update System on 2015-04-21 15:13:06 EDT ---
+
+mingw-filesystem-100-1.fc20 has been pushed to the Fedora 20 stable repository.  If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10472678</commentid>
+    <comment_count>1</comment_count>
+    <who name="Richard Shaw">hobbes1069</who>
+    <bug_when>2017-06-02 10:40:52 -0400</bug_when>
+    <thetext>For some reason the bodhi update wasn&apos;t set to close this bug?</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

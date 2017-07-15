@@ -1,0 +1,533 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1314633</bug_id>
+          
+          <creation_ts>2016-03-04 01:13:00 -0500</creation_ts>
+          <short_desc>man-db rpm script failed when installed with glibc-minimal-langpack</short_desc>
+          <delta_ts>2016-03-26 14:07:13 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>man-db</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords>Reopened</keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Yu Watanabe">watanabe.yu+redhat.bugzilla</reporter>
+          <assigned_to name="Nikola Forró">nforro</assigned_to>
+          <cc>cjwatson</cc>
+    
+    
+    <cc>jchaloup</cc>
+    
+    
+    <cc>nforro</cc>
+    
+    
+    <cc>watanabe.yu+redhat.bugzilla</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>man-db-2.7.5-3.fc24</cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-03-26 14:07:13</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9120206</commentid>
+    <comment_count>0</comment_count>
+    <who name="Yu Watanabe">watanabe.yu+redhat.bugzilla</who>
+    <bug_when>2016-03-04 01:13:08 -0500</bug_when>
+    <thetext>Description of problem:
+
+When install man-db with glibc-minimal-langpack, the rpm script (I guess it is %transfiletriggerin script) after the installation fail.
+
+The installation command I use is below.
+
+dnf --disablerepo=* --enablerepo=rawhide \
+    --installroot=/nfsroot/hoge -y install man-db glibc-minimal-langpack
+
+The above command outputs the following error message (The full output is attached).
+%%%%%%%%%%%%%%%%%%%%%%
+(...)
+  Installing  : man-db-2.7.5-2.fc24.x86_64                                50/50 
+/usr/sbin/convert-to-edition: line 163: grub2-mkconfig: command not found
+This system has been converted to non-edition
+/usr/bin/mandb: can&apos;t set the locale; make sure $LC_* and $LANG are correct
+  Verifying   : man-db-2.7.5-2.fc24.x86_64                                 1/50 
+(...)
+%%%%%%%%%%%%%%%%%%%%%%
+
+Note that the first error message is comes from fedora-release package&apos;s bug.
+If I install man-db with glibc-all-langpacks, the above error message is not shown.
+
+Version-Release number of selected component (if applicable):
+
+man-db-2.7.5-2.fc24.x86_64
+
+How reproducible:
+
+always
+
+Steps to Reproduce:
+1. install packages by using the above command.
+2.
+3.
+
+Actual results:
+
+Install finishes without error message.
+
+Expected results:
+
+Installation process shows the above error message.
+
+Additional info:</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9120266</commentid>
+    <comment_count>1</comment_count>
+      <attachid>1133045</attachid>
+    <who name="Yu Watanabe">watanabe.yu+redhat.bugzilla</who>
+    <bug_when>2016-03-04 01:53:46 -0500</bug_when>
+    <thetext>Created attachment 1133045
+install log of man-db with glibc-minimal-langpack</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9141865</commentid>
+    <comment_count>2</comment_count>
+    <who name="Nikola Forró">nforro</who>
+    <bug_when>2016-03-11 10:34:28 -0500</bug_when>
+    <thetext>Hello Yu,
+
+the message is actually just warning, not error. It doesn&apos;t affect anything and the %transfiletriggerin scriptlet finishes successfully.
+It is caused by the fact that LANG environment variable is set to a locale other than C or POSIX, while only these two locales are present with glibc-minimal-langpack installed.
+The warning can be suppressed either by explicitly setting LANG environment variable to C or POSIX, or by setting MAN_NO_LOCALE_WARNING variable.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9146522</commentid>
+    <comment_count>3</comment_count>
+    <who name="Nikola Forró">nforro</who>
+    <bug_when>2016-03-14 10:35:46 -0400</bug_when>
+    <thetext>Commit: http://pkgs.fedoraproject.org/cgit/rpms/man-db.git/commit/?id=98f13860c7089fe81942cf0cb1d702eba6c709bf</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9147796</commentid>
+    <comment_count>4</comment_count>
+    <who name="Yu Watanabe">watanabe.yu+redhat.bugzilla</who>
+    <bug_when>2016-03-14 20:09:32 -0400</bug_when>
+    <thetext>Thanks. I confirm that the message is suppressed by setting LANG=C or MAN_NO_LOCALE_WARNING=1.
+I hope that the fix is also applied to F24.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9148797</commentid>
+    <comment_count>5</comment_count>
+    <who name="Nikola Forró">nforro</who>
+    <bug_when>2016-03-15 06:05:30 -0400</bug_when>
+    <thetext>(In reply to Yu Watanabe from comment #4)
+&gt; I hope that the fix is also applied to F24.
+It is not, because the bug was reported against rawhide.
+I&apos;m reopening this for F24.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9149296</commentid>
+    <comment_count>6</comment_count>
+    <who name="Nikola Forró">nforro</who>
+    <bug_when>2016-03-15 08:49:42 -0400</bug_when>
+    <thetext>F24 commit: http://pkgs.fedoraproject.org/cgit/rpms/man-db.git/commit/?h=f24&amp;id=98f13860c7089fe81942cf0cb1d702eba6c709bf</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9149300</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-03-15 08:51:05 -0400</bug_when>
+    <thetext>man-db-2.7.5-3.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-bc305c4b1e</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9150856</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-03-15 17:30:22 -0400</bug_when>
+    <thetext>man-db-2.7.5-3.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-bc305c4b1e</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9180253</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-03-26 14:07:11 -0400</bug_when>
+    <thetext>man-db-2.7.5-3.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="0"
+              ispatch="0"
+              isprivate="0"
+          >
+            <attachid>1133045</attachid>
+            <date>2016-03-04 01:53:00 -0500</date>
+            <delta_ts>2016-03-04 01:53:46 -0500</delta_ts>
+            <desc>install log of man-db with glibc-minimal-langpack</desc>
+            <filename>man-db-with-glibc-minimal-langpack.log</filename>
+            <type>text/plain</type>
+            <size>17603</size>
+            <attacher name="Yu Watanabe">watanabe.yu+redhat.bugzilla</attacher>
+            
+              <data encoding="base64">TGFzdCBtZXRhZGF0YSBleHBpcmF0aW9uIGNoZWNrIHBlcmZvcm1lZCAwOjAwOjE5IGFnbyBvbiBG
+cmkgTWFyICA0IDE1OjUwOjU3IDIwMTYuCkRlcGVuZGVuY2llcyByZXNvbHZlZC4KPT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT0KIFBhY2thZ2UgICAgICAgICAgICAgICAgICBBcmNoICAgICBWZXJzaW9u
+ICAgICAgICAgICAgICAgICAgICAgIFJlcG9zaXRvcnkKICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgU2l6ZQo9
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PQpJbnN0YWxsaW5nOgogYmFzZXN5c3RlbSAgICAgICAgICAg
+ICAgIG5vYXJjaCAgIDExLTIuZmMyNCAgICAgICAgICAgICAgICAgICAgcmF3aGlkZSAgIDkuOCBr
+CiBiYXNoICAgICAgICAgICAgICAgICAgICAgeDg2XzY0ICAgNC4zLjQyLTQuZmMyNCAgICAgICAg
+ICAgICAgICByYXdoaWRlICAgMS40IE0KIGNhLWNlcnRpZmljYXRlcyAgICAgICAgICBub2FyY2gg
+ICAyMDE1LjIuNi0zLmZjMjQgICAgICAgICAgICAgIHJhd2hpZGUgICA0MzIgawogY2hrY29uZmln
+ICAgICAgICAgICAgICAgIHg4Nl82NCAgIDEuNy0yLmZjMjQgICAgICAgICAgICAgICAgICAgcmF3
+aGlkZSAgIDE3OSBrCiBjb3JldXRpbHMgICAgICAgICAgICAgICAgeDg2XzY0ICAgOC4yNS00LmZj
+MjQgICAgICAgICAgICAgICAgICByYXdoaWRlICAgMS4xIE0KIGNvcmV1dGlscy1jb21tb24gICAg
+ICAgICB4ODZfNjQgICA4LjI1LTQuZmMyNCAgICAgICAgICAgICAgICAgIHJhd2hpZGUgICAxLjkg
+TQogY3J5cHRvLXBvbGljaWVzICAgICAgICAgIG5vYXJjaCAgIDIwMTUxMTA0LTIuZ2l0ZjFjYmE1
+Zi5mYzI0ICAgcmF3aGlkZSAgICAzMCBrCiBmZWRvcmEtcmVsZWFzZSAgICAgICAgICAgbm9hcmNo
+ICAgMjUtMC4yICAgICAgICAgICAgICAgICAgICAgICByYXdoaWRlICAgIDE2IGsKIGZlZG9yYS1y
+ZXBvcyAgICAgICAgICAgICBub2FyY2ggICAyNS0wLjEgICAgICAgICAgICAgICAgICAgICAgIHJh
+d2hpZGUgICAgNzYgawogZmVkb3JhLXJlcG9zLXJhd2hpZGUgICAgIG5vYXJjaCAgIDI1LTAuMSAg
+ICAgICAgICAgICAgICAgICAgICAgcmF3aGlkZSAgIDcuMyBrCiBmaWxlc3lzdGVtICAgICAgICAg
+ICAgICAgeDg2XzY0ICAgMy4yLTM3LmZjMjQgICAgICAgICAgICAgICAgICByYXdoaWRlICAgMS4w
+IE0KIGdhd2sgICAgICAgICAgICAgICAgICAgICB4ODZfNjQgICA0LjEuMy0zLmZjMjQgICAgICAg
+ICAgICAgICAgIHJhd2hpZGUgICAxLjAgTQogZ2RibSAgICAgICAgICAgICAgICAgICAgIHg4Nl82
+NCAgIDEuMTEtNy5mYzI0ICAgICAgICAgICAgICAgICAgcmF3aGlkZSAgIDEzNyBrCiBnbGliYyAg
+ICAgICAgICAgICAgICAgICAgeDg2XzY0ICAgMi4yMy45MC0zLmZjMjUgICAgICAgICAgICAgICBy
+YXdoaWRlICAgMy44IE0KIGdsaWJjLWNvbW1vbiAgICAgICAgICAgICB4ODZfNjQgICAyLjIzLjkw
+LTMuZmMyNSAgICAgICAgICAgICAgIHJhd2hpZGUgICA4NjggawogZ2xpYmMtbWluaW1hbC1sYW5n
+cGFjayAgIHg4Nl82NCAgIDIuMjMuOTAtMy5mYzI1ICAgICAgICAgICAgICAgcmF3aGlkZSAgICAy
+MyBrCiBnbXAgICAgICAgICAgICAgICAgICAgICAgeDg2XzY0ICAgMTo2LjEuMC0yLmZjMjQgICAg
+ICAgICAgICAgICByYXdoaWRlICAgMzE1IGsKIGdyZXAgICAgICAgICAgICAgICAgICAgICB4ODZf
+NjQgICAyLjIzLTEuZmMyNCAgICAgICAgICAgICAgICAgIHJhd2hpZGUgICAyNzkgawogZ3JvZmYt
+YmFzZSAgICAgICAgICAgICAgIHg4Nl82NCAgIDEuMjIuMy04LmZjMjQgICAgICAgICAgICAgICAg
+cmF3aGlkZSAgIDEuMCBNCiBnemlwICAgICAgICAgICAgICAgICAgICAgeDg2XzY0ICAgMS42LTEw
+LmZjMjQgICAgICAgICAgICAgICAgICByYXdoaWRlICAgMTU3IGsKIGluZm8gICAgICAgICAgICAg
+ICAgICAgICB4ODZfNjQgICA2LjEtMi5mYzI0ICAgICAgICAgICAgICAgICAgIHJhd2hpZGUgICAx
+OTIgawoga2V5dXRpbHMtbGlicyAgICAgICAgICAgIHg4Nl82NCAgIDEuNS45LTguZmMyNCAgICAg
+ICAgICAgICAgICAgcmF3aGlkZSAgICA0NSBrCiBrcmI1LWxpYnMgICAgICAgICAgICAgICAgeDg2
+XzY0ICAgMS4xNC4xLTEuZmMyNSAgICAgICAgICAgICAgICByYXdoaWRlICAgODM3IGsKIGxlc3Mg
+ICAgICAgICAgICAgICAgICAgICB4ODZfNjQgICA0ODEtMi5mYzI0ICAgICAgICAgICAgICAgICAg
+IHJhd2hpZGUgICAxNTYgawogbGliYWNsICAgICAgICAgICAgICAgICAgIHg4Nl82NCAgIDIuMi41
+Mi0xMS5mYzI0ICAgICAgICAgICAgICAgcmF3aGlkZSAgICAzMSBrCiBsaWJhdHRyICAgICAgICAg
+ICAgICAgICAgeDg2XzY0ICAgMi40LjQ3LTE2LmZjMjQgICAgICAgICAgICAgICByYXdoaWRlICAg
+IDI0IGsKIGxpYmNhcCAgICAgICAgICAgICAgICAgICB4ODZfNjQgICAyLjI0LTkuZmMyNCAgICAg
+ICAgICAgICAgICAgIHJhd2hpZGUgICAgNTEgawogbGliY29tX2VyciAgICAgICAgICAgICAgIHg4
+Nl82NCAgIDEuNDIuMTMtNC5mYzI0ICAgICAgICAgICAgICAgcmF3aGlkZSAgICA0NSBrCiBsaWJm
+ZmkgICAgICAgICAgICAgICAgICAgeDg2XzY0ICAgMy4xLTkuZmMyNCAgICAgICAgICAgICAgICAg
+ICByYXdoaWRlICAgIDM0IGsKIGxpYmdjYyAgICAgICAgICAgICAgICAgICB4ODZfNjQgICA2LjAu
+MC0wLjE0LmZjMjUgICAgICAgICAgICAgIHJhd2hpZGUgICAgNzQgawogbGlicGlwZWxpbmUgICAg
+ICAgICAgICAgIHg4Nl82NCAgIDEuNC4xLTIuZmMyNCAgICAgICAgICAgICAgICAgcmF3aGlkZSAg
+ICA1MSBrCiBsaWJzZWxpbnV4ICAgICAgICAgICAgICAgeDg2XzY0ICAgMi41LTIuZmMyNSAgICAg
+ICAgICAgICAgICAgICByYXdoaWRlICAgMTYyIGsKIGxpYnNlcG9sICAgICAgICAgICAgICAgICB4
+ODZfNjQgICAyLjUtMi5mYzI1ICAgICAgICAgICAgICAgICAgIHJhd2hpZGUgICAyOTAgawogbGli
+c3RkYysrICAgICAgICAgICAgICAgIHg4Nl82NCAgIDYuMC4wLTAuMTQuZmMyNSAgICAgICAgICAg
+ICAgcmF3aGlkZSAgIDQxOCBrCiBsaWJ0YXNuMSAgICAgICAgICAgICAgICAgeDg2XzY0ICAgNC43
+LTIuZmMyNCAgICAgICAgICAgICAgICAgICByYXdoaWRlICAgMzI2IGsKIGxpYnZlcnRvICAgICAg
+ICAgICAgICAgICB4ODZfNjQgICAwLjIuNi02LmZjMjQgICAgICAgICAgICAgICAgIHJhd2hpZGUg
+ICAgMjEgawogbWFuLWRiICAgICAgICAgICAgICAgICAgIHg4Nl82NCAgIDIuNy41LTIuZmMyNCAg
+ICAgICAgICAgICAgICAgcmF3aGlkZSAgIDgyNyBrCiBuY3Vyc2VzICAgICAgICAgICAgICAgICAg
+eDg2XzY0ICAgNi4wLTQuMjAxNjAxMTYuZmMyNCAgICAgICAgICByYXdoaWRlICAgMzM5IGsKIG5j
+dXJzZXMtYmFzZSAgICAgICAgICAgICBub2FyY2ggICA2LjAtNC4yMDE2MDExNi5mYzI0ICAgICAg
+ICAgIHJhd2hpZGUgICAgNzcgawogbmN1cnNlcy1saWJzICAgICAgICAgICAgIHg4Nl82NCAgIDYu
+MC00LjIwMTYwMTE2LmZjMjQgICAgICAgICAgcmF3aGlkZSAgIDMyMiBrCiBuc3Mtc29mdG9rbi1m
+cmVlYmwgICAgICAgeDg2XzY0ICAgMy4yMi4yLTIuZmMyNSAgICAgICAgICAgICAgICByYXdoaWRl
+ICAgMjA3IGsKIG9wZW5zc2wtbGlicyAgICAgICAgICAgICB4ODZfNjQgICAxOjEuMC4yZy0yLmZj
+MjUgICAgICAgICAgICAgIHJhd2hpZGUgICAxLjIgTQogcDExLWtpdCAgICAgICAgICAgICAgICAg
+IHg4Nl82NCAgIDAuMjMuMi0yLmZjMjQgICAgICAgICAgICAgICAgcmF3aGlkZSAgIDE1MCBrCiBw
+MTEta2l0LXRydXN0ICAgICAgICAgICAgeDg2XzY0ICAgMC4yMy4yLTIuZmMyNCAgICAgICAgICAg
+ICAgICByYXdoaWRlICAgMTMwIGsKIHBjcmUgICAgICAgICAgICAgICAgICAgICB4ODZfNjQgICA4
+LjM4LTkuZmMyNSAgICAgICAgICAgICAgICAgIHJhd2hpZGUgICA1MDggawogcG9wdCAgICAgICAg
+ICAgICAgICAgICAgIHg4Nl82NCAgIDEuMTYtNy5mYzI0ICAgICAgICAgICAgICAgICAgcmF3aGlk
+ZSAgICA1OSBrCiBzZWQgICAgICAgICAgICAgICAgICAgICAgeDg2XzY0ICAgNC4yLjItMTUuZmMy
+NCAgICAgICAgICAgICAgICByYXdoaWRlICAgMjM4IGsKIHNldHVwICAgICAgICAgICAgICAgICAg
+ICBub2FyY2ggICAyLjEwLjItMS5mYzI1ICAgICAgICAgICAgICAgIHJhd2hpZGUgICAxNzEgawog
+dHpkYXRhICAgICAgICAgICAgICAgICAgIG5vYXJjaCAgIDIwMTZhLTEuZmMyNCAgICAgICAgICAg
+ICAgICAgcmF3aGlkZSAgIDQwOSBrCiB6bGliICAgICAgICAgICAgICAgICAgICAgeDg2XzY0ICAg
+MS4yLjgtMTAuZmMyNCAgICAgICAgICAgICAgICByYXdoaWRlICAgIDk1IGsKClRyYW5zYWN0aW9u
+IFN1bW1hcnkKPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0KSW5zdGFsbCAgNTAgUGFja2FnZXMKClRv
+dGFsIGRvd25sb2FkIHNpemU6IDIxIE0KSW5zdGFsbGVkIHNpemU6IDY4IE0KRG93bmxvYWRpbmcg
+UGFja2FnZXM6Ci0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tClRvdGFsICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgIDEwNCBNQi9zIHwgIDIxIE1CICAgICAwMDowMCAgICAg
+ClJ1bm5pbmcgdHJhbnNhY3Rpb24gY2hlY2sKVHJhbnNhY3Rpb24gY2hlY2sgc3VjY2VlZGVkLgpS
+dW5uaW5nIHRyYW5zYWN0aW9uIHRlc3QKVHJhbnNhY3Rpb24gdGVzdCBzdWNjZWVkZWQuClJ1bm5p
+bmcgdHJhbnNhY3Rpb24KICBJbnN0YWxsaW5nICA6IGxpYmdjYy02LjAuMC0wLjE0LmZjMjUueDg2
+XzY0ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMS81MCAKICBJbnN0YWxsaW5nICA6IGNv
+cmV1dGlscy1jb21tb24tOC4yNS00LmZjMjQueDg2XzY0ICAgICAgICAgICAgICAgICAgICAgICAg
+Mi81MCAKICBJbnN0YWxsaW5nICA6IG5jdXJzZXMtYmFzZS02LjAtNC4yMDE2MDExNi5mYzI0Lm5v
+YXJjaCAgICAgICAgICAgICAgICAgICAgMy81MCAKICBJbnN0YWxsaW5nICA6IHR6ZGF0YS0yMDE2
+YS0xLmZjMjQubm9hcmNoICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgNC81MCAKICBJ
+bnN0YWxsaW5nICA6IGZlZG9yYS1yZXBvcy1yYXdoaWRlLTI1LTAuMS5ub2FyY2ggICAgICAgICAg
+ICAgICAgICAgICAgICAgNS81MCAKICBJbnN0YWxsaW5nICA6IG5zcy1zb2Z0b2tuLWZyZWVibC0z
+LjIyLjItMi5mYzI1Lng4Nl82NCAgICAgICAgICAgICAgICAgICAgNi81MCAKICBJbnN0YWxsaW5n
+ICA6IHNldHVwLTIuMTAuMi0xLmZjMjUubm9hcmNoICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgNy81MCAKICBJbnN0YWxsaW5nICA6IGZpbGVzeXN0ZW0tMy4yLTM3LmZjMjQueDg2XzY0
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgOC81MCAKICBJbnN0YWxsaW5nICA6IGJhc2Vz
+eXN0ZW0tMTEtMi5mYzI0Lm5vYXJjaCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgOS81
+MCAKICBJbnN0YWxsaW5nICA6IGZlZG9yYS1yZXBvcy0yNS0wLjEubm9hcmNoICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAxMC81MCAKICBJbnN0YWxsaW5nICA6IGJhc2gtNC4zLjQyLTQu
+ZmMyNC54ODZfNjQgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAxMS81MCAKICBJbnN0
+YWxsaW5nICA6IGZlZG9yYS1yZWxlYXNlLTI1LTAuMi5ub2FyY2ggICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAxMi81MCAKd2FybmluZzogJXBvc3QoZmVkb3JhLXJlbGVhc2UtMjUtMC4yLm5v
+YXJjaCkgc2NyaXB0bGV0IGZhaWxlZCwgZXhpdCBzdGF0dXMgMTI3CiAgSW5zdGFsbGluZyAgOiBn
+bGliYy1jb21tb24tMi4yMy45MC0zLmZjMjUueDg2XzY0ICAgICAgICAgICAgICAgICAgICAgICAg
+MTMvNTAgCiAgSW5zdGFsbGluZyAgOiBnbGliYy1taW5pbWFsLWxhbmdwYWNrLTIuMjMuOTAtMy5m
+YzI1Lng4Nl82NCAgICAgICAgICAgICAgMTQvNTAgCiAgSW5zdGFsbGluZyAgOiBnbGliYy0yLjIz
+LjkwLTMuZmMyNS54ODZfNjQgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMTUvNTAgCiAg
+SW5zdGFsbGluZyAgOiBsaWJzdGRjKystNi4wLjAtMC4xNC5mYzI1Lng4Nl82NCAgICAgICAgICAg
+ICAgICAgICAgICAgICAgMTYvNTAgCiAgSW5zdGFsbGluZyAgOiBuY3Vyc2VzLWxpYnMtNi4wLTQu
+MjAxNjAxMTYuZmMyNC54ODZfNjQgICAgICAgICAgICAgICAgICAgMTcvNTAgCiAgSW5zdGFsbGlu
+ZyAgOiBwY3JlLTguMzgtOS5mYzI1Lng4Nl82NCAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgMTgvNTAgCiAgSW5zdGFsbGluZyAgOiBsaWJzZXBvbC0yLjUtMi5mYzI1Lng4Nl82NCAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMTkvNTAgCiAgSW5zdGFsbGluZyAgOiBsaWJz
+ZWxpbnV4LTIuNS0yLmZjMjUueDg2XzY0ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMjAv
+NTAgCiAgSW5zdGFsbGluZyAgOiB6bGliLTEuMi44LTEwLmZjMjQueDg2XzY0ICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgMjEvNTAgCiAgSW5zdGFsbGluZyAgOiBpbmZvLTYuMS0yLmZj
+MjQueDg2XzY0ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMjIvNTAgCiAgSW5z
+dGFsbGluZyAgOiBncmVwLTIuMjMtMS5mYzI0Lng4Nl82NCAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgMjMvNTAgCmluc3RhbGwtaW5mbzogTm8gc3VjaCBmaWxlIG9yIGRpcmVjdG9y
+eSBmb3IgL2Rldi9udWxsCiAgSW5zdGFsbGluZyAgOiBsaWJhdHRyLTIuNC40Ny0xNi5mYzI0Lng4
+Nl82NCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMjQvNTAgCiAgSW5zdGFsbGluZyAgOiBs
+aWJhY2wtMi4yLjUyLTExLmZjMjQueDg2XzY0ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+MjUvNTAgCiAgSW5zdGFsbGluZyAgOiBzZWQtNC4yLjItMTUuZmMyNC54ODZfNjQgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgMjYvNTAgCmluc3RhbGwtaW5mbzogTm8gc3VjaCBmaWxl
+IG9yIGRpcmVjdG9yeSBmb3IgL2Rldi9udWxsCiAgSW5zdGFsbGluZyAgOiBncm9mZi1iYXNlLTEu
+MjIuMy04LmZjMjQueDg2XzY0ICAgICAgICAgICAgICAgICAgICAgICAgICAgMjcvNTAgCiAgSW5z
+dGFsbGluZyAgOiBsaWJjb21fZXJyLTEuNDIuMTMtNC5mYzI0Lng4Nl82NCAgICAgICAgICAgICAg
+ICAgICAgICAgICAgMjgvNTAgCiAgSW5zdGFsbGluZyAgOiBsaWJmZmktMy4xLTkuZmMyNC54ODZf
+NjQgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMjkvNTAgCiAgSW5zdGFsbGluZyAg
+OiBwMTEta2l0LTAuMjMuMi0yLmZjMjQueDg2XzY0ICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgMzAvNTAgCiAgSW5zdGFsbGluZyAgOiBsaWJjYXAtMi4yNC05LmZjMjQueDg2XzY0ICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgMzEvNTAgCiAgSW5zdGFsbGluZyAgOiBnYXdrLTQu
+MS4zLTMuZmMyNC54ODZfNjQgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMzIvNTAg
+CiAgSW5zdGFsbGluZyAgOiBuY3Vyc2VzLTYuMC00LjIwMTYwMTE2LmZjMjQueDg2XzY0ICAgICAg
+ICAgICAgICAgICAgICAgICAgMzMvNTAgCiAgSW5zdGFsbGluZyAgOiBnbXAtMTo2LjEuMC0yLmZj
+MjQueDg2XzY0ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMzQvNTAgCiAgSW5zdGFs
+bGluZyAgOiBnZGJtLTEuMTEtNy5mYzI0Lng4Nl82NCAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgMzUvNTAgCiAgSW5zdGFsbGluZyAgOiBsaWJwaXBlbGluZS0xLjQuMS0yLmZjMjQu
+eDg2XzY0ICAgICAgICAgICAgICAgICAgICAgICAgICAgMzYvNTAgCiAgSW5zdGFsbGluZyAgOiBr
+ZXl1dGlscy1saWJzLTEuNS45LTguZmMyNC54ODZfNjQgICAgICAgICAgICAgICAgICAgICAgICAg
+MzcvNTAgCiAgSW5zdGFsbGluZyAgOiBsaWJ2ZXJ0by0wLjIuNi02LmZjMjQueDg2XzY0ICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgMzgvNTAgCiAgSW5zdGFsbGluZyAgOiBsaWJ0YXNuMS00
+LjctMi5mYzI0Lng4Nl82NCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMzkvNTAgCiAg
+SW5zdGFsbGluZyAgOiBwb3B0LTEuMTYtNy5mYzI0Lng4Nl82NCAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgNDAvNTAgCiAgSW5zdGFsbGluZyAgOiBjaGtjb25maWctMS43LTIuZmMy
+NC54ODZfNjQgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgNDEvNTAgCiAgSW5zdGFsbGlu
+ZyAgOiBwMTEta2l0LXRydXN0LTAuMjMuMi0yLmZjMjQueDg2XzY0ICAgICAgICAgICAgICAgICAg
+ICAgICAgNDIvNTAgCiAgSW5zdGFsbGluZyAgOiBrcmI1LWxpYnMtMS4xNC4xLTEuZmMyNS54ODZf
+NjQgICAgICAgICAgICAgICAgICAgICAgICAgICAgNDMvNTAgCiAgSW5zdGFsbGluZyAgOiBvcGVu
+c3NsLWxpYnMtMToxLjAuMmctMi5mYzI1Lng4Nl82NCAgICAgICAgICAgICAgICAgICAgICAgNDQv
+NTAgCiAgSW5zdGFsbGluZyAgOiBjb3JldXRpbHMtOC4yNS00LmZjMjQueDg2XzY0ICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgNDUvNTAgCiAgSW5zdGFsbGluZyAgOiBjcnlwdG8tcG9saWNp
+ZXMtMjAxNTExMDQtMi5naXRmMWNiYTVmLmZjMjQubm9hcmNoICAgICAgICAgNDYvNTAgCiAgSW5z
+dGFsbGluZyAgOiBjYS1jZXJ0aWZpY2F0ZXMtMjAxNS4yLjYtMy5mYzI0Lm5vYXJjaCAgICAgICAg
+ICAgICAgICAgICAgNDcvNTAgCiAgSW5zdGFsbGluZyAgOiBnemlwLTEuNi0xMC5mYzI0Lng4Nl82
+NCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgNDgvNTAgCiAgSW5zdGFsbGluZyAg
+OiBsZXNzLTQ4MS0yLmZjMjQueDg2XzY0ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgNDkvNTAgCiAgSW5zdGFsbGluZyAgOiBtYW4tZGItMi43LjUtMi5mYzI0Lng4Nl82NCAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgNTAvNTAgCi91c3Ivc2Jpbi9jb252ZXJ0LXRvLWVk
+aXRpb246IGxpbmUgMTYzOiBncnViMi1ta2NvbmZpZzogY29tbWFuZCBub3QgZm91bmQKVGhpcyBz
+eXN0ZW0gaGFzIGJlZW4gY29udmVydGVkIHRvIG5vbi1lZGl0aW9uCi91c3IvYmluL21hbmRiOiBj
+YW4ndCBzZXQgdGhlIGxvY2FsZTsgbWFrZSBzdXJlICRMQ18qIGFuZCAkTEFORyBhcmUgY29ycmVj
+dAogIFZlcmlmeWluZyAgIDogbWFuLWRiLTIuNy41LTIuZmMyNC54ODZfNjQgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAxLzUwIAogIFZlcmlmeWluZyAgIDogZ2xpYmMtbWluaW1hbC1s
+YW5ncGFjay0yLjIzLjkwLTMuZmMyNS54ODZfNjQgICAgICAgICAgICAgICAyLzUwIAogIFZlcmlm
+eWluZyAgIDogYmFzaC00LjMuNDItNC5mYzI0Lng4Nl82NCAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAzLzUwIAogIFZlcmlmeWluZyAgIDogZ2RibS0xLjExLTcuZmMyNC54ODZfNjQg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA0LzUwIAogIFZlcmlmeWluZyAgIDog
+Z2xpYmMtMi4yMy45MC0zLmZjMjUueDg2XzY0ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICA1LzUwIAogIFZlcmlmeWluZyAgIDogZ3JlcC0yLjIzLTEuZmMyNC54ODZfNjQgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICA2LzUwIAogIFZlcmlmeWluZyAgIDogZ3JvZmYtYmFz
+ZS0xLjIyLjMtOC5mYzI0Lng4Nl82NCAgICAgICAgICAgICAgICAgICAgICAgICAgICA3LzUwIAog
+IFZlcmlmeWluZyAgIDogZ3ppcC0xLjYtMTAuZmMyNC54ODZfNjQgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICA4LzUwIAogIFZlcmlmeWluZyAgIDogbGVzcy00ODEtMi5mYzI0Lng4
+Nl82NCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA5LzUwIAogIFZlcmlmeWlu
+ZyAgIDogbGlicGlwZWxpbmUtMS40LjEtMi5mYzI0Lng4Nl82NCAgICAgICAgICAgICAgICAgICAg
+ICAgICAgIDEwLzUwIAogIFZlcmlmeWluZyAgIDogemxpYi0xLjIuOC0xMC5mYzI0Lng4Nl82NCAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDExLzUwIAogIFZlcmlmeWluZyAgIDogZ2xp
+YmMtY29tbW9uLTIuMjMuOTAtMy5mYzI1Lng4Nl82NCAgICAgICAgICAgICAgICAgICAgICAgIDEy
+LzUwIAogIFZlcmlmeWluZyAgIDogbmN1cnNlcy1saWJzLTYuMC00LjIwMTYwMTE2LmZjMjQueDg2
+XzY0ICAgICAgICAgICAgICAgICAgIDEzLzUwIAogIFZlcmlmeWluZyAgIDogYmFzZXN5c3RlbS0x
+MS0yLmZjMjQubm9hcmNoICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDE0LzUwIAogIFZl
+cmlmeWluZyAgIDogbnNzLXNvZnRva24tZnJlZWJsLTMuMjIuMi0yLmZjMjUueDg2XzY0ICAgICAg
+ICAgICAgICAgICAgIDE1LzUwIAogIFZlcmlmeWluZyAgIDogaW5mby02LjEtMi5mYzI0Lng4Nl82
+NCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDE2LzUwIAogIFZlcmlmeWluZyAg
+IDogcGNyZS04LjM4LTkuZmMyNS54ODZfNjQgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgIDE3LzUwIAogIFZlcmlmeWluZyAgIDogbGliZ2NjLTYuMC4wLTAuMTQuZmMyNS54ODZfNjQg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgIDE4LzUwIAogIFZlcmlmeWluZyAgIDogbGlic3Rk
+YysrLTYuMC4wLTAuMTQuZmMyNS54ODZfNjQgICAgICAgICAgICAgICAgICAgICAgICAgIDE5LzUw
+IAogIFZlcmlmeWluZyAgIDogc2VkLTQuMi4yLTE1LmZjMjQueDg2XzY0ICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgIDIwLzUwIAogIFZlcmlmeWluZyAgIDogbGlic2VsaW51eC0yLjUt
+Mi5mYzI1Lng4Nl82NCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDIxLzUwIAogIFZlcmlm
+eWluZyAgIDogdHpkYXRhLTIwMTZhLTEuZmMyNC5ub2FyY2ggICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgIDIyLzUwIAogIFZlcmlmeWluZyAgIDogbmN1cnNlcy1iYXNlLTYuMC00LjIwMTYw
+MTE2LmZjMjQubm9hcmNoICAgICAgICAgICAgICAgICAgIDIzLzUwIAogIFZlcmlmeWluZyAgIDog
+ZmlsZXN5c3RlbS0zLjItMzcuZmMyNC54ODZfNjQgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+IDI0LzUwIAogIFZlcmlmeWluZyAgIDogc2V0dXAtMi4xMC4yLTEuZmMyNS5ub2FyY2ggICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgIDI1LzUwIAogIFZlcmlmeWluZyAgIDogbGliYWNsLTIu
+Mi41Mi0xMS5mYzI0Lng4Nl82NCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDI2LzUwIAog
+IFZlcmlmeWluZyAgIDogbGlic2Vwb2wtMi41LTIuZmMyNS54ODZfNjQgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgIDI3LzUwIAogIFZlcmlmeWluZyAgIDogZmVkb3JhLXJlbGVhc2UtMjUt
+MC4yLm5vYXJjaCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDI4LzUwIAogIFZlcmlmeWlu
+ZyAgIDogbGliYXR0ci0yLjQuNDctMTYuZmMyNC54ODZfNjQgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgIDI5LzUwIAogIFZlcmlmeWluZyAgIDogZmVkb3JhLXJlcG9zLTI1LTAuMS5ub2FyY2gg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDMwLzUwIAogIFZlcmlmeWluZyAgIDogZmVk
+b3JhLXJlcG9zLXJhd2hpZGUtMjUtMC4xLm5vYXJjaCAgICAgICAgICAgICAgICAgICAgICAgIDMx
+LzUwIAogIFZlcmlmeWluZyAgIDogY29yZXV0aWxzLTguMjUtNC5mYzI0Lng4Nl82NCAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgIDMyLzUwIAogIFZlcmlmeWluZyAgIDogY29yZXV0aWxzLWNv
+bW1vbi04LjI1LTQuZmMyNC54ODZfNjQgICAgICAgICAgICAgICAgICAgICAgIDMzLzUwIAogIFZl
+cmlmeWluZyAgIDogZ21wLTE6Ni4xLjAtMi5mYzI0Lng4Nl82NCAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgIDM0LzUwIAogIFZlcmlmeWluZyAgIDogbGliY2FwLTIuMjQtOS5mYzI0Lng4
+Nl82NCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDM1LzUwIAogIFZlcmlmeWluZyAg
+IDogbmN1cnNlcy02LjAtNC4yMDE2MDExNi5mYzI0Lng4Nl82NCAgICAgICAgICAgICAgICAgICAg
+ICAgIDM2LzUwIAogIFZlcmlmeWluZyAgIDogb3BlbnNzbC1saWJzLTE6MS4wLjJnLTIuZmMyNS54
+ODZfNjQgICAgICAgICAgICAgICAgICAgICAgIDM3LzUwIAogIFZlcmlmeWluZyAgIDogY2EtY2Vy
+dGlmaWNhdGVzLTIwMTUuMi42LTMuZmMyNC5ub2FyY2ggICAgICAgICAgICAgICAgICAgIDM4LzUw
+IAogIFZlcmlmeWluZyAgIDogY3J5cHRvLXBvbGljaWVzLTIwMTUxMTA0LTIuZ2l0ZjFjYmE1Zi5m
+YzI0Lm5vYXJjaCAgICAgICAgIDM5LzUwIAogIFZlcmlmeWluZyAgIDoga3JiNS1saWJzLTEuMTQu
+MS0xLmZjMjUueDg2XzY0ICAgICAgICAgICAgICAgICAgICAgICAgICAgIDQwLzUwIAogIFZlcmlm
+eWluZyAgIDogbGliY29tX2Vyci0xLjQyLjEzLTQuZmMyNC54ODZfNjQgICAgICAgICAgICAgICAg
+ICAgICAgICAgIDQxLzUwIAogIFZlcmlmeWluZyAgIDogcDExLWtpdC10cnVzdC0wLjIzLjItMi5m
+YzI0Lng4Nl82NCAgICAgICAgICAgICAgICAgICAgICAgIDQyLzUwIAogIFZlcmlmeWluZyAgIDog
+Z2F3ay00LjEuMy0zLmZjMjQueDg2XzY0ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+IDQzLzUwIAogIFZlcmlmeWluZyAgIDoga2V5dXRpbHMtbGlicy0xLjUuOS04LmZjMjQueDg2XzY0
+ICAgICAgICAgICAgICAgICAgICAgICAgIDQ0LzUwIAogIFZlcmlmeWluZyAgIDogbGlidmVydG8t
+MC4yLjYtNi5mYzI0Lng4Nl82NCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDQ1LzUwIAog
+IFZlcmlmeWluZyAgIDogY2hrY29uZmlnLTEuNy0yLmZjMjQueDg2XzY0ICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgIDQ2LzUwIAogIFZlcmlmeWluZyAgIDogbGliZmZpLTMuMS05LmZjMjQu
+eDg2XzY0ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDQ3LzUwIAogIFZlcmlmeWlu
+ZyAgIDogbGlidGFzbjEtNC43LTIuZmMyNC54ODZfNjQgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgIDQ4LzUwIAogIFZlcmlmeWluZyAgIDogcDExLWtpdC0wLjIzLjItMi5mYzI0Lng4Nl82
+NCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDQ5LzUwIAogIFZlcmlmeWluZyAgIDogcG9w
+dC0xLjE2LTcuZmMyNC54ODZfNjQgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDUw
+LzUwIAoKSW5zdGFsbGVkOgogIGJhc2VzeXN0ZW0ubm9hcmNoIDExLTIuZmMyNCAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogIGJhc2gueDg2XzY0IDQu
+My40Mi00LmZjMjQgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgIAogIGNhLWNlcnRpZmljYXRlcy5ub2FyY2ggMjAxNS4yLjYtMy5mYzI0ICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogIGNoa2NvbmZpZy54ODZfNjQgMS43LTIu
+ZmMyNCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAog
+IGNvcmV1dGlscy54ODZfNjQgOC4yNS00LmZjMjQgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgIAogIGNvcmV1dGlscy1jb21tb24ueDg2XzY0IDguMjUtNC5m
+YzI0ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogIGNyeXB0by1w
+b2xpY2llcy5ub2FyY2ggMjAxNTExMDQtMi5naXRmMWNiYTVmLmZjMjQgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgIAogIGZlZG9yYS1yZWxlYXNlLm5vYXJjaCAyNS0wLjIgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogIGZlZG9yYS1yZXBvcy5ub2Fy
+Y2ggMjUtMC4xICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgIAogIGZlZG9yYS1yZXBvcy1yYXdoaWRlLm5vYXJjaCAyNS0wLjEgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogIGZpbGVzeXN0ZW0ueDg2XzY0IDMuMi0zNy5m
+YzI0ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogIGdh
+d2sueDg2XzY0IDQuMS4zLTMuZmMyNCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgIAogIGdkYm0ueDg2XzY0IDEuMTEtNy5mYzI0ICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogIGdsaWJjLng4Nl82
+NCAyLjIzLjkwLTMuZmMyNSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgIAogIGdsaWJjLWNvbW1vbi54ODZfNjQgMi4yMy45MC0zLmZjMjUgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogIGdsaWJjLW1pbmltYWwtbGFuZ3Bh
+Y2sueDg2XzY0IDIuMjMuOTAtMy5mYzI1ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+IAogIGdtcC54ODZfNjQgMTo2LjEuMC0yLmZjMjQgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgIAogIGdyZXAueDg2XzY0IDIuMjMtMS5mYzI0ICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogIGdyb2Zm
+LWJhc2UueDg2XzY0IDEuMjIuMy04LmZjMjQgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgIAogIGd6aXAueDg2XzY0IDEuNi0xMC5mYzI0ICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogIGluZm8ueDg2XzY0IDYu
+MS0yLmZjMjQgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgIAogIGtleXV0aWxzLWxpYnMueDg2XzY0IDEuNS45LTguZmMyNCAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogIGtyYjUtbGlicy54ODZfNjQgMS4xNC4x
+LTEuZmMyNSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAog
+IGxlc3MueDg2XzY0IDQ4MS0yLmZjMjQgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgIAogIGxpYmFjbC54ODZfNjQgMi4yLjUyLTExLmZjMjQgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogIGxpYmF0dHIu
+eDg2XzY0IDIuNC40Ny0xNi5mYzI0ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgIAogIGxpYmNhcC54ODZfNjQgMi4yNC05LmZjMjQgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogIGxpYmNvbV9lcnIueDg2XzY0
+IDEuNDIuMTMtNC5mYzI0ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgIAogIGxpYmZmaS54ODZfNjQgMy4xLTkuZmMyNCAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogIGxpYmdjYy54ODZfNjQgNi4wLjAtMC4xNC5m
+YzI1ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogIGxp
+YnBpcGVsaW5lLng4Nl82NCAxLjQuMS0yLmZjMjQgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgIAogIGxpYnNlbGludXgueDg2XzY0IDIuNS0yLmZjMjUgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogIGxpYnNlcG9sLng4
+Nl82NCAyLjUtMi5mYzI1ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgIAogIGxpYnN0ZGMrKy54ODZfNjQgNi4wLjAtMC4xNC5mYzI1ICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogIGxpYnRhc24xLng4Nl82NCA0Ljct
+Mi5mYzI0ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+IAogIGxpYnZlcnRvLng4Nl82NCAwLjIuNi02LmZjMjQgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgIAogIG1hbi1kYi54ODZfNjQgMi43LjUtMi5mYzI0ICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogIG5jdXJz
+ZXMueDg2XzY0IDYuMC00LjIwMTYwMTE2LmZjMjQgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgIAogIG5jdXJzZXMtYmFzZS5ub2FyY2ggNi4wLTQuMjAxNjAxMTYuZmMy
+NCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogIG5jdXJzZXMtbGlicy54
+ODZfNjQgNi4wLTQuMjAxNjAxMTYuZmMyNCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgIAogIG5zcy1zb2Z0b2tuLWZyZWVibC54ODZfNjQgMy4yMi4yLTIuZmMyNSAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogIG9wZW5zc2wtbGlicy54ODZfNjQgMTox
+LjAuMmctMi5mYzI1ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAog
+IHAxMS1raXQueDg2XzY0IDAuMjMuMi0yLmZjMjQgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgIAogIHAxMS1raXQtdHJ1c3QueDg2XzY0IDAuMjMuMi0yLmZj
+MjQgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogIHBjcmUueDg2
+XzY0IDguMzgtOS5mYzI1ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgIAogIHBvcHQueDg2XzY0IDEuMTYtNy5mYzI0ICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogIHNlZC54ODZfNjQgNC4yLjIt
+MTUuZmMyNCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgIAogIHNldHVwLm5vYXJjaCAyLjEwLjItMS5mYzI1ICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogIHR6ZGF0YS5ub2FyY2ggMjAxNmEtMS5mYzI0
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogIHps
+aWIueDg2XzY0IDEuMi44LTEwLmZjMjQgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgIAoKQ29tcGxldGUhCk5vbi1mYXRhbCBQT1NUSU4gc2NyaXB0bGV0
+IGZhaWx1cmUgaW4gcnBtIHBhY2thZ2UgZmVkb3JhLXJlbGVhc2UKTm9uLWZhdGFsIFBPU1RJTiBz
+Y3JpcHRsZXQgZmFpbHVyZSBpbiBycG0gcGFja2FnZSBmZWRvcmEtcmVsZWFzZQo=
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

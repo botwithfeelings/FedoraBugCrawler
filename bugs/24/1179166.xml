@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1179166</bug_id>
+          
+          <creation_ts>2015-01-06 05:31:00 -0500</creation_ts>
+          <short_desc>SELinux is preventing /usr/bin/nvidia-modprobe from read access on the file. (and write too)</short_desc>
+          <delta_ts>2017-03-03 05:16:51 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>selinux-policy-targeted</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>CURRENTRELEASE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>medium</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Germano Massullo">germano.massullo</reporter>
+          <assigned_to name="Miroslav Grepl">mgrepl</assigned_to>
+          <cc>dwalsh</cc>
+    
+    
+    <cc>kwizart</cc>
+          <qa_contact name="Ben Levenson">benl</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-03-03 05:16:51</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>7810236</commentid>
+    <comment_count>0</comment_count>
+    <who name="Germano Massullo">germano.massullo</who>
+    <bug_when>2015-01-06 05:31:44 -0500</bug_when>
+    <thetext>Description of problem:
+SELinux prevents nvidia-uvm module to be correctly loaded at system startup. (part of nVidia drivers from RPMFusion).
+I got two errors, one for read, one for write attempt.
+The only way to load the module is to manually do
+# modprobe nvidia-uvm
+If I disable SELinux, the module is correctly loaded at system startup.
+
+
+
+===================================================
+SELinux is preventing /usr/bin/nvidia-modprobe from read access on the file .
+
+*****  Plugin catchall (100. confidence) suggests   **************************
+
+If si crede che nvidia-modprobe dovrebbe avere possibilità di accesso read sui  file in modo predefinito.
+Then si dovrebbe riportare il problema come bug.
+E&apos; possibile generare un modulo di politica locale per consentire questo accesso.
+Do
+consentire questo accesso per il momento eseguendo:
+# grep nvidia-modprobe /var/log/audit/audit.log | audit2allow -M mypol
+# semodule -i mypol.pp
+
+Additional Information:
+Source Context                system_u:system_r:boinc_t:s0
+Target Context                system_u:object_r:sysctl_modprobe_t:s0
+Target Objects                 [ file ]
+Source                        nvidia-modprobe
+Source Path                   /usr/bin/nvidia-modprobe
+Port                          &lt;Unknown&gt;
+Source RPM Packages           xorg-x11-drv-nvidia-331.113-1.fc20.x86_64
+Target RPM Packages           
+Policy RPM                    selinux-policy-3.12.1-196.fc20.noarch
+Selinux Enabled               True
+Policy Type                   targeted
+Enforcing Mode                Enforcing
+Platform                      Linux 3.17.7-200.fc20.x86_64 #1 SMP Wed
+                              Dec 17 03:35:33 UTC 2014 x86_64 x86_64
+Alert Count                   2
+First Seen                    2015-01-06 10:49:02 CET
+Last Seen                     2015-01-06 11:23:38 CET
+
+Raw Audit Messages
+type=AVC msg=audit(1420539818.125:427): avc:  denied  { read } for  pid=2836 comm=&quot;nvidia-modprobe&quot; name=&quot;modprobe&quot; dev=&quot;proc&quot; ino=21506 scontext=system_u:system_r:boinc_t:s0 tcontext=system_u:object_r:sysctl_modprobe_t:s0 tclass=file permissive=0
+
+
+type=SYSCALL msg=audit(1420539818.125:427): arch=x86_64 syscall=open success=no exit=EACCES a0=404d2f a1=0 a2=1b6 a3=7fffc3e691e0 items=0 ppid=2835 pid=2836 auid=4294967295 uid=991 gid=988 euid=0 suid=0 fsuid=0 egid=988 sgid=988 fsgid=988 tty=(none) ses=4294967295 comm=nvidia-modprobe exe=/usr/bin/nvidia-modprobe subj=system_u:system_r:boinc_t:s0 key=(null)
+
+Hash: nvidia-modprobe,boinc_t,sysctl_modprobe_t,file,read
+
+===================================================
+
+
+===================================================
+SELinux is preventing /usr/bin/nvidia-modprobe from write access on the directory .
+
+*****  Plugin catchall (100. confidence) suggests   **************************
+
+If si crede che nvidia-modprobe dovrebbe avere possibilità di accesso write sui  directory in modo predefinito.
+Then si dovrebbe riportare il problema come bug.
+E&apos; possibile generare un modulo di politica locale per consentire questo accesso.
+Do
+consentire questo accesso per il momento eseguendo:
+# grep nvidia-modprobe /var/log/audit/audit.log | audit2allow -M mypol
+# semodule -i mypol.pp
+
+Additional Information:
+Source Context                system_u:system_r:boinc_t:s0
+Target Context                system_u:object_r:device_t:s0
+Target Objects                 [ dir ]
+Source                        nvidia-modprobe
+Source Path                   /usr/bin/nvidia-modprobe
+Port                          &lt;Unknown&gt;
+Source RPM Packages           xorg-x11-drv-nvidia-331.113-1.fc20.x86_64
+Target RPM Packages           
+Policy RPM                    selinux-policy-3.12.1-196.fc20.noarch
+Selinux Enabled               True
+Policy Type                   targeted
+Enforcing Mode                Enforcing
+Platform                      Linux  3.17.7-200.fc20.x86_64 #1 SMP Wed
+                              Dec 17 03:35:33 UTC 2014 x86_64 x86_64
+Alert Count                   3
+First Seen                    2015-01-06 02:41:00 CET
+Last Seen                     2015-01-06 02:47:48 CET
+
+Raw Audit Messages
+type=AVC msg=audit(1420508868.195:353): avc:  denied  { write } for  pid=1312 comm=&quot;nvidia-modprobe&quot; name=&quot;/&quot; dev=&quot;devtmpfs&quot; ino=1025 scontext=system_u:system_r:boinc_t:s0 tcontext=system_u:object_r:device_t:s0 tclass=dir permissive=0
+
+
+type=SYSCALL msg=audit(1420508868.195:353): arch=x86_64 syscall=mknod success=no exit=EACCES a0=7fff192c7860 a1=21b6 a2=c3ff a3=7fff192c7490 items=0 ppid=1311 pid=1312 auid=4294967295 uid=991 gid=988 euid=0 suid=0 fsuid=0 egid=988 sgid=988 fsgid=988 tty=(none) ses=4294967295 comm=nvidia-modprobe exe=/usr/bin/nvidia-modprobe subj=system_u:system_r:boinc_t:s0 key=(null)
+
+Hash: nvidia-modprobe,boinc_t,device_t,dir,write
+===================================================
+
+
+Version-Release number of selected component (if applicable):
+libselinux-devel-2.2.1-6.fc20.x86_64
+libselinux-python-2.2.1-6.fc20.x86_64
+libselinux-2.2.1-6.fc20.i686
+selinux-policy-3.12.1-196.fc20.noarch
+selinux-policy-targeted-3.12.1-196.fc20.noarch
+libselinux-2.2.1-6.fc20.x86_64
+libselinux-utils-2.2.1-6.fc20.x86_64
+selinux-policy-doc-3.12.1-196.fc20.noarch
+selinux-policy-devel-3.12.1-196.fc20.noarch</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>7837059</commentid>
+    <comment_count>1</comment_count>
+    <who name="Nicolas Chauvet (kwizart)">kwizart</who>
+    <bug_when>2015-01-12 18:09:14 -0500</bug_when>
+    <thetext>Are you sure not to have label issues ? It&apos;s working fine with me on f21
+try touch /.autorelabel , reboot and retry</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>7837069</commentid>
+    <comment_count>2</comment_count>
+    <who name="Germano Massullo">germano.massullo</who>
+    <bug_when>2015-01-12 18:14:00 -0500</bug_when>
+    <thetext>(In reply to Nicolas Chauvet (kwizart) from comment #1)
+&gt; Are you sure not to have label issues ? It&apos;s working fine with me on f21
+&gt; try touch /.autorelabel , reboot and retry
+
+I have already done a relabel, but using a different command</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8286711</commentid>
+    <comment_count>3</comment_count>
+    <who name="Fedora End Of Life">jkurik</who>
+    <bug_when>2015-05-29 09:35:00 -0400</bug_when>
+    <thetext>This message is a reminder that Fedora 20 is nearing its end of life.
+Approximately 4 (four) weeks from now Fedora will stop maintaining
+and issuing updates for Fedora 20. It is Fedora&apos;s policy to close all
+bug reports from releases that are no longer maintained. At that time
+this bug will be closed as EOL if it remains open with a Fedora  &apos;version&apos;
+of &apos;20&apos;.
+
+Package Maintainer: If you wish for this bug to remain open because you
+plan to fix it in a currently maintained version, simply change the &apos;version&apos; 
+to a later Fedora version.
+
+Thank you for reporting this issue and we are sorry that we were not 
+able to fix it before Fedora 20 is end of life. If you would still like 
+to see this bug fixed and are able to reproduce it against a later version 
+of Fedora, you are encouraged  change the &apos;version&apos; to a later Fedora 
+version prior this bug is closed as described in the policy above.
+
+Although we aim to fix as many bugs as possible during every release&apos;s 
+lifetime, sometimes those efforts are overtaken by events. Often a 
+more recent Fedora release includes newer upstream software that fixes 
+bugs or makes them obsolete.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8874666</commentid>
+    <comment_count>4</comment_count>
+    <who name="Germano Massullo">germano.massullo</who>
+    <bug_when>2015-12-01 14:56:28 -0500</bug_when>
+    <thetext>Confirming also on F23</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10205355</commentid>
+    <comment_count>5</comment_count>
+    <who name="Nicolas Chauvet (kwizart)">kwizart</who>
+    <bug_when>2017-03-03 05:16:51 -0500</bug_when>
+    <thetext>The nvidia-modprobe utility does operate correctly under SELinux here. (f24).</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

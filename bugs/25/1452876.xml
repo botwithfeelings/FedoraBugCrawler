@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1452876</bug_id>
+          
+          <creation_ts>2017-05-19 16:10:00 -0400</creation_ts>
+          <short_desc>Invalid symlink in /usr/bin/cinnamon-settings-daemon</short_desc>
+          <delta_ts>2017-06-09 15:10:26 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>cinnamon-settings-daemon</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Lars Kiesow">lkiesow</reporter>
+          <assigned_to name="leigh scott">leigh123linux</assigned_to>
+          <cc>besser82</cc>
+    
+    
+    <cc>hakasham</cc>
+    
+    
+    <cc>leigh123linux</cc>
+    
+    
+    <cc>miketwebster</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>cinnamon-settings-daemon-3.4.1-1.fc25 cinnamon-settings-daemon-3.4.1-1.fc26</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-06-09 07:29:14</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10430217</commentid>
+    <comment_count>0</comment_count>
+    <who name="Lars Kiesow">lkiesow</who>
+    <bug_when>2017-05-19 16:10:35 -0400</bug_when>
+    <thetext>Description of problem:
+
+After upgrading the cinnamon packages, I noticed that the screen brightness control buttons do not work anymore. Looking at journalctl, I got:
+
+May 19 22:06:42 lars csd-media-keys[1610]: Failed to get old screen percentage: GDBus.Error:org.freedesktop.DBus.Error.ServiceUnknown: The name org.cinnamon.SettingsDaemon was not provided by any .service files
+
+After which I noticed that the cinnamon-settings-daemon did not run at all, which lead me to notice that there is an invalid symlink in /usr/bin/cinnamon-settings-daemon which might be the cause:
+
+% ll /usr/bin/cinnamon-settings-daemon
+lrwxrwxrwx. 1 root root 37 May  8 21:45 /usr/bin/cinnamon-settings-daemon -&gt; /usr/libexec/cinnamon-settings-daemon
+% ll /usr/libexec/cinnamon-settings-daemon
+ls: cannot access &apos;/usr/libexec/cinnamon-settings-daemon&apos;: No such file or directory
+
+
+Version-Release number of selected component (if applicable):
+3.4.0-1.fc25</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10430369</commentid>
+    <comment_count>1</comment_count>
+    <who name="leigh scott">leigh123linux</who>
+    <bug_when>2017-05-19 18:27:44 -0400</bug_when>
+    <thetext>*** Bug 1452877 has been marked as a duplicate of this bug. ***</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10430375</commentid>
+    <comment_count>2</comment_count>
+    <who name="leigh scott">leigh123linux</who>
+    <bug_when>2017-05-19 18:36:26 -0400</bug_when>
+    <thetext>(In reply to Lars Kiesow from comment #0)
+&gt; Description of problem:
+&gt; 
+&gt; After upgrading the cinnamon packages, I noticed that the screen brightness
+&gt; control buttons do not work anymore. Looking at journalctl, I got:
+&gt; 
+&gt; May 19 22:06:42 lars csd-media-keys[1610]: Failed to get old screen
+&gt; percentage: GDBus.Error:org.freedesktop.DBus.Error.ServiceUnknown: The name
+&gt; org.cinnamon.SettingsDaemon was not provided by any .service files
+&gt; 
+
+Fixed by this update currently in testing repo
+
+https://bodhi.fedoraproject.org/updates/FEDORA-2017-9788d934f2
+
+
+
+
+&gt; After which I noticed that the cinnamon-settings-daemon did not run at all,
+&gt; which lead me to notice that there is an invalid symlink in
+&gt; /usr/bin/cinnamon-settings-daemon which might be the cause:
+&gt; 
+&gt; % ll /usr/bin/cinnamon-settings-daemon
+&gt; lrwxrwxrwx. 1 root root 37 May  8 21:45 /usr/bin/cinnamon-settings-daemon -&gt;
+&gt; /usr/libexec/cinnamon-settings-daemon
+&gt; % ll /usr/libexec/cinnamon-settings-daemon
+&gt; ls: cannot access &apos;/usr/libexec/cinnamon-settings-daemon&apos;: No such file or
+&gt; directory
+&gt; 
+
+This was a harmless leftover, fixed in git
+
+http://pkgs.fedoraproject.org/cgit/rpms/cinnamon-settings-daemon.git/commit/?id=cf444e07684a6cb257d1ad218a5cf6b0e973deed</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10430651</commentid>
+    <comment_count>3</comment_count>
+    <who name="leigh scott">leigh123linux</who>
+    <bug_when>2017-05-20 02:46:05 -0400</bug_when>
+    <thetext>*** Bug 1452909 has been marked as a duplicate of this bug. ***</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10430682</commentid>
+    <comment_count>4</comment_count>
+    <who name="Lars Kiesow">lkiesow</who>
+    <bug_when>2017-05-20 03:40:59 -0400</bug_when>
+    <thetext>Thanks for fixing the issue! …and sorry for double posting.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10441359</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-23 15:56:22 -0400</bug_when>
+    <thetext>nemo-3.4.2-1.fc25 cinnamon-3.4.1-1.fc25 cinnamon-desktop-3.4.1-1.fc25 cjs-3.4.1-1.fc25 cinnamon-translations-3.4.2-1.fc25 cinnamon-settings-daemon-3.4.1-1.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-1ae435e0c0</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10441369</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-23 15:56:51 -0400</bug_when>
+    <thetext>nemo-3.4.2-1.fc26 cinnamon-3.4.1-1.fc26 cinnamon-desktop-3.4.1-1.fc26 cjs-3.4.1-1.fc26 cinnamon-translations-3.4.2-1.fc26 cinnamon-settings-daemon-3.4.1-1.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-1c08a63574</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10448821</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-25 15:19:47 -0400</bug_when>
+    <thetext>cinnamon-3.4.1-1.fc26, cinnamon-desktop-3.4.1-1.fc26, cinnamon-settings-daemon-3.4.1-1.fc26, cinnamon-translations-3.4.2-1.fc26, cjs-3.4.1-1.fc26, nemo-3.4.2-1.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-1c08a63574</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10450000</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-26 02:02:08 -0400</bug_when>
+    <thetext>cinnamon-3.4.1-1.fc25, cinnamon-desktop-3.4.1-1.fc25, cinnamon-settings-daemon-3.4.1-1.fc25, cinnamon-translations-3.4.2-1.fc25, cjs-3.4.1-1.fc25, nemo-3.4.2-1.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-1ae435e0c0</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10451004</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-26 07:39:52 -0400</bug_when>
+    <thetext>cinnamon-3.4.1-1.fc25 cinnamon-desktop-3.4.1-1.fc25 cinnamon-session-3.4.0-6.fc25 cinnamon-settings-daemon-3.4.1-1.fc25 cinnamon-translations-3.4.2-1.fc25 cjs-3.4.1-1.fc25 nemo-3.4.2-1.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-1ae435e0c0</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10451015</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-26 07:41:26 -0400</bug_when>
+    <thetext>cinnamon-3.4.1-1.fc26 cinnamon-desktop-3.4.1-1.fc26 cinnamon-session-3.4.0-6.fc26 cinnamon-settings-daemon-3.4.1-1.fc26 cinnamon-translations-3.4.2-1.fc26 cjs-3.4.1-1.fc26 nemo-3.4.2-1.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-1c08a63574</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10452471</commentid>
+    <comment_count>11</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-26 15:35:01 -0400</bug_when>
+    <thetext>cinnamon-3.4.1-1.fc26, cinnamon-desktop-3.4.1-1.fc26, cinnamon-session-3.4.0-6.fc26, cinnamon-settings-daemon-3.4.1-1.fc26, cinnamon-translations-3.4.2-1.fc26, cjs-3.4.1-1.fc26, nemo-3.4.2-1.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-1c08a63574</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10453055</commentid>
+    <comment_count>12</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-27 00:39:23 -0400</bug_when>
+    <thetext>cinnamon-3.4.1-1.fc25, cinnamon-desktop-3.4.1-1.fc25, cinnamon-session-3.4.0-6.fc25, cinnamon-settings-daemon-3.4.1-1.fc25, cinnamon-translations-3.4.2-1.fc25, cjs-3.4.1-1.fc25, nemo-3.4.2-1.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-1ae435e0c0</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10466338</commentid>
+    <comment_count>13</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-31 19:04:04 -0400</bug_when>
+    <thetext>cinnamon-3.4.1-2.fc25 cinnamon-desktop-3.4.1-1.fc25 cinnamon-session-3.4.0-6.fc25 cinnamon-settings-daemon-3.4.1-1.fc25 cinnamon-translations-3.4.2-1.fc25 cjs-3.4.1-1.fc25 nemo-3.4.2-1.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-1ae435e0c0</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10466346</commentid>
+    <comment_count>14</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-31 19:06:08 -0400</bug_when>
+    <thetext>cinnamon-3.4.1-2.fc26 cinnamon-desktop-3.4.1-1.fc26 cinnamon-session-3.4.0-6.fc26 cinnamon-settings-daemon-3.4.1-1.fc26 cinnamon-translations-3.4.2-1.fc26 cjs-3.4.1-1.fc26 nemo-3.4.2-1.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-1c08a63574</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10469862</commentid>
+    <comment_count>15</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-01 14:05:29 -0400</bug_when>
+    <thetext>cinnamon-3.4.1-2.fc25, cinnamon-desktop-3.4.1-1.fc25, cinnamon-session-3.4.0-6.fc25, cinnamon-settings-daemon-3.4.1-1.fc25, cinnamon-translations-3.4.2-1.fc25, cjs-3.4.1-1.fc25, nemo-3.4.2-1.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-1ae435e0c0</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10474621</commentid>
+    <comment_count>16</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-04 01:10:21 -0400</bug_when>
+    <thetext>cinnamon-3.4.1-2.fc26, cinnamon-desktop-3.4.1-1.fc26, cinnamon-session-3.4.0-6.fc26, cinnamon-settings-daemon-3.4.1-1.fc26, cinnamon-translations-3.4.2-1.fc26, cjs-3.4.1-1.fc26, nemo-3.4.2-1.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-1c08a63574</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10492598</commentid>
+    <comment_count>17</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-09 07:29:14 -0400</bug_when>
+    <thetext>cinnamon-3.4.1-2.fc25, cinnamon-desktop-3.4.1-1.fc25, cinnamon-session-3.4.0-6.fc25, cinnamon-settings-daemon-3.4.1-1.fc25, cinnamon-translations-3.4.2-1.fc25, cjs-3.4.1-1.fc25, nemo-3.4.2-1.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10494185</commentid>
+    <comment_count>18</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-09 15:10:26 -0400</bug_when>
+    <thetext>cinnamon-3.4.1-2.fc26, cinnamon-desktop-3.4.1-1.fc26, cinnamon-session-3.4.0-6.fc26, cinnamon-settings-daemon-3.4.1-1.fc26, cinnamon-translations-3.4.2-1.fc26, cjs-3.4.1-1.fc26, nemo-3.4.2-1.fc26 has been pushed to the Fedora 26 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

@@ -1,0 +1,566 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1381671</bug_id>
+          
+          <creation_ts>2016-10-04 13:08:00 -0400</creation_ts>
+          <short_desc>Fails to connect to Google, with legacy CAs disabled, or with ca-certificates version 2.10</short_desc>
+          <delta_ts>2017-04-01 13:23:38 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>empathy</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>1386616</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Kai Engert (:kaie)">kengert</reporter>
+          <assigned_to name="Debarshi Ray">debarshir</assigned_to>
+          <cc>bdpepple</cc>
+    
+    
+    <cc>danw</cc>
+    
+    
+    <cc>debarshir</cc>
+    
+    
+    <cc>dimitris</cc>
+    
+    
+    <cc>jan.steffens</cc>
+    
+    
+    <cc>jpg</cc>
+    
+    
+    <cc>mavit</cc>
+    
+    
+    <cc>mcatanzaro</cc>
+    
+    
+    <cc>mclasen</cc>
+    
+    
+    <cc>nmavrogi</cc>
+    
+    
+    <cc>pantinor</cc>
+    
+    
+    <cc>rkagan</cc>
+    
+    
+    <cc>sander</cc>
+    
+    
+    <cc>stefw</cc>
+    
+    
+    <cc>tmraz</cc>
+    
+    
+    <cc>tom.prince</cc>
+    
+    
+    <cc>uraeus</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>empathy-3.12.13-2.fc25 empathy-3.12.13-2.fc26</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-03-23 14:21:56</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          <external_bugs name="GNOME Desktop">753260</external_bugs>
+    
+    
+    
+    <external_bugs name="GNOME Desktop">780160</external_bugs>
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9765564</commentid>
+    <comment_count>0</comment_count>
+      <attachid>1207293</attachid>
+    <who name="Kai Engert (:kaie)">kengert</who>
+    <bug_when>2016-10-04 13:08:17 -0400</bug_when>
+    <thetext>Created attachment 1207293
+A chain that fails to validate in telepathy-gabble/wocky
+
+Jan reported that in Fedora 25, which disables the legacy CAs, the combination of empathy/gnome-online-accounts/telepathy-gabble/wocky fails to connect to Google Talk.
+
+The chain reported by the server can be seen with the following command:
+ openssl s_client -showcerts -tls1 -starttls xmpp -connect talk.l.google.com:5222
+
+(I&apos;ll also attach the chain.)
+
+Jan said, wocky implements its own certificate validation on top of GnuTLS.
+
+The issue is, the server sends an intermediate that points to &quot;Equifax Secure Certificate Authority&quot;. However, if the software ignored that topmost part of the chain, the software should be able to create a different chain, based on an earlier intermediate sent in the chain, which points to &quot;GeoTrust Global CA&quot;.
+
+I think we shouldn&apos;t change our plans, we should continue with the plan to disable all legacy CAs in Fedora 25.
+
+How can we get the developers of this software to change their code? They shouldn&apos;t use their own implementation of certificate validation, but use one provided by the libraries (by GnuTLS, if that&apos;s what they use), which already is finding potentially shorter and working chains of trust.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9765574</commentid>
+    <comment_count>1</comment_count>
+    <who name="Kai Engert (:kaie)">kengert</who>
+    <bug_when>2016-10-04 13:14:04 -0400</bug_when>
+    <thetext>Note there&apos;s even another issue lingering here.
+
+The legacy CA this server is chaining to, has been kept as a legacy CA, because it&apos;s using a 1024-bit RSA key.
+
+In the meantime, Mozilla has decided to completely remove this root for any purpose, because it&apos;s no longer included in published audit statements
+(see number 4 in https://bugzilla.mozilla.org/show_bug.cgi?id=1288250 )
+
+Because of that, I&apos;ve intended to completely remove those, even remove them from the legacy CA list 2.10, for all supported versions of Fedora, as part of the most recent CA list update (published as part of NSS 3.27).
+
+(I think I&apos;ll have to use a longer testing phase for the ca-certificates 2.10 update, to see how much it would break.)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9765603</commentid>
+    <comment_count>2</comment_count>
+    <who name="Kai Engert (:kaie)">kengert</who>
+    <bug_when>2016-10-04 13:27:57 -0400</bug_when>
+    <thetext>Brian, how can we reach the developers that maintain the certificate validation inside this software? Do you have contacts?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9791705</commentid>
+    <comment_count>3</comment_count>
+    <who name="Roman Kagan">rkagan</who>
+    <bug_when>2016-10-14 07:52:53 -0400</bug_when>
+    <thetext>F24 is affected too.
+
+With ca-certificates-2016.2.10-1.0.fc24.noarch arrived a couple of days ago telepathy started to complain about the certificate being self-signed (which is confusing because it pops up a dialog with gmail.com certificate signed by Google Internet Authority G2, and it takes quite an effort to figure out that in reality it can&apos;t verify Equifax&apos; signature on GeoTrust&apos;s certificate).
+
+On a quick check Google seems to include this certificate on other services, too: https://www.google.com/, imaps://imap.gmail.com/, etc.  Only telepathy-gabble broke with removal of Equifax certificates, though.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9791771</commentid>
+    <comment_count>4</comment_count>
+    <who name="Kai Engert (:kaie)">kengert</who>
+    <bug_when>2016-10-14 08:19:57 -0400</bug_when>
+    <thetext>The problem is that the server uses a compatibility configuration, which requires client software to be smart, and be able to find an alternative chain of trust.
+
+I have explained the background here:
+https://rt.openssl.org/Ticket/Display.html?id=3621#txn-49999
+
+It&apos;s the client software that is broken and incompatible with modern requirements.
+
+The developers of the broken software should switch to better certificate verification code (and preferably not implement this part on their own, but rather use standard code from a SSL/TLS library).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9802637</commentid>
+    <comment_count>5</comment_count>
+    <who name="Tom Prince">tom.prince</who>
+    <bug_when>2016-10-18 19:31:27 -0400</bug_when>
+    <thetext>*** Bug 1385539 has been marked as a duplicate of this bug. ***</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9804013</commentid>
+    <comment_count>6</comment_count>
+    <who name="Nikos Mavrogiannopoulos">nmavrogi</who>
+    <bug_when>2016-10-19 05:57:20 -0400</bug_when>
+    <thetext>I&apos;m not sure we have the right component. I see in the empathy debug window:
+empathyTls-DEBUG: 10/19/2016 09:44:07.79547: perform_verification: Performing verification
+empathyTls-DEBUG: 10/19/2016 09:44:07.79591: debug_certificate_chain: Certificate chain: length 3 status incomplete
+empathyTls-DEBUG: 10/19/2016 09:44:07.79890: debug_certificate: Certificate: C=US, ST=California, L=Mountain View, O=Google Inc, CN=gmail.com
+empathyTls-DEBUG: 10/19/2016 09:44:07.80071: debug_certificate: Certificate: C=US, O=Google Inc, CN=Google Internet Authority G2
+empathyTls-DEBUG: 10/19/2016 09:44:07.80249: debug_certificate: Certificate: C=US, O=GeoTrust Inc., CN=GeoTrust Global CA
+empathyTls-DEBUG: 10/19/2016 09:44:07.80549: perform_verification: Certificate verification gave result 0 with reason 6
+empathyTls-DEBUG: 10/19/2016 09:44:07.80606: abort_verification: Verification error 6, aborting...
+
+
+but I can find no trace of these debug messages at telepathy-gabble (which seems to not use the system certificates for verification -though its verification code is ok).
+
+The issue seems to be in empathy itself perform_verification_cb() and perform_verification(), which attempts to create the trust chain.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9879738</commentid>
+    <comment_count>7</comment_count>
+    <who name="Roman Kagan">rkagan</who>
+    <bug_when>2016-11-10 07:49:18 -0500</bug_when>
+    <thetext>OK the problem is not in empathy but in gcr,
+gcr/gcr-certificate-chain.c:perform_build_chain() which is the main worker in
+
+...
+  empathy_tls_verifier_verify_async
+    gcr_certificate_chain_build_async
+      thread_build_chain
+        perform_build_chain
+
+
+perform_build_chain() traverses the certificate chain passed in by the caller and looks up the certificate *itself* among pkcs11 anchors, and only looks up the issuer of the last certificate in the chain.
+
+Apparently it should rather look up the issuer of the current certificate first, and, if found, stop the chain traversal.
+
+Can someone with the rights please adjust the component?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9879765</commentid>
+    <comment_count>8</comment_count>
+    <who name="Kai Engert (:kaie)">kengert</who>
+    <bug_when>2016-11-10 07:57:53 -0500</bug_when>
+    <thetext>Roman, thanks a lot for your research. Changing component.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9879804</commentid>
+    <comment_count>9</comment_count>
+    <who name="Tomas Mraz">tmraz</who>
+    <bug_when>2016-11-10 08:08:34 -0500</bug_when>
+    <thetext>However it is unclear whether gcr needs to perform its own certificate validation - why doesn&apos;t it delegate this job to gnutls?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9879848</commentid>
+    <comment_count>10</comment_count>
+    <who name="Stef Walter">stefw</who>
+    <bug_when>2016-11-10 08:20:33 -0500</bug_when>
+    <thetext>&gt; However it is unclear whether gcr needs to perform its own certificate validation - why doesn&apos;t it delegate this job to gnutls?
+
+It certainly should. The certificate assembly and validation in GCR predates PKCS#11 support in GnuTLS. GCR and/or its callers should be migrated to use the latter now.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9879856</commentid>
+    <comment_count>11</comment_count>
+    <who name="Jan Alexander Steffens">jan.steffens</who>
+    <bug_when>2016-11-10 08:22:29 -0500</bug_when>
+    <thetext>Does this mean GCR should pick up a dependency on GnuTLS?
+
+It already links to libp11-kit. Can p11-kit do this, too?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9879870</commentid>
+    <comment_count>12</comment_count>
+    <who name="Stef Walter">stefw</who>
+    <bug_when>2016-11-10 08:27:52 -0500</bug_when>
+    <thetext>Nah, p11-kit isn&apos;t about TLS. GnuTLS uses p11-kit to load certificates and keys, but p11-kit doesn&apos;t know how they&apos;ll be chained, assembled, used or verified.
+
+I spoke too hastily above though. glib-networking is the thing that has the multiple TLS backends and the GnuTLS dependency ... it also has custom certificate validation code that predates GnuTLS working with PKCS#11.
+
+Gcr custom chain code should be removed and glib-networking&apos;s custom certificate chain code implemented using GnuTLS.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9879895</commentid>
+    <comment_count>13</comment_count>
+    <who name="Kai Engert (:kaie)">kengert</who>
+    <bug_when>2016-11-10 08:38:26 -0500</bug_when>
+    <thetext>I think glib-networking was already changed to use the validation code from GnuTLS. If gcr already has a dependency on glib-networking (does it?), then maybe gcr could reuse the glib-networking code that uses GnuTLS?
+
+Adding Dan, who has worked in this area.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9879929</commentid>
+    <comment_count>14</comment_count>
+    <who name="Stef Walter">stefw</who>
+    <bug_when>2016-11-10 08:48:12 -0500</bug_when>
+    <thetext>If that&apos;s the case, that&apos;s great.
+
+I wonder what callers actually use the Gcr code, if any. We may be able to just remove those APIs in favor of glib-networking. The Gcr API is marked as unstable, so with API removal ... along with some patches to known API callers ... I think we would be in good shape.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9879950</commentid>
+    <comment_count>15</comment_count>
+    <who name="Dan Winship">danw</who>
+    <bug_when>2016-11-10 08:53:24 -0500</bug_when>
+    <thetext>glib-networking uses gnutls&apos;s validation code by default, but currently still uses the broken internal code when using PKCS#11. See https://bugzilla.gnome.org/show_bug.cgi?id=753260#c9</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9912375</commentid>
+    <comment_count>16</comment_count>
+    <who name="">jpg</who>
+    <bug_when>2016-11-22 09:35:53 -0500</bug_when>
+    <thetext>I&apos;m hitting this issue... any workaround?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10079667</commentid>
+    <comment_count>17</comment_count>
+    <who name="Roman Kagan">rkagan</who>
+    <bug_when>2017-01-19 06:11:23 -0500</bug_when>
+    <thetext>Looks like this bug fell through the gaps between maintainers&apos; responsibility zones...
+
+Has it been decided what needs to be done?  Is anybody working on this?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10080120</commentid>
+    <comment_count>18</comment_count>
+    <who name="Dan Winship">danw</who>
+    <bug_when>2017-01-19 08:21:39 -0500</bug_when>
+    <thetext>Comment 15 links to the upstream bug that shows what needs to be done. So it&apos;s not fixed upstream yet, so there&apos;s nothing Fedora maintainers can do. (And it&apos;s not being worked on upstream, so there&apos;s no ETA, though if you want to try to dive in and tackle it, the upstream bug shows what needs to be done and I can at least help out with review/questions.)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10198120</commentid>
+    <comment_count>19</comment_count>
+    <who name="Dan Winship">danw</who>
+    <bug_when>2017-03-01 10:58:09 -0500</bug_when>
+    <thetext>Sorry, my previous comment is wrong; I should have re-read the whole bug. The main bug here is that empathy/gcr needs to be ported to use glib-networking to do its certificate validation. Once that is done, the bug here will be fixed for basically everyone. The upstream glib-networking bug is only relevant to people using PKCS#11, and only relevant *after* empathy/gcr is changed to actually use glib-networking&apos;s code.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10243463</commentid>
+    <comment_count>20</comment_count>
+    <who name="Debarshi Ray">debarshir</who>
+    <bug_when>2017-03-15 16:21:41 -0400</bug_when>
+    <thetext>(In reply to Stef Walter from comment #14)
+&gt; I wonder what callers actually use the Gcr code, if any. We may be able to
+&gt; just remove those APIs in favor of glib-networking. The Gcr API is marked as
+&gt; unstable, so with API removal ... along with some patches to known API
+&gt; callers ... I think we would be in good shape.
+
+Yes, let&apos;s do that. In this particular case, we can teach empathy to just use the GIO / glib-networking API instead of Gcr.
+
+Reassigning.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10243477</commentid>
+    <comment_count>21</comment_count>
+    <who name="Debarshi Ray">debarshir</who>
+    <bug_when>2017-03-15 16:23:15 -0400</bug_when>
+    <thetext>Reassigning to myself (again).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10247445</commentid>
+    <comment_count>22</comment_count>
+    <who name="Debarshi Ray">debarshir</who>
+    <bug_when>2017-03-16 16:40:50 -0400</bug_when>
+    <thetext>For those interested, patches at:
+https://bugzilla.gnome.org/show_bug.cgi?id=780160</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10262230</commentid>
+    <comment_count>23</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-21 13:06:57 -0400</bug_when>
+    <thetext>empathy-3.12.13-2.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-bd15ca5490</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10262237</commentid>
+    <comment_count>24</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-21 13:10:34 -0400</bug_when>
+    <thetext>empathy-3.12.13-2.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-8840ec0204</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10262312</commentid>
+    <comment_count>25</comment_count>
+    <who name="Kai Engert (:kaie)">kengert</who>
+    <bug_when>2017-03-21 13:31:07 -0400</bug_when>
+    <thetext>Everyone affected by this bug, could you please test the package, and give us feedback? Thanks in advance</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10263274</commentid>
+    <comment_count>26</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-21 20:53:24 -0400</bug_when>
+    <thetext>empathy-3.12.13-2.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-bd15ca5490</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10264508</commentid>
+    <comment_count>27</comment_count>
+    <who name="Paolo Antinori">pantinor</who>
+    <bug_when>2017-03-22 07:28:23 -0400</bug_when>
+    <thetext>Guys, how to test this?
+
+when I run:
+
+sudo dnf --enablerepo=updates-testing check-update  | grep empathy
+
+I get no output on f25</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10264825</commentid>
+    <comment_count>28</comment_count>
+    <who name="Kai Engert (:kaie)">kengert</who>
+    <bug_when>2017-03-22 08:55:07 -0400</bug_when>
+    <thetext>Paolo, maybe it was too early, and the update had not yet reached the download servers. Can you try again? Or alternatively, if you don&apos;t want to wait, on the bodhi page, you can click download the build manually. Upper left, &quot;Builds&quot;, circle/arrow icon, find rpm for your platform, download, install with rpm -U.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10265496</commentid>
+    <comment_count>29</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-22 11:27:23 -0400</bug_when>
+    <thetext>empathy-3.12.13-2.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-8840ec0204</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10265591</commentid>
+    <comment_count>30</comment_count>
+    <who name="Paolo Antinori">pantinor</who>
+    <bug_when>2017-03-22 11:49:58 -0400</bug_when>
+    <thetext>Tested and working fine for me on f25
+
+sudo dnf install https://kojipkgs.fedoraproject.org//packages/empathy/3.12.13/2.fc25/x86_64/empathy-3.12.13-2.fc25.x86_64.rpm
+
+Thank you!</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10265630</commentid>
+    <comment_count>31</comment_count>
+    <who name="Paolo Antinori">pantinor</who>
+    <bug_when>2017-03-22 12:03:33 -0400</bug_when>
+    <thetext>Tested and working fine for me on f25
+
+sudo dnf install https://kojipkgs.fedoraproject.org//packages/empathy/3.12.13/2.fc25/x86_64/empathy-3.12.13-2.fc25.x86_64.rpm
+
+Thank you!</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10271154</commentid>
+    <comment_count>32</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-23 14:21:56 -0400</bug_when>
+    <thetext>empathy-3.12.13-2.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10296849</commentid>
+    <comment_count>33</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-01 13:23:38 -0400</bug_when>
+    <thetext>empathy-3.12.13-2.fc26 has been pushed to the Fedora 26 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="0"
+              ispatch="0"
+              isprivate="0"
+          >
+            <attachid>1207293</attachid>
+            <date>2016-10-04 13:08:00 -0400</date>
+            <delta_ts>2016-10-04 13:08:17 -0400</delta_ts>
+            <desc>A chain that fails to validate in telepathy-gabble/wocky</desc>
+            <filename>wocky-chain.txt</filename>
+            <type>text/plain</type>
+            <size>6009</size>
+            <attacher name="Kai Engert (:kaie)">kengert</attacher>
+            
+              <data encoding="base64">Q09OTkVDVEVEKDAwMDAwMDAzKQpkZXB0aD0yIEMgPSBVUywgTyA9IEdlb1RydXN0IEluYy4sIENO
+ID0gR2VvVHJ1c3QgR2xvYmFsIENBCnZlcmlmeSByZXR1cm46MQpkZXB0aD0xIEMgPSBVUywgTyA9
+IEdvb2dsZSBJbmMsIENOID0gR29vZ2xlIEludGVybmV0IEF1dGhvcml0eSBHMgp2ZXJpZnkgcmV0
+dXJuOjEKZGVwdGg9MCBDID0gVVMsIFNUID0gQ2FsaWZvcm5pYSwgTCA9IE1vdW50YWluIFZpZXcs
+IE8gPSBHb29nbGUgSW5jLCBDTiA9ICouZ29vZ2xlLmNvbQp2ZXJpZnkgcmV0dXJuOjEKLS0tCkNl
+cnRpZmljYXRlIGNoYWluCiAwIHM6L0M9VVMvU1Q9Q2FsaWZvcm5pYS9MPU1vdW50YWluIFZpZXcv
+Tz1Hb29nbGUgSW5jL0NOPSouZ29vZ2xlLmNvbQogICBpOi9DPVVTL089R29vZ2xlIEluYy9DTj1H
+b29nbGUgSW50ZXJuZXQgQXV0aG9yaXR5IEcyCi0tLS0tQkVHSU4gQ0VSVElGSUNBVEUtLS0tLQpN
+SUlIRWpDQ0JmcWdBd0lCQWdJSUE5TE8xYUt0Y0dJd0RRWUpLb1pJaHZjTkFRRUxCUUF3U1RFTE1B
+a0dBMVVFCkJoTUNWVk14RXpBUkJnTlZCQW9UQ2tkdmIyZHNaU0JKYm1NeEpUQWpCZ05WQkFNVEhF
+ZHZiMmRzWlNCSmJuUmwKY201bGRDQkJkWFJvYjNKcGRIa2dSekl3SGhjTk1UWXdPVEk1TVRZMU1q
+SXpXaGNOTVRZeE1qSXlNVFl6TnpBdwpXakJtTVFzd0NRWURWUVFHRXdKVlV6RVRNQkVHQTFVRUNB
+d0tRMkZzYVdadmNtNXBZVEVXTUJRR0ExVUVCd3dOClRXOTFiblJoYVc0Z1ZtbGxkekVUTUJFR0Ex
+VUVDZ3dLUjI5dloyeGxJRWx1WXpFVk1CTUdBMVVFQXd3TUtpNW4KYjI5bmJHVXVZMjl0TUZrd0V3
+WUhLb1pJemowQ0FRWUlLb1pJemowREFRY0RRZ0FFQm9kSUJZQm9XRmN2OGdkNwp4SzdHelpNVFFv
+Q2FVamVpTXlObHhQYUduUjl0VlowOFIrY3ZNZUpLRm1IYXJpalZJbEZrOWVNNCs0dU5wbC85CkRU
+Z29jS09DQktvd2dnU21NQjBHQTFVZEpRUVdNQlFHQ0NzR0FRVUZCd01CQmdnckJnRUZCUWNEQWpD
+Q0Eya0cKQTFVZEVRU0NBMkF3Z2dOY2dnd3FMbWR2YjJkc1pTNWpiMjJDRFNvdVlXNWtjbTlwWkM1
+amIyMkNGaW91WVhCdwpaVzVuYVc1bExtZHZiMmRzWlM1amIyMkNFaW91WTJ4dmRXUXVaMjl2WjJ4
+bExtTnZiWUlXS2k1bmIyOW5iR1V0CllXNWhiSGwwYVdOekxtTnZiWUlMS2k1bmIyOW5iR1V1WTJH
+Q0N5b3VaMjl2WjJ4bExtTnNnZzRxTG1kdmIyZHMKWlM1amJ5NXBib0lPS2k1bmIyOW5iR1V1WTI4
+dWFuQ0NEaW91WjI5dloyeGxMbU52TG5WcmdnOHFMbWR2YjJkcwpaUzVqYjIwdVlYS0NEeW91WjI5
+dloyeGxMbU52YlM1aGRZSVBLaTVuYjI5bmJHVXVZMjl0TG1KeWdnOHFMbWR2CmIyZHNaUzVqYjIw
+dVkyK0NEeW91WjI5dloyeGxMbU52YlM1dGVJSVBLaTVuYjI5bmJHVXVZMjl0TG5SeWdnOHEKTG1k
+dmIyZHNaUzVqYjIwdWRtNkNDeW91WjI5dloyeGxMbVJsZ2dzcUxtZHZiMmRzWlM1bGM0SUxLaTVu
+YjI5bgpiR1V1Wm5LQ0N5b3VaMjl2WjJ4bExtaDFnZ3NxTG1kdmIyZHNaUzVwZElJTEtpNW5iMjlu
+YkdVdWJteUNDeW91CloyOXZaMnhsTG5Cc2dnc3FMbWR2YjJkc1pTNXdkSUlTS2k1bmIyOW5iR1Zo
+WkdGd2FYTXVZMjl0Z2c4cUxtZHYKYjJkc1pXRndhWE11WTI2Q0ZDb3VaMjl2WjJ4bFkyOXRiV1Z5
+WTJVdVkyOXRnaEVxTG1kdmIyZHNaWFpwWkdWdgpMbU52YllJTUtpNW5jM1JoZEdsakxtTnVnZzBx
+TG1kemRHRjBhV011WTI5dGdnb3FMbWQyZERFdVkyOXRnZ29xCkxtZDJkREl1WTI5dGdoUXFMbTFs
+ZEhKcFl5NW5jM1JoZEdsakxtTnZiWUlNS2k1MWNtTm9hVzR1WTI5dGdoQXEKTG5WeWJDNW5iMjlu
+YkdVdVkyOXRnaFlxTG5sdmRYUjFZbVV0Ym05amIyOXJhV1V1WTI5dGdnMHFMbmx2ZFhSMQpZbVV1
+WTI5dGdoWXFMbmx2ZFhSMVltVmxaSFZqWVhScGIyNHVZMjl0Z2dzcUxubDBhVzFuTG1OdmJZSWFZ
+VzVrCmNtOXBaQzVqYkdsbGJuUnpMbWR2YjJkc1pTNWpiMjJDQzJGdVpISnZhV1F1WTI5dGdnUm5M
+bU52Z2dabmIyOHUKWjJ5Q0ZHZHZiMmRzWlMxaGJtRnNlWFJwWTNNdVkyOXRnZ3BuYjI5bmJHVXVZ
+Mjl0Z2hKbmIyOW5iR1ZqYjIxdApaWEpqWlM1amIyMkNHWEJ2YkdsamVTNXRkR0V0YzNSekxtZHZi
+MmRzWlM1amIyMkNDblZ5WTJocGJpNWpiMjJDCkNuZDNkeTVuYjI4dVoyeUNDSGx2ZFhSMUxtSmxn
+Z3Q1YjNWMGRXSmxMbU52YllJVWVXOTFkSFZpWldWa2RXTmgKZEdsdmJpNWpiMjB3Q3dZRFZSMFBC
+QVFEQWdlQU1HZ0dDQ3NHQVFVRkJ3RUJCRnd3V2pBckJnZ3JCZ0VGQlFjdwpBb1lmYUhSMGNEb3ZM
+M0JyYVM1bmIyOW5iR1V1WTI5dEwwZEpRVWN5TG1OeWREQXJCZ2dyQmdFRkJRY3dBWVlmCmFIUjBj
+RG92TDJOc2FXVnVkSE14TG1kdmIyZHNaUzVqYjIwdmIyTnpjREFkQmdOVkhRNEVGZ1FVTFFVNTFK
+ekoKVDZvek10S3hLTnBvVHFBdWpsc3dEQVlEVlIwVEFRSC9CQUl3QURBZkJnTlZIU01FR0RBV2dC
+UkszUVlXRzd6MgphTFYyOVlHMnUySWF1bHFCTHpBaEJnTlZIU0FFR2pBWU1Bd0dDaXNHQVFRQjFu
+a0NCUUV3Q0FZR1o0RU1BUUlDCk1EQUdBMVVkSHdRcE1DY3dKYUFqb0NHR0gyaDBkSEE2THk5d2Ey
+a3VaMjl2WjJ4bExtTnZiUzlIU1VGSE1pNWoKY213d0RRWUpLb1pJaHZjTkFRRUxCUUFEZ2dFQkFE
+MXdrNVlHdTkvRzhJOGlkY3BMaVpLNDN1RDFyc0xwemVEcQpxaXZqckFBSmlCL1FjZjJzMjFYbCs0
+K2wzOW56Z1p1TEZvMy9NTHl3VXlwQXg2YUlPS25vSlhyaFlZMXczcUM3CmUrcjErTnltTXZ1Z0ZX
+VG55cEsvVlNnZVBkYk9vb3E0M0tNb3NlYXlEZkc5d1VqS080empIRlluMWlpN3ZxSmUKc1UzekND
+bUVyWHRoSE9NNHdNSmJINDZpT2luMFpVNzVKSmFJMUE3b2ZJM3VybTRJZ0s0WDZJTkZKcE93NzRu
+eQpGQ0pMUlR6WXE2c29KRWI0ODZTMDJ0SzBwNXJZVkJHcDM1RXBxSzRHNGNKSUJoN2FtMGhUbFE5
+WGtlaExjQXN1CldRYjhyTnFuOFc4OVQzY1VRYnZnRldydDJ3VTlMd25sc0swMjlCcFM0ODRpK0kx
+cUdJbz0KLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQogMSBzOi9DPVVTL089R29vZ2xlIEluYy9D
+Tj1Hb29nbGUgSW50ZXJuZXQgQXV0aG9yaXR5IEcyCiAgIGk6L0M9VVMvTz1HZW9UcnVzdCBJbmMu
+L0NOPUdlb1RydXN0IEdsb2JhbCBDQQotLS0tLUJFR0lOIENFUlRJRklDQVRFLS0tLS0KTUlJRDhE
+Q0NBdGlnQXdJQkFnSURBanFTTUEwR0NTcUdTSWIzRFFFQkN3VUFNRUl4Q3pBSkJnTlZCQVlUQWxW
+VApNUll3RkFZRFZRUUtFdzFIWlc5VWNuVnpkQ0JKYm1NdU1Sc3dHUVlEVlFRREV4SkhaVzlVY25W
+emRDQkhiRzlpCllXd2dRMEV3SGhjTk1UVXdOREF4TURBd01EQXdXaGNOTVRjeE1qTXhNak0xT1RV
+NVdqQkpNUXN3Q1FZRFZRUUcKRXdKVlV6RVRNQkVHQTFVRUNoTUtSMjl2WjJ4bElFbHVZekVsTUNN
+R0ExVUVBeE1jUjI5dloyeGxJRWx1ZEdWeQpibVYwSUVGMWRHaHZjbWwwZVNCSE1qQ0NBU0l3RFFZ
+SktvWklodmNOQVFFQkJRQURnZ0VQQURDQ0FRb0NnZ0VCCkFKd3FCSGRjMkZDUk9nYWpndURZVUVp
+OGlUL3hHWEFhaUVaKzRJL0Y4WW5PSWU1YS9tRU50ekpFaWFCMEMxTlAKVmFUT2dtS1Y3dXRaWDhi
+aEJZQVN4RjZVUDd4YlNEajBVL2NrNXZ1UjZSWEV6L1JURGZSSy9KOVUzbjIrb0d0dgpoOERRVUI4
+b01BTkEyZ2h6VVd4Ly96bzhwemNHanIxTEVRVHJmU1RlNXZuOE1YSDdsTlZnOHk1S3IwTFN5K3JF
+CmFocXl6RlBkRlV1TEg4Z1pZUi9ObmFnK1l5dUVOV2xsaE1nWnhVWWkrRk9WdnVPQVNoREdLdXk2
+bHlBUnh6bVoKRUFTZzhHRjZsU1dNVGxKMTRyYnRDTW9VL000aWFyTk96MFlEbDVjRGZzQ3gzbnV2
+UlRQUHVqNXh0OTcwSlNYQwpEVFdKblozN0RoRjVpUjQzeGErT2Nta0NBd0VBQWFPQjV6Q0I1REFm
+QmdOVkhTTUVHREFXZ0JUQWVwaG9qWW43CnF3VmtEQkY5cW4xbHVNck1UakFkQmdOVkhRNEVGZ1FV
+U3QwR0ZodTg5bWkxZHZXQnRydGlHcnBhZ1M4d0RnWUQKVlIwUEFRSC9CQVFEQWdFR01DNEdDQ3NH
+QVFVRkJ3RUJCQ0l3SURBZUJnZ3JCZ0VGQlFjd0FZWVNhSFIwY0RvdgpMMmN1YzNsdFkyUXVZMjl0
+TUJJR0ExVWRFd0VCL3dRSU1BWUJBZjhDQVFBd05RWURWUjBmQkM0d0xEQXFvQ2lnCkpvWWthSFIw
+Y0RvdkwyY3VjM2x0WTJJdVkyOXRMMk55YkhNdlozUm5iRzlpWVd3dVkzSnNNQmNHQTFVZElBUVEK
+TUE0d0RBWUtLd1lCQkFIV2VRSUZBVEFOQmdrcWhraUc5dzBCQVFzRkFBT0NBUUVBQ0U0RXA0Qi9F
+QlpEWGdLdAoxMEtBOUxDTzBxNno2eEY5a0lRWWZlZVFGZnRKZjZpWkJaRzdlc25XUERjWUNacTJ4
+NUlnQnpVekNlUW9ZM0lOCnRPQXluSWVZeEJ0MmlXZkJVRml3RTZvVEdoc3lwYjdxRVpWTVNHTko2
+WmxkSURmTS9pcHBVUmFWUzZuZVNZTEEKRUhEMExQUHN2Q1FrMEU2c3BkbGVIbTJTd2Flc1NEV0Ir
+ZVhrbkdWcHpZZWtRVkEvTGxlbGtWRVNXQTZNQ2FHcwplcVFTcFNmem1oQ1hmVlVEQnZkbVdGOWZa
+T0dyWFcybE9VaDFtRXdwV2pxTjB5dktuRlVFdi9UbUZOV0FyQ2J0CkY0bW1rMnhjcE15NDhHYU9a
+T045bXVJQXMwbkg1QXFxM1Z1RHgzQ1FSazYrME50Wmxtd3U5UlkyM25ITUFjSVMKd1NIR0ZnPT0K
+LS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQogMiBzOi9DPVVTL089R2VvVHJ1c3QgSW5jLi9DTj1H
+ZW9UcnVzdCBHbG9iYWwgQ0EKICAgaTovQz1VUy9PPUVxdWlmYXgvT1U9RXF1aWZheCBTZWN1cmUg
+Q2VydGlmaWNhdGUgQXV0aG9yaXR5Ci0tLS0tQkVHSU4gQ0VSVElGSUNBVEUtLS0tLQpNSUlEZlRD
+Q0F1YWdBd0lCQWdJREVydm1NQTBHQ1NxR1NJYjNEUUVCQlFVQU1FNHhDekFKQmdOVkJBWVRBbFZU
+Ck1SQXdEZ1lEVlFRS0V3ZEZjWFZwWm1GNE1TMHdLd1lEVlFRTEV5UkZjWFZwWm1GNElGTmxZM1Z5
+WlNCRFpYSjAKYVdacFkyRjBaU0JCZFhSb2IzSnBkSGt3SGhjTk1ESXdOVEl4TURRd01EQXdXaGNO
+TVRnd09ESXhNRFF3TURBdwpXakJDTVFzd0NRWURWUVFHRXdKVlV6RVdNQlFHQTFVRUNoTU5SMlZ2
+VkhKMWMzUWdTVzVqTGpFYk1Ca0dBMVVFCkF4TVNSMlZ2VkhKMWMzUWdSMnh2WW1Gc0lFTkJNSUlC
+SWpBTkJna3Foa2lHOXcwQkFRRUZBQU9DQVE4QU1JSUIKQ2dLQ0FRRUEyc3dZWXpEOTlCY2pHbFor
+Vzk4OGJEamtjYmQ0a2RTOG9kaE0rS2hEdGdQcFRTRUhDSWphV0M5bQpPU205QlhpTG5Uam9CYmRx
+Zm5HazVzUmdwckR2Z09TSktBK2VKZGJ0Zy9PdHBwSEhtTWxDR0RVVW5hMllScEl1ClQ4cnhoMFBC
+RnBWWExWRHZpUzJBZWxldDh1NWZhOUlBamJrVStCUVZOZG5BUnFON2NzaVJ2OGxWSzgzUWx6NmMK
+Sm1UTTM4NkRHWEhLVHViVTFYdXBHYzFWM3NqczBsNDRVK1ZjVDR3dC9sQWpOdnhtNXN1T3BEa1pB
+TGVWQWptUgpDdzcrT0M3UkhRV2E5azArYnc4SEhhOHNIbzlnT2VMNk5sTVRPZFJlSml2YlBhZ1V2
+VExyR0FNb1VnUng1YXN6ClBlRTR1d2MyaEdLY2Vlb1dNUFJmd0N2b2NXdmsrUUlEQVFBQm80SHdN
+SUh0TUI4R0ExVWRJd1FZTUJhQUZFam0KYVBrcjByS1YxMGZZSXlBUVR6T1lrSi9VTUIwR0ExVWRE
+Z1FXQkJUQWVwaG9qWW43cXdWa0RCRjlxbjFsdU1yTQpUakFQQmdOVkhSTUJBZjhFQlRBREFRSC9N
+QTRHQTFVZER3RUIvd1FFQXdJQkJqQTZCZ05WSFI4RU16QXhNQytnCkxhQXJoaWxvZEhSd09pOHZZ
+M0pzTG1kbGIzUnlkWE4wTG1OdmJTOWpjbXh6TDNObFkzVnlaV05oTG1OeWJEQk8KQmdOVkhTQUVS
+ekJGTUVNR0JGVWRJQUF3T3pBNUJnZ3JCZ0VGQlFjQ0FSWXRhSFIwY0hNNkx5OTNkM2N1WjJWdgpk
+SEoxYzNRdVkyOXRMM0psYzI5MWNtTmxjeTl5WlhCdmMybDBiM0o1TUEwR0NTcUdTSWIzRFFFQkJR
+VUFBNEdCCkFIYmhFbTVPU3hZU2hqQUdzb0VJei9BSXg4ZHhmbWJ1d3UzVU94Ly84UERJVHRaRE9M
+QzVNSDBZMEZXRG9tckwKTmhHYzZFaG1vMjEvdUJQVVIvNkxXbHh6L0s3Wkd6SVpPS3VYTkJTcWx0
+THJveHdVQ0VtMnUrV1I3NE0yNngxVwpiOHJhdkhOamtPUi9lejRpeXowSDdWODRkSnpqQTFCT29h
+K1k3bUh5aEQ4UwotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCi0tLQpTZXJ2ZXIgY2VydGlmaWNh
+dGUKc3ViamVjdD0vQz1VUy9TVD1DYWxpZm9ybmlhL0w9TW91bnRhaW4gVmlldy9PPUdvb2dsZSBJ
+bmMvQ049Ki5nb29nbGUuY29tCmlzc3Vlcj0vQz1VUy9PPUdvb2dsZSBJbmMvQ049R29vZ2xlIElu
+dGVybmV0IEF1dGhvcml0eSBHMgotLS0K
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

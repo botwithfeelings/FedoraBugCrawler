@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1386921</bug_id>
+          
+          <creation_ts>2016-10-19 16:35:00 -0400</creation_ts>
+          <short_desc>&quot;dnf info SUBPACKAGE&quot; does not print the name of the source RPM</short_desc>
+          <delta_ts>2016-11-16 02:55:52 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>dnf</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>RAWHIDE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Laszlo Ersek">lersek</reporter>
+          <assigned_to>rpm-software-management</assigned_to>
+          <cc>jmracek</cc>
+    
+    
+    <cc>lersek</cc>
+    
+    
+    <cc>mluscon</cc>
+    
+    
+    <cc>packaging-team-maint</cc>
+    
+    
+    <cc>pnemade</cc>
+    
+    
+    <cc>rpm-software-management</cc>
+    
+    
+    <cc>vmukhame</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-10-22 03:51:34</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9805998</commentid>
+    <comment_count>0</comment_count>
+    <who name="Laszlo Ersek">lersek</who>
+    <bug_when>2016-10-19 16:35:41 -0400</bug_when>
+    <thetext>*** Description of problem:
+When the user only knows the name of a subpackage, but not that of the main (source) package, and the subpackage is not installed on the system (so that &quot;rpm -q --info&quot; cannot be used), then &quot;yum info SUBPACKAGE&quot; used to provide this information (that is, leading the user from the subpackage to the main package). Dnf does not print this information.
+
+*** Version-Release number of selected component (if applicable):
+dnf-1.1.10-1.fc24.noarch
+
+*** How reproducible:
+100%
+
+*** Example Steps to Reproduce:
+1. On a Fedora 24 system,
+   run &quot;dnf info gcc-aarch64-linux-gnu&quot;
+2. On a RHEL-7 system with EPEL-7 enabled,
+   run &quot;yum info gcc-aarch64-linux-gnu&quot;
+
+*** Actual results:
+The output of command #1 does not contain the &quot;Source RPM&quot; field.
+The output of command #2 contains the &quot;Source RPM&quot; field
+(namely cross-gcc-XXX.src.rpm).
+
+*** Expected results:
+&quot;dnf info&quot; should print the Source RPM field as well, because for some packages, the main package name cannot be deduced from the subpackage name.
+
+*** Additional info:
+If the subpackage is already installed on the system, or downloaded to a local file, then the command &quot;rpm -q --info [-p SUBPACKAGE.rpm]&quot; can be used to retrieve the same kind of information. However, the name of the SRPM should be retrievable without such restrictions.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9811929</commentid>
+    <comment_count>1</comment_count>
+    <who name="Jaroslav Mracek">jmracek</who>
+    <bug_when>2016-10-21 12:11:28 -0400</bug_when>
+    <thetext>I think that the problem was solved in DNF-2.0, that was released into rawhide. The testing version is available for fc24 in copr repo rpmsoftwaremanagement/dnf-nightly. Here I provide reduced output with and without verbose mode for dnf-2.0.0_0.rc1.1-11g5945ec5.fc24.noarch. Please can you confirm that you are satisfied with changes?
+
+[bot]$sudo dnf info gcc-aarch64-linux-gnu -v
+Last metadata expiration check: 2:54:09 ago on Fri Oct 21 15:13:14 2016 CEST.
+Available Packages
+Name         : gcc-aarch64-linux-gnu
+Version      : 6.1.1
+Release      : 2.fc24
+Arch         : x86_64
+Size         : 12 M
+Source       : cross-gcc-6.1.1-2.fc24.src.rpm
+Repo         : updates
+Packager     : Fedora Project
+Buildtime    : Fri Jul 08 17:00:13 2016 CEST
+Summary      : Cross-build binary utilities for aarch64-linux-gnu
+URL          : http://gcc.gnu.org
+License      : GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions and LGPLv2+ and BSD
+Description  : Cross-build GNU C compiler.
+             : 
+             : Only building kernels is currently supported.  Support for cross-building
+             : user space programs is not currently provided as that would massively multiply
+             : the number of packages.
+
+[bot]$ sudo dnf info gcc-aarch64-linux-gnu
+Failed loading plugin: module
+Last metadata expiration check: 2:54:20 ago on Fri Oct 21 15:13:14 2016 CEST.
+Available Packages
+Name         : gcc-aarch64-linux-gnu
+Version      : 6.1.1
+Release      : 2.fc24
+Arch         : x86_64
+Size         : 12 M
+Source       : cross-gcc-6.1.1-2.fc24.src.rpm
+Repo         : updates
+Summary      : Cross-build binary utilities for aarch64-linux-gnu
+URL          : http://gcc.gnu.org
+License      : GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions and LGPLv2+ and BSD
+Description  : Cross-build GNU C compiler.
+             : 
+             : Only building kernels is currently supported.  Support for cross-building
+             : user space programs is not currently provided as that would massively multiply
+             : the number of packages.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9812142</commentid>
+    <comment_count>2</comment_count>
+    <who name="Laszlo Ersek">lersek</who>
+    <bug_when>2016-10-21 13:20:52 -0400</bug_when>
+    <thetext>Looks perfect. Printing the Packager in the verbose view is a nice touch also; that&apos;s something that yum prints as well, IIRC.
+
+So I guess this BZ can be set to CLOSED/NEXTRELEASE, can it not?
+
+Thank you very much!</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

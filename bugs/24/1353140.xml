@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1353140</bug_id>
+          
+          <creation_ts>2016-07-06 04:40:00 -0400</creation_ts>
+          <short_desc>livemedia-creator creates live cds which have almost no space on root</short_desc>
+          <delta_ts>2016-07-18 14:24:00 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>lorax</component>
+          <version>24</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>high</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="bollocks">bollocks.k2</reporter>
+          <assigned_to name="Brian Lane">bcl</assigned_to>
+          <cc>anaconda-maint-list</cc>
+    
+    
+    <cc>bcl</cc>
+    
+    
+    <cc>bollocks.k2</cc>
+    
+    
+    <cc>pnemade</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>lorax-24.20-1 lorax-24.20-1.fc24</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-07-18 14:24:00</cf_last_closed>
+          <cf_type>---</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9483648</commentid>
+    <comment_count>0</comment_count>
+    <who name="bollocks">bollocks.k2</who>
+    <bug_when>2016-07-06 04:40:35 -0400</bug_when>
+    <thetext>User-Agent:       Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:47.0) Gecko/20100101 Firefox/47.0
+Build Identifier: 
+
+Using live media creator from lorax 24.19-1.fc24 I created a live cd based on kickstarts from https://pagure.io/fedora-kickstarts. It created a live .iso file that runs but has about 50MB of space on /.  
+
+Reproducible: Always
+
+Steps to Reproduce:
+1.Use ksflatten to make a kickstart file from the fedora-live-lxde.ks file in fedora-kickstarts.
+2. grab a copy of http://dl.fedoraproject.org/pub/fedora/linux/releases/24/Everything/x86_64/iso/Fedora-Everything-netinst-x86_64-24-1.2.iso and name it netinst24.iso
+3.Run livemedia-creator --make-iso --iso netinst24.iso --ks flattenedlxde.ks --logfile logfile.txt --tmp &apos;directorytouseastmp&apos; --title &apos;Fedora 24&apos; --project &apos;F24 LXDE Spin&apos; --releasever 1.112 --ram 640 --vcpus 4
+4.Retrieve boot.iso from the directory you used with the --tmp flag.  The output at the end of livemedia-creator will tell you exactly where it is in that directory.
+5. Run the image on baremetal or with qemu-kvm -m 2048 -vga qxl -cdrom boot.iso
+6. Run df -h to see how full / is or do anything that requires more than a few dozen MB.
+
+
+Actual Results:  
+After running dnf makecache dnf reported an error.  Running df -h returned the following results
+
+Filesystem           Size  Used Avail Use% Mounted on
+devtmpfs             981M     0  981M   0% /dev
+tmpfs               1001M  144K 1001M   1% /dev/shm
+tmpfs               1001M  816K 1000M   1% /run
+tmpfs               1001M     0 1001M   0% /sys/fs/cgroup
+/dev/sr0             947M  947M     0 100% /run/initramfs/live
+/dev/mapper/live-rw  2.8G  2.8G  992K 100% /
+tmpfs               1001M   16K 1001M   1% /tmp
+vartmp              1001M     0 1001M   0% /var/tmp
+tmpfs                201M   12K  201M   1% /run/user/1000
+
+
+Expected Results:  
+Usually when I make a live cd like this I have way more room than I need to run dnf makecache.  There&apos;s usually enough space to install a few dozen packages or updates.  
+
+I ran in to this problem when trying to update an i3 fedora remix that I base off of the LXDE spin so I have two closely related cases where this occurs.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9483889</commentid>
+    <comment_count>1</comment_count>
+    <who name="bollocks">bollocks.k2</who>
+    <bug_when>2016-07-06 06:53:47 -0400</bug_when>
+    <thetext>I ran it again and saw a red error message fly across the screen on bootup.  I checked the journal and I suspect this might have something to do with it.  It looks like the squashfs image is getting mounted but when it goes to make the overlay and mount it something isn&apos;t right.
+
+journalctl | grep systemd-remount 
+
+Jul 06 10:37:46 localhost.localdomain systemd-remount-fs[745]: mount: can&apos;t find UUID=e7214dd7-d6c6-4a0e-918d-3b401c714415
+Jul 06 10:37:46 localhost.localdomain systemd-remount-fs[745]: /usr/bin/mount for / exited with exit status 1.
+Jul 06 10:37:46 localhost.localdomain systemd[1]: systemd-remount-fs.service: Main process exited, code=exited, status=1/FAILURE
+Jul 06 10:37:46 localhost.localdomain systemd[1]: systemd-remount-fs.service: Unit entered failed state.
+Jul 06 10:37:46 localhost.localdomain audit[1]: SERVICE_START pid=1 uid=0 auid=4294967295 ses=4294967295 subj=system_u:system_r:init_t:s0 msg=&apos;unit=systemd-remount-fs comm=&quot;systemd&quot; exe=&quot;/usr/lib/systemd/systemd&quot; hostname=? addr=? terminal=? res=failed&apos;
+Jul 06 10:37:46 localhost.localdomain systemd[1]: systemd-remount-fs.service: Failed with result &apos;exit-code&apos;.
+
+This is an image created back when Fedora 24 RC 1.2 first came out:
+https://bollocks.fedorapeople.org/i3spin/F24-x86_64-I3-1.111.iso
+
+I get the same error with this image whether in qemu-kvm or from a usb stick on baremetal.  
+
+Here&apos;s the result of ksflatten for fedora-live-lxde.ks from the fedora-kickstarts pagure git: https://bollocks.fedorapeople.org/gitlxdespin.ks</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9483900</commentid>
+    <comment_count>2</comment_count>
+    <who name="bollocks">bollocks.k2</who>
+    <bug_when>2016-07-06 07:03:08 -0400</bug_when>
+    <thetext>By the way that journal excerpt is from the remix I linked.  I decided to check with the lxde image made with livemedia-creator.  There&apos;s a similar error
+
+journalctl | grep systemd-remount
+
+Jul 06 10:55:22 localhost.localdomain systemd-remount-fs[754]: mount: can&apos;t find UUID=26b5df21-7ba2-45d4-8bf9-e190b35893e6
+Jul 06 10:55:22 localhost.localdomain systemd-remount-fs[754]: /usr/bin/mount for / exited with exit status 1.
+Jul 06 10:55:22 localhost.localdomain audit[1]: SERVICE_START pid=1 uid=0 auid=4294967295 ses=4294967295 subj=system_u:system_r:init_t:s0 msg=&apos;unit=systemd-remount-fs comm=&quot;systemd&quot; exe=&quot;/usr/lib/systemd/systemd&quot; hostname=? addr=? terminal=? res=failed&apos;
+Jul 06 10:55:22 localhost.localdomain systemd[1]: systemd-remount-fs.service: Main process exited, code=exited, status=1/FAILURE
+Jul 06 10:55:22 localhost.localdomain systemd[1]: systemd-remount-fs.service: Unit entered failed state.
+Jul 06 10:55:22 localhost.localdomain systemd[1]: systemd-remount-fs.service: Failed with result &apos;exit-code&apos;.
+
+I tried the official LXDE spin release and saw no error.  df -h reports 2.3GB available on /.  The excerpt from the journal:
+
+journalctl | grep systemd-remount
+
+Jul 06 10:59:09 localhost audit[1]: SERVICE_START pid=1 uid=0 auid=4294967295 ses=4294967295 subj=system_u:system_r:init_t:s0 msg=&apos;unit=systemd-remount-fs comm=&quot;systemd&quot; exe=&quot;/usr/lib/systemd/systemd&quot; hostname=? addr=? terminal=? res=success&apos;</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9488598</commentid>
+    <comment_count>3</comment_count>
+    <who name="Brian Lane">bcl</who>
+    <bug_when>2016-07-07 14:30:06 -0400</bug_when>
+    <thetext>Does your kickstart remove /etc/fstab in %post? If it doesn&apos;t then dracut/systemd will get confused looking for a UUID that doesn&apos;t exist.
+
+Also, the size of the root filesystem is controlled by the &apos;part / --size XXX&apos; command in the kickstart, increasing that value should give you more room.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9488675</commentid>
+    <comment_count>4</comment_count>
+    <who name="bollocks">bollocks.k2</who>
+    <bug_when>2016-07-07 15:16:49 -0400</bug_when>
+    <thetext>There is a weird UUID entry in fstab in the livecds.  I&apos;ll delete fstab right before the 
+
+cat &gt;&gt; /etc/fstab &lt;&lt; EOF
+vartmp   /var/tmp    tmpfs   defaults   0  0
+EOF
+
+section so that part of the kickstart is still allowed to do what they intended.
+
+
+section in the LXDE kickstart and run it again.  The part / --size is set to 5GB. However I thought when making a LiveCD that only set the size of the file system that it creates to install the packages on.  It seems to get resized and then sent to a squashfs first.  Either way the squashfs is 900MB and the unsquashed version is 2.8GB so 5GB shouldn&apos;t be limiting it.  I&apos;ll report back after it runs.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9488890</commentid>
+    <comment_count>5</comment_count>
+    <who name="bollocks">bollocks.k2</who>
+    <bug_when>2016-07-07 16:57:07 -0400</bug_when>
+    <thetext>I created run livemedia-creator with the above edit.  The edited kickstart can be found here:
+https://bollocks.fedorapeople.org/gitlxdespinv2.ks
+
+The generated iso only has 90MB of space on /.  I can&apos;t run dnf makecache without running out of space.  It does get rid of the systemd-remount error.  
+
+I&apos;m going to remove fstab completely by getting rid of the vartmp section in %post just to see what happens. The comment in the kickstart says it was added to fix a bug back in F21.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9489013</commentid>
+    <comment_count>6</comment_count>
+    <who name="Brian Lane">bcl</who>
+    <bug_when>2016-07-07 18:24:29 -0400</bug_when>
+    <thetext>Ok, I see what&apos;s happening. I fixed this on master with commit 4699c881090b55de12bfe6b8548b3bfe30207ba8, but haven&apos;t backported it to f24-branch yet. You&apos;re right, in 24.19 it shrinks the ext4 fs down to the minumum after doing the installation.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9489300</commentid>
+    <comment_count>7</comment_count>
+    <who name="Brian Lane">bcl</who>
+    <bug_when>2016-07-07 20:34:41 -0400</bug_when>
+    <thetext>https://github.com/rhinstaller/lorax/pull/137</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9489378</commentid>
+    <comment_count>8</comment_count>
+    <who name="bollocks">bollocks.k2</who>
+    <bug_when>2016-07-07 22:12:09 -0400</bug_when>
+    <thetext>I ported the stuff from the master branch on git hub in to lorax and rebuilt the rpms.  It looks like I did it right based on that link.  I started it about 90 minutes ago.  For some reason mksquashfs is taking a long time.  It has been running for 55 minutes where it usually takes 20 minutes.  It got called with 
+
+-comp xz -Xbcj x86
+
+I remember xz compression being used but I don&apos;t remember a filter.  I&apos;m not sure that it wasn&apos;t there before.  top is only reporting 130% cpu use where normally it report about 360%.  It is making progress though.  I can see the output file growing.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9489446</commentid>
+    <comment_count>9</comment_count>
+    <who name="bollocks">bollocks.k2</who>
+    <bug_when>2016-07-07 23:21:59 -0400</bug_when>
+    <thetext>It seems to be working.  I was able to run dnf makecache and install firefox which is another 140MB or so.  
+
+I missed the divide by 1024 in the master branch.  So I ended up creating a 5TB file system. lol  That may be what happened with the long time.  I&apos;ll apply the whole fix and try again.  I&apos;m pretty sure it will work.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9489663</commentid>
+    <comment_count>10</comment_count>
+    <who name="bollocks">bollocks.k2</who>
+    <bug_when>2016-07-08 02:04:35 -0400</bug_when>
+    <thetext>The fix works.  Thanks. I&apos;m not sure if I should close the bug or wait until the fix makes it to the repo.  I put the fix up on copr:
+
+https://copr.fedorainfracloud.org/coprs/bollocks/lorax/</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9491387</commentid>
+    <comment_count>11</comment_count>
+    <who name="Brian Lane">bcl</who>
+    <bug_when>2016-07-08 10:56:44 -0400</bug_when>
+    <thetext>There will be a new build today.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9493196</commentid>
+    <comment_count>12</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-08 20:27:23 -0400</bug_when>
+    <thetext>lorax-24.20-1.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-6e292f9d34</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9493695</commentid>
+    <comment_count>13</comment_count>
+    <who name="bollocks">bollocks.k2</who>
+    <bug_when>2016-07-09 16:53:09 -0400</bug_when>
+    <thetext>I grabbed it from koji and it works great.  Thanks.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9494500</commentid>
+    <comment_count>14</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-10 11:57:39 -0400</bug_when>
+    <thetext>lorax-24.20-1.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-6e292f9d34</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9518627</commentid>
+    <comment_count>15</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-18 14:23:58 -0400</bug_when>
+    <thetext>lorax-24.20-1.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

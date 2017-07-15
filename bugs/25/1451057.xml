@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1451057</bug_id>
+          
+          <creation_ts>2017-05-15 12:38:00 -0400</creation_ts>
+          <short_desc>ksh crash due to syntax error</short_desc>
+          <delta_ts>2017-06-09 15:14:53 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>ksh</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Siteshwar Vashisht">svashisht</reporter>
+          <assigned_to name="Siteshwar Vashisht">svashisht</assigned_to>
+          <cc>kdudka</cc>
+    
+    
+    <cc>mhlavink</cc>
+    
+    
+    <cc>svashisht</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>ksh-20120801-35.fc26</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-06-09 15:14:53</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10413832</commentid>
+    <comment_count>0</comment_count>
+      <attachid>1279048</attachid>
+    <who name="Siteshwar Vashisht">svashisht</who>
+    <bug_when>2017-05-15 12:38:40 -0400</bug_when>
+    <thetext>Created attachment 1279048
+test.sh
+
+Description of problem:
+ksh crash due to syntax error
+
+Version-Release number of selected component (if applicable):
+ksh-20120801-31.fc25.x86_64
+
+How reproducible:
+Always
+
+Steps to Reproduce:
+1. Run Attached script &apos;test.sh&apos;
+
+Actual results:
+ksh crash due to syntax error
+
+Expected results:
+ksh should not crash</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10413839</commentid>
+    <comment_count>1</comment_count>
+      <attachid>1279051</attachid>
+    <who name="Siteshwar Vashisht">svashisht</who>
+    <bug_when>2017-05-15 12:41:19 -0400</bug_when>
+    <thetext>Created attachment 1279051
+ksh-20120801-syntax-error.patch</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10415593</commentid>
+    <comment_count>2</comment_count>
+      <attachid>1279051</attachid>
+    <who name="Kamil Dudka">kdudka</who>
+    <bug_when>2017-05-16 03:34:37 -0400</bug_when>
+    <thetext>Comment on attachment 1279051
+ksh-20120801-syntax-error.patch
+
+The fix looks good.  On the other hand, I do not think it is complete.  I can still see invalid reads while running it under valgrind:
+
+/tmp/test.sh: syntax error at line 30: `}&apos; unexpected
+==12417== Invalid read of size 8
+==12417==    at 0x4D7644: sfraise (sfraise.c:84)
+==12417==    by 0x4C6B52: _sfcleanup (sfmode.c:91)
+==12417==    by 0x558440F: __run_exit_handlers (exit.c:83)
+==12417==    by 0x5584469: exit (exit.c:105)
+==12417==    by 0x41A846: sh_done (fault.c:671)
+==12417==    by 0x4076AA: sh_main (main.c:354)
+==12417==    by 0x556A400: (below main) (libc-start.c:289)
+==12417==  Address 0x59708e0 is 208 bytes inside a block of size 248 free&apos;d
+==12417==    at 0x4C2ED4A: free (vg_replace_malloc.c:530)
+==12417==    by 0x4A3454: stkexcept (stk.c:182)
+==12417==    by 0x4D7687: sfraise (sfraise.c:90)
+==12417==    by 0x4C408A: sfclose (sfclose.c:160)
+==12417==    by 0x44793B: funct (parse.c:915)
+==12417==    by 0x448E1F: item (parse.c:1354)
+==12417==    by 0x449D3D: term (parse.c:577)
+==12417==    by 0x449F2A: list (parse.c:547)
+==12417==    by 0x449F2A: sh_cmd (parse.c:497)
+==12417==    by 0x44A318: sh_parse (parse.c:386)
+==12417==    by 0x406814: exfile (main.c:563)
+==12417==    by 0x4076A0: sh_main (main.c:353)
+==12417==    by 0x556A400: (below main) (libc-start.c:289)
+==12417==  Block was alloc&apos;d at
+==12417==    at 0x4C2FA50: calloc (vg_replace_malloc.c:711)
+==12417==    by 0x4A2F1B: stkopen (stk.c:221)
+==12417==    by 0x447337: funct (parse.c:851)
+==12417==    by 0x448E1F: item (parse.c:1354)
+==12417==    by 0x449D3D: term (parse.c:577)
+==12417==    by 0x449F2A: list (parse.c:547)
+==12417==    by 0x449F2A: sh_cmd (parse.c:497)
+==12417==    by 0x44A318: sh_parse (parse.c:386)
+==12417==    by 0x406814: exfile (main.c:563)
+==12417==    by 0x4076A0: sh_main (main.c:353)
+==12417==    by 0x556A400: (below main) (libc-start.c:289)
+==12417== 
+==12417== Invalid read of size 8
+==12417==    at 0x4D764E: sfraise (sfraise.c:88)
+==12417==    by 0x4C6B52: _sfcleanup (sfmode.c:91)
+==12417==    by 0x558440F: __run_exit_handlers (exit.c:83)
+==12417==    by 0x5584469: exit (exit.c:105)
+==12417==    by 0x41A846: sh_done (fault.c:671)
+==12417==    by 0x4076AA: sh_main (main.c:354)
+==12417==    by 0x556A400: (below main) (libc-start.c:289)
+==12417==  Address 0x59708d8 is 200 bytes inside a block of size 248 free&apos;d
+==12417==    at 0x4C2ED4A: free (vg_replace_malloc.c:530)
+==12417==    by 0x4A3454: stkexcept (stk.c:182)
+==12417==    by 0x4D7687: sfraise (sfraise.c:90)
+==12417==    by 0x4C408A: sfclose (sfclose.c:160)
+==12417==    by 0x44793B: funct (parse.c:915)
+==12417==    by 0x448E1F: item (parse.c:1354)
+==12417==    by 0x449D3D: term (parse.c:577)
+==12417==    by 0x449F2A: list (parse.c:547)
+==12417==    by 0x449F2A: sh_cmd (parse.c:497)
+==12417==    by 0x44A318: sh_parse (parse.c:386)
+==12417==    by 0x406814: exfile (main.c:563)
+==12417==    by 0x4076A0: sh_main (main.c:353)
+==12417==    by 0x556A400: (below main) (libc-start.c:289)
+==12417==  Block was alloc&apos;d at
+==12417==    at 0x4C2FA50: calloc (vg_replace_malloc.c:711)
+==12417==    by 0x4A2F1B: stkopen (stk.c:221)
+==12417==    by 0x447337: funct (parse.c:851)
+==12417==    by 0x448E1F: item (parse.c:1354)
+==12417==    by 0x449D3D: term (parse.c:577)
+==12417==    by 0x449F2A: list (parse.c:547)
+==12417==    by 0x449F2A: sh_cmd (parse.c:497)
+==12417==    by 0x44A318: sh_parse (parse.c:386)
+==12417==    by 0x406814: exfile (main.c:563)
+==12417==    by 0x4076A0: sh_main (main.c:353)
+==12417==    by 0x556A400: (below main) (libc-start.c:289)
+==12417== 
+==12417== Invalid read of size 8
+==12417==    at 0x4D7684: sfraise (sfraise.c:90)
+==12417==    by 0x4C6B52: _sfcleanup (sfmode.c:91)
+==12417==    by 0x558440F: __run_exit_handlers (exit.c:83)
+==12417==    by 0x5584469: exit (exit.c:105)
+==12417==    by 0x41A846: sh_done (fault.c:671)
+==12417==    by 0x4076AA: sh_main (main.c:354)
+==12417==    by 0x556A400: (below main) (libc-start.c:289)
+==12417==  Address 0x59708d8 is 200 bytes inside a block of size 248 free&apos;d
+==12417==    at 0x4C2ED4A: free (vg_replace_malloc.c:530)
+==12417==    by 0x4A3454: stkexcept (stk.c:182)
+==12417==    by 0x4D7687: sfraise (sfraise.c:90)
+==12417==    by 0x4C408A: sfclose (sfclose.c:160)
+==12417==    by 0x44793B: funct (parse.c:915)
+==12417==    by 0x448E1F: item (parse.c:1354)
+==12417==    by 0x449D3D: term (parse.c:577)
+==12417==    by 0x449F2A: list (parse.c:547)
+==12417==    by 0x449F2A: sh_cmd (parse.c:497)
+==12417==    by 0x44A318: sh_parse (parse.c:386)
+==12417==    by 0x406814: exfile (main.c:563)
+==12417==    by 0x4076A0: sh_main (main.c:353)
+==12417==    by 0x556A400: (below main) (libc-start.c:289)
+==12417==  Block was alloc&apos;d at
+==12417==    at 0x4C2FA50: calloc (vg_replace_malloc.c:711)
+==12417==    by 0x4A2F1B: stkopen (stk.c:221)
+==12417==    by 0x447337: funct (parse.c:851)
+==12417==    by 0x448E1F: item (parse.c:1354)
+==12417==    by 0x449D3D: term (parse.c:577)
+==12417==    by 0x449F2A: list (parse.c:547)
+==12417==    by 0x449F2A: sh_cmd (parse.c:497)
+==12417==    by 0x44A318: sh_parse (parse.c:386)
+==12417==    by 0x406814: exfile (main.c:563)
+==12417==    by 0x4076A0: sh_main (main.c:353)
+==12417==    by 0x556A400: (below main) (libc-start.c:289)
+
+Surprisingly, those invalid reads do not occur with ksh-20120801-34.el7.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10417715</commentid>
+    <comment_count>3</comment_count>
+    <who name="Siteshwar Vashisht">svashisht</who>
+    <bug_when>2017-05-16 12:45:32 -0400</bug_when>
+    <thetext>This crash was caused by compiler optimizations and can be fixed by making &apos;savstak&apos; variable volatile. This[1] is the fix  used by upstream to avoid the crash . Thanks kdudka for helping me find the fix.
+
+[1] https://github.com/att/ast/blob/c506cb548d9b4bcebef92c86e948657728760e15/src/cmd/ksh93/sh/parse.c#L762</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10455684</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-29 08:24:09 -0400</bug_when>
+    <thetext>ksh-20120801-35.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-85e9b616de</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10456948</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-29 19:05:59 -0400</bug_when>
+    <thetext>ksh-20120801-35.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-85e9b616de</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10494261</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-09 15:14:53 -0400</bug_when>
+    <thetext>ksh-20120801-35.fc26 has been pushed to the Fedora 26 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="0"
+              ispatch="0"
+              isprivate="0"
+          >
+            <attachid>1279048</attachid>
+            <date>2017-05-15 12:38:00 -0400</date>
+            <delta_ts>2017-05-15 12:38:40 -0400</delta_ts>
+            <desc>test.sh</desc>
+            <filename>test.sh</filename>
+            <type>application/x-shellscript</type>
+            <size>794</size>
+            <attacher name="Siteshwar Vashisht">svashisht</attacher>
+            
+              <data encoding="base64">IyEvYmluL2tzaAoKZ2VuZXJpY192ZXJyZWwoKQp7CiAgaWYgWyAteiAiJFBBQ0tBR0UiIC1vICEg
+LWYgJFBBQ0tBR0Uuc3BlYyBdCiAgdGhlbgogICAgaWYgWyAkKGxzICouc3BlYyB8IHdjIC13KSA9
+IDEgXQogICAgdGhlbgogICAgICBQQUNLQUdFPSouc3BlYwogICAgICBQQUNLQUdFPSR7UEFDS0FH
+RSUuc3BlY30KICAgIGVsaWYgISBscyAqLnNwZWMgPi9kZXYvbnVsbCAyPiYxCiAgICB0aGVuCiAg
+ICAgIGZhdGFsZXJyICJWRVJSRUwgY2FuJ3QgZmluZCBhbnkgc3BlYyBmaWxlIgogICAgZWxzZQog
+ICAgICBpZiBbIC1mIC5naXQvY29uZmlnIF0KICAgICAgdGhlbgogICAgICAgIFJFUE89JChzZWQg
+LW4gJy9eW1x0IF0qdXJsICo9L3N8Xi4qL1woW14vXSpcKVwuZ2l0ICokfFwxfHAnICA8LmdpdC9j
+b25maWcpCiAgICAgICAgaWYgWyAtZiAkUkVQTy5zcGVjIF0KICAgICAgICB0aGVuCiAgICAgICAg
+ICBQQUNLQUdFPSRSRVBPCiAgICAgICAgZWxpZiBbIC1mICQoZGlybmFtZSAkUFdEKS5zcGVjIF0K
+ICAgICAgICB0aGVuCiAgICAgICAgICBQQUNLQUdFPSQoZGlybmFtZSAkUFdEKQogICAgICAgIGVs
+c2UKICAgICAgICAgIGZhdGFsZXJyICJWRVJSRUwgY2FuJ3QgZ3Vlc3Mgd2hpY2ggc3BlYyBmaWxl
+IGlzIGNvcnJlY3QiCiAgICAgICAgZmkKICAgIGZpCiAgZmkKICBycG0gLXEgLS1zcGVjZmlsZSAk
+UEFDS0FHRS5zcGVjIC0tcWYgJyV7bmFtZX0tJXt2ZXJzaW9ufS0le3JlbGVhc2V9XG4nIC0tZGVm
+aW5lICJkaXN0ICV7bmlsfSIgMj4vZGV2L251bGwgfCBoZWFkIC1uMQp9CgplY2hvIGVuZAo=
+</data>
+
+          </attachment>
+          <attachment
+              isobsolete="0"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1279051</attachid>
+            <date>2017-05-15 12:41:00 -0400</date>
+            <delta_ts>2017-05-16 03:34:37 -0400</delta_ts>
+            <desc>ksh-20120801-syntax-error.patch</desc>
+            <filename>ksh-20120801-syntax-error.patch</filename>
+            <type>text/plain</type>
+            <size>402</size>
+            <attacher name="Siteshwar Vashisht">svashisht</attacher>
+            
+              <data encoding="base64">ZGlmZiAtLWdpdCBhL3NyYy9jbWQva3NoOTMvc2gvcGFyc2UuYyBiL3NyYy9jbWQva3NoOTMvc2gv
+cGFyc2UuYwppbmRleCBkMTM5Mzg5Li5iODdlNTgzIDEwMDY0NAotLS0gYS9zcmMvY21kL2tzaDkz
+L3NoL3BhcnNlLmMKKysrIGIvc3JjL2NtZC9rc2g5My9zaC9wYXJzZS5jCkBAIC03NDIsNyArNzQy
+LDcgQEAgc3RhdGljIFNobm9kZV90ICpmdW5jdChMZXhfdCAqbGV4cCkKIAlyZWdpc3RlciBTaG5v
+ZGVfdCAqdDsKIAlyZWdpc3RlciBpbnQgZmxhZzsKIAlzdHJ1Y3Qgc2xub2QgKnZvbGF0aWxlIHNs
+cD0wOwotCVN0YWtfdCAqc2F2c3RhazsKKwlTdGFrX3QgKnNhdnN0YWsgPSAwOwogCVNmb2ZmX3QJ
+Zmlyc3QsIGxhc3Q7CiAJc3RydWN0IGZ1bmN0bm9kICp2b2xhdGlsZSBmcDsKIAlTZmlvX3QgKmlv
+cDsK
+</data>
+<flag name="review"
+          id="3062730"
+          type_id="155"
+          status="+"
+          setter="kdudka"
+    />
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

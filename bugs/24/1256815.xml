@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1256815</bug_id>
+          
+          <creation_ts>2015-08-25 09:50:00 -0400</creation_ts>
+          <short_desc>Update /etc/rpmdevtools/*.spec files</short_desc>
+          <delta_ts>2016-06-27 18:56:12 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>rpmdevtools</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Miroslav Suchý">msuchy</reporter>
+          <assigned_to name="Ville Skyttä">ville.skytta</assigned_to>
+          <cc>bugs.michael</cc>
+    
+    
+    <cc>kevin</cc>
+    
+    
+    <cc>twoerner</cc>
+    
+    
+    <cc>ville.skytta</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>rpmdevtools-8.9-1.fc24</cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-06-26 16:55:36</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>8573288</commentid>
+    <comment_count>0</comment_count>
+    <who name="Miroslav Suchý">msuchy</who>
+    <bug_when>2015-08-25 09:50:00 -0400</bug_when>
+    <thetext>Description of problem:
+It would be nice to update /etc/rpmdevtools/*.spec files to current Fedora guidelines.
+
+Biggest problem I have that you use there $RPM_OPT_FLAGS and $RPM_BUILD_ROOT while everywhere else you use %{} syntax. It would be nice if you can replace
+  $RPM_BUILD_ROOT
+with 
+  %{buildroot}
+and
+  $RPM_OPT_FLAGS
+with
+  %{optflags}.
+
+There are other things which you may consider. E.g.
+
+* drop Group tag
+
+* drop BuildRoot (needed only for EPEL5)
+
+* drop
+  rm -rf $RPM_BUILD_ROOT
+  in %clean and %install - this is not needed unless you target EPEL (not sure which version).
+
+* change
+    %doc
+  to
+    %license LICENSE.txt
+    %doc README.txt
+  people very often leave the %doc macro there and they do not know how to use it.
+
+All this reflects my experience from dozen of Package Reviews, where people use this template (in hope that it is up to date) and I have to explain them to do all these changes in review process.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8573342</commentid>
+    <comment_count>1</comment_count>
+    <who name="Ville Skyttä">ville.skytta</who>
+    <bug_when>2015-08-25 10:02:13 -0400</bug_when>
+    <thetext>Macro vs env variable style, Group, and BuildRoot are already taken care of by rpmdev-newspec and its configuration. The spec templates should not be used/edited directly but generated through that tool.
+
+The two that are not handled:
+
+&gt; * drop rm -rf $RPM_BUILD_ROOT
+&gt; in %clean and %install - this is not needed unless you target EPEL
+
+Auto-cleaning of $RPM_BUILD_ROOT is implemented in redhat-rpm-config so it is required in all setups where it cannot be guaranteed to be installed.
+
+&gt; [%doc and %license stuff]
+
+I&apos;ll look into doing something about those.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8573436</commentid>
+    <comment_count>2</comment_count>
+    <who name="Miroslav Suchý">msuchy</who>
+    <bug_when>2015-08-25 10:23:42 -0400</bug_when>
+    <thetext>(In reply to Ville Skyttä from comment #1)
+&gt; Macro vs env variable style, Group, and BuildRoot are already taken care of
+&gt; by rpmdev-newspec and its configuration. The spec templates should not be
+&gt; used/edited directly but generated through that tool.
+
+Ok for group and buildroot. However ... can you please make the default for macro style on?
+I see this in every second package review, so I guess that people do not know about -m option (neither me 5 minutes ago).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8574599</commentid>
+    <comment_count>3</comment_count>
+    <who name="Ville Skyttä">ville.skytta</who>
+    <bug_when>2015-08-25 14:32:52 -0400</bug_when>
+    <thetext>(In reply to Miroslav Suchý from comment #2)
+&gt; can you please make the default for macro style on?
+
+Nope, the guidelines explicitly leave that choice to the packager, the variable style has been the default in this package for ages, and it happens to be my personal preference.
+
+https://fedoraproject.org/wiki/Packaging:Guidelines#Using_.25.7Bbuildroot.7D_and_.25.7Boptflags.7D_vs_.24RPM_BUILD_ROOT_and_.24RPM_OPT_FLAGS</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8625421</commentid>
+    <comment_count>4</comment_count>
+    <who name="Ville Skyttä">ville.skytta</who>
+    <bug_when>2015-09-10 14:04:22 -0400</bug_when>
+    <thetext>(In reply to Ville Skyttä from comment #1)
+&gt; 
+&gt; &gt; [%doc and %license stuff]
+&gt; 
+&gt; I&apos;ll look into doing something about those.
+
+https://git.fedorahosted.org/cgit/rpmdevtools.git/commit/?id=f4f219a40e82134b3e58c72431cc172831b8db49
+https://git.fedorahosted.org/cgit/rpmdevtools.git/commit/?id=21638ef1b3c3d333509cb86969c822d48b3c27cc</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9092151</commentid>
+    <comment_count>5</comment_count>
+    <who name="Jan Kurik">jkurik</who>
+    <bug_when>2016-02-24 08:40:25 -0500</bug_when>
+    <thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 24 development cycle.
+Changing version to &apos;24&apos;.
+
+More information and reason for this action is here:
+https://fedoraproject.org/wiki/Fedora_Program_Management/HouseKeeping/Fedora24#Rawhide_Rebase</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9447573</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-06-23 13:14:12 -0400</bug_when>
+    <thetext>rpmdevtools-8.7-1.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-e11971c7e9</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9447583</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-06-23 13:15:47 -0400</bug_when>
+    <thetext>rpmdevtools-8.7-1.fc23 has been submitted as an update to Fedora 23. https://bodhi.fedoraproject.org/updates/FEDORA-2016-9a18dce7e1</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9451959</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-06-24 20:27:37 -0400</bug_when>
+    <thetext>rpmdevtools-8.7-1.fc23 has been pushed to the Fedora 23 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-9a18dce7e1</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9451990</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-06-24 20:32:13 -0400</bug_when>
+    <thetext>rpmdevtools-8.7-1.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-e11971c7e9</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9452219</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-06-25 06:36:01 -0400</bug_when>
+    <thetext>rpmdevtools-8.8-1.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-e11971c7e9</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9452227</commentid>
+    <comment_count>11</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-06-25 06:37:26 -0400</bug_when>
+    <thetext>rpmdevtools-8.8-1.fc23 has been submitted as an update to Fedora 23. https://bodhi.fedoraproject.org/updates/FEDORA-2016-9a18dce7e1</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9452706</commentid>
+    <comment_count>12</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-06-25 20:27:27 -0400</bug_when>
+    <thetext>rpmdevtools-8.9-1.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-e11971c7e9</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9452800</commentid>
+    <comment_count>13</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-06-26 02:22:14 -0400</bug_when>
+    <thetext>rpmdevtools-8.9-1.fc23 has been pushed to the Fedora 23 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-9a18dce7e1</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9453500</commentid>
+    <comment_count>14</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-06-26 16:55:18 -0400</bug_when>
+    <thetext>rpmdevtools-8.9-1.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9457119</commentid>
+    <comment_count>15</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-06-27 18:56:12 -0400</bug_when>
+    <thetext>rpmdevtools-8.9-1.fc23 has been pushed to the Fedora 23 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

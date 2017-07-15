@@ -1,0 +1,549 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1398405</bug_id>
+          
+          <creation_ts>2016-11-24 13:00:00 -0500</creation_ts>
+          <short_desc>-O breaks recursive parallel builds using GNU make</short_desc>
+          <delta_ts>2017-01-08 22:00:21 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>make</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>CURRENTRELEASE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Petr Spacek">pspacek</reporter>
+          <assigned_to name="Patsy Franklin">pfrankli</assigned_to>
+          <cc>ignatenko</cc>
+    
+    
+    <cc>kardos.lubos</cc>
+    
+    
+    <cc>novyjindrich</cc>
+    
+    
+    <cc>pfrankli</cc>
+    
+    
+    <cc>pknirsch</cc>
+    
+    
+    <cc>pmachata</cc>
+    
+    
+    <cc>pmatilai</cc>
+    
+    
+    <cc>pspacek</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>make-1:4.2.1-1.fc26</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-01-08 22:00:21</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9926001</commentid>
+    <comment_count>0</comment_count>
+      <attachid>1223944</attachid>
+    <who name="Petr Spacek">pspacek</who>
+    <bug_when>2016-11-24 13:00:25 -0500</bug_when>
+    <thetext>Created attachment 1223944
+reproducer.sh
+
+Description of problem:
+rpm-build 4.13.0-1 broke recursive parallel builds using GNU make. Minimal reproducer is attached.
+
+This bug manifests itself only if make is called with multiple jobs, e.g. -j16, and when rpmbuild itself is called from parallel make.
+
+Version-Release number of selected component (if applicable):
+rpm-build-4.13.0-1.fc24.x86_64 (broken)
+rpm-build-4.13.0-0.rc1.27.fc24.x86_64 (latest functional version)
+
+
+How reproducible:
+100 %
+
+Steps to Reproduce:
+0. Prepare environment with rpmbuild and GNU make.
+1. Download attached reproducer.sh and all other files into one working directory.
+2. Run reproducer.sh
+
+Actual results:
+Executing(%prep): /bin/sh -e /var/tmp/rpm-tmp.11YS3o
++ umask 022
++ cd /home/pspacek/rpmbuild/BUILD
++ cp /home/pspacek/rpmbuild/SOURCES/Makefile /home/pspacek/rpmbuild/BUILD/
++ exit 0
+Executing(%build): /bin/sh -e /var/tmp/rpm-tmp.OjLUrR
++ umask 022
++ cd /home/pspacek/rpmbuild/BUILD
++ /usr/bin/make -O -j8
+make[1]: Entering directory &apos;/home/pspacek/rpmbuild/BUILD&apos;
+sleep &quot;1&quot;
+echo &quot;1&quot;
+1
+make[1]: Leaving directory &apos;/home/pspacek/rpmbuild/BUILD&apos;
+make[1]: *** write jobserver: Bad file descriptor.  Stop.
+make[1]: *** Waiting for unfinished jobs....
+make[1]: Entering directory &apos;/home/pspacek/rpmbuild/BUILD&apos;
+sleep &quot;2&quot;
+echo &quot;2&quot;
+2
+make[1]: Leaving directory &apos;/home/pspacek/rpmbuild/BUILD&apos;
+make[1]: *** write jobserver: Bad file descriptor.  Stop.
+error: Bad exit status from /var/tmp/rpm-tmp.OjLUrR (%build)
+
+
+RPM build errors:
+    Bad exit status from /var/tmp/rpm-tmp.OjLUrR (%build)
+Makefile:2: recipe for target &apos;doit&apos; failed
+
+
+Expected results:
+It should work as it worked before, with rpm-build-4.13.0-0.rc1.27.fc24.x86_64.
+
+Additional information:
+This broke FreeIPA build workflow and costs us time becaus we have to run builds sequentially.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9926002</commentid>
+    <comment_count>1</comment_count>
+      <attachid>1223945</attachid>
+    <who name="Petr Spacek">pspacek</who>
+    <bug_when>2016-11-24 13:00:54 -0500</bug_when>
+    <thetext>Created attachment 1223945
+Makefile</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9926004</commentid>
+    <comment_count>2</comment_count>
+      <attachid>1223946</attachid>
+    <who name="Petr Spacek">pspacek</who>
+    <bug_when>2016-11-24 13:01:33 -0500</bug_when>
+    <thetext>Created attachment 1223946
+test.src.rpm</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9926007</commentid>
+    <comment_count>3</comment_count>
+    <who name="Petr Spacek">pspacek</who>
+    <bug_when>2016-11-24 13:04:41 -0500</bug_when>
+    <thetext>This is log from RPM transaction which upgrades rpm-build to the broken version:
+Packages Altered:
+    Upgraded rpm-4.13.0-0.rc1.27.fc24.x86_64                        @fedora
+    Upgrade      4.13.0-1.fc24.x86_64                               @updates
+    Upgraded rpm-build-4.13.0-0.rc1.27.fc24.x86_64                  @fedora
+    Upgrade            4.13.0-1.fc24.x86_64                         @updates
+    Upgraded rpm-build-libs-4.13.0-0.rc1.27.fc24.x86_64             @fedora
+    Upgrade                 4.13.0-1.fc24.x86_64                    @updates
+    Upgraded rpm-devel-4.13.0-0.rc1.27.fc24.x86_64                  @fedora
+    Upgrade            4.13.0-1.fc24.x86_64                         @updates
+    Upgraded rpm-libs-4.13.0-0.rc1.27.fc24.x86_64                   @fedora
+    Upgrade           4.13.0-1.fc24.x86_64                          @updates
+    Upgraded rpm-plugin-selinux-4.13.0-0.rc1.27.fc24.x86_64         @fedora
+    Upgrade                     4.13.0-1.fc24.x86_64                @updates
+    Upgraded rpm-plugin-systemd-inhibit-4.13.0-0.rc1.27.fc24.x86_64 @fedora
+    Upgrade                             4.13.0-1.fc24.x86_64        @updates
+    Upgraded rpm-python-4.13.0-0.rc1.27.fc24.x86_64                 @fedora
+    Upgrade             4.13.0-1.fc24.x86_64                        @updates
+    Upgraded rpm-python3-4.13.0-0.rc1.27.fc24.x86_64                @fedora
+    Upgrade              4.13.0-1.fc24.x86_64                       @updates</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9926043</commentid>
+    <comment_count>4</comment_count>
+    <who name="Igor Gnatenko">ignatenko</who>
+    <bug_when>2016-11-24 13:14:29 -0500</bug_when>
+    <thetext>[brain@x1carbon tpm]$ rpmbuild --rebuild ./test-1.0-1.fc24.src.rpm 
+Installing ./test-1.0-1.fc24.src.rpm
+warning: user pspacek does not exist - using root
+warning: group pspacek does not exist - using root
+warning: user pspacek does not exist - using root
+warning: group pspacek does not exist - using root
+Executing(%prep): /bin/sh -e /var/tmp/rpm-tmp.OKdH5n
++ umask 022
++ cd /home/brain/rpmbuild/BUILD
++ cp /home/brain/rpmbuild/SOURCES/Makefile /home/brain/rpmbuild/BUILD/
++ exit 0
+Executing(%build): /bin/sh -e /var/tmp/rpm-tmp.gm5skv
++ umask 022
++ cd /home/brain/rpmbuild/BUILD
++ /usr/bin/make -O -j4
+sleep &quot;1&quot;
+echo &quot;1&quot;
+1
+sleep &quot;2&quot;
+echo &quot;2&quot;
+2
+sleep &quot;3&quot;
+echo &quot;3&quot;
+3
++ exit 0
+Checking for unpackaged file(s): /usr/lib/rpm/check-files /home/brain/rpmbuild/BUILDROOT/test-1.0-1.fc26.x86_64
+Executing(%clean): /bin/sh -e /var/tmp/rpm-tmp.wBRgUK
++ umask 022
++ cd /home/brain/rpmbuild/BUILD
++ /usr/bin/rm -rf /home/brain/rpmbuild/BUILDROOT/test-1.0-1.fc26.x86_64
++ exit 0
+Executing(--clean): /bin/sh -e /var/tmp/rpm-tmp.EsHUx0
++ umask 022
++ cd /home/brain/rpmbuild/BUILD
++ exit 0
+
+
+
+
+I don&apos;t see any error. Please provide exact reproducer.
+
+
+
+Regarding &quot;-O&quot; flag, it is just for synchronizing output. I guess you are doing something wrong in makefile.
+&quot;&quot;&quot;
+       -O[type], --output-sync[=type]
+            When running multiple jobs in parallel with -j, ensure the output of each job is collected together rather than interspersed with output from other  jobs.   If
+            type  is  not  specified or is target the output from the entire recipe for each target is grouped together.  If type is line the output from each command line
+            within a recipe is grouped together.  If type is recurse output from an entire recursive make is grouped together.  If type is none output  synchronization  is
+            disabled.
+&quot;&quot;&quot;</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9927081</commentid>
+    <comment_count>5</comment_count>
+    <who name="Panu Matilainen">pmatilai</who>
+    <bug_when>2016-11-25 01:40:56 -0500</bug_when>
+    <thetext>Yes I can reproduce this. If make breaks with added -O then it is a bug in make, switching component.
+
+Running without -O I make is warning about the construct, so what you&apos;re doing might not be that hot an idea to begin with:
+
+&gt; Executing(%build): /bin/sh -e /var/tmp/rpm-tmp.reWm3s
+&gt; + umask 022
+&gt; + cd /home/pmatilai/rpmbuild/BUILD
+&gt; + /usr/bin/make -j4
+&gt; make[1]: warning: -jN forced in submake: disabling jobserver mode.
+
+Anyway, this is TRIVIAL to work around as you&apos;re just as free to call &quot;make&quot; in whatever manner you wish from %build as you&apos;ve always been, so complaining how this is costing you time is a bit thick really.
+
+As in: -O is treated as last-option-wins case so you can just use eg:
+&quot;%make_build -Onone&quot; Or -Orecursive which appears to work too in this case. Or just do the old-fashioned thing and call it &quot;make %{?_smp_mflags}&quot; like you had to do with older rpm versions.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9927089</commentid>
+    <comment_count>6</comment_count>
+    <who name="Panu Matilainen">pmatilai</who>
+    <bug_when>2016-11-25 01:47:34 -0500</bug_when>
+    <thetext>As for the bug in make, the warning about forced -j and disabling jobserver is ominuously missing when -O is added. And then there&apos;s the error about bad file descriptor about jobserver:
+make[1]: *** write jobserver: Bad file descriptor.  Stop.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9928194</commentid>
+    <comment_count>7</comment_count>
+    <who name="Petr Spacek">pspacek</who>
+    <bug_when>2016-11-25 04:14:13 -0500</bug_when>
+    <thetext>@Igor, the very exact reproducer is already provided in bug description. To reproduce the issue you have to use script reproducer.sh. It is not sufficient to call rpmbuild --rebuild on the srpm.
+
+&quot;%make_build -Onone&quot; works as workaround. It breaks as soon as I try make -j2 -Oline.
+
+Thank you for debugging this!</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9929436</commentid>
+    <comment_count>8</comment_count>
+    <who name="Igor Gnatenko">ignatenko</who>
+    <bug_when>2016-11-25 06:11:49 -0500</bug_when>
+    <thetext>[brain@x1carbon tpm]$ curl https://bugzilla.redhat.com/attachment.cgi?id=1223944 -o reproducer.sh
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100    18  100    18    0     0     12      0  0:00:01  0:00:01 --:--:--    12
+[brain@x1carbon tpm]$ curl https://bugzilla.redhat.com/attachment.cgi?id=1223945 -o Makefile
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100    53  100    53    0     0     41      0  0:00:01  0:00:01 --:--:--    41
+[brain@x1carbon tpm]$ curl https://bugzilla.redhat.com/attachment.cgi?id=1223946 -o test.src.rpm
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100  5993  100  5993    0     0   4133      0  0:00:01  0:00:01 --:--:--  4135
+[brain@x1carbon tpm]$ bash -x reproducer.sh 
++ make -j16 breakit
+rpmbuild --rebuild test-1.0-1.fc24.src.rpm
+error: cannot open test-1.0-1.fc24.src.rpm: No such file or directory
+make: *** [Makefile:2: breakit] Error 1
+[brain@x1carbon tpm]$ mv test.src.rpm test-1.0-1.fc24.src.rpm
+[brain@x1carbon tpm]$ bash -x reproducer.sh 
++ make -j16 breakit
+rpmbuild --rebuild test-1.0-1.fc24.src.rpm
+Installing test-1.0-1.fc24.src.rpm
+warning: user pspacek does not exist - using root
+warning: group pspacek does not exist - using root
+warning: user pspacek does not exist - using root
+warning: group pspacek does not exist - using root
+Executing(%prep): /bin/sh -e /var/tmp/rpm-tmp.70A2uM
++ umask 022
++ cd /home/brain/rpmbuild/BUILD
++ cp /home/brain/rpmbuild/SOURCES/Makefile /home/brain/rpmbuild/BUILD/
++ exit 0
+Executing(%build): /bin/sh -e /var/tmp/rpm-tmp.yFJEbd
++ umask 022
++ cd /home/brain/rpmbuild/BUILD
++ /usr/bin/make -O -j4
+make[1]: Entering directory &apos;/home/brain/rpmbuild/BUILD&apos;
+make[1]: warning: -jN forced in submake: disabling jobserver mode.
+make[1]: Leaving directory &apos;/home/brain/rpmbuild/BUILD&apos;
+make[1]: Entering directory &apos;/home/brain/rpmbuild/BUILD&apos;
+sleep &quot;1&quot;
+echo &quot;1&quot;
+1
+make[1]: Leaving directory &apos;/home/brain/rpmbuild/BUILD&apos;
+make[1]: Entering directory &apos;/home/brain/rpmbuild/BUILD&apos;
+sleep &quot;2&quot;
+echo &quot;2&quot;
+2
+make[1]: Leaving directory &apos;/home/brain/rpmbuild/BUILD&apos;
+make[1]: Entering directory &apos;/home/brain/rpmbuild/BUILD&apos;
+sleep &quot;3&quot;
+echo &quot;3&quot;
+3
+make[1]: Leaving directory &apos;/home/brain/rpmbuild/BUILD&apos;
++ exit 0
+Checking for unpackaged file(s): /usr/lib/rpm/check-files /home/brain/rpmbuild/BUILDROOT/test-1.0-1.fc26.x86_64
+Executing(%clean): /bin/sh -e /var/tmp/rpm-tmp.Fei2dM
++ umask 022
++ cd /home/brain/rpmbuild/BUILD
++ /usr/bin/rm -rf /home/brain/rpmbuild/BUILDROOT/test-1.0-1.fc26.x86_64
++ exit 0
+Executing(--clean): /bin/sh -e /var/tmp/rpm-tmp.NUQfll
++ umask 022
++ cd /home/brain/rpmbuild/BUILD
++ exit 0
+
+
+[brain@x1carbon tpm]$ make --version 
+GNU Make 4.2.1
+Built for x86_64-redhat-linux-gnu
+Copyright (C) 1988-2016 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later &lt;http://gnu.org/licenses/gpl.html&gt;
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9929442</commentid>
+    <comment_count>9</comment_count>
+    <who name="Panu Matilainen">pmatilai</who>
+    <bug_when>2016-11-25 06:15:50 -0500</bug_when>
+    <thetext>Looks like its been fixed upstream then, good. Fedora 24 (for which this bug is filed) has make 4.1 though, and with that this is reproducable.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9929552</commentid>
+    <comment_count>10</comment_count>
+    <who name="Petr Spacek">pspacek</who>
+    <bug_when>2016-11-25 07:04:56 -0500</bug_when>
+    <thetext>Okay. I confirm that make-1:4.1-5.fc24.x86_64 is broken and that %make_build works fine with make-1:4.2.1-1.fc26.x86_64.
+
+Thank you for you help, guys!</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="0"
+              ispatch="0"
+              isprivate="0"
+          >
+            <attachid>1223944</attachid>
+            <date>2016-11-24 13:00:00 -0500</date>
+            <delta_ts>2016-11-24 13:00:25 -0500</delta_ts>
+            <desc>reproducer.sh</desc>
+            <filename>reproducer.sh</filename>
+            <type>text/plain</type>
+            <size>18</size>
+            <attacher name="Petr Spacek">pspacek</attacher>
+            
+              <data encoding="base64">bWFrZSAtajE2IGJyZWFraXQK
+</data>
+
+          </attachment>
+          <attachment
+              isobsolete="0"
+              ispatch="0"
+              isprivate="0"
+          >
+            <attachid>1223945</attachid>
+            <date>2016-11-24 13:00:00 -0500</date>
+            <delta_ts>2016-11-24 13:00:54 -0500</delta_ts>
+            <desc>Makefile</desc>
+            <filename>Makefile</filename>
+            <type>text/plain</type>
+            <size>53</size>
+            <attacher name="Petr Spacek">pspacek</attacher>
+            
+              <data encoding="base64">YnJlYWtpdDoKCXJwbWJ1aWxkIC0tcmVidWlsZCB0ZXN0LTEuMC0xLmZjMjQuc3JjLnJwbQo=
+</data>
+
+          </attachment>
+          <attachment
+              isobsolete="0"
+              ispatch="0"
+              isprivate="0"
+          >
+            <attachid>1223946</attachid>
+            <date>2016-11-24 13:01:00 -0500</date>
+            <delta_ts>2016-11-24 13:01:33 -0500</delta_ts>
+            <desc>test.src.rpm</desc>
+            <filename>test-1.0-1.fc24.src.rpm</filename>
+            <type>application/octet-stream</type>
+            <size>5993</size>
+            <attacher name="Petr Spacek">pspacek</attacher>
+            
+              <data encoding="base64">7avu2wMAAAEAAXRlc3QtMS4wLTEuZmMyNAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAABAAUAAAAAAAAAAAAAAAAAAAAAjq3oAQAAAAAAAAAGAAAQVAAA
+AD4AAAAHAAAQRAAAABAAAAENAAAABgAAAAAAAAABAAAD6AAAAAQAAAAsAAAAAQAAA+wAAAAHAAAA
+MAAAABAAAAPvAAAABAAAAEAAAAABAAAD8AAAAAcAAABEAAAQADY5MTdlYmVjMTY5MDUzYjI0MGNk
+NmIxYjRmYzcwNzQ1YTg5NzI5ZmQAAAAAAAAGQQkI+a/ztKlT2rqG8XjPlYcAAALMAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD4AAAAH////oAAAABAA
+AAAAjq3oAQAAAAAAAAApAAACTgAAAD8AAAAHAAACPgAAABAAAABkAAAACAAAAAAAAAABAAAD6AAA
+AAYAAAACAAAAAQAAA+kAAAAGAAAABwAAAAEAAAPqAAAABgAAAAsAAAABAAAD7AAAAAkAAAASAAAA
+AQAAA+0AAAAJAAAAIgAAAAEAAAPuAAAABAAAAGQAAAABAAAD7wAAAAYAAABoAAAAAQAAA/EAAAAE
+AAAAgAAAAAEAAAP2AAAABgAAAIQAAAABAAAD+AAAAAkAAACKAAAAAQAAA/oAAAAIAAAAlgAAAAEA
+AAP9AAAABgAAAJ8AAAABAAAD/gAAAAYAAAClAAAAAQAABAQAAAAEAAAArAAAAAIAAAQGAAAAAwAA
+ALQAAAACAAAECQAAAAMAAAC4AAAAAgAABAoAAAAEAAAAvAAAAAIAAAQLAAAACAAAAMQAAAACAAAE
+DAAAAAgAAAFGAAAAAgAABA0AAAAEAAABSAAAAAIAAAQPAAAACAAAAVAAAAACAAAEEAAAAAgAAAFg
+AAAAAgAABBUAAAAEAAABcAAAAAIAAAQYAAAABAAAAXgAAAADAAAEGQAAAAgAAAGEAAAAAwAABBoA
+AAAIAAABuQAAAAMAAAQoAAAABgAAAcoAAAABAAAERgAAAAYAAAHVAAAAAQAABEcAAAAEAAAB+AAA
+AAIAAARIAAAABAAAAgAAAAACAAAESQAAAAgAAAIIAAAAAgAABFwAAAAEAAACDAAAAAIAAARdAAAA
+CAAAAhQAAAACAAAEXgAAAAgAAAInAAAAAQAABGQAAAAGAAACKAAAAAEAAARlAAAABgAAAi0AAAAB
+AAAEZgAAAAYAAAIyAAAAAQAAE5MAAAAEAAACNAAAAAEAABPGAAAABgAAAjgAAAABQwB0ZXN0ADEu
+MAAxLmZjMjQATUFLRUZMQUdTIHRlc3RzAFRlc3QgaWYgdGhpcyB3b3JrcyB3aGVuIGNhbGxpbmcg
+bWFrZSB3aXRoIE1BS0VGTEFHUyByZWN1cnNpdmVseS4AAFg3HkRwc3BhY2VrLmJycS5yZWRoYXQu
+Y29tAAAAAAFfR1BMdjMAVW5zcGVjaWZpZWQATWFrZWZpbGUAbGludXgAeDg2XzY0AAAAAFwAAAED
+gbSBtAAAAABYNxy8WDcc/Dk0NzBkOGQ2NjExYjEyNTc5NjVhMGEwYmJkMjk2NzYwYTNmZjE2ZjNj
+ODMxNjc1MmQ2MTI1NTdkMWY1NDZlOGEANGE1NzI4NWZkNmQzNDk0YWU2Zjc3OTBiYWJhOGJlYjQ0
+YWRhZTBiOWNlMDE0NjJhNTQxMzU2YWYzNjQzMTUzYQAAAAAAAAAAAAAgcHNwYWNlawBwc3BhY2Vr
+AHBzcGFjZWsAcHNwYWNlawD//////////wAAAAABAAAKAQAACm1ha2UAcnBtbGliKENvbXByZXNz
+ZWRGaWxlTmFtZXMpAHJwbWxpYihGaWxlRGlnZXN0cykAADMuMC40LTEANC42LjAtMQA0LjEzLjAt
+cmMxAHBzcGFjZWsuYnJxLnJlZGhhdC5jb20gMTQ4MDAwNzIzNgAAAAAAAQAAAAEAAAABAAAAAgAA
+AAAAAAAAAAAAAE1ha2VmaWxlAHRlc3Quc3BlYwAAY3BpbwBnemlwADkAAAAACHV0Zi04AAAAAD8A
+AAAH///9cAAAABAfiwgAAAAAAAIDjVBNT8JAEO218ysWYq+4SyVgL4oGibGoadGrabeD3dAvd1sI
+Ifx3txTiRyT2HXbf7HszszN0SIeU0Qb7e8TCC/o32GBkDxkPeRMOOG2HyyOZBUtciAQNI0gShzDS
+JzYAc8BUCWJBumfXXTCRx3lDoX9ask9K9PtM/XYzLfhhA3bLmYIjKVGVPVUgNx6DFB3TrB/gFaUS
+eeaYrEfBwwQDpTVmba8iocod+FWaBnLjmLPxw+TOHU99UucpAFdwzGrz9Nld2eDnleRItfGwO4Cb
+SiSRhx+VkKgcM9UCgBWh4lIUpe4Kc12KiAUpY6HIOpdLfcaYEa7XLrJ3UqeQtShj8tVeIq/0n1eY
+bHq6XCGxAF4Qa+s/vXi3E7rT9C2sW0dC7s61ZR+AVRdrBADjx+7/Q1vfb4RHMvfG9+7E63Q6hsYn
+sZHFoswCAAA=
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

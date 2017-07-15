@@ -1,0 +1,388 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1180851</bug_id>
+          
+          <creation_ts>2015-01-10 23:44:00 -0500</creation_ts>
+          <short_desc>missing symbol in libbx_usb_uhci.so</short_desc>
+          <delta_ts>2017-05-18 00:55:41 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>bochs</component>
+          <version>24</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>medium</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Benjamin@BGRoberts.id.au">Benjamin</reporter>
+          <assigned_to name="Chris Lalancette">clalancette</assigned_to>
+          <cc>clalancette</cc>
+    
+    
+    <cc>hanishkvc</cc>
+    
+    
+    <cc>honli</cc>
+    
+    
+    <cc>limburgher</cc>
+    
+    
+    <cc>mike</cc>
+    
+    
+    <cc>pedro.lamarao</cc>
+    
+    
+    <cc>pzhukov</cc>
+    
+    
+    <cc>samsong8610</cc>
+    
+    
+    <cc>virt-maint</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>bochs-2.6.9-2.fc26 bochs-2.6.9-2.fc25 bochs-2.6.9-2.fc24</cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-05-12 10:12:18</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>7832416</commentid>
+    <comment_count>0</comment_count>
+      <attachid>978688</attachid>
+    <who name="Benjamin@BGRoberts.id.au">Benjamin</who>
+    <bug_when>2015-01-10 23:44:28 -0500</bug_when>
+    <thetext>Created attachment 978688
+terminal output of bochs
+
+When starting bochs the following panic is thrown:
+
+&quot;Message: dlopen failed for module &apos;usb_uhci&apos;: /usr/lib64/bochs/plugins/libbx_usb_uhci.so: undefined symbol: _ZTV12usb_device_c&quot;
+
+
+Present in official FC21 2.6.2 package and when built from SRPM</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8057330</commentid>
+    <comment_count>1</comment_count>
+    <who name="Sam Song">samsong8610</who>
+    <bug_when>2015-03-19 04:35:54 -0400</bug_when>
+    <thetext>Present in 2.6.7 source code installation download from project home.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8586192</commentid>
+    <comment_count>2</comment_count>
+    <who name="Pavel Zhukov">pzhukov</who>
+    <bug_when>2015-08-29 05:54:41 -0400</bug_when>
+    <thetext>Confirmed in F22</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8830184</commentid>
+    <comment_count>3</comment_count>
+    <who name="hanishkvc">hanishkvc</who>
+    <bug_when>2015-11-18 02:27:19 -0500</bug_when>
+    <thetext>Also there in F23</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8830626</commentid>
+    <comment_count>4</comment_count>
+    <who name="hanishkvc">hanishkvc</who>
+    <bug_when>2015-11-18 05:12:00 -0500</bug_when>
+    <thetext>Hi,
+
+I have tested with latest svn code, where the same issue was triggered on my machine. So on a casual glance, it seems like there is a dependence on usb_device_c declared in usb_common in usb_uhci, and has RTLD_LAZY resolve only works for functions and not variables, it doesn&apos;t help here. So I have changed the sequence of loading wrt usb_uhci and usb_common, so that usb_common gets loaded first. However if for any reason usb_uhci doesn&apos;t load and if no other usb controllers are also loaded, then I take care of unloading usb_common, so that the old behaviour wrt usb_common is not changed, even thou location of loading of same is changed by my patch.
+
+And this seems to solve the problem. However currently I am looking at bochs to help with some experimentation with a bootloader, so I haven&apos;t explicitly checked the usb logic, after my change, but logically don&apos;t see any reason why there should be a problem.
+
+
+--- iodev/devices.cc	(revision 12882)
++++ iodev/devices.cc	(working copy)
+@@ -180,6 +180,7 @@
+     PLUG_load_plugin(pci, PLUGTYPE_CORE);
+     PLUG_load_plugin(pci2isa, PLUGTYPE_CORE);
+ #if BX_SUPPORT_PCIUSB
++    PLUG_load_plugin(usb_common, PLUGTYPE_CORE);
+     if (chipset == BX_PCI_CHIPSET_I440FX) {
+       // UHCI is a part of the PIIX3, so load / enable it
+       if (!PLUG_device_present(&quot;usb_uhci&quot;)) {
+@@ -188,8 +189,10 @@
+       SIM-&gt;get_param_bool(BXPN_UHCI_ENABLED)-&gt;set(1);
+     }
+     usb_enabled = is_usb_enabled();
+-    if (usb_enabled)
+-      PLUG_load_plugin(usb_common, PLUGTYPE_CORE);
++    if (!usb_enabled) {
++      PLUG_unload_plugin(usb_common);
++      BX_PANIC((&quot;Bochs has failed to load usb_uhci???&quot;));
++    }
+ #endif
+     if (chipset == BX_PCI_CHIPSET_I440FX) {
+       PLUG_load_plugin(acpi, PLUGTYPE_STANDARD);</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9300724</commentid>
+    <comment_count>5</comment_count>
+    <who name="Pedro Lamarão">pedro.lamarao</who>
+    <bug_when>2016-05-06 18:20:52 -0400</bug_when>
+    <thetext>I have the same problem with current F24.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9300764</commentid>
+    <comment_count>6</comment_count>
+    <who name="Pedro Lamarão">pedro.lamarao</who>
+    <bug_when>2016-05-06 18:50:08 -0400</bug_when>
+    <thetext>Cannot reproduce with version 2.6.8 compiled from source with:
+]$ configure --enable-gdb-stub</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9723383</commentid>
+    <comment_count>7</comment_count>
+    <who name="Honggang LI">honli</who>
+    <bug_when>2016-09-19 22:02:57 -0400</bug_when>
+    <thetext>Issue persists with bochs-2.6.2-10.fc24.x86_64.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9734887</commentid>
+    <comment_count>8</comment_count>
+    <who name="Gwyn Ciesla">limburgher</who>
+    <bug_when>2016-09-22 12:10:19 -0400</bug_when>
+    <thetext>When I build the current SVN checkout with the portion of the above patch that still applies, it fixes the USB issue but still crashes.  If anyone would like to take a look, I&apos;ve put builds here:
+
+https://fedorapeople.org/~limb/bochs/</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9736652</commentid>
+    <comment_count>9</comment_count>
+    <who name="Honggang LI">honli</who>
+    <bug_when>2016-09-23 03:47:59 -0400</bug_when>
+    <thetext>(In reply to Jon Ciesla from comment #8)
+&gt; When I build the current SVN checkout with the portion of the above patch
+&gt; that still applies, it fixes the USB issue but still crashes.  If anyone
+&gt; would like to take a look, I&apos;ve put builds here:
+&gt; 
+&gt; https://fedorapeople.org/~limb/bochs/
+
+ %install
+ rm -rf $RPM_BUILD_ROOT _installed-docs
+ make install DESTDIR=$RPM_BUILD_ROOT
+ rm -rf $RPM_BUILD_ROOT%{_prefix}/share/bochs/VGABIOS*  &lt;===
+
+As VGABIOS* had been deleted, bochs hang for me. After package up &quot;%{_datadir}/bochs/VGABIOS*&quot;, bochs works for me as expected. But bochs-debugger and bochs-gdb failed. Anyway, thanks for the scratch RPMs.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9993684</commentid>
+    <comment_count>10</comment_count>
+    <who name="Gwyn Ciesla">limburgher</who>
+    <bug_when>2016-12-16 10:27:11 -0500</bug_when>
+    <thetext>Updated builds in https://fedorapeople.org/~limb/bochs/</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10389999</commentid>
+    <comment_count>11</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-05 14:26:36 -0400</bug_when>
+    <thetext>bochs-2.6.9-1.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-6e54134f4c</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10390001</commentid>
+    <comment_count>12</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-05 14:26:56 -0400</bug_when>
+    <thetext>bochs-2.6.9-1.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-1b0a9a2184</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10390003</commentid>
+    <comment_count>13</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-05 14:27:09 -0400</bug_when>
+    <thetext>bochs-2.6.9-1.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2017-5e9ae14f38</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10391084</commentid>
+    <comment_count>14</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-06 22:00:52 -0400</bug_when>
+    <thetext>bochs-2.6.9-1.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-5e9ae14f38</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10391111</commentid>
+    <comment_count>15</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-06 23:29:51 -0400</bug_when>
+    <thetext>bochs-2.6.9-1.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-6e54134f4c</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10391141</commentid>
+    <comment_count>16</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-07 01:07:31 -0400</bug_when>
+    <thetext>bochs-2.6.9-1.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-1b0a9a2184</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10393126</commentid>
+    <comment_count>17</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-08 09:28:20 -0400</bug_when>
+    <thetext>bochs-2.6.9-2.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-654016e876</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10393128</commentid>
+    <comment_count>18</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-08 09:28:42 -0400</bug_when>
+    <thetext>bochs-2.6.9-2.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-39519fc6b4</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10393130</commentid>
+    <comment_count>19</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-08 09:28:55 -0400</bug_when>
+    <thetext>bochs-2.6.9-2.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2017-6a17b108d7</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10394452</commentid>
+    <comment_count>20</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-08 20:46:28 -0400</bug_when>
+    <thetext>bochs-2.6.9-2.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-39519fc6b4</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10394645</commentid>
+    <comment_count>21</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-08 22:38:43 -0400</bug_when>
+    <thetext>bochs-2.6.9-2.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-654016e876</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10394962</commentid>
+    <comment_count>22</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-09 02:01:32 -0400</bug_when>
+    <thetext>bochs-2.6.9-2.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-6a17b108d7</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10407984</commentid>
+    <comment_count>23</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-12 10:12:18 -0400</bug_when>
+    <thetext>bochs-2.6.9-2.fc26 has been pushed to the Fedora 26 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10423025</commentid>
+    <comment_count>24</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-17 17:02:51 -0400</bug_when>
+    <thetext>bochs-2.6.9-2.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10423785</commentid>
+    <comment_count>25</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-18 00:55:41 -0400</bug_when>
+    <thetext>bochs-2.6.9-2.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="0"
+              ispatch="0"
+              isprivate="0"
+          >
+            <attachid>978688</attachid>
+            <date>2015-01-10 23:44:00 -0500</date>
+            <delta_ts>2015-01-10 23:44:28 -0500</delta_ts>
+            <desc>terminal output of bochs</desc>
+            <filename>bochs.log</filename>
+            <type>text/plain</type>
+            <size>2216</size>
+            <attacher name="Benjamin@BGRoberts.id.au">Benjamin</attacher>
+            
+              <data encoding="base64">PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09CiAgICAgICAgICAgICAgICAgICAgICAgQm9jaHMgeDg2IEVtdWxhdG9y
+IDIuNi4yCiAgICAgICAgICAgICAgICBCdWlsdCBmcm9tIFNWTiBzbmFwc2hvdCBvbiBNYXkgMjYs
+IDIwMTMKICAgICAgICAgICAgICAgICAgQ29tcGlsZWQgb24gSmFuIDExIDIwMTUgYXQgMTU6MzU6
+MzYKPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09CjAwMDAwMDAwMDAwaVsgICAgIF0gTFRETF9MSUJSQVJZX1BBVEgg
+bm90IHNldC4gdXNpbmcgY29tcGlsZSB0aW1lIGRlZmF1bHQgJy91c3IvbGliNjQvYm9jaHMvcGx1
+Z2lucycKMDAwMDAwMDAwMDBpWyAgICAgXSBCWFNIQVJFIG5vdCBzZXQuIHVzaW5nIGNvbXBpbGUg
+dGltZSBkZWZhdWx0ICcvdXNyL3NoYXJlL2JvY2hzJwowMDAwMDAwMDAwMGlbICAgICBdIGx0X2Rs
+aGFuZGxlIGlzIDB4N2ZhZDZhZWExMzYwCjAwMDAwMDAwMDAwaVtQTEdJTl0gbG9hZGVkIHBsdWdp
+biBsaWJieF91bm1hcHBlZC5zbwowMDAwMDAwMDAwMGlbICAgICBdIGx0X2RsaGFuZGxlIGlzIDB4
+N2ZhZDZhZWExY2UwCjAwMDAwMDAwMDAwaVtQTEdJTl0gbG9hZGVkIHBsdWdpbiBsaWJieF9iaW9z
+ZGV2LnNvCjAwMDAwMDAwMDAwaVsgICAgIF0gbHRfZGxoYW5kbGUgaXMgMHg3ZmFkNmFlYTI3MTAK
+MDAwMDAwMDAwMDBpW1BMR0lOXSBsb2FkZWQgcGx1Z2luIGxpYmJ4X3NwZWFrZXIuc28KMDAwMDAw
+MDAwMDBpWyAgICAgXSBsdF9kbGhhbmRsZSBpcyAweDdmYWQ2YWVhMmZlMAowMDAwMDAwMDAwMGlb
+UExHSU5dIGxvYWRlZCBwbHVnaW4gbGliYnhfZXh0ZnB1aXJxLnNvCjAwMDAwMDAwMDAwaVsgICAg
+IF0gbHRfZGxoYW5kbGUgaXMgMHg3ZmFkNmFlYTM4MzAKMDAwMDAwMDAwMDBpW1BMR0lOXSBsb2Fk
+ZWQgcGx1Z2luIGxpYmJ4X3BhcmFsbGVsLnNvCjAwMDAwMDAwMDAwaVsgICAgIF0gbHRfZGxoYW5k
+bGUgaXMgMHg3ZmFkNmFlYTU0NTAKMDAwMDAwMDAwMDBpW1BMR0lOXSBsb2FkZWQgcGx1Z2luIGxp
+YmJ4X3NlcmlhbC5zbwowMDAwMDAwMDAwMGlbICAgICBdIHJlYWRpbmcgY29uZmlndXJhdGlvbiBm
+cm9tIGxpdHRsZU9TLmJvY2hzcmMKMDAwMDAwMDAwMDBpWyAgICAgXSBsdF9kbGhhbmRsZSBpcyAw
+eDdmYWQ2YWVhOTMzMAowMDAwMDAwMDAwMGlbUExHSU5dIGxvYWRlZCBwbHVnaW4gbGliYnhfeC5z
+bwowMDAwMDAwMDAwMGlbICAgICBdIGluc3RhbGxpbmcgeCBtb2R1bGUgYXMgdGhlIEJvY2hzIEdV
+SQowMDAwMDAwMDAwMGlbICAgICBdIHVzaW5nIGxvZyBmaWxlIGJvY2hzLWxpdHRsZU9TLmxvZwo9
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT0KRXZlbnQgdHlwZTogUEFOSUMKRGV2aWNlOiBbICAgICBdCk1lc3NhZ2U6
+IGRsb3BlbiBmYWlsZWQgZm9yIG1vZHVsZSAndXNiX3VoY2knOiAvdXNyL2xpYjY0L2JvY2hzL3Bs
+dWdpbnMvbGliYnhfdXNiX3VoY2kuc286IHVuZGVmaW5lZCBzeW1ib2w6IF9aVFYxMnVzYl9kZXZp
+Y2VfYwoKQSBQQU5JQyBoYXMgb2NjdXJyZWQuICBEbyB5b3Ugd2FudCB0bzoKICBjb250ICAgICAg
+IC0gY29udGludWUgZXhlY3V0aW9uCiAgYWx3YXlzY29udCAtIGNvbnRpbnVlIGV4ZWN1dGlvbiwg
+YW5kIGRvbid0IGFzayBhZ2Fpbi4KICAgICAgICAgICAgICAgVGhpcyBhZmZlY3RzIG9ubHkgUEFO
+SUMgZXZlbnRzIGZyb20gZGV2aWNlIFsgICAgIF0KICBkaWUgICAgICAgIC0gc3RvcCBleGVjdXRp
+b24gbm93CiAgYWJvcnQgICAgICAtIGR1bXAgY29yZSAKQ2hvb3NlIG9uZSBvZiB0aGUgYWN0aW9u
+cyBhYm92ZTogW2RpZV0gCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQpCb2NocyBpcyBleGl0aW5nIHdpdGggdGhl
+IGZvbGxvd2luZyBtZXNzYWdlOgpbICAgICBdIGRsb3BlbiBmYWlsZWQgZm9yIG1vZHVsZSAndXNi
+X3VoY2knOiAvdXNyL2xpYjY0L2JvY2hzL3BsdWdpbnMvbGliYnhfdXNiX3VoY2kuc286IHVuZGVm
+aW5lZCBzeW1ib2w6IF9aVFYxMnVzYl9kZXZpY2VfYwo9PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0KdQo=
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

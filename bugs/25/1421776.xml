@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1421776</bug_id>
+          
+          <creation_ts>2017-02-13 11:10:00 -0500</creation_ts>
+          <short_desc>rpm: Python Provides generator doesn&apos;t work with Python wheels</short_desc>
+          <delta_ts>2017-02-20 06:18:15 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>rpm</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>CURRENTRELEASE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Tomas Orsava">torsava</reporter>
+          <assigned_to name="Tomas Orsava">torsava</assigned_to>
+          <cc>ignatenko</cc>
+    
+    
+    <cc>kardos.lubos</cc>
+    
+    
+    <cc>ngompa13</cc>
+    
+    
+    <cc>packaging-team-maint</cc>
+    
+    
+    <cc>pknirsch</cc>
+    
+    
+    <cc>pmatilai</cc>
+    
+    
+    <cc>torsava</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>rpm-4.13.0.1-2.fc26 rpm-4.13.0-7.fc25</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-02-16 09:02:54</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10143632</commentid>
+    <comment_count>0</comment_count>
+    <who name="Tomas Orsava">torsava</who>
+    <bug_when>2017-02-13 11:10:14 -0500</bug_when>
+    <thetext>Description of problem:
+The Python Provides generator (`scripts/pythondistdeps.py --provides --majorver-provides`) does not work with packages built and installed using a Python wheel (macros %py_build_wheel, %py_install_wheel). It doesn&apos;t generate the appropriate Provides tags and emits the following warning:
+
+/usr/lib/rpm/pythondistdeps.py:112: RuntimeWarning: Version for six 1.10.0 (/builddir/build/BUILDROOT/python-six-1.10.0-7.fc26.noarch/usr/lib/python3.6/site-packages) has not been found
+  warn(&quot;Version for {!r} has not been found&quot;.format(dist), RuntimeWarning)
+
+However, when the same package is built using the standard %py_build, %py_install macros, the pythondistdeps.py script works fine.
+
+I&apos;ve investigated it and I&apos;ve found that it fails because it can&apos;t detect the &quot;py_version&quot; (Python version, e.g. 2.7 or 3.5) of the wheel. Inside eggs (%py_build/install), the &quot;py_version&quot; is contained in the file name of the .egg-info directory (six-1.10.0-py3.6.egg-info), whereas in the wheel, the .dist-info directory does not contain py_version (six-1.10.0.dist-info). I&apos;ve checked the [PEP] for Metadata 2.0 format and it doesn&apos;t allow for the possibility of encoding py_version in the file name.
+
+[PEP] https://www.python.org/dev/peps/pep-0426/#metadata-files
+
+Therefore, perhaps pythondistdeps.py needs to be modified to take py_version from elsewhere?
+
+
+Version-Release number of selected component (if applicable):
+rpm-4.13.0-11.fc26
+
+How reproducible:
+Every time
+
+Steps to Reproduce:
+1. Build a Python package that uses %py_build/install_wheel macros.
+E.g. python-setuptools, or this python-six [specfile] where `build_wheel` is configurable.
+[specfile] https://paste.fedoraproject.org/556832/raw/
+
+
+Actual results:
+...
++ cp -pr LICENSE /builddir/build/BUILDROOT/python-six-1.10.0-7.fc26.noarch/usr/share/licenses/python3-six
++ exit 0
+/usr/lib/rpm/pythondistdeps.py:112: RuntimeWarning: Version for six 1.10.0 (/builddir/build/BUILDROOT/python-six-1.10.0-7.fc26.noarch/usr/lib/python3.6/site-packages) has not been found
+  warn(&quot;Version for {!r} has not been found&quot;.format(dist), RuntimeWarning)
+/usr/lib/rpm/pythondistdeps.py:112: RuntimeWarning: Version for six 1.10.0 (/builddir/build/BUILDROOT/python-six-1.10.0-7.fc26.noarch/usr/lib/python3.6/site-packages) has not been found
+  warn(&quot;Version for {!r} has not been found&quot;.format(dist), RuntimeWarning)
+/usr/lib/rpm/pythondistdeps.py:112: RuntimeWarning: Version for six 1.10.0 (/builddir/build/BUILDROOT/python-six-1.10.0-7.fc26.noarch/usr/lib/python3.6/site-packages) has not been found
+  warn(&quot;Version for {!r} has not been found&quot;.format(dist), RuntimeWarning)
+/usr/lib/rpm/pythondistdeps.py:112: RuntimeWarning: Version for six 1.10.0 (/builddir/build/BUILDROOT/python-six-1.10.0-7.fc26.noarch/usr/lib/python3.6/site-packages) has not been found
+  warn(&quot;Version for {!r} has not been found&quot;.format(dist), RuntimeWarning)
+/usr/lib/rpm/pythondistdeps.py:112: RuntimeWarning: Version for six 1.10.0 (/builddir/build/BUILDROOT/python-six-1.10.0-7.fc26.noarch/usr/lib/python3.6/site-packages) has not been found
+  warn(&quot;Version for {!r} has not been found&quot;.format(dist), RuntimeWarning)
+/usr/lib/rpm/pythondistdeps.py:112: RuntimeWarning: Version for six 1.10.0 (/builddir/build/BUILDROOT/python-six-1.10.0-7.fc26.noarch/usr/lib/python3.6/site-packages) has not been found
+  warn(&quot;Version for {!r} has not been found&quot;.format(dist), RuntimeWarning)
+/usr/lib/rpm/pythondistdeps.py:112: RuntimeWarning: Version for six 1.10.0 (/builddir/build/BUILDROOT/python-six-1.10.0-7.fc26.noarch/usr/lib/python3.6/site-packages) has not been found
+  warn(&quot;Version for {!r} has not been found&quot;.format(dist), RuntimeWarning)
+/usr/lib/rpm/pythondistdeps.py:112: RuntimeWarning: Version for six 1.10.0 (/builddir/build/BUILDROOT/python-six-1.10.0-7.fc26.noarch/usr/lib/python3.6/site-packages) has not been found
+  warn(&quot;Version for {!r} has not been found&quot;.format(dist), RuntimeWarning)
+Provides: python3-six = 1.10.0-7.fc26
+Requires(rpmlib): rpmlib(CompressedFileNames) &lt;= 3.0.4-1 rpmlib(FileDigests) &lt;= 4.6.0-1 rpmlib(PayloadFilesHavePrefix) &lt;= 4.0-1
+Checking for unpackaged file(s): /usr/lib/rpm/check-files /builddir/build/BUILDROOT/python-six-1.10.0-7.fc26.noarch
+...
+
+Expected results:
+...
++ cp -pr LICENSE /builddir/build/BUILDROOT/python-six-1.10.0-7.fc26.noarch/usr/share/licenses/python3-six
++ exit 0
+Provides: python3-six = 1.10.0-7.fc26 python3.6dist(six) = 1.10.0 python3dist(six) = 1.10.0
+Requires(rpmlib): rpmlib(CompressedFileNames) &lt;= 3.0.4-1 rpmlib(FileDigests) &lt;= 4.6.0-1 rpmlib(PayloadFilesHavePrefix) &lt;= 4.0-1
+Checking for unpackaged file(s): /usr/lib/rpm/check-files /builddir/build/BUILDROOT/python-six-1.10.0-7.fc26.noarch
+...</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10143664</commentid>
+    <comment_count>1</comment_count>
+    <who name="Tomas Orsava">torsava</who>
+    <bug_when>2017-02-13 11:20:01 -0500</bug_when>
+    <thetext>python-setuptools build log containing the same warning and lacking the proper Provides tags:
+https://kojipkgs.fedoraproject.org//packages/python-setuptools/34.1.1/1.fc26/data/logs/noarch/build.log</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10143843</commentid>
+    <comment_count>2</comment_count>
+    <who name="Neal Gompa">ngompa13</who>
+    <bug_when>2017-02-13 12:17:14 -0500</bug_when>
+    <thetext>Where would we get the Python version in the metadata then?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10143926</commentid>
+    <comment_count>3</comment_count>
+    <who name="Igor Gnatenko">ignatenko</who>
+    <bug_when>2017-02-13 12:43:16 -0500</bug_when>
+    <thetext>There&apos;s no other way apart from directory name. We had 30 minutes discussion with Tomas. I will send PR.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10147211</commentid>
+    <comment_count>4</comment_count>
+    <who name="Tomas Orsava">torsava</who>
+    <bug_when>2017-02-14 11:29:11 -0500</bug_when>
+    <thetext>I&apos;ve wrote a patch and sent it upstream: https://github.com/rpm-software-management/rpm/pull/154</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10153549</commentid>
+    <comment_count>5</comment_count>
+    <who name="Tomas Orsava">torsava</who>
+    <bug_when>2017-02-16 09:02:54 -0500</bug_when>
+    <thetext>Upstream patch was merged and now it&apos;s deployed in Fedora 25 and rawhide.
+Fedora 24 does not have the new Python provides generator (pythondistdeps.py) and thus doesn&apos;t suffer from this affliction.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10163738</commentid>
+    <comment_count>6</comment_count>
+    <who name="Panu Matilainen">pmatilai</who>
+    <bug_when>2017-02-18 04:25:33 -0500</bug_when>
+    <thetext>(In reply to Tomas Orsava from comment #5)
+&gt; Upstream patch was merged and now it&apos;s deployed in Fedora 25 and rawhide.
+
+Eh? Applying a patch in dist-git does not &quot;deploy&quot; it. You need to build it too and for released versions, follow the update procress to get it into the distro.
+
+While an unapplied (because it&apos;s not even built!) patch is mostly harmless, this does make pushing rpm 4.13.0.1 to F25 and the git history way messier than need be, for no reason at all.
+
+If you plan on touching a package maintained by somebody else, for TALK TO THE MAINTAINERS FIRST!</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10163739</commentid>
+    <comment_count>7</comment_count>
+    <who name="Panu Matilainen">pmatilai</who>
+    <bug_when>2017-02-18 04:36:12 -0500</bug_when>
+    <thetext>Oh and in case it wasn&apos;t clear between the lines - please do NOT create an F25 update for this because it&apos;d just further complicate getting 4.13.0.1 out.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10166456</commentid>
+    <comment_count>8</comment_count>
+    <who name="Tomas Orsava">torsava</who>
+    <bug_when>2017-02-20 05:35:30 -0500</bug_when>
+    <thetext>(In reply to Panu Matilainen from comment #6)
+&gt; (In reply to Tomas Orsava from comment #5)
+&gt; &gt; Upstream patch was merged and now it&apos;s deployed in Fedora 25 and rawhide.
+&gt; 
+&gt; Eh? Applying a patch in dist-git does not &quot;deploy&quot; it. You need to build it
+&gt; too and for released versions, follow the update procress to get it into the
+&gt; distro.
+
+Oh, my sincere apologies, I must have forgot to fire the official build at the end :/
+
+&gt; While an unapplied (because it&apos;s not even built!) patch is mostly harmless,
+&gt; this does make pushing rpm 4.13.0.1 to F25 and the git history way messier
+&gt; than need be, for no reason at all.
+&gt; 
+&gt; If you plan on touching a package maintained by somebody else, for TALK TO
+&gt; THE MAINTAINERS FIRST!
+
+I&apos;ve asked Florian if I can push the patch before doing so (though I didn&apos;t mention the F25 branch). I&apos;m sorry if backporting it into F25 complicates the git history, but the problem needed to be fixed there as well.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10166567</commentid>
+    <comment_count>9</comment_count>
+    <who name="Panu Matilainen">pmatilai</who>
+    <bug_when>2017-02-20 06:18:15 -0500</bug_when>
+    <thetext>
+(In reply to Tomas Orsava from comment #8)
+&gt; (In reply to Panu Matilainen from comment #6)
+&gt; &gt; If you plan on touching a package maintained by somebody else, for TALK TO
+&gt; &gt; THE MAINTAINERS FIRST!
+&gt; 
+&gt; I&apos;ve asked Florian if I can push the patch before doing so (though I didn&apos;t
+&gt; mention the F25 branch). I&apos;m sorry if backporting it into F25 complicates
+&gt; the git history, but the problem needed to be fixed there as well.
+
+Oh, in that case apologies for yelling. What&apos;s needed in this case is the maintainers talking between each other :)</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

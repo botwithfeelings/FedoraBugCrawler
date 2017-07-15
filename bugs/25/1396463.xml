@@ -1,0 +1,427 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1396463</bug_id>
+          
+          <creation_ts>2016-11-18 06:50:00 -0500</creation_ts>
+          <short_desc>Fedora - etcd fails to start on ppc64le platform</short_desc>
+          <delta_ts>2017-02-08 23:20:36 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>etcd</component>
+          <version>25</version>
+          <rep_platform>ppc64le</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>urgent</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>1315384</blocked>
+    
+    
+    <blocked>1380798</blocked>
+    
+    
+    <blocked>1051573</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Manjunath A Kumatagi">mkumatag</reporter>
+          <assigned_to name="Jan Chaloupka">jchaloup</assigned_to>
+          <cc>avagarwa</cc>
+    
+    
+    <cc>bugproxy</cc>
+    
+    
+    <cc>dan</cc>
+    
+    
+    <cc>eparis</cc>
+    
+    
+    <cc>golang-updates</cc>
+    
+    
+    <cc>hannsj_uhl</cc>
+    
+    
+    <cc>jcajka</cc>
+    
+    
+    <cc>jchaloup</cc>
+    
+    
+    <cc>jwboyer</cc>
+    
+    
+    <cc>lacypret</cc>
+    
+    
+    <cc>lemenkov</cc>
+    
+    
+    <cc>menantea</cc>
+    
+    
+    <cc>mkumatag</cc>
+    
+    
+    <cc>smilner</cc>
+    
+    
+    <cc>tstclair</cc>
+    
+    
+    <cc>walters</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>etcd-3.0.15-2.fc26 etcd-3.0.17-1.fc25</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-02-08 23:20:36</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          <external_bugs name="IBM Linux Technology Center">149094</external_bugs>
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9903116</commentid>
+    <comment_count>0</comment_count>
+    <who name="Manjunath A Kumatagi">mkumatag</who>
+    <bug_when>2016-11-18 06:50:31 -0500</bug_when>
+    <thetext>Description of problem:
+
+etcd fails to start on ppc64le platform
+
+Version-Release number of selected component (if applicable):
+
+etcd-3.0.4-1.fc25.ppc64le
+
+How reproducible:
+
+
+Steps to Reproduce:
+1. Install etcd(dnf install etcd)
+2. systemctl start etcd
+
+Actual results:
+But fails to start the service. Tried manually to start but hitting with following error:
+
+[root@localhost ~]# etcd version
+2016-11-18 03:43:02.015268 E | etcdmain: etcd on unsupported platform without ETCD_UNSUPPORTED_ARCH=ppc64le set.
+[root@localhost ~]#
+
+This is happening because etcd project disabled the etcd support for all the platform except amd64 architecture. So we need to patch in the code to run exempt the ppc64le platform or we need to set ETCD_UNSUPPORTED_ARCH=ppc64le param before starting the service.
+
+Expected results:
+It should run the etcd db without any issues.
+
+Additional info:</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9903276</commentid>
+    <comment_count>1</comment_count>
+    <who name="Jan Chaloupka">jchaloup</who>
+    <bug_when>2016-11-18 07:40:45 -0500</bug_when>
+    <thetext>Hi Manjunath,
+
+can you try the scratch build from [1]? I have removed the architecture check completely. Each etcd rpm is built for specific architecture so this will not matter. If a user installs ppc64le build of etcd to different architecture, it is on its own risk.
+
+[1] http://ppc.koji.fedoraproject.org/koji/taskinfo?taskID=3878346</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9904173</commentid>
+    <comment_count>2</comment_count>
+    <who name="Timothy St. Clair">tstclair</who>
+    <bug_when>2016-11-18 12:25:09 -0500</bug_when>
+    <thetext>xref - https://github.com/coreos/etcd/issues/6871</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9904236</commentid>
+    <comment_count>3</comment_count>
+    <who name="Timothy St. Clair">tstclair</who>
+    <bug_when>2016-11-18 12:57:24 -0500</bug_when>
+    <thetext>You can .spec patch the unit file for an arch to ENV override.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9905018</commentid>
+    <comment_count>4</comment_count>
+      <attachid>1222056</attachid>
+    <who name="Manjunath A Kumatagi">mkumatag</who>
+    <bug_when>2016-11-18 20:33:48 -0500</bug_when>
+    <thetext>Created attachment 1222056
+ppc64le platform support</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9905019</commentid>
+    <comment_count>5</comment_count>
+    <who name="Manjunath A Kumatagi">mkumatag</who>
+    <bug_when>2016-11-18 20:35:09 -0500</bug_when>
+    <thetext>(In reply to Timothy St. Clair from comment #3)
+&gt; You can .spec patch the unit file for an arch to ENV override.
+
+we can use attached patch to ignore the check for ppc64le platform.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9908812</commentid>
+    <comment_count>6</comment_count>
+    <who name="Jan Chaloupka">jchaloup</who>
+    <bug_when>2016-11-21 10:19:11 -0500</bug_when>
+    <thetext>Realizing noone has been running etcd on non-x86_64 archs at all. Though the etcd spec file builds on: %{ix86} x86_64 %{arm} aarch64 ppc64le s390x.
+
+What about to introduce ETCD_UNSUPPORTED_ARCH_SKIP_CHECK env. If not set, the etcd just not simply runs and informs about the potential instability with a link to the etcd doc. If set, the check is skipped and the user can test the etcd build. Any thoughts on that?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9908987</commentid>
+    <comment_count>7</comment_count>
+    <who name="Steve Milner">smilner</who>
+    <bug_when>2016-11-21 10:58:47 -0500</bug_when>
+    <thetext>Jan, That sounds reasonable to me.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9915768</commentid>
+    <comment_count>8</comment_count>
+    <who name="Jan Chaloupka">jchaloup</who>
+    <bug_when>2016-11-23 06:39:14 -0500</bug_when>
+    <thetext>Manjunath,
+
+would ETCD_UNSUPPORTED_ARCH_SKIP_CHECK be sufficient fix for you?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9915792</commentid>
+    <comment_count>9</comment_count>
+    <who name="Manjunath A Kumatagi">mkumatag</who>
+    <bug_when>2016-11-23 06:48:25 -0500</bug_when>
+    <thetext>I&apos;m okay if this flag. We can include this flag to into environment file and set is by default as true.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9929366</commentid>
+    <comment_count>10</comment_count>
+    <who name="Dan Horák">dan</who>
+    <bug_when>2016-11-25 05:45:36 -0500</bug_when>
+    <thetext>I would rather not depend on environment variable, but only let etcd print a warning is arch is not upstream supported (instead of the hard stop).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9931145</commentid>
+    <comment_count>11</comment_count>
+    <who name="Jan Chaloupka">jchaloup</who>
+    <bug_when>2016-11-26 07:50:12 -0500</bug_when>
+    <thetext>Assuming the upstream does not currently support non-x86_64 archs, it is only right to stop the etcd from running on other architectures unless it is explicitly configured by administrator.
+
+In order to provide etcd with minimal or no initial configuration and to support better stability and provide responsive feedback to users, it will be better for each architecture maintainer(s) to open their own request for making the etcd run by default on their architecture. With promise of supporting and dealing with all issues that are architecture related.
+
+Since noone reads logs unless there is something not working properly, I don&apos;t think any user will read any kind of warning about unsupported architecture.
+
+However, there are some facts to consider valid:
+1) running the etcd from scratch is important to provide fast and first experience with any tool
+2) if a user/administrator decides to use the etcd in production it is a must to make sure the etcd is sufficiently tested and maintained to avoid data loss, instability, to force security and other attributes based on production requirements
+3) we can not make everyone happy
+
+So I will patch the etcd with Manjunath&apos;s patch + stating running etcd on ppc64le is not supported and at user&apos;s own risk + referring this issue for further discussion. Once the ppc64le is officially supported the patch gets removed and this issue can be closed definitely.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9931166</commentid>
+    <comment_count>12</comment_count>
+    <who name="Jan Chaloupka">jchaloup</who>
+    <bug_when>2016-11-26 08:14:46 -0500</bug_when>
+    <thetext>Two following messages will appear each time the etcd is run on ppc64le:
+
+2016-11-26 14:13:02.053155 W | etcdmain: Running etcd on ppc64le architecture is not supported.
+2016-11-26 14:13:02.053199 W | etcdmain: Be aware you are running the etcd at your own risk.
+2016-11-26 14:13:02.053207 W | etcdmain: For more information visit https://bugzilla.redhat.com/show_bug.cgi?id=1396463
+2016-11-26 14:13:02.053453 I | etcdmain: etcd Version: 3.0.15
+2016-11-26 14:13:02.053461 I | etcdmain: Git SHA: fc00305
+2016-11-26 14:13:02.053468 I | etcdmain: Go Version: go1.7.3
+2016-11-26 14:13:02.053475 I | etcdmain: Go OS/Arch: linux/ppc64le
+...</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9931178</commentid>
+    <comment_count>13</comment_count>
+    <who name="Jan Chaloupka">jchaloup</who>
+    <bug_when>2016-11-26 08:51:57 -0500</bug_when>
+    <thetext>Manjunath, can you verify the build [1]? Just to test it works.
+
+Dan, once verified can you rebuild etcd in ppc64le?
+
+[1] http://ppc.koji.fedoraproject.org/koji/taskinfo?taskID=3885203
+
+Thanks
+Jan</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9933009</commentid>
+    <comment_count>14</comment_count>
+    <who name="Manjunath A Kumatagi">mkumatag</who>
+    <bug_when>2016-11-27 23:54:53 -0500</bug_when>
+    <thetext>Tested. Everything is working fine and able to see the warning message. -Thanks
+
+Nov 27 20:51:29 localhost.localdomain systemd[1]: Starting Etcd Server...
+Nov 27 20:51:29 localhost.localdomain etcd[1507]: Running etcd on ppc64le architecture is not supported.
+Nov 27 20:51:29 localhost.localdomain etcd[1507]: Be aware you are running the etcd at your own risk.
+Nov 27 20:51:29 localhost.localdomain etcd[1507]: For more information visit https://bugzilla.redhat.com/show_bug.cgi?id=1396463
+Nov 27 20:51:29 localhost.localdomain etcd[1507]: recognized and used environment variable ETCD_ADVERTISE_CLIENT_URLS=http://localhost:2379
+
+
+[root@localhost ~]# etcdctl mkdir test
+[root@localhost ~]# etcdctl ls
+/test
+[root@localhost ~]#</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10061136</commentid>
+    <comment_count>15</comment_count>
+    <who name="Josh Boyer">jwboyer</who>
+    <bug_when>2017-01-13 09:49:19 -0500</bug_when>
+    <thetext>This bug can likely be CLOSED-&gt;RAWHIDE now, correct?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10061149</commentid>
+    <comment_count>16</comment_count>
+    <who name="Jan Chaloupka">jchaloup</who>
+    <bug_when>2017-01-13 09:53:45 -0500</bug_when>
+    <thetext>Given the issue is reported for f25, then no. There is no f25 build of etcd-3.0.15-2 in ppc Koji yet [1].
+
+If the rawhide build is enough [2], then yes, it can be closed.
+
+[1] https://ppc.koji.fedoraproject.org/koji/packageinfo?packageID=16879
+[2] https://koji.fedoraproject.org/koji/buildinfo?buildID=820543</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10061184</commentid>
+    <comment_count>17</comment_count>
+    <who name="Dan Horák">dan</who>
+    <bug_when>2017-01-13 10:04:37 -0500</bug_when>
+    <thetext>(In reply to Jan Chaloupka from comment #16)
+&gt; Given the issue is reported for f25, then no. There is no f25 build of
+&gt; etcd-3.0.15-2 in ppc Koji yet [1].
+
+it&apos;s not because there is no etcd-3.0.15-2.fc25 in primary koji :-)
+
+&gt; 
+&gt; If the rawhide build is enough [2], then yes, it can be closed.
+
+IMO that&apos;s sufficient
+ 
+&gt; [1] https://ppc.koji.fedoraproject.org/koji/packageinfo?packageID=16879
+&gt; [2] https://koji.fedoraproject.org/koji/buildinfo?buildID=820543</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10061299</commentid>
+    <comment_count>18</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-13 10:38:11 -0500</bug_when>
+    <thetext>etcd-3.0.15-2.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-3c9fcdb866</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10061811</commentid>
+    <comment_count>19</comment_count>
+    <who name="Dan Horák">dan</who>
+    <bug_when>2017-01-13 11:55:39 -0500</bug_when>
+    <thetext>and built in ppc koji too - https://ppc.koji.fedoraproject.org/koji/buildinfo?buildID=441457</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10063228</commentid>
+    <comment_count>20</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-14 01:22:03 -0500</bug_when>
+    <thetext>etcd-3.0.15-2.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-3c9fcdb866</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10065008</commentid>
+    <comment_count>21</comment_count>
+    <who name="Manjunath A Kumatagi">mkumatag</who>
+    <bug_when>2017-01-16 00:49:29 -0500</bug_when>
+    <thetext>Tried testing it on &quot;Fedora 25 - ppc64le - Test Updates&quot; but still not able to locate the package under updates-testing
+
+[root@localhost ~]# dnf repolist
+Fedora 25 - ppc64le - Test Updates              4.6 MB/s | 1.9 MB     00:00    
+Fedora 25 - ppc64le - Updates                    16 MB/s |  10 MB     00:00    
+Fedora 25 - ppc64le                             6.5 MB/s |  44 MB     00:06    
+Last metadata expiration check: 0:00:27 ago on Sun Jan 15 21:45:27 2017.
+repo id                     repo name                                     status
+*fedora                     Fedora 25 - ppc64le                           42,839
+*updates                    Fedora 25 - ppc64le - Updates                 11,576
+*updates-testing            Fedora 25 - ppc64le - Test Updates               953
+[root@localhost ~]# dnf --showduplicates list etcd | expand
+Last metadata expiration check: 0:01:42 ago on Sun Jan 15 21:45:27 2017.
+Available Packages
+etcd.ppc64le                        3.0.4-1.fc25                         fedora 
+etcd.ppc64le                        3.0.15-1.fc25                        updates
+[root@localhost ~]# date
+Sun Jan 15 21:48:58 PST 2017
+[root@localhost ~]#</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10088279</commentid>
+    <comment_count>22</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-23 06:34:30 -0500</bug_when>
+    <thetext>etcd-3.0.17-1.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-ef9ba616c9</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10103649</commentid>
+    <comment_count>23</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-28 14:17:58 -0500</bug_when>
+    <thetext>etcd-3.0.17-1.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-ef9ba616c9</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10133135</commentid>
+    <comment_count>24</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-08 23:20:36 -0500</bug_when>
+    <thetext>etcd-3.0.17-1.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="0"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1222056</attachid>
+            <date>2016-11-18 20:33:00 -0500</date>
+            <delta_ts>2016-11-18 20:33:48 -0500</delta_ts>
+            <desc>ppc64le platform support</desc>
+            <filename>0001-ppc64le_support.patch</filename>
+            <type>text/plain</type>
+            <size>427</size>
+            <attacher name="Manjunath A Kumatagi">mkumatag</attacher>
+            
+              <data encoding="base64">ZGlmZiAtLWdpdCBhL2V0Y2RtYWluL2V0Y2QuZ28gYi9ldGNkbWFpbi9ldGNkLmdvCmluZGV4IGU3
+OGYxNjYuLjcxMDExNjggMTAwNjQ0Ci0tLSBhL2V0Y2RtYWluL2V0Y2QuZ28KKysrIGIvZXRjZG1h
+aW4vZXRjZC5nbwpAQCAtNTU2LDcgKzU1Niw3IEBAIGZ1bmMgc2V0dXBMb2dnaW5nKGNmZyAqY29u
+ZmlnKSB7CiAKIGZ1bmMgY2hlY2tTdXBwb3J0QXJjaCgpIHsKIAkvLyBUT0RPIHF1YWxpZnkgYXJt
+NjQKLQlpZiBydW50aW1lLkdPQVJDSCA9PSAiYW1kNjQiIHsKKwlpZiBydW50aW1lLkdPQVJDSCA9
+PSAiYW1kNjQiIHx8IHJ1bnRpbWUuR09BUkNIID09ICJwcGM2NGxlIiB7CiAJCXJldHVybgogCX0K
+IAlpZiBlbnYsIG9rIDo9IG9zLkxvb2t1cEVudigiRVRDRF9VTlNVUFBPUlRFRF9BUkNIIik7IG9r
+ICYmIGVudiA9PSBydW50aW1lLkdPQVJDSCB7Cg==
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

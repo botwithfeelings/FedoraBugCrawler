@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1427132</bug_id>
+          
+          <creation_ts>2017-02-27 07:28:00 -0500</creation_ts>
+          <short_desc>create an API for initializing repos</short_desc>
+          <delta_ts>2017-04-01 13:21:36 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>dnf</component>
+          <version>26</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords>Reopened, Triaged</keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Daniel Mach">dmach</reporter>
+          <assigned_to name="Jaroslav Mracek">jmracek</assigned_to>
+          <cc>dmach</cc>
+    
+    
+    <cc>jmracek</cc>
+    
+    
+    <cc>packaging-team-maint</cc>
+    
+    
+    <cc>rpm-software-management</cc>
+    
+    
+    <cc>vmukhame</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>dnf-1.1.10-6.fc25 dnf-2.2.0-1.fc26</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-04-01 13:21:36</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10186290</commentid>
+    <comment_count>0</comment_count>
+    <who name="Daniel Mach">dmach</who>
+    <bug_when>2017-02-27 07:28:26 -0500</bug_when>
+    <thetext>Currently the Repo() objects are created in the CLI code:
+https://github.com/rpm-software-management/dnf/blob/master/dnf/cli/cli.py#L672
+
+It would be nice if dnf had a supported (API) function/method to add repos,
+ideally available directly through the dnf.Base class.
+Every project that uses DNF and configures repos in the code rather than using /etc/yum.repos.d/* ends up with it&apos;s own code for this use case.
+
+An example:
+https://pagure.io/fork/lsedlar/pungi/blob/gather-libhif/f/pungi/dnf_wrapper.py#_61</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10186375</commentid>
+    <comment_count>1</comment_count>
+    <who name="Igor Gnatenko">ignatenko</who>
+    <bug_when>2017-02-27 07:46:53 -0500</bug_when>
+    <thetext>You mean something like this:
+diff --git a/dnf/cli/cli.py b/dnf/cli/cli.py
+index d561274a..9a091843 100644
+--- a/dnf/cli/cli.py
++++ b/dnf/cli/cli.py
+@@ -673,13 +673,7 @@ class Cli(object):
+         self.base.read_all_repos(opts)
+         if opts.repofrompath:
+             for label, path in opts.repofrompath.items():
+-                if &apos;://&apos; not in path:
+-                    path = &apos;file://{}&apos;.format(os.path.abspath(path))
+-                repofp = dnf.repo.Repo(label, self.base.conf)
+-                try:
+-                    repofp.baseurl = path
+-                except ValueError as e:
+-                    raise dnf.exceptions.RepoError(e)
++                repofp = dnf.repo.from_path(label, path, self.base.conf)
+                 self.base.repos.add(repofp)
+                 logger.info(_(&quot;Added %s repo from %s&quot;), label, path)
+ 
+diff --git a/dnf/repo.py b/dnf/repo.py
+index 338db6b5..10366d02 100644
+--- a/dnf/repo.py
++++ b/dnf/repo.py
+@@ -483,6 +483,18 @@ class Repo(dnf.conf.RepoConf):
+         # :api
+         return self._repofile
+ 
++    @classmethod
++    def from_path(cls, name, path, *args, **kwargs):
++        # :api
++        if &apos;://&apos; not in path:
++            path = &apos;file://{}&apos;.format(os.path.abspath(path))
++        repofp = cls(name, *args, **kwargs)
++        try:
++            repofp.baseurl = path
++        except ValueError as e:
++            raise dnf.exceptions.RepoError(e)
++        return repofp
++
+     @repofile.setter
+     def repofile(self, value):
+         self._repofile = value
+
+
+?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10193444</commentid>
+    <comment_count>2</comment_count>
+    <who name="Fedora End Of Life">jkurik</who>
+    <bug_when>2017-02-28 07:27:20 -0500</bug_when>
+    <thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 26 development cycle.
+Changing version to &apos;26&apos;.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10201571</commentid>
+    <comment_count>3</comment_count>
+    <who name="Jaroslav Mracek">jmracek</who>
+    <bug_when>2017-03-02 07:12:24 -0500</bug_when>
+    <thetext>I will take care of that.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10201580</commentid>
+    <comment_count>4</comment_count>
+    <who name="Igor Gnatenko">ignatenko</who>
+    <bug_when>2017-03-02 07:14:21 -0500</bug_when>
+    <thetext>(In reply to Jaroslav Mracek from comment #3)
+&gt; I will take care of that.
+
+There&apos;s already patch waiting for reporter.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10201936</commentid>
+    <comment_count>5</comment_count>
+    <who name="Jaroslav Mracek">jmracek</who>
+    <bug_when>2017-03-02 08:36:26 -0500</bug_when>
+    <thetext>I have created patch that should support requested feature: https://github.com/rpm-software-management/dnf/pull/752</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10201969</commentid>
+    <comment_count>6</comment_count>
+    <who name="Daniel Mach">dmach</who>
+    <bug_when>2017-03-02 08:44:55 -0500</bug_when>
+    <thetext>The patch in pull request 752 looks good to me.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10240840</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-15 04:56:35 -0400</bug_when>
+    <thetext>dnf-1.1.10-6.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-b7cfb5cf10</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10243388</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-15 15:58:37 -0400</bug_when>
+    <thetext>dnf-1.1.10-6.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-b7cfb5cf10</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10247667</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-16 18:22:02 -0400</bug_when>
+    <thetext>dnf-1.1.10-6.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10260378</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-21 08:07:41 -0400</bug_when>
+    <thetext>dnf-2.1.1-1.fc26 libdnf-0.8.0-1.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-65586fa42b</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10261599</commentid>
+    <comment_count>11</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-21 10:27:08 -0400</bug_when>
+    <thetext>dnf-2.1.1-1.1.fc26, libdnf-0.8.0-1.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-65586fa42b</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10280768</commentid>
+    <comment_count>12</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-27 15:20:41 -0400</bug_when>
+    <thetext>dnf-2.2.0-1.fc26, libdnf-0.8.0-1.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-65586fa42b</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10296833</commentid>
+    <comment_count>13</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-01 13:21:36 -0400</bug_when>
+    <thetext>dnf-2.2.0-1.fc26, libdnf-0.8.0-1.fc26 has been pushed to the Fedora 26 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

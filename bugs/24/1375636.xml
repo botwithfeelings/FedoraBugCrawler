@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1375636</bug_id>
+          
+          <creation_ts>2016-09-13 10:56:00 -0400</creation_ts>
+          <short_desc>SELinux is preventing usbhid-ups from &apos;read&apos; accesses on the file +usb:2-0:1.0.</short_desc>
+          <delta_ts>2016-09-21 20:22:22 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>selinux-policy</component>
+          <version>24</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard>abrt_hash:9ad43d89182686500c13eefb01c2236baed5ea8215db41fcc5ad1d7dddeb206c;</status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Laurent Rineau">laurent.rineau__fedora</reporter>
+          <assigned_to name="Lukas Vrabec">lvrabec</assigned_to>
+          <cc>dominick.grift</cc>
+    
+    
+    <cc>dwalsh</cc>
+    
+    
+    <cc>lvrabec</cc>
+    
+    
+    <cc>mgrepl</cc>
+    
+    
+    <cc>plautrba</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>selinux-policy-3.13.1-191.16.fc24</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-09-21 20:22:22</cf_last_closed>
+          <cf_type>---</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9703545</commentid>
+    <comment_count>0</comment_count>
+    <who name="Laurent Rineau">laurent.rineau__fedora</who>
+    <bug_when>2016-09-13 10:56:06 -0400</bug_when>
+    <thetext>Description of problem:
+I can reproduce the AVC with this commands:
+
+    sudo systemctl restart nut-driver
+
+and the service status is error, and AVCs are in the audit.log.
+
+
+If I use `sudo semanage permissive -a nut_upsdrvctl_t`, and restart the service, the service runs without any error.\
+
+Then `sudo ausearch -m AVC -ts recent --raw` displays:
+
+type=AVC msg=audit(1473778244.378:1172): avc:  denied  { read } for  pid=38507 comm=&quot;usbhid-ups&quot; name=&quot;c189:9&quot; dev=&quot;tmpfs&quot; ino=5229898 scontext=system_u:system_r:nut_upsdrvctl_t:s0 tcontext=system_u:object_r:udev_var_run_t:s0 tclass=file permissive=1
+type=AVC msg=audit(1473778244.378:1173): avc:  denied  { open } for  pid=38507 comm=&quot;usbhid-ups&quot; path=&quot;/run/udev/data/c189:9&quot; dev=&quot;tmpfs&quot; ino=5229898 scontext=system_u:system_r:nut_upsdrvctl_t:s0 tcontext=system_u:object_r:udev_var_run_t:s0 tclass=file permissive=1
+type=AVC msg=audit(1473778244.378:1174): avc:  denied  { getattr } for  pid=38507 comm=&quot;usbhid-ups&quot; path=&quot;/run/udev/data/c189:9&quot; dev=&quot;tmpfs&quot; ino=5229898 scontext=system_u:system_r:nut_upsdrvctl_t:s0 tcontext=system_u:object_r:udev_var_run_t:s0 tclass=file permissive=1
+type=AVC msg=audit(1473778281.961:1197): avc:  denied  { read } for  pid=38556 comm=&quot;usbhid-ups&quot; name=&quot;c189:9&quot; dev=&quot;tmpfs&quot; ino=5229898 scontext=system_u:system_r:nut_upsdrvctl_t:s0 tcontext=system_u:object_r:udev_var_run_t:s0 tclass=file permissive=1
+type=AVC msg=audit(1473778281.961:1198): avc:  denied  { open } for  pid=38556 comm=&quot;usbhid-ups&quot; path=&quot;/run/udev/data/c189:9&quot; dev=&quot;tmpfs&quot; ino=5229898 scontext=system_u:system_r:nut_upsdrvctl_t:s0 tcontext=system_u:object_r:udev_var_run_t:s0 tclass=file permissive=1
+type=AVC msg=audit(1473778281.961:1199): avc:  denied  { getattr } for  pid=38556 comm=&quot;usbhid-ups&quot; path=&quot;/run/udev/data/c189:9&quot; dev=&quot;tmpfs&quot; ino=5229898 scontext=system_u:system_r:nut_upsdrvctl_t:s0 tcontext=system_u:object_r:udev_var_run_t:s0 tclass=file permissive=1
+SELinux is preventing usbhid-ups from &apos;read&apos; accesses on the file +usb:2-0:1.0.
+
+*****  Plugin catchall (100. confidence) suggests   **************************
+
+If you believe that usbhid-ups should be allowed read access on the +usb:2-0:1.0 file by default.
+Then you should report this as a bug.
+You can generate a local policy module to allow this access.
+Do
+allow this access for now by executing:
+# ausearch -c &apos;usbhid-ups&apos; --raw | audit2allow -M my-usbhidups
+# semodule -X 300 -i my-usbhidups.pp
+
+Additional Information:
+Source Context                system_u:system_r:nut_upsdrvctl_t:s0
+Target Context                system_u:object_r:udev_var_run_t:s0
+Target Objects                +usb:2-0:1.0 [ file ]
+Source                        usbhid-ups
+Source Path                   usbhid-ups
+Port                          &lt;Unknown&gt;
+Host                          (removed)
+Source RPM Packages           
+Target RPM Packages           
+Policy RPM                    selinux-policy-3.13.1-191.14.fc24.noarch
+Selinux Enabled               True
+Policy Type                   targeted
+Enforcing Mode                Enforcing
+Host Name                     (removed)
+Platform                      Linux (removed) 4.7.2-201.fc24.x86_64 #1 SMP Fri
+                              Aug 26 15:58:40 UTC 2016 x86_64 x86_64
+Alert Count                   160
+First Seen                    2016-09-13 10:28:21 CEST
+Last Seen                     2016-09-13 14:22:39 CEST
+Local ID                      3e0a8294-09c2-4dd7-8da0-f38dffb19e86
+
+Raw Audit Messages
+type=AVC msg=audit(1473769359.640:1079): avc:  denied  { read } for  pid=34936 comm=&quot;usbhid-ups&quot; name=&quot;+usb:2-0:1.0&quot; dev=&quot;tmpfs&quot; ino=18387 scontext=system_u:system_r:nut_upsdrvctl_t:s0 tcontext=system_u:object_r:udev_var_run_t:s0 tclass=file permissive=0
+
+
+Hash: usbhid-ups,nut_upsdrvctl_t,udev_var_run_t,file,read
+
+Version-Release number of selected component:
+selinux-policy-3.13.1-191.14.fc24.noarch
+
+Additional info:
+reporter:       libreport-2.7.2
+hashmarkername: setroubleshoot
+kernel:         4.7.2-201.fc24.x86_64
+type:           libreport
+
+Potential duplicate: bug 1299429</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9711339</commentid>
+    <comment_count>1</comment_count>
+    <who name="Lukas Vrabec">lvrabec</who>
+    <bug_when>2016-09-15 10:47:17 -0400</bug_when>
+    <thetext>*** Bug 1299429 has been marked as a duplicate of this bug. ***</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9712023</commentid>
+    <comment_count>2</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-15 13:23:41 -0400</bug_when>
+    <thetext>selinux-policy-3.13.1-191.16.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-fe39b806b6</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9712846</commentid>
+    <comment_count>3</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-15 20:51:45 -0400</bug_when>
+    <thetext>selinux-policy-3.13.1-191.16.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-fe39b806b6</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9732040</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-21 20:22:22 -0400</bug_when>
+    <thetext>selinux-policy-3.13.1-191.16.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

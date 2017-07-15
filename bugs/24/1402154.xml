@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1402154</bug_id>
+          
+          <creation_ts>2016-12-06 17:58:00 -0500</creation_ts>
+          <short_desc>Python fails to decode X.509 cert with GEN_RID subject alt name</short_desc>
+          <delta_ts>2017-01-26 05:03:43 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>python</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>CURRENTRELEASE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords>Patch</keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Rich Megginson">rmeggins</reporter>
+          <assigned_to name="Charalampos Stratakis">cstratak</assigned_to>
+          <cc>bkabrda</cc>
+    
+    
+    <cc>bnater</cc>
+    
+    
+    <cc>cheimes</cc>
+    
+    
+    <cc>cstratak</cc>
+    
+    
+    <cc>dmalcolm</cc>
+    
+    
+    <cc>ivazqueznet</cc>
+    
+    
+    <cc>jonathansteffan</cc>
+    
+    
+    <cc>mhroncok</cc>
+    
+    
+    <cc>ncoghlan</cc>
+    
+    
+    <cc>pviktori</cc>
+    
+    
+    <cc>python-maint</cc>
+    
+    
+    <cc>qe-baseos-apps</cc>
+    
+    
+    <cc>rkuska</cc>
+    
+    
+    <cc>rmeggins</cc>
+    
+    
+    <cc>tomspur</cc>
+    
+    
+    <cc>torsava</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>python2-2.7.13-1.fc26 python-2.7.13-1.fc25 python-2.7.13-1.fc24</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          <cf_clone_of>1364444</cf_clone_of>
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-01-26 05:03:43</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          <external_bugs name="Python">27691</external_bugs>
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9962147</commentid>
+    <comment_count>0</comment_count>
+    <who name="Rich Megginson">rmeggins</who>
+    <bug_when>2016-12-06 17:58:23 -0500</bug_when>
+    <thetext>+++ This bug was initially created as a clone of Bug #1364444 +++
+
+Description of problem:
+Python fails to decode X.509 certificate with a GEN_RID general name in subject alternative names. The problem makes it impossible to verify that a server certificate matches a host name. On the other hand registered id are required for SearchGuard 2.x with Elasticsearch 2.x. #1364268 has more information.
+
+Version-Release number of selected component (if applicable):
+All versions of Python in RHEL and Fedora are affected.
+
+How reproducible:
+The bug can be reproduced with any certificate that has a registered id (GEN_RID) in the X509v3 subject alt name extension.
+
+Steps to Reproduce:
+1. Download rid.pem from https://bugs.python.org/issue27691
+2. python -c &quot;import _ssl; print(_ssl._test_decode_cert(&apos;rid.pem&apos;))&quot;
+
+Actual results:
+Traceback (most recent call last):
+  File &quot;&lt;string&gt;&quot;, line 1, in &lt;module&gt;
+SystemError: error return without exception set
+
+Expected results:
+{&apos;OCSP&apos;: (&apos;http://acme.test/ca/ocsp/tls-server-ca&apos;,), &apos;serialNumber&apos;: &apos;01&apos;, &apos;crlDistributionPoints&apos;: (&apos;http://acme.test/ca/tls-server-ca.crl&apos;,), &apos;version&apos;: 3, &apos;caIssuers&apos;: (&apos;http://acme.test/ca/tls-server-ca.cer&apos;,), &apos;notAfter&apos;: &apos;Aug  5 09:13:13 2018 GMT&apos;, &apos;subjectAltName&apos;: ((&apos;Registered ID&apos;, &apos;1.2.3.4.5.5&apos;), (&apos;DNS&apos;, &apos;localhost&apos;), (&apos;IP Address&apos;, &apos;127.0.0.1&apos;), (&apos;IP Address&apos;, &apos;0:0:0:0:0:0:0:1\n&apos;)), &apos;subject&apos;: (((&apos;countryName&apos;, &apos;XX&apos;),), ((&apos;organizationName&apos;, &apos;Acme Corp&apos;),), ((&apos;organizationalUnitName&apos;, &apos;Acme Users&apos;),), ((&apos;commonName&apos;, &apos;localhost&apos;),)), &apos;issuer&apos;: (((&apos;countryName&apos;, &apos;XX&apos;),), ((&apos;organizationName&apos;, &apos;Acme Corp&apos;),), ((&apos;organizationalUnitName&apos;, &apos;Acme Certificate Authority&apos;),), ((&apos;commonName&apos;, &apos;Acme TLS Server CA&apos;),)), &apos;notBefore&apos;: &apos;Aug  5 09:13:13 2016 GMT&apos;}
+
+
+Additional info:
+The root cause of the Python bug is a bug in OpenSSL&apos;s GENERAL_NAME_print() function, see #1364268. The ticket on Python&apos;s bug tracker has a fix with unit tests.
+
+--- Additional comment from Red Hat Bugzilla Rules Engine on 2016-08-05 07:26:30 EDT ---
+
+Since this bug report was entered in Red Hat Bugzilla, the release flag has been set to ? to ensure that it is properly evaluated for this release.
+
+--- Additional comment from Petr Viktorin on 2016-08-08 05:04:29 EDT ---
+
+Fixing Python tracker ID.
+
+I plan to add devel_ack as soon as the patch is upstream.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9965661</commentid>
+    <comment_count>1</comment_count>
+    <who name="Charalampos Stratakis">cstratak</who>
+    <bug_when>2016-12-07 13:22:56 -0500</bug_when>
+    <thetext>This is fixed in Python 2.7.13rc1
+
+The final release will be out in approximately two weeks.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10098255</commentid>
+    <comment_count>2</comment_count>
+    <who name="Charalampos Stratakis">cstratak</who>
+    <bug_when>2017-01-26 05:03:43 -0500</bug_when>
+    <thetext>Python 2 is at version 2.7.13 (where this fix is contained) for all the current Fedora branches, so this issue is resolved.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

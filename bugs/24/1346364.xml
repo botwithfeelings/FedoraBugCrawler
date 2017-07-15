@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1346364</bug_id>
+          
+          <creation_ts>2016-06-14 11:46:00 -0400</creation_ts>
+          <short_desc>Regression: Invalid permissions on /etc/selinux/config</short_desc>
+          <delta_ts>2016-06-20 20:31:39 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>anaconda</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>RAWHIDE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Stef Walter">stefw</reporter>
+          <assigned_to name="Brian Lane">bcl</assigned_to>
+          <cc>anaconda-maint-list</cc>
+    
+    
+    <cc>dominick.grift</cc>
+    
+    
+    <cc>dperpeet</cc>
+    
+    
+    <cc>dwalsh</cc>
+    
+    
+    <cc>g.kaviyarasu</cc>
+    
+    
+    <cc>jonathan</cc>
+    
+    
+    <cc>lvrabec</cc>
+    
+    
+    <cc>mgrepl</cc>
+    
+    
+    <cc>plautrba</cc>
+    
+    
+    <cc>vanmeeuwen+fedora</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>anaconda-25.19-1</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-06-20 20:31:39</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9414712</commentid>
+    <comment_count>0</comment_count>
+    <who name="Stef Walter">stefw</who>
+    <bug_when>2016-06-14 11:46:45 -0400</bug_when>
+    <thetext>Description of problem:
+
+The /etc/selinux/config is no longer readable by non-root users in Fedora 24. This means that the &apos;sestatus&apos; command also no longer works correctly for non-root users.
+
+Version-Release number of selected component (if applicable):
+
+selinux-policy-3.13.1-190.fc24.noarch
+
+How reproducible:
+
+Every time
+
+Steps to Reproduce:
+1. sudo -u nobody sestatus | grep config
+
+Actual results:
+
+Mode from config file:          error (Permission denied)
+
+Expected results:
+
+Mode from config file:          enforcing
+
+Additional info:
+
+Fedora 24:
+
+$ ls -l /etc/selinux/config
+-rw-------. 1 root root 548 Jun 14 10:18 /etc/selinux/config
+
+Fedora 23: 
+
+$ ls -l /etc/selinux/config
+-rw-r--r--. 1 root root 549 15. Sep 2015  /etc/selinux/config</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9421889</commentid>
+    <comment_count>1</comment_count>
+    <who name="Stef Walter">stefw</who>
+    <bug_when>2016-06-16 04:43:56 -0400</bug_when>
+    <thetext>On RHEL Atomic we don&apos;t see this regression:
+
+# rpm -q selinux-policy
+selinux-policy-3.13.1-60.el7_2.3.noarch
+# atomic host status
+* 2016-05-06 05:57:30     7.2.4     b060975ce3     rhel-atomic-host     rhel-atomic-host-ostree:rhel-atomic-host/7/x86_64/standard     
+bash-4.2# ls -l /etc/selinux/config
+-rw-r--r--. 1 root root 546 May  6 15:31 /etc/selinux/config
+bash-4.2# cat /etc/selinux/config
+
+# This file controls the state of SELinux on the system.
+# SELINUX= can take one of these three values:
+...
+
+
+On RHEL 7 we don&apos;t see this regression:
+
+# rpm -q selinux-policy
+selinux-policy-3.13.1-60.el7_2.3.noarch
+# ls -l /etc/selinux/config
+-rw-r--r--. 1 root root 546 Nov 24  2015 /etc/selinux/config
+# cat /etc/selinux/config 
+
+# This file controls the state of SELinux on the system.
+# SELINUX= can take one of these three values:
+...
+
+
+On Fedora Atomic we *do* see the issue:
+
+# rpm -q selinux-policy
+selinux-policy-3.13.1-158.15.fc23.noarch
+# ls -l /etc/selinux/config
+-rw-------. 1 root root 548 Oct 30  2015 /etc/selinux/config
+# head -n3 /etc/selinux/config
+
+# This file controls the state of SELinux on the system.
+# SELINUX= can take one of these three values:
+# sudo -u nobody sestatus | grep config
+Mode from config file:          error (Permission denied)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9421895</commentid>
+    <comment_count>2</comment_count>
+    <who name="Stef Walter">stefw</who>
+    <bug_when>2016-06-16 04:44:39 -0400</bug_when>
+    <thetext>This breaks the Cockpit UI, when logged in as a non-root user, Cockpit uses sestatus.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9422095</commentid>
+    <comment_count>3</comment_count>
+    <who name="Petr Lautrbach">plautrba</who>
+    <bug_when>2016-06-16 05:51:29 -0400</bug_when>
+    <thetext>/etc/selinux/config is created by a scriptlet in selinux-policy.spec file:
+echo &quot;...&quot; &gt; /etc/selinux/config
+
+and rpm sets umask(022).
+
+As far as I know there was no change related to how the config file is created recently and I&apos;m not able to reproduce this on Fedora 24 Workstation. There&apos;s probably something in how Fedora Atomic tree is built.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9422316</commentid>
+    <comment_count>4</comment_count>
+    <who name="Stef Walter">stefw</who>
+    <bug_when>2016-06-16 07:00:29 -0400</bug_when>
+    <thetext>So is it intentional that non-root users cannot see /etc/selinux/config, and cannot get valid &apos;config file&apos; output from the sestatus command?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9422336</commentid>
+    <comment_count>5</comment_count>
+    <who name="Petr Lautrbach">plautrba</who>
+    <bug_when>2016-06-16 07:04:50 -0400</bug_when>
+    <thetext>No, it&apos;s not. It&apos;s the other way around. I haven&apos;t try latest Atomic but all systems I have (f23, f24, rawhide, rhel) have /etc/selinux/config readable for all users and there was no change in the way how this file is created. Therefore I think permissions on this file are changed during the Atomic compose process.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9422428</commentid>
+    <comment_count>6</comment_count>
+    <who name="Petr Lautrbach">plautrba</who>
+    <bug_when>2016-06-16 07:36:59 -0400</bug_when>
+    <thetext>I&apos;ve just installed Fedora-Workstation-netinst-x86_64-24-20160615.n.0.iso and file permissions are set as expected:
+
+-rw-r--r--. 1 root root 549 Jun 16 13:31 /etc/selinux/config</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9422715</commentid>
+    <comment_count>7</comment_count>
+    <who name="Stef Walter">stefw</who>
+    <bug_when>2016-06-16 08:37:48 -0400</bug_when>
+    <thetext>virt-builder images suffer from this error. You can see this with the following few simple steps:
+
+$ virt-builder fedora-23 --root-password password:123456 --size 20G
+$ qemu-system-x86_64 -drive file=fedora-23.img,if=virtio -m 2048
+
+Now wait for the system to boot. Login with root/123456 and check the permissions of /etc/selinux/config. They are 0600
+
+I&apos;ll check about kickstart files next.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9424319</commentid>
+    <comment_count>8</comment_count>
+    <who name="Stef Walter">stefw</who>
+    <bug_when>2016-06-16 10:25:40 -0400</bug_when>
+    <thetext>This is an anaconda kickstart issue. I can duplicate this:
+
+```
+$ wget https://ftp-stud.hs-esslingen.de/pub/fedora/linux/releases/23/Server/x86_64/iso/Fedora-Server-DVD-x86_64-23.iso
+$ cat ks.cfg
+install
+text
+shutdown
+lang en_US.UTF-8
+keyboard us
+network --bootproto dhcp
+rootpw foobar
+firewall --enabled --ssh
+selinux --enforcing
+timezone --utc America/New_York
+bootloader --location=mbr
+zerombr
+clearpart --all --initlabel
+autopart
+
+%packages
+@core
+%end
+$ dd if=/dev/zero of=kickstart.img bs=1440K count=1
+$ /sbin/mkfs -F -t ext2 kickstart.img
+$ mkdir kickstart
+$ sudo mount -o loop kickstart.img kickstart
+$ sudo cp -p ks.cfg kickstart/
+$ sudo umount kickstart
+$ qemu-img create test.img 10G
+$ qemu-system-x86_64 -cdrom Fedora-Server-DVD-x86_64-23.iso -hda test.img -fda kickstart.img -boot d -net nic -net user -m 1024 -localtime 
+
+Press tab during the boot screen of fedora and add this to the kernel command line:
+
+ks=hd:fd0:/ks.cfg
+
+After the install completes, boot with:
+
+$ qemu-system-x86_64 -cdrom Fedora-Server-DVD-x86_64-23.iso -hda test.img -boot d -net nic -net user -m 1024 -localtime
+
+```
+
+The resulting /etc/selinux/config has incorrect permissions.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9428559</commentid>
+    <comment_count>9</comment_count>
+    <who name="Brian Lane">bcl</who>
+    <bug_when>2016-06-17 12:01:28 -0400</bug_when>
+    <thetext>This is a bug in Fedora, since version 23.17, it isn&apos;t present in RHEL7.
+
+This should fix it:
+
+https://github.com/rhinstaller/anaconda/pull/675</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

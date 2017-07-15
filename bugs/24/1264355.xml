@@ -1,0 +1,800 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1264355</bug_id>
+          
+          <creation_ts>2015-09-18 05:30:00 -0400</creation_ts>
+          <short_desc>[GTK3][Wayland] misplaced popup child windows</short_desc>
+          <delta_ts>2017-06-19 07:37:13 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>gtk3</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>RAWHIDE</resolution>
+          
+          
+          <bug_file_loc>https://github.com/stransky/gecko-dev</bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          <dependson>1260773</dependson>
+          <blocked>1054334</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Martin Stransky">stransky</reporter>
+          <assigned_to name="Matthias Clasen">mclasen</assigned_to>
+          <cc>alexl</cc>
+    
+    
+    <cc>anton4linux</cc>
+    
+    
+    <cc>ccecchi</cc>
+    
+    
+    <cc>extras-qa</cc>
+    
+    
+    <cc>gecko-bugs-nobody</cc>
+    
+    
+    <cc>ipun</cc>
+    
+    
+    <cc>jadahl</cc>
+    
+    
+    <cc>johannespfrang+redhat</cc>
+    
+    
+    <cc>jorgeml</cc>
+    
+    
+    <cc>mclasen</cc>
+    
+    
+    <cc>ofourdan</cc>
+    
+    
+    <cc>stransky</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          <cf_clone_of>1260773</cf_clone_of>
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-06-19 07:37:13</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          <external_bugs name="Mozilla Foundation">635134</external_bugs>
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>8648004</commentid>
+    <comment_count>0</comment_count>
+      <attachid>1074755</attachid>
+    <who name="Martin Stransky">stransky</who>
+    <bug_when>2015-09-18 05:30:19 -0400</bug_when>
+    <thetext>Created attachment 1074755
+testcase
+
++++ This bug was initially created as a clone of Bug #1260773 +++
+
+When popup window is created (menubar for instance), it&apos;s misplaced (rendered at 0,0). Works fine on broadway backend.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8668665</commentid>
+    <comment_count>1</comment_count>
+    <who name="Martin Stransky">stransky</who>
+    <bug_when>2015-09-25 06:34:17 -0400</bug_when>
+    <thetext>Oliver, there&apos;s the reproducer you requested. Thanks.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8668996</commentid>
+    <comment_count>2</comment_count>
+    <who name="Olivier Fourdan">ofourdan</who>
+    <bug_when>2015-09-25 08:14:32 -0400</bug_when>
+    <thetext>Thanks MArtrin, I&apos;ll take a look at the code, but just to make sure, there is no absolute positioning in Wayland by definition:
+
+http://lists.freedesktop.org/archives/wayland-devel/2015-September/024410.html</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8679845</commentid>
+    <comment_count>4</comment_count>
+    <who name="Olivier Fourdan">ofourdan</who>
+    <bug_when>2015-09-30 05:07:25 -0400</bug_when>
+    <thetext>As mentioned in comment 2, there is no absolute positioning in Wayland, so a gtk_window_move() on a toplevel or a popup won&apos;t work as is.
+
+You can achieve *relative* positioning when using either subsurfaces or XdgPopup.
+
+Looking at gdk_wayland_window_map() implementation [1] we can see that gdk Wayland backend will automatically create an XdgPopup for things like GDK_WINDOW_TYPE_HINT_POPUP_MENU, GDK_WINDOW_TYPE_HINT_POPUP_MENU and GDK_WINDOW_TYPE_HINT_POPUP_MENU (with a grab which is expected with a menu) as done in e.g. gtk_menu_position() from gtkmenu.c [2]
+
+Looking at the example provided, I am not sure if you trying to code a menu or a tooltip, but but for tooltips (which do not imply any sort of grab), gtk uses a private API gtk_window_set_use_subsurface() which is private and not usable in regular applications.
+
+[1] https://git.gnome.org/browse/gtk+/tree/gdk/wayland/gdkwindow-wayland.c?id=3.18.0#n1220
+[2] https://git.gnome.org/browse/gtk+/tree/gtk/gtkmenu.c?id=3.18.0#n4460</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8679850</commentid>
+    <comment_count>5</comment_count>
+    <who name="Olivier Fourdan">ofourdan</who>
+    <bug_when>2015-09-30 05:09:31 -0400</bug_when>
+    <thetext>Sorry I meant &quot;[...] gdk Wayland backend will automatically create an XdgPopup for things like GDK_WINDOW_TYPE_HINT_POPUP_MENU, GDK_WINDOW_TYPE_HINT_DROPDOWN_MENU or GDK_WINDOW_TYPE_HINT_COMBO&quot;</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8679859</commentid>
+    <comment_count>6</comment_count>
+    <who name="Martin Stransky">stransky</who>
+    <bug_when>2015-09-30 05:13:24 -0400</bug_when>
+    <thetext>Yes, Firefox uses that code to create popup menus, tooltips and so.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8679881</commentid>
+    <comment_count>7</comment_count>
+    <who name="Martin Stransky">stransky</who>
+    <bug_when>2015-09-30 05:18:47 -0400</bug_when>
+    <thetext>And what about the gtk_window_resize()? Is it also unsupported on Wayland? 
+
+btw. Those code is a regular part of Gtk3 documentation - how is possible that it &quot;just doesn&apos;t work&quot; without any notice there? I wonder how do you expect people will switch to Wayland with such glitches...</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8680397</commentid>
+    <comment_count>8</comment_count>
+    <who name="Olivier Fourdan">ofourdan</who>
+    <bug_when>2015-09-30 08:40:49 -0400</bug_when>
+    <thetext>(In reply to Martin Stransky from comment #7)
+&gt; And what about the gtk_window_resize()? Is it also unsupported on Wayland? 
+
+gtk_window_resize() should work AFAIK. 
+
+There can be bugs though (e.g. https://bugzilla.gnome.org/show_bug.cgi?id=755051) but it works on weston.
+
+&gt; btw. Those code is a regular part of Gtk3 documentation
+&gt; - how is possible that it &quot;just doesn&apos;t work&quot; without any notice there?
+
+I think it&apos;s just because the documentation predates Wayland.
+
+&gt; I wonder how do you expect people will switch to Wayland with such glitches...
+
+It&apos;s not a glitch, it&apos;s a design decision in Wayland, Wayland is not X11 (I suspect it&apos;s even one of the Wayland&apos;s raison d&apos;etre) so it&apos;s not 1-to-1 mapping in design.
+
+But you can join the current discussion upstream that I mentioned in comment 2 [1] and weigh in to try to change that :-)
+
+[1] http://lists.freedesktop.org/archives/wayland-devel/2015-September/024484.html</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8681859</commentid>
+    <comment_count>9</comment_count>
+    <who name="Martin Stransky">stransky</who>
+    <bug_when>2015-09-30 15:01:34 -0400</bug_when>
+    <thetext>Okay, I updated the testcase with:
+
+    shell = gtk_window_new(GTK_WINDOW_POPUP);
+    gtk_window_set_type_hint (GTK_WINDOW(shell), GDK_WINDOW_TYPE_HINT_POPUP_MENU);
+    gtk_window_set_transient_for(GTK_WINDOW(shell),window);
+    gtk_widget_set_app_paintable(shell, FALSE);
+    gtk_window_move(shell,0,0);
+    gtk_window_resize(shell,500,500);
+    gtk_widget_show_all (GTK_WIDGET(shell));
+
+so the hints are set, then moved/resized. Resize works, but movement does not. Any idea? I&apos;m on F23 with latest updates now.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8682223</commentid>
+    <comment_count>10</comment_count>
+    <who name="Olivier Fourdan">ofourdan</who>
+    <bug_when>2015-09-30 17:08:25 -0400</bug_when>
+    <thetext>(In reply to Martin Stransky from comment #9)
+&gt; Okay, I updated the testcase with:
+&gt; 
+&gt;     shell = gtk_window_new(GTK_WINDOW_POPUP);
+&gt;     gtk_window_set_type_hint (GTK_WINDOW(shell),
+&gt; GDK_WINDOW_TYPE_HINT_POPUP_MENU);
+&gt;     gtk_window_set_transient_for(GTK_WINDOW(shell),window);
+&gt;     gtk_widget_set_app_paintable(shell, FALSE);
+&gt;     gtk_window_move(shell,0,0);
+&gt;     gtk_window_resize(shell,500,500);
+&gt;     gtk_widget_show_all (GTK_WIDGET(shell));
+&gt; 
+&gt; so the hints are set, then moved/resized. Resize works, but movement does
+&gt; not. Any idea? I&apos;m on F23 with latest updates now.
+
+You most likely need a grab for a menu, see https://git.gnome.org/browse/gtk+/tree/gdk/wayland/gdkwindow-wayland.c?id=3.18.0#n1285
+
+          if (grab_input_seat &amp;&amp; 
+              (impl-&gt;hint == GDK_WINDOW_TYPE_HINT_POPUP_MENU ||
+               impl-&gt;hint == GDK_WINDOW_TYPE_HINT_DROPDOWN_MENU ||
+               impl-&gt;hint == GDK_WINDOW_TYPE_HINT_COMBO))</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8683092</commentid>
+    <comment_count>11</comment_count>
+    <who name="Martin Stransky">stransky</who>
+    <bug_when>2015-10-01 04:17:18 -0400</bug_when>
+    <thetext>What&apos;s the grab_input_seat? Call gtk_grab_add() to the popup window does not help here:
+
+    shell = gtk_window_new(GTK_WINDOW_POPUP);
+    gtk_window_set_type_hint (GTK_WINDOW(shell), GDK_WINDOW_TYPE_HINT_POPUP_MENU);
+    gtk_grab_add(GTK_WINDOW(shell));
+    gtk_window_set_transient_for(GTK_WINDOW(shell),window);
+    gtk_widget_set_app_paintable(shell, FALSE);
+    gtk_window_move(shell,0,0);
+    gtk_window_resize(shell,500,500);
+    gtk_widget_show_all (GTK_WIDGET(shell));</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8697788</commentid>
+    <comment_count>12</comment_count>
+    <who name="Olivier Fourdan">ofourdan</who>
+    <bug_when>2015-10-07 03:44:58 -0400</bug_when>
+    <thetext>Not forgotten, but it&apos;s quite difficult to come up with something working as you might expect it. gtk_grab_add() won&apos;t work for this as this is not what the wayland gdk backends expects,  but that&apos;s not the main problem, the problem is that xdg_popup requires a serial that would be provided by a user action so that doesn;t work as its at startup anyway.
+
+But again, expecting coordinates to work on Wayland is a bit of a hack and won&apos;t work in many cases, and if it does it will be a hack that works only in some corner cases and with relative coordinates anyway, and for popup windows.
+
+Ideally, Firefox should not try to re-invent those widgets and should rely on gtk+ widgets, ie tooltips and popup menus are available in gtk and work on Wayland so Firefox should use those instead of trying to come up with its own.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8697828</commentid>
+    <comment_count>13</comment_count>
+    <who name="Martin Stransky">stransky</who>
+    <bug_when>2015-10-07 03:58:11 -0400</bug_when>
+    <thetext>(In reply to Olivier Fourdan from comment #12)
+&gt; Not forgotten, but it&apos;s quite difficult to come up with something working as
+&gt; you might expect it. gtk_grab_add() won&apos;t work for this as this is not what
+&gt; the wayland gdk backends expects,  but that&apos;s not the main problem, the
+&gt; problem is that xdg_popup requires a serial that would be provided by a user
+&gt; action so that doesn;t work as its at startup anyway.
+&gt; 
+&gt; But again, expecting coordinates to work on Wayland is a bit of a hack and
+&gt; won&apos;t work in many cases, and if it does it will be a hack that works only
+&gt; in some corner cases and with relative coordinates anyway, and for popup
+&gt; windows.
+
+I think the global coordinates missing are okay but one could expect the child popup window can be positioned by application. That change seems to be too much radical to me.
+ 
+&gt; Ideally, Firefox should not try to re-invent those widgets and should rely
+&gt; on gtk+ widgets, ie tooltips and popup menus are available in gtk and work
+&gt; on Wayland so Firefox should use those instead of trying to come up with its
+&gt; own.
+
+Yes, that would fix that. But unfortunately the code is shared across platforms so such change (use regular menus and so) would also need a radical architectural changes for Windows/MacOS. I don&apos;t think Mozilla even think of that. More likely Firefox may abandon the toolkit elements and will draw those by itself like Chrome does.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8697900</commentid>
+    <comment_count>14</comment_count>
+    <who name="Jonas Ådahl">jadahl</who>
+    <bug_when>2015-10-07 04:32:45 -0400</bug_when>
+    <thetext>(In reply to Martin Stransky from comment #13)
+&gt; (In reply to Olivier Fourdan from comment #12)
+&gt; &gt; Not forgotten, but it&apos;s quite difficult to come up with something working as
+&gt; &gt; you might expect it. gtk_grab_add() won&apos;t work for this as this is not what
+&gt; &gt; the wayland gdk backends expects,  but that&apos;s not the main problem, the
+&gt; &gt; problem is that xdg_popup requires a serial that would be provided by a user
+&gt; &gt; action so that doesn;t work as its at startup anyway.
+&gt; &gt; 
+&gt; &gt; But again, expecting coordinates to work on Wayland is a bit of a hack and
+&gt; &gt; won&apos;t work in many cases, and if it does it will be a hack that works only
+&gt; &gt; in some corner cases and with relative coordinates anyway, and for popup
+&gt; &gt; windows.
+&gt; 
+&gt; I think the global coordinates missing are okay but one could expect the
+&gt; child popup window can be positioned by application. That change seems to be
+&gt; too much radical to me.
+
+As long as you show the parent window before the popup, call gtk_window_move on the popup before showing it, and show the popup as a response to a user event, the popup should be placed correctly. Are you doing all those thnigs?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8697928</commentid>
+    <comment_count>15</comment_count>
+      <attachid>1080549</attachid>
+    <who name="Olivier Fourdan">ofourdan</who>
+    <bug_when>2015-10-07 04:46:20 -0400</bug_when>
+    <thetext>Created attachment 1080549
+Example
+
+(In reply to Jonas Ådahl from comment #14)
+&gt; As long as you show the parent window before the popup, call gtk_window_move
+&gt; on the popup before showing it, and show the popup as a response to a user
+&gt; event, the popup should be placed correctly. Are you doing all those thnigs?
+
+The problem is that the creation of the xdg_popup is not controlled directly by the higher layers (ie gtk), gdkwayland itself will decide depending on certain types of windows and if there is a grab. But gtk_grab_add() is not what gdkwayland expects so that won&apos;t suffice.
+
+I am attaching an example that works for the xdg_popup, just press inside the window to show a popup at the pointer location. It&apos;s still rough on the edges and probably wrong in many respects but it gives an idea on how to hack that with gdk wayland backend.
+
+But again, I reckon it would be better to rely on gtk widgets for all this.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8702209</commentid>
+    <comment_count>16</comment_count>
+      <attachid>1080963</attachid>
+    <who name="Olivier Fourdan">ofourdan</who>
+    <bug_when>2015-10-08 06:25:09 -0400</bug_when>
+    <thetext>Created attachment 1080963
+Another example using subsurface
+
+Subsurface do not need any grab so it might be better suited for e.g. tooltips and the like.
+
+Note, placement is *relative* to the parent window.
+
+Please let me know if that helps...</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8702216</commentid>
+    <comment_count>17</comment_count>
+      <attachid>1080964</attachid>
+    <who name="Olivier Fourdan">ofourdan</who>
+    <bug_when>2015-10-08 06:27:25 -0400</bug_when>
+    <thetext>Created attachment 1080964
+Another example using subsurface
+
+(same with a bit of clean-up)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8702269</commentid>
+    <comment_count>18</comment_count>
+    <who name="Martin Stransky">stransky</who>
+    <bug_when>2015-10-08 06:41:28 -0400</bug_when>
+    <thetext>Thanks, I&apos;ll check that.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8730797</commentid>
+    <comment_count>19</comment_count>
+    <who name="Jonas Ådahl">jadahl</who>
+    <bug_when>2015-10-18 23:39:21 -0400</bug_when>
+    <thetext>FYI, with the current gtk+ master, there is nothing needed to make the tooltips work. Popups will still need a device grab and be triggered in response to a user interaction.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8731631</commentid>
+    <comment_count>20</comment_count>
+    <who name="Martin Stransky">stransky</who>
+    <bug_when>2015-10-19 05:25:00 -0400</bug_when>
+    <thetext>Can I get the master somewhere? I have Fedora 23 Beta - how can I install it here?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8733034</commentid>
+    <comment_count>21</comment_count>
+    <who name="Olivier Fourdan">ofourdan</who>
+    <bug_when>2015-10-19 09:16:09 -0400</bug_when>
+    <thetext>This might help: http://www.gtk.org/download/#BleedingEdge
+
+FYI, I just tried FF from your github repo with gtk+ master and the tooltips are rightfully placed as expected under Weston.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8737544</commentid>
+    <comment_count>22</comment_count>
+    <who name="Jonas Ådahl">jadahl</who>
+    <bug_when>2015-10-20 10:20:13 -0400</bug_when>
+    <thetext>(In reply to Martin Stransky from comment #20)
+&gt; Can I get the master somewhere? I have Fedora 23 Beta - how can I install it
+&gt; here?
+
+I created this build. It is gtk+ 3.18.2 with the two patches fixing the subsurface mapping applied: http://copr.fedoraproject.org/coprs/jadahl/gtk3/build/128948/</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8740820</commentid>
+    <comment_count>23</comment_count>
+    <who name="Martin Stransky">stransky</who>
+    <bug_when>2015-10-21 04:58:54 -0400</bug_when>
+    <thetext>Hm, that&apos;s interesting. I tested that on Weston but the tooltips are shown at random position (but it&apos;s not the default 0,0 as before).
+
+On gnome-shell on wayland it crashes immediately at:
+#0  0x00007ffff0876e29 in wl_proxy_marshal () at /lib64/libwayland-client.so.0
+#1  0x00007ffff452b1d1 in gdk_wayland_window_attach_image (y=0, x=0, buffer=&lt;optimized out&gt;, wl_surface=&lt;optimized out&gt;)
+    at /usr/include/wayland-client-protocol.h:1474
+#2  0x00007ffff452b1d1 in gdk_wayland_window_attach_image (window=window@entry=0x7fffbeb7fad0) at gdkwindow-wayland.c:565
+#3  0x00007ffff452b294 in gdk_window_impl_wayland_end_paint (window=0x7fffbeb7fad0) at gdkwindow-wayland.c:655
+#4  0x00007ffff44ed598 in gdk_window_end_paint (window=0x7fffbeb7fad0) at gdkwindow.c:3106
+#5  0x00007ffff49883fb in gtk_main_do_event (event=0x7fffffffbd90) at gtkmain.c:1771
+#6  0x00007ffff44e49f8 in _gdk_window_process_updates_recurse_helper (window=0x7fffbeb7fad0, expose_region=&lt;optimized out&gt;)
+    at gdkwindow.c:3589
+#7  0x00007ffff44e5b2c in gdk_window_process_updates_internal (window=0x7fffbeb7fad0) at gdkwindow.c:3734
+#8  0x00007ffff44e5ce3 in gdk_window_process_updates_with_mode (window=&lt;optimized out&gt;, recurse_mode=&lt;optimized out&gt;)
+    at gdkwindow.c:3935
+#9  0x00007ffff1e309e4 in _g_closure_invoke_va () at /lib64/libgobject-2.0.so.0
+#10 0x00007ffff1e4b2cd in g_signal_emit_valist () at /lib64/libgobject-2.0.so.0
+#11 0x00007ffff1e4bdd5 in g_signal_emit_by_name () at /lib64/libgobject-2.0.so.0
+#12 0x00007ffff44ded47 in gdk_frame_clock_paint_idle (data=0x7fffc1cd2ed0) at gdkframeclockidle.c:430
+#13 0x00007ffff44ce218 in gdk_threads_dispatch (data=0x7fffbebb7620) at gdk.c:719
+#14 0x00007ffff1b32893 in g_timeout_dispatch () at /lib64/libglib-2.0.so.0
+#15 0x00007ffff1b31e3a in g_main_context_dispatch () at /lib64/libglib-2.0.so.0
+#16 0x00007ffff1b321d0 in g_main_context_iterate.isra () at /lib64/libglib-2.0.so.0
+#17 0x00007ffff1b3227c in g_main_context_iteration () at /lib64/libglib-2.0.so.0</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8740834</commentid>
+    <comment_count>24</comment_count>
+    <who name="Martin Stransky">stransky</who>
+    <bug_when>2015-10-21 05:02:47 -0400</bug_when>
+    <thetext>Sorry, the crash is produced by popups only, not by tooltips.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8741241</commentid>
+    <comment_count>25</comment_count>
+    <who name="Olivier Fourdan">ofourdan</who>
+    <bug_when>2015-10-21 07:15:37 -0400</bug_when>
+    <thetext>(In reply to Martin Stransky from comment #23)
+&gt; Hm, that&apos;s interesting. I tested that on Weston but the tooltips are shown
+&gt; at random position (but it&apos;s not the default 0,0 as before).
+
+Weston will use random coordinates so this is normal, and reinforce the idea that what you get is not a popup.
+
+Is that with the sample code I provided for the popup? I don&apos;t get any crash here and the popup window is rightfully placed on both weston and mutter/gnome-shell.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8742748</commentid>
+    <comment_count>26</comment_count>
+    <who name="Martin Stransky">stransky</who>
+    <bug_when>2015-10-21 14:12:13 -0400</bug_when>
+    <thetext>No, the crash comes from Firefox (the firefox wayland git repo).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8745791</commentid>
+    <comment_count>27</comment_count>
+    <who name="Olivier Fourdan">ofourdan</who>
+    <bug_when>2015-10-22 10:19:41 -0400</bug_when>
+    <thetext>(In reply to Olivier Fourdan from comment #21)
+&gt; This might help: http://www.gtk.org/download/#BleedingEdge
+&gt; 
+&gt; FYI, I just tried FF from your github repo with gtk+ master and the tooltips
+&gt; are rightfully placed as expected under Weston.
+
+Screenshots of the tooltips in both gnome-shell/wayland and weston: http://imgur.com/a/6iqVF</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9092283</commentid>
+    <comment_count>28</comment_count>
+    <who name="Jan Kurik">jkurik</who>
+    <bug_when>2016-02-24 08:46:00 -0500</bug_when>
+    <thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 24 development cycle.
+Changing version to &apos;24&apos;.
+
+More information and reason for this action is here:
+https://fedoraproject.org/wiki/Fedora_Program_Management/HouseKeeping/Fedora24#Rawhide_Rebase</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10517924</commentid>
+    <comment_count>29</comment_count>
+    <who name="Martin Stransky">stransky</who>
+    <bug_when>2017-06-19 07:37:13 -0400</bug_when>
+    <thetext>It&apos;s fixed now, Thanks.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="0"
+              ispatch="0"
+              isprivate="0"
+          >
+            <attachid>1074755</attachid>
+            <date>2015-09-18 05:30:00 -0400</date>
+            <delta_ts>2015-09-18 05:30:19 -0400</delta_ts>
+            <desc>testcase</desc>
+            <filename>test2.c</filename>
+            <type>text/plain</type>
+            <size>1549</size>
+            <attacher name="Martin Stransky">stransky</attacher>
+            
+              <data encoding="base64">Ly8gYnVpbGQgYnkgZ2NjIC1vIHRlc3QyIC1nIC1PMCB0ZXN0Mi5jIGBwa2ctY29uZmlnIC0tbGli
+cyAtLWNmbGFncyBndGsrLTMuMGAKCiNpbmNsdWRlIDxndGsvZ3RrLmg+CgpHdGtXaWRnZXQgKndp
+bmRvdzsKR3RrV2lkZ2V0ICpzaGVsbDsKR3RrV2lkZ2V0ICpkcmF3aW5nOwpHZGtXaW5kb3cgKmdk
+a3dpbmRvdzsKCnN0YXRpYyB2b2lkIGRyYXdfdG9vbHRpcF9jYihHdGtXaWRnZXQgKndpZGdldCwg
+Y2Fpcm9fdCogY3IsCiAgICAgICAgICAgICAgICAgICAgICAgICAgICBncG9pbnRlciAgIGRhdGEg
+KQp7CiAgICBjYWlyb19yZWN0YW5nbGUgKGNyLCAwLCAwLCAxMDAsIDEwMCk7CiAgICBjYWlyb19z
+ZXRfc291cmNlX3JnYiAoY3IsIDEsIDAsIDApOwogICAgY2Fpcm9fZmlsbCAoY3IpOwoKICAgIGNh
+aXJvX3QqIGNyMyA9IGdka19jYWlyb19jcmVhdGUoZ3RrX3dpZGdldF9nZXRfd2luZG93KHdpZGdl
+dCkpOwogICAgY2Fpcm9fcmVjdGFuZ2xlIChjcjMsIDAsIDAsIDcwLCA3MCk7CiAgICBjYWlyb19z
+ZXRfc291cmNlX3JnYiAoY3IzLCAwLCAwLCAxKTsKICAgIGNhaXJvX2ZpbGwgKGNyMyk7Cn0KCi8q
+IEFub3RoZXIgY2FsbGJhY2sgKi8Kc3RhdGljIHZvaWQgZGVzdHJveSggR3RrV2lkZ2V0ICp3aWRn
+ZXQsCiAgICAgICAgICAgICAgICAgICAgIGdwb2ludGVyICAgZGF0YSApCnsKICAgIGd0a19tYWlu
+X3F1aXQgKCk7Cn0KCmludCBtYWluKCBpbnQgICBhcmdjLAogICAgICAgICAgY2hhciAqYXJndltd
+ICkKewogICAgZ3RrX2luaXQgKCZhcmdjLCAmYXJndik7CgogICAgLyogY3JlYXRlIGEgbmV3IHdp
+bmRvdyAqLwogICAgd2luZG93ID0gZ3RrX3dpbmRvd19uZXcgKEdUS19XSU5ET1dfVE9QTEVWRUwp
+OwogICAgZHJhd2luZyA9IGd0a19kcmF3aW5nX2FyZWFfbmV3KCk7CiAgICBndGtfY29udGFpbmVy
+X2FkZChHVEtfQ09OVEFJTkVSKHdpbmRvdyksIGRyYXdpbmcpOwoKICAgIGd0a193aW5kb3dfbW92
+ZSh3aW5kb3csMCwwKTsKICAgIGd0a193aW5kb3dfcmVzaXplKHdpbmRvdywxMDAwLDUwMCk7Cgog
+ICAgZ19zaWduYWxfY29ubmVjdCAod2luZG93LCAiZGVzdHJveSIsCiAgICAgICAgICBHX0NBTExC
+QUNLIChkZXN0cm95KSwgTlVMTCk7CgogICAgZ19zaWduYWxfY29ubmVjdCAoZHJhd2luZyAsICJk
+cmF3IiwKICAgICAgICAgIEdfQ0FMTEJBQ0sgKGRyYXdfdG9vbHRpcF9jYiksIE5VTEwpOwoKICAg
+IGd0a193aWRnZXRfc2hvd19hbGwgKEdUS19XSURHRVQod2luZG93KSk7CgogICAgc2hlbGwgPSBn
+dGtfd2luZG93X25ldyhHVEtfV0lORE9XX1BPUFVQKTsKICAgIGd0a193aW5kb3dfc2V0X3RyYW5z
+aWVudF9mb3IoR1RLX1dJTkRPVyhzaGVsbCksd2luZG93KTsKICAgIGd0a193aWRnZXRfc2V0X2Fw
+cF9wYWludGFibGUoc2hlbGwsIEZBTFNFKTsKICAgIGd0a193aWRnZXRfc2hvd19hbGwgKEdUS19X
+SURHRVQoc2hlbGwpKTsKCiAgICBndGtfd2luZG93X21vdmUoc2hlbGwsNTAwLDEwKTsKICAgIGd0
+a193aW5kb3dfcmVzaXplKHNoZWxsLDUwMCw1MDApOwoKICAgIGd0a19tYWluICgpOwoKICAgIHJl
+dHVybiAwOwp9Cg==
+</data>
+
+          </attachment>
+          <attachment
+              isobsolete="0"
+              ispatch="0"
+              isprivate="0"
+          >
+            <attachid>1080549</attachid>
+            <date>2015-10-07 04:46:00 -0400</date>
+            <delta_ts>2015-10-07 04:46:20 -0400</delta_ts>
+            <desc>Example</desc>
+            <filename>example-popup.c</filename>
+            <type>text/plain</type>
+            <size>5022</size>
+            <attacher name="Olivier Fourdan">ofourdan</attacher>
+            
+              <data encoding="base64">Ly8gYnVpbGQgYnkgZ2NjIC1vIGV4YW1wbGUtcG9wdXAgLWcgLU8wIGV4YW1wbGUtcG9wdXAuYyBg
+cGtnLWNvbmZpZyAtLWxpYnMgLS1jZmxhZ3MgZ3RrKy0zLjBgCgojaW5jbHVkZSA8Z3RrL2d0ay5o
+PgoKI2RlZmluZSBHREtfQU5ZX0JVVFRPTl9NQVNLIChHREtfQlVUVE9OMV9NQVNLIHwgXAogICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgIEdES19CVVRUT04yX01BU0sgfCBcCiAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgR0RLX0JVVFRPTjNfTUFTSyB8IFwKICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICBHREtfQlVUVE9ONF9NQVNLIHwgXAogICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgIEdES19CVVRUT041X01BU0spCgpzdGF0aWMgZ2Jvb2xlYW4gcHJlc3NlZCA9IEZBTFNFOwoK
+c3RhdGljIHZvaWQKZHJhd190b29sdGlwX2NiIChHdGtXaWRnZXQgKndpZGdldCwKICAgICAgICAg
+ICAgICAgICBjYWlyb190ICAgKmNyLAogICAgICAgICAgICAgICAgIGdwb2ludGVyICAgZGF0YSkK
+ewogICAgY2Fpcm9fcmVjdGFuZ2xlIChjciwgMCwgMCwgMTAwLCAxMDApOwogICAgY2Fpcm9fc2V0
+X3NvdXJjZV9yZ2IgKGNyLCAxLCAwLCAwKTsKICAgIGNhaXJvX2ZpbGwgKGNyKTsKCiAgICBjYWly
+b190ICpjcjMgPSBnZGtfY2Fpcm9fY3JlYXRlIChndGtfd2lkZ2V0X2dldF93aW5kb3cgKHdpZGdl
+dCkpOwogICAgY2Fpcm9fcmVjdGFuZ2xlIChjcjMsIDAsIDAsIDcwLCA3MCk7CiAgICBjYWlyb19z
+ZXRfc291cmNlX3JnYiAoY3IzLCAwLCAwLCAxKTsKICAgIGNhaXJvX2ZpbGwgKGNyMyk7Cn0KCi8q
+IEFub3RoZXIgY2FsbGJhY2sgKi8Kc3RhdGljIHZvaWQKZGVzdHJveSAoR3RrV2lkZ2V0ICp3aWRn
+ZXQsIAogICAgICAgICBncG9pbnRlciBkYXRhKQp7CiAgICBndGtfbWFpbl9xdWl0ICgpOwp9Cgpz
+dGF0aWMgR2RrRGV2aWNlICoKY3VycmVudF9wb2ludGVyIChHdGtXaWRnZXQgKndpZGdldCkKewog
+ICAgR2RrRGV2aWNlICpwb2ludGVyLCAqZGV2aWNlOwogICAgR2RrRGlzcGxheSAqZGlzcGxheTsK
+CiAgICBkaXNwbGF5ID0gZ3RrX3dpZGdldF9nZXRfZGlzcGxheSAod2lkZ2V0KTsKICAgIGRldmlj
+ZSA9IGd0a19nZXRfY3VycmVudF9ldmVudF9kZXZpY2UgKCk7CiAgICBpZiAoZGV2aWNlICYmIGdk
+a19kZXZpY2VfZ2V0X2Rpc3BsYXkgKGRldmljZSkgIT0gZGlzcGxheSkKICAgICAgZGV2aWNlID0g
+TlVMTDsKCiAgICBpZiAoZGV2aWNlID09IE5VTEwpCiAgICAgIHsKICAgICAgICBHZGtEZXZpY2VN
+YW5hZ2VyICpkZXZpY2VfbWFuYWdlcjsKICAgICAgICBHTGlzdCAqZGV2aWNlczsKCiAgICAgICAg
+ZGV2aWNlX21hbmFnZXIgPSBnZGtfZGlzcGxheV9nZXRfZGV2aWNlX21hbmFnZXIgKGRpc3BsYXkp
+OwogICAgICAgIGRldmljZXMgPSBnZGtfZGV2aWNlX21hbmFnZXJfbGlzdF9kZXZpY2VzIChkZXZp
+Y2VfbWFuYWdlciwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgR0RLX0RFVklDRV9UWVBFX01BU1RFUik7CgogICAgICAgIGRldmljZSA9IGRldmljZXMt
+PmRhdGE7CiAgICAgICAgZ19saXN0X2ZyZWUgKGRldmljZXMpOwogICAgICB9CgogICAgaWYgKGdk
+a19kZXZpY2VfZ2V0X3NvdXJjZSAoZGV2aWNlKSA9PSBHREtfU09VUkNFX0tFWUJPQVJEKQogICAg
+ICB7CiAgICAgICAgcG9pbnRlciA9IGdka19kZXZpY2VfZ2V0X2Fzc29jaWF0ZWRfZGV2aWNlIChk
+ZXZpY2UpOwogICAgICB9CiAgICBlbHNlCiAgICAgIHsKICAgICAgICBwb2ludGVyID0gZGV2aWNl
+OwogICAgICB9CgogICAgcmV0dXJuIHBvaW50ZXI7Cn0KCnN0YXRpYyBHdGtXaWRnZXQgKgpzaG93
+X3BvcHVwIChHdGtXaWRnZXQgKnBhcmVudCwKICAgICAgICAgICAgZ3VpbnQzMiB0aW1lLAogICAg
+ICAgICAgICBpbnQgeCwKICAgICAgICAgICAgaW50IHkpCnsKICAgIEd0a1dpZGdldCAqcG9wdXA7
+CiAgICBHZGtEZXZpY2UgKnBvaW50ZXI7CgogICAgcG9wdXAgPSBndGtfd2luZG93X25ldyAoR1RL
+X1dJTkRPV19QT1BVUCk7CgogICAgZ3RrX3dpbmRvd19ncm91cF9hZGRfd2luZG93IChndGtfd2lu
+ZG93X2dldF9ncm91cCAoR1RLX1dJTkRPVyAocGFyZW50KSksCiAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgIEdUS19XSU5ET1cgKHBvcHVwKSk7CiAgICBndGtfd2luZG93X3NldF90cmFu
+c2llbnRfZm9yIChHVEtfV0lORE9XIChwb3B1cCksIEdUS19XSU5ET1cgKHBhcmVudCkpOwoKICAg
+IGd0a193aWRnZXRfcmVhbGl6ZSAocG9wdXApOwogICAgZ3RrX3dpbmRvd19zZXRfdHlwZV9oaW50
+IChHVEtfV0lORE9XIChwb3B1cCksIEdES19XSU5ET1dfVFlQRV9ISU5UX1BPUFVQX01FTlUpOwoK
+ICAgIHBvaW50ZXIgPSBjdXJyZW50X3BvaW50ZXIgKHBvcHVwKTsKICAgIGlmIChwb2ludGVyKQog
+ICAgICB7CiAgICAgICAgZ2RrX2RldmljZV9ncmFiIChwb2ludGVyLAogICAgICAgICAgICAgICAg
+ICAgICAgICAgZ3RrX3dpZGdldF9nZXRfd2luZG93IChwb3B1cCksCiAgICAgICAgICAgICAgICAg
+ICAgICAgICBHREtfT1dORVJTSElQX05PTkUsCiAgICAgICAgICAgICAgICAgICAgICAgICBUUlVF
+LAogICAgICAgICAgICAgICAgICAgICAgICAgR0RLX0FOWV9CVVRUT05fTUFTSywKICAgICAgICAg
+ICAgICAgICAgICAgICAgIE5VTEwsCiAgICAgICAgICAgICAgICAgICAgICAgICB0aW1lKTsKICAg
+ICAgICBnX29iamVjdF9zZXRfZGF0YSAoR19PQkpFQ1QgKHBvcHVwKSwgImdyYWJiZWQtZGV2aWNl
+IiwgcG9pbnRlcik7CiAgICAgIH0KCiAgICBndGtfd2luZG93X21vdmUgKEdUS19XSU5ET1cgKHBv
+cHVwKSwgeCwgeSk7CiAgICBndGtfd2luZG93X3Jlc2l6ZSAoR1RLX1dJTkRPVyAocG9wdXApLCAy
+NTAsIDI1MCk7CiAgICBndGtfd2lkZ2V0X3Nob3dfbm93IChHVEtfV0lER0VUIChwb3B1cCkpOwoK
+ICAgIHJldHVybiBwb3B1cDsKfQoKc3RhdGljIGdib29sZWFuCmJ1dHRvbl9wcmVzcyAoR3RrV2lk
+Z2V0ICAgICAgKndpZGdldCwKICAgICAgICAgICAgICBHZGtFdmVudEJ1dHRvbiAqZXZlbnQsCiAg
+ICAgICAgICAgICAgR3RrV2lkZ2V0ICAgICAgKndpbmRvdykKewogICAgR3RrV2lkZ2V0ICpwb3B1
+cDsKCiAgICBpZiAocHJlc3NlZCkKICAgICAgcmV0dXJuIEZBTFNFOwoKICAgIHByZXNzZWQgPSBU
+UlVFOwogICAgZ19tZXNzYWdlICgiUHJlc3MiKTsKICAgIHBvcHVwID0gc2hvd19wb3B1cCAod2lu
+ZG93LCBldmVudC0+dGltZSwgZXZlbnQtPngsIGV2ZW50LT55KTsKICAgIGdfb2JqZWN0X3NldF9k
+YXRhIChHX09CSkVDVCAod2luZG93KSwgInBvcHVwLXdpbmRvdyIsIHBvcHVwKTsKCiAgICByZXR1
+cm4gRkFMU0U7Cn0KCnN0YXRpYyBnYm9vbGVhbgpidXR0b25fcmVsZWFzZSAoR3RrV2lkZ2V0ICAg
+ICAgKndpZGdldCwKICAgICAgICAgICAgICAgIEdka0V2ZW50QnV0dG9uICpldmVudCwKICAgICAg
+ICAgICAgICAgIEd0a1dpZGdldCAgICAgICp3aW5kb3cpCnsKICAgIEd0a1dpZGdldCAqcG9wdXA7
+CiAgICBHZGtEZXZpY2UgKnBvaW50ZXI7CgogICAgaWYgKCFwcmVzc2VkKQogICAgICByZXR1cm4g
+RkFMU0U7CgogICAgcHJlc3NlZCA9IEZBTFNFOwogICAgZ19tZXNzYWdlICgiUmVsZWFzZSIpOwog
+ICAgcG9wdXAgPSBHVEtfV0lER0VUIChnX29iamVjdF9nZXRfZGF0YSAoR19PQkpFQ1QgKHdpbmRv
+dyksICJwb3B1cC13aW5kb3ciKSk7CiAgICBpZiAoIXBvcHVwKQogICAgICB7CiAgICAgICAgZ193
+YXJuaW5nICgiQ2Fubm90IHJldHJpZXZlIHBvcHVwIHdpbmRvdyIpOwogICAgICAgIHJldHVybiBG
+QUxTRTsKICAgICAgfQogICAgZ3RrX3dpZGdldF9oaWRlIChwb3B1cCk7CgogICAgcG9pbnRlciA9
+IEdES19ERVZJQ0UoZ19vYmplY3RfZ2V0X2RhdGEgKEdfT0JKRUNUIChwb3B1cCksICJncmFiYmVk
+LWRldmljZSIpKTsKICAgIGlmIChwb2ludGVyKQogICAgICBnZGtfZGV2aWNlX3VuZ3JhYiAocG9p
+bnRlciwgZXZlbnQtPnRpbWUpOwoKICAgIGd0a193aWRnZXRfZGVzdHJveSAocG9wdXApOwoKICAg
+IHJldHVybiBGQUxTRTsKfQoKaW50Cm1haW4gKGludCAgIGFyZ2MsIAogICAgICBjaGFyICphcmd2
+W10pCnsKICAgIEd0a1dpZGdldCAqd2luZG93OwogICAgR3RrV2lkZ2V0ICpjb250YWluZXI7CiAg
+ICBHdGtXaWRnZXQgKmRyYXdpbmc7CiAgICBHdGtXaWRnZXQgKnBvcHVwOwoKICAgIGd0a19pbml0
+ICgmYXJnYywgJmFyZ3YpOwoKICAgIC8qIGNyZWF0ZSBhIG5ldyB3aW5kb3cgKi8KICAgIHdpbmRv
+dyA9IGd0a193aW5kb3dfbmV3IChHVEtfV0lORE9XX1RPUExFVkVMKTsKICAgIGNvbnRhaW5lciA9
+IGd0a19vdmVybGF5X25ldyAoKTsKICAgIGd0a19jb250YWluZXJfYWRkIChHVEtfQ09OVEFJTkVS
+ICh3aW5kb3cpLCBjb250YWluZXIpOwoKICAgIGRyYXdpbmcgPSBndGtfZHJhd2luZ19hcmVhX25l
+dyAoKTsKICAgIGd0a19jb250YWluZXJfYWRkIChHVEtfQ09OVEFJTkVSIChjb250YWluZXIpLCBk
+cmF3aW5nKTsKCiAgICBndGtfd2luZG93X21vdmUgKEdUS19XSU5ET1cgKHdpbmRvdyksIDIwLCAy
+MCk7ICAgICAgLyogPD09IFdvbid0IHdvcmsgb24gV2F5bGFuZCBvbiB0b3BsZXZlbHMgKi8KICAg
+IGd0a193aW5kb3dfcmVzaXplIChHVEtfV0lORE9XICh3aW5kb3cpLCAyMDAsIDIwMCk7CgogICAg
+Z19zaWduYWxfY29ubmVjdCAod2luZG93LCAiZGVzdHJveSIsIEdfQ0FMTEJBQ0sgKGRlc3Ryb3kp
+LCBOVUxMKTsKICAgIGdfc2lnbmFsX2Nvbm5lY3QgKHdpbmRvdywgImJ1dHRvbi1wcmVzcy1ldmVu
+dCIsIEdfQ0FMTEJBQ0sgKGJ1dHRvbl9wcmVzcyksIHdpbmRvdyk7CiAgICBnX3NpZ25hbF9jb25u
+ZWN0ICh3aW5kb3csICJidXR0b24tcmVsZWFzZS1ldmVudCIsIEdfQ0FMTEJBQ0sgKGJ1dHRvbl9y
+ZWxlYXNlKSwgd2luZG93KTsKICAgIGdfc2lnbmFsX2Nvbm5lY3QgKGRyYXdpbmcsICJkcmF3Iiwg
+R19DQUxMQkFDSyAoZHJhd190b29sdGlwX2NiKSwgTlVMTCk7CgogICAgZ3RrX3dpZGdldF9zaG93
+X2FsbCAoR1RLX1dJREdFVCAod2luZG93KSk7CgogICAgZ3RrX21haW4gKCk7CgogICAgcmV0dXJu
+IDA7Cn0K
+</data>
+
+          </attachment>
+          <attachment
+              isobsolete="1"
+              ispatch="0"
+              isprivate="0"
+          >
+            <attachid>1080963</attachid>
+            <date>2015-10-08 06:25:00 -0400</date>
+            <delta_ts>2015-10-08 06:27:25 -0400</delta_ts>
+            <desc>Another example using subsurface</desc>
+            <filename>example-subsurface.c</filename>
+            <type>text/plain</type>
+            <size>4043</size>
+            <attacher name="Olivier Fourdan">ofourdan</attacher>
+            
+              <data encoding="base64">LyoKICogQ29tcGlsZSB3aXRoCiAqIGdjYyAtbyBleGFtcGxlLXN1YnN1cmZhY2UgLWcgLU8wIGV4
+YW1wbGUtc3Vic3VyZmFjZS5jIGBwa2ctY29uZmlnIC0tbGlicyAtLWNmbGFncyBndGsrLTMuMGAK
+ICovCgojaW5jbHVkZSA8Z3RrL2d0ay5oPgojaWZkZWYgR0RLX1dJTkRPV0lOR19XQVlMQU5ECiNp
+bmNsdWRlICJnZGsvZ2Rrd2F5bGFuZC5oIgojZW5kaWYKCiNkZWZpbmUgU1VCU1VSRkFDRV9UWVBF
+X1dJTkRPVyAgICAgICAgICAgICAgICAoc3Vic3VyZmFjZV93aW5kb3dfZ2V0X3R5cGUgKCkpCiNk
+ZWZpbmUgU1VCU1VSRkFDRV9XSU5ET1cob2JqKSAgICAgICAgICAgICAgICAoR19UWVBFX0NIRUNL
+X0lOU1RBTkNFX0NBU1QgKChvYmopLCBTVUJTVVJGQUNFX1RZUEVfV0lORE9XLCBTdWJTdXJmYWNl
+V2luZG93KSkKI2RlZmluZSBTVUJTVVJGQUNFX1dJTkRPV19DTEFTUyhrbGFzcykgICAgICAgIChH
+X1RZUEVfQ0hFQ0tfQ0xBU1NfQ0FTVCAoKGtsYXNzKSwgU1VCU1VSRkFDRV9UWVBFX1dJTkRPVywg
+U3ViU3VyZmFjZVdpbmRvd0NsYXNzKSkKI2RlZmluZSBJU19TVUJTVVJGQUNFX1dJTkRPVyhvYmop
+ICAgICAgICAgICAgIChHX1RZUEVfQ0hFQ0tfSU5TVEFOQ0VfVFlQRSAoKG9iaiksIFNVQlNVUkZB
+Q0VfVFlQRV9XSU5ET1cpKQojZGVmaW5lIElTX1NVQlNVUkZBQ0VfV0lORE9XX0NMQVNTKGtsYXNz
+KSAgICAgKEdfVFlQRV9DSEVDS19DTEFTU19UWVBFICgoa2xhc3MpLCBTVUJTVVJGQUNFX1RZUEVf
+V0lORE9XKSkKI2RlZmluZSBTVUJTVVJGQUNFX1dJTkRPV19HRVRfQ0xBU1Mob2JqKSAgICAgIChH
+X1RZUEVfSU5TVEFOQ0VfR0VUX0NMQVNTICgob2JqKSwgU1VCU1VSRkFDRV9UWVBFX1dJTkRPVywg
+U3ViU3VyZmFjZVdpbmRvd0NsYXNzKSkKCnR5cGVkZWYgc3RydWN0IF9TdWJTdXJmYWNlV2luZG93
+ICAgICAgICAgICAgICBTdWJTdXJmYWNlV2luZG93Owp0eXBlZGVmIHN0cnVjdCBfU3ViU3VyZmFj
+ZVdpbmRvd1ByaXZhdGUgICAgICAgU3ViU3VyZmFjZVdpbmRvd1ByaXZhdGU7CnR5cGVkZWYgc3Ry
+dWN0IF9TdWJTdXJmYWNlV2luZG93Q2xhc3MgICAgICAgICBTdWJTdXJmYWNlV2luZG93Q2xhc3M7
+CgpzdHJ1Y3QgX1N1YlN1cmZhY2VXaW5kb3cKewogIEdPYmplY3QgcGFyZW50X2luc3RhbmNlOwog
+IEd0a1dpbmRvdyB3aW5kb3c7CgogIEd0a1dpbmRvdyAqcGFyZW50Owp9OwoKc3RydWN0IF9TdWJT
+dXJmYWNlV2luZG93Q2xhc3MKewogIEd0a1dpbmRvd0NsYXNzIHBhcmVudF9jbGFzczsKfTsKCnN0
+cnVjdCBfU3ViU3VyZmFjZVdpbmRvd1ByaXZhdGUKewogIGdib29sZWFuIGNvbnN0cnVjdGVkOwp9
+OwoKc3RhdGljIEdUeXBlICAgICAgCnN1YnN1cmZhY2Vfd2luZG93X2dldF90eXBlICh2b2lkKSBH
+X0dOVUNfQ09OU1Q7CgpHX0RFRklORV9UWVBFIChTdWJTdXJmYWNlV2luZG93LCBzdWJzdXJmYWNl
+X3dpbmRvdywgR1RLX1RZUEVfV0lORE9XKTsKCnN0YXRpYyB2b2lkICAgICBzdWJzdXJmYWNlX3dp
+bmRvd19yZWFsaXplICAgICAgIChHdGtXaWRnZXQgICAgICp3aWRnZXQpOwoKc3RhdGljIHZvaWQK
+c3Vic3VyZmFjZV93aW5kb3dfY2xhc3NfaW5pdCAoU3ViU3VyZmFjZVdpbmRvd0NsYXNzICpjbGFz
+cykKewogIEd0a1dpZGdldENsYXNzICp3aWRnZXRfY2xhc3MgPSBHVEtfV0lER0VUX0NMQVNTIChj
+bGFzcyk7CgogIHdpZGdldF9jbGFzcy0+cmVhbGl6ZSA9IHN1YnN1cmZhY2Vfd2luZG93X3JlYWxp
+emU7Cn0KCnN0YXRpYyB2b2lkCnN1YnN1cmZhY2Vfd2luZG93X2luaXQgKFN1YlN1cmZhY2VXaW5k
+b3cgKlN1YlN1cmZhY2VXaW5kb3cpCnsKICBndGtfd2lkZ2V0X3NldF9oYXNfd2luZG93IChHVEtf
+V0lER0VUIChTdWJTdXJmYWNlV2luZG93KSwgVFJVRSk7Cn0KCkd0a1dpZGdldCoKc3Vic3VyZmFj
+ZV93aW5kb3dfbmV3IChHdGtXaW5kb3cgKnBhcmVudCkKewogIFN1YlN1cmZhY2VXaW5kb3cgKnN1
+YnN1cmZhY2Vfd2luZG93OwoKICBnX3JldHVybl92YWxfaWZfZmFpbCAoR1RLX0lTX1dJTkRPVyAo
+cGFyZW50KSwgTlVMTCk7CgogIHN1YnN1cmZhY2Vfd2luZG93ID0gZ19vYmplY3RfbmV3IChzdWJz
+dXJmYWNlX3dpbmRvd19nZXRfdHlwZSAoKSwgTlVMTCk7CiAgc3Vic3VyZmFjZV93aW5kb3ctPnBh
+cmVudCA9IHBhcmVudDsKCiAgcmV0dXJuIEdUS19XSURHRVQgKHN1YnN1cmZhY2Vfd2luZG93KTsK
+fQoKc3RhdGljIHZvaWQKc3Vic3VyZmFjZV93aW5kb3dfcmVhbGl6ZSAoR3RrV2lkZ2V0ICp3aWRn
+ZXQpCnsKICBTdWJTdXJmYWNlV2luZG93ICpzdWJzdXJmYWNlX3dpbmRvdyA9IFNVQlNVUkZBQ0Vf
+V0lORE9XICh3aWRnZXQpOwogIEd0a0FsbG9jYXRpb24gYWxsb2NhdGlvbjsKICBHZGtXaW5kb3cg
+KndpbmRvdzsKICBHZGtXaW5kb3dBdHRyIGF0dHJpYnV0ZXM7CiAgZ2ludCBhdHRyaWJ1dGVzX21h
+c2s7CgogIGd0a193aWRnZXRfc2V0X3JlYWxpemVkICh3aWRnZXQsIFRSVUUpOwogIGd0a193aWRn
+ZXRfZ2V0X2FsbG9jYXRpb24gKHdpZGdldCwgJmFsbG9jYXRpb24pOwoKICBhdHRyaWJ1dGVzLndp
+bmRvd190eXBlID0gR0RLX1dJTkRPV19URU1QOwojaWZkZWYgR0RLX1dJTkRPV0lOR19XQVlMQU5E
+CiAgaWYgKEdES19JU19XQVlMQU5EX0RJU1BMQVkgKGd0a193aWRnZXRfZ2V0X2Rpc3BsYXkgKHdp
+ZGdldCkpKQogICAgYXR0cmlidXRlcy53aW5kb3dfdHlwZSA9IEdES19XSU5ET1dfU1VCU1VSRkFD
+RTsKI2VuZGlmCiAgYXR0cmlidXRlcy54ID0gYWxsb2NhdGlvbi54OwogIGF0dHJpYnV0ZXMueSA9
+IGFsbG9jYXRpb24ueTsKICBhdHRyaWJ1dGVzLndpZHRoID0gYWxsb2NhdGlvbi53aWR0aDsKICBh
+dHRyaWJ1dGVzLmhlaWdodCA9IGFsbG9jYXRpb24uaGVpZ2h0OwogIGF0dHJpYnV0ZXMud2NsYXNz
+ID0gR0RLX0lOUFVUX09VVFBVVDsKICBhdHRyaWJ1dGVzLnZpc3VhbCA9IGd0a193aWRnZXRfZ2V0
+X3Zpc3VhbCAod2lkZ2V0KTsKICBhdHRyaWJ1dGVzLmV2ZW50X21hc2sgPSBndGtfd2lkZ2V0X2dl
+dF9ldmVudHMgKHdpZGdldCkgfCBHREtfRVhQT1NVUkVfTUFTSzsKCiAgYXR0cmlidXRlc19tYXNr
+ID0gR0RLX1dBX1ggfCBHREtfV0FfWSB8IEdES19XQV9WSVNVQUw7CgogIHdpbmRvdyA9IGdka193
+aW5kb3dfbmV3IChnZGtfc2NyZWVuX2dldF9yb290X3dpbmRvdyAoZ3RrX3dpZGdldF9nZXRfc2Ny
+ZWVuICh3aWRnZXQpKSwKICAgICAgICAgICAgICAgICAgICAgICAgICAgJmF0dHJpYnV0ZXMsIGF0
+dHJpYnV0ZXNfbWFzayk7CiAgZ2RrX3dpbmRvd19zZXRfdHJhbnNpZW50X2ZvciAod2luZG93LCBn
+dGtfd2lkZ2V0X2dldF93aW5kb3cgKEdUS19XSURHRVQoc3Vic3VyZmFjZV93aW5kb3ctPnBhcmVu
+dCkpKTsKCiAgZ3RrX3dpZGdldF9yZWdpc3Rlcl93aW5kb3cgKHdpZGdldCwgd2luZG93KTsKICBn
+dGtfd2lkZ2V0X3NldF93aW5kb3cgKHdpZGdldCwgd2luZG93KTsKICBnZGtfd2luZG93X3Nob3cg
+KHdpbmRvdyk7Cn0KCmludAptYWluIChpbnQgYXJnYywgY2hhciAqYXJndltdKQp7CiAgR3RrV2lk
+Z2V0ICp3aW5kb3csICpsYWJlbCwgKmJveCwgKndpZGdldDsKICBHdGtXaWRnZXQgKnN0YWNrLCAq
+c3dpdGNoZXI7CgogIGd0a19pbml0IChOVUxMLCBOVUxMKTsKCiAgd2luZG93ID0gZ3RrX3dpbmRv
+d19uZXcgKEdUS19XSU5ET1dfVE9QTEVWRUwpOwogIGd0a193aW5kb3dfc2V0X3Jlc2l6YWJsZSAo
+R1RLX1dJTkRPVyAod2luZG93KSwgVFJVRSk7CiAgZ3RrX3dpbmRvd19yZXNpemUgKEdUS19XSU5E
+T1cgKHdpbmRvdyksIDQwMCwgMjAwKTsKCiAgd2lkZ2V0ID0gc3Vic3VyZmFjZV93aW5kb3dfbmV3
+IChHVEtfV0lORE9XICh3aW5kb3cpKTsKICBndGtfd2luZG93X3NldF9yZXNpemFibGUgKEdUS19X
+SU5ET1cgKHdpZGdldCksIFRSVUUpOwogIGd0a193aW5kb3dfbW92ZSAoR1RLX1dJTkRPVyAod2lk
+Z2V0KSwgMjAwLCAyMDApOwogIGd0a193aW5kb3dfcmVzaXplIChHVEtfV0lORE9XICh3aWRnZXQp
+LCAxMDAsIDEwMCk7CgogIGd0a193aWRnZXRfc2hvd19hbGwgKHdpbmRvdyk7CiAgZ3RrX3dpZGdl
+dF9zaG93X2FsbCAod2lkZ2V0KTsKCiAgZ3RrX21haW4gKCk7CgogIHJldHVybiAwOwp9Cgo=
+</data>
+
+          </attachment>
+          <attachment
+              isobsolete="0"
+              ispatch="0"
+              isprivate="0"
+          >
+            <attachid>1080964</attachid>
+            <date>2015-10-08 06:27:00 -0400</date>
+            <delta_ts>2015-10-08 06:27:25 -0400</delta_ts>
+            <desc>Another example using subsurface</desc>
+            <filename>example-subsurface.c</filename>
+            <type>text/plain</type>
+            <size>3936</size>
+            <attacher name="Olivier Fourdan">ofourdan</attacher>
+            
+              <data encoding="base64">LyoKICogQ29tcGlsZSB3aXRoCiAqIGdjYyAtbyBleGFtcGxlLXN1YnN1cmZhY2UgLWcgLU8wIGV4
+YW1wbGUtc3Vic3VyZmFjZS5jIGBwa2ctY29uZmlnIC0tbGlicyAtLWNmbGFncyBndGsrLTMuMGAK
+ICovCgojaW5jbHVkZSA8Z3RrL2d0ay5oPgojaWZkZWYgR0RLX1dJTkRPV0lOR19XQVlMQU5ECiNp
+bmNsdWRlICJnZGsvZ2Rrd2F5bGFuZC5oIgojZW5kaWYKCiNkZWZpbmUgU1VCU1VSRkFDRV9UWVBF
+X1dJTkRPVyAgICAgICAgICAgICAgICAoc3Vic3VyZmFjZV93aW5kb3dfZ2V0X3R5cGUgKCkpCiNk
+ZWZpbmUgU1VCU1VSRkFDRV9XSU5ET1cob2JqKSAgICAgICAgICAgICAgICAoR19UWVBFX0NIRUNL
+X0lOU1RBTkNFX0NBU1QgKChvYmopLCBTVUJTVVJGQUNFX1RZUEVfV0lORE9XLCBTdWJTdXJmYWNl
+V2luZG93KSkKI2RlZmluZSBTVUJTVVJGQUNFX1dJTkRPV19DTEFTUyhrbGFzcykgICAgICAgIChH
+X1RZUEVfQ0hFQ0tfQ0xBU1NfQ0FTVCAoKGtsYXNzKSwgU1VCU1VSRkFDRV9UWVBFX1dJTkRPVywg
+U3ViU3VyZmFjZVdpbmRvd0NsYXNzKSkKI2RlZmluZSBJU19TVUJTVVJGQUNFX1dJTkRPVyhvYmop
+ICAgICAgICAgICAgIChHX1RZUEVfQ0hFQ0tfSU5TVEFOQ0VfVFlQRSAoKG9iaiksIFNVQlNVUkZB
+Q0VfVFlQRV9XSU5ET1cpKQojZGVmaW5lIElTX1NVQlNVUkZBQ0VfV0lORE9XX0NMQVNTKGtsYXNz
+KSAgICAgKEdfVFlQRV9DSEVDS19DTEFTU19UWVBFICgoa2xhc3MpLCBTVUJTVVJGQUNFX1RZUEVf
+V0lORE9XKSkKI2RlZmluZSBTVUJTVVJGQUNFX1dJTkRPV19HRVRfQ0xBU1Mob2JqKSAgICAgIChH
+X1RZUEVfSU5TVEFOQ0VfR0VUX0NMQVNTICgob2JqKSwgU1VCU1VSRkFDRV9UWVBFX1dJTkRPVywg
+U3ViU3VyZmFjZVdpbmRvd0NsYXNzKSkKCnR5cGVkZWYgc3RydWN0IF9TdWJTdXJmYWNlV2luZG93
+ICAgICAgICAgICAgICBTdWJTdXJmYWNlV2luZG93Owp0eXBlZGVmIHN0cnVjdCBfU3ViU3VyZmFj
+ZVdpbmRvd1ByaXZhdGUgICAgICAgU3ViU3VyZmFjZVdpbmRvd1ByaXZhdGU7CnR5cGVkZWYgc3Ry
+dWN0IF9TdWJTdXJmYWNlV2luZG93Q2xhc3MgICAgICAgICBTdWJTdXJmYWNlV2luZG93Q2xhc3M7
+CgpzdHJ1Y3QgX1N1YlN1cmZhY2VXaW5kb3cKewogIEdPYmplY3QgcGFyZW50X2luc3RhbmNlOwog
+IEd0a1dpbmRvdyB3aW5kb3c7CgogIEd0a1dpbmRvdyAqcGFyZW50Owp9OwoKc3RydWN0IF9TdWJT
+dXJmYWNlV2luZG93Q2xhc3MKewogIEd0a1dpbmRvd0NsYXNzIHBhcmVudF9jbGFzczsKfTsKCnN0
+YXRpYyBHVHlwZSAgICAgIApzdWJzdXJmYWNlX3dpbmRvd19nZXRfdHlwZSAodm9pZCkgR19HTlVD
+X0NPTlNUOwoKR19ERUZJTkVfVFlQRSAoU3ViU3VyZmFjZVdpbmRvdywgc3Vic3VyZmFjZV93aW5k
+b3csIEdUS19UWVBFX1dJTkRPVyk7CgpzdGF0aWMgdm9pZCAgICAgc3Vic3VyZmFjZV93aW5kb3df
+cmVhbGl6ZSAgICAgICAoR3RrV2lkZ2V0ICAgICAqd2lkZ2V0KTsKCnN0YXRpYyB2b2lkCnN1YnN1
+cmZhY2Vfd2luZG93X2NsYXNzX2luaXQgKFN1YlN1cmZhY2VXaW5kb3dDbGFzcyAqY2xhc3MpCnsK
+ICBHdGtXaWRnZXRDbGFzcyAqd2lkZ2V0X2NsYXNzID0gR1RLX1dJREdFVF9DTEFTUyAoY2xhc3Mp
+OwoKICB3aWRnZXRfY2xhc3MtPnJlYWxpemUgPSBzdWJzdXJmYWNlX3dpbmRvd19yZWFsaXplOwp9
+CgpzdGF0aWMgdm9pZApzdWJzdXJmYWNlX3dpbmRvd19pbml0IChTdWJTdXJmYWNlV2luZG93ICpT
+dWJTdXJmYWNlV2luZG93KQp7CiAgZ3RrX3dpZGdldF9zZXRfaGFzX3dpbmRvdyAoR1RLX1dJREdF
+VCAoU3ViU3VyZmFjZVdpbmRvdyksIFRSVUUpOwp9CgpHdGtXaWRnZXQqCnN1YnN1cmZhY2Vfd2lu
+ZG93X25ldyAoR3RrV2luZG93ICpwYXJlbnQpCnsKICBTdWJTdXJmYWNlV2luZG93ICpzdWJzdXJm
+YWNlX3dpbmRvdzsKCiAgZ19yZXR1cm5fdmFsX2lmX2ZhaWwgKEdUS19JU19XSU5ET1cgKHBhcmVu
+dCksIE5VTEwpOwoKICBzdWJzdXJmYWNlX3dpbmRvdyA9IGdfb2JqZWN0X25ldyAoc3Vic3VyZmFj
+ZV93aW5kb3dfZ2V0X3R5cGUgKCksIE5VTEwpOwogIHN1YnN1cmZhY2Vfd2luZG93LT5wYXJlbnQg
+PSBwYXJlbnQ7CgogIHJldHVybiBHVEtfV0lER0VUIChzdWJzdXJmYWNlX3dpbmRvdyk7Cn0KCnN0
+YXRpYyB2b2lkCnN1YnN1cmZhY2Vfd2luZG93X3JlYWxpemUgKEd0a1dpZGdldCAqd2lkZ2V0KQp7
+CiAgU3ViU3VyZmFjZVdpbmRvdyAqc3Vic3VyZmFjZV93aW5kb3cgPSBTVUJTVVJGQUNFX1dJTkRP
+VyAod2lkZ2V0KTsKICBHdGtBbGxvY2F0aW9uIGFsbG9jYXRpb247CiAgR2RrV2luZG93ICp3aW5k
+b3c7CiAgR2RrV2luZG93QXR0ciBhdHRyaWJ1dGVzOwogIGdpbnQgYXR0cmlidXRlc19tYXNrOwoK
+ICBndGtfd2lkZ2V0X3NldF9yZWFsaXplZCAod2lkZ2V0LCBUUlVFKTsKICBndGtfd2lkZ2V0X2dl
+dF9hbGxvY2F0aW9uICh3aWRnZXQsICZhbGxvY2F0aW9uKTsKCiAgYXR0cmlidXRlcy53aW5kb3df
+dHlwZSA9IEdES19XSU5ET1dfVEVNUDsKI2lmZGVmIEdES19XSU5ET1dJTkdfV0FZTEFORAogIGlm
+IChHREtfSVNfV0FZTEFORF9ESVNQTEFZIChndGtfd2lkZ2V0X2dldF9kaXNwbGF5ICh3aWRnZXQp
+KSkKICAgIGF0dHJpYnV0ZXMud2luZG93X3R5cGUgPSBHREtfV0lORE9XX1NVQlNVUkZBQ0U7CiNl
+bmRpZgogIGF0dHJpYnV0ZXMueCA9IGFsbG9jYXRpb24ueDsKICBhdHRyaWJ1dGVzLnkgPSBhbGxv
+Y2F0aW9uLnk7CiAgYXR0cmlidXRlcy53aWR0aCA9IGFsbG9jYXRpb24ud2lkdGg7CiAgYXR0cmli
+dXRlcy5oZWlnaHQgPSBhbGxvY2F0aW9uLmhlaWdodDsKICBhdHRyaWJ1dGVzLndjbGFzcyA9IEdE
+S19JTlBVVF9PVVRQVVQ7CiAgYXR0cmlidXRlcy52aXN1YWwgPSBndGtfd2lkZ2V0X2dldF92aXN1
+YWwgKHdpZGdldCk7CiAgYXR0cmlidXRlcy5ldmVudF9tYXNrID0gZ3RrX3dpZGdldF9nZXRfZXZl
+bnRzICh3aWRnZXQpIHwgR0RLX0VYUE9TVVJFX01BU0s7CgogIGF0dHJpYnV0ZXNfbWFzayA9IEdE
+S19XQV9YIHwgR0RLX1dBX1kgfCBHREtfV0FfVklTVUFMOwoKICB3aW5kb3cgPSBnZGtfd2luZG93
+X25ldyAoZ2RrX3NjcmVlbl9nZXRfcm9vdF93aW5kb3cgKGd0a193aWRnZXRfZ2V0X3NjcmVlbiAo
+d2lkZ2V0KSksCiAgICAgICAgICAgICAgICAgICAgICAgICAgICZhdHRyaWJ1dGVzLCBhdHRyaWJ1
+dGVzX21hc2spOwogIGdka193aW5kb3dfc2V0X3RyYW5zaWVudF9mb3IgKHdpbmRvdywgZ3RrX3dp
+ZGdldF9nZXRfd2luZG93IChHVEtfV0lER0VUKHN1YnN1cmZhY2Vfd2luZG93LT5wYXJlbnQpKSk7
+CgogIGd0a193aWRnZXRfcmVnaXN0ZXJfd2luZG93ICh3aWRnZXQsIHdpbmRvdyk7CiAgZ3RrX3dp
+ZGdldF9zZXRfd2luZG93ICh3aWRnZXQsIHdpbmRvdyk7CiAgZ2RrX3dpbmRvd19zaG93ICh3aW5k
+b3cpOwp9CgppbnQKbWFpbiAoaW50IGFyZ2MsIGNoYXIgKmFyZ3ZbXSkKewogIEd0a1dpZGdldCAq
+d2luZG93LCAqd2lkZ2V0OwoKICBndGtfaW5pdCAoTlVMTCwgTlVMTCk7CgogIHdpbmRvdyA9IGd0
+a193aW5kb3dfbmV3IChHVEtfV0lORE9XX1RPUExFVkVMKTsKICBndGtfd2luZG93X3NldF9yZXNp
+emFibGUgKEdUS19XSU5ET1cgKHdpbmRvdyksIFRSVUUpOwogIGd0a193aW5kb3dfcmVzaXplIChH
+VEtfV0lORE9XICh3aW5kb3cpLCA0MDAsIDIwMCk7CgogIHdpZGdldCA9IHN1YnN1cmZhY2Vfd2lu
+ZG93X25ldyAoR1RLX1dJTkRPVyAod2luZG93KSk7CiAgZ3RrX3dpbmRvd19zZXRfcmVzaXphYmxl
+IChHVEtfV0lORE9XICh3aWRnZXQpLCBUUlVFKTsKICBndGtfd2luZG93X21vdmUgKEdUS19XSU5E
+T1cgKHdpZGdldCksIDIwMCwgMjAwKTsKICBndGtfd2luZG93X3Jlc2l6ZSAoR1RLX1dJTkRPVyAo
+d2lkZ2V0KSwgMTAwLCAxMDApOwoKICBndGtfd2lkZ2V0X3Nob3dfYWxsICh3aW5kb3cpOwogIGd0
+a193aWRnZXRfc2hvd19hbGwgKHdpZGdldCk7CgogIGd0a19tYWluICgpOwoKICByZXR1cm4gMDsK
+fQoK
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

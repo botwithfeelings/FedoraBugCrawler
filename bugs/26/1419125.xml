@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1419125</bug_id>
+          
+          <creation_ts>2017-02-03 11:11:00 -0500</creation_ts>
+          <short_desc>Closing terminal does not stop container with tty</short_desc>
+          <delta_ts>2017-04-01 13:10:28 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>atomic</component>
+          <version>26</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Lukas Slebodnik">lslebodn</reporter>
+          <assigned_to name="Brent Baude">bbaude</assigned_to>
+          <cc>adimania</cc>
+    
+    
+    <cc>amurdaca</cc>
+    
+    
+    <cc>dustymabe</cc>
+    
+    
+    <cc>dwalsh</cc>
+    
+    
+    <cc>fkluknav</cc>
+    
+    
+    <cc>lslebodn</cc>
+    
+    
+    <cc>lsm5</cc>
+    
+    
+    <cc>walters</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>atomic-1.16.4-1.fc26</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-04-01 13:10:28</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10119778</commentid>
+    <comment_count>0</comment_count>
+    <who name="Lukas Slebodnik">lslebodn</who>
+    <bug_when>2017-02-03 11:11:09 -0500</bug_when>
+    <thetext>Description of problem:
+The recent upgrade of atomic does not stop container with tty which was started with atomic run.
+
+Version-Release number of selected component (if applicable):
+atomic-1.15.2-2.fc26.x86_64
+
+Reproducible:
+Deterministic
+
+Steps to Reproduce:
+1. docker run -ti --name test fedora:25 bash
+2. // exit from terminal (ctrl-D or type exit)
+3. // ensure that container is stopped
+   docker ps | grep test
+4. atomic run test
+5. // exit from terminal (ctrl-D or type exit)
+6. // ensure that container is stopped
+   docker ps | grep test
+
+
+Actual results:
+[root@host ~]# docker run -ti --name test fedora:25 bash
+[root@a327ed937316 /]# exit
+
+[root@host ~]# docker ps | grep test
+
+[root@host ~]# atomic run test
+test
+[root@a327ed937316 /]# exit
+[root@host ~]# docker ps | grep test
+a327ed937316        fedora:25           &quot;bash&quot;              About a minute ago   Up 3 seconds                            
+
+Expected results:
+Container &quot;test&quot; should not be running at the end.
+
+Additional info:
+//there is not such problem with &quot;docker start + docker attach&quot; 
+
+[root@host ~]# docker run -ti --name test fedora:25 bash
+[root@a327ed937316 /]# exit
+
+[root@host ~]# docker ps | grep test
+
+[root@host ~]# docker start test
+test
+[root@host ~]# docker attach test
+[root@a327ed937316 /]# 
+[root@a327ed937316 /]# exit
+
+[root@host ~]# docker ps | grep test</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10119780</commentid>
+    <comment_count>1</comment_count>
+    <who name="Lukas Slebodnik">lslebodn</who>
+    <bug_when>2017-02-03 11:12:47 -0500</bug_when>
+    <thetext>Side effect of this change is that the second attempt to start container fails with confusing error message:
+
+[root@host ~]# docker stop test
+test
+[root@host ~]# docker stop test
+test
+[root@host ~]# atomic run test
+test
+[root@a327ed937316 /]# exit
+[root@host ~]# atomic run test
+expected str, bytes or os.PathLike object, not list</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10192123</commentid>
+    <comment_count>2</comment_count>
+    <who name="Fedora End Of Life">jkurik</who>
+    <bug_when>2017-02-28 06:10:19 -0500</bug_when>
+    <thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 26 development cycle.
+Changing version to &apos;26&apos;.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10193864</commentid>
+    <comment_count>3</comment_count>
+    <who name="Brent Baude">bbaude</who>
+    <bug_when>2017-02-28 09:13:09 -0500</bug_when>
+    <thetext>I was not able to reproduce this today with the latest master branch.  Are you still observing this behaviour?  Would you mind checking with the master branch?
+
+https://github.com/projectatomic/atomic</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10193966</commentid>
+    <comment_count>4</comment_count>
+    <who name="Lukas Slebodnik">lslebodn</who>
+    <bug_when>2017-02-28 09:35:11 -0500</bug_when>
+    <thetext>IIRC it was fixed in 1.15.3-1 or +-</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10198874</commentid>
+    <comment_count>5</comment_count>
+    <who name="Daniel Walsh">dwalsh</who>
+    <bug_when>2017-03-01 14:44:25 -0500</bug_when>
+    <thetext>Fixed in atomic-1.15.3-1</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10226412</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-09 15:57:54 -0500</bug_when>
+    <thetext>atomic-1.16.3-1.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-2ad6948192</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10226423</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-09 15:58:57 -0500</bug_when>
+    <thetext>atomic-1.16.3-1.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-cf5944a771</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10229927</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-10 19:21:09 -0500</bug_when>
+    <thetext>atomic-1.16.3-1.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-cf5944a771</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10230405</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-11 09:25:41 -0500</bug_when>
+    <thetext>atomic-1.16.3-1.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-2ad6948192</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10246653</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-16 12:01:54 -0400</bug_when>
+    <thetext>atomic-1.16.4-1.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-e8cbc792c6</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10248136</commentid>
+    <comment_count>11</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-16 22:19:51 -0400</bug_when>
+    <thetext>atomic-1.16.4-1.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-e8cbc792c6</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10296737</commentid>
+    <comment_count>12</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-01 13:10:28 -0400</bug_when>
+    <thetext>atomic-1.16.4-1.fc26 has been pushed to the Fedora 26 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

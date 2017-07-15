@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1437136</bug_id>
+          
+          <creation_ts>2017-03-29 11:19:00 -0400</creation_ts>
+          <short_desc>unable to switch to overlay2 with &apos;atomic storage modify&apos;</short_desc>
+          <delta_ts>2017-06-15 05:22:47 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>atomic</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Micah Abbott">miabbott</reporter>
+          <assigned_to name="Daniel Walsh">dwalsh</assigned_to>
+          <cc>adimania</cc>
+    
+    
+    <cc>amurdaca</cc>
+    
+    
+    <cc>dwalsh</cc>
+    
+    
+    <cc>fkluknav</cc>
+    
+    
+    <cc>lsm5</cc>
+    
+    
+    <cc>walters</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>atomic-1.18.1-3.fc26 atomic-1.18.1-2.fc25</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-06-14 23:01:18</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10287538</commentid>
+    <comment_count>0</comment_count>
+    <who name="Micah Abbott">miabbott</who>
+    <bug_when>2017-03-29 11:19:26 -0400</bug_when>
+    <thetext>Using Fedora 25 Atomic Host 25.89.
+
+Used `atomic storage reset` to clean out the images/containers, then tried to move to `overlay2`
+
+``` 
+# rpm -q atomic
+atomic-1.15.1-1.fc25.x86_64
+# atomic --debug storage modify --driver overlay2
+&apos;Namespace&apos; object has no attribute &apos;graph&apos;
+Traceback (most recent call last):
+  File &quot;/usr/bin/atomic&quot;, line 185, in &lt;module&gt;
+    _class.set_args(args)
+  File &quot;/usr/lib/python3.5/site-packages/Atomic/storage.py&quot;, line 123, in set_args
+    if self.args.graph:
+AttributeError: &apos;Namespace&apos; object has no attribute &apos;graph&apos;
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File &quot;/usr/bin/atomic&quot;, line 210, in &lt;module&gt;
+    sys.exit(1)
+SystemExit: 1
+```
+
+
+Note, I tested this with git master and it appeared to work on a F25 Cloud image.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10287542</commentid>
+    <comment_count>1</comment_count>
+    <who name="Daniel Walsh">dwalsh</who>
+    <bug_when>2017-03-29 11:22:22 -0400</bug_when>
+    <thetext>I think there is issues with updating atomic package in f25.  Could you attempt to install atomic-1.16.4-1.fc25 and see if it fixes the issue.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10287633</commentid>
+    <comment_count>2</comment_count>
+    <who name="Micah Abbott">miabbott</who>
+    <bug_when>2017-03-29 11:52:50 -0400</bug_when>
+    <thetext>I&apos;m not able to install that version of atomic on F25, due to missing dependencies.  After &apos;ostree admin unlock&apos;:
+
+# rpm -Uhv atomic-1.16.4-1.fc26.x86_64.rpm 
+error: Failed dependencies:
+        python(abi) = 3.6 is needed by atomic-1.16.4-1.fc26.x86_64
+        python3-docker &gt;= 1.7.2 is needed by atomic-1.16.4-1.fc26.x86_64
+
+
+
+However, that version of atomic is in the F26 testing composes and I found that it was working fine.
+
+We should really try to get a fixed version of atomic into F25, IMO.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10287641</commentid>
+    <comment_count>3</comment_count>
+    <who name="Micah Abbott">miabbott</who>
+    <bug_when>2017-03-29 11:55:08 -0400</bug_when>
+    <thetext>(In reply to Micah Abbott from comment #2)
+&gt; However, that version of atomic is in the F26 testing composes and I found
+&gt; that it was working fine.
+
+Slight lie...the version in F25 is atomic-1.16.2-1.fc26.x86_64...but it still works.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10287648</commentid>
+    <comment_count>4</comment_count>
+    <who name="Micah Abbott">miabbott</who>
+    <bug_when>2017-03-29 11:56:18 -0400</bug_when>
+    <thetext>(In reply to Micah Abbott from comment #3)
+
+&gt; Slight lie...the version in F25 is atomic-1.16.2-1.fc26.x86_64...but it
+&gt; still works.
+
+Argh...Fedora 26...</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10287678</commentid>
+    <comment_count>5</comment_count>
+    <who name="Daniel Walsh">dwalsh</who>
+    <bug_when>2017-03-29 12:02:37 -0400</bug_when>
+    <thetext>I am attempting to build a version of atomic for f25.
+atomic-1.16.5-1.fc25</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10471879</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-02 06:22:03 -0400</bug_when>
+    <thetext>atomic-1.18.1-2.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-d95fc1ce23</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10471883</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-02 06:22:28 -0400</bug_when>
+    <thetext>atomic-1.18.1-2.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-fd61a2effa</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10474021</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-03 00:37:25 -0400</bug_when>
+    <thetext>atomic-1.18.1-2.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-d95fc1ce23</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10475059</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-04 15:40:20 -0400</bug_when>
+    <thetext>atomic-1.18.1-2.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-fd61a2effa</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10478960</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-05 19:15:18 -0400</bug_when>
+    <thetext>atomic-1.18.1-3.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-f0db18f2e1</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10482801</commentid>
+    <comment_count>11</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-06 15:05:35 -0400</bug_when>
+    <thetext>atomic-1.18.1-3.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-f0db18f2e1</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10507556</commentid>
+    <comment_count>12</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-14 23:01:18 -0400</bug_when>
+    <thetext>atomic-1.18.1-3.fc26 has been pushed to the Fedora 26 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10508521</commentid>
+    <comment_count>13</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-15 05:22:47 -0400</bug_when>
+    <thetext>atomic-1.18.1-2.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

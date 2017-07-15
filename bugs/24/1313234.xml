@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1313234</bug_id>
+          
+          <creation_ts>2016-03-01 03:45:00 -0500</creation_ts>
+          <short_desc>Dictionary compilation fails with #include &lt;sstream&gt;</short_desc>
+          <delta_ts>2016-04-28 16:41:05 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>root</component>
+          <version>24</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>medium</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter>nvwarr</reporter>
+          <assigned_to name="Mattias Ellert">mattias.ellert</assigned_to>
+          <cc>mattias.ellert</cc>
+    
+    
+    <cc>steve.traylen</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>root-6.06.02-1.fc24 root-6.06.02-1.el7</cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-04-15 17:35:19</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9109248</commentid>
+    <comment_count>0</comment_count>
+    <who name="">nvwarr</who>
+    <bug_when>2016-03-01 03:45:45 -0500</bug_when>
+    <thetext>Description of problem:
+
+Compilation of a dictionary fails when sstream is included
+
+Version-Release number of selected component (if applicable):
+
+root-5.34.32-8.fc24.x86_64
+
+How reproducible:
+
+Always
+
+Steps to Reproduce:
+1. Create a simple file MyClass.hh containing:
+#ifndef __MYCLASS_HH__
+#define __MYCLASS_HH__
+#include &lt;iostream&gt;
+#include &lt;sstream&gt;
+class MyClass {
+ public:
+   MyClass() {
+      std::cout &lt;&lt; &quot;hello, world!&quot; &lt;&lt; std::endl;
+   };
+};
+#endif
+
+2.Create a LinkDef.h containing:
+#ifdef __CINT__
+#pragma link off all classes;
+#endif
+
+3.rootcint -f MyClass.Dict.cc -c MyClass.hh
+
+4. g++  -g -Wall -fPIC -I. -pthread -m64 -I/usr/include/root   -c -o MyClass.Dict.o MyClass.Dict.cc
+
+Actual results:
+
+In file included from MyClass.hh:5:0,
+                 from MyClass.Dict.h:34,
+                 from MyClass.Dict.cc:17:
+/usr/include/c++/6.0.0/sstream:300:7: error: ‘struct std::__cxx11::basic_stringbuf&lt;_CharT, _Traits, _Alloc&gt;::__xfer_bufptrs’ redeclared with different access
+       struct __xfer_bufptrs
+       ^~~~~~
+&lt;builtin&gt;: recipe for target &apos;MyClass.Dict.o&apos; failed
+make: *** [MyClass.Dict.o] Error 1
+
+Expected results:
+
+Should create a .o file that can be made into a library using:
+
+g++ -shared -Wl,-soname,libMyClass.so -o libMyClass.so MyClass.Dict.o
+
+and then loaded into root with
+
+.L libMyClass.so
+
+Additional info:
+
+Adding -DR__ACCESS_IN_SYMBOL to the compile works around the problem, since rootcint generates code containing:
+
+#if !defined(R__ACCESS_IN_SYMBOL)
+//Break the privacy of classes -- Disabled for the moment
+#define private public
+#define protected public
+#endif
+
+It is the #define private public which causes the problems.This interacts badly with sstream, which is where struct __xfer_bufptrs is declared (from libstdc++-devel-6.0.0-0.13.fc24.x86_64).
+
+If the #include &lt;sstream&gt; is removed, it compiles in this case, but obviously not in realistic cases, where sstream is really needed.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9109256</commentid>
+    <comment_count>1</comment_count>
+    <who name="">nvwarr</who>
+    <bug_when>2016-03-01 03:48:19 -0500</bug_when>
+    <thetext>Ooops, the LinkDef.h makes no difference one way or the other, since it is not actually in the rootcint command:) The problem exists with or without a LinkDef.h</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9225593</commentid>
+    <comment_count>2</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-04-11 08:57:54 -0400</bug_when>
+    <thetext>pythia8-8.2.15-1.el7 root-6.06.02-1.el7 has been submitted as an update to Fedora EPEL 7. https://bodhi.fedoraproject.org/updates/FEDORA-EPEL-2016-fb4c8595e1</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9225598</commentid>
+    <comment_count>3</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-04-11 08:58:16 -0400</bug_when>
+    <thetext>pythia8-8.2.15-1.fc24 root-6.06.02-1.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-ad70b05a7e</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9228751</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-04-12 06:53:47 -0400</bug_when>
+    <thetext>pythia8-8.2.15-1.fc24, root-6.06.02-1.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-ad70b05a7e</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9228796</commentid>
+    <comment_count>5</comment_count>
+    <who name="">nvwarr</who>
+    <bug_when>2016-04-12 06:58:22 -0400</bug_when>
+    <thetext>It works. Thanks very much.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9233360</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-04-13 09:52:21 -0400</bug_when>
+    <thetext>pythia8-8.2.15-1.el7, root-6.06.02-1.el7 has been pushed to the Fedora EPEL 7 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-EPEL-2016-fb4c8595e1</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9241636</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-04-15 17:34:59 -0400</bug_when>
+    <thetext>pythia8-8.2.15-1.fc24, root-6.06.02-1.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9278287</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-04-28 16:40:55 -0400</bug_when>
+    <thetext>pythia8-8.2.15-1.el7, root-6.06.02-1.el7 has been pushed to the Fedora EPEL 7 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

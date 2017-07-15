@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1404745</bug_id>
+          
+          <creation_ts>2016-12-14 09:33:00 -0500</creation_ts>
+          <short_desc>Base Runtime FTBFS: python-service-identity-14.0.0-4.fc25</short_desc>
+          <delta_ts>2017-01-04 12:05:38 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>python-service-identity</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>CURRENTRELEASE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>1400162</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Stephen Gallagher">sgallagh</reporter>
+          <assigned_to name="Tom Prince">tom.prince</assigned_to>
+          <cc>tom.prince</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-01-04 12:05:38</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9985663</commentid>
+    <comment_count>0</comment_count>
+      <attachid>1231758</attachid>
+    <who name="Stephen Gallagher">sgallagh</who>
+    <bug_when>2016-12-14 09:33:34 -0500</bug_when>
+    <thetext>Created attachment 1231758
+Fix FTBFS on Fedora 25
+
+Description of problem:
+When attempting to rebuild portions of the frozen package set of Fedora 25, we discovered that python-service-identity fails to build due to pyOpenSSL 16.x no longer exposing the OpenSSL.test.util api.
+
+Version-Release number of selected component (if applicable):
+python-service-identity-14.0.0-4.fc25
+
+How reproducible:
+Every time
+
+Steps to Reproduce:
+1. fedpkg clone python-service-identity
+2. fedpkg switch-branch f25
+3. fedpkg mock-build
+
+Actual results:
+tests/test_common.py ..........................................................
+==================================== ERRORS ====================================
+___________________ ERROR collecting tests/test_pyopenssl.py ___________________
+tests/test_pyopenssl.py:3: in &lt;module&gt;
+    from OpenSSL.test.util import TestCase
+E   ImportError: No module named test.util
+___________________ ERROR collecting tests/test_pyopenssl.py ___________________
+tests/test_pyopenssl.py:3: in &lt;module&gt;
+    from OpenSSL.test.util import TestCase
+E   ImportError: No module named test.util
+================ 58 passed, 10 skipped, 2 error in 0.24 seconds ================
+error: Bad exit status from /var/tmp/rpm-tmp.dHeyPW (%check)
+    Bad exit status from /var/tmp/rpm-tmp.dHeyPW (%check)
+RPM build errors:
+Child return code was: 1
+
+Expected results:
+Successful build of the package.
+
+Additional info:
+This is needed as part of the Base Runtime effort. We are trying to minimize the possibility of churn from packaging changes post-F25 GA, so we would prefer to make a targeted build fix rather than unconditionally backporting from Rawhide unless both 1) no backwards-incompatible changes have occurred and 2) no new build- or runtime dependencies have appeared. In the case of python-service-identity, it has been rebased in Rawhide to 16.x and requires a new build dependency: python-attrs.
+
+Please find attached a patch that just removes the pyOpenSSL test so that the package builds successfully.
+
+If you feel it is acceptable, please pull it in and commit it to dist-git. If you feel like you also want to update the F25 version to the 16.x release, please commit this patch *first* and then a new set of patches to pull the new version (so that we can reference the specific git hash that fixes this issue). 
+
+If you feel the patch is unacceptable, please respond before Dec. 22 with an explanation of why. If we hear no response before then, a provenpackager will make the change so that we can unblock the Base Runtime effort.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10034919</commentid>
+    <comment_count>1</comment_count>
+    <who name="Stephen Gallagher">sgallagh</who>
+    <bug_when>2017-01-04 12:05:38 -0500</bug_when>
+    <thetext>I pushed the patch to git (for base runtime to pick up), but didn&apos;t run a build.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="0"
+              ispatch="0"
+              isprivate="0"
+          >
+            <attachid>1231758</attachid>
+            <date>2016-12-14 09:33:00 -0500</date>
+            <delta_ts>2016-12-14 09:33:34 -0500</delta_ts>
+            <desc>Fix FTBFS on Fedora 25</desc>
+            <filename>0001-Fix-FTBFS-on-Fedora-25.patch</filename>
+            <type>application/mbox</type>
+            <size>2018</size>
+            <attacher name="Stephen Gallagher">sgallagh</attacher>
+            
+              <data encoding="base64">RnJvbSA0NWI2MzNmZThlNjY4ZjA4NWUxY2ZiYjE1NGFlZmEzZWQ3MTYwOWViIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBTdGVwaGVuIEdhbGxhZ2hlciA8c2dhbGxhZ2hAcmVkaGF0LmNv
+bT4KRGF0ZTogV2VkLCAxNCBEZWMgMjAxNiAwOToyODowOSAtMDUwMApTdWJqZWN0OiBbUEFUQ0hd
+IEZpeCBGVEJGUyBvbiBGZWRvcmEgMjUgU2tpcCBweU9wZW5TU0wgdGVzdHMgdGhhdCBkb24ndCBi
+dWlsZAogYWdhaW5zdCBweU9wZW5TU0wgMTYueAoKLS0tCiBweXRob24tc2VydmljZS1pZGVudGl0
+eS5zcGVjIHwgOSArKysrKysrKy0KIDEgZmlsZSBjaGFuZ2VkLCA4IGluc2VydGlvbnMoKyksIDEg
+ZGVsZXRpb24oLSkKCmRpZmYgLS1naXQgYS9weXRob24tc2VydmljZS1pZGVudGl0eS5zcGVjIGIv
+cHl0aG9uLXNlcnZpY2UtaWRlbnRpdHkuc3BlYwppbmRleCA5YWI4ZGZmN2NmYjYyNTc0ZWZlYjQ5
+ZmE4OWY3YzUzZTczZGQ2OTk3Li41NzRlNDU1MmU4MGE0MDUyZGE3Y2Q0ODYyZjViOWExOTMxZWE0
+OTY2IDEwMDY0NAotLS0gYS9weXRob24tc2VydmljZS1pZGVudGl0eS5zcGVjCisrKyBiL3B5dGhv
+bi1zZXJ2aWNlLWlkZW50aXR5LnNwZWMKQEAgLTIsMTEgKzIsMTEgQEAKICVnbG9iYWwgd2l0aF9w
+eXRob24zIDEKICVlbmRpZgogCiBOYW1lOiAgICAgICAgICAgcHl0aG9uLXNlcnZpY2UtaWRlbnRp
+dHkKIFZlcnNpb246ICAgICAgICAxNC4wLjAKLVJlbGVhc2U6ICAgICAgICA1JXs/ZGlzdH0KK1Jl
+bGVhc2U6ICAgICAgICA1JXs/ZGlzdH0uMQogU3VtbWFyeTogICAgICAgIFNlcnZpY2UgaWRlbnRp
+dHkgdmVyaWZpY2F0aW9uIGZvciBweU9wZW5TU0wKIAogTGljZW5zZTogICAgICAgIE1JVAogVVJM
+OiAgICAgICAgICAgIGh0dHBzOi8vZ2l0aHViLmNvbS9weWNhL3NlcnZpY2VfaWRlbnRpdHkKIFNv
+dXJjZTA6ICAgICAgICBodHRwczovL3B5cGkucHl0aG9uLm9yZy9wYWNrYWdlcy9zb3VyY2Uvcy9z
+ZXJ2aWNlX2lkZW50aXR5L3NlcnZpY2VfaWRlbnRpdHktJXt2ZXJzaW9ufS50YXIuZ3oKQEAgLTg2
+LDEwICs4NiwxMyBAQCB0b28uCiAlcHJlcAogJXNldHVwIC1xIC1uIHNlcnZpY2VfaWRlbnRpdHkt
+JXt2ZXJzaW9ufQogIyBSZW1vdmUgYnVuZGxlZCBlZ2ctaW5mbwogcm0gLXJmIHNlcnZpY2VfaWRl
+bnRpdHkuZWdnLWluZm8KIAorIyBSZW1vdmUgdGVzdHMgdGhhdCBubyBsb25nZXIgcnVuIGFnYWlu
+c3QgcHlPcGVuU1NMIDE2LngKK3JtIC1mIHRlc3RzL3Rlc3RfcHlvcGVuc3NsLnB5CisKICVpZiAw
+JXs/d2l0aF9weXRob24zfQogcm0gLXJmICV7cHkzZGlyfQogY3AgLWEgLiAle3B5M2Rpcn0KICVl
+bmRpZiAjIHdpdGhfcHl0aG9uMwogCkBAIC0xNDEsMTAgKzE0NCwxNCBAQCBwb3BkCiAle3B5dGhv
+bjNfc2l0ZWxpYn0vc2VydmljZV9pZGVudGl0eQogJXtweXRob24zX3NpdGVsaWJ9L3NlcnZpY2Vf
+aWRlbnRpdHktJXt2ZXJzaW9ufS1weSV7cHl0aG9uM192ZXJzaW9ufS5lZ2ctaW5mbwogJWVuZGlm
+ICMgd2l0aF9weXRob24zCiAKICVjaGFuZ2Vsb2cKKyogV2VkIERlYyAxNCAyMDE2IFN0ZXBoZW4g
+R2FsbGFnaGVyIDxzZ2FsbGFnaEByZWRoYXQuY29tPiAtIDE0LjAuMC01LjEKKy0gRml4IEZUQkZT
+IG9uIEZlZG9yYSAyNQorLSBTa2lwIHB5T3BlblNTTCB0ZXN0cyB0aGF0IGRvbid0IGJ1aWxkIGFn
+YWluc3QgcHlPcGVuU1NMIDE2LngKKwogKiBUdWUgSnVsIDE5IDIwMTYgRmVkb3JhIFJlbGVhc2Ug
+RW5naW5lZXJpbmcgPHJlbC1lbmdAbGlzdHMuZmVkb3JhcHJvamVjdC5vcmc+IC0gMTQuMC4wLTUK
+IC0gaHR0cHM6Ly9mZWRvcmFwcm9qZWN0Lm9yZy93aWtpL0NoYW5nZXMvQXV0b21hdGljX1Byb3Zp
+ZGVzX2Zvcl9QeXRob25fUlBNX1BhY2thZ2VzCiAKICogVGh1IEZlYiAwNCAyMDE2IEZlZG9yYSBS
+ZWxlYXNlIEVuZ2luZWVyaW5nIDxyZWxlbmdAZmVkb3JhcHJvamVjdC5vcmc+IC0gMTQuMC4wLTQK
+IC0gUmVidWlsdCBmb3IgaHR0cHM6Ly9mZWRvcmFwcm9qZWN0Lm9yZy93aWtpL0ZlZG9yYV8yNF9N
+YXNzX1JlYnVpbGQKLS0gCjIuOS4zCgo=
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

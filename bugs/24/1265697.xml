@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1265697</bug_id>
+          
+          <creation_ts>2015-09-23 09:46:00 -0400</creation_ts>
+          <short_desc>Problems with renaming of UEFI VMs</short_desc>
+          <delta_ts>2017-05-12 15:21:59 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>virt-manager</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Jiri Konecny">jkonecny</reporter>
+          <assigned_to name="Cole Robinson">crobinso</assigned_to>
+          <cc>berrange</cc>
+    
+    
+    <cc>crobinso</cc>
+    
+    
+    <cc>hunter86_bg</cc>
+    
+    
+    <cc>virt-maint</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>virt-manager-1.4.1-2.fc24</cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-05-12 15:21:59</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>8661519</commentid>
+    <comment_count>0</comment_count>
+    <who name="Jiri Konecny">jkonecny</who>
+    <bug_when>2015-09-23 09:46:01 -0400</bug_when>
+    <thetext>Description of problem:
+When I&apos;m trying to change name of the existing VM with UEFI I got this traceback:
+
+Error apply changes: Requested operation is not valid: cannot delete inactive domain with nvram
+
+Traceback (most recent call last):
+  File &quot;/usr/share/virt-manager/virtManager/details.py&quot;, line 1948, in config_apply
+    ret = self.config_overview_apply()
+  File &quot;/usr/share/virt-manager/virtManager/details.py&quot;, line 2040, in config_overview_apply
+    self.vm.define_name(self.widget(&quot;overview-name&quot;).get_text())
+  File &quot;/usr/share/virt-manager/virtManager/libvirtobject.py&quot;, line 129, in define_name
+    self.conn.rename_object(self, origxml, newxml, oldname, newname)
+  File &quot;/usr/share/virt-manager/virtManager/connection.py&quot;, line 668, in rename_object
+    obj.delete(force=False)
+  File &quot;/usr/share/virt-manager/virtManager/libvirtobject.py&quot;, line 83, in newfn
+    ret = fn(self, *args, **kwargs)
+  File &quot;/usr/share/virt-manager/virtManager/domain.py&quot;, line 1444, in delete
+    self._backend.undefine()
+  File &quot;/usr/lib64/python2.7/site-packages/libvirt.py&quot;, line 2602, in undefine
+    if ret == -1: raise libvirtError (&apos;virDomainUndefine() failed&apos;, dom=self)
+libvirtError: Requested operation is not valid: cannot delete inactive domain with nvram
+
+--------------------
+There is another issue. When I tried to reproduce this I could create new VM (name generic-2) and without installation rename it (to jk_efi) but when I removed this VM and create another with the generic-2 name I can&apos;t connect to this machine. VirtManager shows me generic-2 name and when I tried to opened it opens jk_efi. I do not renamed this machine only the deleted one.
+
+I got this traceback:
+
+Error launching details: Domain not found: no domain with matching uuid &apos;51f4bf86-58f9-4ca9-ae25-f07068222415&apos; (jk_efi)
+
+Traceback (most recent call last):
+  File &quot;/usr/share/virt-manager/virtManager/engine.py&quot;, line 791, in _show_vm_helper
+    details.show()
+  File &quot;/usr/share/virt-manager/virtManager/details.py&quot;, line 626, in show
+    self.refresh_vm_state()
+  File &quot;/usr/share/virt-manager/virtManager/details.py&quot;, line 1356, in refresh_vm_state
+    reason = self.vm.run_status_reason()
+  File &quot;/usr/share/virt-manager/virtManager/domain.py&quot;, line 1678, in run_status_reason
+    return self.pretty_status_reason(self.status(), self.status_reason())
+  File &quot;/usr/share/virt-manager/virtManager/domain.py&quot;, line 446, in status_reason
+    self._status_reason = self._backend.state()[1]
+  File &quot;/usr/lib64/python2.7/site-packages/libvirt.py&quot;, line 2573, in state
+    if ret is None: raise libvirtError (&apos;virDomainGetState() failed&apos;, dom=self)
+libvirtError: Domain not found: no domain with matching uuid &apos;51f4bf86-58f9-4ca9-ae25-f07068222415&apos; (jk_efi)
+
+Version-Release number of selected component (if applicable):
+1.2.1
+
+How reproducible:
+The second always.
+
+Steps to Reproduce:
+1. Create VM with &quot;generic&quot; name and as UEFI
+2. Shutdown the machine
+3. Rename the &quot;generic&quot; machine to &quot;efi&quot;
+4. Delete the renamed VM &quot;efi&quot;
+5. Create new VM in the same way as 1. (name &quot;generic&quot;, UEFI)
+6. Double click on this VM
+
+Actual results:
+Can&apos;t open &quot;efi&quot; VM. (Domain not found: no domain with matching uuid...)
+
+Expected results:
+Open new &quot;generic&quot; VM.
+
+Additional info:
+If this not related problem feel free to split them to two.
+If you need some logs, please tell me what you need.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8792470</commentid>
+    <comment_count>1</comment_count>
+    <who name="Cole Robinson">crobinso</who>
+    <bug_when>2015-11-04 14:34:55 -0500</bug_when>
+    <thetext>Thanks for the report. I fixed the second issue upstream:
+
+commit d5e506869966ffa39bb400313ce9d001208dda38
+Author: Cole Robinson &lt;crobinso@redhat.com&gt;
+Date:   Tue Nov 3 15:56:39 2015 -0500
+
+    engine: Update details window mapping when VM is renamed
+
+
+The rename issue actually didn&apos;t reproduce with latest libvirt from virt-preview, but I hit some other issues when then trying to start the VM... I need to investigate more</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9918891</commentid>
+    <comment_count>2</comment_count>
+    <who name="Strahil Nikolov">hunter86_bg</who>
+    <bug_when>2016-11-24 03:29:52 -0500</bug_when>
+    <thetext>I&apos;m experiencing the same situation on Fedora 24.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10222298</commentid>
+    <comment_count>3</comment_count>
+    <who name="Cole Robinson">crobinso</who>
+    <bug_when>2017-03-08 12:03:51 -0500</bug_when>
+    <thetext>Fixed upstream now:
+
+commit 92c230d1113403b506e115416dff1218479b7116
+Author: Pavel Hrdina &lt;phrdina@redhat.com&gt;
+Date:   Mon Mar 6 09:43:10 2017 +0100
+
+    domain: add support to rename domain with nvram vars file</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10239305</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-14 15:55:49 -0400</bug_when>
+    <thetext>virt-manager-1.4.1-1.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2017-b3924e39e0</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10243355</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-15 15:56:16 -0400</bug_when>
+    <thetext>virt-manager-1.4.1-1.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-b3924e39e0</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10265392</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-22 11:02:01 -0400</bug_when>
+    <thetext>virt-manager-1.4.1-2.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2017-8a1c21cf03</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10271308</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-23 15:22:57 -0400</bug_when>
+    <thetext>virt-manager-1.4.1-2.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-8a1c21cf03</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10408822</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-12 15:21:59 -0400</bug_when>
+    <thetext>virt-manager-1.4.1-2.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

@@ -1,0 +1,1295 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1422221</bug_id>
+          
+          <creation_ts>2017-02-14 14:20:00 -0500</creation_ts>
+          <short_desc>horizontal scrolling not working with touchpad in Fedora 25</short_desc>
+          <delta_ts>2017-03-09 08:22:58 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>libinput</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Pablo Rodríguez">fedora</reporter>
+          <assigned_to name="Peter Hutterer">peter.hutterer</assigned_to>
+          <cc>fedora</cc>
+    
+    
+    <cc>hdegoede</cc>
+    
+    
+    <cc>peter.hutterer</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>libinput-1.6.2-3.fc25</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-03-09 08:22:58</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10147684</commentid>
+    <comment_count>0</comment_count>
+    <who name="Pablo Rodríguez">fedora</who>
+    <bug_when>2017-02-14 14:20:42 -0500</bug_when>
+    <thetext>I’m using Fedora in three different laptops.
+
+The three of them worked fine with the synaptics driver. I used the following contents in /etc/X11/xorg.conf.d/50-synaptics.conf:
+
+    Section &quot;InputClass&quot;
+        Identifier &quot;touchpad catchall&quot;
+        Driver &quot;synaptics&quot;
+        MatchIsTouchpad &quot;on&quot;
+        Option &quot;TapButton1&quot; &quot;1&quot;
+        Option &quot;VertEdgeScroll&quot; &quot;1&quot;
+        Option &quot;HorizEdgeScroll&quot; &quot;1&quot;
+    EndSection
+
+After updating to Fedora 25, I wanted the touchpad to work again. 
+
+    Section &quot;InputClass&quot;
+            Identifier &quot;system-touchpad&quot;
+            Driver &quot;libinput&quot;
+            MatchIsTouchpad &quot;on&quot;
+            Option &quot;Device&quot; &quot;/dev/input/event4&quot;
+            Option &quot;Tapping&quot; &quot;on&quot;
+            Option &quot;ScrollMethod&quot; &quot;edge&quot;
+    EndSection
+
+Withe previous contents from /etc/X11/xorg.conf.d/30-touchpad.conf, I get tapping working, but either vertical or horizontal scrolling don’t work.
+
+Just in case it helps to identify the issue, before adding the 30-touchpad.conf file, two finger vertical scrolling worked. And now, if I try to scroll on the edge, the pointer doesn’t move (no scrolling though).
+
+They worked fine with the synaptics driver.
+
+Which information do you need to fix the issue? (I’m on LXDE.)
+
+Many thanks for your help,
+
+Pablo</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10148013</commentid>
+    <comment_count>1</comment_count>
+    <who name="Peter Hutterer">peter.hutterer</who>
+    <bug_when>2017-02-14 16:44:03 -0500</bug_when>
+    <thetext>Remove this line, this one is garbage: Option &quot;Device&quot; &quot;/dev/input/event4&quot;
+InputClass fills in the device automatically, with this one you&apos;re forcing every matching device to /dev/input/event4 - that may work by accident but it&apos;s wrong.
+
+xinput list-props &quot;the device name&quot; should help identify if it&apos;s not enabled or if there&apos;s a bug, and try to run xinput set-prop &quot;the device name&quot; &quot;libinput Scroll Method Enabled&quot; 0 1 0, does that change anything?
+
+Also make sure that sudo libinput-list-devices shows edge scrolling available.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10151252</commentid>
+    <comment_count>2</comment_count>
+    <who name="Pablo Rodríguez">fedora</who>
+    <bug_when>2017-02-15 14:20:37 -0500</bug_when>
+    <thetext>(In reply to Peter Hutterer from comment #1)
+&gt; Remove this line, this one is garbage: Option &quot;Device&quot; &quot;/dev/input/event4&quot;
+&gt; InputClass fills in the device automatically, with this one you&apos;re forcing
+&gt; every matching device to /dev/input/event4 - that may work by accident but
+&gt; it&apos;s wrong.
+
+Many thanks for your help, Peter.
+
+With the removal of that line, vertical scrolling and double clicking work fine again.
+
+I’m afraid that horizontal scrolling doesn’t work yet (it worked with the synaptics driver).
+
+I have enabled it with the following configuration file:
+
+Section &quot;InputClass&quot;
+        Identifier &quot;system-touchpad&quot;
+        Driver &quot;libinput&quot;
+        MatchIsTouchpad &quot;on&quot;
+        Option &quot;Tapping&quot; &quot;on&quot;
+        Option &quot;ScrollMethod&quot; &quot;edge&quot;
+        Option &quot;HorizontalScrolling&quot; &quot;on&quot;
+EndSection
+
+And it seems to be enabled:
+
+$ xinput list-props 10
+Device &apos;SynPS/2 Synaptics TouchPad&apos;:
+	Device Enabled (138):	1
+	Coordinate Transformation Matrix (140):	1.000000, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000, 0.000000, 1.000000
+	libinput Tapping Enabled (277):	1
+	libinput Tapping Enabled Default (278):	0
+	libinput Tapping Drag Enabled (279):	1
+	libinput Tapping Drag Enabled Default (280):	1
+	libinput Tapping Drag Lock Enabled (281):	0
+	libinput Tapping Drag Lock Enabled Default (282):	0
+	libinput Tapping Button Mapping Enabled (283):	1, 0
+	libinput Tapping Button Mapping Default (284):	1, 0
+	libinput Accel Speed (285):	0.000000
+	libinput Accel Speed Default (286):	0.000000
+	libinput Natural Scrolling Enabled (287):	0
+	libinput Natural Scrolling Enabled Default (288):	0
+	libinput Send Events Modes Available (262):	1, 1
+	libinput Send Events Mode Enabled (263):	0, 0
+	libinput Send Events Mode Enabled Default (264):	0, 0
+	libinput Left Handed Enabled (289):	0
+	libinput Left Handed Enabled Default (290):	0
+	libinput Scroll Methods Available (291):	1, 1, 0
+	libinput Scroll Method Enabled (292):	0, 1, 0
+	libinput Scroll Method Enabled Default (293):	1, 1, 0
+	libinput Disable While Typing Enabled (294):	1
+	libinput Disable While Typing Enabled Default (295):	1
+	Device Node (265):	&quot;/dev/input/event4&quot;
+	Device Product ID (266):	2, 7
+	libinput Drag Lock Buttons (296):	&lt;no items&gt;
+	libinput Horizontal Scroll Enabled (297):	1
+
+But horizontal scrolling doesn’t work.
+
+Many thanks for your help,
+
+Pablo</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10151779</commentid>
+    <comment_count>3</comment_count>
+    <who name="Peter Hutterer">peter.hutterer</who>
+    <bug_when>2017-02-15 18:14:00 -0500</bug_when>
+    <thetext>Does it work in libinput-debug-events?
+
+There&apos;s a chance that the edges of the touchpad are out by enough that the edge scrolling area falls off the bottom of the touchpad, run the touchpad-edge-detector tool to check that.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10154596</commentid>
+    <comment_count>4</comment_count>
+    <who name="Pablo Rodríguez">fedora</who>
+    <bug_when>2017-02-16 14:15:07 -0500</bug_when>
+    <thetext>(In reply to Peter Hutterer from comment #3)
+&gt; Does it work in libinput-debug-events?
+
+Sorry, but I don’t know how to test it.
+
+&gt; There&apos;s a chance that the edges of the touchpad are out by enough that the
+&gt; edge scrolling area falls off the bottom of the touchpad, run the
+&gt; touchpad-edge-detector tool to check that.
+
+I’m afraid that I don’t know how to invoke it.
+
+  $ touchpad-edge-detector 60.61x28.15 /dev/input/event4 
+  Usage: touchpad-edge-detector 12x34 /dev/input/event0
+
+  This tool reads the touchpad events from the kernel and calculates
+   the minimum and maximum for the x and y coordinates, respectively.
+  The first argument is the physical size of the touchpad in mm.
+
+Well, I invoke the way the tool specifies the usage, but somehow it doesn’t work.
+
+What am I doing wrong or what am I missing?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10154982</commentid>
+    <comment_count>5</comment_count>
+    <who name="Peter Hutterer">peter.hutterer</who>
+    <bug_when>2017-02-16 17:01:17 -0500</bug_when>
+    <thetext>(In reply to Pablo Rodríguez from comment #4)
+&gt; (In reply to Peter Hutterer from comment #3)
+&gt; &gt; Does it work in libinput-debug-events?
+&gt; 
+&gt; Sorry, but I don’t know how to test it.
+
+sudo libinput-debug-events, scroll events are called POINTER_AXIS with the x/y movement attached. a * signals it has changed, so if you get a 10*/0 for example, you moved 10 units to the right.
+
+run it once with --help, because in order to enable edge scrolling you need to specify parameters (--set-scroll-method=edge, iirc)&gt; I’m afraid that I don’t know how to invoke it.
+
+ 
+&gt;   $ touchpad-edge-detector 60.61x28.15 /dev/input/event4 
+&gt;   Usage: touchpad-edge-detector 12x34 /dev/input/event0
+
+&gt; What am I doing wrong or what am I missing?
+
+the 12x34 is the physical size of the touchpad in mm. 60x28 seems very small and I doubt you measure the size precise enough for two decimals ;) try 60x28 instead, or the real size if that isn&apos;t it.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10162867</commentid>
+    <comment_count>6</comment_count>
+    <who name="Pablo Rodríguez">fedora</who>
+    <bug_when>2017-02-17 14:00:25 -0500</bug_when>
+    <thetext>(In reply to Peter Hutterer from comment #5)
+&gt; sudo libinput-debug-events, scroll events are called POINTER_AXIS with the
+&gt; x/y movement attached. a * signals it has changed, so if you get a 10*/0 for
+&gt; example, you moved 10 units to the right.
+
+# libinput-debug-events --set-scroll-method=edge
+-event4   DEVICE_ADDED     SynPS/2 Synaptics TouchPad        seat0 default group5  cap:p  size 61x28mm tap(dl off) left scroll-nat scroll-2fg-edge dwt-on
+-event4   POINTER_AXIS      +2.58s	vert 1.35* horiz 0.00 (finger)
+  cap:k
+-event3   DEVICE_ADDED     AT Translated Set 2 keyboard      seat0 default group4  cap:k
+-event4   DEVICE_ADDED     SynPS/2 Synaptics TouchPad        seat0 default group5  cap:p  size 61x28mm tap(dl off) left scroll-nat scroll-2fg-edge dwt-on
+-event8   DEVICE_ADDED     Dell WMI hotkeys                  seat0 default group6  cap:k
+-event4   POINTER_AXIS      +2.58s	vert 1.35* horiz 0.00 (finger)
+ event4   POINTER_AXIS      +2.60s	vert 0.94* horiz 0.00 (finger)
+ event4   POINTER_AXIS      +2.61s	vert 0.81* horiz 0.00 (finger)
+ event4   POINTER_AXIS      +2.62s	vert 0.94* horiz 0.00 (finger)
+ event4   POINTER_AXIS      +2.63s	vert 0.81* horiz 0.00 (finger)
+ event4   POINTER_AXIS      +2.65s	vert 0.94* horiz 0.00 (finger)
+   [...]
+ event4   POINTER_MOTION    +4.99s	  0.00/  0.08
+ event4   POINTER_MOTION    +5.00s	  0.07/  0.32
+ event4   POINTER_MOTION    +5.01s	  0.33/  0.20
+ event4   POINTER_MOTION    +5.03s	  0.65/  0.40
+ event4   POINTER_MOTION    +5.04s	  0.62/  0.19
+ event4   POINTER_MOTION    +5.05s	  0.68/  0.34
+ event4   POINTER_MOTION    +5.06s	  0.60/  0.37
+
+I get POINTER_AXIS with vertical scrolling, but POINTER_MOTION with what should be horizontal scrolling (which doesn’t work).
+
+&gt; the 12x34 is the physical size of the touchpad in mm. 60x28 seems very small
+&gt; and I doubt you measure the size precise enough for two decimals ;) try
+&gt; 60x28 instead, or the real size if that isn&apos;t it.
+
+I got measures from libinput-list-devices (I’m too lazy to measure anything that the computer does for me ;-)):
+
+Device:           SynPS/2 Synaptics TouchPad
+Kernel:           /dev/input/event4
+Group:            5
+Seat:             seat0, default
+Size:             60.61x28.15mm
+Capabilities:     pointer 
+Tap-to-click:     disabled
+Tap-and-drag:     enabled
+Tap drag lock:    disabled
+Left-handed:      disabled
+Nat.scrolling:    disabled
+Middle emulation: n/a
+Calibration:      n/a
+Scroll methods:   *two-finger edge 
+Click methods:    none
+Disable-w-typing: enabled
+Accel profiles:   none
+Rotation:         n/a</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10165004</commentid>
+    <comment_count>7</comment_count>
+    <who name="Peter Hutterer">peter.hutterer</who>
+    <bug_when>2017-02-19 16:23:55 -0500</bug_when>
+    <thetext>(In reply to Pablo Rodríguez from comment #6)
+&gt; I got measures from libinput-list-devices (I’m too lazy to measure anything
+&gt; that the computer does for me ;-)):
+
+libinput gets those measurements from the kernel, so if they kernel axis range is out, then those measurements will be wrong. that&apos;s why we need to run the touchpad-edge-detector tool with the real physical size.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10165015</commentid>
+    <comment_count>8</comment_count>
+    <who name="Pablo Rodríguez">fedora</who>
+    <bug_when>2017-02-19 16:43:07 -0500</bug_when>
+    <thetext>Many thanks for your help, Peter.
+
+I moved the finger where the horizontal scrolling is supposed to be (from right to left). I hope it was what you needed.
+
+#  touchpad-edge-detector 74x43 /dev/input/event4 
+Touchpad SynPS/2 Synaptics TouchPad on /dev/input/event4
+Move one finger around the touchpad to detect the actual edges
+Kernel says:	x [1472..5472], y [1408..4448]
+Touchpad sends:	x [1008..5557], y [5099..5176] -^C
+
+Touchpad size as listed by the kernel: 60x28mm
+User-specified touchpad size: 74x43mm
+Calculated ranges: 4549/77
+
+Suggested udev rule:
+# &lt;Laptop model description goes here&gt;
+evdev:name:SynPS/2 Synaptics TouchPad:dmi:bvnDellInc.:bvrA17:bd06/13/2007:svnDellInc.:pnMM061:pvr:rvnDellInc.:rn:rvr:cvnDellInc.:ct8:cvr:*</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10165020</commentid>
+    <comment_count>9</comment_count>
+    <who name="Peter Hutterer">peter.hutterer</who>
+    <bug_when>2017-02-19 16:47:54 -0500</bug_when>
+    <thetext>(In reply to Pablo Rodríguez from comment #8)
+&gt; Move one finger around the touchpad to detect the actual edges
+
+^^ as the tool says please. We need all edges to be able to fix this, so please move several times around the edges of the touchpad to reach the maximum *and* minimum detected x/y coordinates</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10165022</commentid>
+    <comment_count>10</comment_count>
+    <who name="Pablo Rodríguez">fedora</who>
+    <bug_when>2017-02-19 16:57:48 -0500</bug_when>
+    <thetext>Now I got what I had to do. I moved the finger around many times.
+
+#  touchpad-edge-detector 74x43 /dev/input/event4 
+Touchpad SynPS/2 Synaptics TouchPad on /dev/input/event4
+Move one finger around the touchpad to detect the actual edges
+Kernel says:	x [1472..5472], y [1408..4448]
+Touchpad sends:	x [1008..5795], y [687..5176] \^C
+
+Touchpad size as listed by the kernel: 60x28mm
+User-specified touchpad size: 74x43mm
+Calculated ranges: 4787/4489
+
+Suggested udev rule:
+# &lt;Laptop model description goes here&gt;
+evdev:name:SynPS/2 Synaptics TouchPad:dmi:bvnDellInc.:bvrA17:bd06/13/2007:svnDellInc.:pnMM061:pvr:rvnDellInc.:rn:rvr:cvnDellInc.:ct8:cvr:*
+ EVDEV_ABS_00=1008:5795:65
+ EVDEV_ABS_01=687:5176:104</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10165030</commentid>
+    <comment_count>11</comment_count>
+    <who name="Peter Hutterer">peter.hutterer</who>
+    <bug_when>2017-02-19 17:15:55 -0500</bug_when>
+    <thetext>ok, the reason why the edge isn&apos;t detected is because the kernel ranges are off. Copy the snippet below into /etc/udev/hwdb.d/99-touchpad-ranges.hwdb and follow the instructions here:
+https://wayland.freedesktop.org/libinput/doc/latest/faq.html#faq_hwdb_changes
+Then restart X/Wayland/... to make sure libinput can pick up the hwdb changes and it should work.
+
+evdev:name:SynPS/2 Synaptics TouchPad:dmi:*svnDellInc.:pnMM061*
+ EVDEV_ABS_00=1008:5795:65
+ EVDEV_ABS_01=687:5176:104</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10168051</commentid>
+    <comment_count>12</comment_count>
+    <who name="Pablo Rodríguez">fedora</who>
+    <bug_when>2017-02-20 12:34:38 -0500</bug_when>
+    <thetext>Peter, many thanks for your help.
+
+I’m afraid it doesn’t work.
+
+Contents of /etc/X11/xorg.conf.d/30-touchpad.conf:
+
+Section &quot;InputClass&quot;
+        Identifier &quot;system-touchpad&quot;
+        Driver &quot;libinput&quot;
+        MatchIsTouchpad &quot;on&quot;
+        Option &quot;Tapping&quot; &quot;on&quot;
+        Option &quot;ScrollMethod&quot; &quot;edge&quot;
+        Option &quot;HorizontalScrolling&quot; &quot;on&quot;
+EndSection
+
+I saved the three lines to /etc/udev/hwdb.d/99-touchpad-ranges.hwdb and it doesn’t work (even after rebooting).
+
+I don’t know what I’m doing (wrong or not ;-)).
+
+# udevadm hwdb --update
+# udevadm trigger /sys/class/input/event4
+# udevadm test /sys/class/input/event4
+calling: test
+version 231
+This program is for debugging only, it does not run any program
+specified by a RUN key. It may show incorrect results, because
+some values may be different, or not available at a simulation run.
+
+=== trie on-disk ===
+tool version:          231
+file size:         7147857 bytes
+header size             80 bytes
+strings            1813593 bytes
+nodes              5334184 bytes
+Load module index
+Found container virtualization none
+timestamp of &apos;/etc/systemd/network&apos; changed
+timestamp of &apos;/usr/lib/systemd/network&apos; changed
+Parsed configuration file /usr/lib/systemd/network/99-default.link
+Created link configuration context.
+timestamp of &apos;/etc/udev/rules.d&apos; changed
+timestamp of &apos;/usr/lib/udev/rules.d&apos; changed
+Reading rules file: /usr/lib/udev/rules.d/10-dm.rules
+Reading rules file: /usr/lib/udev/rules.d/11-dm-lvm.rules
+Reading rules file: /usr/lib/udev/rules.d/11-dm-mpath.rules
+Reading rules file: /usr/lib/udev/rules.d/13-dm-disk.rules
+Reading rules file: /usr/lib/udev/rules.d/20-crystalhd.rules
+Reading rules file: /usr/lib/udev/rules.d/40-libgphoto2.rules
+/usr/lib/udev/rules.d/40-libgphoto2.rules:11: IMPORT found builtin &apos;usb_id --export %%p&apos;, replacing
+Reading rules file: /usr/lib/udev/rules.d/40-usb_modeswitch.rules
+Reading rules file: /usr/lib/udev/rules.d/50-udev-default.rules
+Reading rules file: /usr/lib/udev/rules.d/60-block.rules
+Reading rules file: /usr/lib/udev/rules.d/60-cdrom_id.rules
+Reading rules file: /usr/lib/udev/rules.d/60-drm.rules
+Reading rules file: /usr/lib/udev/rules.d/60-evdev.rules
+Reading rules file: /usr/lib/udev/rules.d/60-ffado.rules
+Reading rules file: /usr/lib/udev/rules.d/60-net.rules
+Reading rules file: /usr/lib/udev/rules.d/60-persistent-alsa.rules
+Reading rules file: /usr/lib/udev/rules.d/60-persistent-input.rules
+Reading rules file: /usr/lib/udev/rules.d/60-persistent-storage-tape.rules
+Reading rules file: /usr/lib/udev/rules.d/60-persistent-storage.rules
+Reading rules file: /usr/lib/udev/rules.d/60-persistent-v4l.rules
+Reading rules file: /usr/lib/udev/rules.d/60-raw.rules
+Reading rules file: /usr/lib/udev/rules.d/60-serial.rules
+Reading rules file: /usr/lib/udev/rules.d/62-multipath.rules
+Reading rules file: /usr/lib/udev/rules.d/63-md-raid-arrays.rules
+Reading rules file: /usr/lib/udev/rules.d/64-btrfs-dm.rules
+Reading rules file: /usr/lib/udev/rules.d/64-btrfs.rules
+Reading rules file: /usr/lib/udev/rules.d/64-md-raid-assembly.rules
+Reading rules file: /usr/lib/udev/rules.d/65-libwacom.rules
+Reading rules file: /usr/lib/udev/rules.d/65-md-incremental.rules
+Reading rules file: /usr/lib/udev/rules.d/69-bcache.rules
+Reading rules file: /usr/lib/udev/rules.d/69-cd-sensors.rules
+Reading rules file: /usr/lib/udev/rules.d/69-dm-lvm-metad.rules
+Reading rules file: /usr/lib/udev/rules.d/69-libmtp.rules
+Reading rules file: /usr/lib/udev/rules.d/69-pilot-link.rules
+Reading rules file: /usr/lib/udev/rules.d/70-hypervfcopy.rules
+Reading rules file: /usr/lib/udev/rules.d/70-hypervkvp.rules
+Reading rules file: /usr/lib/udev/rules.d/70-hypervvss.rules
+Reading rules file: /usr/lib/udev/rules.d/70-mouse.rules
+Reading rules file: /usr/lib/udev/rules.d/70-power-switch.rules
+Reading rules file: /usr/lib/udev/rules.d/70-printers.rules
+Reading rules file: /usr/lib/udev/rules.d/70-spice-vdagentd.rules
+Reading rules file: /usr/lib/udev/rules.d/70-touchpad.rules
+Reading rules file: /usr/lib/udev/rules.d/70-uaccess.rules
+Reading rules file: /usr/lib/udev/rules.d/70-wacom.rules
+Reading rules file: /usr/lib/udev/rules.d/71-seat.rules
+Reading rules file: /usr/lib/udev/rules.d/73-seat-late.rules
+Reading rules file: /usr/lib/udev/rules.d/75-net-description.rules
+Reading rules file: /usr/lib/udev/rules.d/75-probe_mtd.rules
+Reading rules file: /usr/lib/udev/rules.d/77-mm-cinterion-port-types.rules
+Reading rules file: /usr/lib/udev/rules.d/77-mm-dell-port-types.rules
+Reading rules file: /usr/lib/udev/rules.d/77-mm-ericsson-mbm.rules
+Reading rules file: /usr/lib/udev/rules.d/77-mm-haier-port-types.rules
+Reading rules file: /usr/lib/udev/rules.d/77-mm-huawei-net-port-types.rules
+Reading rules file: /usr/lib/udev/rules.d/77-mm-longcheer-port-types.rules
+Reading rules file: /usr/lib/udev/rules.d/77-mm-mtk-port-types.rules
+Reading rules file: /usr/lib/udev/rules.d/77-mm-nokia-port-types.rules
+Reading rules file: /usr/lib/udev/rules.d/77-mm-pcmcia-device-blacklist.rules
+Reading rules file: /usr/lib/udev/rules.d/77-mm-platform-serial-whitelist.rules
+Reading rules file: /usr/lib/udev/rules.d/77-mm-simtech-port-types.rules
+Reading rules file: /usr/lib/udev/rules.d/77-mm-telit-port-types.rules
+Reading rules file: /usr/lib/udev/rules.d/77-mm-usb-device-blacklist.rules
+Reading rules file: /usr/lib/udev/rules.d/77-mm-usb-serial-adapters-greylist.rules
+Reading rules file: /usr/lib/udev/rules.d/77-mm-x22x-port-types.rules
+Reading rules file: /usr/lib/udev/rules.d/77-mm-zte-port-types.rules
+Reading rules file: /usr/lib/udev/rules.d/78-sound-card.rules
+Reading rules file: /usr/lib/udev/rules.d/80-docker.rules
+Reading rules file: /usr/lib/udev/rules.d/80-drivers.rules
+Reading rules file: /usr/lib/udev/rules.d/80-kvm.rules
+Reading rules file: /usr/lib/udev/rules.d/80-libinput-device-groups.rules
+Reading rules file: /usr/lib/udev/rules.d/80-mm-candidate.rules
+Reading rules file: /usr/lib/udev/rules.d/80-net-setup-link.rules
+Reading rules file: /usr/lib/udev/rules.d/80-udisks2.rules
+Reading rules file: /usr/lib/udev/rules.d/82-gfs2-withdraw.rules
+Reading rules file: /usr/lib/udev/rules.d/84-nm-drivers.rules
+Reading rules file: /usr/lib/udev/rules.d/85-nm-unmanaged.rules
+Reading rules file: /usr/lib/udev/rules.d/85-regulatory.rules
+Reading rules file: /usr/lib/udev/rules.d/85-tlp-rdw.rules
+Reading rules file: /usr/lib/udev/rules.d/85-tlp.rules
+Reading rules file: /usr/lib/udev/rules.d/90-alsa-restore.rules
+Reading rules file: /usr/lib/udev/rules.d/90-libinput-model-quirks.rules
+Reading rules file: /usr/lib/udev/rules.d/90-pulseaudio.rules
+Reading rules file: /usr/lib/udev/rules.d/90-vconsole.rules
+Reading rules file: /usr/lib/udev/rules.d/91-drm-modeset.rules
+Reading rules file: /usr/lib/udev/rules.d/95-cd-devices.rules
+Reading rules file: /usr/lib/udev/rules.d/95-dm-notify.rules
+Reading rules file: /usr/lib/udev/rules.d/95-upower-csr.rules
+Reading rules file: /usr/lib/udev/rules.d/95-upower-hid.rules
+Reading rules file: /usr/lib/udev/rules.d/95-upower-wup.rules
+Reading rules file: /usr/lib/udev/rules.d/98-kexec.rules
+Reading rules file: /usr/lib/udev/rules.d/99-qemu-guest-agent.rules
+Reading rules file: /usr/lib/udev/rules.d/99-systemd.rules
+rules contain 393216 bytes tokens (32768 * 12 bytes), 35366 bytes strings
+41246 strings (335064 bytes), 37679 de-duplicated (303266 bytes), 3568 trie nodes used
+IMPORT builtin &apos;input_id&apos; /usr/lib/udev/rules.d/50-udev-default.rules:14
+capabilities/ev raw kernel attribute: b
+capabilities/abs raw kernel attribute: 11000003
+capabilities/rel raw kernel attribute: 0
+capabilities/key raw kernel attribute: 6420 0 30000 0 0 0 0 0 0 0 0
+properties raw kernel attribute: 1
+test_key: checking bit block 0 for any keys; found=0
+test_key: checking bit block 32 for any keys; found=0
+test_key: checking bit block 64 for any keys; found=0
+test_key: checking bit block 96 for any keys; found=0
+test_key: checking bit block 128 for any keys; found=0
+test_key: checking bit block 160 for any keys; found=0
+test_key: checking bit block 192 for any keys; found=0
+test_key: checking bit block 224 for any keys; found=0
+GROUP 999 /usr/lib/udev/rules.d/50-udev-default.rules:30
+IMPORT builtin &apos;hwdb&apos; /usr/lib/udev/rules.d/60-evdev.rules:8
+IMPORT builtin &apos;hwdb&apos; returned non-zero
+value &apos;[dmi/id]modalias&apos; is &apos;dmi:bvnDellInc.:bvrA17:bd06/13/2007:svnDellInc.:pnMM061:pvr:rvnDellInc.:rn:rvr:cvnDellInc.:ct8:cvr:&apos;
+IMPORT builtin &apos;hwdb&apos; /usr/lib/udev/rules.d/60-evdev.rules:17
+RUN &apos;keyboard&apos; /usr/lib/udev/rules.d/60-evdev.rules:17
+IMPORT builtin &apos;hwdb&apos; /usr/lib/udev/rules.d/70-touchpad.rules:11
+PROGRAM &apos;libinput-device-group /sys/devices/platform/i8042/serio1/input/input5/event4&apos; /usr/lib/udev/rules.d/80-libinput-device-groups.rules:7
+starting &apos;libinput-device-group /sys/devices/platform/i8042/serio1/input/input5/event4&apos;
+&apos;libinput-device-group /sys/devices/platform/i8042/serio1/input/input5/event4&apos;(out) &apos;11/2/7/1b1:isa0060/serio1&apos;
+Process &apos;libinput-device-group /sys/devices/platform/i8042/serio1/input/input5/event4&apos; succeeded.
+IMPORT &apos;libinput-model-quirks /sys/devices/platform/i8042/serio1/input/input5/event4&apos; /usr/lib/udev/rules.d/90-libinput-model-quirks.rules:19
+starting &apos;libinput-model-quirks /sys/devices/platform/i8042/serio1/input/input5/event4&apos;
+Process &apos;libinput-model-quirks /sys/devices/platform/i8042/serio1/input/input5/event4&apos; succeeded.
+IMPORT builtin &apos;hwdb&apos; /usr/lib/udev/rules.d/90-libinput-model-quirks.rules:30
+value &apos;[dmi/id]modalias&apos; is &apos;dmi:bvnDellInc.:bvrA17:bd06/13/2007:svnDellInc.:pnMM061:pvr:rvnDellInc.:rn:rvr:cvnDellInc.:ct8:cvr:&apos;
+IMPORT builtin &apos;hwdb&apos; /usr/lib/udev/rules.d/90-libinput-model-quirks.rules:38
+handling device node &apos;/dev/input/event4&apos;, devnum=c13:68, mode=0660, uid=0, gid=999
+preserve permissions /dev/input/event4, 020660, uid=0, gid=999
+preserve already existing symlink &apos;/dev/char/13:68&apos; to &apos;../input/event4&apos;
+created db file &apos;/run/udev/data/c13:68&apos; for &apos;/devices/platform/i8042/serio1/input/input5/event4&apos;
+ACTION=add
+DEVNAME=/dev/input/event4
+DEVPATH=/devices/platform/i8042/serio1/input/input5/event4
+EVDEV_ABS_00=1008:5795:65
+EVDEV_ABS_01=687:5176:104
+ID_BUS=i8042
+ID_INPUT=1
+ID_INPUT_HEIGHT_MM=43
+ID_INPUT_TOUCHPAD=1
+ID_INPUT_TOUCHPAD_INTEGRATION=internal
+ID_INPUT_WIDTH_MM=73
+LIBINPUT_DEVICE_GROUP=11/2/7/1b1:isa0060/serio1
+LIBINPUT_MODEL_SYNAPTICS_SERIAL_TOUCHPAD=1
+LIBINPUT_MODEL_TOUCHPAD_VISIBLE_MARKER=1
+MAJOR=13
+MINOR=68
+SUBSYSTEM=input
+USEC_INITIALIZED=17296330
+run: &apos;keyboard&apos;
+Unload module index
+Unloaded link configuration context.
+PUT_WIDTH_MM=73
+LIBINPUT_DEVICE_GROUP=11/2/7/1b1:isa0060/serio1
+LIBINPUT_MODEL_SYNAPTICS_SERIAL_TOUCHPAD=1
+LIBINPUT_MODEL_TOUCHPAD_VISIBLE_MARKER=1
+MAJOR=13
+MINOR=68
+SUBSYSTEM=input
+USEC_INITIALIZED=17296330
+run: &apos;keyboard&apos;
+Unload module index
+Unloaded link configuration context.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10172855</commentid>
+    <comment_count>13</comment_count>
+    <who name="Peter Hutterer">peter.hutterer</who>
+    <bug_when>2017-02-21 19:27:48 -0500</bug_when>
+    <thetext>if you run evemu-describe on the device, does it list the correct axis ranges now?
+
+Record one horizontal scroll motion with evemu-record please and attach it here, thanks.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10175920</commentid>
+    <comment_count>14</comment_count>
+    <who name="Pablo Rodríguez">fedora</who>
+    <bug_when>2017-02-22 13:41:35 -0500</bug_when>
+    <thetext>Many thanks for your reply, Peter.
+
+This is the coordinates information I get from evemu-describe:
+
+    #   Event type 3 (EV_ABS)
+    #     Event code 0 (ABS_X)
+    #       Value   4416
+    #       Min     1008
+    #       Max     5795
+    #       Fuzz       0
+    #       Flat       0
+    #       Resolution 65
+    #     Event code 1 (ABS_Y)
+    #       Value   3333
+    #       Min      687
+    #       Max     5176
+    #       Fuzz       0
+    #       Flat       0
+    #       Resolution 104
+    #     Event code 24 (ABS_PRESSURE)
+    #       Value      0
+    #       Min        0
+    #       Max      255
+    #       Fuzz       0
+    #       Flat       0
+    #       Resolution 0
+    #     Event code 28 (ABS_TOOL_WIDTH)
+    #       Value      0
+    #       Min        0
+    #       Max       15
+    #       Fuzz       0
+    #       Flat       0
+    #       Resolution 0
+
+And here is the horizontal scroll motion (from left to right) in evemu-record:
+
+ [0-8]: 4
+# EVEMU 1.3
+# Kernel: 4.9.10-200.fc25.i686
+# DMI: dmi:bvnDellInc.:bvrA17:bd06/13/2007:svnDellInc.:pnMM061:pvr:rvnDellInc.:rn:rvr:cvnDellInc.:ct8:cvr:
+# Input device name: &quot;SynPS/2 Synaptics TouchPad&quot;
+# Input device ID: bus 0x11 vendor 0x02 product 0x07 version 0x1b1
+# Supported events:
+#   Event type 0 (EV_SYN)
+#     Event code 0 (SYN_REPORT)
+#     Event code 1 (SYN_CONFIG)
+#     Event code 2 (SYN_MT_REPORT)
+#     Event code 3 (SYN_DROPPED)
+#     Event code 4 ((null))
+#     Event code 5 ((null))
+#     Event code 6 ((null))
+#     Event code 7 ((null))
+#     Event code 8 ((null))
+#     Event code 9 ((null))
+#     Event code 10 ((null))
+#     Event code 11 ((null))
+#     Event code 12 ((null))
+#     Event code 13 ((null))
+#     Event code 14 ((null))
+#   Event type 1 (EV_KEY)
+#     Event code 272 (BTN_LEFT)
+#     Event code 273 (BTN_RIGHT)
+#     Event code 325 (BTN_TOOL_FINGER)
+#     Event code 330 (BTN_TOUCH)
+#     Event code 333 (BTN_TOOL_DOUBLETAP)
+#     Event code 334 (BTN_TOOL_TRIPLETAP)
+#   Event type 3 (EV_ABS)
+#     Event code 0 (ABS_X)
+#       Value   1402
+#       Min     1008
+#       Max     5795
+#       Fuzz       0
+#       Flat       0
+#       Resolution 65
+#     Event code 1 (ABS_Y)
+#       Value   1562
+#       Min      687
+#       Max     5176
+#       Fuzz       0
+#       Flat       0
+#       Resolution 104
+#     Event code 24 (ABS_PRESSURE)
+#       Value      0
+#       Min        0
+#       Max      255
+#       Fuzz       0
+#       Flat       0
+#       Resolution 0
+#     Event code 28 (ABS_TOOL_WIDTH)
+#       Value      0
+#       Min        0
+#       Max       15
+#       Fuzz       0
+#       Flat       0
+#       Resolution 0
+# Properties:
+#   Property  type 0 (INPUT_PROP_POINTER)
+N: SynPS/2 Synaptics TouchPad
+I: 0011 0002 0007 01b1
+P: 01 00 00 00 00 00 00 00
+B: 00 0b 00 00 00 00 00 00 00
+B: 01 00 00 00 00 00 00 00 00
+B: 01 00 00 00 00 00 00 00 00
+B: 01 00 00 00 00 00 00 00 00
+B: 01 00 00 00 00 00 00 00 00
+B: 01 00 00 03 00 00 00 00 00
+B: 01 20 64 00 00 00 00 00 00
+B: 01 00 00 00 00 00 00 00 00
+B: 01 00 00 00 00 00 00 00 00
+B: 01 00 00 00 00 00 00 00 00
+B: 01 00 00 00 00 00 00 00 00
+B: 01 00 00 00 00 00 00 00 00
+B: 01 00 00 00 00 00 00 00 00
+B: 02 00 00 00 00 00 00 00 00
+B: 03 03 00 00 11 00 00 00 00
+B: 04 00 00 00 00 00 00 00 00
+B: 05 00 00 00 00 00 00 00 00
+B: 11 00 00 00 00 00 00 00 00
+B: 12 00 00 00 00 00 00 00 00
+B: 14 00 00 00 00 00 00 00 00
+B: 15 00 00 00 00 00 00 00 00
+B: 15 00 00 00 00 00 00 00 00
+A: 00 1008 5795 0 0 65
+A: 01 687 5176 0 0 104
+A: 18 0 255 0 0 0
+A: 1c 0 15 0 0 0
+################################
+#      Waiting for events      #
+################################
+E: 0.000001 0003 0000 1009	# EV_ABS / ABS_X                1009
+E: 0.000001 0003 0001 4723	# EV_ABS / ABS_Y                4723
+E: 0.000001 0003 0018 0009	# EV_ABS / ABS_PRESSURE         9
+E: 0.000001 0003 001c 0004	# EV_ABS / ABS_TOOL_WIDTH       4
+E: 0.000001 0001 0145 0001	# EV_KEY / BTN_TOOL_FINGER      1
+E: 0.000001 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +0ms
+E: 0.012035 0003 0001 4739	# EV_ABS / ABS_Y                4739
+E: 0.012035 0003 0018 0011	# EV_ABS / ABS_PRESSURE         11
+E: 0.012035 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.024119 0003 0018 0012	# EV_ABS / ABS_PRESSURE         12
+E: 0.024119 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.036360 0003 0001 4775	# EV_ABS / ABS_Y                4775
+E: 0.036360 0003 0018 0015	# EV_ABS / ABS_PRESSURE         15
+E: 0.036360 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.048621 0003 0000 1008	# EV_ABS / ABS_X                1008
+E: 0.048621 0003 0001 4781	# EV_ABS / ABS_Y                4781
+E: 0.048621 0003 0018 0017	# EV_ABS / ABS_PRESSURE         17
+E: 0.048621 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.060921 0003 0001 4797	# EV_ABS / ABS_Y                4797
+E: 0.060921 0003 0018 0019	# EV_ABS / ABS_PRESSURE         19
+E: 0.060921 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.072278 0003 0001 4813	# EV_ABS / ABS_Y                4813
+E: 0.072278 0003 0018 0020	# EV_ABS / ABS_PRESSURE         20
+E: 0.072278 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.084508 0003 0000 1009	# EV_ABS / ABS_X                1009
+E: 0.084508 0003 0001 4823	# EV_ABS / ABS_Y                4823
+E: 0.084508 0003 0018 0022	# EV_ABS / ABS_PRESSURE         22
+E: 0.084508 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.096811 0003 0000 1008	# EV_ABS / ABS_X                1008
+E: 0.096811 0003 0001 4841	# EV_ABS / ABS_Y                4841
+E: 0.096811 0003 0018 0023	# EV_ABS / ABS_PRESSURE         23
+E: 0.096811 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.109118 0003 0000 1009	# EV_ABS / ABS_X                1009
+E: 0.109118 0003 0001 4859	# EV_ABS / ABS_Y                4859
+E: 0.109118 0003 0018 0025	# EV_ABS / ABS_PRESSURE         25
+E: 0.109118 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +13ms
+E: 0.121422 0003 0000 1008	# EV_ABS / ABS_X                1008
+E: 0.121422 0003 0001 4869	# EV_ABS / ABS_Y                4869
+E: 0.121422 0003 0018 0026	# EV_ABS / ABS_PRESSURE         26
+E: 0.121422 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.133724 0003 0001 4885	# EV_ABS / ABS_Y                4885
+E: 0.133724 0003 0018 0027	# EV_ABS / ABS_PRESSURE         27
+E: 0.133724 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.146026 0003 0001 4889	# EV_ABS / ABS_Y                4889
+E: 0.146026 0003 0018 0029	# EV_ABS / ABS_PRESSURE         29
+E: 0.146026 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +13ms
+E: 0.158331 0003 0000 1009	# EV_ABS / ABS_X                1009
+E: 0.158331 0003 0001 4891	# EV_ABS / ABS_Y                4891
+E: 0.158331 0003 0018 0030	# EV_ABS / ABS_PRESSURE         30
+E: 0.158331 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.170637 0001 014a 0001	# EV_KEY / BTN_TOUCH            1
+E: 0.170637 0003 0001 4895	# EV_ABS / ABS_Y                4895
+E: 0.170637 0003 0018 0033	# EV_ABS / ABS_PRESSURE         33
+E: 0.170637 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.182936 0003 0000 1008	# EV_ABS / ABS_X                1008
+E: 0.182936 0003 0001 4897	# EV_ABS / ABS_Y                4897
+E: 0.182936 0003 0018 0035	# EV_ABS / ABS_PRESSURE         35
+E: 0.182936 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.195235 0003 0000 1009	# EV_ABS / ABS_X                1009
+E: 0.195235 0003 0001 4899	# EV_ABS / ABS_Y                4899
+E: 0.195235 0003 0018 0036	# EV_ABS / ABS_PRESSURE         36
+E: 0.195235 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +13ms
+E: 0.207549 0003 0000 1011	# EV_ABS / ABS_X                1011
+E: 0.207549 0003 0001 4900	# EV_ABS / ABS_Y                4900
+E: 0.207549 0003 0018 0038	# EV_ABS / ABS_PRESSURE         38
+E: 0.207549 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.219838 0003 0000 1013	# EV_ABS / ABS_X                1013
+E: 0.219838 0003 0001 4899	# EV_ABS / ABS_Y                4899
+E: 0.219838 0003 0018 0040	# EV_ABS / ABS_PRESSURE         40
+E: 0.219838 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.232153 0003 0000 1017	# EV_ABS / ABS_X                1017
+E: 0.232153 0003 0001 4895	# EV_ABS / ABS_Y                4895
+E: 0.232153 0003 0018 0042	# EV_ABS / ABS_PRESSURE         42
+E: 0.232153 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +13ms
+E: 0.244474 0003 0018 0044	# EV_ABS / ABS_PRESSURE         44
+E: 0.244474 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.256763 0003 0018 0045	# EV_ABS / ABS_PRESSURE         45
+E: 0.256763 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.269062 0003 0000 1047	# EV_ABS / ABS_X                1047
+E: 0.269062 0003 0001 4888	# EV_ABS / ABS_Y                4888
+E: 0.269062 0003 0018 0047	# EV_ABS / ABS_PRESSURE         47
+E: 0.269062 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +13ms
+E: 0.281363 0003 0000 1079	# EV_ABS / ABS_X                1079
+E: 0.281363 0003 0001 4884	# EV_ABS / ABS_Y                4884
+E: 0.281363 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.292645 0003 0000 1110	# EV_ABS / ABS_X                1110
+E: 0.292645 0003 0001 4882	# EV_ABS / ABS_Y                4882
+E: 0.292645 0003 0018 0048	# EV_ABS / ABS_PRESSURE         48
+E: 0.292645 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +11ms
+E: 0.304950 0003 0000 1148	# EV_ABS / ABS_X                1148
+E: 0.304950 0003 0001 4885	# EV_ABS / ABS_Y                4885
+E: 0.304950 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.317275 0003 0000 1188	# EV_ABS / ABS_X                1188
+E: 0.317275 0003 0001 4893	# EV_ABS / ABS_Y                4893
+E: 0.317275 0003 0018 0050	# EV_ABS / ABS_PRESSURE         50
+E: 0.317275 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +13ms
+E: 0.329552 0003 0000 1231	# EV_ABS / ABS_X                1231
+E: 0.329552 0003 0001 4900	# EV_ABS / ABS_Y                4900
+E: 0.329552 0003 0018 0051	# EV_ABS / ABS_PRESSURE         51
+E: 0.329552 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.341855 0003 0000 1278	# EV_ABS / ABS_X                1278
+E: 0.341855 0003 0001 4902	# EV_ABS / ABS_Y                4902
+E: 0.341855 0003 0018 0052	# EV_ABS / ABS_PRESSURE         52
+E: 0.341855 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.354175 0003 0000 1324	# EV_ABS / ABS_X                1324
+E: 0.354175 0003 0001 4905	# EV_ABS / ABS_Y                4905
+E: 0.354175 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +13ms
+E: 0.366474 0003 0000 1370	# EV_ABS / ABS_X                1370
+E: 0.366474 0003 0001 4906	# EV_ABS / ABS_Y                4906
+E: 0.366474 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.378859 0003 0000 1413	# EV_ABS / ABS_X                1413
+E: 0.378859 0003 0001 4903	# EV_ABS / ABS_Y                4903
+E: 0.378859 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.391079 0003 0000 1448	# EV_ABS / ABS_X                1448
+E: 0.391079 0003 0001 4897	# EV_ABS / ABS_Y                4897
+E: 0.391079 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +13ms
+E: 0.403367 0003 0000 1482	# EV_ABS / ABS_X                1482
+E: 0.403367 0003 0001 4894	# EV_ABS / ABS_Y                4894
+E: 0.403367 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.415670 0003 0000 1513	# EV_ABS / ABS_X                1513
+E: 0.415670 0003 0001 4891	# EV_ABS / ABS_Y                4891
+E: 0.415670 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.427993 0003 0000 1541	# EV_ABS / ABS_X                1541
+E: 0.427993 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.439271 0003 0000 1571	# EV_ABS / ABS_X                1571
+E: 0.439271 0003 0001 4896	# EV_ABS / ABS_Y                4896
+E: 0.439271 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.451558 0003 0000 1598	# EV_ABS / ABS_X                1598
+E: 0.451558 0003 0001 4902	# EV_ABS / ABS_Y                4902
+E: 0.451558 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.463860 0003 0000 1629	# EV_ABS / ABS_X                1629
+E: 0.463860 0003 0001 4907	# EV_ABS / ABS_Y                4907
+E: 0.463860 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.476182 0003 0000 1655	# EV_ABS / ABS_X                1655
+E: 0.476182 0003 0001 4912	# EV_ABS / ABS_Y                4912
+E: 0.476182 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +13ms
+E: 0.488483 0003 0000 1683	# EV_ABS / ABS_X                1683
+E: 0.488483 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.500769 0003 0000 1712	# EV_ABS / ABS_X                1712
+E: 0.500769 0003 0001 4913	# EV_ABS / ABS_Y                4913
+E: 0.500769 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.513089 0003 0000 1743	# EV_ABS / ABS_X                1743
+E: 0.513089 0003 0001 4912	# EV_ABS / ABS_Y                4912
+E: 0.513089 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +13ms
+E: 0.525378 0003 0000 1772	# EV_ABS / ABS_X                1772
+E: 0.525378 0003 0001 4905	# EV_ABS / ABS_Y                4905
+E: 0.525378 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.537683 0003 0000 1804	# EV_ABS / ABS_X                1804
+E: 0.537683 0003 0001 4901	# EV_ABS / ABS_Y                4901
+E: 0.537683 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.550000 0003 0000 1839	# EV_ABS / ABS_X                1839
+E: 0.550000 0003 0001 4900	# EV_ABS / ABS_Y                4900
+E: 0.550000 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +13ms
+E: 0.562307 0003 0000 1875	# EV_ABS / ABS_X                1875
+E: 0.562307 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.573596 0003 0000 1908	# EV_ABS / ABS_X                1908
+E: 0.573596 0003 0001 4905	# EV_ABS / ABS_Y                4905
+E: 0.573596 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +11ms
+E: 0.585868 0003 0000 1941	# EV_ABS / ABS_X                1941
+E: 0.585868 0003 0001 4911	# EV_ABS / ABS_Y                4911
+E: 0.585868 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.598193 0003 0000 1967	# EV_ABS / ABS_X                1967
+E: 0.598193 0003 0001 4916	# EV_ABS / ABS_Y                4916
+E: 0.598193 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +13ms
+E: 0.610489 0003 0000 1995	# EV_ABS / ABS_X                1995
+E: 0.610489 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.622774 0003 0000 2024	# EV_ABS / ABS_X                2024
+E: 0.622774 0003 0001 4913	# EV_ABS / ABS_Y                4913
+E: 0.622774 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.635116 0003 0000 2055	# EV_ABS / ABS_X                2055
+E: 0.635116 0003 0001 4908	# EV_ABS / ABS_Y                4908
+E: 0.635116 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +13ms
+E: 0.647380 0003 0000 2087	# EV_ABS / ABS_X                2087
+E: 0.647380 0003 0001 4904	# EV_ABS / ABS_Y                4904
+E: 0.647380 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.659681 0003 0000 2118	# EV_ABS / ABS_X                2118
+E: 0.659681 0003 0001 4898	# EV_ABS / ABS_Y                4898
+E: 0.659681 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.672004 0003 0000 2154	# EV_ABS / ABS_X                2154
+E: 0.672004 0003 0001 4894	# EV_ABS / ABS_Y                4894
+E: 0.672004 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +13ms
+E: 0.684304 0003 0000 2190	# EV_ABS / ABS_X                2190
+E: 0.684304 0003 0001 4898	# EV_ABS / ABS_Y                4898
+E: 0.684304 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.696626 0003 0000 2226	# EV_ABS / ABS_X                2226
+E: 0.696626 0003 0001 4902	# EV_ABS / ABS_Y                4902
+E: 0.696626 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.708916 0003 0000 2261	# EV_ABS / ABS_X                2261
+E: 0.708916 0003 0001 4907	# EV_ABS / ABS_Y                4907
+E: 0.708916 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.722366 0003 0000 2293	# EV_ABS / ABS_X                2293
+E: 0.722366 0003 0001 4911	# EV_ABS / ABS_Y                4911
+E: 0.722366 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +14ms
+E: 0.733521 0003 0000 2329	# EV_ABS / ABS_X                2329
+E: 0.733521 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +11ms
+E: 0.745828 0003 0000 2369	# EV_ABS / ABS_X                2369
+E: 0.745828 0003 0001 4907	# EV_ABS / ABS_Y                4907
+E: 0.745828 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.757109 0003 0000 2408	# EV_ABS / ABS_X                2408
+E: 0.757109 0003 0001 4901	# EV_ABS / ABS_Y                4901
+E: 0.757109 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.769401 0003 0000 2452	# EV_ABS / ABS_X                2452
+E: 0.769401 0003 0001 4897	# EV_ABS / ABS_Y                4897
+E: 0.769401 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.781717 0003 0000 2500	# EV_ABS / ABS_X                2500
+E: 0.781717 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.794019 0003 0000 2547	# EV_ABS / ABS_X                2547
+E: 0.794019 0003 0001 4904	# EV_ABS / ABS_Y                4904
+E: 0.794019 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +13ms
+E: 0.806316 0003 0000 2587	# EV_ABS / ABS_X                2587
+E: 0.806316 0003 0001 4912	# EV_ABS / ABS_Y                4912
+E: 0.806316 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.818621 0003 0000 2628	# EV_ABS / ABS_X                2628
+E: 0.818621 0003 0001 4917	# EV_ABS / ABS_Y                4917
+E: 0.818621 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.830913 0003 0000 2675	# EV_ABS / ABS_X                2675
+E: 0.830913 0003 0001 4916	# EV_ABS / ABS_Y                4916
+E: 0.830913 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.843231 0003 0000 2720	# EV_ABS / ABS_X                2720
+E: 0.843231 0003 0001 4909	# EV_ABS / ABS_Y                4909
+E: 0.843231 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +13ms
+E: 0.854511 0003 0000 2771	# EV_ABS / ABS_X                2771
+E: 0.854511 0003 0001 4904	# EV_ABS / ABS_Y                4904
+E: 0.854511 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +11ms
+E: 0.866808 0003 0000 2824	# EV_ABS / ABS_X                2824
+E: 0.866808 0003 0001 4905	# EV_ABS / ABS_Y                4905
+E: 0.866808 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.879112 0003 0000 2875	# EV_ABS / ABS_X                2875
+E: 0.879112 0003 0001 4916	# EV_ABS / ABS_Y                4916
+E: 0.879112 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +13ms
+E: 0.891413 0003 0000 2919	# EV_ABS / ABS_X                2919
+E: 0.891413 0003 0001 4924	# EV_ABS / ABS_Y                4924
+E: 0.891413 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.903720 0003 0000 2966	# EV_ABS / ABS_X                2966
+E: 0.903720 0003 0001 4922	# EV_ABS / ABS_Y                4922
+E: 0.903720 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.916019 0003 0000 3021	# EV_ABS / ABS_X                3021
+E: 0.916019 0003 0001 4915	# EV_ABS / ABS_Y                4915
+E: 0.916019 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +13ms
+E: 0.928320 0003 0000 3076	# EV_ABS / ABS_X                3076
+E: 0.928320 0003 0001 4909	# EV_ABS / ABS_Y                4909
+E: 0.928320 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.940622 0003 0000 3139	# EV_ABS / ABS_X                3139
+E: 0.940622 0003 0001 4912	# EV_ABS / ABS_Y                4912
+E: 0.940622 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.952932 0003 0000 3195	# EV_ABS / ABS_X                3195
+E: 0.952932 0003 0001 4916	# EV_ABS / ABS_Y                4916
+E: 0.952932 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.965235 0003 0000 3250	# EV_ABS / ABS_X                3250
+E: 0.965235 0003 0001 4922	# EV_ABS / ABS_Y                4922
+E: 0.965235 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +13ms
+E: 0.977533 0003 0000 3311	# EV_ABS / ABS_X                3311
+E: 0.977533 0003 0001 4916	# EV_ABS / ABS_Y                4916
+E: 0.977533 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 0.989822 0003 0000 3372	# EV_ABS / ABS_X                3372
+E: 0.989822 0003 0001 4909	# EV_ABS / ABS_Y                4909
+E: 0.989822 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 1.002134 0003 0000 3443	# EV_ABS / ABS_X                3443
+E: 1.002134 0003 0001 4908	# EV_ABS / ABS_Y                4908
+E: 1.002134 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +13ms
+E: 1.014457 0003 0000 3506	# EV_ABS / ABS_X                3506
+E: 1.014457 0003 0001 4918	# EV_ABS / ABS_Y                4918
+E: 1.014457 0003 0018 0053	# EV_ABS / ABS_PRESSURE         53
+E: 1.014457 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 1.026748 0003 0000 3568	# EV_ABS / ABS_X                3568
+E: 1.026748 0003 0001 4921	# EV_ABS / ABS_Y                4921
+E: 1.026748 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 1.038023 0003 0000 3636	# EV_ABS / ABS_X                3636
+E: 1.038023 0003 0001 4917	# EV_ABS / ABS_Y                4917
+E: 1.038023 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 1.050334 0003 0000 3705	# EV_ABS / ABS_X                3705
+E: 1.050334 0003 0001 4911	# EV_ABS / ABS_Y                4911
+E: 1.050334 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 1.062628 0003 0000 3777	# EV_ABS / ABS_X                3777
+E: 1.062628 0003 0001 4915	# EV_ABS / ABS_Y                4915
+E: 1.062628 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 1.074915 0003 0000 3843	# EV_ABS / ABS_X                3843
+E: 1.074915 0003 0001 4924	# EV_ABS / ABS_Y                4924
+E: 1.074915 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 1.087236 0003 0000 3913	# EV_ABS / ABS_X                3913
+E: 1.087236 0003 0001 4923	# EV_ABS / ABS_Y                4923
+E: 1.087236 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +13ms
+E: 1.099542 0003 0000 3987	# EV_ABS / ABS_X                3987
+E: 1.099542 0003 0001 4916	# EV_ABS / ABS_Y                4916
+E: 1.099542 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 1.111840 0003 0000 4069	# EV_ABS / ABS_X                4069
+E: 1.111840 0003 0001 4915	# EV_ABS / ABS_Y                4915
+E: 1.111840 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 1.124146 0003 0000 4143	# EV_ABS / ABS_X                4143
+E: 1.124146 0003 0001 4924	# EV_ABS / ABS_Y                4924
+E: 1.124146 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +13ms
+E: 1.136437 0003 0000 4215	# EV_ABS / ABS_X                4215
+E: 1.136437 0003 0001 4928	# EV_ABS / ABS_Y                4928
+E: 1.136437 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 1.148760 0003 0000 4288	# EV_ABS / ABS_X                4288
+E: 1.148760 0003 0001 4921	# EV_ABS / ABS_Y                4921
+E: 1.148760 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 1.160034 0003 0000 4366	# EV_ABS / ABS_X                4366
+E: 1.160034 0003 0001 4918	# EV_ABS / ABS_Y                4918
+E: 1.160034 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 1.172326 0003 0000 4442	# EV_ABS / ABS_X                4442
+E: 1.172326 0003 0001 4926	# EV_ABS / ABS_Y                4926
+E: 1.172326 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 1.184635 0003 0000 4508	# EV_ABS / ABS_X                4508
+E: 1.184635 0003 0001 4933	# EV_ABS / ABS_Y                4933
+E: 1.184635 0003 0018 0054	# EV_ABS / ABS_PRESSURE         54
+E: 1.184635 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 1.196936 0003 0000 4574	# EV_ABS / ABS_X                4574
+E: 1.196936 0003 0001 4930	# EV_ABS / ABS_Y                4930
+E: 1.196936 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 1.209272 0003 0000 4641	# EV_ABS / ABS_X                4641
+E: 1.209272 0003 0001 4923	# EV_ABS / ABS_Y                4923
+E: 1.209272 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +13ms
+E: 1.221548 0003 0000 4710	# EV_ABS / ABS_X                4710
+E: 1.221548 0003 0001 4922	# EV_ABS / ABS_Y                4922
+E: 1.221548 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 1.233836 0003 0000 4775	# EV_ABS / ABS_X                4775
+E: 1.233836 0003 0001 4932	# EV_ABS / ABS_Y                4932
+E: 1.233836 0003 0018 0055	# EV_ABS / ABS_PRESSURE         55
+E: 1.233836 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 1.246153 0003 0000 4828	# EV_ABS / ABS_X                4828
+E: 1.246153 0003 0001 4937	# EV_ABS / ABS_Y                4937
+E: 1.246153 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +13ms
+E: 1.258460 0003 0000 4879	# EV_ABS / ABS_X                4879
+E: 1.258460 0003 0001 4936	# EV_ABS / ABS_Y                4936
+E: 1.258460 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 1.270784 0003 0000 4929	# EV_ABS / ABS_X                4929
+E: 1.270784 0003 0001 4931	# EV_ABS / ABS_Y                4931
+E: 1.270784 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 1.283065 0003 0000 4976	# EV_ABS / ABS_X                4976
+E: 1.283065 0003 0001 4925	# EV_ABS / ABS_Y                4925
+E: 1.283065 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +13ms
+E: 1.295370 0003 0000 5029	# EV_ABS / ABS_X                5029
+E: 1.295370 0003 0001 4923	# EV_ABS / ABS_Y                4923
+E: 1.295370 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 1.307670 0003 0000 5077	# EV_ABS / ABS_X                5077
+E: 1.307670 0003 0001 4931	# EV_ABS / ABS_Y                4931
+E: 1.307670 0003 0018 0056	# EV_ABS / ABS_PRESSURE         56
+E: 1.307670 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 1.318952 0003 0000 5119	# EV_ABS / ABS_X                5119
+E: 1.318952 0003 0001 4940	# EV_ABS / ABS_Y                4940
+E: 1.318952 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +11ms
+E: 1.331254 0003 0000 5152	# EV_ABS / ABS_X                5152
+E: 1.331254 0003 0001 4945	# EV_ABS / ABS_Y                4945
+E: 1.331254 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +13ms
+E: 1.343555 0003 0000 5186	# EV_ABS / ABS_X                5186
+E: 1.343555 0003 0001 4950	# EV_ABS / ABS_Y                4950
+E: 1.343555 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 1.355862 0003 0000 5215	# EV_ABS / ABS_X                5215
+E: 1.355862 0003 0001 4948	# EV_ABS / ABS_Y                4948
+E: 1.355862 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 1.368169 0003 0000 5242	# EV_ABS / ABS_X                5242
+E: 1.368169 0003 0001 4946	# EV_ABS / ABS_Y                4946
+E: 1.368169 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +13ms
+E: 1.380471 0003 0000 5275	# EV_ABS / ABS_X                5275
+E: 1.380471 0003 0001 4940	# EV_ABS / ABS_Y                4940
+E: 1.380471 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 1.392773 0003 0000 5313	# EV_ABS / ABS_X                5313
+E: 1.392773 0003 0001 4935	# EV_ABS / ABS_Y                4935
+E: 1.392773 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 1.405078 0003 0000 5354	# EV_ABS / ABS_X                5354
+E: 1.405078 0003 0001 4934	# EV_ABS / ABS_Y                4934
+E: 1.405078 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +13ms
+E: 1.417370 0003 0000 5400	# EV_ABS / ABS_X                5400
+E: 1.417370 0003 0001 4933	# EV_ABS / ABS_Y                4933
+E: 1.417370 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 1.429677 0003 0000 5444	# EV_ABS / ABS_X                5444
+E: 1.429677 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 1.441990 0003 0000 5480	# EV_ABS / ABS_X                5480
+E: 1.441990 0003 0001 4937	# EV_ABS / ABS_Y                4937
+E: 1.441990 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 1.454287 0003 0000 5511	# EV_ABS / ABS_X                5511
+E: 1.454287 0003 0001 4936	# EV_ABS / ABS_Y                4936
+E: 1.454287 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +13ms
+E: 1.466594 0003 0000 5530	# EV_ABS / ABS_X                5530
+E: 1.466594 0003 0001 4934	# EV_ABS / ABS_Y                4934
+E: 1.466594 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 1.478890 0003 0000 5544	# EV_ABS / ABS_X                5544
+E: 1.478890 0003 0001 4929	# EV_ABS / ABS_Y                4929
+E: 1.478890 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 1.491213 0003 0000 5553	# EV_ABS / ABS_X                5553
+E: 1.491213 0003 0001 4923	# EV_ABS / ABS_Y                4923
+E: 1.491213 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +13ms
+E: 1.503510 0003 0000 5558	# EV_ABS / ABS_X                5558
+E: 1.503510 0003 0001 4922	# EV_ABS / ABS_Y                4922
+E: 1.503510 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 1.514789 0003 0000 5562	# EV_ABS / ABS_X                5562
+E: 1.514789 0003 0001 4918	# EV_ABS / ABS_Y                4918
+E: 1.514789 0003 0018 0057	# EV_ABS / ABS_PRESSURE         57
+E: 1.514789 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +11ms
+E: 1.527105 0003 0000 5564	# EV_ABS / ABS_X                5564
+E: 1.527105 0003 0001 4917	# EV_ABS / ABS_Y                4917
+E: 1.527105 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +13ms
+E: 1.539381 0003 0000 5565	# EV_ABS / ABS_X                5565
+E: 1.539381 0003 0001 4915	# EV_ABS / ABS_Y                4915
+E: 1.539381 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 1.551710 0003 0000 5564	# EV_ABS / ABS_X                5564
+E: 1.551710 0003 0001 4913	# EV_ABS / ABS_Y                4913
+E: 1.551710 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 1.564007 0003 0000 5563	# EV_ABS / ABS_X                5563
+E: 1.564007 0003 0001 4916	# EV_ABS / ABS_Y                4916
+E: 1.564007 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +13ms
+E: 1.576307 0003 0000 5565	# EV_ABS / ABS_X                5565
+E: 1.576307 0003 0001 4915	# EV_ABS / ABS_Y                4915
+E: 1.576307 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 1.588612 0003 0000 5563	# EV_ABS / ABS_X                5563
+E: 1.588612 0003 0001 4920	# EV_ABS / ABS_Y                4920
+E: 1.588612 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 1.600921 0003 0000 5561	# EV_ABS / ABS_X                5561
+E: 1.600921 0003 0001 4919	# EV_ABS / ABS_Y                4919
+E: 1.600921 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 1.613235 0003 0000 5559	# EV_ABS / ABS_X                5559
+E: 1.613235 0003 0001 4924	# EV_ABS / ABS_Y                4924
+E: 1.613235 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +13ms
+E: 1.624515 0003 0000 5558	# EV_ABS / ABS_X                5558
+E: 1.624515 0003 0001 4926	# EV_ABS / ABS_Y                4926
+E: 1.624515 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +11ms
+E: 1.636796 0003 0000 5554	# EV_ABS / ABS_X                5554
+E: 1.636796 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 1.649116 0003 0000 5547	# EV_ABS / ABS_X                5547
+E: 1.649116 0003 0001 4928	# EV_ABS / ABS_Y                4928
+E: 1.649116 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +13ms
+E: 1.661418 0003 0000 5537	# EV_ABS / ABS_X                5537
+E: 1.661418 0003 0001 4927	# EV_ABS / ABS_Y                4927
+E: 1.661418 0003 0018 0054	# EV_ABS / ABS_PRESSURE         54
+E: 1.661418 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 1.673731 0003 0000 5513	# EV_ABS / ABS_X                5513
+E: 1.673731 0003 0001 4923	# EV_ABS / ABS_Y                4923
+E: 1.673731 0003 0018 0050	# EV_ABS / ABS_PRESSURE         50
+E: 1.673731 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 1.686032 0003 0000 5475	# EV_ABS / ABS_X                5475
+E: 1.686032 0003 0001 4912	# EV_ABS / ABS_Y                4912
+E: 1.686032 0003 0018 0040	# EV_ABS / ABS_PRESSURE         40
+E: 1.686032 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +13ms
+E: 1.698320 0001 014a 0000	# EV_KEY / BTN_TOUCH            0
+E: 1.698320 0003 0000 5428	# EV_ABS / ABS_X                5428
+E: 1.698320 0003 0001 4885	# EV_ABS / ABS_Y                4885
+E: 1.698320 0003 0018 0023	# EV_ABS / ABS_PRESSURE         23
+E: 1.698320 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +12ms
+E: 1.709615 0003 0018 0003	# EV_ABS / ABS_PRESSURE         3
+E: 1.709615 0003 001c 0000	# EV_ABS / ABS_TOOL_WIDTH       0
+E: 1.709615 0001 0145 0000	# EV_KEY / BTN_TOOL_FINGER      0
+E: 1.709615 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +11ms
+E: 1.734223 0003 0018 0000	# EV_ABS / ABS_PRESSURE         0
+E: 1.734223 0000 0000 0000	# ------------ SYN_REPORT (0) ---------- +25ms</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10180820</commentid>
+    <comment_count>15</comment_count>
+    <who name="Peter Hutterer">peter.hutterer</who>
+    <bug_when>2017-02-24 00:55:10 -0500</bug_when>
+    <thetext>(In reply to Pablo Rodríguez from comment #10)
+&gt; User-specified touchpad size: 74x43mm
+
+ok, found the reason and the above is the summary. libinput doesn&apos;t enable horizontal edge scrolling on touchpads smaller than 50mm because it takes too much of the touchpad area way and turns it into a dead zone. That again has the effect of causing unintended events, etc.
+
+But staring at a ruler, 50mm seems to be too wide, we can lower that to 40mm or possibly even less while still keeping the touchpad usable. I&apos;ll get this fixed upstream.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10214248</commentid>
+    <comment_count>16</comment_count>
+    <who name="Pablo Rodríguez">fedora</who>
+    <bug_when>2017-03-06 17:33:57 -0500</bug_when>
+    <thetext>Peter,
+
+in the meantime, is there any way to enable two scroll methods (*two-finger edge) simultaneously?
+
+Many thanks for your help,
+
+Pablo</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10214598</commentid>
+    <comment_count>17</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-06 19:18:24 -0500</bug_when>
+    <thetext>libinput-1.6.2-3.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-89f8404bd9</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10215309</commentid>
+    <comment_count>18</comment_count>
+    <who name="Pablo Rodríguez">fedora</who>
+    <bug_when>2017-03-07 01:36:11 -0500</bug_when>
+    <thetext>Peter, it works fine with the new libinput-1.6.2-3.fc25 release.
+
+I’d like to know how to enable simultaneously both two-finger and edge.
+
+Many thanks for your help,
+
+Pablo</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10216781</commentid>
+    <comment_count>19</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-07 09:22:27 -0500</bug_when>
+    <thetext>libinput-1.6.2-3.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-89f8404bd9</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10218301</commentid>
+    <comment_count>20</comment_count>
+    <who name="Peter Hutterer">peter.hutterer</who>
+    <bug_when>2017-03-07 16:20:36 -0500</bug_when>
+    <thetext>(In reply to Pablo Rodríguez from comment #18)
+&gt; I’d like to know how to enable simultaneously both two-finger and edge.
+
+that won&apos;t work, libinput supports either two-finger or edge scrolling but not both at the same time</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10218332</commentid>
+    <comment_count>21</comment_count>
+    <who name="Pablo Rodríguez">fedora</who>
+    <bug_when>2017-03-07 16:35:42 -0500</bug_when>
+    <thetext>(In reply to Peter Hutterer from comment #20)
+&gt; (In reply to Pablo Rodríguez from comment #18)
+&gt; &gt; I’d like to know how to enable simultaneously both two-finger and edge.
+&gt; 
+&gt; that won&apos;t work, libinput supports either two-finger or edge scrolling but
+&gt; not both at the same time
+
+It’s a pity. because sometimes edge is far away (even in small touchpads :-)).
+
+Any chance it could be implemented in libinput?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10218506</commentid>
+    <comment_count>22</comment_count>
+    <who name="Peter Hutterer">peter.hutterer</who>
+    <bug_when>2017-03-07 18:26:27 -0500</bug_when>
+    <thetext>no, unlikely to be implemented and even if, probably only for custom devices where it is a requirement (though I can&apos;t think of a device right now where it&apos;d be needed). it&apos;s too niche a use-case but increases the maintenance effort quite a bit.
+
+if the edge is too far away, why don&apos;t you switch to two-finger scrolling?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10222308</commentid>
+    <comment_count>23</comment_count>
+    <who name="Pablo Rodríguez">fedora</who>
+    <bug_when>2017-03-08 12:07:50 -0500</bug_when>
+    <thetext>(In reply to Peter Hutterer from comment #22)
+&gt; no, unlikely to be implemented and even if, probably only for custom devices
+&gt; where it is a requirement (though I can&apos;t think of a device right now where
+&gt; it&apos;d be needed). it&apos;s too niche a use-case but increases the maintenance
+&gt; effort quite a bit.
+
+I didn’t realized that extra maintenance effort.
+
+&gt; if the edge is too far away, why don&apos;t you switch to two-finger scrolling?
+
+I’m breaking and old habit. But I plant to switch soon.
+
+Many thanks for your help and for fixing the bug,
+
+Pablo</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10224848</commentid>
+    <comment_count>24</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-09 08:22:58 -0500</bug_when>
+    <thetext>libinput-1.6.2-3.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

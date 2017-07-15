@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1337903</bug_id>
+          
+          <creation_ts>2016-05-20 08:14:00 -0400</creation_ts>
+          <short_desc>geary fails to initialize: unknown tokenizer: unicodesn</short_desc>
+          <delta_ts>2016-07-09 19:53:03 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>geary</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          <see_also>https://bugzilla.gnome.org/show_bug.cgi?id=763203</see_also>
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>high</bug_severity>
+          <target_milestone>---</target_milestone>
+          <dependson>1312506</dependson>
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Ernesto Manríquez">alejandronova</reporter>
+          <assigned_to name="Thomas Moschny">thomas.moschny</assigned_to>
+          <cc>justin.brown</cc>
+    
+    
+    <cc>michel</cc>
+    
+    
+    <cc>thomas.moschny</cc>
+    
+    
+    <cc>tiktokoptik</cc>
+    
+    
+    <cc>vestrum</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>geary-0.11.1-2.fc24 geary-0.11.1-1.fc23</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-07-05 00:58:50</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9344414</commentid>
+    <comment_count>0</comment_count>
+    <who name="Ernesto Manríquez">alejandronova</who>
+    <bug_when>2016-05-20 08:14:35 -0400</bug_when>
+    <thetext>Description of problem:
+After upgrading to Fedora 24, geary started to behave erratically and to crash. I removed all files in .local/share/geary, to get a clean configuration, and, when I tried to create a mail account, I got this message.
+
+** (geary:2193): ERROR **: imap-db-database.vala:247: Error creating search table: (Connection.exec /home/eris/.local/share/geary/ernesto.manriquez@outlook.com/geary.db) [err=1] - unknown tokenizer: unicodesn (
+                CREATE VIRTUAL TABLE MessageSearchTable USING fts4(
+                    body,
+                    attachment,
+                    subject,
+                    from_field,
+                    receivers,
+                    cc,
+                    bcc,
+                    
+                    tokenize=unicodesn &quot;stemmer=spanish&quot;,
+                    prefix=&quot;2,4,6,8,10&quot;,
+                );
+            )
+Trace/breakpoint trap (`core&apos; generado)
+
+I don&apos;t get this error message under Fedora 23. I tried to downgrade Geary to no avail, so, I think this error could be some misconfiguration with sqlite3, or some missing patch in Geary needed to work with the sqlite3 version provided in Fedora 24.
+
+How reproducible:
+All the time.
+
+Steps to reproduce.
+1. Install Geary.
+2. Try to create a mail account.
+
+Actual results:
+The referred error message. After that, if you try to start Geary, Geary simply refuses to start, and keeps in a loop of &quot;Geary is updating&quot;
+
+Expected results:
+I can access my mail accounts, just like I did in Fedora 23.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9349898</commentid>
+    <comment_count>1</comment_count>
+    <who name="Ernesto Manríquez">alejandronova</who>
+    <bug_when>2016-05-23 08:41:43 -0400</bug_when>
+    <thetext>If I install sqlite-3.11.0-3.fc23 over my Fedora 24 install, the problem goes away.
+
+The FTS3 tokenizer needs to be enabled in SQLite for this to work.
+
+bug 1312506</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9355235</commentid>
+    <comment_count>2</comment_count>
+    <who name="Ernesto Manríquez">alejandronova</who>
+    <bug_when>2016-05-24 13:54:48 -0400</bug_when>
+    <thetext>Geary 0.11 can enable FTS3 with the runtime method introduced in SQLite 3.12, but SQLite 3.11 requires compilation with the FTS3 tokenizer.
+
+https://mail.gnome.org/archives/commits-list/2016-April/msg07576.html</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9372940</commentid>
+    <comment_count>3</comment_count>
+    <who name="Ernesto Manríquez">alejandronova</who>
+    <bug_when>2016-05-31 10:31:30 -0400</bug_when>
+    <thetext>sqlite 3.12.2 hasn&apos;t fixed the problem.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9393239</commentid>
+    <comment_count>4</comment_count>
+    <who name="Alex Vestrum">vestrum</who>
+    <bug_when>2016-06-07 04:49:51 -0400</bug_when>
+    <thetext>I can confirm this. Hope it will be fixed soon. Ernesto, thanks for a working solution!</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9406556</commentid>
+    <comment_count>5</comment_count>
+    <who name="luavi1">tiktokoptik</who>
+    <bug_when>2016-06-12 18:13:14 -0400</bug_when>
+    <thetext>Downgrading to sqlite-3.11.0-3.fc24.x86_64 did not solve the problem.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9456211</commentid>
+    <comment_count>6</comment_count>
+    <who name="Thomas Moschny">thomas.moschny</who>
+    <bug_when>2016-06-27 12:43:04 -0400</bug_when>
+    <thetext>If I understand things right, this can be fixed by either:
+
+- pushing a fixed sqlite 3.11 to F24,  or
+- pushing sqlite 3.12 to F24 *and* building geary against that
+
+As sqlite 3.12 is already in testing and will be pushed soon I&apos;ll go for the second option (and update to geary 0.11.1).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9466022</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-06-29 15:13:33 -0400</bug_when>
+    <thetext>geary-0.11.1-1.fc23 has been submitted as an update to Fedora 23. https://bodhi.fedoraproject.org/updates/FEDORA-2016-7a2fb3caf1</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9466023</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-06-29 15:13:41 -0400</bug_when>
+    <thetext>geary-0.11.1-2.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-0a39e9f457</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9470454</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-06-30 18:26:36 -0400</bug_when>
+    <thetext>geary-0.11.1-2.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-0a39e9f457</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9470515</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-06-30 18:54:32 -0400</bug_when>
+    <thetext>geary-0.11.1-1.fc23 has been pushed to the Fedora 23 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-7a2fb3caf1</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9479818</commentid>
+    <comment_count>11</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-05 00:58:47 -0400</bug_when>
+    <thetext>geary-0.11.1-2.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9493804</commentid>
+    <comment_count>12</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-09 19:52:59 -0400</bug_when>
+    <thetext>geary-0.11.1-1.fc23 has been pushed to the Fedora 23 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1311913</bug_id>
+          
+          <creation_ts>2016-02-25 05:14:00 -0500</creation_ts>
+          <short_desc>libsemanage.semanage_read_policydb: Could not open kernel policy for reading</short_desc>
+          <delta_ts>2016-08-16 23:03:55 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>selinux-policy</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Christian Heimes">cheimes</reporter>
+          <assigned_to name="Miroslav Grepl">mgrepl</assigned_to>
+          <cc>dominick.grift</cc>
+    
+    
+    <cc>dwalsh</cc>
+    
+    
+    <cc>lvrabec</cc>
+    
+    
+    <cc>mgrepl</cc>
+    
+    
+    <cc>nkinder</cc>
+    
+    
+    <cc>plautrba</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>selinux-policy-3.13.1-172.fc25 selinux-policy-3.13.1-208.fc25</cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-08-16 23:03:55</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9096900</commentid>
+    <comment_count>0</comment_count>
+    <who name="Christian Heimes">cheimes</who>
+    <bug_when>2016-02-25 05:14:57 -0500</bug_when>
+    <thetext>Description of problem:
+semanage doesn&apos;t work on rawhide
+
+Version-Release number of selected component (if applicable):
+libselinux-2.5-0.1.rc1.fc24.x86_64
+selinux-policy-3.13.1-171.fc24.noarch
+selinux-policy-targeted-3.13.1-171.fc24.noarch
+libselinux-python-2.5-0.1.rc1.fc24.x86_64
+libselinux-utils-2.5-0.1.rc1.fc24.x86_64
+libselinux-python3-2.5-0.1.rc1.fc24.x86_64
+rpm-plugin-selinux-4.13.0-0.rc1.24.fc24.x86_64
+libsemanage-2.5-0.1.rc1.fc24.x86_64
+libsemanage-python3-2.5-0.1.rc1.fc24.x86_64
+libsemanage-python-2.5-0.1.rc1.fc24.x86_64
+
+How reproducible:
+Always
+
+Steps to Reproduce:
+1. install rawhide
+2. run: semanage port --list
+
+Actual results:
+# semanage port --list
+libsemanage.semanage_read_policydb: Could not open kernel policy /var/lib/selinux/targeted/active/policy.kern for reading. (No such file or directory).
+FileNotFoundError: [Errno 2] No such file or directory
+
+Expected results:
+A list of port mappings
+
+Additional info:
+I can manually fix the issue by symlinking the current policy:
+ln -s /etc/selinux/targeted/policy/policy.29 /var/lib/selinux/targeted/active/policy.kern</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9096905</commentid>
+    <comment_count>1</comment_count>
+    <who name="Petr Lautrbach">plautrba</who>
+    <bug_when>2016-02-25 05:16:57 -0500</bug_when>
+    <thetext>We need to fix it in selinux-policy package. In the mean time, please use:
+
+# semodule -B
+
+The symlink you created is not corrent</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9096944</commentid>
+    <comment_count>2</comment_count>
+    <who name="Christian Heimes">cheimes</who>
+    <bug_when>2016-02-25 05:25:00 -0500</bug_when>
+    <thetext>Thanks Petr! I can confirm that &apos;semodule -B&apos; indeed fixes the issue.
+
+# rm /var/lib/selinux/targeted/active/policy.kern
+# semodule -B
+# semanage port --list
+SELinux Port Type              Proto    Port Number
+
+afs3_callback_port_t           tcp      7001
+afs3_callback_port_t           udp      7001
+...</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9549543</commentid>
+    <comment_count>3</comment_count>
+    <who name="Jan Kurik">jkurik</who>
+    <bug_when>2016-07-26 00:44:06 -0400</bug_when>
+    <thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 25 development cycle.
+Changing version to &apos;25&apos;.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9611259</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-12 10:18:00 -0400</bug_when>
+    <thetext>selinux-policy-3.13.1-208.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2016-662487f8f1</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9611655</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-12 11:56:46 -0400</bug_when>
+    <thetext>selinux-policy-3.13.1-208.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-662487f8f1</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9620996</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-16 23:02:19 -0400</bug_when>
+    <thetext>selinux-policy-3.13.1-208.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

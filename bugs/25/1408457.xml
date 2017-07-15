@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1408457</bug_id>
+          
+          <creation_ts>2016-12-23 08:31:00 -0500</creation_ts>
+          <short_desc>power.sh fails to list processes and so will always shut down the computer</short_desc>
+          <delta_ts>2017-01-27 14:21:50 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>acpid</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Oliver Henshaw">oliver.henshaw</reporter>
+          <assigned_to name="Jaroslav Škarvada">jskarvad</assigned_to>
+          <cc>jskarvad</cc>
+    
+    
+    <cc>systemd-maint</cc>
+    
+    
+    <cc>ted</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>acpid-2.0.28-2.fc25</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-01-27 14:21:50</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10018475</commentid>
+    <comment_count>0</comment_count>
+    <who name="Oliver Henshaw">oliver.henshaw</who>
+    <bug_when>2016-12-23 08:31:14 -0500</bug_when>
+    <thetext>Description of problem:
+
+On F25 with kde plasma and acpid.service enabled, pushing the power button always shuts down the machine, and the logged in user does not logout cleanly. I haven&apos;t tested, but I expect that this will fail in the same way with gnome sessions.
+
+This happens because the /etc/acpi/actions/power.sh script is activated on the power button event but it fails to detect that a kde plasma session is running - in fact it fails to enumerate the processes in the active session.
+
+
+With
+--- /etc/acpi/actions/power.sh	2016-12-23 12:17:00.897786166 +0000
++++ /home/test/power.sh	2016-12-23 12:15:59.898361085 +0000
+@@ -6,7 +6,7 @@
+ session_ids=$(loginctl list-sessions 2&gt;/dev/null | awk &apos;{print $1}&apos;)
+ for session in ${session_ids} ; do
+ 	session_status=$(loginctl session-status ${session})
+-	echo &quot;${session_status}&quot; | grep -e &apos;\(Active: yes\|State: active\)&apos; &amp;&gt; /dev/null &amp;&amp;
++	echo &quot;${session_status}&quot; | grep -e &apos;\(Active: yes\|State: active\)&apos; &amp;&gt; /dev/null &amp;&amp; logger &quot;${session_status}&quot; &amp;&amp;
+ 		echo &quot;${session_status}&quot; | grep -e &apos;\(gnome-settings-daemon\|cinnamon-settings-daemon\|kded[4-5]\|plasmashell\|xfce4-power-manager\|mate-power-manager\)&apos; &amp;&gt; /dev/null &amp;&amp; exit 0
+ done
+ 
+I see in &apos;journalctl -b -1&apos;:
+Dec 23 11:58:33 localhost.localdomain audit[2005]: AVC avc:  denied  { read } for  pid=2005 comm=&quot;loginctl&quot; name=&quot;user-1000.j
+Dec 23 11:58:33 localhost.localdomain audit[2005]: AVC avc:  denied  { read } for  pid=2005 comm=&quot;loginctl&quot; name=&quot;system.jour
+Dec 23 11:58:33 localhost.localdomain root[2008]: 2 - test (1000)
+                                                             Since: Fri 2016-12-23 11:54:32 GMT; 4min 0s ago
+                                                            Leader: 964 (sddm-helper)
+                                                              Seat: seat0; vc1
+                                                           Display: :0
+                                                           Service: sddm; type x11; class user
+                                                           Desktop: KDE
+                                                             State: active
+                                                              Unit: session-2.scope
+
+But from a terminal I would get e.g.:
+# loginctl session-status 2
+2 - test (1000)
+	   Since: Fri 2016-12-23 11:59:18 GMT; 20min ago
+	  Leader: 964 (sddm-helper)
+	    Seat: seat0; vc1
+	 Display: :0
+	 Service: sddm; type x11; class user
+	 Desktop: KDE
+	   State: active
+	    Unit: session-2.scope
+		  ├─ 964 /usr/libexec/sddm-helper --socket /tmp/sddm-auth521bbc66-d461-4e3c-abed-50a5f525449d --id 1 --start /usr/bin/startkde --user test
+		  ├─ 986 /usr/bin/kwalletd5 --pam-login 14 17
+		  ├─ 988 /usr/bin/kwalletd --pam-login 14 18 --nofork
+		  ├─ 989 /bin/sh /usr/bin/startkde
+		  ├─1012 /usr/bin/ssh-agent /bin/sh -c exec -l /bin/bash -c &quot;/usr/bin/startkde&quot;
+		  ├─1056 /usr/libexec/kf5/start_kdeinit --kded +kcminit_startup
+		  ├─1057 kdeinit5: Running...
+		  ├─1058 /usr/libexec/kf5/klauncher --fd=9
+		  ├─1061 kded5 [kdeinit5]
+		  ├─1077 kwrapper5 /usr/bin/ksmserver
+		  ├─1078 /usr/bin/ksmserver
+		  ├─1106 /usr/bin/kaccess
+		  ├─1153 kwin_x11 -session 1028c1d320b210000148103492100000010970008_1482494029_976984
+		  ├─1155 /usr/bin/baloo_file
+		  ├─1156 /usr/libexec/kdeconnectd
+		  ├─1157 /usr/bin/krunner
+		  ├─1159 /usr/bin/plasmashell --shut-up
+		  ├─1162 /usr/libexec/kf5/polkit-kde-authentication-agent-1
+		  ├─1163 /usr/bin/xembedsniproxy
+		  ├─1179 /usr/libexec/gam_server
+		  ├─1185 /usr/bin/pulseaudio --start --log-target=syslog
+		  ├─1197 konsole [kdeinit5] -session 1028c1d320b210000148103561700000010970014_1482494029_797246 -name konsole
+		  ├─1203 /usr/lib64/firefox/firefox --sm-client-id 1028c1d320b210000148103575500000010970016
+		  ├─1222 /usr/libexec/org_kde_powerdevil -session 1028c1d320b210000148103492200000010970010_1482494029_797740
+		  ├─1246 /usr/bin/kactivitymanagerd start-daemon
+		  ├─1248 /usr/bin/korgac -session 1028c1d320b210000148103492900000010970011_1482494029_796472
+		  ├─1278 /usr/bin/abrt-applet
+		  ├─1284 /usr/bin/spice-vdagent
+		  ├─1382 /bin/bash
+		  ├─1409 /usr/bin/akonadi_control
+		  ├─1414 akonadiserver
+		  ├─1418 /usr/libexec/mysqld --defaults-file=/home/test/.local/share/akonadi/mysql.conf --datadir=/home/test/.local/share/akonadi/db_data/ --socket=/tmp/akonadi-test.3c4Gwu/mysql.socket
+		  ├─1464 /usr/bin/akonadi_akonotes_resource --identifier akonadi_akonotes_resource_0
+		  ├─1465 /usr/bin/akonadi_archivemail_agent --identifier akonadi_archivemail_agent
+		  ├─1466 /usr/bin/akonadi_birthdays_resource --identifier akonadi_birthdays_resource
+		  ├─1467 /usr/bin/akonadi_contacts_resource --identifier akonadi_contacts_resource_0
+		  ├─1468 /usr/bin/akonadi_followupreminder_agent --identifier akonadi_followupreminder_agent
+		  ├─1469 /usr/bin/akonadi_ical_resource --identifier akonadi_ical_resource_0
+		  ├─1470 /usr/bin/akonadi_indexing_agent --identifier akonadi_indexing_agent
+		  ├─1471 /usr/bin/akonadi_maildir_resource --identifier akonadi_maildir_resource_0
+		  ├─1472 /usr/bin/akonadi_maildispatcher_agent --identifier akonadi_maildispatcher_agent
+		  ├─1473 /usr/bin/akonadi_mailfilter_agent --identifier akonadi_mailfilter_agent
+		  ├─1474 /usr/bin/akonadi_migration_agent --identifier akonadi_migration_agent
+		  ├─1475 /usr/bin/akonadi_newmailnotifier_agent --identifier akonadi_newmailnotifier_agent
+		  ├─1476 /usr/bin/akonadi_notes_agent --identifier akonadi_notes_agent
+		  ├─1477 /usr/bin/akonadi_sendlater_agent --identifier akonadi_sendlater_agent
+		  ├─1702 su -
+		  ├─1709 -bash
+		  ├─1729 journalctl -b -1
+		  ├─1730 less
+		  ├─1840 /bin/bash
+		  ├─1889 /bin/bash
+		  ├─1908 su -
+		  ├─1915 -bash
+		  ├─2232 less /etc/acpi/actions/power.sh
+		  ├─2240 loginctl session-status 2
+		  └─2241 xclip -i
+
+Dec 23 12:08:32 localhost.localdomain kscreenlocker_greet[1820]: No metadata file in the package, expected it at: &quot;/usr/share/backgrounds/f25/default/standard/&quot;
+Dec 23 12:08:32 localhost.localdomain kscreenlocker_greet[1820]: No metadata file in the package, expected it at: &quot;/usr/share/backgrounds/f25/default/standard/&quot;
+Dec 23 12:08:33 localhost.localdomain kscreenlocker_greet[1820]: file:///usr/share/plasma/look-and-feel/org.fedoraproject.fedora.desktop/contents/components/Battery.qml:39:18: Unable to assign [undefined] to int
+Dec 23 12:10:22 localhost.localdomain kwin_x11[1153]: QXcbConnection: XCB error: 3 (BadWindow), sequence: 35121, resource id: 96469021, major code: 18 (ChangeProperty), minor code: 0
+Dec 23 12:16:13 localhost.localdomain su[1908]: (to root) test on pts/3
+Dec 23 12:16:13 localhost.localdomain su[1908]: pam_systemd(su-l:session): Cannot create session: Already running in a session
+Dec 23 12:16:13 localhost.localdomain su[1908]: pam_unix(su-l:session): session opened for user root by test(uid=1000)
+Dec 23 12:18:38 localhost.localdomain plasmashell[1159]: file:///usr/lib64/qt5/qml/QtQuick/Controls/Button.qml:99: TypeError: Cannot read property of null
+Dec 23 12:19:06 localhost.localdomain plasmashell[1159]: file:///usr/lib64/qt5/qml/QtQuick/Controls/Button.qml:99: TypeError: Cannot read property of null
+Dec 23 12:19:06 localhost.localdomain plasmashell[1159]: QXcbConnection: XCB error: 2 (BadValue), sequence: 6215, resource id: 52428820, major code: 141 (Unknown), minor code: 3
+
+It looks loginctl fails to read the logs for the active session (due to selinux forbidding apmd_t processes from reading them) and so doesn&apos;t print the logs or the process tree. Then the power.sh script continues onwards and calls &quot;shutdown -h now&quot;.
+
+
+I&apos;m not sure whether logind provides any convenient way to list processes belonging to a session without also showing logs.
+
+However, it looks like systemd puts processes in a cgroup hierarchy of the form 
+&quot;/user.slice/user-${userid}.slice/session-{session}.scope&quot; so you could grep
+&quot;ps -eo comm,cgroup&quot; or &quot;systemd-cgls&quot;; or you could find the uid of the active session and do &quot;systemd-cgls /user.slice/user-${userid}.slice/session-{session}.scope&quot;.
+
+
+Another approach is to parse the reply from ListInhibitors() on the org.freedesktop.login1.Manager dbus interface and for every process with a &quot;handle-power-key&quot; block-inhibition check whether it&apos;s in the active session.
+
+
+Version-Release number of selected component (if applicable):
+
+systemd-231-10.fc25.x86_64
+acpid-2.0.28-1.fc25.x86_64</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10018481</commentid>
+    <comment_count>1</comment_count>
+    <who name="Oliver Henshaw">oliver.henshaw</who>
+    <bug_when>2016-12-23 08:38:13 -0500</bug_when>
+    <thetext>Sorry, the AVCs from the journal where truncated.
+
+# journalctl -b -1 | grep apmd
+Dec 23 11:58:33 localhost.localdomain audit[1]: USER_AVC pid=1 uid=0 auid=4294967295 ses=4294967295 subj=system_u:system_r:init_t:s0 msg=&apos;avc:  denied  { status } for auid=n/a uid=0 gid=0 path=&quot;/run/systemd/transient/session-2.scope&quot; cmdline=&quot;loginctl session-status 2&quot; scontext=system_u:system_r:apmd_t:s0 tcontext=system_u:object_r:init_var_run_t:s0 tclass=service
+Dec 23 11:58:33 localhost.localdomain audit[2005]: AVC avc:  denied  { read } for  pid=2005 comm=&quot;loginctl&quot; name=&quot;user-1000.journal&quot; dev=&quot;dm-0&quot; ino=32124 scontext=system_u:system_r:apmd_t:s0 tcontext=system_u:object_r:var_log_t:s0 tclass=file permissive=0
+Dec 23 11:58:33 localhost.localdomain audit[2005]: AVC avc:  denied  { read } for  pid=2005 comm=&quot;loginctl&quot; name=&quot;system.journal&quot; dev=&quot;dm-0&quot; ino=32073 scontext=system_u:system_r:apmd_t:s0 tcontext=system_u:object_r:var_log_t:s0 tclass=file permissive=0</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10077145</commentid>
+    <comment_count>2</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-18 11:21:06 -0500</bug_when>
+    <thetext>acpid-2.0.28-2.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-f83941c948</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10079309</commentid>
+    <comment_count>3</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-19 04:12:05 -0500</bug_when>
+    <thetext>acpid-2.0.28-2.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-f83941c948</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10102625</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-27 14:21:50 -0500</bug_when>
+    <thetext>acpid-2.0.28-2.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

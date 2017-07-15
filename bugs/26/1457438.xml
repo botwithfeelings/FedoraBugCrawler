@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1457438</bug_id>
+          
+          <creation_ts>2017-05-31 13:55:00 -0400</creation_ts>
+          <short_desc>dnf update on local rpm does not give missing dep info</short_desc>
+          <delta_ts>2017-06-05 12:47:34 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>dnf</component>
+          <version>26</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>CURRENTRELEASE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Dusty Mabe">dustymabe</reporter>
+          <assigned_to>rpm-software-management</assigned_to>
+          <cc>jmracek</cc>
+    
+    
+    <cc>packaging-team-maint</cc>
+    
+    
+    <cc>rpm-software-management</cc>
+    
+    
+    <cc>vmukhame</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-06-05 09:35:04</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10465249</commentid>
+    <comment_count>0</comment_count>
+    <who name="Dusty Mabe">dustymabe</who>
+    <bug_when>2017-05-31 13:55:59 -0400</bug_when>
+    <thetext>Description of problem:
+
+Running dnf update on a local package does not give enough info
+and also succeeds when it should not. 
+
+```
+[root@lorax ~]# curl -O https://kojipkgs.fedoraproject.org//packages/lorax/26.8/1.fc26/x86_64/lorax-26.8-1.fc26.x86_64.rpm 
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100  192k  100  192k    0     0   228k      0 --:--:-- --:--:-- --:--:--  228k
+[root@lorax ~]# 
+[root@lorax ~]# dnf update ./lorax-26.8-1.fc26.x86_64.rpm 
+Last metadata expiration check: 0:02:02 ago on Wed May 31 17:47:32 2017 UTC.
+Dependencies resolved.
+Nothing to do.
+Complete!
+[root@lorax ~]# echo $?
+0
+[root@lorax ~]# rpm -q lorax
+lorax-26.7-1.fc26.x86_64
+[root@lorax ~]# rpm -q dnf
+dnf-2.4.1-1.fc26.noarch
+
+```
+
+If I ran install instead I get what I expect. 
+
+```
+[root@lorax ~]# dnf install ./lorax-26.8-1.fc26.x86_64.rpm 
+Last metadata expiration check: 0:04:11 ago on Wed May 31 17:47:32 2017 UTC.
+Error: package lorax-26.8-1.fc26.x86_64 requires lorax-templates, but none of the providers can be installed
+  - package lorax-templates-generic-26.7-1.fc26.x86_64 requires lorax = 26.7-1.fc26, but none of the providers can be installed
+  - package lorax-templates-generic-26.7-1.fc26.x86_64 requires lorax = 26.7-1.fc26, but none of the providers can be installed
+  - cannot install both lorax-26.8-1.fc26.x86_64 and lorax-26.7-1.fc26.x86_64
+  - cannot install both lorax-26.8-1.fc26.x86_64 and lorax-26.7-1.fc26.x86_64
+  - conflicting requests
+(try to add &apos;--allowerasing&apos; to command line to replace conflicting packages)
+[root@lorax ~]# echo $?
+1
+```
+
+Version-Release number of selected component (if applicable):
+dnf-2.4.1-1.fc26.noarch</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10477367</commentid>
+    <comment_count>1</comment_count>
+    <who name="Jaroslav Mracek">jmracek</who>
+    <bug_when>2017-06-05 09:35:04 -0400</bug_when>
+    <thetext>The problem was solved in dnf-2.5.0-2 that is available in rawhide or fc26 (update-testing repo). Also can be installed from our testing repository (dnf copr enable rpmsoftwaremanagement/dnf-nightly). Please if you will experience the problem with dnf-2.5.0+, don&apos;t hesitate to reopen the bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10478148</commentid>
+    <comment_count>2</comment_count>
+    <who name="Dusty Mabe">dustymabe</who>
+    <bug_when>2017-06-05 12:47:34 -0400</bug_when>
+    <thetext>you are correct. output looks much better. Thanks!
+
+```
+[root@f26vanilla ~]# dnf update ./lorax-26.8-1.fc26.x86_64.rpm --disablerepo=updates-testing
+Last metadata expiration check: 0:01:45 ago on Mon Jun 05 16:44:17 2017 UTC.
+Dependencies resolved.
+
+ Problem: package lorax-26.8-1.fc26.x86_64 requires lorax-templates, but none of the providers can be installed
+  - package lorax-templates-generic-26.7-1.fc26.x86_64 requires lorax = 26.7-1.fc26, but none of the providers can be installed
+  - cannot install both lorax-26.8-1.fc26.x86_64 and lorax-26.7-1.fc26.x86_64
+  - cannot install the best update candidate for package lorax-26.7-1.fc26.x86_64
+============================================================================================================================================================================================================================================
+ Package                                                            Arch                                              Version                                                 Repository                                               Size
+============================================================================================================================================================================================================================================
+Skipping packages with conflicts:
+(add &apos;--best --allowerasing&apos; to command line to force their upgrade):
+ lorax                                                              x86_64                                            26.7-1.fc26                                             fedora                                                  193 k
+ lorax                                                              x86_64                                            26.8-1.fc26                                             @commandline                                            193 k
+Skipping packages with broken dependencies:
+ lorax-templates-generic                                            x86_64                                            26.7-1.fc26                                             fedora                                                   92 k
+
+Transaction Summary
+============================================================================================================================================================================================================================================
+Skip  3 Packages
+
+Nothing to do.
+Complete!
+
+```</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

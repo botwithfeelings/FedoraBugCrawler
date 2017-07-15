@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1393513</bug_id>
+          
+          <creation_ts>2016-11-09 13:00:00 -0500</creation_ts>
+          <short_desc>Shutdown/reboot issues with kernel 4.8</short_desc>
+          <delta_ts>2017-01-17 10:09:31 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>kernel</component>
+          <version>25</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Daniele Viganò">dennyvatwork</reporter>
+          <assigned_to name="Kernel Maintainer List">kernel-maint</assigned_to>
+          <cc>alfredo.ferrari</cc>
+    
+    
+    <cc>dennyvatwork</cc>
+    
+    
+    <cc>fedora</cc>
+    
+    
+    <cc>gansalmon</cc>
+    
+    
+    <cc>ichavero</cc>
+    
+    
+    <cc>itamar</cc>
+    
+    
+    <cc>jonathan</cc>
+    
+    
+    <cc>kernel-maint</cc>
+    
+    
+    <cc>madhu.chinakonda</cc>
+    
+    
+    <cc>mchehab</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-01-17 10:09:31</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          <external_bugs name="Linux Kernel">187061</external_bugs>
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9876969</commentid>
+    <comment_count>0</comment_count>
+    <who name="Daniele Viganò">dennyvatwork</who>
+    <bug_when>2016-11-09 13:00:37 -0500</bug_when>
+    <thetext>Description of problem:
+
+After upgrading from kernel 4.7.9 to 4.8.6 on Fedora 24 my Dell Latitude E5450 hangs for more than 30 seconds during shutdown/reboot. During the hangs the fan spins up at the maximum speed. After poweroff the machine leds turn on (one stable and two blinking).
+These work as diagnostic leds and the combination should mean a GPU failure.
+
+It is not an hardware failure because Dell diagnostic is happy and shutdown works well with Kernel 4.7.9-200 and with oter OSes/distros.
+
+The issue is reproducible on F25 Beta.
+
+Version-Release number of selected component (if applicable):
+
+F24: kernel-4.8.6-201
+F24: kernel-4.8.4-200
+F25: kernel-4.8.6-300
+
+How reproducible:
+
+Always reproducible
+
+
+Steps to Reproduce:
+1. Start Fedora with kernel 4.8
+2. Shutdown/reboot the machine
+
+Actual results:
+
+The machine hangs for ~30 secs during shutdown, the fan speed up, blinking leds after the shutdown. If a reboot is issued no reboot is performed and the machine stays of with diagnostic leds blinking.
+
+Expected results:
+
+A shutdown/reboot completed within 10 seconds (on a SSD)
+
+Additional info:
+
+Dell Latitude E5450 bios A13</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9877139</commentid>
+    <comment_count>1</comment_count>
+    <who name="Daniele Viganò">dennyvatwork</who>
+    <bug_when>2016-11-09 14:13:54 -0500</bug_when>
+    <thetext>Some more details:
+
+running the kernel in verbose mode shows that the message just before the hang during shutdown/reboot is
+
+Synchronizing SCSI cache (sda)
+
+Disabling cache before rebooting the machine seems to solve the issue:
+
+sudo hdparm -W0 /dev/sda &amp;&amp; sudo reboot
+
+and the reboot/shutdown works as expected.
+
+So, this bug seems related to https://bugzilla.kernel.org/show_bug.cgi?id=151631 and https://bugzilla.kernel.org/show_bug.cgi?id=187061
+
+A temporary workaround is creating /usr/lib/systemd/system-shutdown/cache.shutdown with this content
+
+#!/bin/sh
+/usr/sbin/hdparm -W0 /dev/sda</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9885894</commentid>
+    <comment_count>2</comment_count>
+    <who name="Daniele Viganò">dennyvatwork</who>
+    <bug_when>2016-11-13 09:49:02 -0500</bug_when>
+    <thetext>I&apos;ve published a set of 4.8.6 kernels for F24 and F25 with the patch mentioned in https://bugzilla.kernel.org/show_bug.cgi?id=187061 applied:
+
+- https://daniele.vigano.me/files/5e366c91-41ac-4e43-be8e-15139c0463b1/f24/
+- https://daniele.vigano.me/files/5e366c91-41ac-4e43-be8e-15139c0463b1/f25/
+
+Sources are available here: https://github.com/daniviga/latitude5450/tree/master/kernel</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9903055</commentid>
+    <comment_count>3</comment_count>
+    <who name="Daniele Viganò">dennyvatwork</who>
+    <bug_when>2016-11-18 06:21:21 -0500</bug_when>
+    <thetext>Bug is affecting v4.8.7 too</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9944811</commentid>
+    <comment_count>4</comment_count>
+    <who name="Alfredo Ferrari">alfredo.ferrari</who>
+    <bug_when>2016-11-30 15:40:35 -0500</bug_when>
+    <thetext>I have the exact same problem with v4.8 kernels (up to 4.8.10 at this moment) for F24 on a Dell Latitude E7450.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9946050</commentid>
+    <comment_count>5</comment_count>
+    <who name="Daniele Viganò">dennyvatwork</who>
+    <bug_when>2016-12-01 01:40:33 -0500</bug_when>
+    <thetext>The bad commit causing this issue has been reverted in 4.9-rc7: https://bugzilla.kernel.org/show_bug.cgi?id=187061#c16
+
+For the 4.8 tree I think the only solution is to have the patch backported by the Fedora/RedHat maintainers.
+
+By the end of the week I will upgrade my builds (see https://bugzilla.redhat.com/show_bug.cgi?id=1393513#c2), with the commit reverted, to 4.8.10 (currently 4.8.8 is available), if you want to try them.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9995786</commentid>
+    <comment_count>6</comment_count>
+    <who name="Daniele Viganò">dennyvatwork</who>
+    <bug_when>2016-12-17 13:02:34 -0500</bug_when>
+    <thetext>Kernel 4.9 from Rawhide works correctly on F24 and F25 too. You can try it running:
+
+sudo dnf install fedora-repos-rawhide
+sudo dnf --enablerepo=rawhide upgrade kernel*</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10019383</commentid>
+    <comment_count>7</comment_count>
+    <who name="Manni Heumann">fedora</who>
+    <bug_when>2016-12-25 04:31:53 -0500</bug_when>
+    <thetext>I now am on 4.8.15-300.fc25.x86_64 and the problem seems to be gone.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10022774</commentid>
+    <comment_count>8</comment_count>
+    <who name="Daniele Viganò">dennyvatwork</who>
+    <bug_when>2016-12-28 07:16:26 -0500</bug_when>
+    <thetext>4.8.15-200.fc24.x86_64 and 4.8.15-300.fc25.x86_64 works for me too. I think this bug should be mark as resolved now.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10068612</commentid>
+    <comment_count>9</comment_count>
+    <who name="Laura Abbott">labbott</who>
+    <bug_when>2017-01-16 20:09:28 -0500</bug_when>
+    <thetext>*********** MASS BUG UPDATE **************
+We apologize for the inconvenience.  There is a large number of bugs to go through and several of them have gone stale.  Due to this, we are doing a mass bug update across all of the Fedora 25 kernel bugs.
+ 
+Fedora 25 has now been rebased to 4.9.3-200.fc25.  Please test this kernel update (or newer) and let us know if you issue has been resolved or if it is still present with the newer kernel.
+ 
+If you have moved on to Fedora 26, and are still experiencing this issue, please change the version to Fedora 26.
+ 
+If you experience different issues, please open a new bug report for those.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10069620</commentid>
+    <comment_count>10</comment_count>
+    <who name="Daniele Viganò">dennyvatwork</who>
+    <bug_when>2017-01-17 04:07:03 -0500</bug_when>
+    <thetext>Works well with kernel 4.9.3. The bad commit causing this issue was reverted before 4.9rc and backported to 4.8.15, thus kernel &gt;= 4.8.15 and &gt;= 4.9.0 are not affected.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1391287</bug_id>
+          
+          <creation_ts>2016-11-02 19:30:00 -0400</creation_ts>
+          <short_desc>python3-aiohttp requires async_timeout</short_desc>
+          <delta_ts>2017-01-10 03:19:15 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>python-aiohttp</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>medium</bug_severity>
+          <target_milestone>---</target_milestone>
+          <dependson>1394250</dependson>
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Andrea Oliveri">oliveriandrea</reporter>
+          <assigned_to name="Fabian Affolter">mail</assigned_to>
+          <cc>a.badger</cc>
+    
+    
+    <cc>athmanem</cc>
+    
+    
+    <cc>dcallagh</cc>
+    
+    
+    <cc>mail</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>python-aiohttp-1.0.5-3.fc25 python-aiohttp-1.0.5-3.fc24</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-01-03 15:23:16</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9849696</commentid>
+    <comment_count>0</comment_count>
+    <who name="Andrea Oliveri">oliveriandrea</who>
+    <bug_when>2016-11-02 19:30:22 -0400</bug_when>
+    <thetext>If you install python3-aiohttp.-1.0.5-1.fc25 as dependency of GNS3, and you start GNS you obtain the following error
+
+
+systemctl status GNS3
+
+gns3server[12081]:   File &quot;/usr/lib/python3.5/site-packages/pkg_resources/__init__.py&quot;, line 635, in _build_master
+gns3server[12081]:     ws.require(__requires__)
+gns3server[12081]:   File &quot;/usr/lib/python3.5/site-packages/pkg_resources/__init__.py&quot;, line 943, in require
+gns3server[12081]:     needed = self.resolve(parse_requirements(requirements))
+gns3server[12081]:   File &quot;/usr/lib/python3.5/site-packages/pkg_resources/__init__.py&quot;, line 829, in resolve
+gns3server[12081]:     raise DistributionNotFound(req, requirers)
+gns3server[12081]: pkg_resources.DistributionNotFound: The &apos;async_timeout&apos; distribution was not found and is required by aiohttp
+systemd[1]: gns3.service: Main process exited, code=exited, status=1/FAILURE
+systemd[1]: gns3.service: Unit entered failed state.
+systemd[1]: gns3.service: Failed with result &apos;exit-code&apos;.
+
+
+Please fix it... Aiohttp suffers also of https://bugzilla.redhat.com/show_bug.cgi?id=1381750, so GNS3 is impossible to use.....</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9864986</commentid>
+    <comment_count>1</comment_count>
+    <who name="Toshio Ernie Kuratomi">a.badger</who>
+    <bug_when>2016-11-06 17:00:08 -0500</bug_when>
+    <thetext>This prevents other usage of aiohttp as well, not just usage by packages which use pkg_resources:
+
+In [1]: import aiohttp
+---------------------------------------------------------------------------
+ImportError                               Traceback (most recent call last)
+&lt;ipython-input-1-6b0f4dd1af9d&gt; in &lt;module&gt;()
+----&gt; 1 import aiohttp
+
+/usr/lib64/python3.5/site-packages/aiohttp/__init__.py in &lt;module&gt;()
+      8 from multidict import *  # noqa
+      9 from . import hdrs  # noqa
+---&gt; 10 from .protocol import *  # noqa
+     11 from .connector import *  # noqa
+     12 from .client import *  # noqa
+
+/usr/lib64/python3.5/site-packages/aiohttp/protocol.py in &lt;module&gt;()
+     16 
+     17 from . import errors, hdrs
+---&gt; 18 from .helpers import reify
+     19 from .log import internal_logger
+     20 
+
+/usr/lib64/python3.5/site-packages/aiohttp/helpers.py in &lt;module&gt;()
+     14 from urllib.parse import quote, urlencode
+     15 
+---&gt; 16 from async_timeout import timeout
+     17 from multidict import MultiDict, MultiDictProxy
+     18 
+
+ImportError: No module named &apos;async_timeout&apos;</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9883377</commentid>
+    <comment_count>2</comment_count>
+    <who name="Athmane Madjoudj">athmanem</who>
+    <bug_when>2016-11-11 08:32:47 -0500</bug_when>
+    <thetext>Please review the missing dep RHBZ#1394250.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10026381</commentid>
+    <comment_count>3</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-01 10:30:41 -0500</bug_when>
+    <thetext>python-aiohttp-1.0.5-3.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2017-7a025928fb</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10026382</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-01 10:30:50 -0500</bug_when>
+    <thetext>python-aiohttp-1.0.5-3.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-ff2b21f70a</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10026954</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-01 20:20:28 -0500</bug_when>
+    <thetext>python-aiohttp-1.0.5-3.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-ff2b21f70a</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10026976</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-01 20:51:02 -0500</bug_when>
+    <thetext>python-aiohttp-1.0.5-3.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-7a025928fb</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10031636</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-03 15:23:16 -0500</bug_when>
+    <thetext>python-aiohttp-1.0.5-3.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10048168</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-10 03:19:15 -0500</bug_when>
+    <thetext>python-aiohttp-1.0.5-3.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

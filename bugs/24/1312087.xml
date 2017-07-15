@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1312087</bug_id>
+          
+          <creation_ts>2016-02-25 12:19:00 -0500</creation_ts>
+          <short_desc>dnf.arch.basearch unexpectedly moved to dnf.rpm.basearch</short_desc>
+          <delta_ts>2016-04-05 12:19:27 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>lorax</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>urgent</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Brian Lane">bcl</reporter>
+          <assigned_to name="Brian Lane">bcl</assigned_to>
+          <cc>anaconda-maint-list</cc>
+    
+    
+    <cc>appraprv</cc>
+    
+    
+    <cc>bcl</cc>
+    
+    
+    <cc>jsilhan</cc>
+    
+    
+    <cc>mluscon</cc>
+    
+    
+    <cc>packaging-team-maint</cc>
+    
+    
+    <cc>pnemade</cc>
+    
+    
+    <cc>vmukhame</cc>
+    
+    
+    <cc>yotamg</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>lorax-23.20-1.fc23</cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-04-05 09:51:46</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9098364</commentid>
+    <comment_count>0</comment_count>
+    <who name="Brian Lane">bcl</who>
+    <bug_when>2016-02-25 12:19:37 -0500</bug_when>
+    <thetext>Commit 19766a601550a47234fe58abdb6afc8c637dc401 broke the dnf API for anyone using dnf.arch
+
+This is not the right way to do this. You need to warn users before making changes like this, and at least provide a backwards compatible stub for minor releases. Breaking API in a minor version release (1.1.6 to 1.1.7) means that we can&apos;t trust your API to be stable at all.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9125430</commentid>
+    <comment_count>1</comment_count>
+    <who name="Honza Silhan">jsilhan</who>
+    <bug_when>2016-03-07 07:22:19 -0500</bug_when>
+    <thetext>We have added this undocumented function back [1] to the non-API code to ease the transition. It will be erased in the next DNF versions. Please, fix lorax to use documented alternative [2] of this function. Reassigning...
+
+[1] https://github.com/rpm-software-management/dnf/commit/c8c98c8b70577674b606e7b05430ac3c6cb4d15c
+[2] https://dnf.readthedocs.org/en/latest/api_rpm.html#dnf.rpm.basearch</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9141381</commentid>
+    <comment_count>2</comment_count>
+    <who name="Honza Silhan">jsilhan</who>
+    <bug_when>2016-03-11 08:21:22 -0500</bug_when>
+    <thetext>It seems that the import in Lorax is wrong. In lorax there are just `import dnf` statements. Previously in DNF and the same in compatible commit [1] the function is in a special file - which should be imported in Python by `import dnf.arch`. Previously it was internally loaded by DNF and that was the reason why it worked before. Nevertheless you should not rely on that fact. There are many Python nested modules in Python standard library which have to be imported separately when you need them.
+
+To sum up. The compatibility commit [1] is not needed (and will be removed) as there still needs to be change in Lorax which should be done in the right way. Please, adapt Lorax to use correct API function [2] and do a release for F22+. Thanks.
+
+This is blocking any release of DNF which implies it&apos;s a blocker for any bug report on DNF [3].
+
+[1] https://github.com/rpm-software-management/dnf/commit/c8c98c8b70577674b606e7b05430ac3c6cb4d15c
+[2] https://dnf.readthedocs.org/en/latest/api_rpm.html#dnf.rpm.basearch
+[3] https://lists.fedoraproject.org/archives/list/devel@lists.fedoraproject.org/thread/UBEL7ZLMLPRTR7PEAFUIHEZ23RAWPFQV/</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9141812</commentid>
+    <comment_count>3</comment_count>
+    <who name="Brian Lane">bcl</who>
+    <bug_when>2016-03-11 10:08:45 -0500</bug_when>
+    <thetext>Well, the compatiblity *is* needed, you just didn&apos;t do it in a compatible way :)
+
+So I guess I&apos;ll backport the change to all the places since that appears to be the path of least resistance at this point.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9142483</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-03-11 14:05:40 -0500</bug_when>
+    <thetext>lorax-23.19-1.fc23 has been submitted as an update to Fedora 23. https://bodhi.fedoraproject.org/updates/FEDORA-2016-910ddbf4c8</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9142489</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-03-11 14:08:14 -0500</bug_when>
+    <thetext>lorax-24.15-1.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-12fa84d66e</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9143161</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-03-12 02:49:49 -0500</bug_when>
+    <thetext>lorax-24.15-1.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-12fa84d66e</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9143571</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-03-12 12:24:44 -0500</bug_when>
+    <thetext>lorax-23.19-1.fc23 has been pushed to the Fedora 23 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-910ddbf4c8</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9192151</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-03-30 11:08:43 -0400</bug_when>
+    <thetext>lorax-23.20-1.fc23 has been submitted as an update to Fedora 23. https://bodhi.fedoraproject.org/updates/FEDORA-2016-7190703cf1</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9193412</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-03-30 18:54:22 -0400</bug_when>
+    <thetext>lorax-23.20-1.fc23 has been pushed to the Fedora 23 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-7190703cf1</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9202489</commentid>
+    <comment_count>10</comment_count>
+    <who name="dearfriend">appraprv</who>
+    <bug_when>2016-04-03 07:49:43 -0400</bug_when>
+    <thetext>New error with /usr/share/doc/lorax/fedora-minimized.ks 
+
+Not sure, is this lorax or dracut bug.
+
+rebuilding boot/initramfs-4.4.6-300.fc23.x86_64.img
+Traceback (most recent call last):
+  File &quot;/sbin/livemedia-creator&quot;, line 1244, in &lt;module&gt;
+    main()
+  File &quot;/sbin/livemedia-creator&quot;, line 1175, in main
+    result_dir = make_livecd(opts, mount_dir, work_dir)
+  File &quot;/sbin/livemedia-creator&quot;, line 497, in make_livecd
+    tb.rebuild_initrds(add_args=dracut_args)
+  File &quot;/usr/lib/python3.4/site-packages/pylorax/treebuilder.py&quot;, line 287, in rebuild_initrds
+    runcmd(cmd, root=self.vars.inroot)
+  File &quot;/usr/lib/python3.4/site-packages/pylorax/executils.py&quot;, line 339, in runcmd
+    return execWithRedirect(cmd[0], cmd[1:], **kwargs)
+  File &quot;/usr/lib/python3.4/site-packages/pylorax/executils.py&quot;, line 226, in execWithRedirect
+    env_add=env_add, reset_handlers=reset_handlers, reset_lang=reset_lang)[0]
+  File &quot;/usr/lib/python3.4/site-packages/pylorax/executils.py&quot;, line 199, in _run_program
+    raise subprocess.CalledProcessError(proc.returncode, argv, output)
+subprocess.CalledProcessError: Command &apos;[&apos;dracut&apos;, &apos;--nomdadmconf&apos;, &apos;--nolvmconf&apos;, &apos;--xz&apos;, &apos;--add&apos;, &apos;livenet dmsquash-live convertfs pollcdrom&apos;, &apos;--omit&apos;, &apos;plymouth&apos;, &apos;--no-hostonly&apos;, &apos;--debug&apos;, &apos;--force&apos;, &apos;boot/initramfs-4.4.6-300.fc23.x86_64.img&apos;, &apos;4.4.6-300.fc23.x86_64&apos;]&apos; returned non-zero exit status 1
+
+dnf list installed lorax
+Last metadata expiration check: 2:50:47 ago on Sun Apr  3 11:57:50 2016.
+Installed Packages
+lorax.x86_64                                                                                                                    23.20-1.fc23                                                                                                                    @updates-testing</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9205217</commentid>
+    <comment_count>11</comment_count>
+    <who name="Brian Lane">bcl</who>
+    <bug_when>2016-04-04 12:15:17 -0400</bug_when>
+    <thetext>(In reply to dearfriend from comment #10)
+&gt; New error with /usr/share/doc/lorax/fedora-minimized.ks 
+&gt; 
+&gt; Not sure, is this lorax or dracut bug.
+
+Please open a new bug for this (against lorax) and include the logs, especially program.log from lmc. It is likely to be a problem with the example kickstart.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9208495</commentid>
+    <comment_count>12</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-04-05 09:51:42 -0400</bug_when>
+    <thetext>lorax-23.20-1.fc23 has been pushed to the Fedora 23 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9209129</commentid>
+    <comment_count>13</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-04-05 12:19:27 -0400</bug_when>
+    <thetext>lorax-23.20-1.fc23 has been pushed to the Fedora 23 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

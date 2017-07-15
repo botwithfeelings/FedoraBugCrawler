@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1353207</bug_id>
+          
+          <creation_ts>2016-07-06 10:08:00 -0400</creation_ts>
+          <short_desc>usepasswd=true in semanage.conf breaks ssh logins - add /var/empty to ignoredirs</short_desc>
+          <delta_ts>2016-10-10 13:43:49 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>libsemanage</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>low</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Edgar Hoch">edgar.hoch</reporter>
+          <assigned_to name="Petr Lautrbach">plautrba</assigned_to>
+          <cc>dwalsh</cc>
+    
+    
+    <cc>mgrepl</cc>
+    
+    
+    <cc>plautrba</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>libsemanage-2.5-8.fc25</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-10-10 13:43:49</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9484284</commentid>
+    <comment_count>0</comment_count>
+    <who name="Edgar Hoch">edgar.hoch</who>
+    <bug_when>2016-07-06 10:08:58 -0400</bug_when>
+    <thetext>Description of problem:
+When changing the default entry usepasswd=False in /etc/selinux/semanage.conf to usepasswd=true, and genhomedircon was run (manual or automatically), and restorecon -r /var was run, then /var/empty and /var/empty/sshd has the wrong selinux labels, and ssh login fails with &quot;Connection closed by ...&quot;.
+
+We run dnf-automatic, this night there was some updates that seems to run some of the command above (I changed /etc/selinux/semanage.conf before), that prevents us to log in via ssh.
+
+Journal contains message like
+sshd[...]: fatal: chroot(&quot;/var/empty/sshd&quot;): Permission denied [preauth]
+
+Right selinux labels:
+drwxr-xr-x. 3 root root system_u:object_r:var_t:s0 4096  3. Jul 23:43 /var/empty
+drwx--x--x. 2 root root unconfined_u:object_r:var_t:s0 4096  1. Jul 09:30 /var/empty/sshd
+
+After changing the parameter to usepasswd=true and running the genhomedircon and then restorecon, we got the following changes:
+# restorecon -rv /var/empty
+restorecon reset /var/empty context system_u:object_r:var_t:s0-&gt;system_u:object_r:home_root_t:s0
+restorecon reset /var/empty/sshd context unconfined_u:object_r:var_t:s0-&gt;unconfined_u:object_r:user_home_dir_t:s0
+
+Wrong selinux labels:
+drwxr-xr-x. 3 root root system_u:object_r:home_root_t:s0 4096  3. Jul 23:43 /var/empty
+drwx--x--x. 2 root root unconfined_u:object_r:user_home_dir_t:s0 4096  1. Jul 09:30 /var/empty/sshd
+
+After running gehhomedircon file /etc/selinux/targeted/contexts/files/file_contexts.homedirs contains lines for &quot;/var/empty/...&quot;.
+After undoing the changes in /etc/selinux/semanage.conf and running the commands above again, then the entries for &quot;/var/empty/...&quot; are gone (as it was before the change).
+
+
+I think there should be at least a warning in /etc/selinux/semanage.conf and the man page that setting usepasswd to true may break ssh login (and possible other services). 
+
+Even better would be to prevent the wrong labels on /var/empty/...
+This may be done by adding /var/empty (or /var/empty/sshd, I am not sure which one is right) to parameter ignoredirs (it currently contais &quot;/root&quot;).
+
+
+Version-Release number of selected component (if applicable):
+libsemanage-2.5-2.fc24.x86_64
+
+How reproducible:
+Always
+
+Steps to Reproduce:
+1. Install Fedora 24
+2. Try ssh login.
+3. sed -i -e &apos;s/^usepasswd=False/usepasswd=true/&apos; /etc/selinux/semanage.conf
+4. genhomedircon
+5. restorecon -rv /var
+6. Try ssh login.
+
+
+Actual results:
+Step 2: ssh login successful.
+Step 6: ssh login fails with &quot;Connection closed by ...&quot;
+
+Expected results:
+Step 2: ssh login successful.
+Step 6: ssh login successful.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9769319</commentid>
+    <comment_count>1</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-10-05 16:29:31 -0400</bug_when>
+    <thetext>checkpolicy-2.5-8.fc25, libselinux-2.5-12.fc25, libsemanage-2.5-8.fc25, libsepol-2.5-10.fc25, policycoreutils-2.5-17.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-b7e8e980ef</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9772138</commentid>
+    <comment_count>2</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-10-06 16:59:04 -0400</bug_when>
+    <thetext>checkpolicy-2.5-8.fc25, libselinux-2.5-12.fc25, libsemanage-2.5-8.fc25, libsepol-2.5-10.fc25, policycoreutils-2.5-17.fc25, secilc-2.5-6.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-b7e8e980ef</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9779137</commentid>
+    <comment_count>3</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-10-10 13:43:49 -0400</bug_when>
+    <thetext>checkpolicy-2.5-8.fc25, libselinux-2.5-12.fc25, libsemanage-2.5-8.fc25, libsepol-2.5-10.fc25, policycoreutils-2.5-17.fc25, secilc-2.5-6.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

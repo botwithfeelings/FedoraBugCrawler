@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1461483</bug_id>
+          
+          <creation_ts>2017-06-14 10:53:00 -0400</creation_ts>
+          <short_desc>history-isearch pattern issue (upstream patch in existence)</short_desc>
+          <delta_ts>2017-06-16 09:20:59 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>zsh</component>
+          <version>26</version>
+          <rep_platform>All</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>low</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Simon Hollingshead">me</reporter>
+          <assigned_to name="Kamil Dudka">kdudka</assigned_to>
+          <cc>dmaphy</cc>
+    
+    
+    <cc>james.antill</cc>
+    
+    
+    <cc>kdudka</cc>
+    
+    
+    <cc>me</cc>
+    
+    
+    <cc>svashisht</cc>
+    
+    
+    <cc>tibbs</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>zsh-5.3.1-9.fc27 zsh-5.3.1-6.fc26</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-06-16 09:20:59</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10505638</commentid>
+    <comment_count>0</comment_count>
+    <who name="Simon Hollingshead">me</who>
+    <bug_when>2017-06-14 10:53:58 -0400</bug_when>
+    <thetext>There is a known issue in ZSH, specifically versions up to and including 5.3.1, where a static pattern buffer is used in the history isearch.  However, the assumptions that led to this code forget that ZLE hooks may call other pattern functions as well, breaking functionality.
+
+As an example, this issue breaks certain uses of zsh-syntax-highlighting (https://github.com/zsh-users/zsh-syntax-highlighting/issues/407)
+
+A backported fix has been applied by both Arch Linux (https://git.archlinux.org/svntogit/packages.git/commit/trunk?h=packages/zsh&amp;id=0e7db42263c914ae4c7b3c74df1e6c756c94fe8b) and Debian Stretch (https://anonscm.debian.org/cgit/collab-maint/zsh.git/diff/debian/patches/cherry-pick_48cadf48_be_more_careful_with_pattern_allocation_in_history_isearch.patch?id=348c47bdc3b6a92558d82086d168e7829437388a)
+
+Both of these come from the original patch shown here: http://www.zsh.org/mla/workers/2017/msg00034.html / https://github.com/zsh-users/zsh/commit/48cadf48ff9c61ce09e826ad9a58e250e999a262
+
+I am hoping that Fedora would also be willing to provide the same backported fix.
+
+Version-Release number of selected component (if applicable):
+zsh-5.3.1-5.fc26-x86_64
+
+Steps to Reproduce:
+% bindkey &apos;^R&apos; history-incremental-pattern-search-backward
+% evil_hook() { a=(); : ${a[(r)foo*]}; };
+% zle -N zle-isearch-update evil_hook
+% echo &quot;foo&quot;
+% echo &quot;bar&quot;
+% echo &quot;baz&quot;
+
+type: &lt;^R&gt;b
+% echo &quot;baz&quot;
+bck-i-search: b_
+
+type: &lt;^R&gt;
+% echo &quot;foo&quot;
+bck-i-search: b_
+
+&apos;foo&apos; is found instead of &apos;bar&apos; because evil_hook modified the static pattern used in isearch.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10505679</commentid>
+    <comment_count>1</comment_count>
+    <who name="Simon Hollingshead">me</who>
+    <bug_when>2017-06-14 11:00:16 -0400</bug_when>
+    <thetext>&gt; specifically versions up to and including 5.3.1
+
+I missed a word.  Specifically 5.3.x versions up to and including 5.3.1.
+
+There is no indication of a similar bug in the 5.2 releases (such as those available on fc25).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10506955</commentid>
+    <comment_count>2</comment_count>
+    <who name="Kamil Dudka">kdudka</who>
+    <bug_when>2017-06-14 17:00:51 -0400</bug_when>
+    <thetext>Thanks for the report!  I will backport the fix from upstream.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10507072</commentid>
+    <comment_count>3</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-14 18:04:31 -0400</bug_when>
+    <thetext>zsh-5.3.1-6.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-559b37e4fb</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10509385</commentid>
+    <comment_count>4</comment_count>
+    <who name="Simon Hollingshead">me</who>
+    <bug_when>2017-06-15 08:35:52 -0400</bug_when>
+    <thetext>Appreciated!  Looks like the fix has worked to me, but right now POSTs to Bodhi seem to be timing out.  I&apos;ll try again later to get that sweet karma up.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10509839</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-15 10:01:18 -0400</bug_when>
+    <thetext>zsh-5.3.1-6.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-559b37e4fb</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10511007</commentid>
+    <comment_count>6</comment_count>
+    <who name="Kamil Dudka">kdudka</who>
+    <bug_when>2017-06-15 17:07:40 -0400</bug_when>
+    <thetext>Perfect.  Thank you for testing the update!</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10513108</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-16 09:20:59 -0400</bug_when>
+    <thetext>zsh-5.3.1-6.fc26 has been pushed to the Fedora 26 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1420024</bug_id>
+          
+          <creation_ts>2017-02-07 10:51:00 -0500</creation_ts>
+          <short_desc>HID OMNIKEY CARDMAN 3121 does not support long APDU</short_desc>
+          <delta_ts>2017-03-03 10:14:08 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>pcsc-lite-ccid</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>NEXTRELEASE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Jakub Jelen">jjelen</reporter>
+          <assigned_to name="Bob Relyea">rrelyea</assigned_to>
+          <cc>klember</cc>
+    
+    
+    <cc>ludovic.rousseau+fedoraproject</cc>
+    
+    
+    <cc>ludovic.rousseau</cc>
+    
+    
+    <cc>nmavrogi</cc>
+    
+    
+    <cc>rrelyea</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>pcsc-lite-ccid-1.4.26-3.fc27,pcsc-lite-ccid-1.4.26-3.fc26</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-03-03 10:14:08</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10128187</commentid>
+    <comment_count>0</comment_count>
+    <who name="Jakub Jelen">jjelen</who>
+    <bug_when>2017-02-07 10:51:50 -0500</bug_when>
+    <thetext>Description of problem:
+When working with 2048b keys on the card, we need to send large APDU of more than 256B when attempting to decrypt/sign some data. This is problem with this reader, which does not support long APDU (according to pcsc-lite-ccid?).
+
+Version-Release number of selected component (if applicable):
+pcsc-lite-ccid-1.4.26-1.fc26.x86_64
+pcsc-lite-1.8.20-1.fc25.x86_64
+
+How reproducible:
+always
+
+Steps to Reproduce:
+1. Try to decrypt some data with 2048b key in the OMNIKEY CARDMAN 3121 reader in OpenSC
+
+Actual results:
+OpenSC detects the maximal supported length of driver as 255 (or so), which does not fit. OpenSC is trying to split the APDU into chained, which is not supported either and it fails.
+
+Expected results:
+The reader has non-standard support for long APDU and it works fine in RHEL (RHEL bug #1071399 -- private). See attached patch from CentOS, which should resolve this problem [1].
+
+Excuse possible inaccuracies. I will attach related logs if needed. It is also possible that the detection is wrong on OpenSC side which detects it, but some change in pcscs-lite-ccid is most probably needed too.
+
+Additional info:
+[1] https://git.centos.org/blob/rpms!pcsc-lite-ccid/4615a1a283618f5357901347aae48c6724572959/SOURCES!ccid-1.4.10-omnikey-3121.patch</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10170463</commentid>
+    <comment_count>1</comment_count>
+    <who name="Jakub Jelen">jjelen</who>
+    <bug_when>2017-02-21 07:02:25 -0500</bug_when>
+    <thetext>Debug logs from pcscd from the affected reader:
+
+00000005 winscard_svc.c:672:ContextThread() TRANSMIT rv=0x0 for client 21
+00000043 winscard_svc.c:359:ContextThread() Received command: TRANSMIT from client 21
+00000017 readerfactory.c:852:RFReaderInfoById() RefReader() count was: 1
+00000011 winscard.c:1605:SCardTransmit() Send Protocol: T=0
+00000025 APDU: 00 A4 04 00 00 01 03 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00000006 ifdhandler.c:1303:IFDHTransmitToICC() usb:076b/3021:libudev:0:/dev/bus/usb/002/111 (lun: 0)
+00000004 commands.c:1802:CmdXfrBlockTPDU_T0() T=0: 266 bytes
+00000003 commands.c:1818:CmdXfrBlockTPDU_T0() Command too long (266 bytes) for max: 261 bytes
+00000003 SW: 
+00000003 ifdwrapper.c:548:IFDTransmit() Card not transacted: 612
+00000003 winscard.c:1630:SCardTransmit() Card not transacted: 0x80100016
+00000003 winscard.c:1650:SCardTransmit() UnrefReader() count was: 2
+
+We can see only few lines from ccid (command.c), which happens just before going into the CCID_Transmit() doing this workaround. We see also the wrong maximum length of APDU.
+
+Out of the curiosity I just tried to build pcsc-lite-ccid package from RHEL7 sources but I am getting the same failures, so most probably this will depend on some change in other package. Any more ideas what I can try? Bob, can you share your pcscd debug log from RHEL machine using the long APDU?
+
+    sudo LIBCCID_ifdLogLevel=0x000F /usr/sbin/pcscd -adf --color</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10180338</commentid>
+    <comment_count>2</comment_count>
+    <who name="Bob Relyea">rrelyea</who>
+    <bug_when>2017-02-23 18:54:21 -0500</bug_when>
+    <thetext>So for some reason there, the protocol is using T=0 instead of T=1. With the patch, the Omnikey should be able to support T=1. I&apos;m pretty sure that patch is in RHEL-7.
+
+bob</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10181348</commentid>
+    <comment_count>3</comment_count>
+      <attachid>1257196</attachid>
+    <who name="Jakub Jelen">jjelen</who>
+    <bug_when>2017-02-24 06:37:55 -0500</bug_when>
+    <thetext>Created attachment 1257196
+proposed patch resolving the issue
+
+That would make sense. In T0 we are limited to ~260B of data.
+
+Now as I am looking into the patch I was working with, I noticed I missed some of the chunks that did not apply properly. Also I was using a PIV Test card (Gemalto) without support of T1 (which we discussed earlier, but I forgot). Non-gemalto cards should work this way (for future reference).
+
+Also withdrawing the statement from the previous comment. The package in RHEL7 works seamlessly.
+
+Looking into the code further, I noticed missing chunk removed in 2014:
+
+  https://anonscm.debian.org/cgit/pcsclite/CCID.git/commit/?id=a9d926a6b2c2edfc160e7fe5d908e7e3e6f60969
+
+Adding these two options back for CARDMAN3121 makes it working again for me.
+
+Ludovic, would it make sense to resolve this in upstream somehow similar way? Is there something more I should test?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10184430</commentid>
+    <comment_count>4</comment_count>
+    <who name="Ludovic Rousseau">ludovic.rousseau</who>
+    <bug_when>2017-02-26 06:08:34 -0500</bug_when>
+    <thetext>I am not sure to understand:
+
+You wrote:
+&quot;The package in RHEL7 works seamlessly.&quot;
+and
+&quot;Adding these two options back for CARDMAN3121 makes it working again for me.&quot;
+
+So the problem is fixed with the patch provided in RHEL7. Exact?
+
+What are the &quot;two options&quot; you are referring to?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10185607</commentid>
+    <comment_count>5</comment_count>
+    <who name="Jakub Jelen">jjelen</who>
+    <bug_when>2017-02-27 03:50:50 -0500</bug_when>
+    <thetext>Sorry for confusion.
+
+I meant the linked patch + basically reverting the commit linked from the comment #3 resolves this problem in Fedora. In RHEL7 there is older version of ccid and therefore only the patch (linked from the comment #0) resolves the problem (already applied in RHEL package).
+
+By the &quot;options&quot; I meant &quot;dwFeatures&quot; modification in the referenced upstream commit.
+
+But as Bob mentioned before, the patch is more like hack to non-standard behavior so I will understand if it will not be suitable upstream.
+But it should work in Fedora, since we probably want to support that.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10206397</commentid>
+    <comment_count>6</comment_count>
+    <who name="Jakub Jelen">jjelen</who>
+    <bug_when>2017-03-03 10:14:08 -0500</bug_when>
+    <thetext>Well, even through the reader is old, not CCID compliant and needs hacks to work with long APDUs, it is still very popular (we are having around there several of these).
+
+I built the packages for Fedora 26 and Rawhide.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="0"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1257196</attachid>
+            <date>2017-02-24 06:37:00 -0500</date>
+            <delta_ts>2017-02-24 06:37:55 -0500</delta_ts>
+            <desc>proposed patch resolving the issue</desc>
+            <filename>file_1420024.txt</filename>
+            <type>text/plain</type>
+            <size>4531</size>
+            <attacher name="Jakub Jelen">jjelen</attacher>
+            
+              <data encoding="base64">ZGlmZiAtdXAgY2NpZC0xLjQuMjYvc3JjL2NjaWQuYy5vbW5pa2V5IGNjaWQtMS40LjI2L3NyYy9j
+Y2lkLmMNCi0tLSBjY2lkLTEuNC4yNi9zcmMvY2NpZC5jLm9tbmlrZXkJMjAxNy0wMi0yNCAxMDow
+NDoyNS43NDIxMzIyMzQgKzAxMDANCisrKyBjY2lkLTEuNC4yNi9zcmMvY2NpZC5jCTIwMTctMDIt
+MjQgMTA6MDc6MjYuMTQ1OTc2MzM1ICswMTAwDQpAQCAtNTUsOCArNTUsMTYgQEAgaW50IGNjaWRf
+b3Blbl9oYWNrX3ByZSh1bnNpZ25lZCBpbnQgcmVhZA0KIHsNCiAJX2NjaWRfZGVzY3JpcHRvciAq
+Y2NpZF9kZXNjcmlwdG9yID0gZ2V0X2NjaWRfZGVzY3JpcHRvcihyZWFkZXJfaW5kZXgpOw0KIA0K
+KwljY2lkX2Rlc2NyaXB0b3ItPmR3Tm9uU3RhbmRhcmRGbGFncyA9IDA7DQorDQogCXN3aXRjaCAo
+Y2NpZF9kZXNjcmlwdG9yLT5yZWFkZXJJRCkNCiAJew0KKwkJY2FzZSBDQVJETUFOMzEyMToNCisJ
+CQljY2lkX2Rlc2NyaXB0b3ItPmR3Tm9uU3RhbmRhcmRGbGFncyA9IENDSURfTk9OX1NUQU5EX09N
+S18zMTIxX1QxOw0KKwkJCWNjaWRfZGVzY3JpcHRvci0+ZHdGZWF0dXJlcyAmPSB+Q0NJRF9DTEFT
+U19FWENIQU5HRV9NQVNLOw0KKwkJCWNjaWRfZGVzY3JpcHRvci0+ZHdGZWF0dXJlcyB8PSBDQ0lE
+X0NMQVNTX1RQRFU7DQorCQkJYnJlYWs7DQorDQogCQljYXNlIE1ZU01BUlRQQUQ6DQogCQkJY2Np
+ZF9kZXNjcmlwdG9yLT5kd01heElGU0QgPSAyNTQ7DQogCQkJYnJlYWs7DQpkaWZmIC11cCBjY2lk
+LTEuNC4yNi9zcmMvY2NpZC5oLm9tbmlrZXkgY2NpZC0xLjQuMjYvc3JjL2NjaWQuaA0KLS0tIGNj
+aWQtMS40LjI2L3NyYy9jY2lkLmgub21uaWtleQkyMDE3LTAxLTA3IDE1OjUwOjQ3LjAwMDAwMDAw
+MCArMDEwMA0KKysrIGNjaWQtMS40LjI2L3NyYy9jY2lkLmgJMjAxNy0wMi0yNCAxMDowNDoyNS43
+NDIxMzIyMzQgKzAxMDANCkBAIC0xMzcsNiArMTM3LDcgQEAgdHlwZWRlZiBzdHJ1Y3QNCiAJICog
+R2VtYWx0byBleHRyYSBmZWF0dXJlcywgaWYgYW55DQogCSAqLw0KIAlzdHJ1Y3QgR0VNQUxUT19G
+SVJNV0FSRV9GRUFUVVJFUyAqZ2VtYWx0b19maXJtd2FyZV9mZWF0dXJlczsNCisJdW5zaWduZWQg
+aW50IGR3Tm9uU3RhbmRhcmRGbGFnczsNCiB9IF9jY2lkX2Rlc2NyaXB0b3I7DQogDQogLyogRmVh
+dHVyZXMgZnJvbSBkd0ZlYXR1cmVzICovDQpAQCAtMTUzLDYgKzE1NCw5IEBAIHR5cGVkZWYgc3Ry
+dWN0DQogI2RlZmluZSBDQ0lEX0NMQVNTX0VYVEVOREVEX0FQRFUJMHgwMDA0MDAwMA0KICNkZWZp
+bmUgQ0NJRF9DTEFTU19FWENIQU5HRV9NQVNLCTB4MDAwNzAwMDANCiANCisvKiBGZWF0dXJlcyBm
+cm9tIHRoZSBzd05vblN0YW5kYXJkRmxhZ3MgKi8NCisjZGVmaW5lIENDSURfTk9OX1NUQU5EX09N
+S18zMTIxX1QxCTB4MDAwMDAwMDENCisNCiAvKiBGZWF0dXJlcyBmcm9tIGJQSU5TdXBwb3J0ICov
+DQogI2RlZmluZSBDQ0lEX0NMQVNTX1BJTl9WRVJJRlkJCTB4MDENCiAjZGVmaW5lIENDSURfQ0xB
+U1NfUElOX01PRElGWQkJMHgwMg0KZGlmZiAtdXAgY2NpZC0xLjQuMjYvc3JjL2NvbW1hbmRzLmMu
+b21uaWtleSBjY2lkLTEuNC4yNi9zcmMvY29tbWFuZHMuYw0KLS0tIGNjaWQtMS40LjI2L3NyYy9j
+b21tYW5kcy5jLm9tbmlrZXkJMjAxNy0wMS0wNyAxNTo1MDo0Ny4wMDAwMDAwMDAgKzAxMDANCisr
+KyBjY2lkLTEuNC4yNi9zcmMvY29tbWFuZHMuYwkyMDE3LTAyLTI0IDEwOjExOjIxLjI5Nzc3ODg3
+MCArMDEwMA0KQEAgLTEyOTIsNiArMTI5MiwzOSBAQCBSRVNQT05TRUNPREUgQ21kWGZyQmxvY2so
+dW5zaWduZWQgaW50IHJlDQogCXJldHVybiByZXR1cm5fdmFsdWU7DQogfSAvKiBDbWRYZnJCbG9j
+ayAqLw0KIA0KK3N0YXRpYyBSRVNQT05TRUNPREUgb21uaWtleV90cmFuc21pdF90cGR1KHVuc2ln
+bmVkIGludCByZWFkZXJfaW5kZXgsDQorICAgICAgICBfY2NpZF9kZXNjcmlwdG9yICpjY2lkX2Rl
+c2NyaXB0b3IsIHVuc2lnbmVkIGludCB0eF9sZW5ndGgsDQorICAgICAgICBjb25zdCB1bnNpZ25l
+ZCBjaGFyICp0eF9idWZmZXIpDQorew0KKwl1bnNpZ25lZCBjaGFyIGNtZFsxMStDTURfQlVGX1NJ
+WkVdOwkgLyogQ0NJRCArIEFQRFUgYnVmZmVyICovDQorCXN0YXR1c190IHJldDsNCisNCisJY21k
+WzBdID0gMHg2QjsgCQkJCS8qIDMxMjEgZXNjYXBlICovDQorCWkyZHcodHhfbGVuZ3RoKzEsIGNt
+ZCsxKTsgCS8qIEFQRFUgbGVuZ3RoICovDQorCWNtZFs1XSA9IGNjaWRfZGVzY3JpcHRvci0+YkN1
+cnJlbnRTbG90SW5kZXg7CS8qIHNsb3QgbnVtYmVyICovDQorCWNtZFs2XSA9ICgqY2NpZF9kZXNj
+cmlwdG9yLT5wYlNlcSkrKzsNCisJY21kWzddID0gMDsNCisJY21kWzhdID0gMDsNCisJY21kWzld
+ID0gMDsNCisJY21kWzEwXSA9IDB4MUE7DQorDQorCS8qIGNoZWNrIHRoYXQgdGhlIGNvbW1hbmQg
+aXMgbm90IHRvbyBsYXJnZSAqLw0KKwlpZiAodHhfbGVuZ3RoID4gQ01EX0JVRl9TSVpFKQ0KKwl7
+DQorCQlERUJVR19DUklUSUNBTDIoIlRYIExlbmd0aCB0b28gYmlnOiAlZCIsIHR4X2xlbmd0aCk7
+DQorCQlyZXR1cm4gSUZEX05PVF9TVVBQT1JURUQ7DQorCX0NCisNCisJbWVtY3B5KGNtZCsxMSwg
+dHhfYnVmZmVyLCB0eF9sZW5ndGgpOw0KKw0KKwlyZXQgPSBXcml0ZVBvcnQocmVhZGVyX2luZGV4
+LCAxMSt0eF9sZW5ndGgsIGNtZCk7DQorCWlmIChTVEFUVVNfTk9fU1VDSF9ERVZJQ0UgPT0gcmV0
+KQ0KKwkJcmV0dXJuIElGRF9OT19TVUNIX0RFVklDRTsNCisJaWYgKHJldCAhPSBTVEFUVVNfU1VD
+Q0VTUykNCisJCXJldHVybiBJRkRfQ09NTVVOSUNBVElPTl9FUlJPUjsNCisNCisJcmV0dXJuIElG
+RF9TVUNDRVNTOw0KK30gLyogb21uaWtleV90cmFuc21pdF90cGR1ICovDQogDQogLyoqKioqKioq
+KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
+KioqKioqKioqKioqDQogICoNCkBAIC0xMzQ4LDYgKzEzODEsMTMgQEAgUkVTUE9OU0VDT0RFIEND
+SURfVHJhbnNtaXQodW5zaWduZWQgaW50DQogCX0NCiAjZW5kaWYNCiANCisJLyogaGFjayBmb3Ig
+T25taWtleSAzMTIxICovDQorCWlmICgoY2NpZF9kZXNjcmlwdG9yLT5kd05vblN0YW5kYXJkRmxh
+Z3MgJiBDQ0lEX05PTl9TVEFORF9PTUtfMzEyMV9UMSkgJiYNCisJCShjY2lkX2Rlc2NyaXB0b3It
+PmNhcmRQcm90b2NvbCA9PSBTQ0FSRF9QUk9UT0NPTF9UMSkpIHsNCisJCXJldHVybiBvbW5pa2V5
+X3RyYW5zbWl0X3RwZHUocmVhZGVyX2luZGV4LCBjY2lkX2Rlc2NyaXB0b3IsIHR4X2xlbmd0aCwg
+DQorCQkJCXR4X2J1ZmZlcik7DQorCX0NCisNCiAJY21kWzBdID0gMHg2RjsgLyogWGZyQmxvY2sg
+Ki8NCiAJaTJkdyh0eF9sZW5ndGgsIGNtZCsxKTsJLyogQVBEVSBsZW5ndGggKi8NCiAJY21kWzVd
+ID0gY2NpZF9kZXNjcmlwdG9yLT5iQ3VycmVudFNsb3RJbmRleDsJLyogc2xvdCBudW1iZXIgKi8N
+CkBAIC0xMzczLDggKzE0MTMsOSBAQCBSRVNQT05TRUNPREUgQ0NJRF9UcmFuc21pdCh1bnNpZ25l
+ZCBpbnQNCiBSRVNQT05TRUNPREUgQ0NJRF9SZWNlaXZlKHVuc2lnbmVkIGludCByZWFkZXJfaW5k
+ZXgsIHVuc2lnbmVkIGludCAqcnhfbGVuZ3RoLA0KIAl1bnNpZ25lZCBjaGFyIHJ4X2J1ZmZlcltd
+LCB1bnNpZ25lZCBjaGFyICpjaGFpbl9wYXJhbWV0ZXIpDQogew0KLQl1bnNpZ25lZCBjaGFyIGNt
+ZFsxMCtDTURfQlVGX1NJWkVdOwkvKiBDQ0lEICsgQVBEVSBidWZmZXIgKi8NCisJdW5zaWduZWQg
+Y2hhciBjbWRbMTErQ01EX0JVRl9TSVpFXTsJLyogQ0NJRCArIEFQRFUgYnVmZmVyICovDQogCXVu
+c2lnbmVkIGludCBsZW5ndGg7DQorCXVuc2lnbmVkIGNoYXIgKnJ4X3B0ciA9IGNtZCsxMDsNCiAJ
+UkVTUE9OU0VDT0RFIHJldHVybl92YWx1ZSA9IElGRF9TVUNDRVNTOw0KIAlzdGF0dXNfdCByZXQ7
+DQogCV9jY2lkX2Rlc2NyaXB0b3IgKmNjaWRfZGVzY3JpcHRvciA9IGdldF9jY2lkX2Rlc2NyaXB0
+b3IocmVhZGVyX2luZGV4KTsNCkBAIC0xNTY1LDYgKzE2MDYsMTQgQEAgdGltZV9yZXF1ZXN0Og0K
+IAl9DQogDQogCWxlbmd0aCA9IGR3MmkoY21kLCAxKTsNCisNCisJaWYgKGxlbmd0aCAmJiANCisJ
+ICAoY2NpZF9kZXNjcmlwdG9yLT5kd05vblN0YW5kYXJkRmxhZ3MgJiBDQ0lEX05PTl9TVEFORF9P
+TUtfMzEyMV9UMSkgJiYNCisJICAoY2NpZF9kZXNjcmlwdG9yLT5jYXJkUHJvdG9jb2wgPT0gU0NB
+UkRfUFJPVE9DT0xfVDEpKSB7DQorCQlsZW5ndGgtLTsNCisJCXJ4X3B0ciA9IGNtZCsxMTsNCisJ
+fQ0KKw0KIAlpZiAobGVuZ3RoIDw9ICpyeF9sZW5ndGgpDQogCQkqcnhfbGVuZ3RoID0gbGVuZ3Ro
+Ow0KIAllbHNlDQpAQCAtMTU4MSw3ICsxNjMwLDcgQEAgdGltZV9yZXF1ZXN0Og0KIAkJcmV0dXJu
+X3ZhbHVlID0gSUZEX0NPTU1VTklDQVRJT05fRVJST1I7DQogCX0NCiAJZWxzZQ0KLQkJbWVtY3B5
+KHJ4X2J1ZmZlciwgY21kKzEwLCBsZW5ndGgpOw0KKwkJbWVtY3B5KHJ4X2J1ZmZlciwgcnhfcHRy
+LCBsZW5ndGgpOw0KIA0KIAkvKiBFeHRlbmRlZCBjYXNlPw0KIAkgKiBPbmx5IHZhbGlkIGZvciBS
+RFJfdG9fUENfRGF0YUJsb2NrIGZyYW1lcyAqLw==
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

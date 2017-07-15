@@ -1,0 +1,426 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1419944</bug_id>
+          
+          <creation_ts>2017-02-07 08:26:00 -0500</creation_ts>
+          <short_desc>SELinux issues with libGLdispatch.so.0.0.0 with move to libglvnd</short_desc>
+          <delta_ts>2017-02-25 20:37:46 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>selinux-policy</component>
+          <version>25</version>
+          <rep_platform>armv7hl</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>high</priority>
+          <bug_severity>high</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>245418</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Peter Robinson">pbrobinson</reporter>
+          <assigned_to name="Lukas Vrabec">lvrabec</assigned_to>
+          <cc>dominick.grift</cc>
+    
+    
+    <cc>dwalsh</cc>
+    
+    
+    <cc>hdegoede</cc>
+    
+    
+    <cc>kwizart</cc>
+    
+    
+    <cc>leigh123linux</cc>
+    
+    
+    <cc>lvrabec</cc>
+    
+    
+    <cc>mgrepl</cc>
+    
+    
+    <cc>plautrba</cc>
+    
+    
+    <cc>pmoore</cc>
+    
+    
+    <cc>pwhalen</cc>
+    
+    
+    <cc>rclark</cc>
+    
+    
+    <cc>ssekidde</cc>
+    
+    
+    <cc>xgl-maint</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>selinux-policy-3.13.1-225.10.fc25</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-02-25 20:37:46</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      <flag name="needinfo"
+          id="2960881"
+          type_id="16"
+          status="?"
+          setter="hdegoede"
+          requestee="lvrabec"
+    />
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10127583</commentid>
+    <comment_count>0</comment_count>
+    <who name="Peter Robinson">pbrobinson</who>
+    <bug_when>2017-02-07 08:26:49 -0500</bug_when>
+    <thetext>With the deployment of libglvnd on F-25 my gdm greeter stopped appearing on my Raspberry Pi. Host booted up just fine. When I do a &quot;setenfore 0; systemctl restart gdm.server&quot; the GDM login comes up as expected.
+
+I tried relabelling the filesytem but still get the same errors. I get the following errors in the journal:
+
+
+Feb 07 13:03:15 setroubleshoot[609]: SELinux is preventing gdm-wayland-ses from execmod access on the file /usr/lib/libGLdispatch.so.0.0.0. For complete SELinux messages. run sealert -l 34becf14-3824-4a7a-b1a2-60116570d131
+Feb 07 13:03:15 python3[609]: SELinux is preventing gdm-wayland-ses from execmod access on the file /usr/lib/libGLdispatch.so.0.0.0.
+
+                   *****  Plugin allow_execmod (91.4 confidence) suggests   *********************
+
+                   If you want to allow gdm-wayland-ses to have execmod access on the libGLdispatch.so.0.0.0 file
+                   Then you need to change the label on &apos;/usr/lib/libGLdispatch.so.0.0.0&apos;
+                   Do
+                   # semanage fcontext -a -t textrel_shlib_t &apos;/usr/lib/libGLdispatch.so.0.0.0&apos;
+                   # restorecon -v &apos;/usr/lib/libGLdispatch.so.0.0.0&apos;
+
+                   *****  Plugin catchall (9.59 confidence) suggests   **************************
+
+                   If you believe that gdm-wayland-ses should be allowed execmod access on the libGLdispatch.so.0.0.0 file by default.
+                   Then you should report this as a bug.
+                   You can generate a local policy module to allow this access.
+                   Do
+                   allow this access for now by executing:
+                   # ausearch -c &apos;gdm-wayland-ses&apos; --raw | audit2allow -M my-gdmwaylandses
+                   # semodule -X 300 -i my-gdmwaylandses.pp
+
+Feb 07 13:03:15 gnome-settings-daemon.desktop[12502]: libGL error: MESA-LOADER: device is not located on the PCI bus
+Feb 07 13:03:15 setroubleshoot[609]: SELinux is preventing gdm-wayland-ses from execmod access on the file /usr/lib/libGLdispatch.so.0.0.0. For complete SELinux messages. run sealert -l 34becf14-3824-4a7a-b1a2-60116570d131
+Feb 07 13:03:16 python3[609]: SELinux is preventing gdm-wayland-ses from execmod access on the file /usr/lib/libGLdispatch.so.0.0.0.
+
+                   *****  Plugin allow_execmod (91.4 confidence) suggests   *********************
+
+                   If you want to allow gdm-wayland-ses to have execmod access on the libGLdispatch.so.0.0.0 file
+                   Then you need to change the label on &apos;/usr/lib/libGLdispatch.so.0.0.0&apos;
+                   Do
+                   # semanage fcontext -a -t textrel_shlib_t &apos;/usr/lib/libGLdispatch.so.0.0.0&apos;
+                   # restorecon -v &apos;/usr/lib/libGLdispatch.so.0.0.0&apos;
+
+                   *****  Plugin catchall (9.59 confidence) suggests   **************************
+
+                   If you believe that gdm-wayland-ses should be allowed execmod access on the libGLdispatch.so.0.0.0 file by default.
+                   Then you should report this as a bug.
+                   You can generate a local policy module to allow this access.
+                   Do
+                   allow this access for now by executing:
+                   # ausearch -c &apos;gdm-wayland-ses&apos; --raw | audit2allow -M my-gdmwaylandses
+                   # semodule -X 300 -i my-gdmwaylandses.pp</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10127584</commentid>
+    <comment_count>1</comment_count>
+    <who name="Peter Robinson">pbrobinson</who>
+    <bug_when>2017-02-07 08:27:59 -0500</bug_when>
+    <thetext>The output of the sealert is as follows:
+
+$ sealert -l 34becf14-3824-4a7a-b1a2-60116570d131
+SELinux is preventing gdm-wayland-ses from execmod access on the file /usr/lib/libGLdispatch.so.0.0.0.
+
+*****  Plugin allow_execmod (91.4 confidence) suggests   *********************
+
+If you want to allow gdm-wayland-ses to have execmod access on the libGLdispatch.so.0.0.0 file
+Then you need to change the label on &apos;/usr/lib/libGLdispatch.so.0.0.0&apos;
+Do
+# semanage fcontext -a -t textrel_shlib_t &apos;/usr/lib/libGLdispatch.so.0.0.0&apos;
+# restorecon -v &apos;/usr/lib/libGLdispatch.so.0.0.0&apos;
+
+*****  Plugin catchall (9.59 confidence) suggests   **************************
+
+If you believe that gdm-wayland-ses should be allowed execmod access on the libGLdispatch.so.0.0.0 file by default.
+Then you should report this as a bug.
+You can generate a local policy module to allow this access.
+Do
+allow this access for now by executing:
+# ausearch -c &apos;gdm-wayland-ses&apos; --raw | audit2allow -M my-gdmwaylandses
+# semodule -X 300 -i my-gdmwaylandses.pp
+
+
+Additional Information:
+Source Context                system_u:system_r:xdm_t:s0-s0:c0.c1023
+Target Context                system_u:object_r:lib_t:s0
+Target Objects                /usr/lib/libGLdispatch.so.0.0.0 [ file ]
+Source                        gdm-wayland-ses
+Source Path                   gdm-wayland-ses
+Port                          &lt;Unknown&gt;
+Host                          rpi-workstation.home.roving-it.com
+Source RPM Packages
+Target RPM Packages           libglvnd-0.2.999-10.gitdc16f8c.fc25.armv7hl
+Policy RPM                    selinux-policy-3.13.1-225.6.fc25.noarch
+Selinux Enabled               True
+Policy Type                   targeted
+Enforcing Mode                Permissive
+Host Name                     rpi-workstation.home.roving-it.com
+Platform                      Linux rpi-workstation.home.roving-it.com
+                              4.9.8-199.pr1.fc25.armv7hl #1 SMP Mon Feb 6
+                              19:10:33 GMT 2017 armv7l armv7l
+Alert Count                   3690
+First Seen                    2016-07-25 20:50:22 BST
+Last Seen                     2017-02-07 13:03:11 GMT
+Local ID                      34becf14-3824-4a7a-b1a2-60116570d131
+
+Raw Audit Messages
+type=AVC msg=audit(1486472591.278:6861): avc:  denied  { execmod } for  pid=12502 comm=&quot;gnome-settings-&quot; path=&quot;/usr/lib/libGLdispatch.so.0.0.0&quot; dev=&quot;mmcblk0p4&quot; ino=43414 scontext=system_u:system_r:xdm_t:s0-s0:c0.c1023 tcontext=system_u:object_r:lib_t:s0 tclass=file permissive=1
+
+Hash: gdm-wayland-ses,xdm_t,lib_t,file,execmod</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10127600</commentid>
+    <comment_count>2</comment_count>
+    <who name="Peter Robinson">pbrobinson</who>
+    <bug_when>2017-02-07 08:34:27 -0500</bug_when>
+    <thetext>Various versions for reference. Not sure if this is something that needs resolution in libglvnd or selinux-policy itself.
+
+mesa-libgbm-13.0.4-1.fc25.armv7hl
+mesa-libEGL-13.0.4-1.fc25.armv7hl
+mesa-libGLU-9.0.0-10.fc24.armv7hl
+mesa-libGL-13.0.4-1.fc25.armv7hl
+mesa-libGLES-13.0.4-1.fc25.armv7hl
+mesa-libxatracker-13.0.4-1.fc25.armv7hl
+mesa-libglapi-13.0.4-1.fc25.armv7hl
+mesa-libwayland-egl-13.0.4-1.fc25.armv7hl
+mesa-filesystem-13.0.4-1.fc25.armv7hl
+mesa-dri-drivers-13.0.4-1.fc25.armv7hl
+selinux-policy-3.13.1-225.6.fc25.noarch
+selinux-policy-targeted-3.13.1-225.6.fc25.noarch
+libglvnd-gles-0.2.999-10.gitdc16f8c.fc25.armv7hl
+libglvnd-0.2.999-10.gitdc16f8c.fc25.armv7hl
+libglvnd-egl-0.2.999-10.gitdc16f8c.fc25.armv7hl
+libglvnd-glx-0.2.999-10.gitdc16f8c.fc25.armv7hl</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10134369</commentid>
+    <comment_count>3</comment_count>
+    <who name="Hans de Goede">hdegoede</who>
+    <bug_when>2017-02-09 08:04:04 -0500</bug_when>
+    <thetext>Hmm, so for the record things work fine on x86.
+
+I wonder if this could be due to the dispatching somehow working differently on ARM, or if this is because of selinux policy differences ?
+
+Rob Clark, do you have any idea if this could be caused by the way we do glvnd dispatch on ARM ?
+
+Re-assigning this to selinux-policy for now, so that the selinux team can take a look at this too, it can be re-assigned back to libglvnd if that is where the fix needs to be done.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10134399</commentid>
+    <comment_count>4</comment_count>
+    <who name="Rob Clark">rclark</who>
+    <bug_when>2017-02-09 08:17:30 -0500</bug_when>
+    <thetext>(In reply to Hans de Goede from comment #3)
+&gt; Hmm, so for the record things work fine on x86.
+&gt; 
+&gt; I wonder if this could be due to the dispatching somehow working differently
+&gt; on ARM, or if this is because of selinux policy differences ?
+&gt; 
+&gt; Rob Clark, do you have any idea if this could be caused by the way we do
+&gt; glvnd dispatch on ARM ?
+&gt; 
+&gt; Re-assigning this to selinux-policy for now, so that the selinux team can
+&gt; take a look at this too, it can be re-assigned back to libglvnd if that is
+&gt; where the fix needs to be done.
+
+I think it must somehow be an selinux policy difference.  I&apos;m not really an expert in selinux, but at a high level (from the PoV of which .so&apos;s are involved), there really shouldn&apos;t be any difference between how glvnd works on arm vs x86.  (I think on x86 we are using tls which isn&apos;t implemented yet on arm.. but that is just implementation detail of the generated stubs)
+
+well, I guess one potential difference is /usr/lib/libGLdispatch.so.0.0.0 vs /usr/lib64
+
+maybe compare selinux labels on libGLdispatch on armv7 vs x86?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10134468</commentid>
+    <comment_count>5</comment_count>
+    <who name="Hans de Goede">hdegoede</who>
+    <bug_when>2017-02-09 08:41:11 -0500</bug_when>
+    <thetext>Ok, I&apos;ve done some debugging on this and it seems that the arm version of libGLdispatch somehow ends up containing some text relocations, for more on this see:
+
+https://www.akkadia.org/drepper/textrelocs.html
+
+Specifically the problem seems to be:
+
+[hans@shalem linux]$ eu-findtextrel ~/libGLdispatch.so.0.0.0
+either the file containing the function &apos;_glapi_get_current&apos; or the file containing the function &apos;&apos; is not compiled with -fpic/-fPIC
+
+Note this is using an x86 eu-findtextrel on the arm binary, not sure how good an idea that is ...
+
+Like culprit seems to be: libglvnd/src/GLdispatch/vnd-glapi/entry_armv7_tsd.c .
+
+Rob, my ARM asm writing skills are none existing any chance you could take a look at this ?
+
+Or maybe we simply need to mark libGLdispatch.so.0 as textrel_shlib_t on ARM ?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10134965</commentid>
+    <comment_count>6</comment_count>
+    <who name="Rob Clark">rclark</who>
+    <bug_when>2017-02-09 10:38:39 -0500</bug_when>
+    <thetext>(In reply to Hans de Goede from comment #5)
+&gt; [hans@shalem linux]$ eu-findtextrel ~/libGLdispatch.so.0.0.0
+&gt; either the file containing the function &apos;_glapi_get_current&apos; or the file
+&gt; containing the function &apos;&apos; is not compiled with -fpic/-fPIC
+
+I don&apos;t think this is necessarily about the asm code.  What that is doing, is generating code with the generated code that is patched up w/ pointer to _glapi_get_current (and _glapi_Current).. so the generated code (which I don&apos;t think eu-findtextrel knows anything about) does something like text relocation.  But already in pages that are not shared w/ other processes (and are writeable).
+
+Maybe eu-findtextrel (and selinux) get confused about:
+
+  static uint16_t BYTECODE_TEMPLATE[]
+
+Which isn&apos;t actually executed.. but on armv7 is not const.. probably we should:
+
++ static const uint16_t BYTECODE_TEMPLATE[]
+- static uint16_t BYTECODE_TEMPLATE[]
+
+Haven&apos;t tried it but my guess is that is enough to make selinux not be confused.
+
+If that doesn&apos;t do it, then just change the label.  We are after all generating code that gets executed so not really sure how selinux is saving us from anything here.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10135913</commentid>
+    <comment_count>7</comment_count>
+    <who name="Hans de Goede">hdegoede</who>
+    <bug_when>2017-02-09 15:27:07 -0500</bug_when>
+    <thetext>Ok I&apos;ve started a scratch build with the BYTECODE_TEMPLATE made const:
+
+https://koji.fedoraproject.org/koji/taskinfo?taskID=17695416
+
+But unfortunately that does not fix the textrel problem.
+
+Lukas can you add libGLdispatch.so.0 to the list of libraries which need text relocations / execmod (but on armv7hl only it seems) ?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10142093</commentid>
+    <comment_count>8</comment_count>
+    <who name="Lukas Vrabec">lvrabec</who>
+    <bug_when>2017-02-13 03:25:40 -0500</bug_when>
+    <thetext>We don&apos;t have any policy difference between architectures. 
+
+Could you please add following context to testing machine: 
+
+# semanage fcontext -a -t textrel_shlib_t &apos;/usr/lib/libGLdispatch.so.0.0.0&apos;
+# restorecon -v &apos;/usr/lib/libGLdispatch.so.0.0.0&apos;
+
+And then reproduce the scenario? 
+
+Thanks,
+Lukas.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10143395</commentid>
+    <comment_count>9</comment_count>
+    <who name="Peter Robinson">pbrobinson</who>
+    <bug_when>2017-02-13 10:12:24 -0500</bug_when>
+    <thetext>That looks to work fine</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10143746</commentid>
+    <comment_count>10</comment_count>
+    <who name="Hans de Goede">hdegoede</who>
+    <bug_when>2017-02-13 11:43:28 -0500</bug_when>
+    <thetext>Hi,
+
+(In reply to Lukas Vrabec from comment #8)
+&gt; We don&apos;t have any policy difference between architectures. 
+&gt; 
+&gt; Could you please add following context to testing machine: 
+&gt; 
+&gt; # semanage fcontext -a -t textrel_shlib_t &apos;/usr/lib/libGLdispatch.so.0.0.0&apos;
+&gt; # restorecon -v &apos;/usr/lib/libGLdispatch.so.0.0.0&apos;
+&gt; 
+&gt; And then reproduce the scenario? 
+
+I can confirm that this fixes the issue for me too.
+
+Regards,
+
+Hans</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10167536</commentid>
+    <comment_count>11</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-20 10:30:55 -0500</bug_when>
+    <thetext>selinux-policy-3.13.1-225.9.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-31d4ea5eb1</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10168353</commentid>
+    <comment_count>12</comment_count>
+    <who name="Hans de Goede">hdegoede</who>
+    <bug_when>2017-02-20 14:20:33 -0500</bug_when>
+    <thetext>I&apos;m afraid that selinux-policy-3.13.1-225.9.fc25 does not fix this:
+
+[root@localhost ~]# semanage fcontext -l | grep libGLdispatch
+/usr/lib/libGLdispatch/.*\.so(\.[^/]*)*            regular file       system_u:object_r:textrel_shlib_t:s0 
+
+There seems to be a &apos;/&apos; which should not be there at then end of &quot;libGLdispatch&quot;:
+
+[root@localhost ~]# restorecon -v &apos;/usr/lib/libGLdispatch.so.0.0.0&apos;
+[root@localhost ~]# ls -Z &apos;/usr/lib/libGLdispatch.so.0.0.0&apos;
+system_u:object_r:lib_t:s0 /usr/lib/libGLdispatch.so.0.0.0</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10176283</commentid>
+    <comment_count>13</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-22 16:07:20 -0500</bug_when>
+    <thetext>selinux-policy-3.13.1-225.10.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-31d4ea5eb1</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10184101</commentid>
+    <comment_count>14</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-25 20:37:46 -0500</bug_when>
+    <thetext>selinux-policy-3.13.1-225.10.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

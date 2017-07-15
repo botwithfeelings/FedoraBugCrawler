@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1438539</bug_id>
+          
+          <creation_ts>2017-04-03 13:29:00 -0400</creation_ts>
+          <short_desc>Include conditional_wakeup fix in glib2</short_desc>
+          <delta_ts>2017-05-15 20:56:16 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>glib2</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>910269</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Richard W.M. Jones">rjones</reporter>
+          <assigned_to name="Matthias Clasen">mclasen</assigned_to>
+          <cc>amitshah</cc>
+    
+    
+    <cc>berrange</cc>
+    
+    
+    <cc>cfergeau</cc>
+    
+    
+    <cc>dwmw2</cc>
+    
+    
+    <cc>extras-qa</cc>
+    
+    
+    <cc>fziglio</cc>
+    
+    
+    <cc>itamar</cc>
+    
+    
+    <cc>kchamart</cc>
+    
+    
+    <cc>klember</cc>
+    
+    
+    <cc>mclasen</cc>
+    
+    
+    <cc>pbonzini</cc>
+    
+    
+    <cc>rjones</cc>
+    
+    
+    <cc>virt-maint</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>glib2-2.52.2-2.fc26</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          <cf_clone_of>1435432</cf_clone_of>
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-05-15 20:56:16</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          <external_bugs name="GNOME Desktop">761102</external_bugs>
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10300125</commentid>
+    <comment_count>0</comment_count>
+    <who name="Richard W.M. Jones">rjones</who>
+    <bug_when>2017-04-03 13:29:06 -0400</bug_when>
+    <thetext>+++ This bug was initially created as a clone of Bug #1435432 +++
+
+Description of problem:
+
+Please include the further fix for the glib2 possible bug/regression which
+affected the qemu main loop.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=761102#c19
+
+** Comment 19 Paolo Bonzini 2017-03-31 20:08:37 UTC
+
+&gt; The docs are pretty clear on this.
+
+Actually, now that I read them again, they aren&apos;t clear at all.
+
+They say &quot;You must be the owner of a context before you can call g_main_context_prepare(), g_main_context_query(), g_main_context_check(), g_main_context_dispatch().&quot;  They do not say that you need to be the owner of a context between those calls.
+
+In particular, if you release the context after g_main_context_query returns and reacquire it before g_main_context_check, it would cause the bug again:
+
+       thread A                 thread B
+       ------------             ------------
+       for (;;) {
+         acquire
+         prepare
+         query
+         release
+         ppoll()
+                                g_source_attach
+         acquire
+         check
+         dispatch
+         release
+       }
+
+&gt; Paolo, we could consider carrying a revert of this in downstream locations 
+&gt; where it&apos;s affecting qemu, if it&apos;s hard to get qemu changed.
+
+No, it&apos;s easy and we&apos;re testing the fix over the weekend.  Once it&apos;s tested I&apos;ll also backport it to Fedora 25.  I&apos;m worried more about the endless amount of forks (including the Android emulator) and about the above imprecision in the document.
+
+However I wonder if it&apos;s possible to change the patch so that it does the wakeup if no one has acquired the context.  This should still provide the optimization for the users that are doing g_main_context_iteration in a loop, and it would fix both QEMU and the hypothetical case at the top of this comment.
+
+For example something as simple as this:
+
+-        if (context-&gt;owner &amp;&amp; context-&gt;owner != G_THREAD_SELF)
++        if (context-&gt;owner != G_THREAD_SELF)
+           g_wakeup_signal (context-&gt;wakeup);
+
+(for all three occurrences) should do it.
+
+** Comment 20 Colin Walters 2017-03-31 20:21:45 UTC
+
+Created attachment 349077 [details] [review]
+Create a helper function for owner wakeup optimization
+
+Just a quick preparatory patch here.
+
+** Comment 21 Paolo Bonzini 2017-04-03 17:17:59 UTC
+
+Review of attachment 349077 [details] [review]:
+
+Looks good.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10411925</commentid>
+    <comment_count>1</comment_count>
+    <who name="Kalev Lember">klember</who>
+    <bug_when>2017-05-15 05:16:27 -0400</bug_when>
+    <thetext>Should be fixed in glib2-2.52.2-2.fc26</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10411932</commentid>
+    <comment_count>2</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-15 05:18:29 -0400</bug_when>
+    <thetext>glib2-2.52.2-2.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-27fbf57af3</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10414653</commentid>
+    <comment_count>3</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-15 18:05:16 -0400</bug_when>
+    <thetext>glib2-2.52.2-2.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-27fbf57af3</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10414896</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-15 20:56:16 -0400</bug_when>
+    <thetext>glib2-2.52.2-2.fc26 has been pushed to the Fedora 26 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

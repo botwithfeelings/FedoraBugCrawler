@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1428481</bug_id>
+          
+          <creation_ts>2017-03-02 11:37:00 -0500</creation_ts>
+          <short_desc>qemu segfaults in gtk_display_init</short_desc>
+          <delta_ts>2017-04-01 13:26:22 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>qemu</component>
+          <version>26</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Richard W.M. Jones">rjones</reporter>
+          <assigned_to name="Fedora Virtualization Maintainers">virt-maint</assigned_to>
+          <cc>amitshah</cc>
+    
+    
+    <cc>berrange</cc>
+    
+    
+    <cc>cfergeau</cc>
+    
+    
+    <cc>crobinso</cc>
+    
+    
+    <cc>dwmw2</cc>
+    
+    
+    <cc>itamar</cc>
+    
+    
+    <cc>pbonzini</cc>
+    
+    
+    <cc>rjones</cc>
+    
+    
+    <cc>virt-maint</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>qemu-2.9.0-0.1.rc1.fc26</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-03-29 11:49:40</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10202803</commentid>
+    <comment_count>0</comment_count>
+    <who name="Richard W.M. Jones">rjones</who>
+    <bug_when>2017-03-02 11:37:04 -0500</bug_when>
+    <thetext>Description of problem:
+
+$ qemu-system-x86_64 -nodefaults -no-reboot -kernel /var/tmp/.guestfs-1000/appliance.d/kernel -initrd /var/tmp/.guestfs-1000/appliance.d/initrd -drive file=/var/tmp/.guestfs-1000/appliance.d/root,snapshot=on -m 1024 -append &quot;guestfs_rescue=1&quot; -serial stdio
+Segmentation fault
+
+This only seems to happen with the Fedora package.  As far as I
+can tell this doesn&apos;t affect upstream qemu.
+
+The stack trace is:
+
+Thread 1 &quot;qemu-system-x86&quot; received signal SIGSEGV, Segmentation fault.
+0x0000555555acc49c in gtk_display_init (ds=&lt;optimized out&gt;, 
+    full_screen=&lt;optimized out&gt;, grab_on_hover=&lt;optimized out&gt;)
+    at /usr/src/debug/qemu-2.8.0/ui/gtk.c:2253
+2253	    gtk_widget_set_sensitive(s-&gt;copy_item,
+
+(gdb) bt
+#0  0x0000555555acc49c in gtk_display_init (ds=&lt;optimized out&gt;, full_screen=&lt;optimized out&gt;, grab_on_hover=&lt;optimized out&gt;)
+    at /usr/src/debug/qemu-2.8.0/ui/gtk.c:2253
+#1  0x0000555555816b33 in main (argc=&lt;optimized out&gt;, argv=&lt;optimized out&gt;, envp=&lt;optimized out&gt;) at /usr/src/debug/qemu-2.8.0/vl.c:4615
+
+Version-Release number of selected component (if applicable):
+
+qemu-2.8.0-2.fc26.x86_64
+
+How reproducible:
+
+100%
+
+Steps to Reproduce:
+1. Run the command shown above.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10202814</commentid>
+    <comment_count>1</comment_count>
+    <who name="Richard W.M. Jones">rjones</who>
+    <bug_when>2017-03-02 11:40:14 -0500</bug_when>
+    <thetext>The GtkDisplayState *s struct is enormous but gdb seems to be able
+to print all of it.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10202816</commentid>
+    <comment_count>2</comment_count>
+    <who name="Richard W.M. Jones">rjones</who>
+    <bug_when>2017-03-02 11:40:49 -0500</bug_when>
+    <thetext>gtk3-3.22.6-2.fc25.x86_64
+
+Hmm, let&apos;s try updating that.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10202822</commentid>
+    <comment_count>3</comment_count>
+    <who name="Richard W.M. Jones">rjones</who>
+    <bug_when>2017-03-02 11:41:43 -0500</bug_when>
+    <thetext>Fails in the same way with gtk3-3.22.8-2.fc26</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10202971</commentid>
+    <comment_count>4</comment_count>
+    <who name="Daniel Berrange">berrange</who>
+    <bug_when>2017-03-02 12:13:35 -0500</bug_when>
+    <thetext>Fix upstream in git master with
+
+
+commit 3d4da9d6f3b664beb5bee446ad53b69178f46ad4
+Author: Hervé Poussineau &lt;hpoussin@reactos.org&gt;
+Date:   Sun Jan 1 10:39:45 2017 +0100
+
+    ui/gtk: fix crash at startup when no console is available
+    
+    This patch fixes a segfault at QEMU startup, introduced in a08156321ab9a7d2fed9ee77dbfeea2a61ffd153.
+    gd_vc_find_current() return NULL, which is dereferenced without checking it.
+    
+    While at it, disable the whole &apos;View&apos; menu if no console exists.
+    
+    Reproducer: qemu-system-i386 -M none -nodefaults
+    
+    Signed-off-by: Hervé Poussineau &lt;hpoussin@reactos.org&gt;
+    Reviewed-by: Stefan Hajnoczi &lt;stefanha@redhat.com&gt;
+    Message-id: 1483263585-8101-1-git-send-email-hpoussin@reactos.org
+    Signed-off-by: Gerd Hoffmann &lt;kraxel@redhat.com&gt;</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10250474</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-17 13:38:39 -0400</bug_when>
+    <thetext>qemu-2.9.0-0.1.rc0.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-d1858655b8</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10251067</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-17 18:23:36 -0400</bug_when>
+    <thetext>qemu-2.9.0-0.1.rc0.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-d1858655b8</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10264666</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-22 08:12:41 -0400</bug_when>
+    <thetext>qemu-2.9.0-0.1.rc1.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-8fba7a271e</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10265529</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-22 11:29:26 -0400</bug_when>
+    <thetext>qemu-2.9.0-0.1.rc1.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-8fba7a271e</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10296871</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-01 13:26:22 -0400</bug_when>
+    <thetext>qemu-2.9.0-0.1.rc1.fc26 has been pushed to the Fedora 26 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

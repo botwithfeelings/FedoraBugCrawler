@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1441560</bug_id>
+          
+          <creation_ts>2017-04-12 04:44:00 -0400</creation_ts>
+          <short_desc>&quot;atomic storage modify --add-device&quot; silently erases all images</short_desc>
+          <delta_ts>2017-06-15 05:22:41 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>atomic</component>
+          <version>26</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Marius Vollmer">mvollmer</reporter>
+          <assigned_to name="smahajan@redhat.com">smahajan</assigned_to>
+          <cc>adimania</cc>
+    
+    
+    <cc>amurdaca</cc>
+    
+    
+    <cc>dwalsh</cc>
+    
+    
+    <cc>fkluknav</cc>
+    
+    
+    <cc>lsm5</cc>
+    
+    
+    <cc>walters</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>atomic-1.18.1-3.fc26 atomic-1.18.1-2.fc25</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-06-14 23:01:12</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10327854</commentid>
+    <comment_count>0</comment_count>
+    <who name="Marius Vollmer">mvollmer</who>
+    <bug_when>2017-04-12 04:44:01 -0400</bug_when>
+    <thetext>Description of problem:
+
+Running &quot;atomic storage modify --add-device /dev/sda&quot; will succeed and the given device can be used for Docker images, but it also plants a time bomb: All images disappear after the next Docker restart.
+
+This happens because &quot;atomic storage modify&quot; will call container-storage-setup, and container-storage-setup will write out a storage configuration for Docker that uses devmapper.  On the next start, Docker will use that configuration instead of the previous overlay2 one.
+
+I think this issue arises because container-storage-setup assumes that Docker uses devmapper (with loopback) by default, but now Docker seems to use overlay2 by default.  (Or I might be confused, I haven&apos;t investigated closely.)
+
+
+Version-Release number of selected component (if applicable):
+container-storage-setup-0.2.0-2.fc26.noarch
+atomic-1.16.5-1.fc26.x86_64
+docker-1.13.1-6.git5be1549.fc26.x86_64
+
+How reproducible:
+Always
+
+Steps to Reproduce:
+# docker images
+REPOSITORY                             TAG                 IMAGE ID            CREATED             SIZE
+cockpit/base                           latest              b9b9d906729a        2 days ago          287 MB
+docker.io/fedora                       25                  4daa661b467f        12 days ago         231 MB
+
+# atomic storage modify --add-device /dev/sda
+
+# docker pull busybox
+Using default tag: latest
+Trying to pull repository docker.io/library/busybox ... 
+sha256:32f093055929dbc23dec4d03e09dfe971f5973a9ca5cf059cbfb644c206aa83f: Pulling from docker.io/library/busybox
+Digest: sha256:32f093055929dbc23dec4d03e09dfe971f5973a9ca5cf059cbfb644c206aa83f
+Status: Image is up to date for docker.io/busybox:latest
+
+# docker images
+REPOSITORY                             TAG                 IMAGE ID            CREATED             SIZE
+cockpit/base                           latest              b9b9d906729a        2 days ago          287 MB
+docker.io/fedora                       25                  4daa661b467f        12 days ago         231 MB
+docker.io/busybox                      latest              00f017a8c2a6        4 weeks ago         1.11 MB
+
+# systemctl restart docker
+
+# docker images
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+&lt;empty&gt;
+
+Actual results:
+
+&quot;atomic storage modify --add-device&quot; succeeds and images disappear after restarting Docker.
+
+Expected results:
+
+Either &quot;atomic storage modify --add-device&quot; fails (and tells the user that a &quot;storage reset&quot; is needed), or the images don&apos;t disappear.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10327880</commentid>
+    <comment_count>1</comment_count>
+    <who name="Marius Vollmer">mvollmer</who>
+    <bug_when>2017-04-12 04:49:36 -0400</bug_when>
+    <thetext>Once again, from a clean slate:
+
+# echo STORAGE_DRIVER=overlay2 &gt;&gt;/etc/sysconfig/docker-storage-setup
+
+# docker images
+REPOSITORY                             TAG                 IMAGE ID            CREATED             SIZE
+cockpit/base                           latest              b9b9d906729a        2 days ago          287 MB
+docker.io/fedora                       25                  4daa661b467f        12 days ago         231 MB
+
+# atomic storage modify --add-device /dev/sda
+
+# systemctl restart docker
+
+# docker images
+REPOSITORY                             TAG                 IMAGE ID            CREATED             SIZE
+cockpit/base                           latest              b9b9d906729a        2 days ago          287 MB
+docker.io/fedora                       25                  4daa661b467f        12 days ago         231 MB
+
+Thus, putting &quot;STORAGE_DRIVER=overlay2&quot; into /etc/sysconfig/docker-storage-setup causes container-storage-setup to do the right thing.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10330349</commentid>
+    <comment_count>2</comment_count>
+    <who name="smahajan@redhat.com">smahajan</who>
+    <bug_when>2017-04-12 13:54:35 -0400</bug_when>
+    <thetext>That is correct, docker has moved it&apos;s default graph driver to overlay2.
+Taking a look into this one.
+
+Marius, thanks for pointing it out !
+
+Shishir</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10331004</commentid>
+    <comment_count>3</comment_count>
+    <who name="smahajan@redhat.com">smahajan</who>
+    <bug_when>2017-04-12 16:41:46 -0400</bug_when>
+    <thetext>We have made STORAGE_DRIVER=overlay2 as default in container-storage-setup on some distributions. So I am wondering which Linux distribution are you on ? where devicemapper is still the default.
+
+Shishir</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10332056</commentid>
+    <comment_count>4</comment_count>
+    <who name="Marius Vollmer">mvollmer</who>
+    <bug_when>2017-04-13 03:32:19 -0400</bug_when>
+    <thetext>(In reply to smahajan@redhat.com from comment #3)
+&gt; We have made STORAGE_DRIVER=overlay2 as default in container-storage-setup
+&gt; on some distributions.
+
+Ahh, that is great to hear.
+
+&gt;  So I am wondering which Linux distribution are you on
+&gt; ? where devicemapper is still the default.
+
+This is on the not-yet-released Fedora 26.  Package versions are in comment 0 above.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10332869</commentid>
+    <comment_count>5</comment_count>
+    <who name="Daniel Walsh">dwalsh</who>
+    <bug_when>2017-04-13 08:12:42 -0400</bug_when>
+    <thetext>Fedora 26 is supposed to default to overlay2</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10333719</commentid>
+    <comment_count>6</comment_count>
+    <who name="smahajan@redhat.com">smahajan</who>
+    <bug_when>2017-04-13 12:18:33 -0400</bug_when>
+    <thetext>I just tried this on a fedora 27 (Server Edition) and overlay2 is the default.
+
+STEPS I did:
+
+1) dnf remove docker.
+2) rm -rf /var/lib/docker
+3) rm /etc/sysconfig/docker-storage-setup and rm /etc/sysconfig/docker-storage
+
+I did steps (2) and (3) just to make sure I install on a clean slate.
+
+4) dnf install docker.
+5) systemctl start docker
+6) cat /etc/sysconfig/docker-storage-setup
+   &gt;&gt; STORAGE_DRIVER=overlay2
+7) cat /etc/sysconfig/docker-storage
+   &gt;&gt; DOCKER_STORAGE_OPTIONS=&quot;--storage-driver overlay2 &quot;
+
+docker info is showing that docker is running on overlay2.
+
+Will try on Fedora 26 now.
+
+Shishir</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10340257</commentid>
+    <comment_count>7</comment_count>
+    <who name="Marius Vollmer">mvollmer</who>
+    <bug_when>2017-04-18 03:03:13 -0400</bug_when>
+    <thetext>Please follow the steps in comment 0 when trying to reproduce this.  Running &quot;atomic storage modify --add-device /dev/somedev&quot; is essential.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10340261</commentid>
+    <comment_count>8</comment_count>
+    <who name="Marius Vollmer">mvollmer</who>
+    <bug_when>2017-04-18 03:04:17 -0400</bug_when>
+    <thetext>(In reply to Daniel Walsh from comment #5)
+&gt; Fedora 26 is supposed to default to overlay2
+
+The docker daemon defaults to overlay2, but container-storage-setup defaults to devmapper.  I guess the bug is that these two defaults are not in synch.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10340286</commentid>
+    <comment_count>9</comment_count>
+    <who name="Marius Vollmer">mvollmer</who>
+    <bug_when>2017-04-18 03:08:38 -0400</bug_when>
+    <thetext>(In reply to Marius Vollmer from comment #7)
+&gt; Please follow the steps in comment 0 when trying to reproduce this.  Running
+&gt; &quot;atomic storage modify --add-device /dev/somedev&quot; is essential.
+
+Hmm, maybe it isn&apos;t.  I didn&apos;t read comment 6 carefully enough...</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10471876</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-02 06:21:52 -0400</bug_when>
+    <thetext>atomic-1.18.1-2.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-d95fc1ce23</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10471882</commentid>
+    <comment_count>11</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-02 06:22:21 -0400</bug_when>
+    <thetext>atomic-1.18.1-2.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-fd61a2effa</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10474020</commentid>
+    <comment_count>12</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-03 00:37:20 -0400</bug_when>
+    <thetext>atomic-1.18.1-2.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-d95fc1ce23</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10475058</commentid>
+    <comment_count>13</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-04 15:40:15 -0400</bug_when>
+    <thetext>atomic-1.18.1-2.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-fd61a2effa</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10478959</commentid>
+    <comment_count>14</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-05 19:15:07 -0400</bug_when>
+    <thetext>atomic-1.18.1-3.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-f0db18f2e1</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10482800</commentid>
+    <comment_count>15</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-06 15:05:30 -0400</bug_when>
+    <thetext>atomic-1.18.1-3.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-f0db18f2e1</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10507554</commentid>
+    <comment_count>16</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-14 23:01:12 -0400</bug_when>
+    <thetext>atomic-1.18.1-3.fc26 has been pushed to the Fedora 26 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10508519</commentid>
+    <comment_count>17</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-15 05:22:41 -0400</bug_when>
+    <thetext>atomic-1.18.1-2.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

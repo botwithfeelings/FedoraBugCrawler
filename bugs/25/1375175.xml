@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1375175</bug_id>
+          
+          <creation_ts>2016-09-12 07:56:00 -0400</creation_ts>
+          <short_desc>app windows grow with each start due to incorrectly using gtk API + wayland</short_desc>
+          <delta_ts>2016-12-16 16:00:23 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>virt-manager</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>1277927</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Kamil Páral">kparal</reporter>
+          <assigned_to name="Cole Robinson">crobinso</assigned_to>
+          <cc>berrange</cc>
+    
+    
+    <cc>crobinso</cc>
+    
+    
+    <cc>virt-maint</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>virt-manager-1.4.0-5.fc25</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-12-16 16:00:23</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9698680</commentid>
+    <comment_count>0</comment_count>
+    <who name="Kamil Páral">kparal</who>
+    <bug_when>2016-09-12 07:56:00 -0400</bug_when>
+    <thetext>Description of problem:
+Since gtk3-3.21.5-1.fc25.x86_64 virt-manager windows grow with each start. You can see it at:
+https://www.youtube.com/watch?v=NO6Wlaoq0x8
+
+This has been reported against gtk:
+https://bugzilla.gnome.org/show_bug.cgi?id=771112
+and determined as an application bug:
+https://bugzilla.gnome.org/show_bug.cgi?id=771112#c7
+
+Quoting how to fix this:
+
+~~~
+https://wiki.gnome.org/HowDoI/SaveWindowState
+
+Querying the window size and then setting it with GtkWindow API is perfectly fine.
+
+Querying the window size with GtkWidget API and then setting it with GtkWindow API, *or* querying the window size with GtkWindow API and then setting it with GtkWidget API, is *not* okay, and only worked up until now with server-side decorations only on X11.
+~~~
+
+Version-Release number of selected component (if applicable):
+virt-manager-1.4.0-3.fc25.noarch
+
+How reproducible:
+always
+
+Steps to Reproduce:
+1. start and close virt-manager repeatedly, it will grow each time
+
+Additional info:
+I see the problem not just with main virt-manager window, but also with a VM window (it&apos;s taller than it should be, even if you use &quot;resize to VM&quot; from menu).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9698682</commentid>
+    <comment_count>1</comment_count>
+    <who name="Kamil Páral">kparal</who>
+    <bug_when>2016-09-12 07:56:42 -0400</bug_when>
+    <thetext>I forgot to mention this only happens on Wayland.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9981948</commentid>
+    <comment_count>2</comment_count>
+    <who name="Cole Robinson">crobinso</who>
+    <bug_when>2016-12-13 13:28:59 -0500</bug_when>
+    <thetext>Thanks Kamil for tracking down the issue! Made my life easy :) Fixed upstream now:
+
+commit 035bdce9fde810dedb484054dd0d2778a88b7f4f
+Author: Cole Robinson &lt;crobinso@redhat.com&gt;
+Date:   Tue Dec 13 13:27:06 2016 -0500
+
+    manager: Fix window size tracking on wayland (bug 1375175)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9982055</commentid>
+    <comment_count>3</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-13 14:01:33 -0500</bug_when>
+    <thetext>virt-manager-1.4.0-5.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2016-f3f704d241</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9983782</commentid>
+    <comment_count>4</comment_count>
+    <who name="Kamil Páral">kparal</who>
+    <bug_when>2016-12-14 03:55:36 -0500</bug_when>
+    <thetext>Seems to be working great. Thanks, Cole.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9988373</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-15 00:06:07 -0500</bug_when>
+    <thetext>virt-manager-1.4.0-5.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-f3f704d241</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9994815</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-16 16:00:23 -0500</bug_when>
+    <thetext>virt-manager-1.4.0-5.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

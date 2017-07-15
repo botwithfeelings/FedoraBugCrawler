@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1383918</bug_id>
+          
+          <creation_ts>2016-10-12 03:28:00 -0400</creation_ts>
+          <short_desc>NSPR 4.13 broke ntlm_auth helper, upgrade to 4.13.1 necessary</short_desc>
+          <delta_ts>2016-12-07 09:48:39 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>nspr</component>
+          <version>24</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords>Regression</keywords>
+          <priority>unspecified</priority>
+          <bug_severity>high</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Joonas Lahtinen">joonas.lahtinen</reporter>
+          <assigned_to name="Daiki Ueno">dueno</assigned_to>
+          <cc>dueno</cc>
+    
+    
+    <cc>dwmw2</cc>
+    
+    
+    <cc>emaldona</cc>
+    
+    
+    <cc>gecko-bugs-nobody</cc>
+    
+    
+    <cc>jhorak</cc>
+    
+    
+    <cc>kengert</cc>
+    
+    
+    <cc>pjasicek</cc>
+    
+    
+    <cc>ryan.r.ware</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>nspr-4.13.1-1.fc24</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-12-07 09:48:39</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          <external_bugs name="Mozilla Foundation">1309681</external_bugs>
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9783574</commentid>
+    <comment_count>0</comment_count>
+    <who name="Joonas Lahtinen">joonas.lahtinen</who>
+    <bug_when>2016-10-12 03:28:13 -0400</bug_when>
+    <thetext>Description of problem:
+
+
+Version-Release number of selected component (if applicable): 49
+
+
+How reproducible: Always
+
+
+Steps to Reproduce:
+
+  1. Try to visit a site which uses NTLM authentication
+
+Actual results:
+
+  Password is prompted.
+
+Expected results:
+
+  SSO should work through ntlm_auth.
+
+Additional info:
+
+ntlm_auth trace;
+
+ntlmfoo.44135:write(2, &quot;Got &apos;YR&apos; from squid (length: 2).&quot;..., 33) = 33
+ntlmfoo.44135:write(1, &quot;YR TlRMTVNTUAABAAAABYIIYgAAAAAoA&quot;..., 60) = -1 EPIPE (Broken pipe)
+
+firefox trace;
+
+write(78, &quot;YR\n&quot;, 3)                    = 3
+read(80, 0x7ffdaef55598, 1024)          = -1 EAGAIN (Resource temporarily unavailable)
+close(80)                               = 0
+close(78)                               = 0</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9783594</commentid>
+    <comment_count>1</comment_count>
+    <who name="David Woodhouse">dwmw2</who>
+    <bug_when>2016-10-12 03:37:45 -0400</bug_when>
+    <thetext>This was working in 48.0.1. Broken in 49.0</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9783789</commentid>
+    <comment_count>2</comment_count>
+    <who name="David Woodhouse">dwmw2</who>
+    <bug_when>2016-10-12 04:51:19 -0400</bug_when>
+    <thetext>Not Firefox; it was broken because NSPR randomly changed its semantics and now pipes are non-blocking. And now Firefox gets a completely unexpected -EAGAIN when it reads from a pipe which always *used* to be blocking.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9783826</commentid>
+    <comment_count>3</comment_count>
+    <who name="David Woodhouse">dwmw2</who>
+    <bug_when>2016-10-12 05:07:32 -0400</bug_when>
+    <thetext>Scratch build at http://koji.fedoraproject.org/koji/taskinfo?taskID=16058155 fixes this</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9788798</commentid>
+    <comment_count>4</comment_count>
+    <who name="Kai Engert (:kaie)">kengert</who>
+    <bug_when>2016-10-13 10:05:48 -0400</bug_when>
+    <thetext>(In reply to David Woodhouse from comment #3)
+&gt; Scratch build at http://koji.fedoraproject.org/koji/taskinfo?taskID=16058155
+&gt; fixes this
+
+how?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9788938</commentid>
+    <comment_count>5</comment_count>
+    <who name="David Woodhouse">dwmw2</who>
+    <bug_when>2016-10-13 10:35:56 -0400</bug_when>
+    <thetext>Just by reverting the offending patch.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9808533</commentid>
+    <comment_count>6</comment_count>
+    <who name="Kai Engert (:kaie)">kengert</who>
+    <bug_when>2016-10-20 10:37:59 -0400</bug_when>
+    <thetext>Thanks David.
+
+We&apos;ve just released an upstream NSPR 4.13.1 release, where the only change is the reversal of this function.
+
+Daiki, could you please work on NSPR package updates, to fix this bug?
+Thanks in advance.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9812701</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-10-21 22:24:33 -0400</bug_when>
+    <thetext>nspr-4.13.1-1.fc23 has been pushed to the Fedora 23 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-86a2119f42</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9812738</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-10-21 23:53:51 -0400</bug_when>
+    <thetext>nspr-4.13.1-1.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-7dce812c00</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9813001</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-10-22 07:53:48 -0400</bug_when>
+    <thetext>nspr-4.13.1-1.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-f0d43a359d</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9813794</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-10-23 18:52:44 -0400</bug_when>
+    <thetext>nspr-4.13.1-1.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9820925</commentid>
+    <comment_count>11</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-10-25 16:21:22 -0400</bug_when>
+    <thetext>nspr-4.13.1-1.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9964863</commentid>
+    <comment_count>12</comment_count>
+    <who name="Daiki Ueno">dueno</who>
+    <bug_when>2016-12-07 09:48:39 -0500</bug_when>
+    <thetext>Closing as the fixed package is already in Fedora 24 stable.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

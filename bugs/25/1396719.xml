@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1396719</bug_id>
+          
+          <creation_ts>2016-11-19 03:54:00 -0500</creation_ts>
+          <short_desc>FUTURE cryptopolicy prevent dnf from updating</short_desc>
+          <delta_ts>2016-11-29 00:51:44 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>curl</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Michael Scherer">misc</reporter>
+          <assigned_to name="Kamil Dudka">kdudka</assigned_to>
+          <cc>kdudka</cc>
+    
+    
+    <cc>nmavrogi</cc>
+    
+    
+    <cc>paul</cc>
+    
+    
+    <cc>thomas</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>curl-7.51.0-3.fc26 curl-7.51.0-3.fc25</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-11-26 17:52:57</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9905198</commentid>
+    <comment_count>0</comment_count>
+    <who name="Michael Scherer">misc</who>
+    <bug_when>2016-11-19 03:54:45 -0500</bug_when>
+    <thetext>Description of problem:
+
+last week, I switched cryptopolicy to FUTURE in /etc/cryptopolicy/config and promptly forgot about it. 
+
+And today, while trying to update my Fedora system, i was greeted by dnf errors regarding mirror likst for rpmfusion, then fedora, with in the end the following issue:
+
+# curl &apos;https://mirrors.fedoraproject.org/metalink?repo=fedora-25&amp;arch=x86_64&apos;                                                          
+curl: (35) SSL version range is not valid.  
+
+So using FUTURE mean that we can&apos;t update the system, and that seems a bit annoying. 
+
+There is several issue here to fix:
+- the error message is quite puzzling on dnf side, and also on curl side.
+- the &quot;FUTURE&quot; is either not usable systemwide
+
+So should the setting be more adapted, or should something should be changed on Fedora side to use proper cipher ? 
+
+Version-Release number of selected component (if applicable):
+crypto-policies-20160921-2.git75b9b04.fc25.noarch
+
+How reproducible:
+each time
+
+Steps to Reproduce:
+1. set FUTURE in /etc/cryptopolicy/config
+2. udate-cryptopolicy
+3. run dnf update
+
+Actual results:
+puzzling error message
+
+Expected results:
+stuff should be working
+
+Additional info:</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9905279</commentid>
+    <comment_count>1</comment_count>
+    <who name="Michael Scherer">misc</who>
+    <bug_when>2016-11-19 05:20:12 -0500</bug_when>
+    <thetext>so after doing some fiddling, the issue is:
+tls-version-min=tls1.2
+
+anything different from tls-version-min=tls1.0 fail. I am not sure if the issue is on curl side, or on the cryptopolicy side</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9907347</commentid>
+    <comment_count>2</comment_count>
+    <who name="Nikos Mavrogiannopoulos">nmavrogi</who>
+    <bug_when>2016-11-21 02:43:21 -0500</bug_when>
+    <thetext>It seems the issue is in curl. If I provide explicitly TLS1.2 it works:
+
+$ curl --tlsv1.2 https://www.google.com
+&lt;HTML&gt;&lt;HEAD&gt;&lt;meta http-equiv=&quot;content-type&quot; content=&quot;text/html;charset=utf-8&quot;&gt;
+...
+
+
+Otherwise:
+
+$ curl https://www.google.com
+curl: (35) SSL version range is not valid.
+
+
+It seems its code cannot cope with NSS having TLS 1.0 or TLS 1.1 disabled.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9907476</commentid>
+    <comment_count>3</comment_count>
+    <who name="Kamil Dudka">kdudka</who>
+    <bug_when>2016-11-21 03:45:13 -0500</bug_when>
+    <thetext>Thank you for reporting the bug!  The following upstream commit will fix it:
+
+https://github.com/curl/curl/commit/curl-7_51_0-17-g5d45ced</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9907566</commentid>
+    <comment_count>4</comment_count>
+    <who name="Kamil Dudka">kdudka</who>
+    <bug_when>2016-11-21 04:09:13 -0500</bug_when>
+    <thetext>I have also included the --tlsv1.3 option to ease future testing of TLS 1.3:
+
+http://pkgs.fedoraproject.org/cgit/rpms/curl.git/commit/?id=c38149da</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9907583</commentid>
+    <comment_count>5</comment_count>
+    <who name="Nikos Mavrogiannopoulos">nmavrogi</who>
+    <bug_when>2016-11-21 04:13:33 -0500</bug_when>
+    <thetext>Kamil could you include that fix in F25 as well? F25 is the first release with NSS supporting crypto policies.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9907599</commentid>
+    <comment_count>6</comment_count>
+    <who name="Kamil Dudka">kdudka</who>
+    <bug_when>2016-11-21 04:21:49 -0500</bug_when>
+    <thetext>(In reply to Nikos Mavrogiannopoulos from comment #5)
+&gt; Kamil could you include that fix in F25 as well?
+
+Sure.  It is already included in dist-git (master and f25 share the same commit object).  I am only waiting with the f25 build till the rawhide build finishes.  Otherwise both the builds would fail due to port collisions in the upstream test suite in case a pair of builds was accidentally assigned to the same build host in Koji.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9907856</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-11-21 05:41:07 -0500</bug_when>
+    <thetext>curl-7.51.0-3.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2016-0f35ce8775</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9917859</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-11-23 18:06:11 -0500</bug_when>
+    <thetext>curl-7.51.0-3.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-0f35ce8775</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9931509</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-11-26 17:52:57 -0500</bug_when>
+    <thetext>curl-7.51.0-3.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1114793</bug_id>
+          
+          <creation_ts>2014-06-30 23:53:00 -0400</creation_ts>
+          <short_desc>drive-mirror with &quot;mode&quot;:&quot;existing&quot; fails poorly if destination is not large enough</short_desc>
+          <delta_ts>2016-05-02 16:44:28 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>qemu</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>CURRENTRELEASE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>1115572</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Eric Blake">eblake</reporter>
+          <assigned_to name="Fedora Virtualization Maintainers">virt-maint</assigned_to>
+          <cc>amit.shah</cc>
+    
+    
+    <cc>berrange</cc>
+    
+    
+    <cc>cfergeau</cc>
+    
+    
+    <cc>crobinso</cc>
+    
+    
+    <cc>dwmw2</cc>
+    
+    
+    <cc>itamar</cc>
+    
+    
+    <cc>pbonzini</cc>
+    
+    
+    <cc>rjones</cc>
+    
+    
+    <cc>scottt.tw</cc>
+    
+    
+    <cc>virt-maint</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-05-02 16:44:28</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>7251685</commentid>
+    <comment_count>0</comment_count>
+    <who name="Eric Blake">eblake</who>
+    <bug_when>2014-06-30 23:53:22 -0400</bug_when>
+    <thetext>Description of problem:
+https://lists.gnu.org/archive/html/qemu-devel/2014-06/msg07377.html
+I tested on F20 with fedora-virt-preview, but suspect RHEL/RHEV may benefit from cloning this bug.  It would be nice when doing a diskcopy into an existing file if qemu would automatically resize the destination to be large enough, or at a bare minimum fail up front if the size is wrong. But the current behavior is to silently and successfully start the job, then fail when the destination is out of space; if management misses the &apos;BLOCK_JOB_COMPLETED with error&apos; event, there is NO indication that the job failed or why.
+
+Version-Release number of selected component (if applicable):
+qemu-kvm-2.0.0-7.fc20.x86_64
+
+How reproducible:
+100%
+
+Steps to Reproduce:
+1.#!/bin/sh
+cd /tmp
+
+rm -f base.img snap1.img snap2.img copy.img
+virsh destroy testvm1 2&gt;/dev/null
+
+# base.img &lt;- snap1.img &lt;- snap2.img
+qemu-img create -f raw base.img 10M
+qemu-img create -f qcow2 -b base.img -o backing_fmt=raw snap1.img
+qemu-img create -f qcow2 -b snap1.img -o backing_fmt=qcow2 snap2.img
+# set up blank space to hold the copy
+touch copy.img
+# cp base.img copy.img # uncomment this to see expected results
+
+virsh create /dev/stdin &lt;&lt;EOF
+&lt;domain type=&apos;kvm&apos;&gt;
+ &lt;name&gt;testvm1&lt;/name&gt;
+ &lt;memory unit=&apos;MiB&apos;&gt;256&lt;/memory&gt;
+ &lt;vcpu&gt;1&lt;/vcpu&gt;
+ &lt;os&gt;
+   &lt;type arch=&apos;x86_64&apos;&gt;hvm&lt;/type&gt;
+ &lt;/os&gt;
+ &lt;devices&gt;
+   &lt;disk type=&apos;file&apos; device=&apos;disk&apos;&gt;
+     &lt;driver name=&apos;qemu&apos; type=&apos;qcow2&apos;/&gt;
+     &lt;source file=&apos;$PWD/snap2.img&apos;/&gt;
+     &lt;target dev=&apos;vda&apos; bus=&apos;virtio&apos;/&gt;
+   &lt;/disk&gt;
+   &lt;graphics type=&apos;vnc&apos;/&gt;
+ &lt;/devices&gt;
+&lt;/domain&gt;
+EOF
+
+# check for events
+virsh event testvm1 block-job --loop --timeout 10 &amp;
+pid=$!
+sleep 1
+# run the blockcopy
+virsh blockcopy testvm1 vda --wait --verbose --raw /tmp/copy.img --reuse-external
+echo job started
+sleep 5
+virsh blockjob testvm1 vda --abort
+wait $pid
+
+
+Actual results:
+Block Copy: [  0 %]event &apos;block-job&apos; for domain testvm1: Block Copy for /tmp/snap2.img failed
+
+Now in mirroring phase
+job started
+event loop timed out
+events received: 1
+
+error: Requested operation is not valid: No active operation on device: drive-virtio-disk0
+
+
+
+Expected results:
+Block Copy: [  0 %]event &apos;block-job&apos; for domain testvm1: Block Copy for /tmp/snap2.img ready
+Block Copy: [100 %]
+Now in mirroring phase
+job started
+event &apos;block-job&apos; for domain testvm1: Block Copy for /tmp/snap2.img completed
+
+event loop timed out
+events received: 2
+
+
+Additional info:</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>7258403</commentid>
+    <comment_count>1</comment_count>
+    <who name="Cole Robinson">crobinso</who>
+    <bug_when>2014-07-02 10:40:19 -0400</bug_when>
+    <thetext>Fedora qemu bugs have much less visibility than those filed against RHEL. Since your mention of this issue on the mailing list didn&apos;t get a response yet, I&apos;d suggest cloning or fully moving this issue to RHEL where resources are more likely to be allocated.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>7995432</commentid>
+    <comment_count>2</comment_count>
+    <who name="Jaroslav Reznik">jreznik</who>
+    <bug_when>2015-03-03 11:05:23 -0500</bug_when>
+    <thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 22 development cycle.
+Changing version to &apos;22&apos;.
+
+More information and reason for this action is here:
+https://fedoraproject.org/wiki/Fedora_Program_Management/HouseKeeping/Fedora22</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9286094</commentid>
+    <comment_count>3</comment_count>
+    <who name="Cole Robinson">crobinso</who>
+    <bug_when>2016-05-02 16:44:28 -0400</bug_when>
+    <thetext>According to https://bugzilla.redhat.com/show_bug.cgi?id=1114962#c6 this is fixed with latest qemu, so closing against f24</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

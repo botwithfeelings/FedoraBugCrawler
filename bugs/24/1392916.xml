@@ -1,0 +1,423 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1392916</bug_id>
+          
+          <creation_ts>2016-11-08 08:19:00 -0500</creation_ts>
+          <short_desc>sssd failes to start after update</short_desc>
+          <delta_ts>2016-12-22 13:18:08 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>sssd</component>
+          <version>24</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>high</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Torsten">tnielsen</reporter>
+          <assigned_to name="Jakub Hrozek">jhrozek</assigned_to>
+          <cc>abokovoy</cc>
+    
+    
+    <cc>jhrozek</cc>
+    
+    
+    <cc>lslebodn</cc>
+    
+    
+    <cc>mzidek</cc>
+    
+    
+    <cc>pbrezina</cc>
+    
+    
+    <cc>preichl</cc>
+    
+    
+    <cc>rharwood</cc>
+    
+    
+    <cc>sbose</cc>
+    
+    
+    <cc>ssorce</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>sssd-1.14.2-2.fc23 sssd-1.14.2-2.fc25 sssd-1.14.2-2.fc24</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-12-16 19:23:41</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9871776</commentid>
+    <comment_count>0</comment_count>
+      <attachid>1218521</attachid>
+    <who name="Torsten">tnielsen</who>
+    <bug_when>2016-11-08 08:19:19 -0500</bug_when>
+    <thetext>Created attachment 1218521
+Output from journalctl -u sssd
+
+Description of problem:
+Fresh install of Fedora 24 is setup with Enterprise Login against AD.
+It works just fine - even after a reboot.
+After an update (and reboot) it fails to start.
+At login I&apos;m promted to go through the Enterprise Setup again -
+this time I don&apos;t have to provide AD admin account, but it
+doesn&apos;t fix the problem.
+
+Version-Release number of selected component (if applicable):
+
+
+How reproducible:
+Fresh install failed friday but having fiddled with sssd.conf and other
+config settings, I decided to start fresh monday.
+This time I did the install made sure login worked (also after reboot)
+did the &quot;dnf update&quot; and again sssd fails to start.
+
+Steps to Reproduce:
+1. Install Fedora 24 from DVD/USB - choose Enterprise Login
+2. dnf update
+3.
+
+Actual results:
+sssd stops working
+
+Expected results:
+Login via sssd should continue to work.
+
+Additional info:
+Output from
+journalctl -u sssd
+http://pastebin.com/hwnqqPRs
+
+Using etckeeper - some git diff info:
+http://pastebin.com/fKuKNZqQ</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9871808</commentid>
+    <comment_count>1</comment_count>
+    <who name="Lukas Slebodnik">lslebodn</who>
+    <bug_when>2016-11-08 08:26:14 -0500</bug_when>
+    <thetext>journalctl output is not useful by default for sssd.
+Please follow https://fedorahosted.org/sssd/wiki/Troubleshooting</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9872041</commentid>
+    <comment_count>2</comment_count>
+    <who name="Torsten">tnielsen</who>
+    <bug_when>2016-11-08 09:18:19 -0500</bug_when>
+    <thetext>Increased the debug level and restarted sssd.
+Looking through the /var/log/sssd/sssd.log
+There seemed to be a line for each AD user (a lot!)
+I also noticed some mention of DB, so I went ahead
+and deleted the cache-files under /var/lib/sss/db
+This seemed to do the trick sssd could now start -
+and after a reboot, I could login.
+
+Maybe You can close this one, but I don&apos;t think a system upgrade
+should make sssd fail to restart.
+
+From /var/log/sssd/sssd.log (after failed restart of sssd)
+----
+(Tue Nov  8 14:48:53 2016) [sssd] [server_setup] (0x0400): CONFDB: /var/lib/sss/db/config.ldb
+(Tue Nov  8 14:48:53 2016) [sssd] [sss_names_init_from_args] (0x0100): Using re [(((?P&lt;domain&gt;[^\\]+)\\(?P&lt;name&gt;.+$))|((?P&lt;name&gt;[^@]+)@(?P&lt;domain&gt;.+$))|(^(?P&lt;name&gt;[^@\\]+)$))].
+(Tue Nov  8 14:48:53 2016) [sssd] [sss_fqnames_init] (0x0100): Using fq format [%1$s@%2$s].
+(Tue Nov  8 14:48:53 2016) [sssd] [sysdb_domain_init_internal] (0x0200): DB File for uni.au.dk: /var/lib/sss/db/cache_uni.au.dk.ldb
+(Tue Nov  8 14:48:53 2016) [sssd] [sysdb_domain_init_internal] (0x0200): Timestamp file for uni.au.dk: /var/lib/sss/db/timestamps_uni.au.dk.ldb
+(Tue Nov  8 14:48:53 2016) [sssd] [ldb] (0x0400): asq: Unable to register control with rootdse!
+(Tue Nov  8 14:48:53 2016) [sssd] [sysdb_domain_cache_upgrade] (0x0100): Upgrading DB [uni.au.dk] from version: 0.17
+(Tue Nov  8 14:48:53 2016) [sssd] [commence_upgrade] (0x0020): UPGRADING DB TO VERSION 0.18</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9872257</commentid>
+    <comment_count>3</comment_count>
+    <who name="Lukas Slebodnik">lslebodn</who>
+    <bug_when>2016-11-08 10:00:05 -0500</bug_when>
+    <thetext>It&apos;s difficult to say from log file but it could be a duplicate of upstream bug.
+https://fedorahosted.org/sssd/ticket/3232
+
+How big files were in /var/lib/sss/db/ ?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9872869</commentid>
+    <comment_count>4</comment_count>
+    <who name="Torsten">tnielsen</who>
+    <bug_when>2016-11-08 12:21:18 -0500</bug_when>
+    <thetext>The original files, I don&apos;t know - they are gone.
+
+This is what I have now:
+# ls -lht /var/lib/sss/db/
+total 31M
+-rw-------. 1 root root 3,5K Nov  8 18:05 ccache_UNI.AU.DK
+-rw-------. 1 root root  27M Nov  8 18:05 cache_uni.au.dk.ldb
+-rw-------. 1 root root 1,6M Nov  8 18:05 timestamps_uni.au.dk.ldb
+-rw-------. 1 root root 1,3M Nov  8 17:49 config.ldb
+-rw-------. 1 root root 1,3M Nov  8 14:59 sssd.ldb</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9873430</commentid>
+    <comment_count>5</comment_count>
+    <who name="Lukas Slebodnik">lslebodn</who>
+    <bug_when>2016-11-08 15:26:50 -0500</bug_when>
+    <thetext>(In reply to Torsten from comment #4)
+&gt; The original files, I don&apos;t know - they are gone.
+&gt; 
+&gt; This is what I have now:
+&gt; # ls -lht /var/lib/sss/db/
+&gt; total 31M
+&gt; -rw-------. 1 root root 3,5K Nov  8 18:05 ccache_UNI.AU.DK
+&gt; -rw-------. 1 root root  27M Nov  8 18:05 cache_uni.au.dk.ldb
+It could take some time to upgrade 27 MiB cache.
+
+I can confirm you hit upstream bug https://fedorahosted.org/sssd/ticket/3232
+
+I am so sorry for inconveniences. The bug is fixed in upstream.
+and you already found a workaround.
+rm -f /var/lib/sss/db/cache_*</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9879535</commentid>
+    <comment_count>6</comment_count>
+    <who name="Lukas Slebodnik">lslebodn</who>
+    <bug_when>2016-11-10 07:10:06 -0500</bug_when>
+    <thetext>Upstream ticket:
+https://fedorahosted.org/sssd/ticket/3232</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9982203</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-13 15:07:50 -0500</bug_when>
+    <thetext>sssd-1.14.2-2.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2016-66bc868b6e</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9982210</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-13 15:09:55 -0500</bug_when>
+    <thetext>sssd-1.14.2-2.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-b04d690b49</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9982218</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-13 15:11:46 -0500</bug_when>
+    <thetext>sssd-1.14.2-2.fc23 has been submitted as an update to Fedora 23. https://bodhi.fedoraproject.org/updates/FEDORA-2016-b0d27da617</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9988110</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-14 21:28:09 -0500</bug_when>
+    <thetext>sssd-1.14.2-2.fc23 has been pushed to the Fedora 23 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-b0d27da617</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9988334</commentid>
+    <comment_count>11</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-15 00:02:58 -0500</bug_when>
+    <thetext>sssd-1.14.2-2.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-b04d690b49</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9988377</commentid>
+    <comment_count>12</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-15 00:06:22 -0500</bug_when>
+    <thetext>sssd-1.14.2-2.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-66bc868b6e</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9995210</commentid>
+    <comment_count>13</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-16 19:23:41 -0500</bug_when>
+    <thetext>sssd-1.14.2-2.fc23 has been pushed to the Fedora 23 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10000235</commentid>
+    <comment_count>14</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-19 18:22:37 -0500</bug_when>
+    <thetext>sssd-1.14.2-2.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10016846</commentid>
+    <comment_count>15</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-22 13:18:08 -0500</bug_when>
+    <thetext>sssd-1.14.2-2.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="0"
+              ispatch="0"
+              isprivate="0"
+          >
+            <attachid>1218521</attachid>
+            <date>2016-11-08 08:19:00 -0500</date>
+            <delta_ts>2016-11-08 08:19:19 -0500</delta_ts>
+            <desc>Output from journalctl -u sssd</desc>
+            <filename>journalctl-sssd</filename>
+            <type>text/x-vhdl</type>
+            <size>6238</size>
+            <attacher name="Torsten">tnielsen</attacher>
+            
+              <data encoding="base64">LS0gTG9ncyBiZWdpbiBhdCBNb24gMjAxNi0xMS0wNyAxMDo1MDozNiBDRVQsIGVuZCBhdCBUdWUg
+MjAxNi0xMS0wOCAxNDoxMTozNCBDRVQuIC0tCk5vdiAwNyAxNTo1NTowNCBkMTE4NDkuYXVpdGRy
+aWZ0LmNsaWVudC5hdS5kayBzeXN0ZW1kWzFdOiBTdG9wcGVkIFN5c3RlbSBTZWN1cml0eSBTZXJ2
+aWNlcyBEYWVtb24uCk5vdiAwNyAxNTo1NTowNCBkMTE4NDkuYXVpdGRyaWZ0LmNsaWVudC5hdS5k
+ayBzeXN0ZW1kWzFdOiBTdGFydGluZyBTeXN0ZW0gU2VjdXJpdHkgU2VydmljZXMgRGFlbW9uLi4u
+Ck5vdiAwNyAxNTo1NTowNCBkMTE4NDkuYXVpdGRyaWZ0LmNsaWVudC5hdS5kayBzc3NkWzIxMjNd
+OiBTdGFydGluZyB1cApOb3YgMDcgMTU6NTU6MDUgZDExODQ5LmF1aXRkcmlmdC5jbGllbnQuYXUu
+ZGsgc3NzZFtiZVt1bmkuYXUuZGtdXVsyMTI0XTogU3RhcnRpbmcgdXAKTm92IDA3IDE1OjU1OjA1
+IGQxMTg0OS5hdWl0ZHJpZnQuY2xpZW50LmF1LmRrIHNzc2RbcGFtXVsyMTI2XTogU3RhcnRpbmcg
+dXAKTm92IDA3IDE1OjU1OjA1IGQxMTg0OS5hdWl0ZHJpZnQuY2xpZW50LmF1LmRrIHNzc2RbbnNz
+XVsyMTI1XTogU3RhcnRpbmcgdXAKTm92IDA3IDE1OjU1OjA1IGQxMTg0OS5hdWl0ZHJpZnQuY2xp
+ZW50LmF1LmRrIHN5c3RlbWRbMV06IFN0YXJ0ZWQgU3lzdGVtIFNlY3VyaXR5IFNlcnZpY2VzIERh
+ZW1vbi4KTm92IDA3IDE1OjU1OjA2IGQxMTg0OS5hdWl0ZHJpZnQuY2xpZW50LmF1LmRrIHN5c3Rl
+bWRbMV06IFN0b3BwaW5nIFN5c3RlbSBTZWN1cml0eSBTZXJ2aWNlcyBEYWVtb24uLi4KTm92IDA3
+IDE1OjU1OjA2IGQxMTg0OS5hdWl0ZHJpZnQuY2xpZW50LmF1LmRrIHNzc2RbYmVbdW5pLmF1LmRr
+XV1bMjEyNF06IFNodXR0aW5nIGRvd24KTm92IDA3IDE1OjU1OjA2IGQxMTg0OS5hdWl0ZHJpZnQu
+Y2xpZW50LmF1LmRrIHN5c3RlbWRbMV06IFN0b3BwZWQgU3lzdGVtIFNlY3VyaXR5IFNlcnZpY2Vz
+IERhZW1vbi4KTm92IDA3IDE1OjU1OjA2IGQxMTg0OS5hdWl0ZHJpZnQuY2xpZW50LmF1LmRrIHN5
+c3RlbWRbMV06IFN0YXJ0aW5nIFN5c3RlbSBTZWN1cml0eSBTZXJ2aWNlcyBEYWVtb24uLi4KTm92
+IDA3IDE1OjU1OjA2IGQxMTg0OS5hdWl0ZHJpZnQuY2xpZW50LmF1LmRrIHNzc2RbMjIzMl06IFN0
+YXJ0aW5nIHVwCk5vdiAwNyAxNTo1NTowNiBkMTE4NDkuYXVpdGRyaWZ0LmNsaWVudC5hdS5kayBz
+c3NkW2JlW3VuaS5hdS5ka11dWzIyMzNdOiBTdGFydGluZyB1cApOb3YgMDcgMTU6NTU6MDYgZDEx
+ODQ5LmF1aXRkcmlmdC5jbGllbnQuYXUuZGsgc3NzZFtuc3NdWzIyMzRdOiBTdGFydGluZyB1cApO
+b3YgMDcgMTU6NTU6MDYgZDExODQ5LmF1aXRkcmlmdC5jbGllbnQuYXUuZGsgc3NzZFtwYW1dWzIy
+MzVdOiBTdGFydGluZyB1cApOb3YgMDcgMTU6NTU6MDYgZDExODQ5LmF1aXRkcmlmdC5jbGllbnQu
+YXUuZGsgc3lzdGVtZFsxXTogU3RhcnRlZCBTeXN0ZW0gU2VjdXJpdHkgU2VydmljZXMgRGFlbW9u
+LgpOb3YgMDcgMTY6MDc6MzggZDExODQ5LmF1aXRkcmlmdC5jbGllbnQuYXUuZGsgYWRjbGlbNDA0
+NF06IEdTU0FQSSBjbGllbnQgc3RlcCAxCk5vdiAwNyAxNjowNzozOCBkMTE4NDkuYXVpdGRyaWZ0
+LmNsaWVudC5hdS5kayBhZGNsaVs0MDQ0XTogR1NTQVBJIGNsaWVudCBzdGVwIDEKTm92IDA3IDE2
+OjA3OjM4IGQxMTg0OS5hdWl0ZHJpZnQuY2xpZW50LmF1LmRrIGFkY2xpWzQwNDRdOiBHU1NBUEkg
+Y2xpZW50IHN0ZXAgMQpOb3YgMDcgMTY6MDc6MzggZDExODQ5LmF1aXRkcmlmdC5jbGllbnQuYXUu
+ZGsgYWRjbGlbNDA0NF06IEdTU0FQSSBjbGllbnQgc3RlcCAyCk5vdiAwNyAxNjoxMDo1MSBkMTE4
+NDkuYXVpdGRyaWZ0LmNsaWVudC5hdS5kayBzeXN0ZW1kWzFdOiBTdG9wcGluZyBTeXN0ZW0gU2Vj
+dXJpdHkgU2VydmljZXMgRGFlbW9uLi4uCk5vdiAwNyAxNjoxMDo1MSBkMTE4NDkuYXVpdGRyaWZ0
+LmNsaWVudC5hdS5kayBzeXN0ZW1kWzFdOiBTdG9wcGVkIFN5c3RlbSBTZWN1cml0eSBTZXJ2aWNl
+cyBEYWVtb24uCi0tIFJlYm9vdCAtLQpOb3YgMDcgMTY6MTE6MTEgZDExODQ5LmF1aXRkcmlmdC5j
+bGllbnQuYXUuZGsgc3lzdGVtZFsxXTogU3RhcnRpbmcgU3lzdGVtIFNlY3VyaXR5IFNlcnZpY2Vz
+IERhZW1vbi4uLgpOb3YgMDcgMTY6MTE6MTEgZDExODQ5LmF1aXRkcmlmdC5jbGllbnQuYXUuZGsg
+c3NzZFs4NDddOiBTdGFydGluZyB1cApOb3YgMDcgMTY6MTE6MTEgZDExODQ5LmF1aXRkcmlmdC5j
+bGllbnQuYXUuZGsgc3NzZFtiZVt1bmkuYXUuZGtdXVs4NTJdOiBTdGFydGluZyB1cApOb3YgMDcg
+MTY6MTE6MTEgZDExODQ5LmF1aXRkcmlmdC5jbGllbnQuYXUuZGsgc3NzZFtuc3NdWzg5M106IFN0
+YXJ0aW5nIHVwCk5vdiAwNyAxNjoxMToxMSBkMTE4NDkuYXVpdGRyaWZ0LmNsaWVudC5hdS5kayBz
+c3NkW3BhbV1bODk0XTogU3RhcnRpbmcgdXAKTm92IDA3IDE2OjExOjExIGQxMTg0OS5hdWl0ZHJp
+ZnQuY2xpZW50LmF1LmRrIHN5c3RlbWRbMV06IFN0YXJ0ZWQgU3lzdGVtIFNlY3VyaXR5IFNlcnZp
+Y2VzIERhZW1vbi4KTm92IDA3IDE2OjExOjMxIGQxMTg0OS5hdWl0ZHJpZnQuY2xpZW50LmF1LmRr
+IGFkY2xpWzIwNDNdOiBHU1NBUEkgY2xpZW50IHN0ZXAgMQpOb3YgMDcgMTY6MTE6MzEgZDExODQ5
+LmF1aXRkcmlmdC5jbGllbnQuYXUuZGsgYWRjbGlbMjA0M106IEdTU0FQSSBjbGllbnQgc3RlcCAx
+Ck5vdiAwNyAxNjoxMTozMSBkMTE4NDkuYXVpdGRyaWZ0LmNsaWVudC5hdS5kayBhZGNsaVsyMDQz
+XTogR1NTQVBJIGNsaWVudCBzdGVwIDEKTm92IDA3IDE2OjExOjMxIGQxMTg0OS5hdWl0ZHJpZnQu
+Y2xpZW50LmF1LmRrIGFkY2xpWzIwNDNdOiBHU1NBUEkgY2xpZW50IHN0ZXAgMgpOb3YgMDcgMTY6
+Mjc6MzEgZDExODQ5LmF1aXRkcmlmdC5jbGllbnQuYXUuZGsgc3NzZFs4NDddOiBLaWxsaW5nIHNl
+cnZpY2UgW3VuaS5hdS5ka10sIG5vdCByZXNwb25kaW5nIHRvIHBpbmdzIQpOb3YgMDcgMTY6Mjg6
+MjYgZDExODQ5LmF1aXRkcmlmdC5jbGllbnQuYXUuZGsgc3NzZFtiZVt1bmkuYXUuZGtdXVs4NTJd
+OiBTaHV0dGluZyBkb3duCk5vdiAwNyAxNjoyODoyNiBkMTE4NDkuYXVpdGRyaWZ0LmNsaWVudC5h
+dS5kayBzc3NkW2JlW3VuaS5hdS5ka11dWzI1MjJdOiBTdGFydGluZyB1cApOb3YgMDcgMTY6NDA6
+NTcgZDExODQ5LmF1aXRkcmlmdC5jbGllbnQuYXUuZGsgYWRjbGlbMjY0N106IEdTU0FQSSBjbGll
+bnQgc3RlcCAxCk5vdiAwNyAxNjo0MDo1NyBkMTE4NDkuYXVpdGRyaWZ0LmNsaWVudC5hdS5kayBh
+ZGNsaVsyNjQ3XTogR1NTQVBJIGNsaWVudCBzdGVwIDEKTm92IDA3IDE2OjQwOjU3IGQxMTg0OS5h
+dWl0ZHJpZnQuY2xpZW50LmF1LmRrIGFkY2xpWzI2NDddOiBHU1NBUEkgY2xpZW50IHN0ZXAgMQpO
+b3YgMDcgMTY6NDA6NTcgZDExODQ5LmF1aXRkcmlmdC5jbGllbnQuYXUuZGsgYWRjbGlbMjY0N106
+IEdTU0FQSSBjbGllbnQgc3RlcCAyCk5vdiAwNyAxNzowNTowNyBkMTE4NDkuYXVpdGRyaWZ0LmNs
+aWVudC5hdS5kayBzeXN0ZW1kWzFdOiBTdG9wcGluZyBTeXN0ZW0gU2VjdXJpdHkgU2VydmljZXMg
+RGFlbW9uLi4uCk5vdiAwNyAxNzowNTowNyBkMTE4NDkuYXVpdGRyaWZ0LmNsaWVudC5hdS5kayBz
+c3NkW25zc11bODkzXTogU2h1dHRpbmcgZG93bgpOb3YgMDcgMTc6MDU6MDcgZDExODQ5LmF1aXRk
+cmlmdC5jbGllbnQuYXUuZGsgc3lzdGVtZFsxXTogU3RvcHBlZCBTeXN0ZW0gU2VjdXJpdHkgU2Vy
+dmljZXMgRGFlbW9uLgpOb3YgMDcgMTc6MDU6MDcgZDExODQ5LmF1aXRkcmlmdC5jbGllbnQuYXUu
+ZGsgc3lzdGVtZFsxXTogU3RhcnRpbmcgU3lzdGVtIFNlY3VyaXR5IFNlcnZpY2VzIERhZW1vbi4u
+LgpOb3YgMDcgMTc6MDU6MDcgZDExODQ5LmF1aXRkcmlmdC5jbGllbnQuYXUuZGsgc3NzZFs2NTc4
+XTogU3RhcnRpbmcgdXAKTm92IDA3IDE3OjA1OjQ4IGQxMTg0OS5hdWl0ZHJpZnQuY2xpZW50LmF1
+LmRrIHN5c3RlbWRbMV06IHNzc2Quc2VydmljZTogQ29udHJvbCBwcm9jZXNzIGV4aXRlZCwgY29k
+ZT1leGl0ZWQgc3RhdHVzPTEKTm92IDA3IDE3OjA1OjQ4IGQxMTg0OS5hdWl0ZHJpZnQuY2xpZW50
+LmF1LmRrIHN5c3RlbWRbMV06IEZhaWxlZCB0byBzdGFydCBTeXN0ZW0gU2VjdXJpdHkgU2Vydmlj
+ZXMgRGFlbW9uLgpOb3YgMDcgMTc6MDU6NDggZDExODQ5LmF1aXRkcmlmdC5jbGllbnQuYXUuZGsg
+c3lzdGVtZFsxXTogc3NzZC5zZXJ2aWNlOiBVbml0IGVudGVyZWQgZmFpbGVkIHN0YXRlLgpOb3Yg
+MDcgMTc6MDU6NDggZDExODQ5LmF1aXRkcmlmdC5jbGllbnQuYXUuZGsgc3lzdGVtZFsxXTogc3Nz
+ZC5zZXJ2aWNlOiBGYWlsZWQgd2l0aCByZXN1bHQgJ2V4aXQtY29kZScuCi0tIFJlYm9vdCAtLQpO
+b3YgMDggMTI6MTY6NDMgZDExODQ5LmF1aXRkcmlmdC5jbGllbnQuYXUuZGsgc3lzdGVtZFsxXTog
+U3RhcnRpbmcgU3lzdGVtIFNlY3VyaXR5IFNlcnZpY2VzIERhZW1vbi4uLgpOb3YgMDggMTI6MTY6
+NDMgZDExODQ5LmF1aXRkcmlmdC5jbGllbnQuYXUuZGsgc3NzZFs3NjNdOiBTdGFydGluZyB1cApO
+b3YgMDggMTI6MTc6MjQgZDExODQ5LmF1aXRkcmlmdC5jbGllbnQuYXUuZGsgc3lzdGVtZFsxXTog
+c3NzZC5zZXJ2aWNlOiBDb250cm9sIHByb2Nlc3MgZXhpdGVkLCBjb2RlPWV4aXRlZCBzdGF0dXM9
+MQpOb3YgMDggMTI6MTc6MjQgZDExODQ5LmF1aXRkcmlmdC5jbGllbnQuYXUuZGsgc3lzdGVtZFsx
+XTogRmFpbGVkIHRvIHN0YXJ0IFN5c3RlbSBTZWN1cml0eSBTZXJ2aWNlcyBEYWVtb24uCk5vdiAw
+OCAxMjoxNzoyNCBkMTE4NDkuYXVpdGRyaWZ0LmNsaWVudC5hdS5kayBzeXN0ZW1kWzFdOiBzc3Nk
+LnNlcnZpY2U6IFVuaXQgZW50ZXJlZCBmYWlsZWQgc3RhdGUuCk5vdiAwOCAxMjoxNzoyNCBkMTE4
+NDkuYXVpdGRyaWZ0LmNsaWVudC5hdS5kayBzeXN0ZW1kWzFdOiBzc3NkLnNlcnZpY2U6IEZhaWxl
+ZCB3aXRoIHJlc3VsdCAnZXhpdC1jb2RlJy4KTm92IDA4IDEyOjE4OjMzIGQxMTg0OS5hdWl0ZHJp
+ZnQuY2xpZW50LmF1LmRrIHN5c3RlbWRbMV06IFN0b3BwZWQgU3lzdGVtIFNlY3VyaXR5IFNlcnZp
+Y2VzIERhZW1vbi4KTm92IDA4IDEyOjE4OjMzIGQxMTg0OS5hdWl0ZHJpZnQuY2xpZW50LmF1LmRr
+IHN5c3RlbWRbMV06IFN0YXJ0aW5nIFN5c3RlbSBTZWN1cml0eSBTZXJ2aWNlcyBEYWVtb24uLi4K
+Tm92IDA4IDEyOjE4OjMzIGQxMTg0OS5hdWl0ZHJpZnQuY2xpZW50LmF1LmRrIHNzc2RbMTM2MF06
+IFN0YXJ0aW5nIHVwCk5vdiAwOCAxMjoxOToxNCBkMTE4NDkuYXVpdGRyaWZ0LmNsaWVudC5hdS5k
+ayBzeXN0ZW1kWzFdOiBzc3NkLnNlcnZpY2U6IENvbnRyb2wgcHJvY2VzcyBleGl0ZWQsIGNvZGU9
+ZXhpdGVkIHN0YXR1cz0xCk5vdiAwOCAxMjoxOToxNCBkMTE4NDkuYXVpdGRyaWZ0LmNsaWVudC5h
+dS5kayBzeXN0ZW1kWzFdOiBGYWlsZWQgdG8gc3RhcnQgU3lzdGVtIFNlY3VyaXR5IFNlcnZpY2Vz
+IERhZW1vbi4KTm92IDA4IDEyOjE5OjE0IGQxMTg0OS5hdWl0ZHJpZnQuY2xpZW50LmF1LmRrIHN5
+c3RlbWRbMV06IHNzc2Quc2VydmljZTogVW5pdCBlbnRlcmVkIGZhaWxlZCBzdGF0ZS4KTm92IDA4
+IDEyOjE5OjE0IGQxMTg0OS5hdWl0ZHJpZnQuY2xpZW50LmF1LmRrIHN5c3RlbWRbMV06IHNzc2Qu
+c2VydmljZTogRmFpbGVkIHdpdGggcmVzdWx0ICdleGl0LWNvZGUnLgotLSBSZWJvb3QgLS0KTm92
+IDA4IDEyOjI3OjQzIGQxMTg0OS5hdWl0ZHJpZnQuY2xpZW50LmF1LmRrIHN5c3RlbWRbMV06IFN0
+YXJ0aW5nIFN5c3RlbSBTZWN1cml0eSBTZXJ2aWNlcyBEYWVtb24uLi4KTm92IDA4IDEyOjI3OjQz
+IGQxMTg0OS5hdWl0ZHJpZnQuY2xpZW50LmF1LmRrIHNzc2RbODA2XTogU3RhcnRpbmcgdXAKTm92
+IDA4IDEyOjI4OjI0IGQxMTg0OS5hdWl0ZHJpZnQuY2xpZW50LmF1LmRrIHN5c3RlbWRbMV06IHNz
+c2Quc2VydmljZTogQ29udHJvbCBwcm9jZXNzIGV4aXRlZCwgY29kZT1leGl0ZWQgc3RhdHVzPTEK
+Tm92IDA4IDEyOjI4OjI0IGQxMTg0OS5hdWl0ZHJpZnQuY2xpZW50LmF1LmRrIHN5c3RlbWRbMV06
+IEZhaWxlZCB0byBzdGFydCBTeXN0ZW0gU2VjdXJpdHkgU2VydmljZXMgRGFlbW9uLgpOb3YgMDgg
+MTI6Mjg6MjQgZDExODQ5LmF1aXRkcmlmdC5jbGllbnQuYXUuZGsgc3lzdGVtZFsxXTogc3NzZC5z
+ZXJ2aWNlOiBVbml0IGVudGVyZWQgZmFpbGVkIHN0YXRlLgpOb3YgMDggMTI6Mjg6MjQgZDExODQ5
+LmF1aXRkcmlmdC5jbGllbnQuYXUuZGsgc3lzdGVtZFsxXTogc3NzZC5zZXJ2aWNlOiBGYWlsZWQg
+d2l0aCByZXN1bHQgJ2V4aXQtY29kZScuCg==
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

@@ -1,0 +1,439 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1431222</bug_id>
+          
+          <creation_ts>2017-03-10 11:18:00 -0500</creation_ts>
+          <short_desc>etcd 3.0.17 creates high load when configured with TLS</short_desc>
+          <delta_ts>2017-03-22 15:49:38 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>etcd</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>CURRENTRELEASE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>high</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Spyros Trigazis">strigazi</reporter>
+          <assigned_to name="Jan Chaloupka">jchaloup</assigned_to>
+          <cc>avagarwa</cc>
+    
+    
+    <cc>dustymabe</cc>
+    
+    
+    <cc>eparis</cc>
+    
+    
+    <cc>golang-updates</cc>
+    
+    
+    <cc>gscrivan</cc>
+    
+    
+    <cc>jcajka</cc>
+    
+    
+    <cc>jchaloup</cc>
+    
+    
+    <cc>lacypret</cc>
+    
+    
+    <cc>lemenkov</cc>
+    
+    
+    <cc>strigazi</cc>
+    
+    
+    <cc>tstclair</cc>
+    
+    
+    <cc>walters</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-03-22 15:49:38</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10228948</commentid>
+    <comment_count>0</comment_count>
+    <who name="Spyros Trigazis">strigazi</who>
+    <bug_when>2017-03-10 11:18:18 -0500</bug_when>
+    <thetext>Description of problem:
+If etcd is configured with TLS it creates a massive amount of load in the host.
+If the host is powerful enough and you don&apos;t create actual load on etcd you
+might not notice. 
+
+Version-Release number of selected component (if applicable):
+3.0.17
+
+How reproducible:
+Always
+
+
+Steps to Reproduce:
+1. On a Fedora Atomic host with etcd 3.0.17
+2. Create TLS certificates. A ca, a cert and a key  
+3. configure etcd like follows:
+ETCD_NAME=&lt;ip&gt;
+ETCD_DATA_DIR=/var/lib/etcd/default.etcd
+ETCD_LISTEN_CLIENT_URLS=https://&lt;ip&gt;:2379
+ETCD_LISTEN_PEER_URLS=https://&lt;ip&gt;:2380
+
+ETCD_ADVERTISE_CLIENT_URLS=https://&lt;ip&gt;:2379
+ETCD_INITIAL_ADVERTISE_PEER_URLS=https://&lt;ip&gt;:2380
+ETCD_DISCOVERY=https://discovery.etcd.io/8765108671b4ee96a9efaf0f6714164a
+ETCD_TRUSTED_CA_FILE=/srv/kubernetes/ca.crt
+ETCD_CERT_FILE=/srv/kubernetes/server.crt
+ETCD_KEY_FILE=/srv/kubernetes/server.key
+ETCD_PEER_TRUSTED_CA_FILE=/srv/kubernetes/ca.crt
+ETCD_PEER_CERT_FILE=/srv/kubernetes/server.crt
+ETCD_PEER_KEY_FILE=/srv/kubernetes/server.key
+
+4. Start etcd
+
+Actual results:
+A lot of:
+Mar 09 14:13:02 te-kvz2ov3ur-0-dovsiocfsl5c-swarm-master-bxb4bk5pthcy.novalocal etcd[2038]: transport: http2Client.notifyError got notified that the client transport was broken unexpected EOF.
+
+See [1].
+
+Expected results:
+Etcd running without the above error and reasonable load.
+
+
+Additional info:
+Here is the fun part. Using etcd in the docker image registry.fedoraproject.org/f25/etcd (3.0.17) doesn&apos;t work as well.
+But, using gcr.io/google_containers/etcd:3.0.17 or quay.io/coreos/etcd:v3.1.1 works fine.
+
+etcd 3.0.15 in fedora doesn&apos;t suffer from this issue. In [2], etcd works fine.
+
+[1] http://logs.openstack.org/02/443002/2/check/gate-functional-dsvm-magnum-swarm-ubuntu-xenial/50d25b2/logs/cluster-nodes/master-test_start_stop_container_from_api-172.24.5.8/etcd.txt.gz
+[2] https://kojipkgs.fedoraproject.org/compose/twoweek/Fedora-Atomic-25-20170205.0/compose/CloudImages/x86_64/images/</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10229621</commentid>
+    <comment_count>1</comment_count>
+      <attachid>1262080</attachid>
+    <who name="Dusty Mabe">dustymabe</who>
+    <bug_when>2017-03-10 16:20:56 -0500</bug_when>
+    <thetext>Created attachment 1262080
+notes from irc chat with clayton
+
+I chatted with clayton about this and he&apos;s not sure what it could be exactly. Copied the notes from the irc log here just in case our conversation could trigger something in some other peoples minds.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10230529</commentid>
+    <comment_count>2</comment_count>
+    <who name="Spyros Trigazis">strigazi</who>
+    <bug_when>2017-03-11 12:31:35 -0500</bug_when>
+    <thetext>Detailed steps to reproduce. Can someone try to reproduce?
+
+1. Boot a fresh atomic host with etcd 3.0.17. I used [1].
+2. Configure etcd with TLS like so:
+
+HOST_IP=&lt;YOUR host ip here&gt;
+cert_dir=/srv/etcd
+mkdir -p ${cert_dir}
+cd ${cert_dir}
+
+openssl genrsa -out ca-key.pem 2048
+
+openssl req -x509 -new -nodes -key ca-key.pem -days 10000 -out ca.pem -subj &quot;/CN=kube-ca&quot;
+
+cat &gt; openssl.cnf &lt;&lt;EOF
+[req]
+req_extensions = v3_req
+distinguished_name = req_distinguished_name
+[req_distinguished_name]
+[ v3_req ]
+basicConstraints = CA:FALSE
+keyUsage = nonRepudiation, digitalSignature, keyEncipherment
+subjectAltName = @alt_names
+[alt_names]
+IP.1 = ${HOST_IP}
+IP.2 = 127.0.0.1
+EOF
+
+openssl genrsa -out apiserver-key.pem 2048
+openssl req -new -key apiserver-key.pem -out apiserver.csr -subj &quot;/CN=kube-apiserver&quot; -config openssl.cnf
+
+openssl x509 -req -in apiserver.csr -CA ca.pem -CAkey ca-key.pem -CAcreateserial -out apiserver.pem -days 365 -extensions v3_req -extfile openssl.cnf
+
+groupadd kube_etcd
+usermod -a -G kube_etcd etcd
+usermod -a -G kube_etcd kube
+SERVER_KEY=$cert_dir/apiserver-key.pem
+chmod 550 &quot;${cert_dir}&quot;
+chown -R etcd:kube_etcd &quot;${cert_dir}&quot;
+chmod 440 $SERVER_KEY
+
+ETCD_DISCOVERY=$(curl -w &quot;\n&quot; &apos;https://discovery.etcd.io/new?size=1&apos;)
+
+cat &gt; /etc/etcd/etcd.conf &lt;&lt;EOF
+ETCD_NAME=${HOST_IP}
+ETCD_DATA_DIR=/var/lib/etcd/default.etcd
+ETCD_LISTEN_CLIENT_URLS=https://${HOST_IP}:2379
+ETCD_LISTEN_PEER_URLS=https://${HOST_IP}:2380
+
+ETCD_ADVERTISE_CLIENT_URLS=https://${HOST_IP}:2379
+ETCD_INITIAL_ADVERTISE_PEER_URLS=https://${HOST_IP}:2380
+ETCD_DISCOVERY=${ETCD_DISCOVERY}
+ETCD_TRUSTED_CA_FILE=${cert_dir}/ca.pem
+ETCD_CERT_FILE=${cert_dir}/apiserver.pem
+ETCD_KEY_FILE=${cert_dir}/apiserver-key.pem
+ETCD_PEER_TRUSTED_CA_FILE=${cert_dir}/ca.pem
+ETCD_PEER_CERT_FILE=${cert_dir}/apiserver.pem
+ETCD_PEER_KEY_FILE=${cert_dir}/apiserver-key.pem
+EOF
+
+3. Start etcd
+systemctl enable etcd
+systemctl start etcd
+
+4. Check the logs
+journalctl -u etcd
+
+You will see a lot of:
+etcd[2386]: transport: http2Client.notifyError got notified that the client transport was broken unexpected EOF.
+etcd[2386]: transport: http2Client.notifyError got notified that the client transport was broken unexpected EOF.
+
+[1] https://download.fedoraproject.org/pub/alt/atomic/stable/Fedora-Atomic-25-20170228.0/CloudImages/x86_64/images/Fedora-Atomic-25-20170228.0.x86_64.qcow2
+
+I don&apos;t see a link to the bug between the bug and if we are using kolla or magnum.
+
+I&apos;m not sure what this means:
+do they have a client using the elliptic p224 curve that we compile out?
+
+FYI, Nothing was hammering the etcd server. When I saw the error, it was an obvious move to try identify who creates the load.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10230530</commentid>
+    <comment_count>3</comment_count>
+    <who name="Spyros Trigazis">strigazi</who>
+    <bug_when>2017-03-11 12:34:27 -0500</bug_when>
+    <thetext>Check the load with top. This is on a vm with 2 cores and 4GB ram.
+
+PID USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM     TIME+ COMMAND 
+2386 etcd      20   0 10.254g 122308  12708 R 183.0  3.3  26:51.00 etcd</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10230579</commentid>
+    <comment_count>4</comment_count>
+    <who name="Spyros Trigazis">strigazi</who>
+    <bug_when>2017-03-11 15:00:07 -0500</bug_when>
+    <thetext>A faster way to reproduce:
+
+docker run --rm --env HOST_IP=&lt;YOUR HOST IP HERE&gt; --net host -p 2379 -p 2380 --name etcd strigazi/test-etcd
+
+You can build the image yourself from this repo:
+
+https://github.com/strigazi/test-etcd
+
+The image is based on registry.fedoraproject.org/f25/etcd . When I was writing these lines, the image had etcd 3.0.17 built with golang 1.7.4.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10230771</commentid>
+    <comment_count>5</comment_count>
+    <who name="Spyros Trigazis">strigazi</who>
+    <bug_when>2017-03-11 21:34:10 -0500</bug_when>
+    <thetext>I think found the issue. The issue comes from golang 1.7 and it&apos;s fixed in etcd here [1]. The bad thing is that it is included only in etcd v3.1.x.
+
+etcd v3.0.17 that works, as I mentioned, from gcr.io/google_containers/etcd:3.0.17 is built with go 1.6.4.
+
+here is what I built and tested golang/etcd version
+
+go\etcd        | v3.0.15 | v3.0.17 |    v3.1.1     |
+1.6.4          |   Yes   |   Yes   | compile fails |
+1.7.5, 1.7.4   |   No    |   No    |      Yes      |
+1.8.rc3        |   No    |   No    |      Yes      |
+
+We must either move to etcd v3.1.x or build etcd 3.0.17 with go 1.6.4 (or 1.6.x, probably).
+
+On the other hand, in a FA image from 20170205 which includes etcd v3.0.15 built with go 1.7.3 the problem doesn&apos;t occur which makes absolutely no sense. I tried to reproduce but when I built etcd v3.0.15 with go 1.7.3 I had the same issue.
+
+Final comment, given fix [1] and if we continue to use go 1.7, we should move to etcd v3.1.x. 
+
+[1] https://github.com/coreos/etcd/commit/7a48ca4ceaa10451b48594104e14fe36781c1a01</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10230921</commentid>
+    <comment_count>6</comment_count>
+    <who name="Spyros Trigazis">strigazi</who>
+    <bug_when>2017-03-12 08:01:07 -0400</bug_when>
+    <thetext>FYI, etcd v3.0.17 was released on Jan 20 2017 with go 1.6.4 not 1.7 [1]
+
+[1] https://github.com/coreos/etcd/releases/tag/v3.0.17</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10231140</commentid>
+    <comment_count>7</comment_count>
+    <who name="Dusty Mabe">dustymabe</who>
+    <bug_when>2017-03-12 12:09:27 -0400</bug_when>
+    <thetext>spyros, we have an open ticket for moving to newer etcd. There are some blockers there that we need to clear out of the way before hand.
+
+https://bugzilla.redhat.com/show_bug.cgi?id=1415341</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10231176</commentid>
+    <comment_count>8</comment_count>
+    <who name="Spyros Trigazis">strigazi</who>
+    <bug_when>2017-03-12 13:10:57 -0400</bug_when>
+    <thetext>Ok, in the mean time, Could we fix etcd 3.0.17 by building with go 1.6.4? We the current state we can&apos;t use the latest FA25 nor benefit from the recent release [1].
+
+[1] http://www.projectatomic.io/blog/2017/03/fedora_atomic_2week/</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10231246</commentid>
+    <comment_count>9</comment_count>
+    <who name="Dusty Mabe">dustymabe</who>
+    <bug_when>2017-03-12 15:53:34 -0400</bug_when>
+    <thetext>Unfortunately in Fedora 25 we can&apos;t officially build against 1.6.4 when the current version of golang in the F25 repos is 1.7. I could give you a custom built container with 3.0.17 built against f24 (and thus golang 1.6.4). Once we get 3.1.3 building I can also give you a preview container with that content in it, neither one of those would be official yet, but let me know if you are interested.
+
+As for 3.1.3, i&apos;m actively working to unblock that and possibly get the new rpm into updates-testing this week. However, I don&apos;t know if it would make this week&apos;s release, scheduled for Tuesday.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10257686</commentid>
+    <comment_count>10</comment_count>
+    <who name="Dusty Mabe">dustymabe</who>
+    <bug_when>2017-03-20 23:16:29 -0400</bug_when>
+    <thetext>This update seems to fix the problem for your test reproducer:
+https://bodhi.fedoraproject.org/updates/FEDORA-2017-d841d68f7c</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10264868</commentid>
+    <comment_count>11</comment_count>
+    <who name="Spyros Trigazis">strigazi</who>
+    <bug_when>2017-03-22 09:04:05 -0400</bug_when>
+    <thetext>I tested with the above update. Looks good now.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10266255</commentid>
+    <comment_count>12</comment_count>
+    <who name="Dusty Mabe">dustymabe</who>
+    <bug_when>2017-03-22 15:49:38 -0400</bug_when>
+    <thetext>Fixed in etcd-3.1.3-1.fc25</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="0"
+              ispatch="0"
+              isprivate="0"
+          >
+            <attachid>1262080</attachid>
+            <date>2017-03-10 16:20:00 -0500</date>
+            <delta_ts>2017-03-10 16:20:56 -0500</delta_ts>
+            <desc>notes from irc chat with clayton</desc>
+            <filename>irc-chat.txt</filename>
+            <type>text/plain</type>
+            <size>3428</size>
+            <attacher name="Dusty Mabe">dustymabe</attacher>
+            
+              <data encoding="base64">MjAxNy0wMy0xMCAxMjo1Nzo1OCAgICAgZHVzdHltYWJlICAgICAgIGFueSBldGNkIGV4cGVydHMg
+YXJvdW5kPyB3ZSBoYXZlIGEgdXNlciBpbiBmZWRvcmEgd2hvIGlzIHNlZWluZyBoaWdoIGxvYWQg
+YmVoYXZpb3Igd2hlbiBydW5uaW5nIGV0Y2QgMy4wLjE3CjIwMTctMDMtMTAgMTI6NTg6MDIgICAg
+IGR1c3R5bWFiZSAgICAgICBodHRwczovL2J1Z3ppbGxhLnJlZGhhdC5jb20vc2hvd19idWcuY2dp
+P2lkPTE0MzEyMjIKMjAxNy0wMy0xMCAxMzowMTowMSAgICAgQGNsYXl0b25jICAgICAgIGR1c3R5
+bWFiZTogZGVmaW5lIGhpZ2ggbG9hZAoyMDE3LTAzLTEwIDEzOjAxOjIzICAgICBkdXN0eW1hYmUg
+ICAgICAgY2xheXRvbmM6IGEgdXNlciBvZiBGZWRvcmEgQXRvbWljIEhvc3QgcmVwb3J0ZWQgdGhl
+IGlzc3VlCjIwMTctMDMtMTAgMTM6MDE6MzUgICAgIGR1c3R5bWFiZSAgICAgICBsZXQgbWUgc2Vl
+IGlmIEkgY2FuIGdyYWIgc29tZSBkZXRhaWxzIGZyb20gdGhlIEJaCjIwMTctMDMtMTAgMTM6MDE6
+NTEgICAgIEBjbGF5dG9uYyAgICAgICBpIGxvb2tlZAoyMDE3LTAzLTEwIDEzOjAxOjUyICAgICBA
+Y2xheXRvbmMgICAgICAgd2l0aG91dCBhIHByb2ZpbGUKMjAxNy0wMy0xMCAxMzowMTo1MyAgICAg
+QGNsYXl0b25jICAgICAgIGhhcmQgdG8gc2F5CjIwMTctMDMtMTAgMTM6MDE6NTYgICAgIEBjbGF5
+dG9uYyAgICAgICBwcm9iYWJseSBhIG1pc2NvbmZpZ3VyYXRpb24KMjAxNy0wMy0xMCAxMzowMjow
+MyAgICAgQGNsYXl0b25jICAgICAgIG5vdGhpbmcgb2J2aW91cyB0aGVyZQoyMDE3LTAzLTEwIDEz
+OjAyOjEwICAgICBkdXN0eW1hYmUgICAgICAgY2xheXRvbmM6IHNvIGEgbWlzY29uZmlndXJhdGlv
+biBvZiBldGNkIGluIGZlZG9yYT8KMjAxNy0wMy0xMCAxMzowMjozNiAgICAgQGNsYXl0b25jICAg
+ICAgIGR1c3R5bWFiZTogaSBtZWFuLCBpdCBsb29rcyBsaWtlIHRoZXkncmUgdXNpbmcga3ViZXJu
+ZXRlcwoyMDE3LTAzLTEwIDEzOjAyOjM4ICAgICBAY2xheXRvbmMgICAgICAgYWdhaW5zdCB0aGF0
+IHNlcnZlcgoyMDE3LTAzLTEwIDEzOjAyOjQ4ICAgICBAY2xheXRvbmMgICAgICAgYnV0IGl0IGNv
+dWxkIGJlIGEgYnJva2VuIGNsaWVudCBoYW1tZXJpbmcgdGhlIHNlcnZlcgoyMDE3LTAzLTEwIDEz
+OjAyOjU1ICAgICBAY2xheXRvbmMgICAgICAgYSBiYWQgY29uZmlnIHZhbHVlIGZvciB0aGVpciBj
+bHVzdGVyLCBoYW1tZXJpbmcgaXRzZWxmCjIwMTctMDMtMTAgMTM6MDM6MjYgICAgIGR1c3R5bWFi
+ZSAgICAgICBjbGF5dG9uYzogeWVhaC4gYW55IHN1Z2dlc3Rpb25zIGZvciBtZSBhc2tpbmcgdGhl
+bSBmb3IgbW9yZSBpbmZvcm1hdGlvbj8KMjAxNy0wMy0xMCAxMzowMzozNiAgICAgQGNsYXl0b25j
+ICAgICAgIGkgdGhpbmsgaSdkIGFzayB0aGVtIHdoYXQgY2xpZW50cyBhcmUgdGFsa2luZyB0byB0
+aGF0IHNlcnZlcgoyMDE3LTAzLTEwIDEzOjAzOjM4ICAgICBkdXN0eW1hYmUgICAgICAgb25lIG9i
+dmlvdXMgdGhpbmcgdG8gdHJ5IGlzIGdvIHRvIHRoZSBuZXh0IHZlcnNpb24gb2YgZXRjZAoyMDE3
+LTAzLTEwIDEzOjAzOjQxICAgICBAY2xheXRvbmMgICAgICAgbG9va3MgbGlrZSBhIGtvbGxhIC8g
+bWFnbnVtIHRoaW5nCjIwMTctMDMtMTAgMTM6MDM6NDQgICAgIEBjbGF5dG9uYyAgICAgICBpIGRv
+dWJ0IHRoYXQnbGwgZml4IGl0CjIwMTctMDMtMTAgMTM6MDM6NDkgICAgIGR1c3R5bWFiZSAgICAg
+ICBjbGF5dG9uYzogeWVhaCwgbWFnbnVtCjIwMTctMDMtMTAgMTM6MDM6NTIgICAgIEBjbGF5dG9u
+YyAgICAgICB0aGlzIGxvb2tzIGxpa2UgYSBjbGllbnQgaXMgaGFtbWVyaW5nIHRoZWlyIHNlcnZl
+cgoyMDE3LTAzLTEwIDEzOjAzOjU2ICAgICBAY2xheXRvbmMgICAgICAgYW5kIGl0J3MgZmFsbGlu
+ZyBvdmVyCjIwMTctMDMtMTAgMTM6MDQ6MDQgICAgIEBjbGF5dG9uYyAgICAgICBzbyBmaW5kIG91
+dCB3aG8gaXMgaGl0dGluZyBldGNkIGFuZCB3aGF0IGFyZSB0aGV5IGRvaW5nCjIwMTctMDMtMTAg
+MTM6MDQ6MTAgICAgIEBjbGF5dG9uYyAgICAgICBidXQgaW4gYWxsIGxpa2VsaWhvb2Qgbm90IGFu
+IGV0Y2QgcHJvYmxlbQoyMDE3LTAzLTEwIDEzOjA0OjE4ICAgICBAY2xheXRvbmMgICAgICAgdGhl
+eSdyZSBjb21waWxlZCB3aXRoIGdvIDEuNy40CjIwMTctMDMtMTAgMTM6MDQ6MjAgICAgIGR1c3R5
+bWFiZSAgICAgICB3aGVuIHRoZXkgc2F5IHRoYXQgdGhpcyB3YXNuJ3QgYSBwcm9ibGVtIGluIDMu
+MC4xNQoyMDE3LTAzLTEwIDEzOjA0OjQ1ICAgICBkdXN0eW1hYmUgICAgICAgYW5kIGFsc28gdGhh
+dCBnY3IuaW8vZ29vZ2xlX2NvbnRhaW5lcnMvZXRjZDozLjAuMTcgb3IgcXVheS5pby9jb3Jlb3Mv
+ZXRjZDp2My4xLjEgd29yayBmaW5lCjIwMTctMDMtMTAgMTM6MDU6MTQgICAgIGR1c3R5bWFiZSAg
+ICAgICBzbyB0aGF0IHdvdWxkIG1ha2UgbWUgdGhpbmsgaXQgaXNuJ3QganVzdCBhIGNsaWVudCBo
+YW1tZXJpbmcgdGhlIHNlcnZlcj8KMjAxNy0wMy0xMCAxMzowNTo0OCAgICAgQGNsYXl0b25jICAg
+ICAgIGRvIHRoZXkgaGF2ZSBhIGNsaWVudCB1c2luZyB0aGUgZWxsaXB0aWMgcDIyNCBjdXJ2ZSB0
+aGF0IHdlIGNvbXBpbGUgb3V0PwoyMDE3LTAzLTEwIDEzOjA1OjUxICAgICBAY2xheXRvbmMgICAg
+ICAgdGhhdCdzIHRoZSBvbmx5IHRoaW5nIGkgY2FuIHRoaW5rIG9mCjIwMTctMDMtMTAgMTM6MDY6
+MDAgICAgIEBjbGF5dG9uYyAgICAgICBwZW9wbGUgd2hvIGRvbid0IGNvbXBseSB3aXRoIGV4cG9y
+dCByZWd1bGF0aW9ucyBtYXkgbm90IGNhcmUgYWJvdXQgdGhhdAoyMDE3LTAzLTEwIDEzOjA2OjI1
+ICAgICBkdXN0eW1hYmUgICAgICAgd2hlbiB5b3Ugc2F5ICJhIGNsaWVudCIgeW91IGFyZSByZWZl
+cnJpbmcgdG8gbGlrZSBrdWJlY3RsID8KMjAxNy0wMy0xMCAxMzowNjozMSAgICAgZHVzdHltYWJl
+ICAgICAgIG9yIGFueSByZXN0IGNsaWVudD8KMjAxNy0wMy0xMCAxMzowNzowMyAgICAgQGNsYXl0
+b25jICAgICAgIGluIGEga3ViZXJuZXRlcyBzeXN0ZW0gdGhlIG9ubHkgdGhpbmcgdGhhdCB0YWxr
+cyB0byBldGNkIGlzIHRoZSBhcGkgY2xpZW50IGluIHRoZSBrdWJlIGFwaSBzZXJ2ZXIKMjAxNy0w
+My0xMCAxMzowNzo0NSAgICAgZHVzdHltYWJlICAgICAgIG9rIHNvIHdlIGNhbiBoaXQgdGhpcyBw
+cm9ibGVtIGlmIHdlIGFyZSB1c2luZyBhIGt1YmUgYXBpIHNlcnZlciBmcm9tIHVwc3RyZWFtIGFu
+ZCBub3Qgb25lIGJ1aWx0IGJ5IHVzPwoyMDE3LTAzLTEwIDEzOjA5OjA2ICAgICBAY2xheXRvbmMg
+ICAgICAgeWVhaCBtYXliZSAtIGkgbWVhbiwgaSBkb24ndCBrbm93IGFueW9uZSB1c2luZyBwMjI0
+IGFzIGEgZGVmYXVsdAoyMDE3LTAzLTEwIDEzOjA5OjE0ICAgICBAY2xheXRvbmMgICAgICAgYnV0
+IGl0J3MgYXQgbGVhc3Qgb25lIHRoaW5nIHRoYXQgaXMgZGVmaW5pdGVseSBkaWZmIGluIG91ciB2
+ZXJzaW9ucwo=
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

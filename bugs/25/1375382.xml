@@ -1,0 +1,380 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1375382</bug_id>
+          
+          <creation_ts>2016-09-12 20:36:00 -0400</creation_ts>
+          <short_desc>segfault in bool IsMarkedInternal&lt;JSObject&gt;(JSObject**) ()</short_desc>
+          <delta_ts>2017-02-14 10:49:02 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>icecat</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords>Reopened</keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Hin-Tak Leung">htl10</reporter>
+          <assigned_to name="Antonio Trande">anto.trande</assigned_to>
+          <cc>anto.trande</cc>
+    
+    
+    <cc>fedora</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>icecat-45.5.1-2.fc25 icecat-45.5.1-2.fc24 icecat-45.7.0-1.fc25 icecat-45.7.0-1.fc24</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-02-13 17:22:28</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9700766</commentid>
+    <comment_count>0</comment_count>
+    <who name="Hin-Tak Leung">htl10</who>
+    <bug_when>2016-09-12 20:36:58 -0400</bug_when>
+    <thetext>Description of problem:
+Probably related to optimization, and bug 1332926 - this is the first crash since I switched back to fedora builds yesterday - I have been using the upstream binary since July:
+
+https://bugzilla.redhat.com/show_bug.cgi?id=1332926#c32
+
+When I icecat crashed, I was simply opening a few tabs of koji.fedoraproject and switching to the older ones while the new one loads.
+
+backtrace:
+(gdb) bt
+#0  0x00007f074d773b09 in raise (sig=11) at ../sysdeps/unix/sysv/linux/pt-raise.c:35
+#1  0x00007f074a66c833 in nsProfileLock::FatalSignalHandler(int, siginfo_t*, void*) () at /usr/lib64/icecat-45.3.0/libxul.so
+#2  0x00007f074af3d41d in AsmJSFaultHandler(int, siginfo_t*, void*) () at /usr/lib64/icecat-45.3.0/libxul.so
+#3  0x00007f074d773c30 in &lt;signal handler called&gt; () at /lib64/libpthread.so.0
+#4  0x00007f074ae9bf74 in bool IsMarkedInternal&lt;JSObject&gt;(JSObject**) () at /usr/lib64/icecat-45.3.0/libxul.so
+#5  0x00007f074aea95f2 in bool js::gc::IsMarked&lt;JSObject*&gt;(js::WriteBarrieredBase&lt;JSObject*&gt;*) () at /usr/lib64/icecat-45.3.0/libxul.so
+#6  0x00007f074acc2287 in js::WeakMap&lt;js::RelocatablePtr&lt;JSObject*&gt;, js::RelocatablePtr&lt;JS::Value&gt;, js::MovableCellHasher&lt;js::RelocatablePtr&lt;JSObject*&gt; &gt; &gt;::traceEntries(JSTracer*) () at /usr/lib64/icecat-45.3.0/libxul.so
+#7  0x00007f074ae9d461 in js::GCMarker::enterWeakMarkingMode() () at /usr/lib64/icecat-45.3.0/libxul.so
+#8  0x00007f074acebbde in void js::gc::GCRuntime::markWeakReferences&lt;js::gc::GCZoneGroupIter&gt;(js::gcstats::Phase) ()
+    at /usr/lib64/icecat-45.3.0/libxul.so
+#9  0x00007f074acd287b in js::gc::GCRuntime::endMarkingZoneGroup() () at /usr/lib64/icecat-45.3.0/libxul.so
+#10 0x00007f074ace19e3 in js::gc::GCRuntime::beginSweepPhase(bool) () at /usr/lib64/icecat-45.3.0/libxul.so
+#11 0x00007f074ace8605 in js::gc::GCRuntime::incrementalCollectSlice(js::SliceBudget&amp;, JS::gcreason::Reason) ()
+    at /usr/lib64/icecat-45.3.0/libxul.so
+#12 0x00007f074ace9357 in js::gc::GCRuntime::gcCycle(bool, js::SliceBudget&amp;, JS::gcreason::Reason) () at /usr/lib64/icecat-45.3.0/libxul.so
+#13 0x00007f074ace96fb in js::gc::GCRuntime::collect(bool, js::SliceBudget, JS::gcreason::Reason) () at /usr/lib64/icecat-45.3.0/libxul.so
+#14 0x00007f074ace9c6f in js::gc::GCRuntime::finishGC(JS::gcreason::Reason) () at /usr/lib64/icecat-45.3.0/libxul.so
+#15 0x00007f074ace9c8f in JS::FinishIncrementalGC(JSRuntime*, JS::gcreason::Reason) () at /usr/lib64/icecat-45.3.0/libxul.so
+#16 0x00007f0748e51328 in FinishAnyIncrementalGC() () at /usr/lib64/icecat-45.3.0/libxul.so
+#17 0x00007f0748e513c6 in FireForgetSkippable(unsigned int, bool) () at /usr/lib64/icecat-45.3.0/libxul.so
+#18 0x00007f0748e5dd37 in CCTimerFired(nsITimer*, void*) () at /usr/lib64/icecat-45.3.0/libxul.so
+#19 0x00007f07481d62e0 in nsTimerImpl::Fire() () at /usr/lib64/icecat-45.3.0/libxul.so
+#20 0x00007f07481c5d0a in nsTimerEvent::Run() () at /usr/lib64/icecat-45.3.0/libxul.so
+#21 0x00007f07481cd242 in nsThread::ProcessNextEvent(bool, bool*) () at /usr/lib64/icecat-45.3.0/libxul.so
+#22 0x00007f07481f1faa in NS_ProcessNextEvent(nsIThread*, bool) () at /usr/lib64/icecat-45.3.0/libxul.so
+#23 0x00007f07484790da in mozilla::ipc::MessagePump::Run(base::MessagePump::Delegate*) () at /usr/lib64/icecat-45.3.0/libxul.so
+#24 0x00007f074844d4ff in MessageLoop::RunInternal() () at /usr/lib64/icecat-45.3.0/libxul.so
+#25 0x00007f074844d795 in MessageLoop::Run() () at /usr/lib64/icecat-45.3.0/libxul.so
+---Type &lt;return&gt; to continue, or q &lt;return&gt; to quit---
+#26 0x00007f0749e0dca7 in nsBaseAppShell::Run() () at /usr/lib64/icecat-45.3.0/libxul.so
+#27 0x00007f074a62bf4b in nsAppStartup::Run() () at /usr/lib64/icecat-45.3.0/libxul.so
+#28 0x00007f074a674f48 in XREMain::XRE_mainRun() () at /usr/lib64/icecat-45.3.0/libxul.so
+#29 0x00007f074a67580b in XREMain::XRE_main(int, char**, nsXREAppData const*) () at /usr/lib64/icecat-45.3.0/libxul.so
+#30 0x00007f074a675b1c in XRE_main () at /usr/lib64/icecat-45.3.0/libxul.so
+#31 0x000055fb276944cc in do_main(int, char**, nsIFile*) ()
+#32 0x000055fb276945a5 in main ()
+(gdb) quit
+
+Version-Release number of selected component (if applicable):
+icecat-45.3.0-0.5.beta.fc24.x86_64
+
+
+How reproducible:
+It eventually crashes after days of usage. (20 hours-ish up this time).
+
+Steps to Reproduce:
+1. Normal usage
+2.
+3.
+
+Actual results:
+Crash
+
+
+Expected results:
+Don&apos;t crash
+
+Additional info:
+I tried &quot;downgrading&quot; to icecat-45.3.0-0.5.beta.fc23.x86_64 , but got this:
+
+Error: nothing provides libicudata.so.54()(64bit) needed by icecat-45.3.0-0.5.beta.fc23.x86_64
+
+fc24 ships libicudata.so.56.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9740053</commentid>
+    <comment_count>1</comment_count>
+    <who name="Hin-Tak Leung">htl10</who>
+    <bug_when>2016-09-24 05:38:18 -0400</bug_when>
+    <thetext>I have a crash on shutdown with the upsteam binary.
+
+Occasionally I get such a crash (i.e. a crash on shutdown) with fedora firefox also. It happens for maybe every other shutdown - ie. half of the time. Often enough, but not every time.
+
+
+(gdb) bt
+#0  0x00007f5b73a3fb09 in raise (sig=11) at ../sysdeps/unix/sysv/linux/pt-raise.c:35
+#1  0x00007f5b6ec000c4 in  () at /home/hintak/icecat/libxul.so
+#2  0x00007f5b6f683e19 in  () at /home/hintak/icecat/libxul.so
+#3  0x00007f5b73a3fc30 in &lt;signal handler called&gt; () at /lib64/libpthread.so.0
+#4  0x00007f5b6ebfc061 in  () at /home/hintak/icecat/libxul.so
+#5  0x00007f5b726e9408 in  () at /home/hintak/icecat/libnspr4.so
+#6  0x00007f5b73a365ca in start_thread (arg=0x7f5a763ff700) at pthread_create.c:333
+#7  0x00007f5b72cc3f6d in clone () at ../sysdeps/unix/sysv/linux/x86_64/clone.S:109
+(gdb)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9952058</commentid>
+    <comment_count>2</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-02 12:37:11 -0500</bug_when>
+    <thetext>icecat-45.5.1-2.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2016-43f0b39ed4</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9952063</commentid>
+    <comment_count>3</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-02 12:37:29 -0500</bug_when>
+    <thetext>icecat-45.5.1-2.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-b0d0f4ed1e</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9952967</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-02 23:38:00 -0500</bug_when>
+    <thetext>icecat-45.5.1-2.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-43f0b39ed4</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9953056</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-03 00:43:37 -0500</bug_when>
+    <thetext>icecat-45.5.1-2.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-b0d0f4ed1e</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9957239</commentid>
+    <comment_count>6</comment_count>
+    <who name="Hin-Tak Leung">htl10</who>
+    <bug_when>2016-12-05 13:40:20 -0500</bug_when>
+    <thetext>Still crashes on shutdown with icecat-45.5.1-2.fc25:
+
+(gdb) bt
+#0  0x00007f149521548f in raise (sig=&lt;optimized out&gt;) at ../sysdeps/unix/sysv/linux/raise.c:58
+#1  0x00007f149214949b in nsProfileLock::FatalSignalHandler(int, siginfo_t*, void*) () at /usr/lib64/icecat-45.5.1/libxul.so
+#2  0x00007f1492a16243 in AsmJSFaultHandler(int, siginfo_t*, void*) () at /usr/lib64/icecat-45.5.1/libxul.so
+#3  0x00007f14952155c0 in &lt;signal handler called&gt; () at /lib64/libpthread.so.0
+#4  0x00007f1492143521 in mozilla::(anonymous namespace)::RunWatchdog(void*) () at /usr/lib64/icecat-45.5.1/libxul.so
+#5  0x00007f148c7645bc in _pt_root () at /lib64/libnspr4.so
+#6  0x00007f149520b6ca in start_thread (arg=0x7f1398dff700) at pthread_create.c:333
+#7  0x00007f1494499f6f in clone () at ../sysdeps/unix/sysv/linux/x86_64/clone.S:105
+(gdb)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9973090</commentid>
+    <comment_count>7</comment_count>
+    <who name="Hin-Tak Leung">htl10</who>
+    <bug_when>2016-12-09 18:17:56 -0500</bug_when>
+    <thetext>icecat-45.5.1-2.fc25.x86_64 crashed while I tried to open a new tab (to http://mail.yahoo.com if that&apos;s important):
+
+(gdb) bt
+#0  0x00007f68a396b48f in raise (sig=&lt;optimized out&gt;) at ../sysdeps/unix/sysv/linux/raise.c:58
+#1  0x00007f68a084949b in nsProfileLock::FatalSignalHandler(int, siginfo_t*, void*) () at /usr/lib64/icecat-45.5.1/libxul.so
+#2  0x00007f68a1116243 in AsmJSFaultHandler(int, siginfo_t*, void*) () at /usr/lib64/icecat-45.5.1/libxul.so
+#3  0x00007f68a396b5c0 in &lt;signal handler called&gt; () at /lib64/libpthread.so.0
+#4  0x00007f68a2c3a480 in __memcpy_ssse3 () at ../sysdeps/x86_64/multiarch/memcpy-ssse3.S:130
+#5  0x00007f68a1001cdb in js::SCOutput::writeChars(char16_t const*, unsigned long) () at /usr/lib64/icecat-45.5.1/libxul.so
+#6  0x00007f68a1001d99 in JSStructuredCloneWriter::writeString(unsigned int, JSString*) () at /usr/lib64/icecat-45.5.1/libxul.so
+#7  0x00007f68a101a176 in JSStructuredCloneWriter::startWrite(JS::Handle&lt;JS::Value&gt;) () at /usr/lib64/icecat-45.5.1/libxul.so
+#8  0x00007f68a101aecd in JSStructuredCloneWriter::write(JS::Handle&lt;JS::Value&gt;) () at /usr/lib64/icecat-45.5.1/libxul.so
+#9  0x00007f68a101b597 in WriteStructuredClone(JSContext*, JS::Handle&lt;JS::Value&gt;, unsigned long**, unsigned long*, JSStructuredCloneCallbacks c
+onst*, void*, JS::Value) () at /usr/lib64/icecat-45.5.1/libxul.so
+#10 0x00007f68a101b606 in JS_WriteStructuredClone(JSContext*, JS::Handle&lt;JS::Value&gt;, unsigned long**, unsigned long*, JSStructuredCloneCallback
+s const*, void*, JS::Handle&lt;JS::Value&gt;) () at /usr/lib64/icecat-45.5.1/libxul.so
+#11 0x00007f68a101b663 in JSAutoStructuredCloneBuffer::write(JSContext*, JS::Handle&lt;JS::Value&gt;, JS::Handle&lt;JS::Value&gt;, JSStructuredCloneCallbac
+ks const*, void*) () at /usr/lib64/icecat-45.5.1/libxul.so
+#12 0x00007f689ef99c38 in mozilla::dom::StructuredCloneHolderBase::Write(JSContext*, JS::Handle&lt;JS::Value&gt;, JS::Handle&lt;JS::Value&gt;) ()
+    at /usr/lib64/icecat-45.5.1/libxul.so
+#13 0x00007f689ef99d2d in mozilla::dom::StructuredCloneHolder::Write(JSContext*, JS::Handle&lt;JS::Value&gt;, JS::Handle&lt;JS::Value&gt;, mozilla::ErrorRe
+sult&amp;) () at /usr/lib64/icecat-45.5.1/libxul.so
+#14 0x00007f689fe6bd9f in mozilla::dom::workers::WorkerPrivate::PostMessageToParentInternal(JSContext*, JS::Handle&lt;JS::Value&gt;, mozilla::dom::Op
+tional&lt;mozilla::dom::Sequence&lt;JS::Value&gt; &gt; const&amp;, mozilla::ErrorResult&amp;) () at /usr/lib64/icecat-45.5.1/libxul.so
+#15 0x00007f689fe6bfe0 in mozilla::dom::workers::DedicatedWorkerGlobalScope::PostMessage(JSContext*, JS::Handle&lt;JS::Value&gt;, mozilla::dom::Optio
+nal&lt;mozilla::dom::Sequence&lt;JS::Value&gt; &gt; const&amp;, mozilla::ErrorResult&amp;) () at /usr/lib64/icecat-45.5.1/libxul.so
+#16 0x00007f689f747d95 in mozilla::dom::DedicatedWorkerGlobalScopeBinding_workers::postMessage(JSContext*, JS::Handle&lt;JSObject*&gt;, mozilla::dom:
+:workers::DedicatedWorkerGlobalScope*, JSJitMethodCallArgs const&amp;) () at /usr/lib64/icecat-45.5.1/libxul.so
+#17 0x00007f689f7148ca in mozilla::dom::DedicatedWorkerGlobalScopeBinding_workers::genericMethod(JSContext*, unsigned int, JS::Value*) ()
+    at /usr/lib64/icecat-45.5.1/libxul.so
+#18 0x00007f68a0fac734 in js::Invoke(JSContext*, JS::CallArgs const&amp;, js::MaybeConstruct) () at /usr/lib64/icecat-45.5.1/libxul.so
+#19 0x00007f68a0fa6767 in Interpret(JSContext*, js::RunState&amp;) () at /usr/lib64/icecat-45.5.1/libxul.so
+#20 0x00007f68a0fac4c4 in js::RunScript(JSContext*, js::RunState&amp;) () at /usr/lib64/icecat-45.5.1/libxul.so
+#21 0x00007f68a0fac8b9 in js::Invoke(JSContext*, JS::CallArgs const&amp;, js::MaybeConstruct) () at /usr/lib64/icecat-45.5.1/libxul.so
+---Type &lt;return&gt; to continue, or q &lt;return&gt; to quit---
+#22 0x00007f68a0fad008 in js::Invoke(JSContext*, JS::Value const&amp;, JS::Value const&amp;, unsigned int, JS::Value const*, JS::MutableHandle&lt;JS::Valu
+e&gt;) () at /usr/lib64/icecat-45.5.1/libxul.so
+#23 0x00007f68a0e841c7 in JS::Call(JSContext*, JS::Handle&lt;JS::Value&gt;, JS::Handle&lt;JS::Value&gt;, JS::HandleValueArray const&amp;, JS::MutableHandle&lt;JS:
+:Value&gt;) () at /usr/lib64/icecat-45.5.1/libxul.so
+#24 0x00007f689f798e20 in mozilla::dom::EventHandlerNonNull::Call(JSContext*, JS::Handle&lt;JS::Value&gt;, mozilla::dom::Event&amp;, JS::MutableHandle&lt;JS
+::Value&gt;, mozilla::ErrorResult&amp;) () at /usr/lib64/icecat-45.5.1/libxul.so
+#25 0x00007f689f9d8628 in mozilla::JSEventHandler::HandleEvent(nsIDOMEvent*) () at /usr/lib64/icecat-45.5.1/libxul.so
+#26 0x00007f689f9d9e45 in mozilla::EventListenerManager::HandleEventSubType(mozilla::EventListenerManager::Listener*, nsIDOMEvent*, mozilla::do
+m::EventTarget*) () at /usr/lib64/icecat-45.5.1/libxul.so
+#27 0x00007f689f9d9fe4 in mozilla::EventListenerManager::HandleEventInternal(nsPresContext*, mozilla::WidgetEvent*, nsIDOMEvent**, mozilla::dom
+::EventTarget*, nsEventStatus*) () at /usr/lib64/icecat-45.5.1/libxul.so
+#28 0x00007f689f9bd8e2 in mozilla::EventTargetChainItem::HandleEventTargetChain(nsTArray&lt;mozilla::EventTargetChainItem&gt;&amp;, mozilla::EventChainPo
+stVisitor&amp;, mozilla::EventDispatchingCallback*, mozilla::ELMCreationDetector&amp;) () at /usr/lib64/icecat-45.5.1/libxul.so
+#29 0x00007f689f9c2024 in mozilla::EventDispatcher::Dispatch(nsISupports*, nsPresContext*, mozilla::WidgetEvent*, nsIDOMEvent*, nsEventStatus*,
+ mozilla::EventDispatchingCallback*, nsTArray&lt;mozilla::dom::EventTarget*&gt;*) () at /usr/lib64/icecat-45.5.1/libxul.so
+#30 0x00007f689f9c2640 in mozilla::EventDispatcher::DispatchDOMEvent(nsISupports*, mozilla::WidgetEvent*, nsIDOMEvent*, nsPresContext*, nsEvent
+Status*) () at /usr/lib64/icecat-45.5.1/libxul.so
+#31 0x00007f689f9c274f in mozilla::DOMEventTargetHelper::DispatchDOMEvent(mozilla::WidgetEvent*, nsIDOMEvent*, nsPresContext*, nsEventStatus*) 
+() at /usr/lib64/icecat-45.5.1/libxul.so
+#32 0x00007f689fe8c87a in (anonymous namespace)::MessageEventRunnable::DispatchDOMEvent(JSContext*, mozilla::dom::workers::WorkerPrivate*, mozi
+lla::DOMEventTargetHelper*, bool) () at /usr/lib64/icecat-45.5.1/libxul.so
+#33 0x00007f689fe8cf0e in (anonymous namespace)::MessageEventRunnable::WorkerRun(JSContext*, mozilla::dom::workers::WorkerPrivate*) ()
+    at /usr/lib64/icecat-45.5.1/libxul.so
+#34 0x00007f689fe6b09f in mozilla::dom::workers::WorkerRunnable::Run() () at /usr/lib64/icecat-45.5.1/libxul.so
+#35 0x00007f689e3a5338 in nsThread::ProcessNextEvent(bool, bool*) () at /usr/lib64/icecat-45.5.1/libxul.so
+#36 0x00007f689e3ca0a0 in NS_ProcessNextEvent(nsIThread*, bool) () at /usr/lib64/icecat-45.5.1/libxul.so
+#37 0x00007f689fe82b90 in mozilla::dom::workers::WorkerPrivate::DoRunLoop(JSContext*) () at /usr/lib64/icecat-45.5.1/libxul.so
+#38 0x00007f689fe43ced in (anonymous namespace)::WorkerThreadPrimaryRunnable::Run() () at /usr/lib64/icecat-45.5.1/libxul.so
+#39 0x00007f689e3a5338 in nsThread::ProcessNextEvent(bool, bool*) () at /usr/lib64/icecat-45.5.1/libxul.so
+#40 0x00007f689e3ca0a0 in NS_ProcessNextEvent(nsIThread*, bool) () at /usr/lib64/icecat-45.5.1/libxul.so
+#41 0x00007f689e651273 in mozilla::ipc::MessagePumpForNonMainThreads::Run(base::MessagePump::Delegate*) ()
+---Type &lt;return&gt; to continue, or q &lt;return&gt; to quit---
+    at /usr/lib64/icecat-45.5.1/libxul.so
+#42 0x00007f689e62555d in MessageLoop::RunInternal() () at /usr/lib64/icecat-45.5.1/libxul.so
+#43 0x00007f689e6257f3 in MessageLoop::Run() () at /usr/lib64/icecat-45.5.1/libxul.so
+#44 0x00007f689e3a2068 in nsThread::ThreadFunc(void*) () at /usr/lib64/icecat-45.5.1/libxul.so
+#45 0x00007f689ae645bc in _pt_root () at /lib64/libnspr4.so
+#46 0x00007f68a39616ca in start_thread (arg=0x7f685f1ff700) at pthread_create.c:333
+#47 0x00007f68a2beff6f in clone () at ../sysdeps/unix/sysv/linux/x86_64/clone.S:105
+(gdb)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9974957</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-11 14:27:01 -0500</bug_when>
+    <thetext>icecat-45.5.1-2.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9975017</commentid>
+    <comment_count>9</comment_count>
+    <who name="Hin-Tak Leung">htl10</who>
+    <bug_when>2016-12-11 16:14:17 -0500</bug_when>
+    <thetext>WTF. Already noted in comment 6 and 7 the then testing upgrade does not fix the issue.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9975039</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-11 16:54:02 -0500</bug_when>
+    <thetext>icecat-45.5.1-2.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9975062</commentid>
+    <comment_count>11</comment_count>
+    <who name="Hin-Tak Leung">htl10</who>
+    <bug_when>2016-12-11 17:22:22 -0500</bug_when>
+    <thetext>sigh. WTF. see comment 6, 7, 9.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10121908</commentid>
+    <comment_count>12</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-05 11:29:49 -0500</bug_when>
+    <thetext>icecat-45.7.0-1.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-60c0fbe111</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10121910</commentid>
+    <comment_count>13</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-05 11:30:00 -0500</bug_when>
+    <thetext>icecat-45.7.0-1.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2017-b1df7625d7</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10122062</commentid>
+    <comment_count>14</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-05 16:20:56 -0500</bug_when>
+    <thetext>icecat-45.7.0-1.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-b1df7625d7</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10122114</commentid>
+    <comment_count>15</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-05 17:20:06 -0500</bug_when>
+    <thetext>icecat-45.7.0-1.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-60c0fbe111</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10144525</commentid>
+    <comment_count>16</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-13 17:22:28 -0500</bug_when>
+    <thetext>icecat-45.7.0-1.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10144590</commentid>
+    <comment_count>17</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-13 17:47:53 -0500</bug_when>
+    <thetext>icecat-45.7.0-1.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10147057</commentid>
+    <comment_count>18</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-14 10:49:02 -0500</bug_when>
+    <thetext>icecat-45.7.0-1.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

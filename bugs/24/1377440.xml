@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1377440</bug_id>
+          
+          <creation_ts>2016-09-19 13:33:00 -0400</creation_ts>
+          <short_desc>Git aliases do not work in sub-dirs of worktree</short_desc>
+          <delta_ts>2016-10-05 02:22:08 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>git</component>
+          <version>24</version>
+          <rep_platform>All</rep_platform>
+          <op_sys>All</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Jonathan Wakely">jwakely</reporter>
+          <assigned_to>pstodulk</assigned_to>
+          <cc>amahdal</cc>
+    
+    
+    <cc>besser82</cc>
+    
+    
+    <cc>c.david86</cc>
+    
+    
+    <cc>chrisw</cc>
+    
+    
+    <cc>jbowes</cc>
+    
+    
+    <cc>laurent.rineau__fedora</cc>
+    
+    
+    <cc>pstodulk</cc>
+    
+    
+    <cc>tmz</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>git-2.7.4-3.fc24</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-10-05 02:22:08</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9722348</commentid>
+    <comment_count>0</comment_count>
+    <who name="Jonathan Wakely">jwakely</who>
+    <bug_when>2016-09-19 13:33:28 -0400</bug_when>
+    <thetext>Description of problem:
+
+The version of Git in F24 gives an error when trying to expand an alias in any sub-directory of a worktree created with &apos;git worktree add&apos;.
+
+Version-Release number of selected component (if applicable):
+
+git-2.7.4-2.fc24.x86_64
+
+How reproducible:
+
+Always.
+
+Steps to Reproduce:
+
+Try to run a git alias from a sub-directory of a new worktree.
+
+$ mkdir -p /tmp/git
+$ cd /tmp/git
+$ mkdir repo1
+$ cd repo1
+$ git init
+Initialized empty Git repository in /tmp/git/repo1/.git/
+$ mkdir foo
+$ touch foo/bar
+$ git add foo/bar
+$ git ci -m 1
+[master (root-commit) 7184dab] 1
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 foo/bar
+$ git branch b
+$ git worktree add ../repo2 b
+Preparing ../repo2 (identifier repo2)
+HEAD is now at 7184dab 1
+$ cd ../repo2
+$ git config alias.s status
+$ git s
+On branch b
+nothing to commit, working directory clean
+$ cd foo
+$ git s
+fatal: internal error: work tree has already been set
+Current worktree: /tmp/git/repo2
+New worktree: /tmp/git/repo2/foo
+
+
+
+Actual results:
+
+fatal: internal error: work tree has already been set
+Current worktree: /tmp/git/repo2
+New worktree: /tmp/git/repo2/foo
+
+
+Expected results:
+
+The alias runs correctly.
+
+Additional info:
+
+This is discussed at http://lists-archives.com/git/855872-worktree-setup-broken-in-subdirs-with-git-alias.html but I don&apos;t understand the resolution - is the fix in a newer release? Still buggy and now fixed yet?
+
+In any case this worked fine with F22, but I can&apos;t use aliases + worktrees on F24.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9756577</commentid>
+    <comment_count>1</comment_count>
+    <who name="Laurent Rineau">laurent.rineau__fedora</who>
+    <bug_when>2016-09-30 05:46:52 -0400</bug_when>
+    <thetext>I have the exact same issue. Fixed upstream in Git v2.8.0.
+
+Reference: http://git.661346.n2.nabble.com/BUG-worktree-setup-broken-in-subdirs-with-git-alias-td7645158.html</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9759794</commentid>
+    <comment_count>2</comment_count>
+    <who name="">pstodulk</who>
+    <bug_when>2016-10-02 15:52:28 -0400</bug_when>
+    <thetext>Thanks for link. It seems that it fixes the bug, according to reproducer.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9760294</commentid>
+    <comment_count>3</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-10-03 03:22:47 -0400</bug_when>
+    <thetext>git-2.7.4-3.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-b596ee7ca9</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9766816</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-10-05 02:22:08 -0400</bug_when>
+    <thetext>git-2.7.4-3.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

@@ -1,0 +1,426 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1270324</bug_id>
+          
+          <creation_ts>2015-10-09 11:53:00 -0400</creation_ts>
+          <short_desc>Chromium needs libusb_interrupt_handle_event exposed</short_desc>
+          <delta_ts>2016-03-02 16:50:18 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>libusbx</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords>Patch</keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>1270322</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Tom &quot;spot&quot; Callaway">tcallawa</reporter>
+          <assigned_to name="Hans de Goede">hdegoede</assigned_to>
+          <cc>anto.trande</cc>
+    
+    
+    <cc>d-bugzilla</cc>
+    
+    
+    <cc>hdegoede</cc>
+    
+    
+    <cc>jorgeml</cc>
+    
+    
+    <cc>lucilanga</cc>
+    
+    
+    <cc>nb</cc>
+    
+    
+    <cc>novyjindrich</cc>
+    
+    
+    <cc>rdieter</cc>
+    
+    
+    <cc>rhbugs</cc>
+    
+    
+    <cc>vtroshchinskiy</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>libusbx-1.0.21-0.1.git448584a.fc23 libusbx-1.0.21-0.1.git448584a.fc22</cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-02-26 14:22:19</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>8707253</commentid>
+    <comment_count>0</comment_count>
+      <attachid>1081383</attachid>
+    <who name="Tom &quot;spot&quot; Callaway">tcallawa</who>
+    <bug_when>2015-10-09 11:53:06 -0400</bug_when>
+    <thetext>Created attachment 1081383
+Patch for 1.0.20
+
+Chromium needs libusb_interrupt_handle_event exposed. Otherwise, Chromium will need to bundle libusbx.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8707257</commentid>
+    <comment_count>1</comment_count>
+      <attachid>1081384</attachid>
+    <who name="Tom &quot;spot&quot; Callaway">tcallawa</who>
+    <bug_when>2015-10-09 11:54:53 -0400</bug_when>
+    <thetext>Created attachment 1081384
+1/0.19 version of the patch
+
+Since this issue applies to all versions of libusbx (and I&apos;d imagine people will want Chromium in all branches), this is a patch for 1.0.19 (the only difference is that 1.0.19 uses ctx-&gt;ctrl_pipe).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9023251</commentid>
+    <comment_count>2</comment_count>
+    <who name="Hans de Goede">hdegoede</who>
+    <bug_when>2016-01-31 07:19:23 -0500</bug_when>
+    <thetext>Hi,
+
+Sorry this one somehow did not show up on my radar when initially filed. In a way this is good though, as in the mean time this has been discussed upstream, leading to this commit:
+
+https://github.com/libusb/libusb/commit/a6db382ad11f7662b550338e0570d5a2dfd8ce5a
+
+I believe that the best way forward with this would be to upgrade the libusb Fedora pkg to a snapshot with this commit, and then patch chromium to use the new API (use is similar, only you do not need to check for an error return).
+
+Would that work for you, and if so in which Fedora versions do you want the snapshot ?
+
+Regards,
+
+Hans</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9023274</commentid>
+    <comment_count>3</comment_count>
+    <who name="Hans de Goede">hdegoede</who>
+    <bug_when>2016-01-31 07:23:45 -0500</bug_when>
+    <thetext>Note you can even make the chromium patch for this upstreamable by making the new code using the official api conditional like this:
+
+#ifdef LIBUSB_API_VERSION &gt;= 0x01000105
+...new-code
+#else
+...old-code
+#endif</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9029964</commentid>
+    <comment_count>4</comment_count>
+    <who name="Tom &quot;spot&quot; Callaway">tcallawa</who>
+    <bug_when>2016-02-02 12:54:47 -0500</bug_when>
+    <thetext>Could you add the new function to F22+ ?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9087481</commentid>
+    <comment_count>5</comment_count>
+    <who name="Hans de Goede">hdegoede</who>
+    <bug_when>2016-02-23 05:25:48 -0500</bug_when>
+    <thetext>Hi,
+
+(In reply to Tom &quot;spot&quot; Callaway from comment #4)
+&gt; Could you add the new function to F22+ ?
+
+Done, currently building, I&apos;ll create updates in bodhi for this soon.
+
+Regards,
+
+Hans</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9087550</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-02-23 05:48:25 -0500</bug_when>
+    <thetext>libusbx-1.0.21-0.1.git448584a.fc23 has been submitted as an update to Fedora 23. https://bodhi.fedoraproject.org/updates/FEDORA-2016-ebace1242a</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9087554</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-02-23 05:49:10 -0500</bug_when>
+    <thetext>libusbx-1.0.21-0.1.git448584a.fc22 has been submitted as an update to Fedora 22. https://bodhi.fedoraproject.org/updates/FEDORA-2016-687b4b59d0</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9089661</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-02-23 16:26:13 -0500</bug_when>
+    <thetext>libusbx-1.0.21-0.1.git448584a.fc22 has been pushed to the Fedora 22 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-687b4b59d0</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9092342</commentid>
+    <comment_count>9</comment_count>
+    <who name="Jan Kurik">jkurik</who>
+    <bug_when>2016-02-24 08:49:20 -0500</bug_when>
+    <thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 24 development cycle.
+Changing version to &apos;24&apos;.
+
+More information and reason for this action is here:
+https://fedoraproject.org/wiki/Fedora_Program_Management/HouseKeeping/Fedora24#Rawhide_Rebase</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9095665</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-02-24 16:51:22 -0500</bug_when>
+    <thetext>libusbx-1.0.21-0.1.git448584a.fc23 has been pushed to the Fedora 23 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-ebace1242a</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9099894</commentid>
+    <comment_count>11</comment_count>
+    <who name="Didier">d-bugzilla</who>
+    <bug_when>2016-02-26 03:52:02 -0500</bug_when>
+    <thetext>With the latest libusbx, chromium still yields a symbol lookup error on F23 :
+
+# dnf list installed | egrep &quot;chromium.x86_64|libusbx.x86_64&quot;
+chromium.x86_64                          48.0.2564.103-2.fc23           @spot-chromium
+libusbx.x86_64                           1.0.21-0.1.git448584a.fc23     @spot-chromium
+
+$ chromium-browser
+/usr/bin/chromium-browser: symbol lookup error: /usr/bin/chromium-browser: undefined symbol: libusb_interrupt_handle_event</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9100001</commentid>
+    <comment_count>12</comment_count>
+    <who name="Didier">d-bugzilla</who>
+    <bug_when>2016-02-26 04:13:25 -0500</bug_when>
+    <thetext>Chromium works with the (downgraded) libusbx version from Tom&apos;s COPR :
+
+# dnf list installed | egrep &quot;chromium.x86_64|libusbx.x86_64&quot;
+chromium.x86_64                          48.0.2564.103-2.fc23           @spot-chromium
+libusbx.x86_64                           1.0.20-101.fc23                @spot-chromium</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9101085</commentid>
+    <comment_count>13</comment_count>
+    <who name="Hans de Goede">hdegoede</who>
+    <bug_when>2016-02-26 10:54:27 -0500</bug_when>
+    <thetext>Hi,
+
+(In reply to Didier from comment #11)
+&gt; With the latest libusbx, chromium still yields a symbol lookup error on F23 :
+&gt; 
+&gt; # dnf list installed | egrep &quot;chromium.x86_64|libusbx.x86_64&quot;
+&gt; chromium.x86_64                          48.0.2564.103-2.fc23          
+&gt; @spot-chromium
+&gt; libusbx.x86_64                           1.0.21-0.1.git448584a.fc23    
+&gt; @spot-chromium
+&gt; 
+&gt; $ chromium-browser
+&gt; /usr/bin/chromium-browser: symbol lookup error: /usr/bin/chromium-browser:
+&gt; undefined symbol: libusb_interrupt_handle_event
+
+That is sort-of expected, the function as merged upstream is called: libusb_interrupt_event_handler so Tom will need to update (patch) his chromium packages to use the function name as merged upstream. 
+
+Once that is done Tom can stop providing a custom libusbx in his COPR :)
+
+Regards,
+
+Hans</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9101090</commentid>
+    <comment_count>14</comment_count>
+    <who name="Tom &quot;spot&quot; Callaway">tcallawa</who>
+    <bug_when>2016-02-26 10:55:42 -0500</bug_when>
+    <thetext>Yes, a fixed chromium is building right now. This should be a non-issue RSN. :)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9101717</commentid>
+    <comment_count>15</comment_count>
+    <who name="Jorge Martínez López">jorgeml</who>
+    <bug_when>2016-02-26 14:01:23 -0500</bug_when>
+    <thetext>chromium.x86_64 48.0.2564.116-2.fc23
+libusbx.x86_64 1.0.21-0.1.git448584a.fc23
+
+fix this issue. Thanks Tom!</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9101743</commentid>
+    <comment_count>16</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-02-26 14:22:16 -0500</bug_when>
+    <thetext>libusbx-1.0.21-0.1.git448584a.fc23 has been pushed to the Fedora 23 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9109492</commentid>
+    <comment_count>17</comment_count>
+    <who name="Vadim Troshchinskiy">vtroshchinskiy</who>
+    <bug_when>2016-03-01 04:58:45 -0500</bug_when>
+    <thetext>Still doesn&apos;t work here. The package is installed:
+
+$ rpm -qa | grep libusbx
+libusbx-devel-1.0.21-0.1.git448584a.fc23.x86_64
+libusbx-1.0.21-0.1.git448584a.fc23.x86_64
+
+But Chromium still won&apos;t run:
+
+$ chromium-browser 
+/usr/bin/chromium-browser: symbol lookup error: /usr/bin/chromium-browser: undefined symbol: libusb_interrupt_handle_event</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9112931</commentid>
+    <comment_count>18</comment_count>
+    <who name="Vadim Troshchinskiy">vtroshchinskiy</who>
+    <bug_when>2016-03-02 02:54:58 -0500</bug_when>
+    <thetext>Today I found chromium and chromium-libs got updated to version 48.0.2564.116-2.fc23, and now everything works fine.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9115956</commentid>
+    <comment_count>19</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-03-02 16:50:13 -0500</bug_when>
+    <thetext>libusbx-1.0.21-0.1.git448584a.fc22 has been pushed to the Fedora 22 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="0"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1081383</attachid>
+            <date>2015-10-09 11:53:00 -0400</date>
+            <delta_ts>2015-10-09 11:53:06 -0400</delta_ts>
+            <desc>Patch for 1.0.20</desc>
+            <filename>libusb-1.0.20-chromium-libusb_interrupt_handle_event.patch</filename>
+            <type>text/plain</type>
+            <size>2076</size>
+            <attacher name="Tom &quot;spot&quot; Callaway">tcallawa</attacher>
+            
+              <data encoding="base64">ZGlmZiAtdXAgbGlidXNiLTEuMC4yMC9saWJ1c2IvaW50ZXJydXB0LmMuY2hyb21pdW0gbGlidXNi
+LTEuMC4yMC9saWJ1c2IvaW50ZXJydXB0LmMKLS0tIGxpYnVzYi0xLjAuMjAvbGlidXNiL2ludGVy
+cnVwdC5jLmNocm9taXVtCTIwMTUtMTAtMDEgMTA6MjQ6MzMuMzIwMTkzOTE4IC0wNDAwCisrKyBs
+aWJ1c2ItMS4wLjIwL2xpYnVzYi9pbnRlcnJ1cHQuYwkyMDE1LTEwLTAxIDEwOjI0OjMzLjMyMDE5
+MzkxOCAtMDQwMApAQCAtMCwwICsxLDExIEBACisvLyBDb3B5cmlnaHQgKGMpIDIwMTMgVGhlIENo
+cm9taXVtIEF1dGhvcnMuIEFsbCByaWdodHMgcmVzZXJ2ZWQuCisvLyBVc2Ugb2YgdGhpcyBzb3Vy
+Y2UgY29kZSBpcyBnb3Zlcm5lZCBieSBhIEJTRC1zdHlsZSBsaWNlbnNlIHRoYXQgY2FuIGJlCisv
+LyBmb3VuZCBpbiB0aGUgTElDRU5TRSBmaWxlLgorCisjaW5jbHVkZSAibGlidXNiaS5oIgorCitp
+bnQgQVBJX0VYUE9SVEVEIGxpYnVzYl9pbnRlcnJ1cHRfaGFuZGxlX2V2ZW50KHN0cnVjdCBsaWJ1
+c2JfY29udGV4dCogY3R4KSB7CisgIHVuc2lnbmVkIGNoYXIgZHVtbXkgPSAxOworICBVU0JJX0dF
+VF9DT05URVhUKGN0eCk7CisgIHJldHVybiB1c2JpX3dyaXRlKGN0eC0+ZXZlbnRfcGlwZVsxXSwg
+JmR1bW15LCBzaXplb2YoZHVtbXkpKTsKK30KZGlmZiAtdXAgbGlidXNiLTEuMC4yMC9saWJ1c2Iv
+aW50ZXJydXB0LmguY2hyb21pdW0gbGlidXNiLTEuMC4yMC9saWJ1c2IvaW50ZXJydXB0LmgKLS0t
+IGxpYnVzYi0xLjAuMjAvbGlidXNiL2ludGVycnVwdC5oLmNocm9taXVtCTIwMTUtMTAtMDEgMTA6
+MjQ6MzMuMzIwMTkzOTE4IC0wNDAwCisrKyBsaWJ1c2ItMS4wLjIwL2xpYnVzYi9pbnRlcnJ1cHQu
+aAkyMDE1LTEwLTAxIDEwOjI0OjMzLjMyMDE5MzkxOCAtMDQwMApAQCAtMCwwICsxLDIwIEBACisv
+LyBDb3B5cmlnaHQgKGMpIDIwMTMgVGhlIENocm9taXVtIEF1dGhvcnMuIEFsbCByaWdodHMgcmVz
+ZXJ2ZWQuCisvLyBVc2Ugb2YgdGhpcyBzb3VyY2UgY29kZSBpcyBnb3Zlcm5lZCBieSBhIEJTRC1z
+dHlsZSBsaWNlbnNlIHRoYXQgY2FuIGJlCisvLyBmb3VuZCBpbiB0aGUgTElDRU5TRSBmaWxlLgor
+CisjaWZuZGVmIFRISVJEX1BBUlRZX0xJQlVTQl9TUkNfTElCVVNCX0lOVEVSUlVQVF9ICisjZGVm
+aW5lIFRISVJEX1BBUlRZX0xJQlVTQl9TUkNfTElCVVNCX0lOVEVSUlVQVF9ICisKKyNpbmNsdWRl
+ICJsaWJ1c2IuaCIKKworI2lmZGVmIF9fY3BsdXNwbHVzCitleHRlcm4gIkMiIHsKKyNlbmRpZgor
+CitpbnQgTElCVVNCX0NBTEwgbGlidXNiX2ludGVycnVwdF9oYW5kbGVfZXZlbnQoc3RydWN0IGxp
+YnVzYl9jb250ZXh0KiBjdHgpOworCisjaWZkZWYgX19jcGx1c3BsdXMKK30KKyNlbmRpZgorCisj
+ZW5kaWYgIC8vIFRISVJEX1BBUlRZX0xJQlVTQl9TUkNfTElCVVNCX0lOVEVSUlVQVF9ICmRpZmYg
+LXVwIGxpYnVzYi0xLjAuMjAvbGlidXNiL01ha2VmaWxlLmFtLmNocm9taXVtIGxpYnVzYi0xLjAu
+MjAvbGlidXNiL01ha2VmaWxlLmFtCi0tLSBsaWJ1c2ItMS4wLjIwL2xpYnVzYi9NYWtlZmlsZS5h
+bS5jaHJvbWl1bQkyMDE1LTEwLTAxIDEwOjI0OjMzLjMyMDE5MzkxOCAtMDQwMAorKysgbGlidXNi
+LTEuMC4yMC9saWJ1c2IvTWFrZWZpbGUuYW0JMjAxNS0xMC0wMSAxMDoyNToxNi41NTQ4NjUxMTAg
+LTA0MDAKQEAgLTgwLDcgKzgwLDcgQEAgbGlidXNiXzFfMF9sYV9MREZMQUdTID0gJChMVExERkxB
+R1MpCiBsaWJ1c2JfMV8wX2xhX1NPVVJDRVMgPSBsaWJ1c2JpLmggY29yZS5jIGRlc2NyaXB0b3Iu
+YyBpby5jIHN0cmVycm9yLmMgc3luYy5jIFwKIAlvcy9saW51eF91c2Jmcy5oIG9zL2Rhcndpbl91
+c2IuaCBvcy93aW5kb3dzX3VzYi5oIG9zL3dpbmRvd3NfY29tbW9uLmggXAogCWhvdHBsdWcuaCBo
+b3RwbHVnLmMgJChUSFJFQURTX1NSQykgJChPU19TUkMpIFwKLQlvcy9wb2xsX3Bvc2l4Lmggb3Mv
+cG9sbF93aW5kb3dzLmgKKwlvcy9wb2xsX3Bvc2l4Lmggb3MvcG9sbF93aW5kb3dzLmggaW50ZXJy
+dXB0LmMgaW50ZXJydXB0LmgKIAogaWYgT1NfSEFJS1UKIGxpYnVzYl8xXzBfbGFfTElCQUREID0g
+b3MvaGFpa3UvbGliaGFpa3V1c2IubGEK
+</data>
+
+          </attachment>
+          <attachment
+              isobsolete="0"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1081384</attachid>
+            <date>2015-10-09 11:54:00 -0400</date>
+            <delta_ts>2015-10-09 11:54:53 -0400</delta_ts>
+            <desc>1/0.19 version of the patch</desc>
+            <filename>libusbx-1.0.19-chromium-libusb_interrupt_handle_event.patch</filename>
+            <type>text/plain</type>
+            <size>2121</size>
+            <attacher name="Tom &quot;spot&quot; Callaway">tcallawa</attacher>
+            
+              <data encoding="base64">ZGlmZiAtdXAgbGlidXNiLTEuMC4xOS1yYzIvbGlidXNiL2ludGVycnVwdC5jLmNocm9taXVtIGxp
+YnVzYi0xLjAuMTktcmMyL2xpYnVzYi9pbnRlcnJ1cHQuYwotLS0gbGlidXNiLTEuMC4xOS1yYzIv
+bGlidXNiL2ludGVycnVwdC5jLmNocm9taXVtCTIwMTQtMDYtMDcgMjE6Mjc6MzIuOTQyODEzNzUz
+IC0wNDAwCisrKyBsaWJ1c2ItMS4wLjE5LXJjMi9saWJ1c2IvaW50ZXJydXB0LmMJMjAxNC0wNi0w
+NyAyMToyNzozMi45NDI4MTM3NTMgLTA0MDAKQEAgLTAsMCArMSwxMSBAQAorLy8gQ29weXJpZ2h0
+IChjKSAyMDEzIFRoZSBDaHJvbWl1bSBBdXRob3JzLiBBbGwgcmlnaHRzIHJlc2VydmVkLgorLy8g
+VXNlIG9mIHRoaXMgc291cmNlIGNvZGUgaXMgZ292ZXJuZWQgYnkgYSBCU0Qtc3R5bGUgbGljZW5z
+ZSB0aGF0IGNhbiBiZQorLy8gZm91bmQgaW4gdGhlIExJQ0VOU0UgZmlsZS4KKworI2luY2x1ZGUg
+ImxpYnVzYmkuaCIKKworaW50IEFQSV9FWFBPUlRFRCBsaWJ1c2JfaW50ZXJydXB0X2hhbmRsZV9l
+dmVudChzdHJ1Y3QgbGlidXNiX2NvbnRleHQqIGN0eCkgeworICB1bnNpZ25lZCBjaGFyIGR1bW15
+ID0gMTsKKyAgVVNCSV9HRVRfQ09OVEVYVChjdHgpOworICByZXR1cm4gdXNiaV93cml0ZShjdHgt
+PmN0cmxfcGlwZVsxXSwgJmR1bW15LCBzaXplb2YoZHVtbXkpKTsKK30KZGlmZiAtdXAgbGlidXNi
+LTEuMC4xOS1yYzIvbGlidXNiL2ludGVycnVwdC5oLmNocm9taXVtIGxpYnVzYi0xLjAuMTktcmMy
+L2xpYnVzYi9pbnRlcnJ1cHQuaAotLS0gbGlidXNiLTEuMC4xOS1yYzIvbGlidXNiL2ludGVycnVw
+dC5oLmNocm9taXVtCTIwMTQtMDYtMDcgMjE6Mjc6MzIuOTQyODEzNzUzIC0wNDAwCisrKyBsaWJ1
+c2ItMS4wLjE5LXJjMi9saWJ1c2IvaW50ZXJydXB0LmgJMjAxNC0wNS0xNCAxNToyMjoxOS4wMDAw
+MDAwMDAgLTA0MDAKQEAgLTAsMCArMSwyMCBAQAorLy8gQ29weXJpZ2h0IChjKSAyMDEzIFRoZSBD
+aHJvbWl1bSBBdXRob3JzLiBBbGwgcmlnaHRzIHJlc2VydmVkLgorLy8gVXNlIG9mIHRoaXMgc291
+cmNlIGNvZGUgaXMgZ292ZXJuZWQgYnkgYSBCU0Qtc3R5bGUgbGljZW5zZSB0aGF0IGNhbiBiZQor
+Ly8gZm91bmQgaW4gdGhlIExJQ0VOU0UgZmlsZS4KKworI2lmbmRlZiBUSElSRF9QQVJUWV9MSUJV
+U0JfU1JDX0xJQlVTQl9JTlRFUlJVUFRfSAorI2RlZmluZSBUSElSRF9QQVJUWV9MSUJVU0JfU1JD
+X0xJQlVTQl9JTlRFUlJVUFRfSAorCisjaW5jbHVkZSAibGlidXNiLmgiCisKKyNpZmRlZiBfX2Nw
+bHVzcGx1cworZXh0ZXJuICJDIiB7CisjZW5kaWYKKworaW50IExJQlVTQl9DQUxMIGxpYnVzYl9p
+bnRlcnJ1cHRfaGFuZGxlX2V2ZW50KHN0cnVjdCBsaWJ1c2JfY29udGV4dCogY3R4KTsKKworI2lm
+ZGVmIF9fY3BsdXNwbHVzCit9CisjZW5kaWYKKworI2VuZGlmICAvLyBUSElSRF9QQVJUWV9MSUJV
+U0JfU1JDX0xJQlVTQl9JTlRFUlJVUFRfSApkaWZmIC11cCBsaWJ1c2ItMS4wLjE5LXJjMi9saWJ1
+c2IvTWFrZWZpbGUuYW0uY2hyb21pdW0gbGlidXNiLTEuMC4xOS1yYzIvbGlidXNiL01ha2VmaWxl
+LmFtCi0tLSBsaWJ1c2ItMS4wLjE5LXJjMi9saWJ1c2IvTWFrZWZpbGUuYW0uY2hyb21pdW0JMjAx
+NC0wNC0yMiAwODoxOTo0Mi4wMDAwMDAwMDAgLTA0MDAKKysrIGxpYnVzYi0xLjAuMTktcmMyL2xp
+YnVzYi9NYWtlZmlsZS5hbQkyMDE0LTA2LTA3IDIxOjI3OjMyLjk0MTgxMzc1MyAtMDQwMApAQCAt
+NjksNyArNjksNyBAQCBsaWJ1c2JfMV8wX2xhX0xERkxBR1MgPSAkKExUTERGTEFHUykKIGxpYnVz
+Yl8xXzBfbGFfU09VUkNFUyA9IGxpYnVzYmkuaCBjb3JlLmMgZGVzY3JpcHRvci5jIGlvLmMgc3Ry
+ZXJyb3IuYyBzeW5jLmMgXAogCW9zL2xpbnV4X3VzYmZzLmggb3MvZGFyd2luX3VzYi5oIG9zL3dp
+bmRvd3NfdXNiLmggb3Mvd2luZG93c19jb21tb24uaCBcCiAJaG90cGx1Zy5oIGhvdHBsdWcuYyAk
+KFRIUkVBRFNfU1JDKSAkKE9TX1NSQykgXAotCW9zL3BvbGxfcG9zaXguaCBvcy9wb2xsX3dpbmRv
+d3MuaAorCW9zL3BvbGxfcG9zaXguaCBvcy9wb2xsX3dpbmRvd3MuaCBpbnRlcnJ1cHQuYyBpbnRl
+cnJ1cHQuaAogCiBoZHJkaXIgPSAkKGluY2x1ZGVkaXIpL2xpYnVzYi0xLjAKIGhkcl9IRUFERVJT
+ID0gbGlidXNiLmgK
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

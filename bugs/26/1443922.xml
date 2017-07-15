@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1443922</bug_id>
+          
+          <creation_ts>2017-04-20 05:19:00 -0400</creation_ts>
+          <short_desc>systemd fails to run in container due to mounting issues</short_desc>
+          <delta_ts>2017-06-23 23:05:53 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>docker</component>
+          <version>26</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="James Hogarth">james.hogarth</reporter>
+          <assigned_to name="Antonio Murdaca">amurdaca</assigned_to>
+          <cc>adimania</cc>
+    
+    
+    <cc>admiller</cc>
+    
+    
+    <cc>amurdaca</cc>
+    
+    
+    <cc>dwalsh</cc>
+    
+    
+    <cc>ichavero</cc>
+    
+    
+    <cc>jcajka</cc>
+    
+    
+    <cc>johannbg</cc>
+    
+    
+    <cc>lnykryn</cc>
+    
+    
+    <cc>lsm5</cc>
+    
+    
+    <cc>marianne</cc>
+    
+    
+    <cc>msekleta</cc>
+    
+    
+    <cc>muadda</cc>
+    
+    
+    <cc>nalin</cc>
+    
+    
+    <cc>riek</cc>
+    
+    
+    <cc>ssahani</cc>
+    
+    
+    <cc>s</cc>
+    
+    
+    <cc>systemd-maint</cc>
+    
+    
+    <cc>vbatts</cc>
+    
+    
+    <cc>zbyszek</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>docker-1.13.1-19.git27e468e.fc26</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-06-23 23:05:53</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          <external_bugs name="Github">projectatomic/oci-systemd-hook/issues/56</external_bugs>
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10348840</commentid>
+    <comment_count>0</comment_count>
+    <who name="James Hogarth">james.hogarth</who>
+    <bug_when>2017-04-20 05:19:21 -0400</bug_when>
+    <thetext>Description of problem:
+When running a container systemd doesn&apos;t complete initialisation and systemctl cannot be used to start/stop services in the container, complaining of a dbus error.
+
+Version-Release number of selected component (if applicable):
+docker-1.13.1-7.git14cc629.fc26.x86_64
+docker-client-4.0.6-5.fc26.noarch
+docker-rhel-push-plugin-1.13.1-7.git14cc629.fc26.x86_64
+docker-v1.10-migrator-1.13.1-7.git14cc629.fc26.x86_64
+docker-common-1.13.1-7.git14cc629.fc26.x86_64
+oci-systemd-hook-0.1.7-1.git1788cf2.fc26.x86_64
+
+How reproducible:
+Always
+
+Steps to Reproduce:
+1. mkdir httpd-test ; cd http-test
+2. cat &gt; Dockerfile &lt;&lt;EOF
+FROM fedora:latest
+ENV container oci
+RUN dnf -y install httpd; dnf clean all ; systemctl enable httpd
+STOPSIGNAL SIGRTMIN+3
+EXPOSE 80
+CMD [&quot;/sbin/init&quot;]
+EOF
+3. docker build -t http-test .
+4. docker run -dt  --name http-test  http-test
+
+Actual results:
+docker logs http-test 
+Failed to determine whether /sys is a mount point: Operation not permitted
+Failed to determine whether /proc is a mount point: Operation not permitted
+Failed to determine whether /dev is a mount point: Operation not permitted
+Failed to determine whether /dev/shm is a mount point: Operation not permitted
+Failed to determine whether /run is a mount point: Operation not permitted
+Failed to determine whether /sys/fs/cgroup is a mount point: Operation not permitted
+Failed to determine whether /sys/fs/cgroup/systemd is a mount point: Operation not permitted
+[!!!!!!] Failed to mount API filesystems, freezing.
+Freezing execution.
+
+
+Expected results:
+ docker top http-test 
+UID                 PID                 PPID                C                   STIME               TTY                 TIME                CMD
+root                11860               11843               0                   10:15               ?                   00:00:00            /sbin/init
+root                11954               11860               0                   10:15               ?                   00:00:00            /usr/lib/systemd/systemd-journald
+root                12154               11860               1                   10:15               ?                   00:00:00            /usr/sbin/httpd -DFOREGROUND
+apache              12155               12154               0                   10:15               ?                   00:00:00            /usr/sbin/httpd -DFOREGROUND
+apache              12156               12154               0                   10:15               ?                   00:00:00            /usr/sbin/httpd -DFOREGROUND
+apache              12157               12154               0                   10:15               ?                   00:00:00            /usr/sbin/httpd -DFOREGROUND
+apache              12162               12154               0                   10:15               ?                   00:00:00            /usr/sbin/httpd -DFOREGROUND
+apache              12181               12154               0                   10:15               ?                   00:00:00            /usr/sbin/httpd -DFOREGROUND
+dbus                12186               11860               0                   10:15               ?                   00:00:00            /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only
+root                12188               11860               0                   10:16               ?                   00:00:00            /usr/lib/systemd/systemd-logind
+
+
+Additional info:
+The hook works with SYS_ADMIN caps enabled for the container.
+
+docker run -dt  --cap-add SYS_ADMIN --name http-test  http-test</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10349574</commentid>
+    <comment_count>1</comment_count>
+    <who name="Daniel Walsh">dwalsh</who>
+    <bug_when>2017-04-20 08:33:42 -0400</bug_when>
+    <thetext>This is a systemd issue that is fixed in the upstream version of systemd, I believe.  The problem is seccomp removed a syscall that is causing systemd to be confused about itself running in a container, (I believe).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10349580</commentid>
+    <comment_count>2</comment_count>
+    <who name="James Hogarth">james.hogarth</who>
+    <bug_when>2017-04-20 08:36:53 -0400</bug_when>
+    <thetext>My test case fails whether the container is from centos:latest or fedora:latest
+
+Unless you mean the host OS systemd being involved somehow?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10349588</commentid>
+    <comment_count>3</comment_count>
+    <who name="Daniel Walsh">dwalsh</who>
+    <bug_when>2017-04-20 08:39:04 -0400</bug_when>
+    <thetext>Try running with --security-opt seccomp:unconfined
+
+And see if it works.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10349671</commentid>
+    <comment_count>4</comment_count>
+    <who name="James Hogarth">james.hogarth</who>
+    <bug_when>2017-04-20 09:00:43 -0400</bug_when>
+    <thetext>You&apos;re right ... that works.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10349714</commentid>
+    <comment_count>5</comment_count>
+    <who name="Daniel Walsh">dwalsh</who>
+    <bug_when>2017-04-20 09:08:42 -0400</bug_when>
+    <thetext>I think this can be fixed in two different ways, we can add back in the syscall that seccomp is blocking that is causing systemd to fail.  But I believe Lennart put in a fix for systemd that made systemd work without the syscall.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10349715</commentid>
+    <comment_count>6</comment_count>
+    <who name="Daniel Walsh">dwalsh</who>
+    <bug_when>2017-04-20 09:09:14 -0400</bug_when>
+    <thetext>https://bugzilla.redhat.com/show_bug.cgi?id=1441100
+
+Talks about fixing the seccomp issue.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10349790</commentid>
+    <comment_count>7</comment_count>
+    <who name="James Hogarth">james.hogarth</who>
+    <bug_when>2017-04-20 09:26:14 -0400</bug_when>
+    <thetext>DO you know if on the RHEL side it was fixed with a patch to docker-latest to add the seccomp call back to the whitelist, or if the systemd patch was located and backported?
+
+It&apos;d make sense to use the same fix here in Fedora too</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10349889</commentid>
+    <comment_count>8</comment_count>
+    <who name="Daniel Walsh">dwalsh</who>
+    <bug_when>2017-04-20 09:44:56 -0400</bug_when>
+    <thetext>Agreed, basically this fix is just to add the syscall back into the syscall json file we ship.  The same code should be in Fedora as well as RHEL/Centos.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10355563</commentid>
+    <comment_count>9</comment_count>
+    <who name="James Hogarth">james.hogarth</who>
+    <bug_when>2017-04-24 04:51:30 -0400</bug_when>
+    <thetext>So does this mean this bug should actually be with docker not systemd for that particular fix?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10356443</commentid>
+    <comment_count>10</comment_count>
+    <who name="Daniel Walsh">dwalsh</who>
+    <bug_when>2017-04-24 08:43:32 -0400</bug_when>
+    <thetext>I believe this is not a bug per se with container runtimes.  Container runtimes are attempting to run with as tight of security as possible.  systemd has a fix to be able to work fine under these tighter constraints so this systemd should get released into Fedora.  Since it takes a lot longer to get systemd updated in RHEL/Centos we will need to loosen the security constraints in container runtimes for now.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10399915</commentid>
+    <comment_count>11</comment_count>
+    <who name="James Hogarth">james.hogarth</who>
+    <bug_when>2017-05-10 07:06:47 -0400</bug_when>
+    <thetext>Dan this has been hanging around for a while now, can we get the temp fix in docker asap as we&apos;re drawing close to F26 beta and systemd containers on F26 are totally broken at present by default.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10400237</commentid>
+    <comment_count>12</comment_count>
+    <who name="Daniel Walsh">dwalsh</who>
+    <bug_when>2017-05-10 08:09:50 -0400</bug_when>
+    <thetext>Lokesh or runcom can we build the docker package with the separate seccomp.json file which fixes this issue.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10449059</commentid>
+    <comment_count>13</comment_count>
+    <who name="James Hogarth">james.hogarth</who>
+    <bug_when>2017-05-25 16:42:21 -0400</bug_when>
+    <thetext>Lokesh it&apos;s been a fortnight since Dan reassigned and this is really painful to deal with... any chance of that seccomp json update rolling out soon?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10501742</commentid>
+    <comment_count>14</comment_count>
+    <who name="Antonio Murdaca">amurdaca</who>
+    <bug_when>2017-06-13 10:52:54 -0400</bug_when>
+    <thetext>I&apos;m rebuilding it.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10501754</commentid>
+    <comment_count>15</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-13 10:56:28 -0400</bug_when>
+    <thetext>docker-1.13.1-17.git51eb16e.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-84372bb930</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10502382</commentid>
+    <comment_count>16</comment_count>
+    <who name="Zbigniew Jędrzejewski-Szmek">zbyszek</who>
+    <bug_when>2017-06-13 14:12:52 -0400</bug_when>
+    <thetext>Daniel, you mentioned some communication with Lennart Poettering to make some changes in systemd. There seems to be no trace of this in either this bug or #1441100, and I&apos;m not aware of any patches in systemd related to this.
+
+The change to allow the syscall in docker seems like the proper fix, since this is a generally useful syscall, but if there&apos;s an different fix in systemd, I&apos;d backport that too. So do you have any details?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10509756</commentid>
+    <comment_count>17</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-15 09:56:45 -0400</bug_when>
+    <thetext>docker-1.13.1-17.git51eb16e.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-84372bb930</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10509949</commentid>
+    <comment_count>18</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-15 10:20:34 -0400</bug_when>
+    <thetext>docker-1.13.1-18.git27e468e.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-740382b040</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10514598</commentid>
+    <comment_count>19</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-16 18:24:19 -0400</bug_when>
+    <thetext>docker-1.13.1-18.git27e468e.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-740382b040</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10520409</commentid>
+    <comment_count>20</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-19 15:53:38 -0400</bug_when>
+    <thetext>docker-1.13.1-19.git27e468e.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-36d05500ee</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10525915</commentid>
+    <comment_count>21</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-21 02:21:51 -0400</bug_when>
+    <thetext>docker-1.13.1-19.git27e468e.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-36d05500ee</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10536990</commentid>
+    <comment_count>22</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-23 23:05:53 -0400</bug_when>
+    <thetext>docker-1.13.1-19.git27e468e.fc26 has been pushed to the Fedora 26 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

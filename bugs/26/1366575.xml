@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1366575</bug_id>
+          
+          <creation_ts>2016-08-12 07:21:00 -0400</creation_ts>
+          <short_desc>Reboot from emergency.target hangs when rootfs is on LUKS</short_desc>
+          <delta_ts>2017-03-16 04:25:32 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>systemd</component>
+          <version>26</version>
+          <rep_platform>All</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>CURRENTRELEASE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>high</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>1370133</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Michal Sekletar">msekleta</reporter>
+          <assigned_to>systemd-maint</assigned_to>
+          <cc>johannbg</cc>
+    
+    
+    <cc>lnykryn</cc>
+    
+    
+    <cc>msekleta</cc>
+    
+    
+    <cc>muadda</cc>
+    
+    
+    <cc>ssahani</cc>
+    
+    
+    <cc>s</cc>
+    
+    
+    <cc>systemd-maint</cc>
+    
+    
+    <cc>zbyszek</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-03-16 04:25:32</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9610564</commentid>
+    <comment_count>0</comment_count>
+    <who name="Michal Sekletar">msekleta</who>
+    <bug_when>2016-08-12 07:21:12 -0400</bug_when>
+    <thetext>Description of problem:
+When rootfs is on LUKS we need to deactivate LUKS device during shutdown. To do that we call systemd-cryptsetup detach on the particular device. systemd-cryptsetup will then call crypt_deactivate function from libcryptsetup. This function then deactivates device, but when libcryptsetup notices that udev daemon is still running it executes the code path that uses udev cookies (synchronization mechanism implemented by libdevicemapper based on udev). To figure out whether udev is running it uses udev_queue_get_udev_is_active function from libudev. However this function only checks for presence of udev control AF_UNIX socket. Because system is in emergency mode, udev is not running  anymore and corresponding socket unit was also already stopped. Note that systemd by default doesn&apos;t unlink AF_UNIX sockets from the filesystem when socket unit is stopped. udev_queue_get_udev_is_active then returns true because /run/udev/control AF_UNIX socket is still present, but udevd is actually not running. That will then cause hang in libcryptsetup. 
+
+Version-Release number of selected component (if applicable):
+systemd-231-3.fc26
+
+How reproducible:
+always
+
+Steps to Reproduce:
+1. install system with encrypted /
+2. systemctl isolate emergency.target
+3. sulogin
+4. reboot
+
+Actual results:
+Reboot hangs
+
+Expected results:
+Reboot completes in a timely fashion
+
+Additional info:
+https://github.com/systemd/systemd/issues/2477</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10190998</commentid>
+    <comment_count>1</comment_count>
+    <who name="Fedora End Of Life">jkurik</who>
+    <bug_when>2017-02-28 05:05:26 -0500</bug_when>
+    <thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 26 development cycle.
+Changing version to &apos;26&apos;.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10244972</commentid>
+    <comment_count>2</comment_count>
+    <who name="Michal Sekletar">msekleta</who>
+    <bug_when>2017-03-16 04:25:32 -0400</bug_when>
+    <thetext>This was fixed while ago by,
+
+https://github.com/systemd/systemd/pull/4039/commits/a2de10775194edec51b1e88d20a380724a3dc716
+
+Above commit is included in systemd-v233 (F26 and rawhide).</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

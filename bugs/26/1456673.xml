@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1456673</bug_id>
+          
+          <creation_ts>2017-05-30 03:10:00 -0400</creation_ts>
+          <short_desc>python3-pyldap contains python3 incompatible code</short_desc>
+          <delta_ts>2017-06-09 15:16:37 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>python-pyldap</component>
+          <version>26</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>high</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Stanislav Laznicka">slaznick</reporter>
+          <assigned_to name="Miro Hrončok">mhroncok</assigned_to>
+          <cc>mhroncok</cc>
+    
+    
+    <cc>pviktori</cc>
+    
+    
+    <cc>python-sig</cc>
+    
+    
+    <cc>rkuska</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>python-pyldap-2.4.35.1-2.fc27 python-pyldap-2.4.35.1-2.fc26</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-06-09 15:16:37</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10457430</commentid>
+    <comment_count>0</comment_count>
+    <who name="Stanislav Laznicka">slaznick</who>
+    <bug_when>2017-05-30 03:10:23 -0400</bug_when>
+    <thetext>Description of problem:
+python3-pyldap version in Fedora 26 is too old and is not fully python3-compatible.
+
+Version-Release number of selected component (if applicable):
+python3-pyldap-2.4.25.1-2.fc25.x86_64
+
+How reproducible:
+All the time.
+
+Steps to Reproduce:
+1. python3 -c &quot;import ldap; ldap.schema.subentry.urlfetch(&apos;file:///iamgreat.ldif&apos;)&quot;
+
+Actual results:
+Traceback (most recent call last):
+  File &quot;&lt;string&gt;&quot;, line 1, in &lt;module&gt;
+  File &quot;/usr/lib64/python3.5/site-packages/ldap/schema/subentry.py&quot;, line 478, in urlfetch
+    ldif_file = urllib.urlopen(uri)
+AttributeError: module &apos;urllib&apos; has no attribute &apos;urlopen&apos;
+
+
+Expected results:
+Some kind of exception that a file does not exist/proper processing of the file if you&apos;re really the person who would have such a file.
+
+
+Additional info:
+This also applies for Fedora 25 but I guess that one is lost so I would like to have this fixed at least in 26. It breaks FreeIPA in python3.
+
+For the record, this was fixed upstream:
+https://github.com/pyldap/pyldap/commit/378b13c8361a12dc655146f2cd91f28bbe257599</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10457516</commentid>
+    <comment_count>1</comment_count>
+    <who name="Stanislav Laznicka">slaznick</who>
+    <bug_when>2017-05-30 03:41:19 -0400</bug_when>
+    <thetext>Once the above is worked around, there is yet another python3 incompatibility:
+
+  File &quot;/usr/lib64/python3.5/site-packages/ldap/schema/subentry.py&quot;, line 480, in urlfetch
+    ldif_parser = ldif.LDIFRecordList(ldif_file,max_entries=1)
+  File &quot;/usr/lib64/python3.5/site-packages/ldif.py&quot;, line 535, in __init__
+    LDIFParser.__init__(self,input_file,ignored_attr_types,max_entries,process_url_schemes)
+  File &quot;/usr/lib64/python3.5/site-packages/ldif.py&quot;, line 294, in __init__
+    self._line = self._readline()
+  File &quot;/usr/lib64/python3.5/site-packages/ldif.py&quot;, line 307, in _readline
+    if s[-2:]==&apos;\r\n&apos;:
+BytesWarning: Comparison between bytes and string
+
+which is fixed upstream in
+https://github.com/pyldap/pyldap/commit/39a31ba755ff91c2f0ffa8ced713da32f6ed4cf1
+which is further fixed in
+https://github.com/pyldap/pyldap/commit/1b4da37305dc29a60bacb11e317bcd004400cd78
+for non-standard situations.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10457836</commentid>
+    <comment_count>2</comment_count>
+    <who name="Miro Hrončok">mhroncok</who>
+    <bug_when>2017-05-30 05:57:31 -0400</bug_when>
+    <thetext>A F26 scratch build with the latest release: https://koji.fedoraproject.org/koji/taskinfo?taskID=19780394
+
+Let me know if that fixes it.
+
+Also, if you wish to backport the fixes to F25, please do.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10457922</commentid>
+    <comment_count>3</comment_count>
+    <who name="Stanislav Laznicka">slaznick</who>
+    <bug_when>2017-05-30 06:28:27 -0400</bug_when>
+    <thetext>Miro,
+
+Thank you. In the meantime, I made an own copr build for Fedora 25/26, too (I believe we&apos;re using the same sources), and found one more bytes-unicode comparison which was not yet fixed upstream and is also contained in your package.
+
+Please, see https://github.com/pyldap/pyldap/pull/96/files, it&apos;s an easy one-liner.
+
+Nonetheless, I could probably live with your build should we not decide to go with the ^-- PR.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10457948</commentid>
+    <comment_count>4</comment_count>
+    <who name="Miro Hrončok">mhroncok</who>
+    <bug_when>2017-05-30 06:39:17 -0400</bug_when>
+    <thetext>Let&apos;s wait a bit for the response for the above PR.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10458004</commentid>
+    <comment_count>5</comment_count>
+    <who name="Miro Hrončok">mhroncok</who>
+    <bug_when>2017-05-30 06:56:58 -0400</bug_when>
+    <thetext>With your patch https://koji.fedoraproject.org/koji/taskinfo?taskID=19780641</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10458037</commentid>
+    <comment_count>6</comment_count>
+    <who name="Miro Hrončok">mhroncok</who>
+    <bug_when>2017-05-30 07:11:06 -0400</bug_when>
+    <thetext>Let me know and if it works for you, I&apos;ll build it in rawhide and F26.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10458396</commentid>
+    <comment_count>7</comment_count>
+    <who name="Stanislav Laznicka">slaznick</who>
+    <bug_when>2017-05-30 08:29:33 -0400</bug_when>
+    <thetext>It does work, thanks for the brief action.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10458708</commentid>
+    <comment_count>8</comment_count>
+    <who name="Miro Hrončok">mhroncok</who>
+    <bug_when>2017-05-30 09:45:05 -0400</bug_when>
+    <thetext>https://koji.fedoraproject.org/koji/taskinfo?taskID=19782510</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10459305</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-30 11:59:00 -0400</bug_when>
+    <thetext>python-pyldap-2.4.35.1-2.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-beaa317f1d</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10466728</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-31 23:18:25 -0400</bug_when>
+    <thetext>python-pyldap-2.4.35.1-2.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-beaa317f1d</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10494284</commentid>
+    <comment_count>11</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-09 15:16:37 -0400</bug_when>
+    <thetext>python-pyldap-2.4.35.1-2.fc26 has been pushed to the Fedora 26 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

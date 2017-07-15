@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1445913</bug_id>
+          
+          <creation_ts>2017-04-26 14:33:00 -0400</creation_ts>
+          <short_desc>Investigate why a stapled domain constraints extension isn&apos;t used by GnuTLS</short_desc>
+          <delta_ts>2017-05-15 00:41:33 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>gnutls</component>
+          <version>26</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>1444799</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Kai Engert (:kaie)">kengert</reporter>
+          <assigned_to name="Nikos Mavrogiannopoulos">nmavrogi</assigned_to>
+          <cc>dueno</cc>
+    
+    
+    <cc>nmavrogi</cc>
+    
+    
+    <cc>szidek</cc>
+    
+    
+    <cc>tmraz</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>gnutls-3.5.12-2.fc25</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-05-15 00:41:33</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          <external_bugs name="Red Hat Bugzilla">1141241</external_bugs>
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10365892</commentid>
+    <comment_count>0</comment_count>
+    <who name="Kai Engert (:kaie)">kengert</who>
+    <bug_when>2017-04-26 14:33:35 -0400</bug_when>
+    <thetext>I tried to setup a test case for the example that Nikos documented here:
+  http://nmav.gnutls.org/2016/06/restricting-scope-of-ca-certificates.html
+
+I created a test CA certificate without constraints,
+then used the instructions to produce a configuration file in the .p11-kit file format.
+
+It doesn&apos;t work as expected, gnutls-cli allows connections to a domain outside the name space.
+
+Either I&apos;ve made a mistake, or the feature doesn&apos;t work as expected.
+Let&apos;s investigate what&apos;s wrong.
+
+I&apos;ll attach a test CA certificate in PEM format,
+the public key PEM file I&apos;ve extracted from it,
+and the .p11-kit configuration file I&apos;ve created based on that.
+
+The constraints extension string was created using the 
+  https://github.com/nmav/nconstraints
+tool
+  ./nconstraints .xn--berhcker-3za9u.de
+which produced
+  %30%25%06%03%55%1d%1e%04%1e%30%1c%a0%1a%30%18%82%16%2e%78%6e%2d%2d%62%65%72%68%63%6b%65%72%2d%33%7a%61%39%75%2e%64%65
+
+I&apos;ve setup two test sites, that use certificates issued by the test CA:
+
+(a) https://stapled-host1.xn--berhcker-3za9u.de/
+(b) https://uberhacker-stapled-constraint-ca.kuix.de/
+
+(a) should work, (b) should fail
+
+However, with the attached configuration, (b) gnutls-cli connects without error.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10365894</commentid>
+    <comment_count>1</comment_count>
+      <attachid>1274358</attachid>
+    <who name="Kai Engert (:kaie)">kengert</who>
+    <bug_when>2017-04-26 14:35:00 -0400</bug_when>
+    <thetext>Created attachment 1274358
+test-uberhacker-stapled-constraint.p11-kit
+
+This file was copied to /etc/pki/ca-trust/source on a F26 system.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10365897</commentid>
+    <comment_count>2</comment_count>
+      <attachid>1274359</attachid>
+    <who name="Kai Engert (:kaie)">kengert</who>
+    <bug_when>2017-04-26 14:35:47 -0400</bug_when>
+    <thetext>Created attachment 1274359
+ca-pem</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10365898</commentid>
+    <comment_count>3</comment_count>
+      <attachid>1274360</attachid>
+    <who name="Kai Engert (:kaie)">kengert</who>
+    <bug_when>2017-04-26 14:36:10 -0400</bug_when>
+    <thetext>Created attachment 1274360
+ca-pubkey.pem</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10407897</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-12 09:59:00 -0400</bug_when>
+    <thetext>gnutls-3.5.12-2.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-c4c915ec1b</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10411125</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-15 00:41:33 -0400</bug_when>
+    <thetext>gnutls-3.5.12-2.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="0"
+              ispatch="0"
+              isprivate="0"
+          >
+            <attachid>1274358</attachid>
+            <date>2017-04-26 14:35:00 -0400</date>
+            <delta_ts>2017-04-26 14:35:00 -0400</delta_ts>
+            <desc>test-uberhacker-stapled-constraint.p11-kit</desc>
+            <filename>test-uberhacker-stapled-constraint.p11-kit</filename>
+            <type>text/plain</type>
+            <size>2711</size>
+            <attacher name="Kai Engert (:kaie)">kengert</attacher>
+            
+              <data encoding="base64">W3AxMS1raXQtb2JqZWN0LXYxXQp0cnVzdGVkOiB0cnVlCngtZGlzdHJ1c3RlZDogZmFsc2UKcHJp
+dmF0ZTogZmFsc2UKY2VydGlmaWNhdGUtY2F0ZWdvcnk6IGF1dGhvcml0eQpsYWJlbDogInRlc3Qt
+dWJlcmhhY2tlci1zdGFwbGluZy1kbnMtY29uc3RyYWludCIKLS0tLS1CRUdJTiBDRVJUSUZJQ0FU
+RS0tLS0tCk1JSURRakNDQWlxZ0F3SUJBZ0lCQURBTkJna3Foa2lHOXcwQkFRc0ZBREJTTVFzd0NR
+WURWUVFHRXdKRVJURkQKTUVFR0ExVUVBd3c2dzV4aVpYSkl3NlJqYTJWeUlGUmxjM1FnUTBFZ1pt
+OXlJSE4wWVhCc2FXNW5JR1Y0ZEdWeQpibUZzSUVST1V5QmpiMjV6ZEhKaGFXNTBjekFlRncweE56
+QXhNall4TkRVek1UTmFGdzB6TXpBNE1qWXhORFV6Ck1UTmFNRkl4Q3pBSkJnTlZCQVlUQWtSRk1V
+TXdRUVlEVlFRREREckRuR0psY2tqRHBHTnJaWElnVkdWemRDQkQKUVNCbWIzSWdjM1JoY0d4cGJt
+Y2daWGgwWlhKdVlXd2dSRTVUSUdOdmJuTjBjbUZwYm5Sek1JSUJJakFOQmdrcQpoa2lHOXcwQkFR
+RUZBQU9DQVE4QU1JSUJDZ0tDQVFFQTFaNis2djRCb05CcjdyQXk4YitobWxqb0VoL0s3YjRtCk5Q
+Z0FtMnRQKzVIZ0U2aE1iNW54UFR4NmR4MTdkZWtmUURENWhhUURVTWRvbnRlOFo4T3Vhcld2MnBm
+b21rV3QKWTMzSUVIY1Z1U211a3JjY3dtMkdNTGNleFFyY052R2NJQUVzSE9CY0RPK3RNaURUWDFz
+bGtCOVc4S2tCNThCQQpLWWlFVi9FYWhOYlFxK09VR0pBdHRvckZwNGpFSmpHSHlUMVgwUHNmSGE2
+RjNySEh5MlJjTjVwOXJ4allyQ3JnCkRhMVZoeHQ0WnBzRGR0a1B0aFVjSGNDUU9kbjU3R3pOTzhq
+QytmYVNaTDBoaGdadi9CaTY4c21nTTQzL2labGEKaTRaL2VyWlBmeHBWSVNoeWN1M0tieVd1QVdn
+VGlQRXdzK2MwcW5PMmcyVWF5dXRQUjBUWUR3SURBUUFCb3lNdwpJVEFQQmdOVkhSTUJBZjhFQlRB
+REFRSC9NQTRHQTFVZER3RUIvd1FFQXdJQkJqQU5CZ2txaGtpRzl3MEJBUXNGCkFBT0NBUUVBdkRO
+R0VrbVY3a2tON3YxUUplN01YZ3B3Q20rQS9TNmpEeE43aGMvaXY0ME1UTENmODdPWWQ5aU0KVEps
+Qlg1dENEQkRXZ2hndVFRK0FMSFV3U0JTL2MxM2IxMkRWZGlYK1NQOUhjZTNUdFRlNndtYTEwcXRR
+YldYQwp1YmRaR0dBa2Q4VDRWbDNZWW9iYTRpdDNYQWszTTVjdUpXdzZzbE1PWE12a3RoK2owcTEw
+T2EyS3ZHQmNaTjJKClZYUFNNbzZvRjJMeVdod01sY1FUR3ljRURMWkozaDJaTTBZRS9VYmlwb05n
+OFNSbFdZUVlyWEpYNmpZUkx5TTgKbUNNanlELzVyNlNweG9Fald6bXg2MVJSM3Uydk1BOVRXZ1F3
+ejUzTnk2TUdySGRhcWpYRHBmWlVPVC9PbHZUTAozNGJUQWN0SDQ3amh5RmpnYTVQdFhFZnl3NEdq
+RWc9PQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCgpbcDExLWtpdC1vYmplY3QtdjFdCmNsYXNz
+OiB4LWNlcnRpZmljYXRlLWV4dGVuc2lvbgpvYmplY3QtaWQ6IDIuNS4yOS4zMAp2YWx1ZTogIiUz
+MCUyNSUwNiUwMyU1NSUxZCUxZSUwNCUxZSUzMCUxYyVhMCUxYSUzMCUxOCU4MiUxNiUyZSU3OCU2
+ZSUyZCUyZCU2MiU2NSU3MiU2OCU2MyU2YiU2NSU3MiUyZCUzMyU3YSU2MSUzOSU3NSUyZSU2NCU2
+NSIKbGFiZWw6ICJ0ZXN0LXViZXJoYWNrZXItc3RhcGxpbmctZG5zLWNvbnN0cmFpbnQiCi0tLS0t
+QkVHSU4gUFVCTElDIEtFWS0tLS0tCk1JSUJJakFOQmdrcWhraUc5dzBCQVFFRkFBT0NBUThBTUlJ
+QkNnS0NBUUVBMVo2KzZ2NEJvTkJyN3JBeThiK2gKbWxqb0VoL0s3YjRtTlBnQW0ydFArNUhnRTZo
+TWI1bnhQVHg2ZHgxN2Rla2ZRREQ1aGFRRFVNZG9udGU4WjhPdQphcld2MnBmb21rV3RZMzNJRUhj
+VnVTbXVrcmNjd20yR01MY2V4UXJjTnZHY0lBRXNIT0JjRE8rdE1pRFRYMXNsCmtCOVc4S2tCNThC
+QUtZaUVWL0VhaE5iUXErT1VHSkF0dG9yRnA0akVKakdIeVQxWDBQc2ZIYTZGM3JISHkyUmMKTjVw
+OXJ4allyQ3JnRGExVmh4dDRacHNEZHRrUHRoVWNIY0NRT2RuNTdHek5POGpDK2ZhU1pMMGhoZ1p2
+L0JpNgo4c21nTTQzL2labGFpNFovZXJaUGZ4cFZJU2h5Y3UzS2J5V3VBV2dUaVBFd3MrYzBxbk8y
+ZzJVYXl1dFBSMFRZCkR3SURBUUFCCi0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQoKCltwMTEta2l0
+LW9iamVjdC12MV0KY2xhc3M6IHgtY2VydGlmaWNhdGUtZXh0ZW5zaW9uCm9iamVjdC1pZDogMi41
+LjI5LjM3CnZhbHVlOiAiMCUxNiUwNiUwM1UlMWQlMjUlMDElMDElZmYlMDQlMGMwJTBhJTA2JTA4
+JTJiJTA2JTAxJTA1JTA1JTA3JTAzJTAxIgptb2RpZmlhYmxlOiBmYWxzZQpsYWJlbDogInRlc3Qt
+dWJlcmhhY2tlci1zdGFwbGluZy1kbnMtY29uc3RyYWludCIKLS0tLS1CRUdJTiBQVUJMSUMgS0VZ
+LS0tLS0KTUlJQklqQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FROEFNSUlCQ2dLQ0FRRUExWjYrNnY0
+Qm9OQnI3ckF5OGIraAptbGpvRWgvSzdiNG1OUGdBbTJ0UCs1SGdFNmhNYjVueFBUeDZkeDE3ZGVr
+ZlFERDVoYVFEVU1kb250ZThaOE91CmFyV3YycGZvbWtXdFkzM0lFSGNWdVNtdWtyY2N3bTJHTUxj
+ZXhRcmNOdkdjSUFFc0hPQmNETyt0TWlEVFgxc2wKa0I5VzhLa0I1OEJBS1lpRVYvRWFoTmJRcStP
+VUdKQXR0b3JGcDRqRUpqR0h5VDFYMFBzZkhhNkYzckhIeTJSYwpONXA5cnhqWXJDcmdEYTFWaHh0
+NFpwc0RkdGtQdGhVY0hjQ1FPZG41N0d6Tk84akMrZmFTWkwwaGhnWnYvQmk2CjhzbWdNNDMvaVps
+YWk0Wi9lclpQZnhwVklTaHljdTNLYnlXdUFXZ1RpUEV3cytjMHFuTzJnMlVheXV0UFIwVFkKRHdJ
+REFRQUIKLS0tLS1FTkQgUFVCTElDIEtFWS0tLS0tCgo=
+</data>
+
+          </attachment>
+          <attachment
+              isobsolete="0"
+              ispatch="0"
+              isprivate="0"
+          >
+            <attachid>1274359</attachid>
+            <date>2017-04-26 14:35:00 -0400</date>
+            <delta_ts>2017-04-26 14:35:47 -0400</delta_ts>
+            <desc>ca-pem</desc>
+            <filename>ca.pem</filename>
+            <type>text/plain</type>
+            <size>1209</size>
+            <attacher name="Kai Engert (:kaie)">kengert</attacher>
+            
+              <data encoding="base64">LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURRakNDQWlxZ0F3SUJBZ0lCQURBTkJna3Fo
+a2lHOXcwQkFRc0ZBREJTTVFzd0NRWURWUVFHRXdKRVJURkQNCk1FRUdBMVVFQXd3Nnc1eGlaWEpJ
+dzZSamEyVnlJRlJsYzNRZ1EwRWdabTl5SUhOMFlYQnNhVzVuSUdWNGRHVnkNCmJtRnNJRVJPVXlC
+amIyNXpkSEpoYVc1MGN6QWVGdzB4TnpBeE1qWXhORFV6TVROYUZ3MHpNekE0TWpZeE5EVXoNCk1U
+TmFNRkl4Q3pBSkJnTlZCQVlUQWtSRk1VTXdRUVlEVlFRREREckRuR0psY2tqRHBHTnJaWElnVkdW
+emRDQkQNClFTQm1iM0lnYzNSaGNHeHBibWNnWlhoMFpYSnVZV3dnUkU1VElHTnZibk4wY21GcGJu
+UnpNSUlCSWpBTkJna3ENCmhraUc5dzBCQVFFRkFBT0NBUThBTUlJQkNnS0NBUUVBMVo2KzZ2NEJv
+TkJyN3JBeThiK2htbGpvRWgvSzdiNG0NCk5QZ0FtMnRQKzVIZ0U2aE1iNW54UFR4NmR4MTdkZWtm
+UURENWhhUURVTWRvbnRlOFo4T3Vhcld2MnBmb21rV3QNClkzM0lFSGNWdVNtdWtyY2N3bTJHTUxj
+ZXhRcmNOdkdjSUFFc0hPQmNETyt0TWlEVFgxc2xrQjlXOEtrQjU4QkENCktZaUVWL0VhaE5iUXEr
+T1VHSkF0dG9yRnA0akVKakdIeVQxWDBQc2ZIYTZGM3JISHkyUmNONXA5cnhqWXJDcmcNCkRhMVZo
+eHQ0WnBzRGR0a1B0aFVjSGNDUU9kbjU3R3pOTzhqQytmYVNaTDBoaGdadi9CaTY4c21nTTQzL2la
+bGENCmk0Wi9lclpQZnhwVklTaHljdTNLYnlXdUFXZ1RpUEV3cytjMHFuTzJnMlVheXV0UFIwVFlE
+d0lEQVFBQm95TXcNCklUQVBCZ05WSFJNQkFmOEVCVEFEQVFIL01BNEdBMVVkRHdFQi93UUVBd0lC
+QmpBTkJna3Foa2lHOXcwQkFRc0YNCkFBT0NBUUVBdkROR0VrbVY3a2tON3YxUUplN01YZ3B3Q20r
+QS9TNmpEeE43aGMvaXY0ME1UTENmODdPWWQ5aU0NClRKbEJYNXRDREJEV2doZ3VRUStBTEhVd1NC
+Uy9jMTNiMTJEVmRpWCtTUDlIY2UzVHRUZTZ3bWExMHF0UWJXWEMNCnViZFpHR0FrZDhUNFZsM1lZ
+b2JhNGl0M1hBazNNNWN1Sld3NnNsTU9YTXZrdGgrajBxMTBPYTJLdkdCY1pOMkoNClZYUFNNbzZv
+RjJMeVdod01sY1FUR3ljRURMWkozaDJaTTBZRS9VYmlwb05nOFNSbFdZUVlyWEpYNmpZUkx5TTgN
+Cm1DTWp5RC81cjZTcHhvRWpXem14NjFSUjN1MnZNQTlUV2dRd3o1M055Nk1HckhkYXFqWERwZlpV
+T1QvT2x2VEwNCjM0YlRBY3RINDdqaHlGamdhNVB0WEVmeXc0R2pFZz09Ci0tLS0tRU5EIENFUlRJ
+RklDQVRFLS0tLS0K
+</data>
+
+          </attachment>
+          <attachment
+              isobsolete="0"
+              ispatch="0"
+              isprivate="0"
+          >
+            <attachid>1274360</attachid>
+            <date>2017-04-26 14:36:00 -0400</date>
+            <delta_ts>2017-04-26 14:36:10 -0400</delta_ts>
+            <desc>ca-pubkey.pem</desc>
+            <filename>ca-pubkey.pem</filename>
+            <type>text/plain</type>
+            <size>1693</size>
+            <attacher name="Kai Engert (:kaie)">kengert</attacher>
+            
+              <data encoding="base64">UHVibGljIEtleSBJbmZvcm1hdGlvbjoKCVB1YmxpYyBLZXkgQWxnb3JpdGhtOiBSU0EKCUFsZ29y
+aXRobSBTZWN1cml0eSBMZXZlbDogTWVkaXVtICgyMDQ4IGJpdHMpCgkJTW9kdWx1cyAoYml0cyAy
+MDQ4KToKCQkJMDA6ZDU6OWU6YmU6ZWE6ZmU6MDE6YTA6ZDA6NmI6ZWU6YjA6MzI6ZjE6YmY6YTEK
+CQkJOWE6NTg6ZTg6MTI6MWY6Y2E6ZWQ6YmU6MjY6MzQ6Zjg6MDA6OWI6NmI6NGY6ZmIKCQkJOTE6
+ZTA6MTM6YTg6NGM6NmY6OTk6ZjE6M2Q6M2M6N2E6Nzc6MWQ6N2I6NzU6ZTkKCQkJMWY6NDA6MzA6
+Zjk6ODU6YTQ6MDM6NTA6Yzc6Njg6OWU6ZDc6YmM6Njc6YzM6YWUKCQkJNmE6YjU6YWY6ZGE6OTc6
+ZTg6OWE6NDU6YWQ6NjM6N2Q6Yzg6MTA6Nzc6MTU6YjkKCQkJMjk6YWU6OTI6Yjc6MWM6YzI6NmQ6
+ODY6MzA6Yjc6MWU6YzU6MGE6ZGM6MzY6ZjEKCQkJOWM6MjA6MDE6MmM6MWM6ZTA6NWM6MGM6ZWY6
+YWQ6MzI6MjA6ZDM6NWY6NWI6MjUKCQkJOTA6MWY6NTY6ZjA6YTk6MDE6ZTc6YzA6NDA6Mjk6ODg6
+ODQ6NTc6ZjE6MWE6ODQKCQkJZDY6ZDA6YWI6ZTM6OTQ6MTg6OTA6MmQ6YjY6OGE6YzU6YTc6ODg6
+YzQ6MjY6MzEKCQkJODc6Yzk6M2Q6NTc6ZDA6ZmI6MWY6MWQ6YWU6ODU6ZGU6YjE6Yzc6Y2I6NjQ6
+NWMKCQkJMzc6OWE6N2Q6YWY6MTg6ZDg6YWM6MmE6ZTA6MGQ6YWQ6NTU6ODc6MWI6Nzg6NjYKCQkJ
+OWI6MDM6NzY6ZDk6MGY6YjY6MTU6MWM6MWQ6YzA6OTA6Mzk6ZDk6Zjk6ZWM6NmMKCQkJY2Q6M2I6
+Yzg6YzI6Zjk6ZjY6OTI6NjQ6YmQ6MjE6ODY6MDY6NmY6ZmM6MTg6YmEKCQkJZjI6Yzk6YTA6MzM6
+OGQ6ZmY6ODk6OTk6NWE6OGI6ODY6N2Y6N2E6YjY6NGY6N2YKCQkJMWE6NTU6MjE6Mjg6NzI6NzI6
+ZWQ6Y2E6NmY6MjU6YWU6MDE6Njg6MTM6ODg6ZjEKCQkJMzA6YjM6ZTc6MzQ6YWE6NzM6YjY6ODM6
+NjU6MWE6Y2E6ZWI6NGY6NDc6NDQ6ZDgKCQkJMGYKCQlFeHBvbmVudCAoYml0cyAyNCk6CgkJCTAx
+OjAwOjAxCgpQdWJsaWMgS2V5IFVzYWdlOgoJQ2VydGlmaWNhdGUgc2lnbmluZy4KCUNSTCBzaWdu
+aW5nLgpQdWJsaWMgS2V5IElEOgoJc2hhMToyMTYxMDkxZmE0MmRiYTY5NDlmNDA5M2ZiM2NhZmU2
+Y2U0ZDVhZDhlCglzaGEyNTY6YmNjMjQyZjRlMTYzODI2NzliZGZlNGQ4ZDViY2VmZjE2OWVjN2Vl
+Y2UxNGFkMTY1ZTNmZWJmOWZkYThiZTA3YgpQdWJsaWMgS2V5IFBJTjoKCXBpbi1zaGEyNTY6dk1K
+QzlPRmpnbWViMytUWTFienY4V25zZnV6aFN0Rmw0LzYvbjlxTDRIcz0KCgotLS0tLUJFR0lOIFBV
+QkxJQyBLRVktLS0tLQpNSUlCSWpBTkJna3Foa2lHOXcwQkFRRUZBQU9DQVE4QU1JSUJDZ0tDQVFF
+QTFaNis2djRCb05CcjdyQXk4YitoCm1sam9FaC9LN2I0bU5QZ0FtMnRQKzVIZ0U2aE1iNW54UFR4
+NmR4MTdkZWtmUURENWhhUURVTWRvbnRlOFo4T3UKYXJXdjJwZm9ta1d0WTMzSUVIY1Z1U211a3Jj
+Y3dtMkdNTGNleFFyY052R2NJQUVzSE9CY0RPK3RNaURUWDFzbAprQjlXOEtrQjU4QkFLWWlFVi9F
+YWhOYlFxK09VR0pBdHRvckZwNGpFSmpHSHlUMVgwUHNmSGE2RjNySEh5MlJjCk41cDlyeGpZckNy
+Z0RhMVZoeHQ0WnBzRGR0a1B0aFVjSGNDUU9kbjU3R3pOTzhqQytmYVNaTDBoaGdadi9CaTYKOHNt
+Z000My9pWmxhaTRaL2VyWlBmeHBWSVNoeWN1M0tieVd1QVdnVGlQRXdzK2MwcW5PMmcyVWF5dXRQ
+UjBUWQpEd0lEQVFBQgotLS0tLUVORCBQVUJMSUMgS0VZLS0tLS0KCg==
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

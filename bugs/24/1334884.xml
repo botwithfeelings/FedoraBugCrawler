@@ -1,0 +1,677 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1334884</bug_id>
+          
+          <creation_ts>2016-05-10 13:45:00 -0400</creation_ts>
+          <short_desc>Fails to finish connect to ethernet after update to F24</short_desc>
+          <delta_ts>2016-08-19 15:50:16 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>NetworkManager</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>high</priority>
+          <bug_severity>high</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Milan Crha">mcrha</reporter>
+          <assigned_to name="Beniamino Galvani">bgalvani</assigned_to>
+          <cc>bgalvani</cc>
+    
+    
+    <cc>dcbw</cc>
+    
+    
+    <cc>fgiudici</cc>
+    
+    
+    <cc>lkundrak</cc>
+    
+    
+    <cc>lrintel</cc>
+    
+    
+    <cc>mcrha</cc>
+    
+    
+    <cc>psimerda</cc>
+    
+    
+    <cc>sgraf</cc>
+    
+    
+    <cc>thaller</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>NetworkManager-1.2.4-2.fc24</cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-08-19 15:50:16</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9311819</commentid>
+    <comment_count>0</comment_count>
+    <who name="Milan Crha">mcrha</who>
+    <bug_when>2016-05-10 13:45:02 -0400</bug_when>
+    <thetext>I just updated from Fedora 23 to Fedora 24 using `dnf distro-sync ...` and rebooted the machine, when an ethernet connection fails to finish. The spinning circle says:
+
+   Requesting an ethernet network address for &apos;em1&apos;...
+
+and doesn&apos;t seem to get anywhere. The WiFi connection luckily works. This is with NetworkManager 1.2.0-1.fc24.x86_64.
+
+I tried couple older versions and ended with NetworkManager 1.2.0-0.6.beta1.fc24.x86_64, which connects to the ethernet instantly.
+
+I do not think there is anything special about that connection, the IPv6 is disabled (set to &quot;Ignore&quot;), the rest seems to be pretty much standard, using DHCP.
+
+-----------------------------------------------------------------------------
+
+When I run:
+
+   # dnf clean all
+   # dnf update --enablerepo=fedora --enablerepo=updates \
+          --enablerepo=updates-testing
+
+the only list of packages to update, as of now, are:
+
+   NetworkManager x86_64 1:1.2.0-1.fc24 updates-testing
+   NetworkManager-adsl...
+   NetworkManager-bluetooth...
+   NetworkManager-config-connectivity-fedora...
+   NetworkManager-glib...
+   NetworkManager-libnm...
+   NetworkManager-team...
+   NetworkManager-wifi...
+   NetworkManager-wwan...</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9316148</commentid>
+    <comment_count>1</comment_count>
+    <who name="Beniamino Galvani">bgalvani</who>
+    <bug_when>2016-05-11 04:58:10 -0400</bug_when>
+    <thetext>Can you please uncomment &quot;level=TRACE&quot; in /etc/NetworkManager/NetworkManager.conf, run &quot;systemctl restart NetworkManager&quot; and when the issue happens, attach the output of &quot;journalctl -u NetworkManager -b&quot;? Thanks!</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9316918</commentid>
+    <comment_count>3</comment_count>
+    <who name="Beniamino Galvani">bgalvani</who>
+    <bug_when>2016-05-11 09:07:33 -0400</bug_when>
+    <thetext>A quick fix for this should be:
+
+ $ nmcli connection mod em1 ipv6.may-fail yes
+
+(or uncheck &quot;require ipv6 addressing to complete&quot; in nm-applet).
+
+The reason is that since commit 7d1709d7f649 (&quot;device: check may_fail
+when progressing to IP_CHECK&quot;), NM will not progress the activation if
+IPv6 doesn&apos;t reach IP_DONE (unless may-fail=yes). But when the
+ipv6.method is set to &apos;ignore&apos; the IPv6 status goes to IP_FAIL
+instead of IP_DONE, and thus IPv6 is never considered completed.
+
+I think this is wrong, I&apos;ll prepare a patch.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9472718</commentid>
+    <comment_count>4</comment_count>
+      <attachid>1174983</attachid>
+    <who name="Beniamino Galvani">bgalvani</who>
+    <bug_when>2016-07-01 11:32:50 -0400</bug_when>
+    <thetext>Created attachment 1174983
+[PATCH] libnm-core: ip-config: normalize may-fail for disabled IP methods</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9480634</commentid>
+    <comment_count>5</comment_count>
+    <who name="Thomas Haller">thaller</who>
+    <bug_when>2016-07-05 04:51:07 -0400</bug_when>
+    <thetext>(In reply to Beniamino Galvani from comment #4)
+&gt; Created attachment 1174983 [details]
+&gt; [PATCH] libnm-core: ip-config: normalize may-fail for disabled IP methods
+
+     _(&quot;property cannot be TRUE when method is set to ignore&quot;));
+                           ^^^^ FALSE
+
+
+- return NM_SETTING_VERIFY_NORMALIZABLE_ERROR;
++ return NM_SETTING_VERIFY_NORMALIZABLE;
+
+You can also make the verify() failures NORMALIZABLE. In this case, nm_connection_verify() still returns TRUE, but nm_connection_normalize() has something to fix.
+For NM core, it doesn&apos;t matter because it always just right away normalizes the connection. For a client, the difference is, that an ill connection appears to be valid.
+It seems to me, that as we previously allowed for such configurations, we should not start marking them invalid now. Thus, NM_SETTING_VERIFY_NORMALIZABLE is preferable.
+Then, also add a comment:
+  /* Failures from here on, are NORMALIZABLE... */
+
+
+
+
+rest lgtm.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9481018</commentid>
+    <comment_count>6</comment_count>
+      <attachid>1176389</attachid>
+    <who name="Beniamino Galvani">bgalvani</who>
+    <bug_when>2016-07-05 07:44:30 -0400</bug_when>
+    <thetext>Created attachment 1176389
+[PATCH v2] libnm-core: ip-config: normalize may-fail for disabled IP methods
+
+(In reply to Thomas Haller from comment #5)
+&gt; 
+&gt;      _(&quot;property cannot be TRUE when method is set to ignore&quot;));
+&gt;                            ^^^^ FALSE
+
+Ok; changed to &quot;should be TRUE&quot; because NORMALIZABLE is returned now.
+ 
+&gt; You can also make the verify() failures NORMALIZABLE. In this case,
+&gt; nm_connection_verify() still returns TRUE, but nm_connection_normalize() has
+&gt; something to fix.
+&gt; For NM core, it doesn&apos;t matter because it always just right away normalizes
+&gt; the connection. For a client, the difference is, that an ill connection
+&gt; appears to be valid.
+&gt; It seems to me, that as we previously allowed for such configurations, we
+&gt; should not start marking them invalid now. 
+
+Right, fixed in v2.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9481130</commentid>
+    <comment_count>7</comment_count>
+    <who name="Francesco Giudici">fgiudici</who>
+    <bug_when>2016-07-05 08:27:38 -0400</bug_when>
+    <thetext>lgtm</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9481240</commentid>
+    <comment_count>8</comment_count>
+    <who name="Thomas Haller">thaller</who>
+    <bug_when>2016-07-05 09:16:27 -0400</bug_when>
+    <thetext>(In reply to Beniamino Galvani from comment #6)
+&gt; Created attachment 1176389 [details]
+&gt; [PATCH v2] libnm-core: ip-config: normalize may-fail for disabled IP methods
+
+If a NMSetting has multiple invalid conditions, then verify() *must* return the most severe error status.
+
+nm-setting-ip6-config.c:verify() gets that wrong.
+
+If a connection has
+  ipv6.method=&quot;ignore&quot;
+  ipv6.may-fail=no
+  ipv6.token=::0:1
+then then entire setting is invalid (due to a non-normalized token). thus, the function should return NORMALIZABLE_ERROR. In v2, it wouldn&apos;t.
+
+that&apos;s what the comment 
+  /* Failures from here on are NORMALIZABLE... */
+means.
+But it must come after
+  /* Failures from here on are NORMALIZABLE_ERROR... */</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9481242</commentid>
+    <comment_count>9</comment_count>
+    <who name="Thomas Haller">thaller</who>
+    <bug_when>2016-07-05 09:17:23 -0400</bug_when>
+    <thetext>rest lgtm</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9483612</commentid>
+    <comment_count>10</comment_count>
+    <who name="Beniamino Galvani">bgalvani</who>
+    <bug_when>2016-07-06 04:16:35 -0400</bug_when>
+    <thetext>(In reply to Thomas Haller from comment #8)
+&gt; If a NMSetting has multiple invalid conditions, then verify() *must* return
+&gt; the most severe error status.
+
+Fixed and applied to master:
+
+https://cgit.freedesktop.org/NetworkManager/NetworkManager/commit/?id=ac73758305faf938318e6c888faf8bc954b8289d
+
+nm-1-2:
+
+https://cgit.freedesktop.org/NetworkManager/NetworkManager/commit/?h=nm-1-2&amp;id=b5b7260873563d5f1a5bced3f2c98d7d1df7f8b4</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9587855</commentid>
+    <comment_count>11</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-05 03:53:17 -0400</bug_when>
+    <thetext>NetworkManager-1.2.4-1.fc24 network-manager-applet-1.2.4-1.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-f739ece3cf</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9590116</commentid>
+    <comment_count>12</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-05 17:21:48 -0400</bug_when>
+    <thetext>NetworkManager-1.2.4-1.fc24, network-manager-applet-1.2.4-1.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-f739ece3cf</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9627254</commentid>
+    <comment_count>13</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-18 12:39:23 -0400</bug_when>
+    <thetext>NetworkManager-1.2.4-2.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-fade485364</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9628656</commentid>
+    <comment_count>14</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-18 20:57:02 -0400</bug_when>
+    <thetext>NetworkManager-1.2.4-2.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-fade485364</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9630115</commentid>
+    <comment_count>15</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-19 06:29:31 -0400</bug_when>
+    <thetext>network-manager-applet-1.2.4-1.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-f739ece3cf</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9631570</commentid>
+    <comment_count>16</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-19 15:49:47 -0400</bug_when>
+    <thetext>NetworkManager-1.2.4-2.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="1"
+              ispatch="0"
+              isprivate="0"
+          >
+            <attachid>1174983</attachid>
+            <date>2016-07-01 11:32:00 -0400</date>
+            <delta_ts>2016-07-05 07:44:30 -0400</delta_ts>
+            <desc>[PATCH] libnm-core: ip-config: normalize may-fail for disabled IP methods</desc>
+            <filename>0001-libnm-core-ip-config-normalize-may-fail-for-disabled.patch</filename>
+            <type>application/mbox</type>
+            <size>9825</size>
+            <attacher name="Beniamino Galvani">bgalvani</attacher>
+            
+              <data encoding="base64">RnJvbSA2ZjViYTY5OGRkMTQyY2EyOWY5NWYxYmM2NzRmODk2NDhlYzRjYTRiIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBCZW5pYW1pbm8gR2FsdmFuaSA8YmdhbHZhbmlAcmVkaGF0LmNv
+bT4KRGF0ZTogRnJpLCAxIEp1bCAyMDE2IDE3OjA1OjQyICswMjAwClN1YmplY3Q6IFtQQVRDSF0g
+bGlibm0tY29yZTogaXAtY29uZmlnOiBub3JtYWxpemUgbWF5LWZhaWwgZm9yIGRpc2FibGVkIElQ
+CiBtZXRob2RzCgpTaW5jZSBjb21taXQgN2QxNzA5ZDdmNjQ5ICgiZGV2aWNlOiBjaGVjayBtYXlf
+ZmFpbCB3aGVuIHByb2dyZXNzaW5nIHRvCklQX0NIRUNLIikgTk0gY29ycmVjdGx5IGNoZWNrcyB0
+aGUgbWF5LWZhaWwgcHJvcGVydGllcyB0byBkZWNpZGUKd2hldGhlciBhIGNvbm5lY3Rpb24gbXVz
+dCBmYWlsIGFmdGVyIHRoZSBjb21wbGV0aW9uIG9mIElQCmNvbmZpZ3VyYXRpb24uIEJ1dCBmb3Ig
+aXB2NC5tZXRob2Q9ZGlzYWJsZWQgYW5kIGlwdjYubWV0aG9kPWlnbm9yZSB0aGUKSVAgY29uZmln
+dXJhdGlvbiBpcyBhbHdheXMgY29uc2lkZXJlZCBmYWlsZWQgYW5kIHRodXMgc2V0dGluZwptYXkt
+ZmFpbD1ubyByZXN1bHRzIGluIGEgY29ubmVjdGlvbiB0aGF0IGNhbiBuZXZlciBzdWNjZWVkLgoK
+VG8gcHJldmVudCBzdWNoIHdyb25nIGNvbmZpZ3VyYXRpb24sIGZvcmNlIG1heS1mYWlsIHRvIFRS
+VUUgZm9yIHRob3NlCm1ldGhvZHMgZHVyaW5nIGNvbm5lY3Rpb24gbm9ybWFsaXphdGlvbi4KCmh0
+dHBzOi8vYnVnemlsbGEucmVkaGF0LmNvbS9zaG93X2J1Zy5jZ2k/aWQ9MTMzNDg4NAotLS0KIGxp
+Ym5tLWNvcmUvbm0tY29ubmVjdGlvbi5jICAgICAgICAgfCAxNCArKysrKysrKysrKysKIGxpYm5t
+LWNvcmUvbm0tc2V0dGluZy1pcDQtY29uZmlnLmMgfCAxMiArKysrKysrKysrCiBsaWJubS1jb3Jl
+L25tLXNldHRpbmctaXA2LWNvbmZpZy5jIHwgMTEgKysrKysrKysrCiBsaWJubS1jb3JlL3Rlc3Rz
+L3Rlc3QtZ2VuZXJhbC5jICAgIHwgNDYgKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
+KysrKysKIDQgZmlsZXMgY2hhbmdlZCwgODMgaW5zZXJ0aW9ucygrKQoKZGlmZiAtLWdpdCBhL2xp
+Ym5tLWNvcmUvbm0tY29ubmVjdGlvbi5jIGIvbGlibm0tY29yZS9ubS1jb25uZWN0aW9uLmMKaW5k
+ZXggNzY5NTUxOC4uMmZkMzQwMSAxMDA2NDQKLS0tIGEvbGlibm0tY29yZS9ubS1jb25uZWN0aW9u
+LmMKKysrIGIvbGlibm0tY29yZS9ubS1jb25uZWN0aW9uLmMKQEAgLTc1OSwxNiArNzU5LDIzIEBA
+IF9ub3JtYWxpemVfaXBfY29uZmlnIChOTUNvbm5lY3Rpb24gKnNlbGYsIEdIYXNoVGFibGUgKnBh
+cmFtZXRlcnMpCiAJCQkgICAgICAgICAgICAgIE5VTEwpOwogCQkJbm1fY29ubmVjdGlvbl9hZGRf
+c2V0dGluZyAoc2VsZiwgc2V0dGluZyk7CiAJCX0gZWxzZSB7CiAJCQlpZiAoICAgbm1fc2V0dGlu
+Z19pcF9jb25maWdfZ2V0X2dhdGV3YXkgKHNfaXA0KQogCQkJICAgICYmIG5tX3NldHRpbmdfaXBf
+Y29uZmlnX2dldF9uZXZlcl9kZWZhdWx0IChzX2lwNCkpIHsKIAkJCQlnX29iamVjdF9zZXQgKHNf
+aXA0LCBOTV9TRVRUSU5HX0lQX0NPTkZJR19HQVRFV0FZLCBOVUxMLCBOVUxMKTsKIAkJCQljaGFu
+Z2VkID0gVFJVRTsKIAkJCX0KKworCQkJaWYgKCAgIG5tX3N0cmVxMCAobm1fc2V0dGluZ19pcF9j
+b25maWdfZ2V0X21ldGhvZCAoc19pcDQpLAorCQkJICAgICAgICAgICAgICAgICAgTk1fU0VUVElO
+R19JUDRfQ09ORklHX01FVEhPRF9ESVNBQkxFRCkKKwkJCSAgICAmJiAhbm1fc2V0dGluZ19pcF9j
+b25maWdfZ2V0X21heV9mYWlsIChzX2lwNCkpIHsKKwkJCQlnX29iamVjdF9zZXQgKHNfaXA0LCBO
+TV9TRVRUSU5HX0lQX0NPTkZJR19NQVlfRkFJTCwgVFJVRSwgTlVMTCk7CisJCQkJY2hhbmdlZCA9
+IFRSVUU7CisJCQl9CiAJCX0KIAkJaWYgKCFzX2lwNikgewogCQkJc2V0dGluZyA9IG5tX3NldHRp
+bmdfaXA2X2NvbmZpZ19uZXcgKCk7CiAKIAkJCWdfb2JqZWN0X3NldCAoc2V0dGluZywKIAkJCSAg
+ICAgICAgICAgICAgTk1fU0VUVElOR19JUF9DT05GSUdfTUVUSE9ELCBkZWZhdWx0X2lwNl9tZXRo
+b2QsCiAJCQkgICAgICAgICAgICAgIE5NX1NFVFRJTkdfSVBfQ09ORklHX01BWV9GQUlMLCBUUlVF
+LAogCQkJICAgICAgICAgICAgICBOVUxMKTsKQEAgLTc5MiwxNiArNzk5LDIzIEBAIF9ub3JtYWxp
+emVfaXBfY29uZmlnIChOTUNvbm5lY3Rpb24gKnNlbGYsIEdIYXNoVGFibGUgKnBhcmFtZXRlcnMp
+CiAJCQkJfQogCQkJfQogCiAJCQlpZiAoICAgbm1fc2V0dGluZ19pcF9jb25maWdfZ2V0X2dhdGV3
+YXkgKHNfaXA2KQogCQkJICAgICYmIG5tX3NldHRpbmdfaXBfY29uZmlnX2dldF9uZXZlcl9kZWZh
+dWx0IChzX2lwNikpIHsKIAkJCQlnX29iamVjdF9zZXQgKHNfaXA2LCBOTV9TRVRUSU5HX0lQX0NP
+TkZJR19HQVRFV0FZLCBOVUxMLCBOVUxMKTsKIAkJCQljaGFuZ2VkID0gVFJVRTsKIAkJCX0KKwor
+CQkJaWYgKCAgIG5tX3N0cmVxMCAobm1fc2V0dGluZ19pcF9jb25maWdfZ2V0X21ldGhvZCAoc19p
+cDYpLAorCQkJICAgICAgICAgICAgICAgICAgTk1fU0VUVElOR19JUDZfQ09ORklHX01FVEhPRF9J
+R05PUkUpCisJCQkgICAgJiYgIW5tX3NldHRpbmdfaXBfY29uZmlnX2dldF9tYXlfZmFpbCAoc19p
+cDYpKSB7CisJCQkJZ19vYmplY3Rfc2V0IChzX2lwNiwgTk1fU0VUVElOR19JUF9DT05GSUdfTUFZ
+X0ZBSUwsIFRSVUUsIE5VTEwpOworCQkJCWNoYW5nZWQgPSBUUlVFOworCQkJfQogCQl9CiAJCXJl
+dHVybiAhc19pcDQgfHwgIXNfaXA2IHx8IGNoYW5nZWQ7CiAJfQogfQogCiBzdGF0aWMgZ2Jvb2xl
+YW4KIF9ub3JtYWxpemVfaW5maW5pYmFuZF9tdHUgKE5NQ29ubmVjdGlvbiAqc2VsZiwgR0hhc2hU
+YWJsZSAqcGFyYW1ldGVycykKIHsKZGlmZiAtLWdpdCBhL2xpYm5tLWNvcmUvbm0tc2V0dGluZy1p
+cDQtY29uZmlnLmMgYi9saWJubS1jb3JlL25tLXNldHRpbmctaXA0LWNvbmZpZy5jCmluZGV4IDhm
+NDNkZWYuLjdmM2I5MTUgMTAwNjQ0Ci0tLSBhL2xpYm5tLWNvcmUvbm0tc2V0dGluZy1pcDQtY29u
+ZmlnLmMKKysrIGIvbGlibm0tY29yZS9ubS1zZXR0aW5nLWlwNC1jb25maWcuYwpAQCAtMjIwLDE2
+ICsyMjAsMjggQEAgdmVyaWZ5IChOTVNldHRpbmcgKnNldHRpbmcsIE5NQ29ubmVjdGlvbiAqY29u
+bmVjdGlvbiwgR0Vycm9yICoqZXJyb3IpCiAJCWdfc2V0X2Vycm9yX2xpdGVyYWwgKGVycm9yLAog
+CQkgICAgICAgICAgICAgICAgICAgICBOTV9DT05ORUNUSU9OX0VSUk9SLAogCQkgICAgICAgICAg
+ICAgICAgICAgICBOTV9DT05ORUNUSU9OX0VSUk9SX0lOVkFMSURfUFJPUEVSVFksCiAJCSAgICAg
+ICAgICAgICAgICAgICAgIF8oInByb3BlcnR5IGNhbm5vdCBiZSBzZXQgd2hlbiBkaGNwLWhvc3Ru
+YW1lIGlzIGFsc28gc2V0IikpOwogCQlnX3ByZWZpeF9lcnJvciAoZXJyb3IsICIlcy4lczogIiwg
+Tk1fU0VUVElOR19JUDRfQ09ORklHX1NFVFRJTkdfTkFNRSwgTk1fU0VUVElOR19JUDRfQ09ORklH
+X0RIQ1BfRlFETik7CiAJCXJldHVybiBGQUxTRTsKIAl9CiAKKwkvKiBGYWlsdXJlcyBmcm9tIGhl
+cmUgb24sIGFyZSBOT1JNQUxJWkFCTEVfRVJST1IuLi4gKi8KKworCWlmICggICAhc3RyY21wICht
+ZXRob2QsIE5NX1NFVFRJTkdfSVA0X0NPTkZJR19NRVRIT0RfRElTQUJMRUQpCisJICAgICYmICFu
+bV9zZXR0aW5nX2lwX2NvbmZpZ19nZXRfbWF5X2ZhaWwgKHNfaXApKSB7CisJCWdfc2V0X2Vycm9y
+X2xpdGVyYWwgKGVycm9yLAorCQkgICAgICAgICAgICAgICAgICAgICBOTV9DT05ORUNUSU9OX0VS
+Uk9SLAorCQkgICAgICAgICAgICAgICAgICAgICBOTV9DT05ORUNUSU9OX0VSUk9SX0lOVkFMSURf
+UFJPUEVSVFksCisJCSAgICAgICAgICAgICAgICAgICAgIF8oInByb3BlcnR5IGNhbm5vdCBiZSBU
+UlVFIHdoZW4gbWV0aG9kIGlzIHNldCB0byBkaXNhYmxlZCIpKTsKKwkJZ19wcmVmaXhfZXJyb3Ig
+KGVycm9yLCAiJXMuJXM6ICIsIE5NX1NFVFRJTkdfSVA0X0NPTkZJR19TRVRUSU5HX05BTUUsIE5N
+X1NFVFRJTkdfSVBfQ09ORklHX01BWV9GQUlMKTsKKwkJcmV0dXJuIE5NX1NFVFRJTkdfVkVSSUZZ
+X05PUk1BTElaQUJMRV9FUlJPUjsKKwl9CisKIAlyZXR1cm4gVFJVRTsKIH0KIAogc3RhdGljIHZv
+aWQKIG5tX3NldHRpbmdfaXA0X2NvbmZpZ19pbml0IChOTVNldHRpbmdJUDRDb25maWcgKnNldHRp
+bmcpCiB7CiB9CiAKZGlmZiAtLWdpdCBhL2xpYm5tLWNvcmUvbm0tc2V0dGluZy1pcDYtY29uZmln
+LmMgYi9saWJubS1jb3JlL25tLXNldHRpbmctaXA2LWNvbmZpZy5jCmluZGV4IGE1ODI2ZWIuLmU2
+YTY0MGEgMTAwNjQ0Ci0tLSBhL2xpYm5tLWNvcmUvbm0tc2V0dGluZy1pcDYtY29uZmlnLmMKKysr
+IGIvbGlibm0tY29yZS9ubS1zZXR0aW5nLWlwNi1jb25maWcuYwpAQCAtMjU3LDE2ICsyNTcsMjcg
+QEAgdmVyaWZ5IChOTVNldHRpbmcgKnNldHRpbmcsIE5NQ29ubmVjdGlvbiAqY29ubmVjdGlvbiwg
+R0Vycm9yICoqZXJyb3IpCiAJCWdfc2V0X2Vycm9yX2xpdGVyYWwgKGVycm9yLAogCQkgICAgICAg
+ICAgICAgICAgICAgICBOTV9DT05ORUNUSU9OX0VSUk9SLAogCQkgICAgICAgICAgICAgICAgICAg
+ICBOTV9DT05ORUNUSU9OX0VSUk9SX0lOVkFMSURfUFJPUEVSVFksCiAJCSAgICAgICAgICAgICAg
+ICAgICAgIF8oInRva2VuIGlzIG5vdCBpbiBjYW5vbmljYWwgZm9ybSIpKTsKIAkJZ19wcmVmaXhf
+ZXJyb3IgKGVycm9yLCAiJXMuJXM6ICIsIE5NX1NFVFRJTkdfSVA2X0NPTkZJR19TRVRUSU5HX05B
+TUUsIE5NX1NFVFRJTkdfSVA2X0NPTkZJR19UT0tFTik7CiAJCXJldHVybiBOTV9TRVRUSU5HX1ZF
+UklGWV9OT1JNQUxJWkFCTEVfRVJST1I7CiAJfQogCisKKwlpZiAoICAgIXN0cmNtcCAobWV0aG9k
+LCBOTV9TRVRUSU5HX0lQNl9DT05GSUdfTUVUSE9EX0lHTk9SRSkKKwkgICAgJiYgIW5tX3NldHRp
+bmdfaXBfY29uZmlnX2dldF9tYXlfZmFpbCAoc19pcCkpIHsKKwkJZ19zZXRfZXJyb3JfbGl0ZXJh
+bCAoZXJyb3IsCisJCSAgICAgICAgICAgICAgICAgICAgIE5NX0NPTk5FQ1RJT05fRVJST1IsCisJ
+CSAgICAgICAgICAgICAgICAgICAgIE5NX0NPTk5FQ1RJT05fRVJST1JfSU5WQUxJRF9QUk9QRVJU
+WSwKKwkJICAgICAgICAgICAgICAgICAgICAgXygicHJvcGVydHkgY2Fubm90IGJlIFRSVUUgd2hl
+biBtZXRob2QgaXMgc2V0IHRvIGlnbm9yZSIpKTsKKwkJZ19wcmVmaXhfZXJyb3IgKGVycm9yLCAi
+JXMuJXM6ICIsIE5NX1NFVFRJTkdfSVA2X0NPTkZJR19TRVRUSU5HX05BTUUsIE5NX1NFVFRJTkdf
+SVBfQ09ORklHX01BWV9GQUlMKTsKKwkJcmV0dXJuIE5NX1NFVFRJTkdfVkVSSUZZX05PUk1BTEla
+QUJMRV9FUlJPUjsKKwl9CisKIAlyZXR1cm4gVFJVRTsKIH0KIAogCiBzdGF0aWMgdm9pZAogbm1f
+c2V0dGluZ19pcDZfY29uZmlnX2luaXQgKE5NU2V0dGluZ0lQNkNvbmZpZyAqc2V0dGluZykKIHsK
+IH0KZGlmZiAtLWdpdCBhL2xpYm5tLWNvcmUvdGVzdHMvdGVzdC1nZW5lcmFsLmMgYi9saWJubS1j
+b3JlL3Rlc3RzL3Rlc3QtZ2VuZXJhbC5jCmluZGV4IGFlZjlmMmIuLjkyN2U3MTkgMTAwNjQ0Ci0t
+LSBhL2xpYm5tLWNvcmUvdGVzdHMvdGVzdC1nZW5lcmFsLmMKKysrIGIvbGlibm0tY29yZS90ZXN0
+cy90ZXN0LWdlbmVyYWwuYwpAQCAtMzkxNCwxNiArMzkxNCw2MSBAQCB0ZXN0X2Nvbm5lY3Rpb25f
+bm9ybWFsaXplX2dhdGV3YXlfbmV2ZXJfZGVmYXVsdCAodm9pZCkKIAlubXRzdF9hc3NlcnRfY29u
+bmVjdGlvbl92ZXJpZmllc19hZnRlcl9ub3JtYWxpemF0aW9uIChjb24sCiAJICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgTk1fQ09OTkVDVElPTl9F
+UlJPUiwKIAkgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICBOTV9DT05ORUNUSU9OX0VSUk9SX0lOVkFMSURfUFJPUEVSVFkpOwogCW5tdHN0X2Nvbm5l
+Y3Rpb25fbm9ybWFsaXplIChjb24pOwogCWdfYXNzZXJ0X2NtcHN0ciAoTlVMTCwgPT0sIG5tX3Nl
+dHRpbmdfaXBfY29uZmlnX2dldF9nYXRld2F5IChzX2lwNCkpOwogfQogCiBzdGF0aWMgdm9pZAor
+dGVzdF9jb25uZWN0aW9uX25vcm1hbGl6ZV9tYXlfZmFpbCAodm9pZCkKK3sKKwlnc191bnJlZl9v
+YmplY3QgTk1Db25uZWN0aW9uICpjb24gPSBOVUxMOworCU5NU2V0dGluZ0lQQ29uZmlnICpzX2lw
+NCwgKnNfaXA2OworCWdzX2ZyZWVfZXJyb3IgR0Vycm9yICplcnJvciA9IE5VTEw7CisKKwljb24g
+PSBubXRzdF9jcmVhdGVfbWluaW1hbF9jb25uZWN0aW9uICgidGVzdDIiLCBOVUxMLCBOTV9TRVRU
+SU5HX1dJUkVEX1NFVFRJTkdfTkFNRSwgTlVMTCk7CisJbm10c3RfYXNzZXJ0X2Nvbm5lY3Rpb25f
+dmVyaWZpZXNfYW5kX25vcm1hbGl6YWJsZSAoY29uKTsKKworCXNfaXA0ID0gKE5NU2V0dGluZ0lQ
+Q29uZmlnICopIG5tX3NldHRpbmdfaXA0X2NvbmZpZ19uZXcgKCk7CisJZ19vYmplY3Rfc2V0IChH
+X09CSkVDVCAoc19pcDQpLAorCSAgICAgICAgICAgICAgTk1fU0VUVElOR19JUF9DT05GSUdfTUVU
+SE9ELCBOTV9TRVRUSU5HX0lQNF9DT05GSUdfTUVUSE9EX0FVVE8sCisJICAgICAgICAgICAgICBO
+TV9TRVRUSU5HX0lQX0NPTkZJR19NQVlfRkFJTCwgRkFMU0UsCisJICAgICAgICAgICAgICBOVUxM
+KTsKKworCXNfaXA2ID0gKE5NU2V0dGluZ0lQQ29uZmlnICopIG5tX3NldHRpbmdfaXA2X2NvbmZp
+Z19uZXcgKCk7CisJZ19vYmplY3Rfc2V0IChzX2lwNiwKKwkgICAgICAgICAgICAgIE5NX1NFVFRJ
+TkdfSVBfQ09ORklHX01FVEhPRCwgTk1fU0VUVElOR19JUDZfQ09ORklHX01FVEhPRF9BVVRPLAor
+CSAgICAgICAgICAgICAgTk1fU0VUVElOR19JUF9DT05GSUdfTUFZX0ZBSUwsIEZBTFNFLAorCSAg
+ICAgICAgICAgICAgTlVMTCk7CisKKwlubV9jb25uZWN0aW9uX2FkZF9zZXR0aW5nIChjb24sIChO
+TVNldHRpbmcgKikgc19pcDQpOworCW5tX2Nvbm5lY3Rpb25fYWRkX3NldHRpbmcgKGNvbiwgKE5N
+U2V0dGluZyAqKSBzX2lwNik7CisKKwlubXRzdF9hc3NlcnRfY29ubmVjdGlvbl92ZXJpZmllc193
+aXRob3V0X25vcm1hbGl6YXRpb24gKGNvbik7CisKKwkvKiBOb3cgc2V0IG1ldGhvZD1kaXNhYmxl
+ZC9pZ25vcmUgYW5kIGNoZWNrIHRoYXQgbWF5LWZhaWwgYmVjb21lcyBGQUxTRQorCSAqIGFmdGVy
+IG5vcm1hbGl6YXRpb24KKwkgKiAqLworCWdfb2JqZWN0X3NldCAoc19pcDQsCisJICAgICAgICAg
+ICAgICBOTV9TRVRUSU5HX0lQX0NPTkZJR19NRVRIT0QsIE5NX1NFVFRJTkdfSVA0X0NPTkZJR19N
+RVRIT0RfRElTQUJMRUQsCisJICAgICAgICAgICAgICBOVUxMKTsKKwlnX29iamVjdF9zZXQgKHNf
+aXA2LAorCSAgICAgICAgICAgICAgTk1fU0VUVElOR19JUF9DT05GSUdfTUVUSE9ELCBOTV9TRVRU
+SU5HX0lQNl9DT05GSUdfTUVUSE9EX0lHTk9SRSwKKwkgICAgICAgICAgICAgIE5VTEwpOworCisJ
+bm10c3RfYXNzZXJ0X2Nvbm5lY3Rpb25fdmVyaWZpZXNfYWZ0ZXJfbm9ybWFsaXphdGlvbiAoY29u
+LAorCSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+IE5NX0NPTk5FQ1RJT05fRVJST1IsCisJICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgTk1fQ09OTkVDVElPTl9FUlJPUl9JTlZBTElEX1BST1BFUlRZ
+KTsKKwlubXRzdF9jb25uZWN0aW9uX25vcm1hbGl6ZSAoY29uKTsKKwlnX2Fzc2VydF9jbXBpbnQg
+KG5tX3NldHRpbmdfaXBfY29uZmlnX2dldF9tYXlfZmFpbCAoc19pcDQpLCA9PSwgVFJVRSk7CisJ
+Z19hc3NlcnRfY21waW50IChubV9zZXR0aW5nX2lwX2NvbmZpZ19nZXRfbWF5X2ZhaWwgKHNfaXA2
+KSwgPT0sIFRSVUUpOworfQorCitzdGF0aWMgdm9pZAogdGVzdF9zZXR0aW5nX2lwNF9nYXRld2F5
+ICh2b2lkKQogewogCU5NQ29ubmVjdGlvbiAqY29ubjsKIAlOTVNldHRpbmdJUENvbmZpZyAqc19p
+cDQ7CiAJTk1JUEFkZHJlc3MgKmFkZHI7CiAJR1ZhcmlhbnQgKmNvbm5fZGljdCwgKmlwNF9kaWN0
+LCAqdmFsdWU7CiAJR1ZhcmlhbnRJdGVyIGl0ZXI7CiAJR1ZhcmlhbnQgKmFkZHJfdmFyOwpAQCAt
+NTMxNiwxNiArNTM2MSwxNyBAQCBpbnQgbWFpbiAoaW50IGFyZ2MsIGNoYXIgKiphcmd2KQogCWdf
+dGVzdF9hZGRfZnVuYyAoIi9jb3JlL2dlbmVyYWwvdGVzdF9jb25uZWN0aW9uX25ld19mcm9tX2Ri
+dXMiLCB0ZXN0X2Nvbm5lY3Rpb25fbmV3X2Zyb21fZGJ1cyk7CiAJZ190ZXN0X2FkZF9mdW5jICgi
+L2NvcmUvZ2VuZXJhbC90ZXN0X2Nvbm5lY3Rpb25fbm9ybWFsaXplX3ZpcnR1YWxfaWZhY2VfbmFt
+ZSIsIHRlc3RfY29ubmVjdGlvbl9ub3JtYWxpemVfdmlydHVhbF9pZmFjZV9uYW1lKTsKIAlnX3Rl
+c3RfYWRkX2Z1bmMgKCIvY29yZS9nZW5lcmFsL3Rlc3RfY29ubmVjdGlvbl9ub3JtYWxpemVfdXVp
+ZCIsIHRlc3RfY29ubmVjdGlvbl9ub3JtYWxpemVfdXVpZCk7CiAJZ190ZXN0X2FkZF9mdW5jICgi
+L2NvcmUvZ2VuZXJhbC90ZXN0X2Nvbm5lY3Rpb25fbm9ybWFsaXplX3R5cGUiLCB0ZXN0X2Nvbm5l
+Y3Rpb25fbm9ybWFsaXplX3R5cGUpOwogCWdfdGVzdF9hZGRfZnVuYyAoIi9jb3JlL2dlbmVyYWwv
+dGVzdF9jb25uZWN0aW9uX25vcm1hbGl6ZV9zbGF2ZV90eXBlXzEiLCB0ZXN0X2Nvbm5lY3Rpb25f
+bm9ybWFsaXplX3NsYXZlX3R5cGVfMSk7CiAJZ190ZXN0X2FkZF9mdW5jICgiL2NvcmUvZ2VuZXJh
+bC90ZXN0X2Nvbm5lY3Rpb25fbm9ybWFsaXplX3NsYXZlX3R5cGVfMiIsIHRlc3RfY29ubmVjdGlv
+bl9ub3JtYWxpemVfc2xhdmVfdHlwZV8yKTsKIAlnX3Rlc3RfYWRkX2Z1bmMgKCIvY29yZS9nZW5l
+cmFsL3Rlc3RfY29ubmVjdGlvbl9ub3JtYWxpemVfaW5maW5pYmFuZF9tdHUiLCB0ZXN0X2Nvbm5l
+Y3Rpb25fbm9ybWFsaXplX2luZmluaWJhbmRfbXR1KTsKIAlnX3Rlc3RfYWRkX2Z1bmMgKCIvY29y
+ZS9nZW5lcmFsL3Rlc3RfY29ubmVjdGlvbl9ub3JtYWxpemVfZ2F0ZXdheV9uZXZlcl9kZWZhdWx0
+IiwgdGVzdF9jb25uZWN0aW9uX25vcm1hbGl6ZV9nYXRld2F5X25ldmVyX2RlZmF1bHQpOworCWdf
+dGVzdF9hZGRfZnVuYyAoIi9jb3JlL2dlbmVyYWwvdGVzdF9jb25uZWN0aW9uX25vcm1hbGl6ZV9t
+YXlfZmFpbCIsIHRlc3RfY29ubmVjdGlvbl9ub3JtYWxpemVfbWF5X2ZhaWwpOwogCiAJZ190ZXN0
+X2FkZF9mdW5jICgiL2NvcmUvZ2VuZXJhbC90ZXN0X3NldHRpbmdfY29ubmVjdGlvbl9wZXJtaXNz
+aW9uc19oZWxwZXJzIiwgdGVzdF9zZXR0aW5nX2Nvbm5lY3Rpb25fcGVybWlzc2lvbnNfaGVscGVy
+cyk7CiAJZ190ZXN0X2FkZF9mdW5jICgiL2NvcmUvZ2VuZXJhbC90ZXN0X3NldHRpbmdfY29ubmVj
+dGlvbl9wZXJtaXNzaW9uc19wcm9wZXJ0eSIsIHRlc3Rfc2V0dGluZ19jb25uZWN0aW9uX3Blcm1p
+c3Npb25zX3Byb3BlcnR5KTsKIAogCWdfdGVzdF9hZGRfZnVuYyAoIi9jb3JlL2dlbmVyYWwvdGVz
+dF9jb25uZWN0aW9uX2NvbXBhcmVfc2FtZSIsIHRlc3RfY29ubmVjdGlvbl9jb21wYXJlX3NhbWUp
+OwogCWdfdGVzdF9hZGRfZnVuYyAoIi9jb3JlL2dlbmVyYWwvdGVzdF9jb25uZWN0aW9uX2NvbXBh
+cmVfa2V5X29ubHlfaW5fYSIsIHRlc3RfY29ubmVjdGlvbl9jb21wYXJlX2tleV9vbmx5X2luX2Ep
+OwogCWdfdGVzdF9hZGRfZnVuYyAoIi9jb3JlL2dlbmVyYWwvdGVzdF9jb25uZWN0aW9uX2NvbXBh
+cmVfc2V0dGluZ19vbmx5X2luX2EiLCB0ZXN0X2Nvbm5lY3Rpb25fY29tcGFyZV9zZXR0aW5nX29u
+bHlfaW5fYSk7CiAJZ190ZXN0X2FkZF9mdW5jICgiL2NvcmUvZ2VuZXJhbC90ZXN0X2Nvbm5lY3Rp
+b25fY29tcGFyZV9rZXlfb25seV9pbl9iIiwgdGVzdF9jb25uZWN0aW9uX2NvbXBhcmVfa2V5X29u
+bHlfaW5fYik7Ci0tIAoyLjUuNQoK
+</data>
+
+          </attachment>
+          <attachment
+              isobsolete="0"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1176389</attachid>
+            <date>2016-07-05 07:44:00 -0400</date>
+            <delta_ts>2016-07-05 07:44:30 -0400</delta_ts>
+            <desc>[PATCH v2] libnm-core: ip-config: normalize may-fail for disabled IP methods</desc>
+            <filename>0001-libnm-core-ip-config-normalize-may-fail-for-disabled.patch</filename>
+            <type>text/plain</type>
+            <size>8701</size>
+            <attacher name="Beniamino Galvani">bgalvani</attacher>
+            
+              <data encoding="base64">RnJvbSAxNzRhNDcxNjczNTM3Zjk4ZTZlZGI2YmI4MzZiNTVlNmY1NWI1ZWIxIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBCZW5pYW1pbm8gR2FsdmFuaSA8YmdhbHZhbmlAcmVkaGF0LmNv
+bT4KRGF0ZTogRnJpLCAxIEp1bCAyMDE2IDE3OjA1OjQyICswMjAwClN1YmplY3Q6IFtQQVRDSCB2
+Ml0gbGlibm0tY29yZTogaXAtY29uZmlnOiBub3JtYWxpemUgbWF5LWZhaWwgZm9yIGRpc2FibGVk
+IElQCiBtZXRob2RzCgpTaW5jZSBjb21taXQgN2QxNzA5ZDdmNjQ5ICgiZGV2aWNlOiBjaGVjayBt
+YXlfZmFpbCB3aGVuIHByb2dyZXNzaW5nIHRvCklQX0NIRUNLIikgTk0gY29ycmVjdGx5IGNoZWNr
+cyB0aGUgbWF5LWZhaWwgcHJvcGVydGllcyB0byBkZWNpZGUKd2hldGhlciBhIGNvbm5lY3Rpb24g
+bXVzdCBmYWlsIGFmdGVyIHRoZSBjb21wbGV0aW9uIG9mIElQCmNvbmZpZ3VyYXRpb24uIEJ1dCBm
+b3IgaXB2NC5tZXRob2Q9ZGlzYWJsZWQgYW5kIGlwdjYubWV0aG9kPWlnbm9yZSB0aGUKSVAgY29u
+ZmlndXJhdGlvbiBpcyBhbHdheXMgY29uc2lkZXJlZCBmYWlsZWQgYW5kIHRodXMgc2V0dGluZwpt
+YXktZmFpbD1ubyByZXN1bHRzIGluIGEgY29ubmVjdGlvbiB0aGF0IGNhbiBuZXZlciBzdWNjZWVk
+LgoKVG8gcHJldmVudCBzdWNoIHdyb25nIGNvbmZpZ3VyYXRpb24sIGZvcmNlIG1heS1mYWlsIHRv
+IFRSVUUgZm9yIHRob3NlCm1ldGhvZHMgZHVyaW5nIGNvbm5lY3Rpb24gbm9ybWFsaXphdGlvbi4K
+Cmh0dHBzOi8vYnVnemlsbGEucmVkaGF0LmNvbS9zaG93X2J1Zy5jZ2k/aWQ9MTMzNDg4NAotLS0K
+IGxpYm5tLWNvcmUvbm0tY29ubmVjdGlvbi5jICAgICAgICAgfCAxNCArKysrKysrKysrKysKIGxp
+Ym5tLWNvcmUvbm0tc2V0dGluZy1pcDQtY29uZmlnLmMgfCAxMiArKysrKysrKysrKwogbGlibm0t
+Y29yZS9ubS1zZXR0aW5nLWlwNi1jb25maWcuYyB8IDEyICsrKysrKysrKysrCiBsaWJubS1jb3Jl
+L3Rlc3RzL3Rlc3QtZ2VuZXJhbC5jICAgIHwgNDQgKysrKysrKysrKysrKysrKysrKysrKysrKysr
+KysrKysrKysrKysKIDQgZmlsZXMgY2hhbmdlZCwgODIgaW5zZXJ0aW9ucygrKQoKZGlmZiAtLWdp
+dCBhL2xpYm5tLWNvcmUvbm0tY29ubmVjdGlvbi5jIGIvbGlibm0tY29yZS9ubS1jb25uZWN0aW9u
+LmMKaW5kZXggNzY5NTUxOC4uMmZkMzQwMSAxMDA2NDQKLS0tIGEvbGlibm0tY29yZS9ubS1jb25u
+ZWN0aW9uLmMKKysrIGIvbGlibm0tY29yZS9ubS1jb25uZWN0aW9uLmMKQEAgLTc2MSwxMiArNzYx
+LDE5IEBAIF9ub3JtYWxpemVfaXBfY29uZmlnIChOTUNvbm5lY3Rpb24gKnNlbGYsIEdIYXNoVGFi
+bGUgKnBhcmFtZXRlcnMpCiAJCX0gZWxzZSB7CiAJCQlpZiAoICAgbm1fc2V0dGluZ19pcF9jb25m
+aWdfZ2V0X2dhdGV3YXkgKHNfaXA0KQogCQkJICAgICYmIG5tX3NldHRpbmdfaXBfY29uZmlnX2dl
+dF9uZXZlcl9kZWZhdWx0IChzX2lwNCkpIHsKIAkJCQlnX29iamVjdF9zZXQgKHNfaXA0LCBOTV9T
+RVRUSU5HX0lQX0NPTkZJR19HQVRFV0FZLCBOVUxMLCBOVUxMKTsKIAkJCQljaGFuZ2VkID0gVFJV
+RTsKIAkJCX0KKworCQkJaWYgKCAgIG5tX3N0cmVxMCAobm1fc2V0dGluZ19pcF9jb25maWdfZ2V0
+X21ldGhvZCAoc19pcDQpLAorCQkJICAgICAgICAgICAgICAgICAgTk1fU0VUVElOR19JUDRfQ09O
+RklHX01FVEhPRF9ESVNBQkxFRCkKKwkJCSAgICAmJiAhbm1fc2V0dGluZ19pcF9jb25maWdfZ2V0
+X21heV9mYWlsIChzX2lwNCkpIHsKKwkJCQlnX29iamVjdF9zZXQgKHNfaXA0LCBOTV9TRVRUSU5H
+X0lQX0NPTkZJR19NQVlfRkFJTCwgVFJVRSwgTlVMTCk7CisJCQkJY2hhbmdlZCA9IFRSVUU7CisJ
+CQl9CiAJCX0KIAkJaWYgKCFzX2lwNikgewogCQkJc2V0dGluZyA9IG5tX3NldHRpbmdfaXA2X2Nv
+bmZpZ19uZXcgKCk7CiAKIAkJCWdfb2JqZWN0X3NldCAoc2V0dGluZywKIAkJCSAgICAgICAgICAg
+ICAgTk1fU0VUVElOR19JUF9DT05GSUdfTUVUSE9ELCBkZWZhdWx0X2lwNl9tZXRob2QsCkBAIC03
+OTQsMTIgKzgwMSwxOSBAQCBfbm9ybWFsaXplX2lwX2NvbmZpZyAoTk1Db25uZWN0aW9uICpzZWxm
+LCBHSGFzaFRhYmxlICpwYXJhbWV0ZXJzKQogCiAJCQlpZiAoICAgbm1fc2V0dGluZ19pcF9jb25m
+aWdfZ2V0X2dhdGV3YXkgKHNfaXA2KQogCQkJICAgICYmIG5tX3NldHRpbmdfaXBfY29uZmlnX2dl
+dF9uZXZlcl9kZWZhdWx0IChzX2lwNikpIHsKIAkJCQlnX29iamVjdF9zZXQgKHNfaXA2LCBOTV9T
+RVRUSU5HX0lQX0NPTkZJR19HQVRFV0FZLCBOVUxMLCBOVUxMKTsKIAkJCQljaGFuZ2VkID0gVFJV
+RTsKIAkJCX0KKworCQkJaWYgKCAgIG5tX3N0cmVxMCAobm1fc2V0dGluZ19pcF9jb25maWdfZ2V0
+X21ldGhvZCAoc19pcDYpLAorCQkJICAgICAgICAgICAgICAgICAgTk1fU0VUVElOR19JUDZfQ09O
+RklHX01FVEhPRF9JR05PUkUpCisJCQkgICAgJiYgIW5tX3NldHRpbmdfaXBfY29uZmlnX2dldF9t
+YXlfZmFpbCAoc19pcDYpKSB7CisJCQkJZ19vYmplY3Rfc2V0IChzX2lwNiwgTk1fU0VUVElOR19J
+UF9DT05GSUdfTUFZX0ZBSUwsIFRSVUUsIE5VTEwpOworCQkJCWNoYW5nZWQgPSBUUlVFOworCQkJ
+fQogCQl9CiAJCXJldHVybiAhc19pcDQgfHwgIXNfaXA2IHx8IGNoYW5nZWQ7CiAJfQogfQogCiBz
+dGF0aWMgZ2Jvb2xlYW4KZGlmZiAtLWdpdCBhL2xpYm5tLWNvcmUvbm0tc2V0dGluZy1pcDQtY29u
+ZmlnLmMgYi9saWJubS1jb3JlL25tLXNldHRpbmctaXA0LWNvbmZpZy5jCmluZGV4IDhmNDNkZWYu
+LjcwZmFiMGUgMTAwNjQ0Ci0tLSBhL2xpYm5tLWNvcmUvbm0tc2V0dGluZy1pcDQtY29uZmlnLmMK
+KysrIGIvbGlibm0tY29yZS9ubS1zZXR0aW5nLWlwNC1jb25maWcuYwpAQCAtMjIyLDEyICsyMjIs
+MjQgQEAgdmVyaWZ5IChOTVNldHRpbmcgKnNldHRpbmcsIE5NQ29ubmVjdGlvbiAqY29ubmVjdGlv
+biwgR0Vycm9yICoqZXJyb3IpCiAJCSAgICAgICAgICAgICAgICAgICAgIE5NX0NPTk5FQ1RJT05f
+RVJST1JfSU5WQUxJRF9QUk9QRVJUWSwKIAkJICAgICAgICAgICAgICAgICAgICAgXygicHJvcGVy
+dHkgY2Fubm90IGJlIHNldCB3aGVuIGRoY3AtaG9zdG5hbWUgaXMgYWxzbyBzZXQiKSk7CiAJCWdf
+cHJlZml4X2Vycm9yIChlcnJvciwgIiVzLiVzOiAiLCBOTV9TRVRUSU5HX0lQNF9DT05GSUdfU0VU
+VElOR19OQU1FLCBOTV9TRVRUSU5HX0lQNF9DT05GSUdfREhDUF9GUUROKTsKIAkJcmV0dXJuIEZB
+TFNFOwogCX0KIAorCS8qIEZhaWx1cmVzIGZyb20gaGVyZSBvbiBhcmUgTk9STUFMSVpBQkxFLi4u
+ICovCisKKwlpZiAoICAgIXN0cmNtcCAobWV0aG9kLCBOTV9TRVRUSU5HX0lQNF9DT05GSUdfTUVU
+SE9EX0RJU0FCTEVEKQorCSAgICAmJiAhbm1fc2V0dGluZ19pcF9jb25maWdfZ2V0X21heV9mYWls
+IChzX2lwKSkgeworCQlnX3NldF9lcnJvcl9saXRlcmFsIChlcnJvciwKKwkJICAgICAgICAgICAg
+ICAgICAgICAgTk1fQ09OTkVDVElPTl9FUlJPUiwKKwkJICAgICAgICAgICAgICAgICAgICAgTk1f
+Q09OTkVDVElPTl9FUlJPUl9JTlZBTElEX1BST1BFUlRZLAorCQkgICAgICAgICAgICAgICAgICAg
+ICBfKCJwcm9wZXJ0eSBzaG91bGQgYmUgVFJVRSB3aGVuIG1ldGhvZCBpcyBzZXQgdG8gZGlzYWJs
+ZWQiKSk7CisJCWdfcHJlZml4X2Vycm9yIChlcnJvciwgIiVzLiVzOiAiLCBOTV9TRVRUSU5HX0lQ
+NF9DT05GSUdfU0VUVElOR19OQU1FLCBOTV9TRVRUSU5HX0lQX0NPTkZJR19NQVlfRkFJTCk7CisJ
+CXJldHVybiBOTV9TRVRUSU5HX1ZFUklGWV9OT1JNQUxJWkFCTEU7CisJfQorCiAJcmV0dXJuIFRS
+VUU7CiB9CiAKIHN0YXRpYyB2b2lkCiBubV9zZXR0aW5nX2lwNF9jb25maWdfaW5pdCAoTk1TZXR0
+aW5nSVA0Q29uZmlnICpzZXR0aW5nKQogewpkaWZmIC0tZ2l0IGEvbGlibm0tY29yZS9ubS1zZXR0
+aW5nLWlwNi1jb25maWcuYyBiL2xpYm5tLWNvcmUvbm0tc2V0dGluZy1pcDYtY29uZmlnLmMKaW5k
+ZXggYTU4MjZlYi4uNGRhZWYzNiAxMDA2NDQKLS0tIGEvbGlibm0tY29yZS9ubS1zZXR0aW5nLWlw
+Ni1jb25maWcuYworKysgYi9saWJubS1jb3JlL25tLXNldHRpbmctaXA2LWNvbmZpZy5jCkBAIC0y
+NDgsMTIgKzI0OCwyNCBAQCB2ZXJpZnkgKE5NU2V0dGluZyAqc2V0dGluZywgTk1Db25uZWN0aW9u
+ICpjb25uZWN0aW9uLCBHRXJyb3IgKiplcnJvcikKIAkJCSAgICAgICAgICAgICAgICAgICAgICBf
+KCJvbmx5IG1ha2VzIHNlbnNlIHdpdGggRVVJNjQgYWRkcmVzcyBnZW5lcmF0aW9uIG1vZGUiKSk7
+CiAJCQlnX3ByZWZpeF9lcnJvciAoZXJyb3IsICIlcy4lczogIiwgTk1fU0VUVElOR19JUDZfQ09O
+RklHX1NFVFRJTkdfTkFNRSwgTk1fU0VUVElOR19JUDZfQ09ORklHX1RPS0VOKTsKIAkJCXJldHVy
+biBGQUxTRTsKIAkJfQogCX0KIAorCS8qIEZhaWx1cmVzIGZyb20gaGVyZSBvbiBhcmUgTk9STUFM
+SVpBQkxFLi4uICovCisKKwlpZiAoICAgIXN0cmNtcCAobWV0aG9kLCBOTV9TRVRUSU5HX0lQNl9D
+T05GSUdfTUVUSE9EX0lHTk9SRSkKKwkgICAgJiYgIW5tX3NldHRpbmdfaXBfY29uZmlnX2dldF9t
+YXlfZmFpbCAoc19pcCkpIHsKKwkJZ19zZXRfZXJyb3JfbGl0ZXJhbCAoZXJyb3IsCisJCSAgICAg
+ICAgICAgICAgICAgICAgIE5NX0NPTk5FQ1RJT05fRVJST1IsCisJCSAgICAgICAgICAgICAgICAg
+ICAgIE5NX0NPTk5FQ1RJT05fRVJST1JfSU5WQUxJRF9QUk9QRVJUWSwKKwkJICAgICAgICAgICAg
+ICAgICAgICAgXygicHJvcGVydHkgc2hvdWxkIGJlIFRSVUUgd2hlbiBtZXRob2QgaXMgc2V0IHRv
+IGlnbm9yZSIpKTsKKwkJZ19wcmVmaXhfZXJyb3IgKGVycm9yLCAiJXMuJXM6ICIsIE5NX1NFVFRJ
+TkdfSVA2X0NPTkZJR19TRVRUSU5HX05BTUUsIE5NX1NFVFRJTkdfSVBfQ09ORklHX01BWV9GQUlM
+KTsKKwkJcmV0dXJuIE5NX1NFVFRJTkdfVkVSSUZZX05PUk1BTElaQUJMRTsKKwl9CisKIAkvKiBG
+YWlsdXJlcyBmcm9tIGhlcmUgb24sIGFyZSBOT1JNQUxJWkFCTEVfRVJST1IuLi4gKi8KIAogCWlm
+ICh0b2tlbl9uZWVkc19ub3JtYWxpemF0aW9uKSB7CiAJCWdfc2V0X2Vycm9yX2xpdGVyYWwgKGVy
+cm9yLAogCQkgICAgICAgICAgICAgICAgICAgICBOTV9DT05ORUNUSU9OX0VSUk9SLAogCQkgICAg
+ICAgICAgICAgICAgICAgICBOTV9DT05ORUNUSU9OX0VSUk9SX0lOVkFMSURfUFJPUEVSVFksCmRp
+ZmYgLS1naXQgYS9saWJubS1jb3JlL3Rlc3RzL3Rlc3QtZ2VuZXJhbC5jIGIvbGlibm0tY29yZS90
+ZXN0cy90ZXN0LWdlbmVyYWwuYwppbmRleCBhZWY5ZjJiLi4wYTk1NTcxIDEwMDY0NAotLS0gYS9s
+aWJubS1jb3JlL3Rlc3RzL3Rlc3QtZ2VuZXJhbC5jCisrKyBiL2xpYm5tLWNvcmUvdGVzdHMvdGVz
+dC1nZW5lcmFsLmMKQEAgLTM5MTYsMTIgKzM5MTYsNTUgQEAgdGVzdF9jb25uZWN0aW9uX25vcm1h
+bGl6ZV9nYXRld2F5X25ldmVyX2RlZmF1bHQgKHZvaWQpCiAJICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgTk1fQ09OTkVDVElPTl9FUlJPUl9JTlZB
+TElEX1BST1BFUlRZKTsKIAlubXRzdF9jb25uZWN0aW9uX25vcm1hbGl6ZSAoY29uKTsKIAlnX2Fz
+c2VydF9jbXBzdHIgKE5VTEwsID09LCBubV9zZXR0aW5nX2lwX2NvbmZpZ19nZXRfZ2F0ZXdheSAo
+c19pcDQpKTsKIH0KIAogc3RhdGljIHZvaWQKK3Rlc3RfY29ubmVjdGlvbl9ub3JtYWxpemVfbWF5
+X2ZhaWwgKHZvaWQpCit7CisJZ3NfdW5yZWZfb2JqZWN0IE5NQ29ubmVjdGlvbiAqY29uID0gTlVM
+TDsKKwlOTVNldHRpbmdJUENvbmZpZyAqc19pcDQsICpzX2lwNjsKKwlnc19mcmVlX2Vycm9yIEdF
+cnJvciAqZXJyb3IgPSBOVUxMOworCisJY29uID0gbm10c3RfY3JlYXRlX21pbmltYWxfY29ubmVj
+dGlvbiAoInRlc3QyIiwgTlVMTCwgTk1fU0VUVElOR19XSVJFRF9TRVRUSU5HX05BTUUsIE5VTEwp
+OworCW5tdHN0X2Fzc2VydF9jb25uZWN0aW9uX3ZlcmlmaWVzX2FuZF9ub3JtYWxpemFibGUgKGNv
+bik7CisKKwlzX2lwNCA9IChOTVNldHRpbmdJUENvbmZpZyAqKSBubV9zZXR0aW5nX2lwNF9jb25m
+aWdfbmV3ICgpOworCWdfb2JqZWN0X3NldCAoR19PQkpFQ1QgKHNfaXA0KSwKKwkgICAgICAgICAg
+ICAgIE5NX1NFVFRJTkdfSVBfQ09ORklHX01FVEhPRCwgTk1fU0VUVElOR19JUDRfQ09ORklHX01F
+VEhPRF9BVVRPLAorCSAgICAgICAgICAgICAgTk1fU0VUVElOR19JUF9DT05GSUdfTUFZX0ZBSUws
+IEZBTFNFLAorCSAgICAgICAgICAgICAgTlVMTCk7CisKKwlzX2lwNiA9IChOTVNldHRpbmdJUENv
+bmZpZyAqKSBubV9zZXR0aW5nX2lwNl9jb25maWdfbmV3ICgpOworCWdfb2JqZWN0X3NldCAoc19p
+cDYsCisJICAgICAgICAgICAgICBOTV9TRVRUSU5HX0lQX0NPTkZJR19NRVRIT0QsIE5NX1NFVFRJ
+TkdfSVA2X0NPTkZJR19NRVRIT0RfQVVUTywKKwkgICAgICAgICAgICAgIE5NX1NFVFRJTkdfSVBf
+Q09ORklHX01BWV9GQUlMLCBGQUxTRSwKKwkgICAgICAgICAgICAgIE5VTEwpOworCisJbm1fY29u
+bmVjdGlvbl9hZGRfc2V0dGluZyAoY29uLCAoTk1TZXR0aW5nICopIHNfaXA0KTsKKwlubV9jb25u
+ZWN0aW9uX2FkZF9zZXR0aW5nIChjb24sIChOTVNldHRpbmcgKikgc19pcDYpOworCisJbm10c3Rf
+YXNzZXJ0X2Nvbm5lY3Rpb25fdmVyaWZpZXNfd2l0aG91dF9ub3JtYWxpemF0aW9uIChjb24pOwor
+CisJLyogTm93IHNldCBtZXRob2Q9ZGlzYWJsZWQvaWdub3JlIGFuZCBjaGVjayB0aGF0IG1heS1m
+YWlsIGJlY29tZXMgRkFMU0UKKwkgKiBhZnRlciBub3JtYWxpemF0aW9uCisJICogKi8KKwlnX29i
+amVjdF9zZXQgKHNfaXA0LAorCSAgICAgICAgICAgICAgTk1fU0VUVElOR19JUF9DT05GSUdfTUVU
+SE9ELCBOTV9TRVRUSU5HX0lQNF9DT05GSUdfTUVUSE9EX0RJU0FCTEVELAorCSAgICAgICAgICAg
+ICAgTlVMTCk7CisJZ19vYmplY3Rfc2V0IChzX2lwNiwKKwkgICAgICAgICAgICAgIE5NX1NFVFRJ
+TkdfSVBfQ09ORklHX01FVEhPRCwgTk1fU0VUVElOR19JUDZfQ09ORklHX01FVEhPRF9JR05PUkUs
+CisJICAgICAgICAgICAgICBOVUxMKTsKKworCW5tdHN0X2Fzc2VydF9jb25uZWN0aW9uX3Zlcmlm
+aWVzIChjb24pOworCW5tdHN0X2Nvbm5lY3Rpb25fbm9ybWFsaXplIChjb24pOworCWdfYXNzZXJ0
+X2NtcGludCAobm1fc2V0dGluZ19pcF9jb25maWdfZ2V0X21heV9mYWlsIChzX2lwNCksID09LCBU
+UlVFKTsKKwlnX2Fzc2VydF9jbXBpbnQgKG5tX3NldHRpbmdfaXBfY29uZmlnX2dldF9tYXlfZmFp
+bCAoc19pcDYpLCA9PSwgVFJVRSk7Cit9CisKK3N0YXRpYyB2b2lkCiB0ZXN0X3NldHRpbmdfaXA0
+X2dhdGV3YXkgKHZvaWQpCiB7CiAJTk1Db25uZWN0aW9uICpjb25uOwogCU5NU2V0dGluZ0lQQ29u
+ZmlnICpzX2lwNDsKIAlOTUlQQWRkcmVzcyAqYWRkcjsKIAlHVmFyaWFudCAqY29ubl9kaWN0LCAq
+aXA0X2RpY3QsICp2YWx1ZTsKQEAgLTUzMTgsMTIgKzUzNjEsMTMgQEAgaW50IG1haW4gKGludCBh
+cmdjLCBjaGFyICoqYXJndikKIAlnX3Rlc3RfYWRkX2Z1bmMgKCIvY29yZS9nZW5lcmFsL3Rlc3Rf
+Y29ubmVjdGlvbl9ub3JtYWxpemVfdXVpZCIsIHRlc3RfY29ubmVjdGlvbl9ub3JtYWxpemVfdXVp
+ZCk7CiAJZ190ZXN0X2FkZF9mdW5jICgiL2NvcmUvZ2VuZXJhbC90ZXN0X2Nvbm5lY3Rpb25fbm9y
+bWFsaXplX3R5cGUiLCB0ZXN0X2Nvbm5lY3Rpb25fbm9ybWFsaXplX3R5cGUpOwogCWdfdGVzdF9h
+ZGRfZnVuYyAoIi9jb3JlL2dlbmVyYWwvdGVzdF9jb25uZWN0aW9uX25vcm1hbGl6ZV9zbGF2ZV90
+eXBlXzEiLCB0ZXN0X2Nvbm5lY3Rpb25fbm9ybWFsaXplX3NsYXZlX3R5cGVfMSk7CiAJZ190ZXN0
+X2FkZF9mdW5jICgiL2NvcmUvZ2VuZXJhbC90ZXN0X2Nvbm5lY3Rpb25fbm9ybWFsaXplX3NsYXZl
+X3R5cGVfMiIsIHRlc3RfY29ubmVjdGlvbl9ub3JtYWxpemVfc2xhdmVfdHlwZV8yKTsKIAlnX3Rl
+c3RfYWRkX2Z1bmMgKCIvY29yZS9nZW5lcmFsL3Rlc3RfY29ubmVjdGlvbl9ub3JtYWxpemVfaW5m
+aW5pYmFuZF9tdHUiLCB0ZXN0X2Nvbm5lY3Rpb25fbm9ybWFsaXplX2luZmluaWJhbmRfbXR1KTsK
+IAlnX3Rlc3RfYWRkX2Z1bmMgKCIvY29yZS9nZW5lcmFsL3Rlc3RfY29ubmVjdGlvbl9ub3JtYWxp
+emVfZ2F0ZXdheV9uZXZlcl9kZWZhdWx0IiwgdGVzdF9jb25uZWN0aW9uX25vcm1hbGl6ZV9nYXRl
+d2F5X25ldmVyX2RlZmF1bHQpOworCWdfdGVzdF9hZGRfZnVuYyAoIi9jb3JlL2dlbmVyYWwvdGVz
+dF9jb25uZWN0aW9uX25vcm1hbGl6ZV9tYXlfZmFpbCIsIHRlc3RfY29ubmVjdGlvbl9ub3JtYWxp
+emVfbWF5X2ZhaWwpOwogCiAJZ190ZXN0X2FkZF9mdW5jICgiL2NvcmUvZ2VuZXJhbC90ZXN0X3Nl
+dHRpbmdfY29ubmVjdGlvbl9wZXJtaXNzaW9uc19oZWxwZXJzIiwgdGVzdF9zZXR0aW5nX2Nvbm5l
+Y3Rpb25fcGVybWlzc2lvbnNfaGVscGVycyk7CiAJZ190ZXN0X2FkZF9mdW5jICgiL2NvcmUvZ2Vu
+ZXJhbC90ZXN0X3NldHRpbmdfY29ubmVjdGlvbl9wZXJtaXNzaW9uc19wcm9wZXJ0eSIsIHRlc3Rf
+c2V0dGluZ19jb25uZWN0aW9uX3Blcm1pc3Npb25zX3Byb3BlcnR5KTsKIAogCWdfdGVzdF9hZGRf
+ZnVuYyAoIi9jb3JlL2dlbmVyYWwvdGVzdF9jb25uZWN0aW9uX2NvbXBhcmVfc2FtZSIsIHRlc3Rf
+Y29ubmVjdGlvbl9jb21wYXJlX3NhbWUpOwogCWdfdGVzdF9hZGRfZnVuYyAoIi9jb3JlL2dlbmVy
+YWwvdGVzdF9jb25uZWN0aW9uX2NvbXBhcmVfa2V5X29ubHlfaW5fYSIsIHRlc3RfY29ubmVjdGlv
+bl9jb21wYXJlX2tleV9vbmx5X2luX2EpOwotLSAKMi41LjUKCg==
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

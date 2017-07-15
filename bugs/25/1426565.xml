@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1426565</bug_id>
+          
+          <creation_ts>2017-02-24 05:32:00 -0500</creation_ts>
+          <short_desc>specifying any detail about network interfaces breaks vagrant</short_desc>
+          <delta_ts>2017-03-07 06:28:22 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>vagrant-libvirt</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter>rob.verduijn</reporter>
+          <assigned_to name="Vít Ondruch">vondruch</assigned_to>
+          <cc>dima85</cc>
+    
+    
+    <cc>lmohanty</cc>
+    
+    
+    <cc>madam</cc>
+    
+    
+    <cc>pvalena</cc>
+    
+    
+    <cc>strzibny</cc>
+    
+    
+    <cc>thrcka</cc>
+    
+    
+    <cc>vondruch</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>vagrant-libvirt-0.0.35-3.fc25</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-03-06 19:50:10</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10181228</commentid>
+    <comment_count>0</comment_count>
+    <who name="">rob.verduijn</who>
+    <bug_when>2017-02-24 05:32:08 -0500</bug_when>
+    <thetext>Description of problem:
+assign a detail to a network card and vagrant breaks
+
+
+Version-Release number of selected component (if applicable):
+1.8.5-2.fc25
+
+How reproducible:
+Steps to Reproduce:
+install vagrant
+mkdir ~/vagranttest
+cd vagranttest
+
+create a minimal Vagrantfile
+cat &gt; Vagrantfile &lt;&lt;EOF
+# -*- mode: ruby -*-
+
+Vagrant.configure(&quot;2&quot;) do |config|
+  config.vm.network :private_network, ip: &apos;192.168.121.2&apos;, netmask: &apos;255.255.255.0&apos;
+  config.vm.box = &quot;centos/7&quot;
+end
+EOF
+
+start the vagrant machine with &apos;vagrant up&apos;
+and wait for it to fail
+
+
+Actual results:
+It fails to configure the nic
+
+Expected results:
+It should configure the nic
+
+Additional info:
+looks a bit like this one:
+https://github.com/vagrant-libvirt/vagrant-libvirt/issues/645
+cause if you check /etc/sysconfig/network-scripts/ifcfg-eth1 you will see the concatenated mac-addresses while /etc/sysconfig/network-scripts/ifcfg-eth0 has none</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10181616</commentid>
+    <comment_count>1</comment_count>
+    <who name="Vít Ondruch">vondruch</who>
+    <bug_when>2017-02-24 08:28:36 -0500</bug_when>
+    <thetext>Testing this on Rawhide with vagrant-1.9.1-1.fc26 and vagrant-libvirt-0.0.37-3.fc26, I can&apos;t see any issue except of the concatenated mac-addresses in ifcfg-eth1.
+
+Applying the patch patch from the issue you referenced, there is no mac listed in ifcfg-eth1 at all.
+
+Anyway, this should be F25 build with the patch form the upstream ticket applied:
+
+https://koji.fedoraproject.org/koji/taskinfo?taskID=18030137
+
+If it works for you, I can apply it in F25.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10181898</commentid>
+    <comment_count>2</comment_count>
+    <who name="Vít Ondruch">vondruch</who>
+    <bug_when>2017-02-24 09:40:29 -0500</bug_when>
+    <thetext>Ok, I was able to reproduce this error on Rawhide using Vagrant 1.8.7 and vagrant-libvirt 0.37.0 and it seem the patch is fixing the issue.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10182016</commentid>
+    <comment_count>3</comment_count>
+    <who name="">rob.verduijn</who>
+    <bug_when>2017-02-24 10:00:07 -0500</bug_when>
+    <thetext>Hello,
+
+After applying the patch from https://github.com/vagrant-libvirt/vagrant-libvirt/commit/5ed93bd90878166beaceaf9c88724eaac231719c
+
+It works for me as well.
+
+Rob Verduijn</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10182019</commentid>
+    <comment_count>4</comment_count>
+    <who name="">rob.verduijn</who>
+    <bug_when>2017-02-24 10:00:52 -0500</bug_when>
+    <thetext>Is it supposed to create an aditional network card ?
+Or is that normal behaviour ?
+
+Rob Verduijn</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10182090</commentid>
+    <comment_count>5</comment_count>
+    <who name="Vít Ondruch">vondruch</who>
+    <bug_when>2017-02-24 10:19:29 -0500</bug_when>
+    <thetext>I am not expert on this matter, but as far as I can tell, it should create additional card. Anyway, with this configuration I have two network interfaces with or without the patch, so I believe it does not break anything :)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10182141</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-24 10:29:19 -0500</bug_when>
+    <thetext>vagrant-libvirt-0.0.35-3.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-0720d8dce9</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10182484</commentid>
+    <comment_count>7</comment_count>
+    <who name="">rob.verduijn</who>
+    <bug_when>2017-02-24 11:38:31 -0500</bug_when>
+    <thetext>hi,
+
+looking forward to the patch.
+
+
+the second card is in the same subnet as the first, so unless you want to try bonding/teaming, an additional network for this card would be a wise thing.
+
+Rob Verduijn</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10183372</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-24 20:52:54 -0500</bug_when>
+    <thetext>vagrant-libvirt-0.0.35-3.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-0720d8dce9</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10183833</commentid>
+    <comment_count>9</comment_count>
+    <who name="">rob.verduijn</who>
+    <bug_when>2017-02-25 13:58:05 -0500</bug_when>
+    <thetext>I can&apos;t test it.
+The build has failed on the lint check.
+
+Rob Verduijn</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10185840</commentid>
+    <comment_count>10</comment_count>
+    <who name="Vít Ondruch">vondruch</who>
+    <bug_when>2017-02-27 05:05:08 -0500</bug_when>
+    <thetext>(In reply to rob.verduijn from comment #9)
+&gt; I can&apos;t test it.
+&gt; The build has failed on the lint check.
+
+Could you please be more specific? I am not sure if I understand your references to &quot;build&quot; and &quot;lint check&quot; ...</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10186412</commentid>
+    <comment_count>11</comment_count>
+    <who name="">rob.verduijn</who>
+    <bug_when>2017-02-27 07:52:41 -0500</bug_when>
+    <thetext>Hello,
+
+I followed the link to the build service to see why the rpm was not yet in testing:
+https://bodhi.fedoraproject.org/updates/FEDORA-2017-0720d8dce9
+
+On that page 
+The automated build results give a fail on the test dist.rpmlint:
+https://taskotron.fedoraproject.org/artifacts/all/d0820a7e-faa5-11e6-9ed0-5254008e42f6/task_output/vagrant-libvirt-0.0.35-3.fc25.log
+
+Because the build service refused to build the rpm due to lint errors, I can&apos;t test the new rpm to see if it works.
+
+Rob Verduijn</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10186628</commentid>
+    <comment_count>12</comment_count>
+    <who name="Vít Ondruch">vondruch</who>
+    <bug_when>2017-02-27 08:43:03 -0500</bug_when>
+    <thetext>(In reply to rob.verduijn from comment #11)
+Ah, ok, thx for explanation. 
+
+I don&apos;t think the rpmlint is of any concern. The builds are actually done and available in the build system [1]. The limiting factory is always how quickly is the compose done and how fast are the updates propagated to the mirrors.
+
+But doing &quot;dnf update https://kojipkgs.fedoraproject.org//packages/vagrant-libvirt/0.0.35/3.fc25/noarch/vagrant-libvirt-0.0.35-3.fc25.noarch.rpm&quot; should allow you to update and test in any case.
+
+[1] https://koji.fedoraproject.org/koji/buildinfo?buildID=861777</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10213745</commentid>
+    <comment_count>13</comment_count>
+    <who name="">rob.verduijn</who>
+    <bug_when>2017-03-06 14:19:49 -0500</bug_when>
+    <thetext>Hello,
+
+The rpm from updates-testing works fine for me.
+
+Rob Verduijn</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10214690</commentid>
+    <comment_count>14</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-06 19:50:10 -0500</bug_when>
+    <thetext>vagrant-libvirt-0.0.35-3.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10216116</commentid>
+    <comment_count>15</comment_count>
+    <who name="Vít Ondruch">vondruch</who>
+    <bug_when>2017-03-07 06:28:22 -0500</bug_when>
+    <thetext>(In reply to rob.verduijn from comment #13)
+Glad to heard that. Thank you for your feedback.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

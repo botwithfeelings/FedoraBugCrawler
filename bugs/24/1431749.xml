@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1431749</bug_id>
+          
+          <creation_ts>2017-03-13 13:01:00 -0400</creation_ts>
+          <short_desc>gpg2 wastes a whole second waiting for gpg-agent to start</short_desc>
+          <delta_ts>2017-04-27 16:54:39 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>gnupg2</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Miloslav Trmač">mitr</reporter>
+          <assigned_to name="Tomas Mraz">tmraz</assigned_to>
+          <cc>bcl</cc>
+    
+    
+    <cc>jamielinux</cc>
+    
+    
+    <cc>tmraz</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>gnupg2-2.1.20-2.fc26</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-04-27 16:54:39</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10233990</commentid>
+    <comment_count>0</comment_count>
+    <who name="Miloslav Trmač">mitr</who>
+    <bug_when>2017-03-13 13:01:32 -0400</bug_when>
+    <thetext>Description of problem:
+common/asshelp.c:start_new_gpg_agent does (skipping error handling and similar non-important code):
+&gt;          err = gnupg_spawn_process_detached (program? program : agent_program,
+&gt;                                              argv, NULL);
+&gt;              for (i=0; i &lt; SECS_TO_WAIT_FOR_AGENT; i++)
+&gt;                {
+&gt;                  gnupg_sleep (1);
+&gt;                  err = assuan_socket_connect (ctx, sockname, 0, 0);
+&gt;                  if (!err)
+&gt;                      break;
+&gt;                }
+
+As a result, even when the agent is ready to accept a connection very quickly (less than 2 ms in my case), gpg2 is waiting for a _whole second_ before trying to connect at all.
+
+This extremely noticeably slows down automated gpg runs, where each run creates a new $GNUPGHOME and imports a set of keys into it.
+
+Please speed this up, perhaps implementing exponential backoff (1/2/4/8/… ms up to the current 1 s, or so), or perhaps teaching gpg-agent to close a single-purpose pipe after its listen() succeeds, so that gpg-agent can create such a p ipe and block until it is closed = try to connect as soon as possible instead of having to guess how long to wait.
+
+Version-Release number of selected component (if applicable):
+gnupg2-2.1.13-2.fc24.x86_64 (observation)
+gnupg2-2.1.18-2.fc26.src.rpm (examined source code)
+
+
+Steps to Reproduce:
+1. mkdir t
+2. (time GNUPGHOME=$(pwd)/t gpg2 --list-keys)
+3. (time GNUPGHOME=$(pwd)/t gpg2 --import &lt; ~/.gnupg/pubring.gpg)
+3. (time GNUPGHOME=$(pwd)/t gpg2 --import &lt; ~/.gnupg/pubring.gpg)
+
+Actual results:
+2. takes 0.004 seconds (all values real time)
+3. autostarts the agent, and takes 1.012 seconds
+4. reuses an existing agent, and takes 0.013 seconds
+
+Expected results:
+3. takes less than, say, 0.30 seconds</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10357357</commentid>
+    <comment_count>1</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-24 12:01:13 -0400</bug_when>
+    <thetext>gnupg2-2.1.20-1.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-f2b99a5ac7</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10362113</commentid>
+    <comment_count>2</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-25 17:28:55 -0400</bug_when>
+    <thetext>gnupg2-2.1.20-1.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-f2b99a5ac7</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10363243</commentid>
+    <comment_count>3</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-26 03:23:43 -0400</bug_when>
+    <thetext>gnupg2-2.1.20-2.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-f2b99a5ac7</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10366419</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-26 17:52:15 -0400</bug_when>
+    <thetext>gnupg2-2.1.20-2.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-f2b99a5ac7</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10370243</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-27 16:54:39 -0400</bug_when>
+    <thetext>gnupg2-2.1.20-2.fc26 has been pushed to the Fedora 26 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

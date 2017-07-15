@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1415090</bug_id>
+          
+          <creation_ts>2017-01-20 03:48:00 -0500</creation_ts>
+          <short_desc>gssproxy 0.6 failed to start</short_desc>
+          <delta_ts>2017-01-28 19:20:47 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>gssproxy</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>urgent</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Lukas Slebodnik">lslebodn</reporter>
+          <assigned_to name="Robbie Harwood">rharwood</assigned_to>
+          <cc>gdeschner</cc>
+    
+    
+    <cc>rharwood</cc>
+    
+    
+    <cc>ssorce</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>gssproxy-0.6.1-2.fc25</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-01-28 19:20:47</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10082709</commentid>
+    <comment_count>0</comment_count>
+    <who name="Lukas Slebodnik">lslebodn</who>
+    <bug_when>2017-01-20 03:48:44 -0500</bug_when>
+    <thetext>Description of problem:
+The latest upgrade of gssproxy broke start op gssproxy.service
+
+Version-Release number of selected component (if applicable):
+sh$ rpm -q  gssproxy krb5-libs
+gssproxy-0.6.0-1.fc26.x86_64
+krb5-libs-1.15-4.fc26.x86_64
+
+How reproducible:
+Deterministic
+
+Steps to Reproduce:
+1. systemctl start gssproxy.service
+2. systemclt status gssproxy.service
+
+Actual results:
+[root@graviton ~]# systemctl start gssproxy
+Job for gssproxy.service failed because the control process exited with error code.
+See &quot;systemctl status gssproxy.service&quot; and &quot;journalctl -xe&quot; for details.
+[root@graviton ~]# systemctl status gssproxy
+● gssproxy.service - GSSAPI Proxy Daemon
+   Loaded: loaded (/usr/lib/systemd/system/gssproxy.service; disabled; vendor preset: disabled)
+   Active: failed (Result: exit-code) since Fri 2017-01-20 09:47:04 CET; 5s ago
+  Process: 3588 ExecStart=/usr/sbin/gssproxy -D (code=exited, status=1/FAILURE)
+
+Jan 20 09:47:04 graviton.brq.redhat.com systemd[1]: Starting GSSAPI Proxy Daemon...
+Jan 20 09:47:04 graviton.brq.redhat.com gssproxy[3588]: Failed to read krb5 config for service/nfs-server.
+Jan 20 09:47:04 graviton.brq.redhat.com gssproxy[3588]: Error reading configuration -1765328203: Unknown error -1765328203
+Jan 20 09:47:04 graviton.brq.redhat.com systemd[1]: gssproxy.service: Control process exited, code=exited status=1
+Jan 20 09:47:04 graviton.brq.redhat.com systemd[1]: Failed to start GSSAPI Proxy Daemon.
+Jan 20 09:47:04 graviton.brq.redhat.com systemd[1]: gssproxy.service: Unit entered failed state.
+Jan 20 09:47:04 graviton.brq.redhat.com systemd[1]: gssproxy.service: Failed with result &apos;exit-code&apos;.
+
+
+Expected results:
+Service start without problems
+
+Additional info:</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10082712</commentid>
+    <comment_count>1</comment_count>
+    <who name="Lukas Slebodnik">lslebodn</who>
+    <bug_when>2017-01-20 03:52:46 -0500</bug_when>
+    <thetext>Debug output does not help a lot (at least for me). And there are not any AVCs 
+
+sh# systemctl status gssproxy
+● gssproxy.service - GSSAPI Proxy Daemon
+   Loaded: loaded (/usr/lib/systemd/system/gssproxy.service; disabled; vendor preset: disabled)
+  Drop-In: /run/systemd/system/gssproxy.service.d
+           └─debug.conf
+   Active: failed (Result: exit-code) since Fri 2017-01-20 09:50:17 CET; 3s ago
+  Process: 3640 ExecStart=/usr/sbin/gssproxy -D -d (code=exited, status=1/FAILURE)
+
+Jan 20 09:50:17 host.example.com systemd[1]: Starting GSSAPI Proxy Daemon...
+Jan 20 09:50:17 host.example.com gssproxy[3640]: Failed to read krb5 config for service/nfs-server.
+Jan 20 09:50:17 host.example.com gssproxy[3640]: [2017/01/20 08:50:17]: Debug Enabled (level: 0)
+Jan 20 09:50:17 host.example.com gssproxy[3640]: [2017/01/20 08:50:17]: Config file(s) not found! 
+Jan 20 09:50:17 host.example.com gssproxy[3640]: Error reading configuration -1765328203: Unknown error -1765328203
+Jan 20 09:50:17 host.example.com systemd[1]: gssproxy.service: Control process exited, code=exited status=1
+Jan 20 09:50:17 host.example.com systemd[1]: Failed to start GSSAPI Proxy Daemon.
+Jan 20 09:50:17 host.example.com systemd[1]: gssproxy.service: Unit entered failed state. 
+Jan 20 09:50:17 host.example.com systemd[1]: gssproxy.service: Failed with result &apos;exit-code&apos;.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10082717</commentid>
+    <comment_count>2</comment_count>
+    <who name="Lukas Slebodnik">lslebodn</who>
+    <bug_when>2017-01-20 03:55:24 -0500</bug_when>
+    <thetext>strace is a little bit more helpful
+
+stat(&quot;/etc/krb5.conf&quot;, {st_mode=S_IFREG|0644, st_size=1037, ...}) = 0
+open(&quot;/etc/krb5.conf&quot;, O_RDONLY)        = 3
+fcntl(3, F_SETFD, FD_CLOEXEC)           = 0
+fstat(3, {st_mode=S_IFREG|0644, st_size=1037, ...}) = 0
+read(3, &quot;# To opt out of the system crypt&quot;..., 4096) = 1037
+open(&quot;/etc/krb5.conf.d/&quot;, O_RDONLY|O_NONBLOCK|O_DIRECTORY|O_CLOEXEC) = 4
+fstat(4, {st_mode=S_IFDIR|0755, st_size=106, ...}) = 0
+getdents(4, /* 5 entries */, 32768)     = 176
+open(&quot;/etc/krb5.conf.d//crypto-policies&quot;, O_RDONLY) = 5
+fstat(5, {st_mode=S_IFREG|0644, st_size=125, ...}) = 0
+read(5, &quot;permitted_enctypes = aes256-cts-&quot;..., 4096) = 125
+read(5, &quot;&quot;, 4096)                       = 0
+close(5)                                = 0
+open(&quot;/etc/krb5.conf.d//fedoraproject_org&quot;, O_RDONLY) = 5
+fstat(5, {st_mode=S_IFREG|0644, st_size=181, ...}) = 0
+read(5, &quot;[realms]\n FEDORAPROJECT.ORG = {\n&quot;..., 4096) = 181
+read(5, &quot;&quot;, 4096)                       = 0
+close(5)                                = 0
+open(&quot;/etc/krb5.conf.d//stg_fedoraproject_org&quot;, O_RDONLY) = 5
+fstat(5, {st_mode=S_IFREG|0644, st_size=205, ...}) = 0
+read(5, &quot;[realms]\n STG.FEDORAPROJECT.ORG &quot;..., 4096) = 205
+read(5, &quot;&quot;, 4096)                       = 0
+close(5)                                = 0
+getdents(4, /* 0 entries */, 32768)     = 0
+close(4)                                = 0
+read(3, &quot;&quot;, 4096)                       = 0
+close(3)                                = 0
+getpid()                                = 3687
+open(&quot;/etc/krb5.keytab&quot;, O_RDONLY)      = -1 ENOENT (No such file or directory)
+open(&quot;/etc/localtime&quot;, O_RDONLY|O_CLOEXEC) = 3
+fstat(3, {st_mode=S_IFREG|0644, st_size=2272, ...}) = 0
+fstat(3, {st_mode=S_IFREG|0644, st_size=2272, ...}) = 0
+read(3, &quot;TZif2\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\7\0\0\0\7\0\0\0\0&quot;..., 4096) = 2272
+lseek(3, -1449, SEEK_CUR)               = 823
+read(3, &quot;TZif2\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\10\0\0\0\10\0\0\0\0&quot;..., 4096) = 1449
+close(3)                                = 0
+socket(AF_UNIX, SOCK_DGRAM|SOCK_CLOEXEC, 0) = 3
+connect(3, {sa_family=AF_UNIX, sun_path=&quot;/dev/log&quot;}, 110) = 0
+sendto(3, &quot;&lt;11&gt;Jan 20 09:53:36 gssproxy: Fa&quot;..., 81, MSG_NOSIGNAL, NULL, 0) = 81
+sendto(3, &quot;&lt;11&gt;Jan 20 09:53:36 gssproxy: Er&quot;..., 96, MSG_NOSIGNAL, NULL, 0) = 96
+write(2, &quot;[2017/01/20 08:53:36]: &quot;, 23) = 23
+write(2, &quot;Debug Enabled (level: 0)\n&quot;, 25) = 25
+write(2, &quot;[2017/01/20 08:53:36]: &quot;, 23) = 23
+write(2, &quot;Config file(s) not found!\n&quot;, 26) = 26</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10083087</commentid>
+    <comment_count>3</comment_count>
+    <who name="Lukas Slebodnik">lslebodn</who>
+    <bug_when>2017-01-20 06:46:25 -0500</bug_when>
+    <thetext>The same bug is even without fedora specific configure files.
+
+stat(&quot;/etc/krb5.conf&quot;, {st_mode=S_IFREG|0644, st_size=677, ...}) = 0
+open(&quot;/etc/krb5.conf&quot;, O_RDONLY)        = 3
+fcntl(3, F_SETFD, FD_CLOEXEC)           = 0
+fstat(3, {st_mode=S_IFREG|0644, st_size=677, ...}) = 0
+read(3, &quot;# To opt out of the system crypt&quot;..., 4096) = 677
+open(&quot;/etc/krb5.conf.d/&quot;, O_RDONLY|O_NONBLOCK|O_DIRECTORY|O_CLOEXEC) = 4
+fstat(4, {st_mode=S_IFDIR|0755, st_size=29, ...}) = 0
+getdents(4, /* 3 entries */, 32768)     = 88
+open(&quot;/etc/krb5.conf.d//crypto-policies&quot;, O_RDONLY) = 5
+fstat(5, {st_mode=S_IFREG|0644, st_size=125, ...}) = 0
+read(5, &quot;permitted_enctypes = aes256-cts-&quot;..., 4096) = 125
+read(5, &quot;&quot;, 4096)                       = 0
+close(5)                                = 0
+getdents(4, /* 0 entries */, 32768)     = 0
+close(4)                                = 0
+read(3, &quot;&quot;, 4096)                       = 0
+close(3)                                = 0
+gettimeofday({tv_sec=1484912736, tv_usec=354387}, NULL) = 0
+open(&quot;/etc/krb5.keytab&quot;, O_RDONLY)      = -1 ENOENT (No such file or directory)
+open(&quot;/etc/localtime&quot;, O_RDONLY|O_CLOEXEC) = 3
+fstat(3, {st_mode=S_IFREG|0644, st_size=2272, ...}) = 0
+fstat(3, {st_mode=S_IFREG|0644, st_size=2272, ...}) = 0
+read(3, &quot;TZif2\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\7\0\0\0\7\0\0\0\0&quot;..., 4096) = 2272
+lseek(3, -1449, SEEK_CUR)               = 823
+read(3, &quot;TZif2\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\10\0\0\0\10\0\0\0\0&quot;..., 4096) = 1449
+close(3)                                = 0
+socket(AF_UNIX, SOCK_DGRAM|SOCK_CLOEXEC, 0) = 3
+connect(3, {sa_family=AF_UNIX, sun_path=&quot;/dev/log&quot;}, 110) = 0
+sendto(3, &quot;&lt;11&gt;Jan 20 12:45:36 gssproxy: Fa&quot;..., 81, MSG_NOSIGNAL, NULL, 0) = 81
+sendto(3, &quot;&lt;11&gt;Jan 20 12:45:36 gssproxy: Er&quot;..., 96, MSG_NOSIGNAL, NULL, 0) = 96
+write(2, &quot;[2017/01/20 11:45:36]: &quot;, 23) = 23
+write(2, &quot;Debug Enabled (level: 0)\n&quot;, 25) = 25
+write(2, &quot;[2017/01/20 11:45:36]: &quot;, 23) = 23
+write(2, &quot;Config file(s) not found!\n&quot;, 26) = 26</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10085342</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-20 17:54:29 -0500</bug_when>
+    <thetext>gssproxy-0.6.1-1.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-bdfba1e58c</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10086188</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-21 17:25:59 -0500</bug_when>
+    <thetext>gssproxy-0.6.1-1.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-bdfba1e58c</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10090137</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-23 17:22:17 -0500</bug_when>
+    <thetext>gssproxy-0.6.1-2.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-4c47de4898</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10103673</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-28 14:19:12 -0500</bug_when>
+    <thetext>gssproxy-0.6.1-2.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-4c47de4898</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10103859</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-28 19:20:47 -0500</bug_when>
+    <thetext>gssproxy-0.6.1-2.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

@@ -1,0 +1,451 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1435894</bug_id>
+          
+          <creation_ts>2017-03-25 13:19:00 -0400</creation_ts>
+          <short_desc>Output of fixfiles gets garbled?</short_desc>
+          <delta_ts>2017-04-30 12:37:10 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>policycoreutils</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords>Reopened</keywords>
+          <priority>unspecified</priority>
+          <bug_severity>low</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Alan Jenkins">alan.christopher.jenkins</reporter>
+          <assigned_to name="Petr Lautrbach">plautrba</assigned_to>
+          <cc>dac.override</cc>
+    
+    
+    <cc>dwalsh</cc>
+    
+    
+    <cc>mgrepl</cc>
+    
+    
+    <cc>plautrba</cc>
+    
+    
+    <cc>pmoore</cc>
+    
+    
+    <cc>vmojzis</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>policycoreutils-2.5-20.fc25</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-04-09 17:52:17</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10276944</commentid>
+    <comment_count>0</comment_count>
+    <who name="Alan Jenkins">alan.christopher.jenkins</who>
+    <bug_when>2017-03-25 13:19:46 -0400</bug_when>
+    <thetext>Description of problem:
+
+fixfiles with lots of output gets garbled?
+
+Note: setfile&apos;s guts is since re-written / moved into a library, in the upstream version.  So what I really need to do is test upstream; I have some prior experience with this.
+
+Unfortunately the set of messages has changed too, so what I _really_ need to do is root-cause this and then see if the cause still applies upstream.
+
+
+Version-Release number of selected component (if applicable):
+policycoreutils-2.5-19.fc25.x86_64
+
+How reproducible:
+Not yet sure.
+
+I have lots of files that selinux doesn&apos;t agree with the labelling of, mainly files in my Trash (there&apos;s some label change that doesn&apos;t happen), and /var/lib/machines - a small Debian install I moved there, but have yet to label.
+
+My guess is that&apos;s why it gets garbled - that it requires a lot of output to happen.
+
+
+Actual results:
+
+$ time sudo fixfiles check
+...
+
+/sbin/setfiles:  Warning no default label for /tmp/.XIM-unix
+fined_u:object_r:user_tmp_t:s0-&gt;unconfined_u:object_r:gkeyringd_tmp_t:s0
+/sbin/setfiles reset /run/user/1001/keyring/pkcs11 context unconfined_u:object_r:user_tmp_t:s0-&gt;unconfined_u:object_r:gkeyringd_tmp_t:s0
+/sbin/setfiles reset /run/user/1001/keyring/control context unconfined_u:object_r:user_tmp_t:s0-&gt;unconfined_u:object_r:gkeyringd_tmp_t:s0
+
+real	1m24.504s
+user	1m18.018s
+sys	0m4.310s
+
+
+Expected results:
+
+Output does not include garbled lines such as &quot;fined_u:object_r:user_tmp_t:s0-&gt;unconfined_u:object_r:gkeyringd_tmp_t:s0&quot;
+
+
+Additional info:
+
+It&apos;s probably not relevant, but the fixfiles command was run inside gnome-terminal.  Both normal and maximized windows showed this garbled output at the end.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10277536</commentid>
+    <comment_count>1</comment_count>
+    <who name="Alan Jenkins">alan.christopher.jenkins</who>
+    <bug_when>2017-03-26 12:30:45 -0400</bug_when>
+    <thetext>Patch (with analysis) submitted upstream.
+
+https://marc.info/?l=selinux&amp;m=149054550316148&amp;w=2</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10286498</commentid>
+    <comment_count>2</comment_count>
+    <who name="Alan Jenkins">alan.christopher.jenkins</who>
+    <bug_when>2017-03-29 06:08:57 -0400</bug_when>
+    <thetext>Ok.  Patch has been accepted now.
+
+https://marc.info/?l=selinux&amp;m=149073100103838&amp;w=2</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10286536</commentid>
+    <comment_count>3</comment_count>
+    <who name="Petr Lautrbach">plautrba</who>
+    <bug_when>2017-03-29 06:28:16 -0400</bug_when>
+    <thetext>Please don&apos;t close this bug unless it&apos;s fixed in Fedora. We don&apos;t expect to update SELinux Userspace to latest release in Fedora 25 as it needs SETools 4 and Fedora 25 is simply not prepared for such a big change.
+
+The patches will be backported and used in the next update but we need to know that this issue exists - it&apos;s open.
+
+POST state means that there&apos;s a fix available for an issue.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10286537</commentid>
+    <comment_count>4</comment_count>
+    <who name="Petr Lautrbach">plautrba</who>
+    <bug_when>2017-03-29 06:30:09 -0400</bug_when>
+    <thetext>And I forgot: Thanks for your work! I&apos;ll try to prepare an update during this week.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10286592</commentid>
+    <comment_count>5</comment_count>
+    <who name="Alan Jenkins">alan.christopher.jenkins</who>
+    <bug_when>2017-03-29 06:52:38 -0400</bug_when>
+    <thetext>Ok!  I&apos;ll be more cautious if I see POST used again.  Thanks for the explanation.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10311462</commentid>
+    <comment_count>6</comment_count>
+    <who name="Petr Lautrbach">plautrba</who>
+    <bug_when>2017-04-06 11:33:45 -0400</bug_when>
+    <thetext>policycoreutils-2.6-5.fc27 -
+https://koji.fedoraproject.org/koji/taskinfo?taskID=18820403</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10311595</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-06 12:16:30 -0400</bug_when>
+    <thetext>policycoreutils-2.6-5.fc26 libselinux-2.6-5.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-f21a1bffda</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10313292</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-07 03:42:19 -0400</bug_when>
+    <thetext>policycoreutils-2.5-20.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-c89d1d37d0</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10315626</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-07 15:58:17 -0400</bug_when>
+    <thetext>policycoreutils-2.5-20.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-c89d1d37d0</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10315757</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-07 17:21:02 -0400</bug_when>
+    <thetext>libselinux-2.6-5.fc26, policycoreutils-2.6-5.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-f21a1bffda</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10316467</commentid>
+    <comment_count>11</comment_count>
+    <who name="Alan Jenkins">alan.christopher.jenkins</who>
+    <bug_when>2017-04-08 11:45:57 -0400</bug_when>
+    <thetext>Testing note:
+
+The backport is expected to fix the specific bug described here.  However AFAICT from code review, the output will still be scrambled if you redirect it to a file.
+
+The latter bug is fixed upstream, but would have taken longer to backport.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10317673</commentid>
+    <comment_count>12</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-09 17:52:17 -0400</bug_when>
+    <thetext>policycoreutils-2.5-20.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10329702</commentid>
+    <comment_count>13</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-12 10:51:02 -0400</bug_when>
+    <thetext>libselinux-2.6-5.fc26, policycoreutils-2.6-5.fc26 has been pushed to the Fedora 26 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10374541</commentid>
+    <comment_count>14</comment_count>
+    <who name="">dac.override</who>
+    <bug_when>2017-04-29 16:59:27 -0400</bug_when>
+    <thetext>Could this patch have introduced this issue:
+
+ 22:52:41 localhost audit[282]: AVC avc:  denied  { write } for  pid=282 comm=&quot;fixfiles&quot; name=&quot;fd&quot; dev=&quot;proc&quot; ino=13899 scontext=sys.id:sys.role:seutils.setfiles.subj:s0 tcontext=sys.id:sys.role:seutils.setfiles.subj:s0 tclass=dir permissive=1
+Apr 29 22:52:41 localhost audit[282]: AVC avc:  denied  { add_name } for  pid=282 comm=&quot;fixfiles&quot; name=&quot;1&quot; scontext=sys.id:sys.role:seutils.setfiles.subj:s0 tcontext=sys.id:sys.role:seutils.setfiles.subj:s0 tclass=dir permissive=1
+Apr 29 22:52:41 localhost audit[282]: AVC avc:  denied  { create } for  pid=282 comm=&quot;fixfiles&quot; name=&quot;1&quot; scontext=sys.id:sys.role:seutils.setfiles.subj:s0 tcontext=sys.id:sys.role:seutils.setfiles.subj:s0 tclass=file permissive=1
+Apr 29 22:52:41 localhost audit[282]: AVC avc:  denied  { associate } for  pid=282 comm=&quot;fixfiles&quot; name=&quot;1&quot; scontext=sys.id:sys.role:seutils.setfiles.subj:s0 tcontext=sys.id:sys.role:fs.proc.fs:s0 tclass=filesystem permissive=1
+
+It seems to attempt to create /proc/self/fd/1 ($LOGFILE}, but it should not be doing that</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10375097</commentid>
+    <comment_count>15</comment_count>
+    <who name="Alan Jenkins">alan.christopher.jenkins</who>
+    <bug_when>2017-04-30 08:33:46 -0400</bug_when>
+    <thetext>Please open a new issue to avoid cluttering this one.
+
+Assuming your issue was introduced by a recent update, the specific change is probably an independent one (not required to fix the garbled output).  I don&apos;t think it has been mentioned in this thread yet:
+
+https://patchwork.kernel.org/patch/9532535/
+
+You are welcome to invite me to any issues which seem related to my patches :).
+
+---
+
+&gt; but it should not be doing that
+
+Attempting to create `/proc/self/fd/1` implies that it did not already exist.  This suggests you found some way to run `fixfiles` without a file descriptor for standard output...  Please remember to outline the specific circumstances you observed your issues under.  When developers can reproduce issues and test fixes for themselves, it&apos;s the simplest way :).
+
+(My first reaction to &quot;could it be my fault&quot; is always &quot;yes&quot;.  This makes it hard to provide a useful response without getting very specific).
+
+The thing is that most *nix software makes sure to keep fds 0-2 open (hence /dev/null).  Its not clear that this is a defect in fixfiles.  I&apos;m not even aware of a nice shellscript idiom, that fixfiles could use to &quot;defend&quot; against being run without standard output.  (How do I test whether standard output has been closed?).
+
+What we would really want to fix is whatever software managed to close the standard output.
+
+The SELinux policy that causes those denials also sounds very suspicious to me, though I&apos;m not sure what the best way to report that is.
+
+---
+
+Running `sudo fixfiles check` on my Fedora 25 machine didn&apos;t produce any AVC denials... I think this patch is not in the Fedora 25 branch, but it is in master.  Please always remember to cite your versions, to avoid wasting time, they are critical to understanding issues :).  (Like the template you see when filing a new issue).
+
+I can&apos;t reproduce the denials even with
+
+0. staying on Fedora 25
+1. using fixfiles from upstream (9cba8f6), which includes both changes mentioned, and
+2. running `sudo fixfiles check &gt;&amp;-`, i.e. with stdout closed.
+
+though, this shouldn&apos;t surprise me, as my `/usr/sbin/fixfiles` is not labelled to transition into something like `seutils.setfiles.subj`.  (It&apos;s labelled `bin_t`, which doesn&apos;t transition.  Running it from sudo will leave it unconfined).
+
+actually I&apos;ve never seen contexts that look like `sys.id:sys.role:seutils.setfiles.subj:s0` or `sys.id:sys.role:fs.proc.fs:s0`
+
+You seem to be running a stricter SELinux policy, which I don&apos;t have on my systems.  You should describe your system precisely enough that someone can understand where this is coming from.
+
+Most specifically, on my system, `/proc/*/fd/*` does not appear to ever be labelled with a blanket `fs.proc.fs`.  Instead it appears to share the same label as the relevant process.  This would avoid these denials.  These denials look like a bug that seriously needs fixing.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10375115</commentid>
+    <comment_count>16</comment_count>
+    <who name="Alan Jenkins">alan.christopher.jenkins</who>
+    <bug_when>2017-04-30 09:10:28 -0400</bug_when>
+    <thetext>alan&gt; My first reaction to &quot;could it be my fault&quot; is always &quot;yes&quot;
+
+...while I haven&apos;t noticed anything in `fixfiles` that would close stdout, I did realize my patch here which uses `/proc/self/fd` is bad.  Just as wrong and in need of fixing as the previous approaches.
+
+So I should also be thanking you, for giving me a reason to look at it again :).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10375251</commentid>
+    <comment_count>17</comment_count>
+    <who name="">dac.override</who>
+    <bug_when>2017-04-30 11:32:03 -0400</bug_when>
+    <thetext>(In reply to Alan Jenkins from comment #15)
+&gt; Please open a new issue to avoid cluttering this one.
+&gt; 
+&gt; Assuming your issue was introduced by a recent update, the specific change
+&gt; is probably an independent one (not required to fix the garbled output).  I
+&gt; don&apos;t think it has been mentioned in this thread yet:
+&gt; 
+&gt; https://patchwork.kernel.org/patch/9532535/
+&gt; 
+&gt; You are welcome to invite me to any issues which seem related to my patches
+&gt; :).
+&gt; 
+&gt; ---
+&gt; 
+&gt; &gt; but it should not be doing that
+&gt; 
+&gt; Attempting to create `/proc/self/fd/1` implies that it did not already
+&gt; exist.  This suggests you found some way to run `fixfiles` without a file
+&gt; descriptor for standard output...  Please remember to outline the specific
+&gt; circumstances you observed your issues under.  When developers can reproduce
+&gt; issues and test fixes for themselves, it&apos;s the simplest way :).
+&gt; 
+&gt; (My first reaction to &quot;could it be my fault&quot; is always &quot;yes&quot;.  This makes it
+&gt; hard to provide a useful response without getting very specific).
+&gt; 
+&gt; The thing is that most *nix software makes sure to keep fds 0-2 open (hence
+&gt; /dev/null).  Its not clear that this is a defect in fixfiles.  I&apos;m not even
+&gt; aware of a nice shellscript idiom, that fixfiles could use to &quot;defend&quot;
+&gt; against being run without standard output.  (How do I test whether standard
+&gt; output has been closed?).
+&gt; 
+&gt; What we would really want to fix is whatever software managed to close the
+&gt; standard output.
+&gt; 
+&gt; The SELinux policy that causes those denials also sounds very suspicious to
+&gt; me, though I&apos;m not sure what the best way to report that is.
+&gt; 
+&gt; ---
+&gt; 
+&gt; Running `sudo fixfiles check` on my Fedora 25 machine didn&apos;t produce any AVC
+&gt; denials... I think this patch is not in the Fedora 25 branch, but it is in
+&gt; master.  Please always remember to cite your versions, to avoid wasting
+&gt; time, they are critical to understanding issues :).  (Like the template you
+&gt; see when filing a new issue).
+&gt; 
+&gt; I can&apos;t reproduce the denials even with
+&gt; 
+&gt; 0. staying on Fedora 25
+&gt; 1. using fixfiles from upstream (9cba8f6), which includes both changes
+&gt; mentioned, and
+&gt; 2. running `sudo fixfiles check &gt;&amp;-`, i.e. with stdout closed.
+&gt; 
+
+The issue is encountered on fedora 26. I ran `fixfiles onboot &amp;&amp; reboot`
+
+&gt; though, this shouldn&apos;t surprise me, as my `/usr/sbin/fixfiles` is not
+&gt; labelled to transition into something like `seutils.setfiles.subj`.  (It&apos;s
+&gt; labelled `bin_t`, which doesn&apos;t transition.  Running it from sudo will leave
+&gt; it unconfined).
+
+The policy is different but please do not let that distract you from the events that were encountered:
+
+fixfiles was trying to create a file &quot;/proc/self/fd/1&quot; and this should not be happening AFAIK. The /proc/self/fd/1 should be a symlink to some terminal.
+
+&gt; 
+&gt; actually I&apos;ve never seen contexts that look like
+&gt; `sys.id:sys.role:seutils.setfiles.subj:s0` or `sys.id:sys.role:fs.proc.fs:s0`
+&gt; 
+&gt; You seem to be running a stricter SELinux policy, which I don&apos;t have on my
+&gt; systems.  You should describe your system precisely enough that someone can
+&gt; understand where this is coming from.
+&gt; 
+&gt; Most specifically, on my system, `/proc/*/fd/*` does not appear to ever be
+&gt; labelled with a blanket `fs.proc.fs`.  Instead it appears to share the same
+&gt; label as the relevant process.  This would avoid these denials.  These
+&gt; denials look like a bug that seriously needs fixing.
+
+The &quot;fs.proc.fs&quot; event was with regard to the file with type &quot;seutils.fixfiles.subj&quot; trying to associate with the proc file system (fs.proc.fs is the type of procfs filesystem)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10375257</commentid>
+    <comment_count>18</comment_count>
+    <who name="">dac.override</who>
+    <bug_when>2017-04-30 11:37:59 -0400</bug_when>
+    <thetext>Yes my policy is (probably) more strict than the policy that Red Hat ships, but I would expect that even the Red Hat policy would not allow fixfiles (/usr/libexec/selinux/selinux-autorelabel calling fixfiles to be more precise) to create files on the procfs.
+
+So my suspicion is that you should be able to reproduce:
+
+1. make sure that selinux-autorelabel runs contained and not unconfined.
+2. fixfiles onboot &amp;&amp; reboot
+3. journalctl -b -1 | grep -i denied
+
+The above should probably show you the events of fixfiles trying to create a /proc/self/fd/1 file. (provided that SELinux is instructed to not allow this behavior)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10375259</commentid>
+    <comment_count>19</comment_count>
+    <who name="">dac.override</who>
+    <bug_when>2017-04-30 11:51:53 -0400</bug_when>
+    <thetext>I wouldnt be surprised if in Red Hat policy `selinux-autorelabel` runs unconfined. Verify whether /usr/libexec/selinux/selinux-autorelabel is not of type `bin_t`
+
+if /usr/libexec/selinux/selinux-autorelabel is of type `bin_t` then systemd will run it in the unconfined `unconfined_service_t` domain and then you might not see the event where fixfiles is trying to create a file on the procfs</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10375274</commentid>
+    <comment_count>20</comment_count>
+    <who name="Alan Jenkins">alan.christopher.jenkins</who>
+    <bug_when>2017-04-30 12:19:02 -0400</bug_when>
+    <thetext>&gt; The policy is different but please do not let that distract you from the events that were encountered:
+&gt;
+&gt; fixfiles was trying to create a file &quot;/proc/self/fd/1&quot; and this should not be happening AFAIK. The /proc/self/fd/1 should be a symlink to some terminal.
+
+I can agree with this statement a second time if you like :).
+
+Thanks for specifying `fixfiles onboot`.
+
+I don&apos;t know how much work this would be for me to reproduce yet.  Please, since you already have the details to reproduce it, open a new bug so everyone can keep track of this properly.  It has no relation to the issue described here, or the patch which I wrote to fix the issue.
+
+On the one hand, I wouldn&apos;t expect it to happen in Fedora 25, because `selinux-autorelabel` is still running `/sbin/fixfiles $FORCE restore &gt; /dev/null 2&gt;&amp;1`.  On the other hand, once those redirections are removed[1] I wouldn&apos;t expect systemd to screw up and _close_ stdout.
+
+[1] https://bugzilla.redhat.com/show_bug.cgi?id=1415674
+
+&gt; The &quot;fs.proc.fs&quot; event was with regard to the file with type &quot;seutils.fixfiles.subj&quot; trying to associate with the proc file system (fs.proc.fs is the type of procfs filesystem)
+
+Thanks for your clarifications and report.  So I mis-stated about your selinux policy.  There&apos;s a difference between the file, and the containing directory.  I guess this is still a difference between your policy and the normal one, but it&apos;s not one that I&apos;m worried about.
+
+# ls -Zd /proc/1/fd
+system_u:system_r:init_t:s0 /proc/1/fd
+# ps -AZ | head -n2
+LABEL                             PID TTY          TIME CMD
+system_u:system_r:init_t:s0         1 ?        00:00:03 systemd</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10375277</commentid>
+    <comment_count>21</comment_count>
+    <who name="">dac.override</who>
+    <bug_when>2017-04-30 12:37:10 -0400</bug_when>
+    <thetext>Hmm, so the issue *might* be as simple as putting something in selinux-autorelabel.service unit telling systemd not to close the file descriptor?
+
+anyhow:
+
+https://bugzilla.redhat.com/show_bug.cgi?id=1446929</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

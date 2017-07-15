@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1409664</bug_id>
+          
+          <creation_ts>2017-01-02 17:09:00 -0500</creation_ts>
+          <short_desc>postfix service disabled after upgrade</short_desc>
+          <delta_ts>2017-01-03 10:50:56 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>postfix</component>
+          <version>24</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>CURRENTRELEASE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>high</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter>dag</reporter>
+          <assigned_to name="Jaroslav Škarvada">jskarvad</assigned_to>
+          <cc>jskarvad</cc>
+    
+    
+    <cc>olysonek</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-01-03 10:50:56</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10029104</commentid>
+    <comment_count>0</comment_count>
+    <who name="">dag</who>
+    <bug_when>2017-01-02 17:09:43 -0500</bug_when>
+    <thetext>Description of problem:
+postfix service in systemd disabled after upgrade
+
+Version-Release number of selected component (if applicable):
+postfix-3.1.3-2.fc24.x86_64
+
+How reproducible:
+Always
+
+Steps to Reproduce:
+1.Run postfix server and enable sutostart with systemctl enable postfix
+2.Upgrade package (with dnf)
+3.
+
+Actual results:
+The postfix service will be disabled after upgrade
+
+Expected results:
+The service should retain it&apos;s previous state
+
+Additional info:</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10030699</commentid>
+    <comment_count>1</comment_count>
+    <who name="Jaroslav Škarvada">jskarvad</who>
+    <bug_when>2017-01-03 09:16:37 -0500</bug_when>
+    <thetext>Is postfix your default mailer?
+
+# alternatives --config mta</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10030783</commentid>
+    <comment_count>2</comment_count>
+    <who name="">dag</who>
+    <bug_when>2017-01-03 09:47:54 -0500</bug_when>
+    <thetext>No, it is not. Haven&apos;t normally been using the &quot;alternatives&quot; stuff and the default seems to be ssmtp. Is it dependant on that? IMHO it shouldn&apos;t be as they are not mandatory. Would be a lot more reliable to check the preupgrade status and replicate that.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10030825</commentid>
+    <comment_count>3</comment_count>
+    <who name="Jaroslav Škarvada">jskarvad</who>
+    <bug_when>2017-01-03 09:59:12 -0500</bug_when>
+    <thetext>(In reply to dag from comment #2)
+&gt; No, it is not. Haven&apos;t normally been using the &quot;alternatives&quot; stuff and the
+&gt; default seems to be ssmtp.
+
+If not touched, the default is &apos;auto&apos;. IIRC there was an bug in ssmtp which accidentally changed its priority to be higher than postfix. That&apos;s why ssmtp took over in &apos;auto&apos; mode. Also not sure which deps brought ssmtp in. You can avoid such problems by setting manually postfix to be the default MTA. IIRC the ssmtp bug has been fixed, but the wrong version remained in ISOs and install repo.
+
+You can check the current priorities for auto mode by:
+
+$ alternatives --display mta
+
+IIRC postfix should have priority 60 and ssmtp 30 (i.e. postfix has higher priority).
+
+Unfortunately I am afraid this cannot be fixed, the harm has been already done. I think you could avoid this problem by enabling updates repo during the update.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10030842</commentid>
+    <comment_count>4</comment_count>
+    <who name="">dag</who>
+    <bug_when>2017-01-03 10:05:25 -0500</bug_when>
+    <thetext>I just removed ssmtp altogether and rpm didn&apos;t object so that is done now, thanks. But the update repositories are enabled as this is the company mailserver so you might want to take a look at that. And previous updates has not disabled postfix (in systemd). Running about 1 update/month here- The server has a very long history of updates (from fc16 I think) if that makes a difference</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10030984</commentid>
+    <comment_count>5</comment_count>
+    <who name="Jaroslav Škarvada">jskarvad</who>
+    <bug_when>2017-01-03 10:50:56 -0500</bug_when>
+    <thetext>Thanks for info, closing.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

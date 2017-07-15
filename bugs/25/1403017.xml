@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1403017</bug_id>
+          
+          <creation_ts>2016-12-08 16:50:00 -0500</creation_ts>
+          <short_desc>rpc.mountd needs open &amp; read access for fixed_disk_device_t</short_desc>
+          <delta_ts>2017-04-20 11:10:29 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>selinux-policy</component>
+          <version>25</version>
+          <rep_platform>All</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          <see_also>https://bugzilla.redhat.com/show_bug.cgi?id=1350927</see_also>
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>urgent</priority>
+          <bug_severity>high</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Scott Mayhew">smayhew</reporter>
+          <assigned_to name="Lukas Vrabec">lvrabec</assigned_to>
+          <cc>dominick.grift</cc>
+    
+    
+    <cc>dwalsh</cc>
+    
+    
+    <cc>edgar.hoch</cc>
+    
+    
+    <cc>lvrabec</cc>
+    
+    
+    <cc>mgrepl</cc>
+    
+    
+    <cc>olchansk</cc>
+    
+    
+    <cc>plautrba</cc>
+    
+    
+    <cc>pmoore</cc>
+    
+    
+    <cc>ssekidde</cc>
+    
+    
+    <cc>swhiteho</cc>
+    
+    
+    <cc>theholyettlz</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>selinux-policy-3.13.1-225.11.fc25</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-02-28 03:50:12</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9969703</commentid>
+    <comment_count>0</comment_count>
+    <who name="Scott Mayhew">smayhew</who>
+    <bug_when>2016-12-08 16:50:33 -0500</bug_when>
+    <thetext>Description of problem:
+
+rpc.mountd needs open &amp; read access for fixed_disk_device_t.  Back in 2007 a change was made to rpc.mountd to make it use functionality provided by libblkid (nfs-utils commit e91ff017, &quot;Use UUIDs to identify filesystems if kernel supports it.&quot;).  This commit first appeared in tag nfs-utils-1-0-11 upstream.
+
+The first Fedora release to include that change was Fedora 7, released in May 2007.  
+
+There were couple related bugs filed later in 2007:
+
+426581 - SELinux nfs and rpc.mountd denials
+426823 - SELinux generates blizzards of messages after upgrade
+
+Unfortunately it doesn&apos;t look like anyone connected the dots... and since rpc.mountd soldiers on, generating device-number based FSIDs when it&apos;s unable to get the device UUIDs, the bug reporters indicated that it looked like everything was working properly.
+
+As a result, a dontaudit rule was created to hide these errors.  Unfortunately, that can lead to stale filehandles, which is the very scenario that nfs-utils commit e91ff017 was intended to fix.
+
+
+Version-Release number of selected component (if applicable):
+
+selinux-policy-3.13.1-224.fc25.noarch
+
+
+How reproducible:
+
+Easy.
+
+
+Steps to Reproduce:
+
+See https://bugzilla.redhat.com/show_bug.cgi?id=1326406#c0
+
+
+Actual results:
+
+rpc.mountd cannot call the blkid_* functions from libblkid due to the AVC violations and cannot generate UUID-based FSIDs as a result.
+
+
+Expected results:
+
+rpc.mountd should have read &amp; open access for fixed_disk_device_t so it can call the blkid_* functions from libblkid.
+
+
+Additional info:
+
+This policy file generated by audit2allow fixes the problem for me.
+
+# cat mountdlibblkid.te
+
+module mountdlibblkid 1.0;
+
+require {
+	type nfsd_t;
+	type fixed_disk_device_t;
+	class blk_file { open read };
+}
+
+#============= nfsd_t ==============
+allow nfsd_t fixed_disk_device_t:blk_file { open read };</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9969745</commentid>
+    <comment_count>1</comment_count>
+    <who name="Scott Mayhew">smayhew</who>
+    <bug_when>2016-12-08 17:11:57 -0500</bug_when>
+    <thetext>I see a lot of the files in the selinux-policy git repo have &apos;storage_raw_read_fixed_disk(domain)&apos;.
+
+http://oss.tresys.com/docs/refpolicy/api/kernel_storage.html says:
+
+Allow the caller to directly read from a fixed disk. This is extremly dangerous as it can bypass the SELinux protections for filesystem objects, and should only be used by trusted domains. 
+
+That sounds like what we need though.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10186096</commentid>
+    <comment_count>2</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-27 06:30:00 -0500</bug_when>
+    <thetext>selinux-policy-3.13.1-225.11.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-e06f91350b</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10189124</commentid>
+    <comment_count>3</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-27 18:52:18 -0500</bug_when>
+    <thetext>selinux-policy-3.13.1-225.11.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-e06f91350b</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10190196</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-28 03:50:12 -0500</bug_when>
+    <thetext>selinux-policy-3.13.1-225.11.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10350332</commentid>
+    <comment_count>5</comment_count>
+    <who name="Steve Dickson">steved</who>
+    <bug_when>2017-04-20 11:10:29 -0400</bug_when>
+    <thetext>*** Bug 1326406 has been marked as a duplicate of this bug. ***</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1285804</bug_id>
+          
+          <creation_ts>2015-11-26 09:03:00 -0500</creation_ts>
+          <short_desc>Beakerlib loses content of $LOG_FILE variable when running Bash function with rlRun keyword.</short_desc>
+          <delta_ts>2017-02-16 03:48:16 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>beakerlib</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>CURRENTRELEASE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>medium</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Radovan Drazny">rdrazny</reporter>
+          <assigned_to name="Dalibor Pospíšil">dapospis</assigned_to>
+          <cc>azelinka</cc>
+    
+    
+    <cc>dapospis</cc>
+    
+    
+    <cc>jhutar</cc>
+    
+    
+    <cc>jprokes</cc>
+    
+    
+    <cc>mkyral</cc>
+    
+    
+    <cc>ohudlick</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>beakerlib-1.13-1</cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-02-16 03:48:16</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>8862840</commentid>
+    <comment_count>0</comment_count>
+    <who name="Radovan Drazny">rdrazny</who>
+    <bug_when>2015-11-26 09:03:02 -0500</bug_when>
+    <thetext>Description of problem:
+When running a test which uses $LOG_FILE variable, if rlRun is used to call a Bash function, $LOG_FILE variable is deleted/not available inside this function. See the reproducer script.
+
+Version-Release number of selected component (if applicable):
+beakerlib-1.10-2.el7eso
+beakerlib-1.11-1.el7
+
+How reproducible:
+Always
+
+Steps to Reproduce:
+Use following test script to reproduce the problem:
+=================================
+. /usr/bin/rhts-environment.sh
+echo &quot;rhts-env sourced, status = $?&quot;
+. /usr/lib/beakerlib/beakerlib.sh
+echo &quot;beakerlib sourced, status = $?&quot;
+set -o pipefail
+echo &quot;set -o pipefail, status = $?&quot;
+
+
+function some_func() {
+    echo &quot;Doing echo \$LOG_FILE&quot;
+    echo $LOG_FILE
+    echo &quot;Doing echo \$SOME_VAR&quot;
+    echo $SOME_VAR
+}
+
+rlJournalStart
+rlPhaseStartTest
+SOME_VAR=&quot;Some var string&quot;
+LOG_FILE=&quot;Test string&quot;
+echo &quot;Running &apos;echo \$LOG_FILE&apos; and &apos;echo \$SOME_VAR&apos; outside the some_func()&quot;
+echo $LOG_FILE
+echo $SOME_VAR
+echo &quot;Running some_func() with rlRun&quot;
+rlRun &quot;some_func&quot;
+echo &quot;Running some_func() without rlRun&quot;
+some_func
+rlPhaseEnd
+rlJournalEnd
+rlJournalPrintText
+=================================
+
+Actual results:
+Running provided script with beakerlib-1.10-2.el7eso gives following output (only relevant lines pasted):
+
+&lt;...&gt;
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+:: [   LOG    ] :: Test
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+Running &apos;echo $LOG_FILE&apos; and &apos;echo $SOME_VAR&apos; outside the some_func()
+Test string
+Some var string
+Running some_func() with rlRun
+:: [  BEGIN   ] :: Running &apos;some_func&apos;
+Doing echo $LOG_FILE
+/dev/null
+Doing echo $SOME_VAR
+Some var string
+:: [   PASS   ] :: Command &apos;some_func&apos; (Expected 0, got 0)
+Running some_func() without rlRun
+Doing echo $LOG_FILE
+Test string
+Doing echo $SOME_VAR
+Some var string
+:: [ 08:50:08 ] :: JOURNAL XML: /var/tmp/beakerlib-TB2WcSz/journal.xml
+:: [ 08:50:08 ] :: JOURNAL TXT: /var/tmp/beakerlib-TB2WcSz/journal.txt
+
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+:: [   LOG    ] :: TEST PROTOCOL
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+:: [   LOG    ] :: Package       : unknown
+:: [   LOG    ] :: beakerlib RPM : beakerlib-1.10-2.el7eso
+:: [   LOG    ] :: bl-redhat RPM : beakerlib-redhat-1-18.el7eso
+:: [   LOG    ] :: Test started  : 2015-11-26 08:50:08 EST
+:: [   LOG    ] :: Test finished : 2015-11-26 08:50:08 EST
+:: [   LOG    ] :: Test name     : unknown
+:: [   LOG    ] :: Distro:       : Red Hat Enterprise Linux Server release 7.2 (Maipo)
+:: [   LOG    ] :: Hostname      : hp-dl360egen8-01.rhts.eng.bos.redhat.com
+:: [   LOG    ] :: Architecture  : x86_64
+&lt;...&gt;
+
+Running provided script with beakerlib-1.10-2.el7eso gives following output (only relevant lines pasted):
+
+&lt;...&gt;
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+:: [   LOG    ] :: Test
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+Running &apos;echo $LOG_FILE&apos; and &apos;echo $SOME_VAR&apos; outside the some_func()
+Test string
+Some var string
+Running some_func() with rlRun
+:: [  BEGIN   ] :: Running &apos;some_func&apos;
+Doing echo $LOG_FILE
+
+Doing echo $SOME_VAR
+Some var string
+:: [   PASS   ] :: Command &apos;some_func&apos; (Expected 0, got 0)
+Running some_func() without rlRun
+Doing echo $LOG_FILE
+Test string
+Doing echo $SOME_VAR
+Some var string
+:: [ 08:54:01 ] :: JOURNAL XML: /var/tmp/beakerlib-uOqtv8b/journal.xml
+:: [ 08:54:01 ] :: JOURNAL TXT: /var/tmp/beakerlib-uOqtv8b/journal.txt
+
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+:: [   LOG    ] :: TEST PROTOCOL
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+:: [   LOG    ] :: Package       : unknown
+:: [   LOG    ] :: beakerlib RPM : beakerlib-1.11-1.el7
+:: [   LOG    ] :: bl-redhat RPM : beakerlib-redhat-1-18.el7eso
+:: [   LOG    ] :: Test started  : 2015-11-26 08:54:01 EST
+:: [   LOG    ] :: Test finished : 2015-11-26 08:54:01 EST
+:: [   LOG    ] :: Test name     : unknown
+:: [   LOG    ] :: Distro:       : Red Hat Enterprise Linux Server release 7.2 (Maipo)
+:: [   LOG    ] :: Hostname      : hp-dl360egen8-01.rhts.eng.bos.redhat.com
+:: [   LOG    ] :: Architecture  : x86_64
+&lt;...&gt;
+
+Expected results:
+Script should keep content of $LOG_FILE variable in Bash function called by rlRun.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8869142</commentid>
+    <comment_count>1</comment_count>
+    <who name="Dalibor Pospíšil">dapospis</who>
+    <bug_when>2015-11-30 06:12:18 -0500</bug_when>
+    <thetext>We have recently changed all the function variables to local ones but in this particular case the variables still collide with user&apos;s code.
+
+I will prefix all the internal variables a put it into the documentation do future.
+
+Until that please workaround this by using another variable name, e.g. &apos;LOG_FILE2&apos; or &apos;log_file&apos;.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9094560</commentid>
+    <comment_count>2</comment_count>
+    <who name="Jan Kurik">jkurik</who>
+    <bug_when>2016-02-24 10:48:44 -0500</bug_when>
+    <thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 24 development cycle.
+Changing version to &apos;24&apos;.
+
+More information and reason for this action is here:
+https://fedoraproject.org/wiki/Fedora_Program_Management/HouseKeeping/Fedora24#Rawhide_Rebase</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9738715</commentid>
+    <comment_count>3</comment_count>
+    <who name="Dalibor Pospíšil">dapospis</who>
+    <bug_when>2016-09-23 15:02:19 -0400</bug_when>
+    <thetext>fixed by https://git.fedorahosted.org/cgit/beakerlib.git/commit/?id=0fd534efe67d71d5e55bac15c48cf4e8d4a3f4fe</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9741028</commentid>
+    <comment_count>4</comment_count>
+    <who name="Jan Hutař">jhutar</who>
+    <bug_when>2016-09-25 15:40:25 -0400</bug_when>
+    <thetext>Thank you Dalibor!</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9756299</commentid>
+    <comment_count>5</comment_count>
+    <who name="Dalibor Pospíšil">dapospis</who>
+    <bug_when>2016-09-30 03:43:24 -0400</bug_when>
+    <thetext>yet another commit with documentation improvement https://git.fedorahosted.org/cgit/beakerlib.git/commit/?id=8cf7fb638e3f32325b8349941b18dc5e36e78923</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

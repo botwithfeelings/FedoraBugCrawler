@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1428286</bug_id>
+          
+          <creation_ts>2017-03-02 03:47:00 -0500</creation_ts>
+          <short_desc>please rebuild sqlite with gcc-7.0.1-0.10.fc26 or newer</short_desc>
+          <delta_ts>2017-03-02 07:39:03 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>sqlite</component>
+          <version>26</version>
+          <rep_platform>i686</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>CURRENTRELEASE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords>EasyFix, Regression</keywords>
+          <priority>medium</priority>
+          <bug_severity>medium</bug_severity>
+          <target_milestone>---</target_milestone>
+          <dependson>1423434</dependson>
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Kamil Dudka">kdudka</reporter>
+          <assigned_to name="Petr Kubat">pkubat</assigned_to>
+          <cc>davejohansen</cc>
+    
+    
+    <cc>dueno</cc>
+    
+    
+    <cc>extras-qa</cc>
+    
+    
+    <cc>jakub.dornak</cc>
+    
+    
+    <cc>jakub</cc>
+    
+    
+    <cc>jstanek</cc>
+    
+    
+    <cc>jwakely</cc>
+    
+    
+    <cc>kdudka</cc>
+    
+    
+    <cc>law</cc>
+    
+    
+    <cc>lslebodn</cc>
+    
+    
+    <cc>mjw</cc>
+    
+    
+    <cc>mpolacek</cc>
+    
+    
+    <cc>pkubat</cc>
+    
+    
+    <cc>wilmer5</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>sqlite-3.17.0-2.fc26</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          <cf_clone_of>1423434</cf_clone_of>
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-03-02 05:48:07</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10200906</commentid>
+    <comment_count>0</comment_count>
+    <who name="Kamil Dudka">kdudka</who>
+    <bug_when>2017-03-02 03:47:40 -0500</bug_when>
+    <thetext>Please rebuild sqlite with gcc-7.0.1-0.10.fc26 or newer to make curl test-suite work again under valgrind on i686.  See the details below:
+
+
++++ This bug was initially created as a clone of Bug #1423434 +++
+
+Description of problem:
+I see invalid (read) access to stack under valgrind on i686.
+
+
+Version-Release number of selected component (if applicable):
+sqlite-libs-3.16.2-3.fc26.i686
+
+
+How reproducible:
+Reliably.
+
+
+Steps to Reproduce:
+$ mock -vr fedora-rawhide-i386 --init
+$ mock -vr fedora-rawhide-i386 --install https://kojipkgs.fedoraproject.org//packages/sqlite/3.16.2/3.fc26/i686/sqlite-libs-3.16.2-3.fc26.i686.rpm https://kojipkgs.fedoraproject.org//packages/sqlite/3.16.2/3.fc26/i686/sqlite-debuginfo-3.16.2-3.fc26.i686.rpm
+$ mock -vr fedora-rawhide-i386 --install curl valgrind
+$ mock -vr fedora-rawhide-i386 --no-clean --chroot &apos;valgrind curl -svo/dev/null https://google.com&apos;
+
+
+Actual results:
+==15600== Invalid read of size 4
+==15600==    at 0x6311D17: UnknownInlinedFun (sqlite3.c:23079)
+==15600==    by 0x6311D17: sqlite3MutexInit (sqlite3.c:22651)
+==15600==    by 0x6329854: sqlite3_initialize (sqlite3.c:139163)
+==15600==    by 0x6352A73: sqlite3_mprintf (sqlite3.c:25881)
+==15600==    by 0x62E484D: ??? (in /usr/lib/libsoftokn3.so)
+==15600==    by 0x62E88D0: ??? (in /usr/lib/libsoftokn3.so)
+==15600==    by 0x62CE7C2: ??? (in /usr/lib/libsoftokn3.so)
+==15600==    by 0x62CEC12: ??? (in /usr/lib/libsoftokn3.so)
+==15600==    by 0x62CF944: ??? (in /usr/lib/libsoftokn3.so)
+==15600==    by 0x62CFBFD: ??? (in /usr/lib/libsoftokn3.so)
+==15600==    by 0x498BCC4: ??? (in /usr/lib/libnss3.so)
+==15600==    by 0x498C3EB: ??? (in /usr/lib/libnss3.so)
+==15600==    by 0x499A71F: SECMOD_LoadModule (in /usr/lib/libnss3.so)
+==15600==  Address 0xfe9a5bec is on thread 1&apos;s stack
+==15600==  4 bytes below stack pointer
+
+
+
+Expected results:
+valgrind output is clean.
+
+
+Additional info:
+This breaks nss-softokn and consequently curl.  Everything works as expected after downgrading to sqlite-libs-3.16.2-2.fc26.i686.  So it is most likely a new version of the compiler what triggered this bug.
+
+--- Additional comment from Jakub Jelinek on 2017-03-01 21:35:32 CET ---
+
+Should be fixed in gcc-7.0.1-0.10.fc26.  You need to rebuild 32-bit packages that use such barriers and you want to run them under valgrind (outside of valgrind it is really harmless).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10201348</commentid>
+    <comment_count>1</comment_count>
+    <who name="Petr Kubat">pkubat</who>
+    <bug_when>2017-03-02 05:48:07 -0500</bug_when>
+    <thetext>sqlite has been rebuilt using gcc-7.0.1-0.10.fc26</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1263834</bug_id>
+          
+          <creation_ts>2015-09-16 16:25:00 -0400</creation_ts>
+          <short_desc>-fsanitize=address does not work</short_desc>
+          <delta_ts>2017-03-16 19:43:46 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>llvm</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>CURRENTRELEASE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>high</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Sami Farin">hvtaifwkbgefbaei</reporter>
+          <assigned_to name="Adam Jackson">ajax</assigned_to>
+          <cc>ajax</cc>
+    
+    
+    <cc>bos</cc>
+    
+    
+    <cc>bztdlinux</cc>
+    
+    
+    <cc>dkopecek</cc>
+    
+    
+    <cc>dmalcolm</cc>
+    
+    
+    <cc>hcorg</cc>
+    
+    
+    <cc>jv+fedora</cc>
+    
+    
+    <cc>lam</cc>
+    
+    
+    <cc>laurent.rineau__fedora</cc>
+    
+    
+    <cc>marcandre.lureau</cc>
+    
+    
+    <cc>mstahl</cc>
+    
+    
+    <cc>mwoehlke.floss</cc>
+    
+    
+    <cc>petersen</cc>
+    
+    
+    <cc>sbergman</cc>
+    
+    
+    <cc>scottt.tw</cc>
+    
+    
+    <cc>sitsofe</cc>
+    
+    
+    <cc>stefanha</cc>
+    
+    
+    <cc>thomas.moschny</cc>
+    
+    
+    <cc>tstellar</cc>
+    
+    
+    <cc>tyler.nielsen</cc>
+    
+    
+    <cc>veillard</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-03-16 19:43:46</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>8642433</commentid>
+    <comment_count>0</comment_count>
+    <who name="Sami Farin">hvtaifwkbgefbaei</who>
+    <bug_when>2015-09-16 16:25:49 -0400</bug_when>
+    <thetext>Description of problem:
+clang -fsanitize=address some.c
+/usr/bin/ld: error: cannot open /usr/bin/../lib/clang/3.7.0/lib/linux/libclang_rt.asan-x86_64.a: No such file or directory
+
+Version-Release number of selected component (if applicable):
+3.7.0-1.fc24
+
+How reproducible:
+100%
+
+Steps to Reproduce:
+1. clang -fsanitize=address
+2.
+3.
+
+Actual results:
+No fun.
+
+Expected results:
+
+
+Additional info:</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8683406</commentid>
+    <comment_count>1</comment_count>
+    <who name="Jan Včelák">jv+fedora</who>
+    <bug_when>2015-10-01 06:24:13 -0400</bug_when>
+    <thetext>I can confirm this. The static library with ASAN disappeared in 3.7.
+
+Unfortunately, this is expected according to the upstream:
+https://llvm.org/bugs/show_bug.cgi?id=22757
+
+We will have to switch the build system from autotools to cmake. This will be a lot of work. It was pretty broken the last time I tried (in 3.3 or something).
+
+The ASAN support is pretty important for me. But I&apos;m not sure if I&apos;ll have time to fix this any time soon.
+
+Jan</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8683530</commentid>
+    <comment_count>2</comment_count>
+    <who name="Sami Farin">hvtaifwkbgefbaei</who>
+    <bug_when>2015-10-01 07:00:01 -0400</bug_when>
+    <thetext>before opening this bug report, I downloaded
+http://llvm.org/releases/3.7.0/clang+llvm-3.7.0-x86_64-fedora22.tar.xz
+(and .sig) and copied the missing files to
+/usr/lib/clang/3.7.0/lib/linux
+and ASAN worked OK.  
+
+...in case someone needs ASAN ASAP.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9005362</commentid>
+    <comment_count>3</comment_count>
+    <who name="Leszek Matok">lam</who>
+    <bug_when>2016-01-24 10:38:23 -0500</bug_when>
+    <thetext>Thanks Sami, apparently copying libclang_rt.asan-x86_64.a from that archive was enough.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9014114</commentid>
+    <comment_count>4</comment_count>
+    <who name="Laurent Rineau">laurent.rineau__fedora</who>
+    <bug_when>2016-01-27 08:29:08 -0500</bug_when>
+    <thetext>*** Bug 1278914 has been marked as a duplicate of this bug. ***</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9053444</commentid>
+    <comment_count>5</comment_count>
+    <who name="Daniel Veillard">veillard</who>
+    <bug_when>2016-02-11 11:40:51 -0500</bug_when>
+    <thetext>I confirm on comment #3, unpack the archive and
+
+cp ./lib/clang/3.7.0/lib/linux/libclang_rt.asan-x86_64.a /usr/lib/clang/3.7.0/lib/linux/
+
+is sufficient to fix the issue until getting a package update,
+
+Daniel</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9108589</commentid>
+    <comment_count>6</comment_count>
+    <who name="Sitsofe Wheeler">sitsofe</who>
+    <bug_when>2016-03-01 00:37:40 -0500</bug_when>
+    <thetext>*** Bug 1309329 has been marked as a duplicate of this bug. ***</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9480970</commentid>
+    <comment_count>7</comment_count>
+    <who name="Stephan Bergmann">sbergman</who>
+    <bug_when>2016-07-05 07:16:04 -0400</bug_when>
+    <thetext>(In F24, the relevant archives are apparently in a compiler-rt rpm now.)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9877625</commentid>
+    <comment_count>8</comment_count>
+    <who name="">bztdlinux</who>
+    <bug_when>2016-11-09 18:36:31 -0500</bug_when>
+    <thetext>I hit this on F24. Shouldn&apos;t compiler-rt be a dependency of clang?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9921793</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora End Of Life">jkurik</who>
+    <bug_when>2016-11-24 07:31:33 -0500</bug_when>
+    <thetext>This message is a reminder that Fedora 23 is nearing its end of life.
+Approximately 4 (four) weeks from now Fedora will stop maintaining
+and issuing updates for Fedora 23. It is Fedora&apos;s policy to close all
+bug reports from releases that are no longer maintained. At that time
+this bug will be closed as EOL if it remains open with a Fedora  &apos;version&apos;
+of &apos;23&apos;.
+
+Package Maintainer: If you wish for this bug to remain open because you
+plan to fix it in a currently maintained version, simply change the &apos;version&apos; 
+to a later Fedora version.
+
+Thank you for reporting this issue and we are sorry that we were not 
+able to fix it before Fedora 23 is end of life. If you would still like 
+to see this bug fixed and are able to reproduce it against a later version 
+of Fedora, you are encouraged  change the &apos;version&apos; to a later Fedora 
+version prior this bug is closed as described in the policy above.
+
+Although we aim to fix as many bugs as possible during every release&apos;s 
+lifetime, sometimes those efforts are overtaken by events. Often a 
+more recent Fedora release includes newer upstream software that fixes 
+bugs or makes them obsolete.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9929110</commentid>
+    <comment_count>10</comment_count>
+    <who name="Thomas Moschny">thomas.moschny</who>
+    <bug_when>2016-11-25 04:40:23 -0500</bug_when>
+    <thetext>(In reply to Stephan Bergmann from comment #7)
+&gt; (In F24, the relevant archives are apparently in a compiler-rt rpm now.)
+
+While true, is it documented somewhere? Or should compiler-rt be a dependency of clang, as per comment #8?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10247868</commentid>
+    <comment_count>11</comment_count>
+    <who name="Tom Stellard">tstellar</who>
+    <bug_when>2017-03-16 19:43:46 -0400</bug_when>
+    <thetext>This is working now with clang-3.8.1-1.fc24.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1401700</bug_id>
+          
+          <creation_ts>2016-12-05 16:15:00 -0500</creation_ts>
+          <short_desc>wrong partition type swap used for /  (root)</short_desc>
+          <delta_ts>2017-04-06 18:28:50 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>fedora-arm-installer</component>
+          <version>25</version>
+          <rep_platform>armv7hl</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>NEXTRELEASE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>medium</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Ilkka Tengvall">ikke</reporter>
+          <assigned_to name="Paul Whalen">pwhalen</assigned_to>
+          <cc>johannes</cc>
+    
+    
+    <cc>jonc_mailbox</cc>
+    
+    
+    <cc>kdudka</cc>
+    
+    
+    <cc>ovasik</cc>
+    
+    
+    <cc>pwhalen</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-04-06 18:28:50</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9957592</commentid>
+    <comment_count>0</comment_count>
+    <who name="Ilkka Tengvall">ikke</who>
+    <bug_when>2016-12-05 16:15:40 -0500</bug_when>
+    <thetext>Description of problem:
+
+Raspi3 install image has wrong fs type for root filesystem. It&apos;s swap instead of xfs/linux. This breaks the fedora-arm-image-installer from extending the filesystem. It errors out as it says can&apos;t extend swap fs type. 
+
+Version-Release number of selected component (if applicable):
+
+F25 download image for RasPi3: Fedora-Server-armhfp-25-1.3-sda.raw.xz
+fedora-arm-installer-1.99.13-1.fc25.noarch
+
+
+How reproducible:
+
+I downloaded the image and wrote it to microsd using fedora-arm-installer
+
+Steps to Reproduce:
+1. download F25 image
+2. insert microsd card
+3. sudo arm-image-installer --image=Downloads/Fedora-Server-armhfp-25-1.3-sda.raw.xz --target rpi3 --media /dev/sdb --resizefs
+
+Actual results:
+$ df -h
+Filesystem      Size  Used Avail Use% Mounted on
+devtmpfs        431M     0  431M   0% /dev
+tmpfs           485M     0  485M   0% /dev/shm
+tmpfs           485M  572K  485M   1% /run
+tmpfs           485M     0  485M   0% /sys/fs/cgroup
+/dev/mmcblk0p4  2.8G  2.0G  871M  70% /
+/dev/mmcblk0p2  457M  302M  141M  69% /boot
+tmpfs            97M     0   97M   0% /run/user/0
+tmpfs            97M     0   97M   0% /run/user/1017
+$ sudo fdisk -l /dev/mmcblk0
+Disk /dev/mmcblk0: 14.5 GiB, 15523119104 bytes, 30318592 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel type: dos
+Disk identifier: 0x84794c07
+
+Device         Boot   Start      End  Sectors  Size Id Type
+/dev/mmcblk0p1         2048    61439    59392   29M  c W95 FAT32 (LBA)
+/dev/mmcblk0p2 *      61440  1060863   999424  488M 83 Linux
+/dev/mmcblk0p3      1060864  2060287   999424  488M 82 Linux swap / Solaris
+/dev/mmcblk0p4      2060288 30318591 28258304 13.5G 82 Linux swap / Solaris
+
+$ cat /etc/fstab 
+UUID=3127aee4-2e05-4198-9143-c2bfb41d56d2  / xfs    defaults,noatime 0 0
+UUID=1eb05483-d206-424d-9061-d46613c74548  /boot ext4    defaults,noatime 0 0
+UUID=fc66c869-6129-44fd-9209-5f8dcc0ce03c  swap swap    defaults,noatime 0 0
+
+
+Expected results:
+
+/dev/mmcblk0p4 to be not swap fs type
+
+Additional info:</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9959073</commentid>
+    <comment_count>1</comment_count>
+    <who name="Kamil Dudka">kdudka</who>
+    <bug_when>2016-12-06 04:00:39 -0500</bug_when>
+    <thetext>Sounds like a problem with the image, not with the filesystem RPM package.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10312494</commentid>
+    <comment_count>2</comment_count>
+    <who name="Paul Whalen">pwhalen</who>
+    <bug_when>2017-04-06 18:28:50 -0400</bug_when>
+    <thetext>This is a known issue in appliance-tools, the partition type is set incorrectly. 
+
+Resize for the server image will be fixed in the next build of the fedora-arm-installer. For now, once the system is booted you can use:
+
+growpart /dev/mmcblk0 4
+xfs_growfs /dev/mmcblk0p4</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

@@ -1,0 +1,410 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1412841</bug_id>
+          
+          <creation_ts>2017-01-12 18:07:00 -0500</creation_ts>
+          <short_desc>Base Runtime FTBFS: rubygem-hpricot-0:0.8.6-12.fc24 unnecessary dependency</short_desc>
+          <delta_ts>2017-02-06 02:06:35 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>rubygem-hpricot</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>RAWHIDE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords>Reopened</keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>1400162</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Merlin Mathesius">mmathesi</reporter>
+          <assigned_to name="Petr Šabata">psabata</assigned_to>
+          <cc>greg.hellings</cc>
+    
+    
+    <cc>ktdreyer</cc>
+    
+    
+    <cc>mtasaka</cc>
+    
+    
+    <cc>psabata</cc>
+    
+    
+    <cc>sgallagh</cc>
+    
+    
+    <cc>valtri</cc>
+    
+    
+    <cc>vanmeeuwen+fedora</cc>
+    
+    
+    <cc>vondruch</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>rubygem-hpricot-0.8.6-16.fc26</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-02-06 02:06:35</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10059018</commentid>
+    <comment_count>0</comment_count>
+      <attachid>1240138</attachid>
+    <who name="Merlin Mathesius">mmathesi</who>
+    <bug_when>2017-01-12 18:07:01 -0500</bug_when>
+    <thetext>Created attachment 1240138
+patch to remove obsolete dependencies
+
+Version-Release number of selected component:
+rubygem-tilt-0:2.0.4-1.fc25
+
+Description of problem:
+When attempting to rebuild portions of the frozen package set of Fedora 25 for the Base Runtime project, it was discovered that the package ragel failed to build from source. Some work was done to address that problem (https://bugzilla.redhat.com/show_bug.cgi?id=1382861), but it still fails to build from source for all necessary architectures--with no fix in sight.
+
+What do the ragel problems have to do with rubygem-tilt, you ask?
+
+rubygem-tilt has a build time dependency upon /usr/bin/ronn--which is provided by package rubygem-ronn. rubygem-ronn, in turn, has a dependency upon the rubygem-hpricot package, which has a build time dependency upon the ragel package. Additionally, rubygem-tilt is the only package that is part of Base Runtime that depends upon rubygem-ronn, and thus rubygem-hpricot and ragel as well. As a result, the Base Runtime module cannot be fully rebuilt from source.
+
+Also, the upstream sources for both rubygem-ronn and rubygem-hpricot are no longer maintained, so it would be good to get rid of the obsolete dependency chain.
+
+Fortunately, the only need rubygem-tilt has for ronn is to convert the small tilt man page from the &quot;ronn&quot; dialect of Markdown to &quot;roff&quot; format during build time. Thus, the problem can be easily remedied by including a pre-generated man page with the rubygem-tilt package. Attached is a patch to do just that.
+
+Please apply the patch or respond with a reason it should not be applied within two weeks. After that time, a provenpackager will go ahead and apply it.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10067190</commentid>
+    <comment_count>1</comment_count>
+    <who name="Vít Ondruch">vondruch</who>
+    <bug_when>2017-01-16 11:53:50 -0500</bug_when>
+    <thetext>I think much better idea is dropping the Ragel dependency from hpricot, since it is currently (for 9 years already, if I read the changelog correctly) not used, if I am not mistaken.
+
+It could be used to regenerate the .c sources, but it is not mandated [1] nor it is currently done.
+
+
+
+[1] https://fedoraproject.org/wiki/Packaging:Guidelines#Use_of_pregenerated_code</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10067797</commentid>
+    <comment_count>2</comment_count>
+      <attachid>1241397</attachid>
+    <who name="Merlin Mathesius">mmathesi</who>
+    <bug_when>2017-01-16 15:14:52 -0500</bug_when>
+    <thetext>Created attachment 1241397
+patch to remove unnecessary dependency
+
+Patch to eliminate unnecessary rubygem-hpricot build-time dependency on ragel.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10067806</commentid>
+    <comment_count>3</comment_count>
+    <who name="Merlin Mathesius">mmathesi</who>
+    <bug_when>2017-01-16 15:20:50 -0500</bug_when>
+    <thetext>Eliminating the unnecessary rubygem-hpricot build-time dependency on ragel is indeed the better idea. Thank you for pointing that out.
+
+A patch for correcting rubygem-hpricot is attached.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10069368</commentid>
+    <comment_count>4</comment_count>
+    <who name="Vít Ondruch">vondruch</who>
+    <bug_when>2017-01-17 02:48:33 -0500</bug_when>
+    <thetext>I guess that neither the rake dependency is required ...</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10095509</commentid>
+    <comment_count>5</comment_count>
+    <who name="Petr Šabata">psabata</who>
+    <bug_when>2017-01-25 07:53:00 -0500</bug_when>
+    <thetext>Mamoru,
+
+I see you&apos;ve updated the Rawhide SPEC to use Ragel again.  Would you mind making the whole thing optional and disabled by default, for example using a bcond macro?
+
+As Merlin mentioned in the original comment, there are some issues with Ragel (or more precisely, its dependency chain) on certain architectures.  We&apos;d prefer not having to deal with it, at least not right now.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10095545</commentid>
+    <comment_count>6</comment_count>
+      <attachid>1244260</attachid>
+    <who name="Petr Šabata">psabata</who>
+    <bug_when>2017-01-25 08:03:36 -0500</bug_when>
+    <thetext>Created attachment 1244260
+Conditionalize the use of ragel
+
+Should be applied on top of 3f6e0dd190b314f875d7024938b66a762e34eba1.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10101472</commentid>
+    <comment_count>7</comment_count>
+    <who name="Petr Šabata">psabata</who>
+    <bug_when>2017-01-27 06:50:39 -0500</bug_when>
+    <thetext>I&apos;m going to apply the patch.  Mamoru, if you strongly feel we should regenerate the sources by default, despite the issues with the build dependency chain, let&apos;s discuss it here.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10101554</commentid>
+    <comment_count>8</comment_count>
+    <who name="Mamoru TASAKA">mtasaka</who>
+    <bug_when>2017-01-27 07:22:56 -0500</bug_when>
+    <thetext>Well, I am going to revert this for now, please make your effort to make colm build pass first, thank you.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10103325</commentid>
+    <comment_count>9</comment_count>
+    <who name="Petr Šabata">psabata</who>
+    <bug_when>2017-01-28 04:57:47 -0500</bug_when>
+    <thetext>Fair enough.  But since you made the dependency necessary again, what&apos;s the point in keeping this report open?  There are no issues here.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10107902</commentid>
+    <comment_count>10</comment_count>
+    <who name="Mamoru TASAKA">mtasaka</who>
+    <bug_when>2017-01-31 02:28:06 -0500</bug_when>
+    <thetext>So I tried debugging colm issue for about 2 weeks but still no luck (valgrind shows nothing, imvoking from gdb directory does not crash... I suspect this is memory initialization issue, however still I cannot figure out), so for now I gave up. I hope someone who knows better than me would see what is happening on bug 1402582 (as ragel is anyway BR for many packages)..........
+
+* Tue Jan 31 2017 Mamoru TASAKA &lt;mtasaka@fedoraproject.org&gt; - 0.8.6-16
+- Bump release
+- Kill ragel BR for now due to armv7hl difficulty (ref: bug 1402582)
+
+By the way, rawhide fix only is okay? F-25 backport is also required?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10109610</commentid>
+    <comment_count>11</comment_count>
+    <who name="Petr Šabata">psabata</who>
+    <bug_when>2017-01-31 11:03:44 -0500</bug_when>
+    <thetext>(In reply to Mamoru TASAKA from comment #10)
+&gt; By the way, rawhide fix only is okay? F-25 backport is also required?
+
+Rawhide is sufficient.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10122658</commentid>
+    <comment_count>12</comment_count>
+    <who name="Mamoru TASAKA">mtasaka</who>
+    <bug_when>2017-02-06 02:06:35 -0500</bug_when>
+    <thetext>(In reply to Petr Šabata from comment #11)
+&gt; (In reply to Mamoru TASAKA from comment #10)
+&gt; &gt; By the way, rawhide fix only is okay? F-25 backport is also required?
+&gt; 
+&gt; Rawhide is sufficient.
+
+Okay, once closing.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="1"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1240138</attachid>
+            <date>2017-01-12 18:07:00 -0500</date>
+            <delta_ts>2017-01-16 15:14:52 -0500</delta_ts>
+            <desc>patch to remove obsolete dependencies</desc>
+            <filename>0001-Include-pregenerated-man-page-to-eliminate-dependenc.patch</filename>
+            <type>text/plain</type>
+            <size>4307</size>
+            <attacher name="Merlin Mathesius">mmathesi</attacher>
+            
+              <data encoding="base64">RnJvbSA4NDFhYzNlODRlMWEzNTMzZDE2NDkzYmNiZTI0MjliY2I1MGViYjA2IE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBNZXJsaW4gTWF0aGVzaXVzIDxtbWF0aGVzaUByZWRoYXQuY29t
+PgpEYXRlOiBUaHUsIDEyIEphbiAyMDE3IDE2OjU0OjQ3IC0wNjAwClN1YmplY3Q6IFtQQVRDSF0g
+SW5jbHVkZSBwcmVnZW5lcmF0ZWQgbWFuIHBhZ2UgdG8gZWxpbWluYXRlIGRlcGVuZGVuY3kgdXBv
+bgogcnVieWdlbShyb25uKS4KCi0tLQogcnVieWdlbS10aWx0LnNwZWMgfCAxOSArKysrKysrKysr
+LQogdGlsdC4xICAgICAgICAgICAgfCA5NiArKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
+KysrKysrKysrKysrKysrKysrKysrKysrCiAyIGZpbGVzIGNoYW5nZWQsIDExNCBpbnNlcnRpb25z
+KCspLCAxIGRlbGV0aW9uKC0pCiBjcmVhdGUgbW9kZSAxMDA2NDQgdGlsdC4xCgpkaWZmIC0tZ2l0
+IGEvcnVieWdlbS10aWx0LnNwZWMgYi9ydWJ5Z2VtLXRpbHQuc3BlYwppbmRleCBmNGI4NzAxLi40
+M2Y0MTQ3IDEwMDY0NAotLS0gYS9ydWJ5Z2VtLXRpbHQuc3BlYworKysgYi9ydWJ5Z2VtLXRpbHQu
+c3BlYwpAQCAtNCwxNCArNCwyMSBAQAogIyBTZXQgdGhpcyB0byAwIGFmdGVyIHdlJ3ZlIGJvb3Rz
+dHJhcHBlZC4KICV7IT9fd2l0aF9ib290c3RyYXA6ICVnbG9iYWwgYm9vdHN0cmFwIDB9CiAKKyMg
+U2V0IHRoaXMgdG8gMSB0byB1c2UgcHJlZ2VuZXJhdGVkIG1hbiBwYWdlIHRvIGVsaW1pbmF0ZSBk
+ZXBlbmRlbmN5IHVwb24KKyMgcnVieWdlbShyb25uKS0td2hpY2ggaGFzIGEgdHJvdWJsZXNvbWUg
+ZGVwZW5kZW5jeSBjaGFpbi4KKyVnbG9iYWwgdXNlX3ByZWdlbmVyYXRlZF9tYW5fcGFnZSAxCisK
+IE5hbWU6IHJ1YnlnZW0tJXtnZW1fbmFtZX0KIFZlcnNpb246IDIuMC41Ci1SZWxlYXNlOiAxJXs/
+ZGlzdH0KK1JlbGVhc2U6IDIlez9kaXN0fQogU3VtbWFyeTogR2VuZXJpYyBpbnRlcmZhY2UgdG8g
+bXVsdGlwbGUgUnVieSB0ZW1wbGF0ZSBlbmdpbmVzCiBHcm91cDogRGV2ZWxvcG1lbnQvTGFuZ3Vh
+Z2VzCiBMaWNlbnNlOiBNSVQKIFVSTDogaHR0cDovL2dpdGh1Yi5jb20vcnRvbWF5a28vJXtnZW1f
+bmFtZX0KIFNvdXJjZTA6IGh0dHBzOi8vcnVieWdlbXMub3JnL2dlbXMvJXtnZW1fbmFtZX0tJXt2
+ZXJzaW9ufS5nZW0KKyVpZiAwJXs/dXNlX3ByZWdlbmVyYXRlZF9tYW5fcGFnZX0KK1NvdXJjZTE6
+IHRpbHQuMQorJWVuZGlmCiBCdWlsZFJlcXVpcmVzOiBydWJ5KHJlbGVhc2UpCiBCdWlsZFJlcXVp
+cmVzOiBydWJ5Z2Vtcy1kZXZlbAogQnVpbGRSZXF1aXJlczogcnVieQpAQCAtNDIsOCArNDksMTAg
+QEAgQnVpbGRSZXF1aXJlczogcnVieWdlbShwZGYtcmVhZGVyKQogQnVpbGRSZXF1aXJlczogcnVi
+eWdlbShoYW1sKQogJWVuZGlmCiAKKyVpZiAhIDAlez91c2VfcHJlZ2VuZXJhdGVkX21hbl9wYWdl
+fQogIyBUbyBnZW5lcmF0ZSBtYW4gcGFnZXMuCiBCdWlsZFJlcXVpcmVzOiAvdXNyL2Jpbi9yb25u
+CislZW5kaWYKIAogQnVpbGRBcmNoOiBub2FyY2gKIApAQCAtNzgsNyArODcsMTIgQEAgY3AgLWEg
+LiV7X2JpbmRpcn0vKiBcCiAKICMgR2VuZXJhdGUgbWFuIHBhZ2VzLgogcHVzaGQgJXtidWlsZHJv
+b3R9JXtnZW1faW5zdGRpcn0KKyVpZiAwJXs/dXNlX3ByZWdlbmVyYXRlZF9tYW5fcGFnZX0KKyAg
+JWdsb2JhbCBnZW1fZGF0ZSAlKGRhdGUgLS11dGMgLS1yZWZlcmVuY2U9JXtTT1VSQ0UwfSArIiUl
+QiAlJVkiKQorICBzZWQgLWUgJ3MvXlwuVEggLiokLy5USCAiVElMVCIgIjEiICIlZ2VtX2RhdGUi
+ICJUaWx0ICV7dmVyc2lvbn0iICJUaWx0IE1hbnVhbCIvJyA8ICV7U09VUkNFMX0gPiBtYW4vJShi
+YXNlbmFtZSAle1NPVVJDRTF9KQorJWVsc2UKICAgcm9ubiAtLW1hbnVhbD0iVGlsdCBNYW51YWwi
+IC0tb3JnYW5pemF0aW9uPSJUaWx0ICV7dmVyc2lvbn0iIC1yIG1hbi8qLnJvbm4KKyVlbmRpZgog
+ICAKICAgbWtkaXIgLXAgJXtidWlsZHJvb3R9JXtfbWFuZGlyfS9tYW4xCiAgIG12IG1hbi8qLjEg
+JXtidWlsZHJvb3R9JXtfbWFuZGlyfS9tYW4xCkBAIC0xMjEsNiArMTM1LDkgQEAgcG9wZAogCiAK
+ICVjaGFuZ2Vsb2cKKyogVGh1IEphbiAxMiAyMDE3IE1lcmxpbiBNYXRoZXNpdXMgPG1tYXRoZXNp
+QHJlZGhhdC5jb20+IC0gMi4wLjUtMgorLSBJbmNsdWRlIHByZWdlbmVyYXRlZCBtYW4gcGFnZSB0
+byBlbGltaW5hdGUgZGVwZW5kZW5jeSB1cG9uIHJ1YnlnZW0ocm9ubikuCisKICogTW9uIFNlcCAx
+OSAyMDE2IEdyZWcgSGVsbGluZ3MgPGdyZWcuaGVsbGluZ3NAZ21haWwuY29tPiAtIDIuMC41LTEK
+IC0gTmV3IHVwc3RyZWFtIHZlcnNpb24gMi4wLjUKIApkaWZmIC0tZ2l0IGEvdGlsdC4xIGIvdGls
+dC4xCm5ldyBmaWxlIG1vZGUgMTAwNjQ0CmluZGV4IDAwMDAwMDAuLjk1NDc2NzMKLS0tIC9kZXYv
+bnVsbAorKysgYi90aWx0LjEKQEAgLTAsMCArMSw5NiBAQAorLlwiIGdlbmVyYXRlZCB3aXRoIFJv
+bm4vdjAuNy4zCisuXCIgaHR0cDovL2dpdGh1Yi5jb20vcnRvbWF5a28vcm9ubi90cmVlLzAuNy4z
+CisuCisuVEggIlRJTFQiICIxIiAiU2VwdGVtYmVyIDIwMTYiICJUaWx0IDIuMC41IiAiVGlsdCBN
+YW51YWwiCisuCisuU0ggIk5BTUUiCitcZkJ0aWx0XGZSIFwtIHByb2Nlc3MgdGVtcGxhdGVzCisu
+CisuU0ggIlNZTk9QU0lTIgorXGZCdGlsdFxmUiBcZkJcLWxcZlIKKy4KKy5icgorXGZCdGlsdFxm
+UiBbXGZCXC10XGZSIFxmSXBhdHRlcm5cZlJdIFtcZkJcLXlcZlIgXGZJZmlsZVxmUl0gW1xmQlwt
+RFxmUiBcZkluYW1lXGZSPVxmSXZhbHVlXGZSXSBbXGZCXC1kXGZSIFxmSWZpbGVcZlJdIFtcZkJc
+LVwtdmFycz1cZlJcZklydWJ5XGZSXSBcZklmaWxlXGZSCisuCisuU0ggIkRFU0NSSVBUSU9OIgor
+UHJvY2VzcyB0ZW1wbGF0ZSBcZklmaWxlXGZSIGFuZCB3cml0ZSBvdXRwdXQgdG8gc3Rkb3V0XC4g
+V2l0aCBubyBcZklmaWxlXGZSIG9yIHdoZW4gXGZJZmlsZVxmUiBpcyBcJ1wtXCcsIHJlYWQgdGVt
+cGxhdGUgZnJvbSBzdGRpbiBhbmQgdXNlIHRoZSBcLVwtdHlwZSBvcHRpb24gdG8gZGV0ZXJtaW5l
+IHRoZSB0ZW1wbGF0ZVwncyB0eXBlXC4KKy4KKy5TSCAiT1BUSU9OUyIKKy4KKy5UUAorXGZCXC1s
+XGZSLCBcZkJcLVwtbGlzdFxmUgorTGlzdCB0ZW1wbGF0ZSBlbmdpbmVzICsgZmlsZSBwYXR0ZXJu
+cyBhbmQgZXhpdAorLgorLlRQCitcZkJcLXRcZlIsIFxmQlwtXC10eXBlXGZSPVxmSXBhdHRlcm5c
+ZlIKK1VzZSB0aGlzIHRlbXBsYXRlIGVuZ2luZTsgcmVxdWlyZWQgaWYgbm8gXGZJZmlsZVxmUgor
+LgorLlRQCitcZkJcLXlcZlIsIFxmQlwtXC1sYXlvdXRcZlI9XGZJZmlsZVxmUgorVXNlIFxmSWZp
+bGVcZlIgYXMgYSBsYXlvdXQgdGVtcGxhdGUKKy4KKy5UUAorXGZCXC1EXGZSXGZJbmFtZVxmUj1c
+Zkl2YWx1ZVxmUgorRGVmaW5lIHZhcmlhYmxlIFxmSW5hbWVcZlIgYXMgXGZJdmFsdWVcZlIKKy4K
+Ky5UUAorXGZCXC1kXGZSLCBcZkJcLVwtZGVmaW5lXC1maWxlXGZSPVxmSWZpbGVcZlIKK0xvYWQg
+WUFNTCBvciBKU09OIGZyb20gXGZJZmlsZVxmUiBhbmQgdXNlIGZvciB2YXJpYWJsZXMKKy4KKy5U
+UAorXGZCXC1cLXZhcnNcZlI9XGZJcnVieVxmUgorRXZhbHVhdGUgXGZJcnVieVxmUiB0byBIYXNo
+IGFuZCB1c2UgZm9yIHZhcmlhYmxlcworLgorLlRQCitcZkJcLWhcZlIsIFxmQlwtXC1oZWxwXGZS
+CitTaG93IHRoaXMgaGVscCBtZXNzYWdlCisuCisuU0ggIkVYQU1QTEVTIgorQ29udmVydCBtYXJr
+ZG93biB0byBIVE1MOgorLgorLklQICIiIDQKKy4KKy5uZgorCiskIHRpbHQgZm9vXC5tYXJrZG93
+biA+IGZvb1wuaHRtbAorLgorLmZpCisuCisuSVAgIiIgMAorLgorLlAKK1Byb2Nlc3MgRVJCIHRl
+bXBsYXRlOgorLgorLklQICIiIDQKKy4KKy5uZgorCiskIGVjaG8gIkFuc3dlcjogPCU9IDIgKyAy
+ICU+IiB8IHRpbHQgXC10IGVyYgorQW5zd2VyOiA0CisuCisuZmkKKy4KKy5JUCAiIiAwCisuCisu
+UAorRGVmaW5lIHZhcmlhYmxlczoKKy4KKy5JUCAiIiA0CisuCisubmYKKworJCBlY2hvIFwneyJu
+Ijo0MH1cJyA+IGRhdGFcLmpzb24KKyQgZWNobyAiQW5zd2VyOiA8JT0gMiArIG4gJT4iIHwgdGls
+dCBcLXQgZXJiIFwtZCBkYXRhXC5qc29uCitBbnN3ZXI6IDQyCisKKyQgZWNobyAiQW5zd2VyOiA8
+JT0gMiArIG4gJT4iIHwgdGlsdCBcLXQgZXJiIFwtXC12YXJzPSJ7Om49PjQwfSIKK0Fuc3dlcjog
+NDIKKyQgZWNobyAiQW5zd2VyOiA8JT0gMiArIG5cLnRvX2kgJT4iIHwgdGlsdCBcLXQgZXJiIFwt
+RG49NDAKK0Fuc3dlcjogNDIKKy4KKy5maQorLgorLklQICIiIDAKKy4KKy5TSCAiU0VFIEFMU08i
+CittNCgxKSwgbXVzdGFjaGUoMSkKLS0gCjIuOS4zCgo=
+</data>
+
+          </attachment>
+          <attachment
+              isobsolete="0"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1241397</attachid>
+            <date>2017-01-16 15:14:00 -0500</date>
+            <delta_ts>2017-01-16 15:16:39 -0500</delta_ts>
+            <desc>patch to remove unnecessary dependency</desc>
+            <filename>0001-Eliminate-unnecessary-build-time-dependency-on-ragel.patch</filename>
+            <type>text/plain</type>
+            <size>1276</size>
+            <attacher name="Merlin Mathesius">mmathesi</attacher>
+            
+              <data encoding="base64">RnJvbSAxYjVmNDY5YzcxZjhhZTdjZDJkYTIwNWRjYzU0NzNhZDY3MzdmNWM2IE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBNZXJsaW4gTWF0aGVzaXVzIDxtbWF0aGVzaUByZWRoYXQuY29t
+PgpEYXRlOiBNb24sIDE2IEphbiAyMDE3IDE0OjA4OjM0IC0wNjAwClN1YmplY3Q6IFtQQVRDSF0g
+RWxpbWluYXRlIHVubmVjZXNzYXJ5IGJ1aWxkLXRpbWUgZGVwZW5kZW5jeSBvbiByYWdlbC4KCi0t
+LQogcnVieWdlbS1ocHJpY290LnNwZWMgfCA2ICsrKystLQogMSBmaWxlIGNoYW5nZWQsIDQgaW5z
+ZXJ0aW9ucygrKSwgMiBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9ydWJ5Z2VtLWhwcmljb3Qu
+c3BlYyBiL3J1YnlnZW0taHByaWNvdC5zcGVjCmluZGV4IGE4MjVmYjYuLjQxMTAxYTAgMTAwNjQ0
+Ci0tLSBhL3J1YnlnZW0taHByaWNvdC5zcGVjCisrKyBiL3J1YnlnZW0taHByaWNvdC5zcGVjCkBA
+IC00LDcgKzQsNyBAQAogU3VtbWFyeToJQSBGYXN0LCBFbmpveWFibGUgSFRNTCBQYXJzZXIgZm9y
+IFJ1YnkKIE5hbWU6CQlydWJ5Z2VtLSV7Z2VtX25hbWV9CiBWZXJzaW9uOgkwLjguNgotUmVsZWFz
+ZToJMTMlez9kaXN0fQorUmVsZWFzZToJMTQlez9kaXN0fQogR3JvdXA6CQlEZXZlbG9wbWVudC9M
+YW5ndWFnZXMKICMgZXh0L2Zhc3RfeHMvRmFzdFhzU2VydmljZS5qYXZhIGlzIGxpY2Vuc2VkIHVu
+ZGVyIEFTTCAyLjAKIExpY2Vuc2U6CU1JVCBhbmQgQVNMIDIuMApAQCAtMjQsNyArMjQsNiBAQCBC
+dWlsZFJlcXVpcmVzOglydWJ5Z2VtKHJha2UpCiBCdWlsZFJlcXVpcmVzOglydWJ5Z2VtKHJha2Ut
+Y29tcGlsZXIpCiBCdWlsZFJlcXVpcmVzOglydWJ5Z2VtKHJkb2MpCiBCdWlsZFJlcXVpcmVzOgly
+dWJ5LWRldmVsCi1CdWlsZFJlcXVpcmVzOglyYWdlbAogQnVpbGRSZXF1aXJlczogIHJ1YnlnZW0o
+dGVzdC11bml0KQogQnVpbGRSZXF1aXJlczogIHJ1YnlnZW0ocmFrZSkKIFJlcXVpcmVzOglydWJ5
+KHJ1YnlnZW1zKQpAQCAtMTQ3LDYgKzE0Niw5IEBAIHBvcGQKICV7Z2VtX2RvY2Rpcn0vCiAKICVj
+aGFuZ2Vsb2cKKyogTW9uIEphbiAxNiAyMDE3IE1lcmxpbiBNYXRoZXNpdXMgPG1tYXRoZXNpQHJl
+ZGhhdC5jb20+IC0gMC44LjYtMTQKKy0gRWxpbWluYXRlIHVubmVjZXNzYXJ5IGJ1aWxkLXRpbWUg
+ZGVwZW5kZW5jeSBvbiByYWdlbC4KKwogKiBXZWQgSmFuIDExIDIwMTcgTWFtb3J1IFRBU0FLQSA8
+bXRhc2FrYUBmZWRvcmFwcm9qZWN0Lm9yZz4gLSAwLjguNi0xMwogLSBGLTI2OiByZWJ1aWxkIGZv
+ciBydWJ5MjQKIAotLSAKMi45LjMKCg==
+</data>
+
+          </attachment>
+          <attachment
+              isobsolete="0"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1244260</attachid>
+            <date>2017-01-25 08:03:00 -0500</date>
+            <delta_ts>2017-01-25 08:03:36 -0500</delta_ts>
+            <desc>Conditionalize the use of ragel</desc>
+            <filename>rubygem-hpricot-conditional-ragel.patch</filename>
+            <type>text/plain</type>
+            <size>1520</size>
+            <attacher name="Petr Šabata">psabata</attacher>
+            
+              <data encoding="base64">ZGlmZiAtLWdpdCBhL3J1YnlnZW0taHByaWNvdC5zcGVjIGIvcnVieWdlbS1ocHJpY290LnNwZWMK
+aW5kZXggYTU0MzY0Zi4uZDQ2ZDJhYyAxMDA2NDQKLS0tIGEvcnVieWdlbS1ocHJpY290LnNwZWMK
+KysrIGIvcnVieWdlbS1ocHJpY290LnNwZWMKQEAgLTEsMTAgKzEsMTIgQEAKICMgSW5pdGlhbGx5
+IGdlbmVyYXRlZCBmcm9tIGhwcmljb3QtMC42LjE2NC5nZW0gYnkgZ2VtMnJwbSAtKi0gcnBtLXNw
+ZWMgLSotCiAlZGVmaW5lCWdlbV9uYW1lCQlocHJpY290CiAKKyViY29uZF93aXRoIHJhZ2VsCisK
+IFN1bW1hcnk6CUEgRmFzdCwgRW5qb3lhYmxlIEhUTUwgUGFyc2VyIGZvciBSdWJ5CiBOYW1lOgkJ
+cnVieWdlbS0le2dlbV9uYW1lfQogVmVyc2lvbjoJMC44LjYKLVJlbGVhc2U6CTE0JXs/ZGlzdH0K
+K1JlbGVhc2U6CTE1JXs/ZGlzdH0KIEdyb3VwOgkJRGV2ZWxvcG1lbnQvTGFuZ3VhZ2VzCiAjIGV4
+dC9mYXN0X3hzL0Zhc3RYc1NlcnZpY2UuamF2YSBpcyBsaWNlbnNlZCB1bmRlciBBU0wgMi4wCiBM
+aWNlbnNlOglNSVQgYW5kIEFTTCAyLjAKQEAgLTI0LDcgKzI2LDkgQEAgQnVpbGRSZXF1aXJlczoJ
+cnVieWdlbShyYWtlKQogQnVpbGRSZXF1aXJlczoJcnVieWdlbShyYWtlLWNvbXBpbGVyKQogQnVp
+bGRSZXF1aXJlczoJcnVieWdlbShyZG9jKQogQnVpbGRSZXF1aXJlczoJcnVieS1kZXZlbAorJWlm
+ICV7d2l0aCByYWdlbH0KIEJ1aWxkUmVxdWlyZXM6CXJhZ2VsCislZW5kaWYKIEJ1aWxkUmVxdWly
+ZXM6ICBydWJ5Z2VtKHRlc3QtdW5pdCkKIEJ1aWxkUmVxdWlyZXM6ICBydWJ5Z2VtKHJha2UpCiBS
+ZXF1aXJlczoJcnVieShydWJ5Z2VtcykKQEAgLTYwLDcgKzY0LDcgQEAgVGhpcyBwYWNrYWdlIHBy
+b3ZpZGVzIG5vbi1HZW0gc3VwcG9ydCBmb3IgJXtnZW1fbmFtZX0uCiAKICVwcmVwCiAlc2V0dXAg
+LXEgLVQgLWMKLQorJWlmICV7d2l0aCByYWdlbH0KICMgR2VtIHJlcGFjawogVE9QRElSPSQocHdk
+KQogbWtkaXIgdG1wdW5wYWNrZGlyCkBAIC04Nyw2ICs5MSw5IEBAIG12ICV7Z2VtX25hbWV9LSV7
+dmVyc2lvbn0uZ2VtICRUT1BESVIKIHBvcGQKIAogJWdlbV9pbnN0YWxsCislZWxzZQorJWdlbV9p
+bnN0YWxsIC1uICV7U09VUkNFMH0KKyVlbmRpZgogCiBwdXNoZCAuJXtnZW1faW5zdGRpcn0vdGVz
+dAogIyBLaWxsIHRlc3RzIHJlbGF0ZWQgdG8gQk9JTkdCT0lORywgbGljZW5zZWQgdW5kZXIgQ0Mt
+QlktTkMKQEAgLTE3MCw2ICsxNzcsOSBAQCBwb3BkCiAle2dlbV9kb2NkaXJ9LwogCiAlY2hhbmdl
+bG9nCisqIFdlZCBKYW4gMjUgMjAxNyBQZXRyIMWgYWJhdGEgPGNvbnR5a0ByZWRoYXQuY29tPiAt
+IDAuOC42LTE1CistIE1ha2UgdGhlIEMgc291cmNlIGdlbmVyYXRpb24gd2l0aCByYWdlbCBvcHRp
+b25hbCAoYnVnIDE0MTI4NDEpCisKICogVHVlIEphbiAxNyAyMDE3IE1hbW9ydSBUQVNBS0EgPG10
+YXNha2FAZmVkb3JhcHJvamVjdC5vcmc+IC0gMC44LjYtMTQKIC0gRXhwbGljaXRseSByZWdlbmVy
+YXRlIEMgc291cmNlIGZyb20gLnJsIChidWcgMTQxMjg0MSkKIAo=
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

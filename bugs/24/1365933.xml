@@ -1,0 +1,406 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1365933</bug_id>
+          
+          <creation_ts>2016-08-10 10:30:00 -0400</creation_ts>
+          <short_desc>The ls program can&apos;t be interrupted by a signal</short_desc>
+          <delta_ts>2017-02-13 12:36:45 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>coreutils</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords>Patch</keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>1421802</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="David Howells">dhowells</reporter>
+          <assigned_to name="Kamil Dudka">kdudka</assigned_to>
+          <cc>admiller</cc>
+    
+    
+    <cc>dhowells</cc>
+    
+    
+    <cc>jamartis</cc>
+    
+    
+    <cc>jdisnard</cc>
+    
+    
+    <cc>kdudka</cc>
+    
+    
+    <cc>kzak</cc>
+    
+    
+    <cc>ooprala</cc>
+    
+    
+    <cc>ovasik</cc>
+    
+    
+    <cc>p</cc>
+    
+    
+    <cc>twaugh</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>coreutils-8.25-15.fc26 coreutils-8.25-15.fc25 coreutils-8.25-7.fc24</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-11-05 05:40:12</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9603102</commentid>
+    <comment_count>0</comment_count>
+    <who name="David Howells">dhowells</who>
+    <bug_when>2016-08-10 10:30:01 -0400</bug_when>
+    <thetext>Description of problem:
+
+Whilst debugging some network filesystem stuff, I found that if the open directory system call fails with ERESTARTSYS due to a signal, that signal is deferred by userspace and the system call restarted.  Unfortunately, this means that an ls that is waiting for a network timeout cannot be cancelled with CTRL-C and cannot be suspended with CTRL-Z.
+
+open(&quot;/afs/user/dhowells&quot;, O_RDONLY|O_NONBLOCK|O_DIRECTORY|O_CLOEXEC) = ? ERESTARTSYS (To be restarted if SA_RESTART is set)
+--- SIGINT {si_signo=SIGINT, si_code=SI_KERNEL} ---
+rt_sigreturn({mask=[]})                 = 2
+open(&quot;/afs/user/dhowells&quot;, O_RDONLY|O_NONBLOCK|O_DIRECTORY|O_CLOEXEC) = ? ERESTARTSYS (To be restarted if SA_RESTART is set)
+--- SIGQUIT {si_signo=SIGQUIT, si_code=SI_KERNEL} ---
+rt_sigreturn({mask=[]})                 = 2
+open(&quot;/afs/user/dhowells&quot;, O_RDONLY|O_NONBLOCK|O_DIRECTORY|O_CLOEXEC) = 3
+fstat(3, {st_mode=S_IFDIR|0777, st_size=2048, ...}) = 0
+getdents(3, /* 3 entries */, 32768)     = 80
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT PIPE ALRM TERM TSTP XCPU XFSZ VTALRM PROF IO], [], 8) = 0
+rt_sigaction(SIGINT, {SIG_DFL, [INT], SA_RESTORER|SA_RESTART, 0x7f9c95c93b20}, {0x5640f276ce60, [HUP INT QUIT PIPE ALRM TERM TSTP XCPU XFSZ VTALRM PROF IO], SA_RESTORER|SA_RESTART, 0x7f9c95c93b20}, 8) = 0
+tgkill(3954, 3954, SIGINT)              = 0
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+--- SIGINT {si_signo=SIGINT, si_code=SI_TKILL, si_pid=3954, si_uid=0} ---
++++ killed by SIGINT +++
+
+Version-Release number of selected component (if applicable):
+
+coreutils-8.24-6.fc23.x86_64
+
+Unfortunately, it&apos;s quite hard to get hold of a directory that will hang for a long enough period of time, but if you can it&apos;s quite reproducible.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9606062</commentid>
+    <comment_count>1</comment_count>
+    <who name="Kamil Dudka">kdudka</who>
+    <bug_when>2016-08-11 04:49:04 -0400</bug_when>
+    <thetext>Could you please attach gdb while ls is hanging and paste the backtrace?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9606278</commentid>
+    <comment_count>2</comment_count>
+    <who name="David Howells">dhowells</who>
+    <bug_when>2016-08-11 05:52:25 -0400</bug_when>
+    <thetext>#0  0x00007faca7731455 in __opendir (name=0x560b8766cc90 &quot;/afs/user/dhowells&quot;)
+    at ../sysdeps/posix/opendir.c:200
+#1  0x0000560b8744caed in print_dir (command_line_arg=&lt;optimized out&gt;, 
+    realname=0x0, name=&lt;optimized out&gt;) at src/ls.c:2551
+#2  main (argc=&lt;optimized out&gt;, argv=&lt;optimized out&gt;) at src/ls.c:1457</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9606587</commentid>
+    <comment_count>3</comment_count>
+    <who name="Kamil Dudka">kdudka</who>
+    <bug_when>2016-08-11 07:23:12 -0400</bug_when>
+    <thetext>Does it work as expected with --color=none or if stdout is redirected off terminal?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9606797</commentid>
+    <comment_count>4</comment_count>
+    <who name="David Howells">dhowells</who>
+    <bug_when>2016-08-11 07:51:47 -0400</bug_when>
+    <thetext>ls --color=none can be interrupted, as can ls &gt;/tmp/foo.  A subsequent ls without anything special will then still be uninterruptible until the network timeout occurs.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9606984</commentid>
+    <comment_count>5</comment_count>
+    <who name="Kamil Dudka">kdudka</who>
+    <bug_when>2016-08-11 08:22:48 -0400</bug_when>
+    <thetext>If ls prints to a terminal, it postpones processing of signals to always leave terminal in a consistent state when being terminated or suspended.  A possible solution would be to disable SA_RESTART before calling opendir() and process signals synchronously in an EINTR loop.  Nevertheless, I am afraid we will hit the same issue with subsequent stat() calls if the -l option is used.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9615196</commentid>
+    <comment_count>6</comment_count>
+    <who name="Kamil Dudka">kdudka</who>
+    <bug_when>2016-08-15 10:05:35 -0400</bug_when>
+    <thetext>reported upstream:
+http://lists.gnu.org/archive/html/bug-coreutils/2016-08/msg00010.html</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9682384</commentid>
+    <comment_count>7</comment_count>
+      <attachid>1198255</attachid>
+    <who name="Kamil Dudka">kdudka</who>
+    <bug_when>2016-09-06 08:53:25 -0400</bug_when>
+    <thetext>Created attachment 1198255
+[PATCH] ls: postpone installation of signal handlers
+
+... until they are actually needed.  That is right before the first
+escape sequence is printed to a terminal.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9682392</commentid>
+    <comment_count>8</comment_count>
+    <who name="Kamil Dudka">kdudka</who>
+    <bug_when>2016-09-06 08:54:39 -0400</bug_when>
+    <thetext>Could you please test the attached patch?  Does it solve the problem for you?
+
+I can prepare a scratch build for Fedora release of your choice if needed...</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9683088</commentid>
+    <comment_count>9</comment_count>
+    <who name="David Howells">dhowells</who>
+    <bug_when>2016-09-06 11:09:42 -0400</bug_when>
+    <thetext>The patch works for me.  If I make afs_open() in the kernel sleep till a signal happens than then return -ERESTARTSYS, the old ls just restarts the open() system call when I press CTRL-C, but the patched ls is correctly killed by SIGINT.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9683238</commentid>
+    <comment_count>10</comment_count>
+    <who name="Kamil Dudka">kdudka</who>
+    <bug_when>2016-09-06 11:42:04 -0400</bug_when>
+    <thetext>Thank you for testing the patch!  I have proposed it to cureutils upstream:
+
+http://debbugs.gnu.org/cgi/bugreport.cgi?bug=24232#17</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9685746</commentid>
+    <comment_count>11</comment_count>
+    <who name="Pádraig Brady">p</who>
+    <bug_when>2016-09-07 05:19:45 -0400</bug_when>
+    <thetext>Upstream patch: http://git.sv.gnu.org/gitweb/?p=coreutils.git;a=commitdiff;h=v8.25-63-g5445f78</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9687808</commentid>
+    <comment_count>12</comment_count>
+    <who name="Kamil Dudka">kdudka</who>
+    <bug_when>2016-09-07 14:30:01 -0400</bug_when>
+    <thetext>Thanks for the upstream commit!  Included in coreutils-8.25-15.fc26...</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9834866</commentid>
+    <comment_count>13</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-10-31 13:44:26 -0400</bug_when>
+    <thetext>coreutils-8.25-15.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2016-be13b257bb</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9834875</commentid>
+    <comment_count>14</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-10-31 13:46:17 -0400</bug_when>
+    <thetext>coreutils-8.25-7.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-75adc7da4f</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9835809</commentid>
+    <comment_count>15</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-10-31 22:22:13 -0400</bug_when>
+    <thetext>coreutils-8.25-15.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-be13b257bb</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9838418</commentid>
+    <comment_count>16</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-11-01 14:22:54 -0400</bug_when>
+    <thetext>coreutils-8.25-7.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-75adc7da4f</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9854218</commentid>
+    <comment_count>17</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-11-03 14:29:36 -0400</bug_when>
+    <thetext>coreutils-8.25-15.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9856862</commentid>
+    <comment_count>18</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-11-03 19:55:08 -0400</bug_when>
+    <thetext>coreutils-8.25-7.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9905739</commentid>
+    <comment_count>19</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-11-19 16:06:42 -0500</bug_when>
+    <thetext>coreutils-8.25-15.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="1"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1198255</attachid>
+            <date>2016-09-06 08:53:00 -0400</date>
+            <delta_ts>2016-09-06 11:42:20 -0400</delta_ts>
+            <desc>[PATCH] ls: postpone installation of signal handlers</desc>
+            <filename>0001-ls-postpone-installation-of-signal-handlers.patch</filename>
+            <type>text/plain</type>
+            <size>6643</size>
+            <attacher name="Kamil Dudka">kdudka</attacher>
+            
+              <data encoding="base64">RnJvbSBlYjEzMmZhZmUzZDgwOGFkNjkyMGFlMmE2NzYyOTAzOWQ2M2QxZWFjIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBLYW1pbCBEdWRrYSA8a2R1ZGthQHJlZGhhdC5jb20+CkRhdGU6
+IFR1ZSwgNiBTZXAgMjAxNiAxNDoxNjo0MSArMDIwMApTdWJqZWN0OiBbUEFUQ0hdIGxzOiBwb3N0
+cG9uZSBpbnN0YWxsYXRpb24gb2Ygc2lnbmFsIGhhbmRsZXJzCgouLi4gdW50aWwgdGhleSBhcmUg
+YWN0dWFsbHkgbmVlZGVkLiAgVGhhdCBpcyByaWdodCBiZWZvcmUgdGhlIGZpcnN0CmVzY2FwZSBz
+ZXF1ZW5jZSBpcyBwcmludGVkIHRvIGEgdGVybWluYWwuCgpCdWc6IGh0dHBzOi8vYnVnemlsbGEu
+cmVkaGF0LmNvbS8xMzY1OTMzCi0tLQogc3JjL2xzLmMgfCAxNjcgKysrKysrKysrKysrKysrKysr
+KysrKysrKysrKysrKy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCiAxIGZpbGUgY2hh
+bmdlZCwgODMgaW5zZXJ0aW9ucygrKSwgODQgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvc3Jj
+L2xzLmMgYi9zcmMvbHMuYwppbmRleCAzNTcyMDYwLi5mYjE1OGEzIDEwMDY0NAotLS0gYS9zcmMv
+bHMuYworKysgYi9zcmMvbHMuYwpAQCAtNzUzLDYgKzc1MywzNiBAQCBzdGF0aWMgY2hhciBjb25z
+dCAqbG9uZ190aW1lX2Zvcm1hdFsyXSA9CiAgICAgTl8oIiViICVlICVIOiVNIikKICAgfTsKIAor
+LyogVGhlIHNpZ25hbHMgdGhhdCBhcmUgdHJhcHBlZCwgYW5kIHRoZSBudW1iZXIgb2Ygc3VjaCBz
+aWduYWxzLiAgKi8KK3N0YXRpYyBpbnQgY29uc3Qgc2lnc1tdID0KK3sKKyAgLyogVGhpcyBvbmUg
+aXMgaGFuZGxlZCBzcGVjaWFsbHkuICAqLworICBTSUdUU1RQLAorCisgIC8qIFRoZSB1c3VhbCBz
+dXNwZWN0cy4gICovCisgIFNJR0FMUk0sIFNJR0hVUCwgU0lHSU5ULCBTSUdQSVBFLCBTSUdRVUlU
+LCBTSUdURVJNLAorI2lmZGVmIFNJR1BPTEwKKyAgU0lHUE9MTCwKKyNlbmRpZgorI2lmZGVmIFNJ
+R1BST0YKKyAgU0lHUFJPRiwKKyNlbmRpZgorI2lmZGVmIFNJR1ZUQUxSTQorICBTSUdWVEFMUk0s
+CisjZW5kaWYKKyNpZmRlZiBTSUdYQ1BVCisgIFNJR1hDUFUsCisjZW5kaWYKKyNpZmRlZiBTSUdY
+RlNaCisgIFNJR1hGU1osCisjZW5kaWYKK307CitlbnVtIHsgbnNpZ3MgPSBBUlJBWV9DQVJESU5B
+TElUWSAoc2lncykgfTsKKworI2lmICEgU0FfTk9DTERTVE9QCitib29sIGNhdWdodF9zaWdbbnNp
+Z3NdOworI2VuZGlmCisKIC8qIFRoZSBzZXQgb2Ygc2lnbmFscyB0aGF0IGFyZSBjYXVnaHQuICAq
+LwogCiBzdGF0aWMgc2lnc2V0X3QgY2F1Z2h0X3NpZ25hbHM7CkBAIC0xMjUxLDM2ICsxMjgxLDYg
+QEAgbWFpbiAoaW50IGFyZ2MsIGNoYXIgKiphcmd2KQogICBzdHJ1Y3QgcGVuZGluZyAqdGhpc3Bl
+bmQ7CiAgIGludCBuX2ZpbGVzOwogCi0gIC8qIFRoZSBzaWduYWxzIHRoYXQgYXJlIHRyYXBwZWQs
+IGFuZCB0aGUgbnVtYmVyIG9mIHN1Y2ggc2lnbmFscy4gICovCi0gIHN0YXRpYyBpbnQgY29uc3Qg
+c2lnW10gPQotICAgIHsKLSAgICAgIC8qIFRoaXMgb25lIGlzIGhhbmRsZWQgc3BlY2lhbGx5LiAg
+Ki8KLSAgICAgIFNJR1RTVFAsCi0KLSAgICAgIC8qIFRoZSB1c3VhbCBzdXNwZWN0cy4gICovCi0g
+ICAgICBTSUdBTFJNLCBTSUdIVVAsIFNJR0lOVCwgU0lHUElQRSwgU0lHUVVJVCwgU0lHVEVSTSwK
+LSNpZmRlZiBTSUdQT0xMCi0gICAgICBTSUdQT0xMLAotI2VuZGlmCi0jaWZkZWYgU0lHUFJPRgot
+ICAgICAgU0lHUFJPRiwKLSNlbmRpZgotI2lmZGVmIFNJR1ZUQUxSTQotICAgICAgU0lHVlRBTFJN
+LAotI2VuZGlmCi0jaWZkZWYgU0lHWENQVQotICAgICAgU0lHWENQVSwKLSNlbmRpZgotI2lmZGVm
+IFNJR1hGU1oKLSAgICAgIFNJR1hGU1osCi0jZW5kaWYKLSAgICB9OwotICBlbnVtIHsgbnNpZ3Mg
+PSBBUlJBWV9DQVJESU5BTElUWSAoc2lnKSB9OwotCi0jaWYgISBTQV9OT0NMRFNUT1AKLSAgYm9v
+bCBjYXVnaHRfc2lnW25zaWdzXTsKLSNlbmRpZgotCiAgIGluaXRpYWxpemVfbWFpbiAoJmFyZ2Ms
+ICZhcmd2KTsKICAgc2V0X3Byb2dyYW1fbmFtZSAoYXJndlswXSk7CiAgIHNldGxvY2FsZSAoTENf
+QUxMLCAiIik7CkBAIC0xMzE0LDQ2ICsxMzE0LDYgQEAgbWFpbiAoaW50IGFyZ2MsIGNoYXIgKiph
+cmd2KQogICAgICAgICAgIHx8IChpc19jb2xvcmVkIChDX0VYRUMpICYmIGNvbG9yX3N5bWxpbmtf
+YXNfcmVmZXJlbnQpCiAgICAgICAgICAgfHwgKGlzX2NvbG9yZWQgKENfTUlTU0lORykgJiYgZm9y
+bWF0ID09IGxvbmdfZm9ybWF0KSkKICAgICAgICAgY2hlY2tfc3ltbGlua19jb2xvciA9IHRydWU7
+Ci0KLSAgICAgIC8qIElmIHRoZSBzdGFuZGFyZCBvdXRwdXQgaXMgYSBjb250cm9sbGluZyB0ZXJt
+aW5hbCwgd2F0Y2ggb3V0Ci0gICAgICAgICBmb3Igc2lnbmFscywgc28gdGhhdCB0aGUgY29sb3Jz
+IGNhbiBiZSByZXN0b3JlZCB0byB0aGUKLSAgICAgICAgIGRlZmF1bHQgc3RhdGUgaWYgImxzIiBp
+cyBzdXNwZW5kZWQgb3IgaW50ZXJydXB0ZWQuICAqLwotCi0gICAgICBpZiAoMCA8PSB0Y2dldHBn
+cnAgKFNURE9VVF9GSUxFTk8pKQotICAgICAgICB7Ci0gICAgICAgICAgaW50IGo7Ci0jaWYgU0Ff
+Tk9DTERTVE9QCi0gICAgICAgICAgc3RydWN0IHNpZ2FjdGlvbiBhY3Q7Ci0KLSAgICAgICAgICBz
+aWdlbXB0eXNldCAoJmNhdWdodF9zaWduYWxzKTsKLSAgICAgICAgICBmb3IgKGogPSAwOyBqIDwg
+bnNpZ3M7IGorKykKLSAgICAgICAgICAgIHsKLSAgICAgICAgICAgICAgc2lnYWN0aW9uIChzaWdb
+al0sIE5VTEwsICZhY3QpOwotICAgICAgICAgICAgICBpZiAoYWN0LnNhX2hhbmRsZXIgIT0gU0lH
+X0lHTikKLSAgICAgICAgICAgICAgICBzaWdhZGRzZXQgKCZjYXVnaHRfc2lnbmFscywgc2lnW2pd
+KTsKLSAgICAgICAgICAgIH0KLQotICAgICAgICAgIGFjdC5zYV9tYXNrID0gY2F1Z2h0X3NpZ25h
+bHM7Ci0gICAgICAgICAgYWN0LnNhX2ZsYWdzID0gU0FfUkVTVEFSVDsKLQotICAgICAgICAgIGZv
+ciAoaiA9IDA7IGogPCBuc2lnczsgaisrKQotICAgICAgICAgICAgaWYgKHNpZ2lzbWVtYmVyICgm
+Y2F1Z2h0X3NpZ25hbHMsIHNpZ1tqXSkpCi0gICAgICAgICAgICAgIHsKLSAgICAgICAgICAgICAg
+ICBhY3Quc2FfaGFuZGxlciA9IHNpZ1tqXSA9PSBTSUdUU1RQID8gc3RvcGhhbmRsZXIgOiBzaWdo
+YW5kbGVyOwotICAgICAgICAgICAgICAgIHNpZ2FjdGlvbiAoc2lnW2pdLCAmYWN0LCBOVUxMKTsK
+LSAgICAgICAgICAgICAgfQotI2Vsc2UKLSAgICAgICAgICBmb3IgKGogPSAwOyBqIDwgbnNpZ3M7
+IGorKykKLSAgICAgICAgICAgIHsKLSAgICAgICAgICAgICAgY2F1Z2h0X3NpZ1tqXSA9IChzaWdu
+YWwgKHNpZ1tqXSwgU0lHX0lHTikgIT0gU0lHX0lHTik7Ci0gICAgICAgICAgICAgIGlmIChjYXVn
+aHRfc2lnW2pdKQotICAgICAgICAgICAgICAgIHsKLSAgICAgICAgICAgICAgICAgIHNpZ25hbCAo
+c2lnW2pdLCBzaWdbal0gPT0gU0lHVFNUUCA/IHN0b3BoYW5kbGVyIDogc2lnaGFuZGxlcik7Ci0g
+ICAgICAgICAgICAgICAgICBzaWdpbnRlcnJ1cHQgKHNpZ1tqXSwgMCk7Ci0gICAgICAgICAgICAg
+ICAgfQotICAgICAgICAgICAgfQotI2VuZGlmCi0gICAgICAgIH0KICAgICB9CiAKICAgaWYgKGRl
+cmVmZXJlbmNlID09IERFUkVGX1VOREVGSU5FRCkKQEAgLTE0NjYsMzEgKzE0MjYsMjkgQEAgbWFp
+biAoaW50IGFyZ2MsIGNoYXIgKiphcmd2KQogICAgICAgcHJpbnRfZGlyX25hbWUgPSB0cnVlOwog
+ICAgIH0KIAotICBpZiAocHJpbnRfd2l0aF9jb2xvcikKKyAgaWYgKHByaW50X3dpdGhfY29sb3Ig
+JiYgdXNlZF9jb2xvcikKICAgICB7CiAgICAgICBpbnQgajsKIAotICAgICAgaWYgKHVzZWRfY29s
+b3IpCi0gICAgICAgIHsKLSAgICAgICAgICAvKiBTa2lwIHRoZSByZXN0b3JlIHdoZW4gaXQgd291
+bGQgYmUgYSBuby1vcCwgaS5lLiwKLSAgICAgICAgICAgICB3aGVuIGxlZnQgaXMgIlwwMzNbIiBh
+bmQgcmlnaHQgaXMgIm0iLiAgKi8KLSAgICAgICAgICBpZiAoIShjb2xvcl9pbmRpY2F0b3JbQ19M
+RUZUXS5sZW4gPT0gMgotICAgICAgICAgICAgICAgICYmIG1lbWNtcCAoY29sb3JfaW5kaWNhdG9y
+W0NfTEVGVF0uc3RyaW5nLCAiXDAzM1siLCAyKSA9PSAwCi0gICAgICAgICAgICAgICAgJiYgY29s
+b3JfaW5kaWNhdG9yW0NfUklHSFRdLmxlbiA9PSAxCi0gICAgICAgICAgICAgICAgJiYgY29sb3Jf
+aW5kaWNhdG9yW0NfUklHSFRdLnN0cmluZ1swXSA9PSAnbScpKQotICAgICAgICAgICAgcmVzdG9y
+ZV9kZWZhdWx0X2NvbG9yICgpOwotICAgICAgICB9CisgICAgICAvKiBTa2lwIHRoZSByZXN0b3Jl
+IHdoZW4gaXQgd291bGQgYmUgYSBuby1vcCwgaS5lLiwKKyAgICAgICAgIHdoZW4gbGVmdCBpcyAi
+XDAzM1siIGFuZCByaWdodCBpcyAibSIuICAqLworICAgICAgaWYgKCEoY29sb3JfaW5kaWNhdG9y
+W0NfTEVGVF0ubGVuID09IDIKKyAgICAgICAgICAgICYmIG1lbWNtcCAoY29sb3JfaW5kaWNhdG9y
+W0NfTEVGVF0uc3RyaW5nLCAiXDAzM1siLCAyKSA9PSAwCisgICAgICAgICAgICAmJiBjb2xvcl9p
+bmRpY2F0b3JbQ19SSUdIVF0ubGVuID09IDEKKyAgICAgICAgICAgICYmIGNvbG9yX2luZGljYXRv
+cltDX1JJR0hUXS5zdHJpbmdbMF0gPT0gJ20nKSkKKyAgICAgICAgcmVzdG9yZV9kZWZhdWx0X2Nv
+bG9yICgpOworCiAgICAgICBmZmx1c2ggKHN0ZG91dCk7CiAKICAgICAgIC8qIFJlc3RvcmUgdGhl
+IGRlZmF1bHQgc2lnbmFsIGhhbmRsaW5nLiAgKi8KICNpZiBTQV9OT0NMRFNUT1AKICAgICAgIGZv
+ciAoaiA9IDA7IGogPCBuc2lnczsgaisrKQotICAgICAgICBpZiAoc2lnaXNtZW1iZXIgKCZjYXVn
+aHRfc2lnbmFscywgc2lnW2pdKSkKLSAgICAgICAgICBzaWduYWwgKHNpZ1tqXSwgU0lHX0RGTCk7
+CisgICAgICAgIGlmIChzaWdpc21lbWJlciAoJmNhdWdodF9zaWduYWxzLCBzaWdzW2pdKSkKKyAg
+ICAgICAgICBzaWduYWwgKHNpZ3Nbal0sIFNJR19ERkwpOwogI2Vsc2UKICAgICAgIGZvciAoaiA9
+IDA7IGogPCBuc2lnczsgaisrKQogICAgICAgICBpZiAoY2F1Z2h0X3NpZ1tqXSkKLSAgICAgICAg
+ICBzaWduYWwgKHNpZ1tqXSwgU0lHX0RGTCk7CisgICAgICAgICAgc2lnbmFsIChzaWdzW2pdLCBT
+SUdfREZMKTsKICNlbmRpZgogCiAgICAgICAvKiBBY3Qgb24gYW55IHNpZ25hbHMgdGhhdCBhcnJp
+dmVkIGJlZm9yZSB0aGUgZGVmYXVsdCB3YXMgcmVzdG9yZWQuCkBAIC00NDc1LDYgKzQ0MzMsNDcg
+QEAgcHV0X2luZGljYXRvciAoY29uc3Qgc3RydWN0IGJpbl9zdHIgKmluZCkKICAgaWYgKCEgdXNl
+ZF9jb2xvcikKICAgICB7CiAgICAgICB1c2VkX2NvbG9yID0gdHJ1ZTsKKworICAgICAgLyogSWYg
+dGhlIHN0YW5kYXJkIG91dHB1dCBpcyBhIGNvbnRyb2xsaW5nIHRlcm1pbmFsLCB3YXRjaCBvdXQK
+KyAgICAgICAgIGZvciBzaWduYWxzLCBzbyB0aGF0IHRoZSBjb2xvcnMgY2FuIGJlIHJlc3RvcmVk
+IHRvIHRoZQorICAgICAgICAgZGVmYXVsdCBzdGF0ZSBpZiAibHMiIGlzIHN1c3BlbmRlZCBvciBp
+bnRlcnJ1cHRlZC4gICovCisKKyAgICAgIGlmICgwIDw9IHRjZ2V0cGdycCAoU1RET1VUX0ZJTEVO
+TykpCisgICAgICAgIHsKKyAgICAgICAgICBpbnQgajsKKyNpZiBTQV9OT0NMRFNUT1AKKyAgICAg
+ICAgICBzdHJ1Y3Qgc2lnYWN0aW9uIGFjdDsKKworICAgICAgICAgIHNpZ2VtcHR5c2V0ICgmY2F1
+Z2h0X3NpZ25hbHMpOworICAgICAgICAgIGZvciAoaiA9IDA7IGogPCBuc2lnczsgaisrKQorICAg
+ICAgICAgICAgeworICAgICAgICAgICAgICBzaWdhY3Rpb24gKHNpZ3Nbal0sIE5VTEwsICZhY3Qp
+OworICAgICAgICAgICAgICBpZiAoYWN0LnNhX2hhbmRsZXIgIT0gU0lHX0lHTikKKyAgICAgICAg
+ICAgICAgICBzaWdhZGRzZXQgKCZjYXVnaHRfc2lnbmFscywgc2lnc1tqXSk7CisgICAgICAgICAg
+ICB9CisKKyAgICAgICAgICBhY3Quc2FfbWFzayA9IGNhdWdodF9zaWduYWxzOworICAgICAgICAg
+IGFjdC5zYV9mbGFncyA9IFNBX1JFU1RBUlQ7CisKKyAgICAgICAgICBmb3IgKGogPSAwOyBqIDwg
+bnNpZ3M7IGorKykKKyAgICAgICAgICAgIGlmIChzaWdpc21lbWJlciAoJmNhdWdodF9zaWduYWxz
+LCBzaWdzW2pdKSkKKyAgICAgICAgICAgICAgeworICAgICAgICAgICAgICAgIGFjdC5zYV9oYW5k
+bGVyID0gc2lnc1tqXSA9PSBTSUdUU1RQID8gc3RvcGhhbmRsZXIgOiBzaWdoYW5kbGVyOworICAg
+ICAgICAgICAgICAgIHNpZ2FjdGlvbiAoc2lnc1tqXSwgJmFjdCwgTlVMTCk7CisgICAgICAgICAg
+ICAgIH0KKyNlbHNlCisgICAgICAgICAgZm9yIChqID0gMDsgaiA8IG5zaWdzOyBqKyspCisgICAg
+ICAgICAgICB7CisgICAgICAgICAgICAgIGNhdWdodF9zaWdbal0gPSAoc2lnbmFsIChzaWdzW2pd
+LCBTSUdfSUdOKSAhPSBTSUdfSUdOKTsKKyAgICAgICAgICAgICAgaWYgKGNhdWdodF9zaWdbal0p
+CisgICAgICAgICAgICAgICAgeworICAgICAgICAgICAgICAgICAgc2lnbmFsIChzaWdzW2pdLCBz
+aWdzW2pdID09IFNJR1RTVFAgPyBzdG9waGFuZGxlciA6IHNpZ2hhbmRsZXIpOworICAgICAgICAg
+ICAgICAgICAgc2lnaW50ZXJydXB0IChzaWdzW2pdLCAwKTsKKyAgICAgICAgICAgICAgICB9Cisg
+ICAgICAgICAgICB9CisjZW5kaWYKKyAgICAgICAgfQorCiAgICAgICBwcmVwX25vbl9maWxlbmFt
+ZV90ZXh0ICgpOwogICAgIH0KIAotLSAKMi43LjQKCg==
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

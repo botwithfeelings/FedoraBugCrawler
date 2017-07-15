@@ -1,0 +1,421 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1332701</bug_id>
+          
+          <creation_ts>2016-05-03 16:28:00 -0400</creation_ts>
+          <short_desc>libvirt generates xml that generates &apos;device must be of type qxl&apos; error</short_desc>
+          <delta_ts>2016-05-08 20:03:30 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>libvirt</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Dusty Mabe">dustymabe</reporter>
+          <assigned_to name="Libvirt Maintainers">libvirt-maint</assigned_to>
+          <cc>agedosier</cc>
+    
+    
+    <cc>berrange</cc>
+    
+    
+    <cc>clalancette</cc>
+    
+    
+    <cc>crobinso</cc>
+    
+    
+    <cc>dyuan</cc>
+    
+    
+    <cc>fjin</cc>
+    
+    
+    <cc>imcleod</cc>
+    
+    
+    <cc>itamar</cc>
+    
+    
+    <cc>laine</cc>
+    
+    
+    <cc>libvirt-maint</cc>
+    
+    
+    <cc>veillard</cc>
+    
+    
+    <cc>virt-maint</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>libvirt-1.3.3.1-1.fc24</cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-05-08 20:03:30</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9289687</commentid>
+    <comment_count>0</comment_count>
+      <attachid>1153576</attachid>
+    <who name="Dusty Mabe">dustymabe</who>
+    <bug_when>2016-05-03 16:28:19 -0400</bug_when>
+    <thetext>Created attachment 1153576
+beforedefine.xml
+
+Description of problem:
+I&apos;m using imagefactory in F24 and in doing so I get an error during the run of imagefactory.
+
+I have boiled this down to the fact that the &quot;extra xml&quot; that libvirt generates to supplement the provided xml that was given on &quot;define&quot; causes the domain to be unstartable. I believe this is because the in f24 the video model line is `&lt;model type=&apos;cirrus&apos; vram=&apos;16384&apos; heads=&apos;1&apos; primary=&apos;yes&apos;/&gt;` where in f23 it was `&lt;model type=&apos;cirrus&apos; vram=&apos;16384&apos; heads=&apos;1&apos;/&gt;`.
+
+Attached there are a few files that can be used to demonstrate the problem and\or investigate the generated libvirt xml.
+
+
+```
+[root@cloudhost ~]# virsh define beforedefine.xml 
+Domain imagefactory defined from beforedefine.xml
+
+[root@cloudhost ~]# virsh start imagefactory
+error: Failed to start domain imagefactory
+error: unsupported configuration: non-primary video device must be type of &apos;qxl&apos;
+
+[root@cloudhost ~]# virsh dumpxml imagefactory &gt; afterdefinef24.xml 
+[root@cloudhost ~]# 
+
+```
+
+
+
+Version-Release number of selected component (if applicable):
+[root@cloudhost ~]# rpm -q libvirt-daemon-kvm 
+libvirt-daemon-kvm-1.3.3-2.fc24.x86_64
+
+How reproducible:
+Always
+
+
+Steps to Reproduce:
+1. virsh define beforedefine.xml
+2. virsh start imagefactory</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9289690</commentid>
+    <comment_count>1</comment_count>
+      <attachid>1153576</attachid>
+    <who name="Dusty Mabe">dustymabe</who>
+    <bug_when>2016-05-03 16:29:58 -0400</bug_when>
+    <thetext>Comment on attachment 1153576
+beforedefine.xml
+
+Don&apos;t use.. sending a new one</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9289693</commentid>
+    <comment_count>2</comment_count>
+      <attachid>1153579</attachid>
+    <who name="Dusty Mabe">dustymabe</who>
+    <bug_when>2016-05-03 16:31:16 -0400</bug_when>
+    <thetext>Created attachment 1153579
+beforedefine.xml</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9289697</commentid>
+    <comment_count>3</comment_count>
+      <attachid>1153581</attachid>
+    <who name="Dusty Mabe">dustymabe</who>
+    <bug_when>2016-05-03 16:32:52 -0400</bug_when>
+    <thetext>Created attachment 1153581
+afterdefinef24.xml</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9289700</commentid>
+    <comment_count>4</comment_count>
+      <attachid>1153582</attachid>
+    <who name="Dusty Mabe">dustymabe</who>
+    <bug_when>2016-05-03 16:33:54 -0400</bug_when>
+    <thetext>Created attachment 1153582
+afterdefinef23.xml</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9289757</commentid>
+    <comment_count>5</comment_count>
+    <who name="Cole Robinson">crobinso</who>
+    <bug_when>2016-05-03 17:18:32 -0400</bug_when>
+    <thetext>Thanks for the report. It&apos;s probably this commit, I&apos;ll confirm and do a build soon
+
+commit 6d8b6d2847f31a3d7a234536c12b8feca751a02f
+Author: Ján Tomko &lt;jtomko@redhat.com&gt;
+Date:   Mon Apr 11 14:26:06 2016 +0200
+
+    conf: also mark the implicit video as primary
+    
+    Commit 119cd06 started setting the primary bool for the first
+    user-specified video even if user omitted the &apos;primary&apos; attribute.
+    
+    However this was done before the addition of the implicit device.
+    This broke startup of transient qemu domains with no &lt;video&gt;:
+    https://bugzilla.redhat.com/show_bug.cgi?id=1325757
+    
+    Move this default to virDomainDefPostParseInternal,
+    after the addition of the implicit video device, to catch the implicit
+    video as well.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9295560</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-05-05 08:52:09 -0400</bug_when>
+    <thetext>libvirt-1.3.3.1-1.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-f5b59b4ca5</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9298510</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-05-06 07:27:22 -0400</bug_when>
+    <thetext>libvirt-1.3.3.1-1.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-f5b59b4ca5</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9302553</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-05-08 20:03:00 -0400</bug_when>
+    <thetext>libvirt-1.3.3.1-1.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="1"
+              ispatch="0"
+              isprivate="0"
+          >
+            <attachid>1153576</attachid>
+            <date>2016-05-03 16:28:00 -0400</date>
+            <delta_ts>2016-05-03 16:29:58 -0400</delta_ts>
+            <desc>beforedefine.xml</desc>
+            <filename>file_1332701.txt</filename>
+            <type>text/plain</type>
+            <size>1297</size>
+            <attacher name="Dusty Mabe">dustymabe</attacher>
+            
+              <data encoding="base64">PGRvbWFpbiB0eXBlPSJrdm0iPiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFs4Mi80
+NzgzXQ0KICA8bmFtZT5pbWFnZWZhY3Rvcnk8L25hbWU+DQogIDxtZW1vcnk+MTA0ODU3NjwvbWVt
+b3J5Pg0KICA8Y3VycmVudE1lbW9yeT4xMDQ4NTc2PC9jdXJyZW50TWVtb3J5Pg0KICA8dXVpZD40
+NTg1ZWNiNS0yYTk5LTRlNDEtOTQ5MC1jYzYwMjRjOWQ0OTc8L3V1aWQ+DQogIDxjbG9jayBvZmZz
+ZXQ9InV0YyIvPg0KICA8dmNwdT4xPC92Y3B1Pg0KICA8ZmVhdHVyZXM+DQogICAgPGFjcGkvPg0K
+ICAgIDxhcGljLz4NCiAgICA8cGFlLz4NCiAgPC9mZWF0dXJlcz4NCiAgPG9zPg0KICAgIDx0eXBl
+Pmh2bTwvdHlwZT4NCiAgPC9vcz4NCiAgPG9uX3Bvd2Vyb2ZmPmRlc3Ryb3k8L29uX3Bvd2Vyb2Zm
+Pg0KICA8b25fcmVib290PmRlc3Ryb3k8L29uX3JlYm9vdD4NCiAgPG9uX2NyYXNoPmRlc3Ryb3k8
+L29uX2NyYXNoPg0KICA8ZGV2aWNlcz4NCiAgICA8Z3JhcGhpY3MgdHlwZT0idm5jIiBwb3J0PSIt
+MSIvPg0KICAgIDxpbnRlcmZhY2UgdHlwZT0iYnJpZGdlIj4NCiAgICAgIDxzb3VyY2UgYnJpZGdl
+PSJ2aXJicjAiLz4NCiAgICAgIDxtYWMgYWRkcmVzcz0iNTI6NTQ6MDA6MDQ6NTY6NzQiLz4NCiAg
+ICAgIDxtb2RlbCB0eXBlPSJ2aXJ0aW8iLz4NCiAgICA8L2ludGVyZmFjZT4NCiAgICA8aW5wdXQg
+YnVzPSJwczIiIHR5cGU9Im1vdXNlIi8+DQogICAgPHNlcmlhbCB0eXBlPSJwdHkiPg0KICAgICAg
+PHRhcmdldCBwb3J0PSIwIi8+DQogICAgPC9zZXJpYWw+DQogICAgPHNlcmlhbCB0eXBlPSJ0Y3Ai
+Pg0KICAgICAgPHNvdXJjZSBob3N0PSIxMjcuMC4wLjEiIG1vZGU9ImJpbmQiIHNlcnZpY2U9IjQ2
+OTkiLz4NCiAgICAgIDxwcm90b2NvbCB0eXBlPSJyYXciLz4NCiAgICAgIDx0YXJnZXQgcG9ydD0i
+MSIvPg0KICAgIDwvc2VyaWFsPg0KICAgIDxkaXNrIGRldmljZT0iZGlzayIgdHlwZT0iZmlsZSI+
+DQogICAgICA8dGFyZ2V0IGJ1cz0idmlydGlvIiBkZXY9InZkYSIvPg0KICAgICAgPHNvdXJjZSBm
+aWxlPSIvdmFyL2xpYi9pbWFnZWZhY3Rvcnkvc3RvcmFnZS85MzFlYWYwNC1iMDcyLTQyMWUtOTJh
+YS0wNzk4YjQ0NjdjYWMuYm9keSIvPg0KICAgICAgPGRyaXZlciB0eXBlPSJyYXciIG5hbWU9InFl
+bXUiLz4NCiAgICA8L2Rpc2s+DQogIDwvZGV2aWNlcz4NCjwvZG9tYWluPg==
+</data>
+
+          </attachment>
+          <attachment
+              isobsolete="0"
+              ispatch="0"
+              isprivate="0"
+          >
+            <attachid>1153579</attachid>
+            <date>2016-05-03 16:31:00 -0400</date>
+            <delta_ts>2016-05-03 16:31:16 -0400</delta_ts>
+            <desc>beforedefine.xml</desc>
+            <filename>file_1332701.txt</filename>
+            <type>text/plain</type>
+            <size>1143</size>
+            <attacher name="Dusty Mabe">dustymabe</attacher>
+            
+              <data encoding="base64">PGRvbWFpbiB0eXBlPSJrdm0iPg0KICA8bmFtZT5pbWFnZWZhY3Rvcnk8L25hbWU+DQogIDxtZW1v
+cnk+MTA0ODU3NjwvbWVtb3J5Pg0KICA8Y3VycmVudE1lbW9yeT4xMDQ4NTc2PC9jdXJyZW50TWVt
+b3J5Pg0KICA8dXVpZD40NTg1ZWNiNS0yYTk5LTRlNDEtOTQ5MC1jYzYwMjRjOWQ0OTc8L3V1aWQ+
+DQogIDxjbG9jayBvZmZzZXQ9InV0YyIvPg0KICA8dmNwdT4xPC92Y3B1Pg0KICA8ZmVhdHVyZXM+
+DQogICAgPGFjcGkvPg0KICAgIDxhcGljLz4NCiAgICA8cGFlLz4NCiAgPC9mZWF0dXJlcz4NCiAg
+PG9zPg0KICAgIDx0eXBlPmh2bTwvdHlwZT4NCiAgPC9vcz4NCiAgPG9uX3Bvd2Vyb2ZmPmRlc3Ry
+b3k8L29uX3Bvd2Vyb2ZmPg0KICA8b25fcmVib290PmRlc3Ryb3k8L29uX3JlYm9vdD4NCiAgPG9u
+X2NyYXNoPmRlc3Ryb3k8L29uX2NyYXNoPg0KICA8ZGV2aWNlcz4NCiAgICA8Z3JhcGhpY3MgdHlw
+ZT0idm5jIiBwb3J0PSItMSIvPg0KICAgIDxpbnRlcmZhY2UgdHlwZT0iYnJpZGdlIj4NCiAgICAg
+IDxzb3VyY2UgYnJpZGdlPSJ2aXJicjAiLz4NCiAgICAgIDxtYWMgYWRkcmVzcz0iNTI6NTQ6MDA6
+MDQ6NTY6NzQiLz4NCiAgICAgIDxtb2RlbCB0eXBlPSJ2aXJ0aW8iLz4NCiAgICA8L2ludGVyZmFj
+ZT4NCiAgICA8aW5wdXQgYnVzPSJwczIiIHR5cGU9Im1vdXNlIi8+DQogICAgPHNlcmlhbCB0eXBl
+PSJwdHkiPg0KICAgICAgPHRhcmdldCBwb3J0PSIwIi8+DQogICAgPC9zZXJpYWw+DQogICAgPHNl
+cmlhbCB0eXBlPSJ0Y3AiPg0KICAgICAgPHNvdXJjZSBob3N0PSIxMjcuMC4wLjEiIG1vZGU9ImJp
+bmQiIHNlcnZpY2U9IjQ2OTkiLz4NCiAgICAgIDxwcm90b2NvbCB0eXBlPSJyYXciLz4NCiAgICAg
+IDx0YXJnZXQgcG9ydD0iMSIvPg0KICAgIDwvc2VyaWFsPg0KICAgIDxkaXNrIGRldmljZT0iZGlz
+ayIgdHlwZT0iZmlsZSI+DQogICAgICA8dGFyZ2V0IGJ1cz0idmlydGlvIiBkZXY9InZkYSIvPg0K
+ICAgICAgPHNvdXJjZSBmaWxlPSIvdmFyL2xpYi9pbWFnZWZhY3Rvcnkvc3RvcmFnZS85MzFlYWYw
+NC1iMDcyLTQyMWUtOTJhYS0wNzk4YjQ0NjdjYWMuYm9keSIvPg0KICAgICAgPGRyaXZlciB0eXBl
+PSJyYXciIG5hbWU9InFlbXUiLz4NCiAgICA8L2Rpc2s+DQogIDwvZGV2aWNlcz4NCjwvZG9tYWlu
+Pg0K
+</data>
+
+          </attachment>
+          <attachment
+              isobsolete="0"
+              ispatch="0"
+              isprivate="0"
+          >
+            <attachid>1153581</attachid>
+            <date>2016-05-03 16:32:00 -0400</date>
+            <delta_ts>2016-05-03 16:32:52 -0400</delta_ts>
+            <desc>afterdefinef24.xml</desc>
+            <filename>file_1332701.txt</filename>
+            <type>text/plain</type>
+            <size>2103</size>
+            <attacher name="Dusty Mabe">dustymabe</attacher>
+            
+              <data encoding="base64">PGRvbWFpbiB0eXBlPSdrdm0nPg0KICA8bmFtZT5pbWFnZWZhY3Rvcnk8L25hbWU+DQogIDx1dWlk
+PjQ1ODVlY2I1LTJhOTktNGU0MS05NDkwLWNjNjAyNGM5ZDQ5NzwvdXVpZD4NCiAgPG1lbW9yeSB1
+bml0PSdLaUInPjEwNDg1NzY8L21lbW9yeT4NCiAgPGN1cnJlbnRNZW1vcnkgdW5pdD0nS2lCJz4x
+MDQ4NTc2PC9jdXJyZW50TWVtb3J5Pg0KICA8dmNwdSBwbGFjZW1lbnQ9J3N0YXRpYyc+MTwvdmNw
+dT4NCiAgPG9zPg0KICAgIDx0eXBlIGFyY2g9J3g4Nl82NCcgbWFjaGluZT0ncGMtaTQ0MGZ4LTIu
+Nic+aHZtPC90eXBlPg0KICAgIDxib290IGRldj0naGQnLz4NCiAgPC9vcz4NCiAgPGZlYXR1cmVz
+Pg0KICAgIDxhY3BpLz4NCiAgICA8YXBpYy8+DQogICAgPHBhZS8+DQogIDwvZmVhdHVyZXM+DQog
+IDxjbG9jayBvZmZzZXQ9J3V0YycvPg0KICA8b25fcG93ZXJvZmY+ZGVzdHJveTwvb25fcG93ZXJv
+ZmY+DQogIDxvbl9yZWJvb3Q+ZGVzdHJveTwvb25fcmVib290Pg0KICA8b25fY3Jhc2g+ZGVzdHJv
+eTwvb25fY3Jhc2g+DQogIDxkZXZpY2VzPg0KICAgIDxlbXVsYXRvcj4vdXNyL2Jpbi9xZW11LWt2
+bTwvZW11bGF0b3I+DQogICAgPGRpc2sgdHlwZT0nZmlsZScgZGV2aWNlPSdkaXNrJz4NCiAgICAg
+IDxkcml2ZXIgbmFtZT0ncWVtdScgdHlwZT0ncmF3Jy8+DQogICAgICA8c291cmNlIGZpbGU9Jy92
+YXIvbGliL2ltYWdlZmFjdG9yeS9zdG9yYWdlLzkzMWVhZjA0LWIwNzItNDIxZS05MmFhLTA3OThi
+NDQ2N2NhYy5ib2R5Jy8+DQogICAgICA8dGFyZ2V0IGRldj0ndmRhJyBidXM9J3ZpcnRpbycvPg0K
+ICAgICAgPGFkZHJlc3MgdHlwZT0ncGNpJyBkb21haW49JzB4MDAwMCcgYnVzPScweDAwJyBzbG90
+PScweDA0JyBmdW5jdGlvbj0nMHgwJy8+DQogICAgPC9kaXNrPg0KICAgIDxjb250cm9sbGVyIHR5
+cGU9J3VzYicgaW5kZXg9JzAnPg0KICAgICAgPGFkZHJlc3MgdHlwZT0ncGNpJyBkb21haW49JzB4
+MDAwMCcgYnVzPScweDAwJyBzbG90PScweDAxJyBmdW5jdGlvbj0nMHgyJy8+DQogICAgPC9jb250
+cm9sbGVyPg0KICAgIDxjb250cm9sbGVyIHR5cGU9J3BjaScgaW5kZXg9JzAnIG1vZGVsPSdwY2kt
+cm9vdCcvPg0KICAgIDxpbnRlcmZhY2UgdHlwZT0nYnJpZGdlJz4NCiAgICAgIDxtYWMgYWRkcmVz
+cz0nNTI6NTQ6MDA6MDQ6NTY6NzQnLz4NCiAgICAgIDxzb3VyY2UgYnJpZGdlPSd2aXJicjAnLz4N
+CiAgICAgIDxtb2RlbCB0eXBlPSd2aXJ0aW8nLz4NCiAgICAgIDxhZGRyZXNzIHR5cGU9J3BjaScg
+ZG9tYWluPScweDAwMDAnIGJ1cz0nMHgwMCcgc2xvdD0nMHgwMycgZnVuY3Rpb249JzB4MCcvPg0K
+ICAgIDwvaW50ZXJmYWNlPg0KICAgIDxzZXJpYWwgdHlwZT0ncHR5Jz4NCiAgICAgIDx0YXJnZXQg
+cG9ydD0nMCcvPg0KICAgIDwvc2VyaWFsPg0KICAgIDxzZXJpYWwgdHlwZT0ndGNwJz4NCiAgICAg
+IDxzb3VyY2UgbW9kZT0nYmluZCcgaG9zdD0nMTI3LjAuMC4xJyBzZXJ2aWNlPSc0Njk5Jy8+DQog
+ICAgICA8cHJvdG9jb2wgdHlwZT0ncmF3Jy8+DQogICAgICA8dGFyZ2V0IHBvcnQ9JzEnLz4NCiAg
+ICA8L3NlcmlhbD4NCiAgICA8Y29uc29sZSB0eXBlPSdwdHknPg0KICAgICAgPHRhcmdldCB0eXBl
+PSdzZXJpYWwnIHBvcnQ9JzAnLz4NCiAgICA8L2NvbnNvbGU+DQogICAgPGlucHV0IHR5cGU9J21v
+dXNlJyBidXM9J3BzMicvPg0KICAgIDxpbnB1dCB0eXBlPSdrZXlib2FyZCcgYnVzPSdwczInLz4N
+CiAgICA8Z3JhcGhpY3MgdHlwZT0ndm5jJyBwb3J0PSctMScgYXV0b3BvcnQ9J3llcycvPg0KICAg
+IDx2aWRlbz4NCiAgICAgIDxtb2RlbCB0eXBlPSdjaXJydXMnIHZyYW09JzE2Mzg0JyBoZWFkcz0n
+MScgcHJpbWFyeT0neWVzJy8+DQogICAgICA8YWRkcmVzcyB0eXBlPSdwY2knIGRvbWFpbj0nMHgw
+MDAwJyBidXM9JzB4MDAnIHNsb3Q9JzB4MDInIGZ1bmN0aW9uPScweDAnLz4NCiAgICA8L3ZpZGVv
+Pg0KICAgIDxtZW1iYWxsb29uIG1vZGVsPSd2aXJ0aW8nPg0KICAgICAgPGFkZHJlc3MgdHlwZT0n
+cGNpJyBkb21haW49JzB4MDAwMCcgYnVzPScweDAwJyBzbG90PScweDA1JyBmdW5jdGlvbj0nMHgw
+Jy8+DQogICAgPC9tZW1iYWxsb29uPg0KICA8L2RldmljZXM+DQo8L2RvbWFpbj4NCg0K
+</data>
+
+          </attachment>
+          <attachment
+              isobsolete="0"
+              ispatch="0"
+              isprivate="0"
+          >
+            <attachid>1153582</attachid>
+            <date>2016-05-03 16:33:00 -0400</date>
+            <delta_ts>2016-05-03 16:33:54 -0400</delta_ts>
+            <desc>afterdefinef23.xml</desc>
+            <filename>file_1332701.txt</filename>
+            <type>text/plain</type>
+            <size>2089</size>
+            <attacher name="Dusty Mabe">dustymabe</attacher>
+            
+              <data encoding="base64">PGRvbWFpbiB0eXBlPSdrdm0nPg0KICA8bmFtZT5pbWFnZWZhY3Rvcnk8L25hbWU+DQogIDx1dWlk
+PjQ1ODVlY2I1LTJhOTktNGU0MS05NDkwLWNjNjAyNGM5ZDQ5NzwvdXVpZD4NCiAgPG1lbW9yeSB1
+bml0PSdLaUInPjEwNDg1NzY8L21lbW9yeT4NCiAgPGN1cnJlbnRNZW1vcnkgdW5pdD0nS2lCJz4x
+MDQ4NTc2PC9jdXJyZW50TWVtb3J5Pg0KICA8dmNwdSBwbGFjZW1lbnQ9J3N0YXRpYyc+MTwvdmNw
+dT4NCiAgPG9zPg0KICAgIDx0eXBlIGFyY2g9J3g4Nl82NCcgbWFjaGluZT0ncGMtaTQ0MGZ4LTIu
+NCc+aHZtPC90eXBlPg0KICAgIDxib290IGRldj0naGQnLz4NCiAgPC9vcz4NCiAgPGZlYXR1cmVz
+Pg0KICAgIDxhY3BpLz4NCiAgICA8YXBpYy8+DQogICAgPHBhZS8+DQogIDwvZmVhdHVyZXM+DQog
+IDxjbG9jayBvZmZzZXQ9J3V0YycvPg0KICA8b25fcG93ZXJvZmY+ZGVzdHJveTwvb25fcG93ZXJv
+ZmY+DQogIDxvbl9yZWJvb3Q+ZGVzdHJveTwvb25fcmVib290Pg0KICA8b25fY3Jhc2g+ZGVzdHJv
+eTwvb25fY3Jhc2g+DQogIDxkZXZpY2VzPg0KICAgIDxlbXVsYXRvcj4vdXNyL2Jpbi9xZW11LWt2
+bTwvZW11bGF0b3I+DQogICAgPGRpc2sgdHlwZT0nZmlsZScgZGV2aWNlPSdkaXNrJz4NCiAgICAg
+IDxkcml2ZXIgbmFtZT0ncWVtdScgdHlwZT0ncmF3Jy8+DQogICAgICA8c291cmNlIGZpbGU9Jy92
+YXIvbGliL2ltYWdlZmFjdG9yeS9zdG9yYWdlLzkzMWVhZjA0LWIwNzItNDIxZS05MmFhLTA3OThi
+NDQ2N2NhYy5ib2R5Jy8+DQogICAgICA8dGFyZ2V0IGRldj0ndmRhJyBidXM9J3ZpcnRpbycvPg0K
+ICAgICAgPGFkZHJlc3MgdHlwZT0ncGNpJyBkb21haW49JzB4MDAwMCcgYnVzPScweDAwJyBzbG90
+PScweDA0JyBmdW5jdGlvbj0nMHgwJy8+DQogICAgPC9kaXNrPg0KICAgIDxjb250cm9sbGVyIHR5
+cGU9J3VzYicgaW5kZXg9JzAnPg0KICAgICAgPGFkZHJlc3MgdHlwZT0ncGNpJyBkb21haW49JzB4
+MDAwMCcgYnVzPScweDAwJyBzbG90PScweDAxJyBmdW5jdGlvbj0nMHgyJy8+DQogICAgPC9jb250
+cm9sbGVyPg0KICAgIDxjb250cm9sbGVyIHR5cGU9J3BjaScgaW5kZXg9JzAnIG1vZGVsPSdwY2kt
+cm9vdCcvPg0KICAgIDxpbnRlcmZhY2UgdHlwZT0nYnJpZGdlJz4NCiAgICAgIDxtYWMgYWRkcmVz
+cz0nNTI6NTQ6MDA6MDQ6NTY6NzQnLz4NCiAgICAgIDxzb3VyY2UgYnJpZGdlPSd2aXJicjAnLz4N
+CiAgICAgIDxtb2RlbCB0eXBlPSd2aXJ0aW8nLz4NCiAgICAgIDxhZGRyZXNzIHR5cGU9J3BjaScg
+ZG9tYWluPScweDAwMDAnIGJ1cz0nMHgwMCcgc2xvdD0nMHgwMycgZnVuY3Rpb249JzB4MCcvPg0K
+ICAgIDwvaW50ZXJmYWNlPg0KICAgIDxzZXJpYWwgdHlwZT0ncHR5Jz4NCiAgICAgIDx0YXJnZXQg
+cG9ydD0nMCcvPg0KICAgIDwvc2VyaWFsPg0KICAgIDxzZXJpYWwgdHlwZT0ndGNwJz4NCiAgICAg
+IDxzb3VyY2UgbW9kZT0nYmluZCcgaG9zdD0nMTI3LjAuMC4xJyBzZXJ2aWNlPSc0Njk5Jy8+DQog
+ICAgICA8cHJvdG9jb2wgdHlwZT0ncmF3Jy8+DQogICAgICA8dGFyZ2V0IHBvcnQ9JzEnLz4NCiAg
+ICA8L3NlcmlhbD4NCiAgICA8Y29uc29sZSB0eXBlPSdwdHknPg0KICAgICAgPHRhcmdldCB0eXBl
+PSdzZXJpYWwnIHBvcnQ9JzAnLz4NCiAgICA8L2NvbnNvbGU+DQogICAgPGlucHV0IHR5cGU9J21v
+dXNlJyBidXM9J3BzMicvPg0KICAgIDxpbnB1dCB0eXBlPSdrZXlib2FyZCcgYnVzPSdwczInLz4N
+CiAgICA8Z3JhcGhpY3MgdHlwZT0ndm5jJyBwb3J0PSctMScgYXV0b3BvcnQ9J3llcycvPg0KICAg
+IDx2aWRlbz4NCiAgICAgIDxtb2RlbCB0eXBlPSdjaXJydXMnIHZyYW09JzE2Mzg0JyBoZWFkcz0n
+MScvPg0KICAgICAgPGFkZHJlc3MgdHlwZT0ncGNpJyBkb21haW49JzB4MDAwMCcgYnVzPScweDAw
+JyBzbG90PScweDAyJyBmdW5jdGlvbj0nMHgwJy8+DQogICAgPC92aWRlbz4NCiAgICA8bWVtYmFs
+bG9vbiBtb2RlbD0ndmlydGlvJz4NCiAgICAgIDxhZGRyZXNzIHR5cGU9J3BjaScgZG9tYWluPScw
+eDAwMDAnIGJ1cz0nMHgwMCcgc2xvdD0nMHgwNScgZnVuY3Rpb249JzB4MCcvPg0KICAgIDwvbWVt
+YmFsbG9vbj4NCiAgPC9kZXZpY2VzPg0KPC9kb21haW4+DQoNCg==
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

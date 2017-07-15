@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1356456</bug_id>
+          
+          <creation_ts>2016-07-14 03:42:00 -0400</creation_ts>
+          <short_desc>kexec-tools: kdump service start fails due to AVC deny</short_desc>
+          <delta_ts>2017-02-02 15:50:38 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>selinux-policy</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>1357762</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="xiaoli feng">xifeng</reporter>
+          <assigned_to name="Lukas Vrabec">lvrabec</assigned_to>
+          <cc>bhe</cc>
+    
+    
+    <cc>dominick.grift</cc>
+    
+    
+    <cc>dwalsh</cc>
+    
+    
+    <cc>jfilak</cc>
+    
+    
+    <cc>joe</cc>
+    
+    
+    <cc>j.orti.alcaine</cc>
+    
+    
+    <cc>kdump-team-bugs</cc>
+    
+    
+    <cc>lvrabec</cc>
+    
+    
+    <cc>mgrepl</cc>
+    
+    
+    <cc>mkarg</cc>
+    
+    
+    <cc>paul.destefano-redhat</cc>
+    
+    
+    <cc>plautrba</cc>
+    
+    
+    <cc>ruyang</cc>
+    
+    
+    <cc>xifeng</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>selinux-policy-3.13.1-191.24.fc24</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-02-02 15:50:38</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9508190</commentid>
+    <comment_count>0</comment_count>
+    <who name="xiaoli feng">xifeng</who>
+    <bug_when>2016-07-14 03:42:35 -0400</bug_when>
+    <thetext>Description of problem:
+From the kdumpctl help document, the kdumpctl start can start kdump service. But actually it doesn&apos;t start kdump service.
+
+
+Version-Release number of selected component (if applicable):
+
+4.6.3-300.fc24.ppc64
+
+How reproducible:
+
+100%
+Steps to Reproduce:
+1.systemctl stop kdump
+2.kdumpctl start or restart
+3.check if kdump service start
+
+Actual results:
+kdump service doesn&apos;t start after kdumpctl start
+
+Expected results:
+
+kdump service start after kdumpctl start.
+Additional info:</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9540045</commentid>
+    <comment_count>1</comment_count>
+    <who name="Dave Young">ruyang</who>
+    <bug_when>2016-07-22 04:34:11 -0400</bug_when>
+    <thetext>[root@localhost ~]# cat /proc/iomem|grep Crash
+  25000000-34ffffff : Crash kernel
+
+[root@localhost ~]# systemctl enable kdump
+Created symlink from /etc/systemd/system/multi-user.target.wants/kdump.service to /usr/lib/systemd/system/kdump.service.
+[root@localhost ~]# systemctl stop kdump
+[root@localhost ~]# systemctl start kdump
+[root@localhost ~]# kdumpctl status
+Kdump is operational
+
+I can not reproduce in a fresh installed Fedora vm...</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9575075</commentid>
+    <comment_count>2</comment_count>
+    <who name="xiaoli feng">xifeng</who>
+    <bug_when>2016-08-01 21:18:45 -0400</bug_when>
+    <thetext>Sorry, I miss the message. The cmd &quot;kdumpctl status&quot; show it work. But the cmd &quot;systemctl status kdump&quot; show it started failed. I think the cmd &quot;kdumpctl start kdump&quot; doesn&apos;t update the systemd status.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9580697</commentid>
+    <comment_count>3</comment_count>
+    <who name="Dave Young">ruyang</who>
+    <bug_when>2016-08-03 05:34:46 -0400</bug_when>
+    <thetext>I guess it is caused by access denying like below:
+
+Aug  3 17:20:39 localhost audit: AVC avc:  denied  { sys_admin } for  pid=2120 c
+omm=&quot;kexec&quot; capability=21  scontext=system_u:system_r:kdump_t:s0 tcontext=system
+_u:system_r:kdump_t:s0 tclass=capability permissive=0
+:
+omm=&quot;kexec&quot; capability=21  scontext=system_u:system_r:kdump_t:s0 tcontext=system
+_u:system_r:kdump_t:s0 tclass=capability permissive=0
+Aug  3 17:20:39 localhost audit: AVC avc:  denied  { sys_admin } for  pid=2120 c
+omm=&quot;kexec&quot; capability=21  scontext=system_u:system_r:kdump_t:s0 tcontext=system
+_u:system_r:kdump_t:s0 tclass=capability permissive=0
+Aug  3 17:20:39 localhost audit: AVC avc:  denied  { sys_admin } for  pid=2120 c
+omm=&quot;kexec&quot; capability=21  scontext=system_u:system_r:kdump_t:s0 tcontext=system
+_u:system_r:kdump_t:s0 tclass=capability permissive=0
+
+We need help from selinux team..</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9596540</commentid>
+    <comment_count>4</comment_count>
+    <who name="Dave Young">ruyang</who>
+    <bug_when>2016-08-09 01:52:06 -0400</bug_when>
+    <thetext>Hi,
+
+I think I misunderstood the bug report, it should be not a bug because kdumpctl is for internal use, one should use systemctl to start/stop kdump service.
+
+But I did see a rawhide bug in comment #3, systemctl start kdump failed as I said in comment #3. So let&apos;s use this bug for issues in comment #3
+
+Thanks
+Dave</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9606808</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-11 07:55:46 -0400</bug_when>
+    <thetext>selinux-policy-3.13.1-191.10.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-2c8a3e08c6</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9606819</commentid>
+    <comment_count>6</comment_count>
+    <who name="Lukas Vrabec">lvrabec</who>
+    <bug_when>2016-08-11 07:57:26 -0400</bug_when>
+    <thetext>Moving back to NEW state. I added wrong BZ ID to bodhi.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9758736</commentid>
+    <comment_count>7</comment_count>
+    <who name="Joseph D. Wagner">joe</who>
+    <bug_when>2016-09-30 23:03:11 -0400</bug_when>
+    <thetext>SELinux is preventing restorecon from write access on the fifo_file /var/tmp/dracut.94mpiI/systemd-cat.
+
+*****  Plugin catchall (100. confidence) suggests   **************************
+
+If you believe that restorecon should be allowed write access on the systemd-cat fifo_file by default.
+Then you should report this as a bug.
+You can generate a local policy module to allow this access.
+Do
+allow this access for now by executing:
+# ausearch -c &apos;restorecon&apos; --raw | audit2allow -M my-restorecon
+# semodule -X 300 -i my-restorecon.pp
+
+Additional Information:
+Source Context                system_u:system_r:setfiles_t:s0
+Target Context                system_u:object_r:kdumpctl_tmp_t:s0
+Target Objects                /var/tmp/dracut.94mpiI/systemd-cat [ fifo_file ]
+Source                        restorecon
+Source Path                   restorecon
+Port                          &lt;Unknown&gt;
+Host                          localhost.localdomain
+Source RPM Packages           
+Target RPM Packages           
+Policy RPM                    selinux-policy-3.13.1-191.16.fc24.noarch
+Selinux Enabled               True
+Policy Type                   targeted
+Enforcing Mode                Enforcing
+Host Name                     localhost.localdomain
+Platform                      Linux localhost.localdomain 4.7.4-200.fc24.x86_64
+                              #1 SMP Thu Sep 15 18:42:09 UTC 2016 x86_64 x86_64
+Alert Count                   1
+First Seen                    2016-09-30 19:58:52 PDT
+Last Seen                     2016-09-30 19:58:52 PDT
+Local ID                      72bac7b2-3fe9-47de-9382-118844efb7a9
+
+Raw Audit Messages
+type=AVC msg=audit(1475290732.714:224): avc:  denied  { write } for  pid=21528 comm=&quot;restorecon&quot; path=&quot;/var/tmp/dracut.94mpiI/systemd-cat&quot; dev=&quot;dm-1&quot; ino=6818526 scontext=system_u:system_r:setfiles_t:s0 tcontext=system_u:object_r:kdumpctl_tmp_t:s0 tclass=fifo_file permissive=0
+
+
+Hash: restorecon,setfiles_t,kdumpctl_tmp_t,fifo_file,write</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9758737</commentid>
+    <comment_count>8</comment_count>
+    <who name="Joseph D. Wagner">joe</who>
+    <bug_when>2016-09-30 23:04:31 -0400</bug_when>
+    <thetext>In case it wasn&apos;t clear, the denial I just posted was received while starting the kdump service.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10026995</commentid>
+    <comment_count>9</comment_count>
+    <who name="Paul DeStefano">paul.destefano-redhat</who>
+    <bug_when>2017-01-01 21:39:45 -0500</bug_when>
+    <thetext>I think I just ran into this on F25.  Any update?  I&apos;m really hoping kdump will help me.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10043415</commentid>
+    <comment_count>10</comment_count>
+    <who name="Lukas Vrabec">lvrabec</who>
+    <bug_when>2017-01-08 15:29:13 -0500</bug_when>
+    <thetext>*** Bug 1311534 has been marked as a duplicate of this bug. ***</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10045392</commentid>
+    <comment_count>11</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-09 09:02:53 -0500</bug_when>
+    <thetext>selinux-policy-3.13.1-191.24.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2017-7585703fbe</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10047651</commentid>
+    <comment_count>12</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-09 22:23:29 -0500</bug_when>
+    <thetext>selinux-policy-3.13.1-191.24.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-7585703fbe</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10117218</commentid>
+    <comment_count>13</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-02 15:50:38 -0500</bug_when>
+    <thetext>selinux-policy-3.13.1-191.24.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

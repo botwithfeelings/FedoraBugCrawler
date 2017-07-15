@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1387934</bug_id>
+          
+          <creation_ts>2016-10-23 18:53:00 -0400</creation_ts>
+          <short_desc>docker-storage-setup service deleted to break  systemd ordering cycle</short_desc>
+          <delta_ts>2016-11-07 22:48:31 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>docker-storage-setup</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>CURRENTRELEASE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Dusty Mabe">dustymabe</reporter>
+          <assigned_to name="Andy Grimm">agrimm</assigned_to>
+          <cc>agrimm</cc>
+    
+    
+    <cc>jgoulding</cc>
+    
+    
+    <cc>lnie</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-11-01 08:45:45</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9813804</commentid>
+    <comment_count>0</comment_count>
+    <who name="Dusty Mabe">dustymabe</who>
+    <bug_when>2016-10-23 18:53:35 -0400</bug_when>
+    <thetext>Description of problem:
+
+There is an ordering issue with docker-storage setup that causes it to be deleted from the startup on Fedora 25 atomic host. The error looks like:
+
+[fedora@cloudhost ~]$ journalctl -u docker-storage-setup.service
+-- Logs begin at Fri 2016-10-21 18:40:36 UTC, end at Sun 2016-10-23 22:44:26 UTC. --
+Oct 21 18:40:37 localhost.localdomain systemd[1]: docker-storage-setup.service: Job docker-storage-setup.service/start deleted to break ordering cycle starting with multi-user.target/start
+
+
+Version-Release number of selected component (if applicable):
+Cloud image from: 
+http://kojipkgs.fedoraproject.org/compose/branched/Fedora-25-20161021.n.0/compose/CloudImages/x86_64/images/Fedora-Atomic-25-20161021.n.0.x86_64.qcow2
+[fedora@cloudhost ~]$ rpm-ostree status
+State: idle
+Deployments:
+● fedora-atomic:fedora-atomic/25/x86_64/docker-host
+       Version: 25.31 (2016-10-21 01:14:00)
+        Commit: fe55d64c8d2f4caae628ff2e50d832ff0b66350e61d8989dc5b6a1b7ab0ed83f
+        OSName: fedora-atomic
+[fedora@cloudhost ~]$ 
+[fedora@cloudhost ~]$ rpm -q docker 
+docker-1.12.1-13.git9a3752d.fc25.x86_64
+
+
+
+How reproducible:
+Always
+
+
+Steps to Reproduce:
+1. Boot up cloud image 
+2. systemctl status docker-storage-setup</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9813810</commentid>
+    <comment_count>1</comment_count>
+    <who name="Dusty Mabe">dustymabe</who>
+    <bug_when>2016-10-23 18:53:50 -0400</bug_when>
+    <thetext>Input from colin walters:
+&quot;&quot;&quot;
+I think this is due to:
+
+# grep After /usr/lib/systemd/system/docker-storage-setup.service
+After=cloud-final.service
+# grep ^After /usr/lib/systemd/system/cloud-final.service
+After=network-online.target cloud-config.service rc-local.service multi-user.target
+
+But docker.service wants docker-storage-setup.service, and
+multi-user.target wants docker.service.
+
+Hence we&apos;re trying to run d-s-s both before and after multi-user.target.
+
+I think the fix here is going to be changing the After=cloud-final.service
+in d-s-s to After=cloud-init-local.service or so.
+
+The main requirement here from my perspective is that cloud node
+users are able to configure d-s-s (and docker).  Specifically to do
+things like enable overlayfs by default.
+
+If changing it to cloud-init-local.service is sufficient to use `bootcmd`,
+that may work.
+&quot;&quot;&quot;</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9813825</commentid>
+    <comment_count>2</comment_count>
+    <who name="Dusty Mabe">dustymabe</who>
+    <bug_when>2016-10-23 19:18:17 -0400</bug_when>
+    <thetext>Here is a user-data workaround that can be used to put in walters&apos; suggested fix and then get the docker service up and running: 
+
+#cloud-config
+bootcmd:
+  - sed s/After=cloud-final.service/After=cloud-init-local.service/ /usr/lib/systemd/system/docker-storage-setup.service &gt; /etc/systemd/system/docker-storage-setup.service
+  - systemctl daemon-reload
+  - systemctl start --no-block docker.service</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9815770</commentid>
+    <comment_count>3</comment_count>
+    <who name="Dusty Mabe">dustymabe</who>
+    <bug_when>2016-10-24 12:12:40 -0400</bug_when>
+    <thetext>upstream PR: 
+
+https://github.com/projectatomic/docker-storage-setup/pull/161</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9820165</commentid>
+    <comment_count>4</comment_count>
+    <who name="Dusty Mabe">dustymabe</who>
+    <bug_when>2016-10-25 11:41:34 -0400</bug_when>
+    <thetext>*** Bug 1388000 has been marked as a duplicate of this bug. ***</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9837040</commentid>
+    <comment_count>5</comment_count>
+    <who name="Dusty Mabe">dustymabe</who>
+    <bug_when>2016-11-01 08:45:45 -0400</bug_when>
+    <thetext>PR was merged and a new docker package with the update was pushed to stable in: 
+
+https://bodhi.fedoraproject.org/updates/FEDORA-2016-0ed0314ad7</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

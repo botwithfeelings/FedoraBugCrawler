@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1422468</bug_id>
+          
+          <creation_ts>2017-02-15 06:59:00 -0500</creation_ts>
+          <short_desc>atomic run does not handle malformed image/repository names</short_desc>
+          <delta_ts>2017-04-01 13:10:12 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>atomic</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Martin Babinsky">mbabinsk</reporter>
+          <assigned_to name="Daniel Walsh">dwalsh</assigned_to>
+          <cc>adimania</cc>
+    
+    
+    <cc>amurdaca</cc>
+    
+    
+    <cc>bbaude</cc>
+    
+    
+    <cc>dwalsh</cc>
+    
+    
+    <cc>fkluknav</cc>
+    
+    
+    <cc>lsm5</cc>
+    
+    
+    <cc>walters</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>atomic-1.16.4-1.fc26</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-04-01 13:10:12</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10149619</commentid>
+    <comment_count>0</comment_count>
+      <attachid>1250559</attachid>
+    <who name="Martin Babinsky">mbabinsk</who>
+    <bug_when>2017-02-15 06:59:37 -0500</bug_when>
+    <thetext>Created attachment 1250559
+debugging output from atomic run
+
+Description of problem:
+
+When supplying atomic run subcommand with malformed image name (e.g. missing organization in the name) the error message is rather cryptic and seems to originate from problematic handling of repository names rather than from failures to locate image name. Please check the reproducer below, it explains the issue more clearly.
+
+Version-Release number of selected component (if applicable):
+
+atomic-1.15.1-1.fc25.x86_64
+
+How reproducible:
+
+Always
+
+Steps to Reproduce:
+1. Pull freeipa-server image from registry:
+
+atomic pull freeipa/freeipa-server
+
+2. Install freeipa-server container:
+
+atomic install freeipa/freeipa-server hostname master.ipa.test -U -r IPA.TEST -a Secret123 -p Secret123
+
+3. Run the container but leave out the organization name from container name
+
+atomic run freeipa-server
+
+Actual results:
+
+The error message displayed is rather cryptic: Unable to resolve None
+
+Expected results:
+
+Error message should say something like &quot;Unable to find image {image_name}&quot;.
+
+Additional info:
+
+I have attached a debug output from the command run in step 3.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10154689</commentid>
+    <comment_count>1</comment_count>
+    <who name="Brent Baude">bbaude</who>
+    <bug_when>2017-02-16 14:53:50 -0500</bug_when>
+    <thetext>Can you try this with the git master? I&apos;m not able to exactly replicate the error you are seeing.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10174388</commentid>
+    <comment_count>2</comment_count>
+    <who name="Martin Babinsky">mbabinsk</who>
+    <bug_when>2017-02-22 07:51:51 -0500</bug_when>
+    <thetext>Indeed on master branch I get a sensible error message in step 3:
+
+{{{
+# ./atomic install freeipa/freeipa-server hostname master.ipa.test -U -r IPA.TEST -a Secret123 -p Secret123
+&lt;SNIP&gt;
+[root@master1 atomic]# ./atomic run freeipa-server
+Need to pull freeipa-server
+Unable to find freeipa-server
+}}}</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10187338</commentid>
+    <comment_count>3</comment_count>
+    <who name="Brent Baude">bbaude</who>
+    <bug_when>2017-02-27 11:05:57 -0500</bug_when>
+    <thetext>should we set this to release pending?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10187469</commentid>
+    <comment_count>4</comment_count>
+    <who name="Daniel Walsh">dwalsh</who>
+    <bug_when>2017-02-27 11:46:13 -0500</bug_when>
+    <thetext>Fixed in atomic-1.16.2</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10226411</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-09 15:57:48 -0500</bug_when>
+    <thetext>atomic-1.16.3-1.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-2ad6948192</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10226421</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-09 15:58:51 -0500</bug_when>
+    <thetext>atomic-1.16.3-1.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-cf5944a771</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10229926</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-10 19:21:03 -0500</bug_when>
+    <thetext>atomic-1.16.3-1.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-cf5944a771</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10230404</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-11 09:25:36 -0500</bug_when>
+    <thetext>atomic-1.16.3-1.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-2ad6948192</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10246650</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-16 12:01:35 -0400</bug_when>
+    <thetext>atomic-1.16.4-1.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-e8cbc792c6</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10248134</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-16 22:19:41 -0400</bug_when>
+    <thetext>atomic-1.16.4-1.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-e8cbc792c6</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10296735</commentid>
+    <comment_count>11</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-01 13:10:12 -0400</bug_when>
+    <thetext>atomic-1.16.4-1.fc26 has been pushed to the Fedora 26 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="0"
+              ispatch="0"
+              isprivate="0"
+          >
+            <attachid>1250559</attachid>
+            <date>2017-02-15 06:59:00 -0500</date>
+            <delta_ts>2017-02-15 06:59:37 -0500</delta_ts>
+            <desc>debugging output from atomic run</desc>
+            <filename>atomic_run_fail.log</filename>
+            <type>text/plain</type>
+            <size>8272</size>
+            <attacher name="Martin Babinsky">mbabinsk</attacher>
+            
+              <data encoding="base64">WwogICAgewogICAgICAgICJuYW1lIjogImRvY2tlci5pbyIsCiAgICAgICAgInNlY3VyZSI6IHRy
+dWUsCiAgICAgICAgInNlYXJjaCI6IHRydWUsCiAgICAgICAgImhvc3RuYW1lIjogInJlZ2lzdHJ5
+LTEuZG9ja2VyLmlvIgogICAgfQpdClVSTDogaHR0cHM6Ly9yZWdpc3RyeS0xLmRvY2tlci5pby92
+Mi8KR0VUX1VSTDogaHR0cHM6Ly9yZWdpc3RyeS0xLmRvY2tlci5pby92Mi8KR0VUX0hFQURFUjog
+eydBY2NlcHQnOiAnW2FwcGxpY2F0aW9uL3ZuZC5vY2kuaW1hZ2UubWFuaWZlc3QudjEranNvbixh
+cHBsaWNhdGlvbi92bmQuZG9ja2VyLmRpc3RyaWJ1dGlvbi5tYW5pZmVzdC52Mitqc29uLGFwcGxp
+Y2F0aW9uL3ZuZC5kb2NrZXIuZGlzdHJpYnV0aW9uLm1hbmlmZXN0LnYxK3ByZXR0eWp3cyxhcHBs
+aWNhdGlvbi92bmQuZG9ja2VyLmRpc3RyaWJ1dGlvbi5tYW5pZmVzdC52MStqc29uXSd9CkdFVF9W
+RVJJRlk6IFRydWUKU2V0IHRva2VuX3Njb3BlIHRvIHJlcG9zaXRvcnk6bGlicmFyeS9mcmVlaXBh
+LXNlcnZlcjpwdWxsClVSTDogaHR0cDovL3JlZ2lzdHJ5LTEuZG9ja2VyLmlvL3YyLwpHRVRfVVJM
+OiBodHRwczovL2F1dGguZG9ja2VyLmlvL3Rva2VuP3NlcnZpY2U9cmVnaXN0cnkuZG9ja2VyLmlv
+JnNjb3BlPXJlcG9zaXRvcnk6bGlicmFyeS9mcmVlaXBhLXNlcnZlcjpwdWxsCkdFVF9IRUFERVI6
+IHsnQWNjZXB0JzogJ1thcHBsaWNhdGlvbi92bmQub2NpLmltYWdlLm1hbmlmZXN0LnYxK2pzb24s
+YXBwbGljYXRpb24vdm5kLmRvY2tlci5kaXN0cmlidXRpb24ubWFuaWZlc3QudjIranNvbixhcHBs
+aWNhdGlvbi92bmQuZG9ja2VyLmRpc3RyaWJ1dGlvbi5tYW5pZmVzdC52MStwcmV0dHlqd3MsYXBw
+bGljYXRpb24vdm5kLmRvY2tlci5kaXN0cmlidXRpb24ubWFuaWZlc3QudjEranNvbl0nfQpHRVRf
+VkVSSUZZOiBUcnVlClNldCB0b2tlbiB0byBleUpoYkdjaU9pSkZVekkxTmlJc0luUjVjQ0k2SWtw
+WFZDSXNJbmcxWXlJNld5Sk5TVWxEVEhwRFEwRmtVMmRCZDBsQ1FXZEpRa0ZFUVV0Q1oyZHhhR3Rx
+VDFCUlVVUkJha0pIVFZWUmQxRm5XVVJXVVZGRVJYcDBVazVHYjNwUGEyUllUakJyTmxkR1VsRlNS
+SEJKVkZSU1VrOXJPVlZXUm1jMlRtdEdSbEY2Y0ZOVVZFNUVUMnRHVTAxclRUWlVNRmt6VG5wd1Ex
+WnJWa0pQYTJ4SFVsVnJObEV4YXpGVGVrRmxSbmN3ZUU1cVFURk5la1Y1VFhwVk5FNVVaR0ZHZHpC
+NFRucEJNVTE2UlhsTmVsVTBUbFJrWVUxRldYaFNSRUpEUW1kT1ZrSkJUVlJQTVVWNlV6RlJObEZx
+U2twTmVuQmhVakZvVDA5cVNsaFhSVEEyVVRCV1dGRjZjRlZOTUhoUFQydHZNbFl4V1RaTmJHc3lW
+SHB3V2xGV2JFcFBiR2hRVlRCUk5sWkZVbEpUVkc4d1ZXdHdSRTFHYTNkRmQxbElTMjlhU1hwcU1F
+TkJVVmxKUzI5YVNYcHFNRVJCVVdORVVXZEJSVm8wTmtWTFYzVktTWGh4T1RodVVDOUdXRVUzVTNW
+eU9YbGtaM2MzSzJGa2NuZHhlR2x4TjAwNFZIRlVhME4wZHpCUVptMVNTMlZMZEV4d2FYTlRSRlU0
+THpac2VXWjNRVUZ3WldoNlNIZHRXbXhaUjJkeFQwSnpha05DY25wQlQwSm5UbFpJVVRoQ1FXWTRS
+VUpCVFVOQ05FRjNSSGRaUkZaU01HeENRV2QzUW1kWlJWWlNNR3hCUkVKRlFtZE9Wa2hSTkVWUVVW
+RTNWVlJPVEZaRWNFTk5hMnQ2VDJ4d1NGZEZORFpOYkdSWlZGUndSRkpXWkVSUGJGRjZWRVUwTmxO
+cVdsaFdhbTk1VjFSYVVFOXNiRUpYVldzMlYwVTVWRkpFY0ZWU1JrWktUMnBTVTFOclRYZFNaMWxF
+VmxJd2FrSkVPSGRRV1VFM1ZWUlNZVTE2Y0VoV2VtUktUMnhvVlZWRlVUWlRSVEF3VlZSd1VGWkdV
+bGxQYWxwQ1VsVk5ObFZyTUhwUmVuQkNWV3BLUkU5ck9VZE9lbU0yVVd4YVJsRlVjRXBTYTFaS1Qy
+dE9XazVWYzNkRFoxbEpTMjlhU1hwcU1FVkJkMGxFVTFGQmQxSm5TV2hCVHpZeFNXbG9OMUZVY0hO
+VE1GRklZVU53VERGWlRXTk1NblpYWmxOeWRsaEhiSHBTUkRFd04yTlJVRUZwUlVGdFpYZHVlbE5Z
+UkhwbFJHeHFjRGM0VDFOc1RGRnpiblJPWVdNNWVIUnlZVzB4VTBreFkwWlhRMnRKUFNKZGZRLmV5
+SmhZMk5sYzNNaU9sdGRMQ0poZFdRaU9pSnlaV2RwYzNSeWVTNWtiMk5yWlhJdWFXOGlMQ0psZUhB
+aU9qRTBPRGN4TlRneE16Y3NJbWxoZENJNk1UUTROekUxTnpnek55d2lhWE56SWpvaVlYVjBhQzVr
+YjJOclpYSXVhVzhpTENKcWRHa2lPaUpyUkZJM1NXOXBlRFZsWm1oVmFGSkROVGwxYUNJc0ltNWla
+aUk2TVRRNE56RTFOelV6Tnl3aWMzVmlJam9pSW4wLkdkNjVXZ3lXbkd2RFhhcjVNaXhVYU05emdw
+UFNYUERxTUtZVHJvTnhqRktNZnFXdEQ2dmRaVDBRWjFmQzZ0SU5tcUFBblVNMmtLS01CSkR5YjNG
+bzdRCkdFVF9VUkw6IGh0dHA6Ly9yZWdpc3RyeS0xLmRvY2tlci5pby92Mi8KR0VUX0hFQURFUjog
+eydBY2NlcHQnOiAnW2FwcGxpY2F0aW9uL3ZuZC5vY2kuaW1hZ2UubWFuaWZlc3QudjEranNvbixh
+cHBsaWNhdGlvbi92bmQuZG9ja2VyLmRpc3RyaWJ1dGlvbi5tYW5pZmVzdC52Mitqc29uLGFwcGxp
+Y2F0aW9uL3ZuZC5kb2NrZXIuZGlzdHJpYnV0aW9uLm1hbmlmZXN0LnYxK3ByZXR0eWp3cyxhcHBs
+aWNhdGlvbi92bmQuZG9ja2VyLmRpc3RyaWJ1dGlvbi5tYW5pZmVzdC52MStqc29uXScsICdBdXRo
+b3JpemF0aW9uJzogJ0JlYXJlciBleUpoYkdjaU9pSkZVekkxTmlJc0luUjVjQ0k2SWtwWFZDSXNJ
+bmcxWXlJNld5Sk5TVWxEVEhwRFEwRmtVMmRCZDBsQ1FXZEpRa0ZFUVV0Q1oyZHhhR3RxVDFCUlVV
+UkJha0pIVFZWUmQxRm5XVVJXVVZGRVJYcDBVazVHYjNwUGEyUllUakJyTmxkR1VsRlNSSEJKVkZS
+U1VrOXJPVlZXUm1jMlRtdEdSbEY2Y0ZOVVZFNUVUMnRHVTAxclRUWlVNRmt6VG5wd1ExWnJWa0pQ
+YTJ4SFVsVnJObEV4YXpGVGVrRmxSbmN3ZUU1cVFURk5la1Y1VFhwVk5FNVVaR0ZHZHpCNFRucEJN
+VTE2UlhsTmVsVTBUbFJrWVUxRldYaFNSRUpEUW1kT1ZrSkJUVlJQTVVWNlV6RlJObEZxU2twTmVu
+QmhVakZvVDA5cVNsaFhSVEEyVVRCV1dGRjZjRlZOTUhoUFQydHZNbFl4V1RaTmJHc3lWSHB3V2xG
+V2JFcFBiR2hRVlRCUk5sWkZVbEpUVkc4d1ZXdHdSRTFHYTNkRmQxbElTMjlhU1hwcU1FTkJVVmxK
+UzI5YVNYcHFNRVJCVVdORVVXZEJSVm8wTmtWTFYzVktTWGh4T1RodVVDOUdXRVUzVTNWeU9YbGta
+M2MzSzJGa2NuZHhlR2x4TjAwNFZIRlVhME4wZHpCUVptMVNTMlZMZEV4d2FYTlRSRlU0THpac2VX
+WjNRVUZ3WldoNlNIZHRXbXhaUjJkeFQwSnpha05DY25wQlQwSm5UbFpJVVRoQ1FXWTRSVUpCVFVO
+Q05FRjNSSGRaUkZaU01HeENRV2QzUW1kWlJWWlNNR3hCUkVKRlFtZE9Wa2hSTkVWUVVWRTNWVlJP
+VEZaRWNFTk5hMnQ2VDJ4d1NGZEZORFpOYkdSWlZGUndSRkpXWkVSUGJGRjZWRVUwTmxOcVdsaFdh
+bTk1VjFSYVVFOXNiRUpYVldzMlYwVTVWRkpFY0ZWU1JrWktUMnBTVTFOclRYZFNaMWxFVmxJd2Fr
+SkVPSGRRV1VFM1ZWUlNZVTE2Y0VoV2VtUktUMnhvVlZWRlVUWlRSVEF3VlZSd1VGWkdVbGxQYWxw
+Q1VsVk5ObFZyTUhwUmVuQkNWV3BLUkU5ck9VZE9lbU0yVVd4YVJsRlVjRXBTYTFaS1QydE9XazVW
+YzNkRFoxbEpTMjlhU1hwcU1FVkJkMGxFVTFGQmQxSm5TV2hCVHpZeFNXbG9OMUZVY0hOVE1GRklZ
+VU53VERGWlRXTk1NblpYWmxOeWRsaEhiSHBTUkRFd04yTlJVRUZwUlVGdFpYZHVlbE5ZUkhwbFJH
+eHFjRGM0VDFOc1RGRnpiblJPWVdNNWVIUnlZVzB4VTBreFkwWlhRMnRKUFNKZGZRLmV5SmhZMk5s
+YzNNaU9sdGRMQ0poZFdRaU9pSnlaV2RwYzNSeWVTNWtiMk5yWlhJdWFXOGlMQ0psZUhBaU9qRTBP
+RGN4TlRneE16Y3NJbWxoZENJNk1UUTROekUxTnpnek55d2lhWE56SWpvaVlYVjBhQzVrYjJOclpY
+SXVhVzhpTENKcWRHa2lPaUpyUkZJM1NXOXBlRFZsWm1oVmFGSkROVGwxYUNJc0ltNWlaaUk2TVRR
+NE56RTFOelV6Tnl3aWMzVmlJam9pSW4wLkdkNjVXZ3lXbkd2RFhhcjVNaXhVYU05emdwUFNYUERx
+TUtZVHJvTnhqRktNZnFXdEQ2dmRaVDBRWjFmQzZ0SU5tcUFBblVNMmtLS01CSkR5YjNGbzdRJ30K
+R0VUX1ZFUklGWTogVHJ1ZQpVUkw6IGh0dHA6Ly9yZWdpc3RyeS0xLmRvY2tlci5pby92Mi8KR0VU
+X1VSTDogaHR0cDovL3JlZ2lzdHJ5LTEuZG9ja2VyLmlvL3YyLwpHRVRfSEVBREVSOiB7J0FjY2Vw
+dCc6ICdbYXBwbGljYXRpb24vdm5kLm9jaS5pbWFnZS5tYW5pZmVzdC52MStqc29uLGFwcGxpY2F0
+aW9uL3ZuZC5kb2NrZXIuZGlzdHJpYnV0aW9uLm1hbmlmZXN0LnYyK2pzb24sYXBwbGljYXRpb24v
+dm5kLmRvY2tlci5kaXN0cmlidXRpb24ubWFuaWZlc3QudjErcHJldHR5andzLGFwcGxpY2F0aW9u
+L3ZuZC5kb2NrZXIuZGlzdHJpYnV0aW9uLm1hbmlmZXN0LnYxK2pzb25dJywgJ0F1dGhvcml6YXRp
+b24nOiAnQmVhcmVyIGV5SmhiR2NpT2lKRlV6STFOaUlzSW5SNWNDSTZJa3BYVkNJc0luZzFZeUk2
+V3lKTlNVbERUSHBEUTBGa1UyZEJkMGxDUVdkSlFrRkVRVXRDWjJkeGFHdHFUMUJSVVVSQmFrSkhU
+VlZSZDFGbldVUldVVkZFUlhwMFVrNUdiM3BQYTJSWVRqQnJObGRHVWxGU1JIQkpWRlJTVWs5ck9W
+VldSbWMyVG10R1JsRjZjRk5VVkU1RVQydEdVMDFyVFRaVU1Ga3pUbnB3UTFaclZrSlBhMnhIVWxW
+ck5sRXhhekZUZWtGbFJuY3dlRTVxUVRGTmVrVjVUWHBWTkU1VVpHRkdkekI0VG5wQk1VMTZSWGxO
+ZWxVMFRsUmtZVTFGV1hoU1JFSkRRbWRPVmtKQlRWUlBNVVY2VXpGUk5sRnFTa3BOZW5CaFVqRm9U
+MDlxU2xoWFJUQTJVVEJXV0ZGNmNGVk5NSGhQVDJ0dk1sWXhXVFpOYkdzeVZIcHdXbEZXYkVwUGJH
+aFFWVEJSTmxaRlVsSlRWRzh3Vld0d1JFMUdhM2RGZDFsSVMyOWFTWHBxTUVOQlVWbEpTMjlhU1hw
+cU1FUkJVV05FVVdkQlJWbzBOa1ZMVjNWS1NYaHhPVGh1VUM5R1dFVTNVM1Z5T1hsa1ozYzNLMkZr
+Y25keGVHbHhOMDA0VkhGVWEwTjBkekJRWm0xU1MyVkxkRXh3YVhOVFJGVTRMelpzZVdaM1FVRnda
+V2g2U0hkdFdteFpSMmR4VDBKemFrTkNjbnBCVDBKblRsWklVVGhDUVdZNFJVSkJUVU5DTkVGM1JI
+ZFpSRlpTTUd4Q1FXZDNRbWRaUlZaU01HeEJSRUpGUW1kT1ZraFJORVZRVVZFM1ZWUk9URlpFY0VO
+TmEydDZUMnh3U0ZkRk5EWk5iR1JaVkZSd1JGSldaRVJQYkZGNlZFVTBObE5xV2xoV2FtOTVWMVJh
+VUU5c2JFSlhWV3MyVjBVNVZGSkVjRlZTUmtaS1QycFNVMU5yVFhkU1oxbEVWbEl3YWtKRU9IZFFX
+VUUzVlZSU1lVMTZjRWhXZW1SS1QyeG9WVlZGVVRaVFJUQXdWVlJ3VUZaR1VsbFBhbHBDVWxWTk5s
+VnJNSHBSZW5CQ1ZXcEtSRTlyT1VkT2VtTTJVV3hhUmxGVWNFcFNhMVpLVDJ0T1drNVZjM2REWjFs
+SlMyOWFTWHBxTUVWQmQwbEVVMUZCZDFKblNXaEJUell4U1dsb04xRlVjSE5UTUZGSVlVTndUREZa
+VFdOTU1uWlhabE55ZGxoSGJIcFNSREV3TjJOUlVFRnBSVUZ0WlhkdWVsTllSSHBsUkd4cWNEYzRU
+MU5zVEZGemJuUk9ZV001ZUhSeVlXMHhVMGt4WTBaWFEydEpQU0pkZlEuZXlKaFkyTmxjM01pT2x0
+ZExDSmhkV1FpT2lKeVpXZHBjM1J5ZVM1a2IyTnJaWEl1YVc4aUxDSmxlSEFpT2pFME9EY3hOVGd4
+TXpjc0ltbGhkQ0k2TVRRNE56RTFOemd6Tnl3aWFYTnpJam9pWVhWMGFDNWtiMk5yWlhJdWFXOGlM
+Q0pxZEdraU9pSnJSRkkzU1c5cGVEVmxabWhWYUZKRE5UbDFhQ0lzSW01aVppSTZNVFE0TnpFMU56
+VXpOeXdpYzNWaUlqb2lJbjAuR2Q2NVdneVduR3ZEWGFyNU1peFVhTTl6Z3BQU1hQRHFNS1lUcm9O
+eGpGS01mcVd0RDZ2ZFpUMFFaMWZDNnRJTm1xQUFuVU0ya0tLTUJKRHliM0ZvN1EnfQpHRVRfVkVS
+SUZZOiBUcnVlCkdFVF9VUkw6IGh0dHA6Ly9yZWdpc3RyeS0xLmRvY2tlci5pby92Mi9saWJyYXJ5
+L2ZyZWVpcGEtc2VydmVyL21hbmlmZXN0cy9sYXRlc3QKR0VUX0hFQURFUjogeydBY2NlcHQnOiAn
+W2FwcGxpY2F0aW9uL3ZuZC5vY2kuaW1hZ2UubWFuaWZlc3QudjEranNvbixhcHBsaWNhdGlvbi92
+bmQuZG9ja2VyLmRpc3RyaWJ1dGlvbi5tYW5pZmVzdC52Mitqc29uLGFwcGxpY2F0aW9uL3ZuZC5k
+b2NrZXIuZGlzdHJpYnV0aW9uLm1hbmlmZXN0LnYxK3ByZXR0eWp3cyxhcHBsaWNhdGlvbi92bmQu
+ZG9ja2VyLmRpc3RyaWJ1dGlvbi5tYW5pZmVzdC52MStqc29uXScsICdBdXRob3JpemF0aW9uJzog
+J0JlYXJlciBleUpoYkdjaU9pSkZVekkxTmlJc0luUjVjQ0k2SWtwWFZDSXNJbmcxWXlJNld5Sk5T
+VWxEVEhwRFEwRmtVMmRCZDBsQ1FXZEpRa0ZFUVV0Q1oyZHhhR3RxVDFCUlVVUkJha0pIVFZWUmQx
+Rm5XVVJXVVZGRVJYcDBVazVHYjNwUGEyUllUakJyTmxkR1VsRlNSSEJKVkZSU1VrOXJPVlZXUm1j
+MlRtdEdSbEY2Y0ZOVVZFNUVUMnRHVTAxclRUWlVNRmt6VG5wd1ExWnJWa0pQYTJ4SFVsVnJObEV4
+YXpGVGVrRmxSbmN3ZUU1cVFURk5la1Y1VFhwVk5FNVVaR0ZHZHpCNFRucEJNVTE2UlhsTmVsVTBU
+bFJrWVUxRldYaFNSRUpEUW1kT1ZrSkJUVlJQTVVWNlV6RlJObEZxU2twTmVuQmhVakZvVDA5cVNs
+aFhSVEEyVVRCV1dGRjZjRlZOTUhoUFQydHZNbFl4V1RaTmJHc3lWSHB3V2xGV2JFcFBiR2hRVlRC
+Uk5sWkZVbEpUVkc4d1ZXdHdSRTFHYTNkRmQxbElTMjlhU1hwcU1FTkJVVmxKUzI5YVNYcHFNRVJC
+VVdORVVXZEJSVm8wTmtWTFYzVktTWGh4T1RodVVDOUdXRVUzVTNWeU9YbGtaM2MzSzJGa2NuZHhl
+R2x4TjAwNFZIRlVhME4wZHpCUVptMVNTMlZMZEV4d2FYTlRSRlU0THpac2VXWjNRVUZ3WldoNlNI
+ZHRXbXhaUjJkeFQwSnpha05DY25wQlQwSm5UbFpJVVRoQ1FXWTRSVUpCVFVOQ05FRjNSSGRaUkZa
+U01HeENRV2QzUW1kWlJWWlNNR3hCUkVKRlFtZE9Wa2hSTkVWUVVWRTNWVlJPVEZaRWNFTk5hMnQ2
+VDJ4d1NGZEZORFpOYkdSWlZGUndSRkpXWkVSUGJGRjZWRVUwTmxOcVdsaFdhbTk1VjFSYVVFOXNi
+RUpYVldzMlYwVTVWRkpFY0ZWU1JrWktUMnBTVTFOclRYZFNaMWxFVmxJd2FrSkVPSGRRV1VFM1ZW
+UlNZVTE2Y0VoV2VtUktUMnhvVlZWRlVUWlRSVEF3VlZSd1VGWkdVbGxQYWxwQ1VsVk5ObFZyTUhw
+UmVuQkNWV3BLUkU5ck9VZE9lbU0yVVd4YVJsRlVjRXBTYTFaS1QydE9XazVWYzNkRFoxbEpTMjlh
+U1hwcU1FVkJkMGxFVTFGQmQxSm5TV2hCVHpZeFNXbG9OMUZVY0hOVE1GRklZVU53VERGWlRXTk1N
+blpYWmxOeWRsaEhiSHBTUkRFd04yTlJVRUZwUlVGdFpYZHVlbE5ZUkhwbFJHeHFjRGM0VDFOc1RG
+RnpiblJPWVdNNWVIUnlZVzB4VTBreFkwWlhRMnRKUFNKZGZRLmV5SmhZMk5sYzNNaU9sdGRMQ0po
+ZFdRaU9pSnlaV2RwYzNSeWVTNWtiMk5yWlhJdWFXOGlMQ0psZUhBaU9qRTBPRGN4TlRneE16Y3NJ
+bWxoZENJNk1UUTROekUxTnpnek55d2lhWE56SWpvaVlYVjBhQzVrYjJOclpYSXVhVzhpTENKcWRH
+a2lPaUpyUkZJM1NXOXBlRFZsWm1oVmFGSkROVGwxYUNJc0ltNWlaaUk2TVRRNE56RTFOelV6Tnl3
+aWMzVmlJam9pSW4wLkdkNjVXZ3lXbkd2RFhhcjVNaXhVYU05emdwUFNYUERxTUtZVHJvTnhqRktN
+ZnFXdEQ2dmRaVDBRWjFmQzZ0SU5tcUFBblVNMmtLS01CSkR5YjNGbzdRJ30KVW5hYmxlIHRvIHJl
+c29sdmUgTm9uZQpUcmFjZWJhY2sgKG1vc3QgcmVjZW50IGNhbGwgbGFzdCk6CiAgRmlsZSAiL2Jp
+bi9hdG9taWMiLCBsaW5lIDE4OCwgaW4gPG1vZHVsZT4KICAgIHN5cy5leGl0KF9mdW5jKCkpCiAg
+RmlsZSAiL3Vzci9saWIvcHl0aG9uMy41L3NpdGUtcGFja2FnZXMvQXRvbWljL3J1bi5weSIsIGxp
+bmUgOTEsIGluIHJ1bgogICAgcC5wdWxsX2RvY2tlcl9pbWFnZSgpCiAgRmlsZSAiL3Vzci9saWIv
+cHl0aG9uMy41L3NpdGUtcGFja2FnZXMvQXRvbWljL3B1bGwucHkiLCBsaW5lIDQ2LCBpbiBwdWxs
+X2RvY2tlcl9pbWFnZQogICAgZnFfbmFtZSA9IHNlbGYuZ2V0X2ZxX2ltYWdlX25hbWUoc2VsZi5h
+cmdzLmltYWdlKQogIEZpbGUgIi91c3IvbGliL3B5dGhvbjMuNS9zaXRlLXBhY2thZ2VzL0F0b21p
+Yy9hdG9taWMucHkiLCBsaW5lIDY3MCwgaW4gZ2V0X2ZxX2ltYWdlX25hbWUKICAgIHJldHVybiBy
+aS5maW5kX2ltYWdlX29uX3JlZ2lzdHJ5KCkKICBGaWxlICIvdXNyL2xpYi9weXRob24zLjUvc2l0
+ZS1wYWNrYWdlcy9BdG9taWMvZGlzY292ZXJ5LnB5IiwgbGluZSAyODcsIGluIGZpbmRfaW1hZ2Vf
+b25fcmVnaXN0cnkKICAgIHJhaXNlIFJlZ2lzdHJ5SW5zcGVjdEVycm9yKCJVbmFibGUgdG8gcmVz
+b2x2ZSB7fSIuZm9ybWF0KHNlbGYub3JpZ19pbnB1dCkpCkF0b21pYy5kaXNjb3ZlcnkuUmVnaXN0
+cnlJbnNwZWN0RXJyb3I6IFVuYWJsZSB0byByZXNvbHZlIE5vbmUKCkR1cmluZyBoYW5kbGluZyBv
+ZiB0aGUgYWJvdmUgZXhjZXB0aW9uLCBhbm90aGVyIGV4Y2VwdGlvbiBvY2N1cnJlZDoKClRyYWNl
+YmFjayAobW9zdCByZWNlbnQgY2FsbCBsYXN0KToKICBGaWxlICIvYmluL2F0b21pYyIsIGxpbmUg
+MjEwLCBpbiA8bW9kdWxlPgogICAgc3lzLmV4aXQoMSkKU3lzdGVtRXhpdDogMQpHRVRfVkVSSUZZ
+OiBUcnVlCg==
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

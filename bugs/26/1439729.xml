@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1439729</bug_id>
+          
+          <creation_ts>2017-04-06 08:35:00 -0400</creation_ts>
+          <short_desc>Swap partition is not created/used when using blivet-gui</short_desc>
+          <delta_ts>2017-05-01 09:12:33 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>anaconda</component>
+          <version>26</version>
+          <rep_platform>i586</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>CURRENTRELEASE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>urgent</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Saurabh Thakre">mail.sau0</reporter>
+          <assigned_to name="Vojtech Trefny">vtrefny</assigned_to>
+          <cc>alciregi</cc>
+    
+    
+    <cc>anaconda-maint-list</cc>
+    
+    
+    <cc>bugzilla</cc>
+    
+    
+    <cc>g.kaviyarasu</cc>
+    
+    
+    <cc>jikortus</cc>
+    
+    
+    <cc>jonathan</cc>
+    
+    
+    <cc>jvavra</cc>
+    
+    
+    <cc>mkolman</cc>
+    
+    
+    <cc>vanmeeuwen+fedora</cc>
+    
+    
+    <cc>vponcova</cc>
+    
+    
+    <cc>vtrefny</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>anaconda-26.21.3-1.fc26</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-04-13 10:08:12</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          <external_bugs name="CentOS">546546</external_bugs>
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10310724</commentid>
+    <comment_count>0</comment_count>
+    <who name="Saurabh Thakre">mail.sau0</who>
+    <bug_when>2017-04-06 08:35:21 -0400</bug_when>
+    <thetext>Description of problem:
+while doing LVM it seems to have many problems with lvm like on creating pv blivet-gui crashes.this time the swap partition is not created after booting and not shown in fstab also.
+
+
+Version-Release number of selected component (if applicable):
+
+
+How reproducible:anytime
+
+Steps to Reproduce:
+2. Use blivet-gui.
+3. Create boot
+4. Use LVM.
+5.  root volume is added as lvm vg.
+6.Add swap on same.
+7. Finish installation.
+Actual results:
+no signs of creation of swap partition in fstab.
+
+Expected results:
+successfully creation of swap partition in the system.
+
+Additional info:</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10310803</commentid>
+    <comment_count>1</comment_count>
+    <who name="Jiri Kortus">jikortus</who>
+    <bug_when>2017-04-06 08:52:19 -0400</bug_when>
+    <thetext>I ran into a very similar issue even without LVM partitioning. The device for swap was created during installation, however it is not used in the installed system (not even mentioned in /etc/fstab).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10312291</commentid>
+    <comment_count>2</comment_count>
+    <who name="Chris Murphy">bugzilla</who>
+    <bug_when>2017-04-06 16:44:22 -0400</bug_when>
+    <thetext>if GPT partitioning = true, and
+if standard partition (not lvm) = true, and
+if swap partition encrypted = false, and 
+if swap partition type guid is 8200 (this is a gdisk value, the real guid is 0657FD6D-A4AB-43C4-84E5-0933C84B4F4F), then
+
+It&apos;s OK to not list it in fstab, because systemd is supposed to discover it.
+
+https://www.freedesktop.org/wiki/Specifications/DiscoverablePartitionsSpec/
+
+Point is, the comment 1 bug could be a systemd bug and should be separately checked and have it&apos;s own bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10312496</commentid>
+    <comment_count>3</comment_count>
+    <who name="Alessio">alciregi</who>
+    <bug_when>2017-04-06 18:34:33 -0400</bug_when>
+    <thetext>yup. The swap partition (using LVM or not) is actually created. But not activated on boot.
+For instance swapon /dev/sda2 enable the swap partition.
+
+journalctl |grep swap
+Apr 07 00:26:54 localhost-live kernel: Adding 2097148k swap on /dev/sda2.  Priority:-1 extents:1 across:2097148k FS
+
+systemctl |grep swap
+dev-sda2.swap                                                                             loaded active active    /dev/sda2</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10313164</commentid>
+    <comment_count>4</comment_count>
+    <who name="Vojtech Trefny">vtrefny</who>
+    <bug_when>2017-04-07 02:44:41 -0400</bug_when>
+    <thetext>*** Bug 1439572 has been marked as a duplicate of this bug. ***</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10313335</commentid>
+    <comment_count>5</comment_count>
+    <who name="Vojtech Trefny">vtrefny</who>
+    <bug_when>2017-04-07 03:58:31 -0400</bug_when>
+    <thetext>Oops, forgot to tell Anaconda to configure new swaps created by blivet-gui. Thank you all for the testing.
+
+https://github.com/rhinstaller/anaconda/pull/1017</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10325009</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-11 10:50:56 -0400</bug_when>
+    <thetext>anaconda-26.21.3-1.fc26 blivet-gui-2.1.2-1.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-10db06fadf</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10331256</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-12 19:21:41 -0400</bug_when>
+    <thetext>anaconda-26.21.3-1.fc26, blivet-gui-2.1.2-1.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-10db06fadf</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10333267</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-13 10:08:12 -0400</bug_when>
+    <thetext>anaconda-26.21.3-1.fc26, blivet-gui-2.1.2-1.fc26 has been pushed to the Fedora 26 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10372204</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-28 09:15:41 -0400</bug_when>
+    <thetext>anaconda-26.21.4-1.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-f620d8c7c2</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10375299</commentid>
+    <comment_count>10</comment_count>
+    <who name="Saurabh Thakre">mail.sau0</who>
+    <bug_when>2017-04-30 13:35:27 -0400</bug_when>
+    <thetext>Hello Fedora Update System I have verified the patch you have pushed to Fedora 26 stable repository  and the bug is solved.
+Thanks for the update.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

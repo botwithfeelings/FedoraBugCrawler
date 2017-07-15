@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1309872</bug_id>
+          
+          <creation_ts>2016-02-18 15:58:00 -0500</creation_ts>
+          <short_desc>Use XDG_RUNTIME_DIR</short_desc>
+          <delta_ts>2017-01-02 20:21:06 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>xpra</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          <see_also>http://xpra.org/trac/ticket/1129</see_also>
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          <dependson>1317304</dependson>
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Dennis Schridde">dennis.schridde</reporter>
+          <assigned_to name="Jonathan Underwood">jonathan.underwood</assigned_to>
+          <cc>jonathan.underwood</cc>
+    
+    
+    <cc>tchollingsworth</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>xpra-1.0-2.fc25 xpra-1.0-2.fc24</cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-01-02 14:50:04</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9076947</commentid>
+    <comment_count>0</comment_count>
+    <who name="Dennis Schridde">dennis.schridde</who>
+    <bug_when>2016-02-18 15:58:08 -0500</bug_when>
+    <thetext>Description of problem:
+Fedora currently patches [^1] several of xpra&apos;s paths to point to /var/run/user/$UID/xpra. This is inconvenient, because that directory might not exist (e.g. in a minimal container, where xpra is not started from a shell) or the user might have different preferences. XDG_RUNTIME_DIR exists [^2], on my system points to that exact directory (but is configurable) and seems to exactly match this use-case:
+```
+$XDG_RUNTIME_DIR defines the base directory relative to which user-specific non-essential runtime files and other file objects (such as sockets, named pipes, ...) should be stored. The directory MUST be owned by the user, and he MUST be the only one having read and write access to it. Its Unix access mode MUST be 0700.
+```
+
+I suggest to replace the string &quot;/var/run/user/$UID&quot; with &quot;$XDG_RUNTIME_DIR&quot; to allow the user more control over these paths.
+
+[^1]: https://pkgs.fedoraproject.org/cgit/rpms/xpra.git/tree/xpra-0.16.0-move-to-var-run.patch
+[^2]: https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
+
+Version-Release number of selected component (if applicable):
+0.16.1-2.fc24</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9076951</commentid>
+    <comment_count>1</comment_count>
+    <who name="Dennis Schridde">dennis.schridde</who>
+    <bug_when>2016-02-18 15:59:41 -0500</bug_when>
+    <thetext>See-Also: http://xpra.org/trac/ticket/1129 (upstream bug)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9078062</commentid>
+    <comment_count>2</comment_count>
+    <who name="Jonathan Underwood">jonathan.underwood</who>
+    <bug_when>2016-02-19 04:10:09 -0500</bug_when>
+    <thetext>OK, it seems this needs some thinking and discussion - for now on the upstream ticket. When we converge to the right solution, I&apos;ll update the Fedora package accordingly.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9078200</commentid>
+    <comment_count>3</comment_count>
+    <who name="Jonathan Underwood">jonathan.underwood</who>
+    <bug_when>2016-02-19 05:08:03 -0500</bug_when>
+    <thetext>OK, have just pushed a build (0.16.2-2) which should use XDG_RUNTIME_DIR for sockets and logs. This also reverts the change to the run script location - we&apos;re back to sticking it under ~/.xpra for now, so as not to break other clients (see upstream ticket).
+
+http://koji.fedoraproject.org/koji/taskinfo?taskID=13046673</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9078765</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-02-19 08:43:34 -0500</bug_when>
+    <thetext>xpra-0.16.2-2.fc23 has been submitted as an update to Fedora 23. https://bodhi.fedoraproject.org/updates/FEDORA-2016-241d30d0c5</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9078845</commentid>
+    <comment_count>5</comment_count>
+    <who name="Jonathan Underwood">jonathan.underwood</who>
+    <bug_when>2016-02-19 09:11:48 -0500</bug_when>
+    <thetext>Oh dear, 0.16.2-2 is horribly broken.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9078902</commentid>
+    <comment_count>6</comment_count>
+    <who name="Jonathan Underwood">jonathan.underwood</who>
+    <bug_when>2016-02-19 09:30:56 -0500</bug_when>
+    <thetext>Pushed a build dropping patch to use XDG_RUNTIME_DIR for now, until I have time to work on this, so at least we have a working xpra in rawhide.
+
+http://koji.fedoraproject.org/koji/taskinfo?taskID=13048811</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9078969</commentid>
+    <comment_count>7</comment_count>
+    <who name="Jonathan Underwood">jonathan.underwood</who>
+    <bug_when>2016-02-19 09:55:44 -0500</bug_when>
+    <thetext>And now a package that actually has the icon files in the right place:
+
+http://koji.fedoraproject.org/koji/taskinfo?taskID=13049047</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9094185</commentid>
+    <comment_count>8</comment_count>
+    <who name="Jan Kurik">jkurik</who>
+    <bug_when>2016-02-24 10:26:32 -0500</bug_when>
+    <thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 24 development cycle.
+Changing version to &apos;24&apos;.
+
+More information and reason for this action is here:
+https://fedoraproject.org/wiki/Fedora_Program_Management/HouseKeeping/Fedora24#Rawhide_Rebase</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9177585</commentid>
+    <comment_count>9</comment_count>
+    <who name="Jonathan Underwood">jonathan.underwood</who>
+    <bug_when>2016-03-24 13:43:53 -0400</bug_when>
+    <thetext>One blocker for this is that using su -l to change to a different user doesn&apos;t create or set XDG_RUNTIME_DIR, and that&apos;s a common use case (i.e. switching to a different user to start an xpra server).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9973708</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-10 09:43:45 -0500</bug_when>
+    <thetext>xpra-1.0-2.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2016-186fb568a7</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9973713</commentid>
+    <comment_count>11</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-10 09:44:00 -0500</bug_when>
+    <thetext>xpra-1.0-2.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-a06f2e6e03</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9974231</commentid>
+    <comment_count>12</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-10 22:30:03 -0500</bug_when>
+    <thetext>xpra-1.0-2.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-186fb568a7</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9974260</commentid>
+    <comment_count>13</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-10 22:58:31 -0500</bug_when>
+    <thetext>xpra-1.0-2.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-a06f2e6e03</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10028947</commentid>
+    <comment_count>14</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-02 14:50:04 -0500</bug_when>
+    <thetext>xpra-1.0-2.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10029260</commentid>
+    <comment_count>15</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-02 20:21:06 -0500</bug_when>
+    <thetext>xpra-1.0-2.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

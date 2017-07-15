@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1413997</bug_id>
+          
+          <creation_ts>2017-01-17 09:14:00 -0500</creation_ts>
+          <short_desc>Regression: Kubernetes objects have invalid selfLink field</short_desc>
+          <delta_ts>2017-03-08 10:15:56 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>kubernetes</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Stef Walter">stefw</reporter>
+          <assigned_to name="Jan Chaloupka">jchaloup</assigned_to>
+          <cc>eparis</cc>
+    
+    
+    <cc>golang-updates</cc>
+    
+    
+    <cc>ichavero</cc>
+    
+    
+    <cc>jbrooks</cc>
+    
+    
+    <cc>jcajka</cc>
+    
+    
+    <cc>jchaloup</cc>
+    
+    
+    <cc>mpitt</cc>
+    
+    
+    <cc>nhorman</cc>
+    
+    
+    <cc>pvolpe</cc>
+    
+    
+    <cc>vbatts</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>kubernetes-1.5.2-2.fc25</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-01-23 00:19:38</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10071802</commentid>
+    <comment_count>0</comment_count>
+    <who name="Stef Walter">stefw</who>
+    <bug_when>2017-01-17 09:14:07 -0500</bug_when>
+    <thetext>Description of problem:
+
+Kubernetes objects now have invalid selfLink fields in their object data. They are missing a slash.
+
+# kubectl get nodes --output=json | grep selfLink
+                &quot;selfLink&quot;: &quot;/api/v1/nodes127.0.0.1&quot;,
+                &quot;selfLink&quot;: &quot;/api/v1/nodesa-mynode&quot;,
+                &quot;selfLink&quot;: &quot;/api/v1/nodesb-mynode&quot;,
+                &quot;selfLink&quot;: &quot;/api/v1/nodesc-mynode&quot;,
+                &quot;selfLink&quot;: &quot;/api/v1/nodesd-mynode&quot;,
+# kubectl get namespaces --output=json | grep selfLink
+                &quot;selfLink&quot;: &quot;/api/v1/namespacesdefault&quot;,
+                &quot;selfLink&quot;: &quot;/api/v1/namespaceskube-system&quot;,
+
+Version-Release number of selected component (if applicable):
+
+kubernetes-1.5.1-1.fc25.x86_64
+
+How reproducible:
+
+Every time.
+
+The selfLink should look like:
+
+&quot;/api/v1/nodes/127.0.0.1&quot;
+
+Additional info:
+
+This breaks Cockpit&apos;s Kubernetes admin interface. This regression was detected by the Cockpit integration test suite.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10071808</commentid>
+    <comment_count>1</comment_count>
+    <who name="Stef Walter">stefw</who>
+    <bug_when>2017-01-17 09:15:25 -0500</bug_when>
+    <thetext>Example of Cockpit integration test failure: https://github.com/cockpit-project/cockpit/pull/5738</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10072667</commentid>
+    <comment_count>2</comment_count>
+    <who name="Jason Brooks">jbrooks</who>
+    <bug_when>2017-01-17 11:59:04 -0500</bug_when>
+    <thetext>may be related: https://github.com/kubernetes/kubernetes/issues/37622</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10074975</commentid>
+    <comment_count>3</comment_count>
+    <who name="Jan Chaloupka">jchaloup</who>
+    <bug_when>2017-01-18 02:55:49 -0500</bug_when>
+    <thetext>$ curl http://localhost:8080/api/v1/nodes 2&gt;/dev/null | grep selfLink
+    &quot;selfLink&quot;: &quot;/api/v1/nodes&quot;,
+        &quot;selfLink&quot;: &quot;/api/v1/nodes127.0.0.1&quot;,
+
+Apiserver already returns the invalid link.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10075044</commentid>
+    <comment_count>4</comment_count>
+    <who name="Jan Chaloupka">jchaloup</who>
+    <bug_when>2017-01-18 03:23:40 -0500</bug_when>
+    <thetext>Confirming the patch in #37622 fixes the issue.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10075619</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-18 06:15:53 -0500</bug_when>
+    <thetext>kubernetes-1.5.2-2.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-74d98bce50</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10079295</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-19 04:11:18 -0500</bug_when>
+    <thetext>kubernetes-1.5.2-2.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-74d98bce50</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10087579</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-23 00:19:38 -0500</bug_when>
+    <thetext>kubernetes-1.5.2-2.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10221725</commentid>
+    <comment_count>8</comment_count>
+    <who name="Michal Fojtik">mfojtik</who>
+    <bug_when>2017-03-08 10:15:56 -0500</bug_when>
+    <thetext>*** Bug 1430427 has been marked as a duplicate of this bug. ***</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

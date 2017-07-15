@@ -1,0 +1,932 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1404409</bug_id>
+          
+          <creation_ts>2016-12-13 13:45:00 -0500</creation_ts>
+          <short_desc>DS returns inconsistent data with an error when using GSSAPI</short_desc>
+          <delta_ts>2017-03-16 21:07:47 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>389-ds</component>
+          <version>26</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>high</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>1403352</blocked>
+    
+    
+    <blocked>1432149</blocked>
+    
+    
+    <blocked>1430250</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Tomas Krizek">tkrizek</reporter>
+          <assigned_to name="wibrown@redhat.com">wibrown</assigned_to>
+          <cc>awilliam</cc>
+    
+    
+    <cc>mreynolds</cc>
+    
+    
+    <cc>nhosoi</cc>
+    
+    
+    <cc>nkinder</cc>
+    
+    
+    <cc>rmeggins</cc>
+    
+    
+    <cc>tkrizek</cc>
+    
+    
+    <cc>wibrown</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>389-ds-base-1.3.6.2-2.f26</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-03-16 21:07:47</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9982012</commentid>
+    <comment_count>0</comment_count>
+    <who name="Tomas Krizek">tkrizek</who>
+    <bug_when>2016-12-13 13:45:28 -0500</bug_when>
+    <thetext>Description of problem:
+When trying to retrieve data from Directory Server using GSSAPI, the DS returns inconsistent number of responses and then the query ends with ldap_result: Can&apos;t contact LDAP server (-1)
+
+Version-Release number of selected component (if applicable):
+389-ds-base-1.3.6.1-1.fc26.x86_64
+
+How reproducible:
+always (with named user in IPA setup)
+
+Steps to Reproduce:
+1. install IPA server
+2. ipa-dns-install --auto-forwarders
+3. The above command should fail when attempting to restart named, which is a symptom caused by the issue above.
+4. SHELL=/bin/bash sudo -u named -s
+5. kdestroy -A
+6. klist -kt /etc/named.conf DNS/$(hostname)
+7. ldapsearch -h $(hostname) -Y GSSAPI
+
+Repeat step 7 and observe results.
+
+Actual results:
+The number of responses is inconsistent and the query ends with ldap_result: Can&apos;t contact LDAP server (-1)
+
+Expected results:
+DS successfully returns the correct number of results without an error in ldap_result.
+
+Additional info:
+This happens both for the UNIX socket as well as the TCP socket.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9982172</commentid>
+    <comment_count>4</comment_count>
+    <who name="Noriko Hosoi">nhosoi</who>
+    <bug_when>2016-12-13 14:56:38 -0500</bug_when>
+    <thetext>A small correction in #c0
+
+Step 6 is supposed to be:
+kinit -kt /etc/named.keytab DNS/$(hostname)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9983763</commentid>
+    <comment_count>5</comment_count>
+      <attachid>1231518</attachid>
+    <who name="Tomas Krizek">tkrizek</who>
+    <bug_when>2016-12-14 03:51:19 -0500</bug_when>
+    <thetext>Created attachment 1231518
+updated bind template</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9983795</commentid>
+    <comment_count>6</comment_count>
+    <who name="Tomas Krizek">tkrizek</who>
+    <bug_when>2016-12-14 03:58:47 -0500</bug_when>
+    <thetext>I also forgot one extra step that is required to reproduce this issue on a clean machine. Before executing Step 2, please place the attached bind template into /usr/share/ipa/bind.named.conf.template to avoid encountering bug 1403352.
+
+Also, make sure to execute steps 5 -7 in the shell running under named user (started in step 4). As Noriko mentioned, please also specify the keytab as the argument in step 6 instead of named.conf.
+
+Sorry for the confusion.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10137247</commentid>
+    <comment_count>8</comment_count>
+    <who name="Tomas Krizek">tkrizek</who>
+    <bug_when>2017-02-10 03:24:53 -0500</bug_when>
+    <thetext>The DS version is 389-ds-base-1.3.6.1-1.fc26.x86_64, as stated in the bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10191726</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora End Of Life">jkurik</who>
+    <bug_when>2017-02-28 05:46:44 -0500</bug_when>
+    <thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 26 development cycle.
+Changing version to &apos;26&apos;.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10197031</commentid>
+    <comment_count>11</comment_count>
+    <who name="Tomas Krizek">tkrizek</who>
+    <bug_when>2017-03-01 06:59:17 -0500</bug_when>
+    <thetext>Hi William, 
+
+thanks for the test build. Unfortunately, I&apos;m not able to test whether the issue is still present or not while using DS as a part of freeipa. I wasn&apos;t able to install freeipa on F25 with this build and installing freeipa first and upgrading just the DS component didn&apos;t work either.
+
+Since there are currently some broken dependencies on F26 for freeipa, I can&apos;t test there either.
+
+But since the issue wasn&apos;t related to IPA, but rather the DS itself when using GSSAPI, I believe your load test should be enough to verify the functionality. When I ran into this issue, almost every request returned different results.
+
+Thanks.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10221788</commentid>
+    <comment_count>12</comment_count>
+    <who name="Tomas Krizek">tkrizek</who>
+    <bug_when>2017-03-08 10:27:05 -0500</bug_when>
+    <thetext>William,
+
+would it be possible to provide a testing build for rawhide, so I can verify the issue has been resolved?
+
+I can&apos;t use your copr repo, because there are missing/broken dependencies for rawhide:
+
+Error: 
+ Problem 1: conflicting requests
+  - nothing provides libasan.so.3()(64bit) needed by 389-ds-base-1.3.6.1-20170227.fc25.x86_64
+ Problem 2: conflicting requests
+  - nothing provides libasan.so.3()(64bit) needed by 389-ds-base-snmp-1.3.6.1-20170227.fc25.x86_64
+ Problem 3: conflicting requests
+  - nothing provides python2-lib389 needed by python2-389-ds-base-tests-1.3.6.1-20170227.fc25.noarch</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10227886</commentid>
+    <comment_count>15</comment_count>
+    <who name="Tomas Krizek">tkrizek</who>
+    <bug_when>2017-03-10 06:27:55 -0500</bug_when>
+    <thetext>William,
+
+I&apos;m still unable to install DS with the packages from your copr repo.
+
+The packages do not have any broken dependencies, but when I attempt to install FreeIPA server on Fedora 26, the installation hangs for a few minutes when it attempts to install Directory Server and then it fails with the following error:
+
+
+Configuring directory server (dirsrv). Estimated time: 1 minute
+  [1/47]: creating directory server user
+  [2/47]: creating directory server instance
+  [error] RuntimeError: failed to create ds instance Command &apos;/usr/sbin/setup-ds.pl --silent --logfile - -f /tmp/tmpcEMwnL&apos; returned non-zero exit status 1
+ipa.ipapython.install.cli.install_tool(Server): ERROR    failed to create ds instance Command &apos;/usr/sbin/setup-ds.pl --silent --logfile - -f /tmp/tmpcEMwnL&apos; returned non-zero exit status 1
+
+I&apos;ve tried these versions and both were affected:
+389-ds-base-1.3.6.1-20170309git137606d37.fc26.x86_64
+389-ds-base-1.3.6.1-20170308gitecfbfc8ec.fc26.x86_64
+
+
+This issue is *not* present when using the released version:
+389-ds-base-1.3.6.1-1.fc26.1.x86_64</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10232577</commentid>
+    <comment_count>18</comment_count>
+    <who name="Tomas Krizek">tkrizek</who>
+    <bug_when>2017-03-13 07:48:03 -0400</bug_when>
+    <thetext>(In reply to mreynolds from comment #17)
+&gt; New builds are ready:
+&gt; 
+&gt; F26
+&gt; https://koji.fedoraproject.org/koji/buildinfo?buildID=867529
+
+I can&apos;t install FreeIPA server with this build either. There is some issue with external bind. When our ipa-server-install attempts to use external bind, it fails.
+
+[13/Mar/2017:10:03:38.021857728 +0100] conn=4 op=0 BIND dn=&quot;cn=Directory Manager&quot; method=sasl version=3 mech=EXTERNAL
+[13/Mar/2017:10:03:38.021964141 +0100] conn=4 op=0 RESULT err=49 tag=97 nentries=0 etime=0 - No such suffix (cn=Directory Manager)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10234911</commentid>
+    <comment_count>19</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2017-03-13 18:04:12 -0400</bug_when>
+    <thetext>Yeah, it happens that a test ran in openQA which attempted deployment with latest packages from updates-testing, and that failed in what sounds like the same way Tomas saw. I see the same error in /var/log/dirsrv/slapd-DOMAIN-LOCAL/access :
+
+[13/Mar/2017:17:23:04.601301050 -0400] conn=4 op=0 RESULT err=49 tag=97 nentries=0 etime=0 - No such suffix (cn=Directory Manager)
+
+and this in ipaserver-install.log:
+
+2017-03-13T21:23:04Z DEBUG Could not connect to the Directory Server on ipa001.domain.local: Insufficient access:  Invalid credentials
+2017-03-13T21:23:04Z DEBUG   File &quot;/usr/lib/python2.7/site-packages/ipapython/admintool.py&quot;, line 172, in execute
+    return_value = self.run()
+  File &quot;/usr/lib/python2.7/site-packages/ipapython/install/cli.py&quot;, line 318, in run
+    cfgr.run()
+  File &quot;/usr/lib/python2.7/site-packages/ipapython/install/core.py&quot;, line 310, in run
+    self.execute()
+  File &quot;/usr/lib/python2.7/site-packages/ipapython/install/core.py&quot;, line 334, in execute
+    for nothing in self._executor():
+  File &quot;/usr/lib/python2.7/site-packages/ipapython/install/core.py&quot;, line 376, in __runner
+    exc_handler(exc_info)
+  File &quot;/usr/lib/python2.7/site-packages/ipapython/install/core.py&quot;, line 405, in _handle_execute_exception
+    self._handle_exception(exc_info)
+  File &quot;/usr/lib/python2.7/site-packages/ipapython/install/core.py&quot;, line 395, in _handle_exception
+    six.reraise(*exc_info)
+  File &quot;/usr/lib/python2.7/site-packages/ipapython/install/core.py&quot;, line 366, in __runner
+    step()
+  File &quot;/usr/lib/python2.7/site-packages/ipapython/install/core.py&quot;, line 363, in &lt;lambda&gt;
+    step = lambda: next(self.__gen)
+  File &quot;/usr/lib/python2.7/site-packages/ipapython/install/util.py&quot;, line 81, in run_generator_with_yield_from
+    six.reraise(*exc_info)
+  File &quot;/usr/lib/python2.7/site-packages/ipapython/install/util.py&quot;, line 59, in run_generator_with_yield_from
+    value = gen.send(prev_value)
+  File &quot;/usr/lib/python2.7/site-packages/ipapython/install/core.py&quot;, line 597, in _configure
+    next(executor)
+  File &quot;/usr/lib/python2.7/site-packages/ipapython/install/core.py&quot;, line 376, in __runner
+    exc_handler(exc_info)
+  File &quot;/usr/lib/python2.7/site-packages/ipapython/install/core.py&quot;, line 405, in _handle_execute_exception
+    self._handle_exception(exc_info)
+  File &quot;/usr/lib/python2.7/site-packages/ipapython/install/core.py&quot;, line 460, in _handle_exception
+    self.__parent._handle_exception(exc_info)
+  File &quot;/usr/lib/python2.7/site-packages/ipapython/install/core.py&quot;, line 395, in _handle_exception
+    six.reraise(*exc_info)
+  File &quot;/usr/lib/python2.7/site-packages/ipapython/install/core.py&quot;, line 457, in _handle_exception
+    super(ComponentBase, self)._handle_exception(exc_info)
+  File &quot;/usr/lib/python2.7/site-packages/ipapython/install/core.py&quot;, line 395, in _handle_exception
+    six.reraise(*exc_info)
+  File &quot;/usr/lib/python2.7/site-packages/ipapython/install/core.py&quot;, line 366, in __runner
+    step()
+  File &quot;/usr/lib/python2.7/site-packages/ipapython/install/core.py&quot;, line 363, in &lt;lambda&gt;
+    step = lambda: next(self.__gen)
+  File &quot;/usr/lib/python2.7/site-packages/ipapython/install/util.py&quot;, line 81, in run_generator_with_yield_from
+    six.reraise(*exc_info)
+  File &quot;/usr/lib/python2.7/site-packages/ipapython/install/util.py&quot;, line 59, in run_generator_with_yield_from
+    value = gen.send(prev_value)
+  File &quot;/usr/lib/python2.7/site-packages/ipapython/install/common.py&quot;, line 63, in _install
+    for nothing in self._installer(self.parent):
+  File &quot;/usr/lib/python2.7/site-packages/ipaserver/install/server/install.py&quot;, line 1372, in main
+    install(self)
+  File &quot;/usr/lib/python2.7/site-packages/ipaserver/install/server/install.py&quot;, line 270, in decorated
+    func(installer)
+  File &quot;/usr/lib/python2.7/site-packages/ipaserver/install/server/install.py&quot;, line 759, in install
+    ntpinstance.ntp_ldap_enable(host_name, ds.suffix, realm_name)
+  File &quot;/usr/lib/python2.7/site-packages/ipaserver/install/ntpinstance.py&quot;, line 43, in ntp_ldap_enable
+    ntp.ldap_enable(&apos;NTP&apos;, fqdn, None, base_dn)
+  File &quot;/usr/lib/python2.7/site-packages/ipaserver/install/service.py&quot;, line 473, in ldap_enable
+    self.ldap_connect()
+  File &quot;/usr/lib/python2.7/site-packages/ipaserver/install/service.py&quot;, line 177, in ldap_connect
+    conn.do_bind(self.dm_password, autobind=self.autobind)
+  File &quot;/usr/lib/python2.7/site-packages/ipapython/ipaldap.py&quot;, line 1681, in do_bind
+    self.do_external_bind(pw_name, timeout=timeout)
+  File &quot;/usr/lib/python2.7/site-packages/ipapython/ipaldap.py&quot;, line 1671, in do_external_bind
+    self.__bind_with_wait(self.external_bind, timeout, user_name)
+  File &quot;/usr/lib/python2.7/site-packages/ipapython/ipaldap.py&quot;, line 1650, in __bind_with_wait
+    bind_func(*args, **kwargs)
+  File &quot;/usr/lib/python2.7/site-packages/ipapython/ipaldap.py&quot;, line 1098, in external_bind
+    &apos;&apos;, auth_tokens, server_controls, client_controls)
+  File &quot;/usr/lib64/python2.7/contextlib.py&quot;, line 35, in __exit__
+    self.gen.throw(type, value, traceback)
+  File &quot;/usr/lib/python2.7/site-packages/ipapython/ipaldap.py&quot;, line 973, in error_handler
+    raise errors.ACIError(info=&quot;%s %s&quot; % (info, desc))
+
+2017-03-13T21:23:04Z DEBUG The ipa-server-install command failed, exception: ACIError: Insufficient access:  Invalid credentials
+2017-03-13T21:23:04Z ERROR Insufficient access:  Invalid credentials
+2017-03-13T21:23:04Z ERROR The ipa-server-install command failed. See /var/log/ipaserver-install.log for more information</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10235906</commentid>
+    <comment_count>22</comment_count>
+    <who name="wibrown@redhat.com">wibrown</who>
+    <bug_when>2017-03-14 00:06:40 -0400</bug_when>
+    <thetext>https://pagure.io/389-ds-base/issue/49165
+
+https://pagure.io/389-ds-base/issue/raw/files/9c8c82e1a43e1adf854e0857e5b12ad6de4c7bdc1f1836c1c6ae064ed57ee37b-0001-Ticket-49165-pw_verify-did-not-handle-external-auth.patch</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10235924</commentid>
+    <comment_count>23</comment_count>
+    <who name="wibrown@redhat.com">wibrown</who>
+    <bug_when>2017-03-14 00:21:36 -0400</bug_when>
+    <thetext>Continue to configure the system with these values? [no]: yes
+
+The following operations may take some minutes to complete.
+Please wait until the prompt is returned.
+
+Configuring NTP daemon (ntpd)
+  [1/4]: stopping ntpd
+  [2/4]: writing configuration
+  [3/4]: configuring ntpd to start on boot
+  [4/4]: starting ntpd
+Done configuring NTP daemon (ntpd).
+Configuring directory server (dirsrv). Estimated time: 1 minute
+  [1/47]: creating directory server user
+  [2/47]: creating directory server instance
+  [3/47]: updating configuration in dse.ldif
+  [4/47]: restarting directory server
+  [5/47]: adding default schema
+  [6/47]: enabling memberof plugin
+  [7/47]: enabling winsync plugin
+  [8/47]: configuring replication version plugin
+  [9/47]: enabling IPA enrollment plugin
+  [10/47]: enabling ldapi
+  [11/47]: configuring uniqueness plugin
+  [12/47]: configuring uuid plugin
+  [13/47]: configuring modrdn plugin
+  [14/47]: configuring DNS plugin
+  [15/47]: enabling entryUSN plugin
+  [16/47]: configuring lockout plugin
+  [17/47]: configuring topology plugin
+  [18/47]: creating indices
+  [19/47]: enabling referential integrity plugin
+  [20/47]: configuring certmap.conf
+  [21/47]: configure autobind for root
+  [22/47]: configure new location for managed entries
+  [23/47]: configure dirsrv ccache
+  [24/47]: enabling SASL mapping fallback
+  [25/47]: restarting directory server
+  [26/47]: adding sasl mappings to the directory
+  [27/47]: adding default layout
+  [28/47]: adding delegation layout
+  [29/47]: creating container for managed entries
+  [30/47]: configuring user private groups
+  [31/47]: configuring netgroups from hostgroups
+  [32/47]: creating default Sudo bind user
+  [33/47]: creating default Auto Member layout
+  [34/47]: adding range check plugin
+  [35/47]: creating default HBAC rule allow_all
+  [36/47]: adding sasl mappings to the directory
+  [37/47]: adding entries for topology management
+  [38/47]: initializing group membership
+  [39/47]: adding master entry
+  [40/47]: initializing domain level
+  [41/47]: configuring Posix uid/gid generation
+  [42/47]: adding replication acis
+  [43/47]: enabling compatibility plugin
+  [44/47]: activating sidgen plugin
+  [45/47]: activating extdom plugin
+  [46/47]: tuning directory server
+  [47/47]: configuring directory to start on boot
+Done configuring directory server (dirsrv).
+Configuring certificate server (pki-tomcatd). Estimated time: 3 minutes 30 seconds
+  [1/31]: creating certificate server user
+  [2/31]: configuring certificate server instance
+  [3/31]: stopping certificate server instance to update CS.cfg
+  [4/31]: backing up CS.cfg
+  [5/31]: disabling nonces
+  [6/31]: set up CRL publishing
+  [7/31]: enable PKIX certificate path discovery and validation
+  [8/31]: starting certificate server instance
+  [9/31]: creating RA agent certificate database
+  [10/31]: importing CA chain to RA certificate database
+  [11/31]: fixing RA database permissions
+  [12/31]: setting up signing cert profile
+  [13/31]: setting audit signing renewal to 2 years
+  [14/31]: restarting certificate server
+  [15/31]: requesting RA certificate from CA
+  [16/31]: issuing RA agent certificate
+  [17/31]: adding RA agent as a trusted user
+  [18/31]: authorizing RA to modify profiles
+  [19/31]: authorizing RA to manage lightweight CAs
+  [20/31]: Ensure lightweight CAs container exists
+  [21/31]: configure certmonger for renewals
+  [22/31]: configure certificate renewals
+  [23/31]: configure RA certificate renewal
+  [24/31]: configure Server-Cert certificate renewal
+  [25/31]: Configure HTTP to proxy connections
+  [26/31]: restarting certificate server
+  [27/31]: migrating certificate profiles to LDAP
+  [28/31]: importing IPA certificate profiles
+  [29/31]: adding default CA ACL
+  [30/31]: adding &apos;ipa&apos; CA entry
+  [31/31]: updating IPA configuration
+Done configuring certificate server (pki-tomcatd).
+Configuring directory server (dirsrv). Estimated time: 10 seconds
+  [1/3]: configuring ssl for ds instance
+  [2/3]: restarting directory server
+  [3/3]: adding CA certificate entry
+Done configuring directory server (dirsrv).
+Configuring Kerberos KDC (krb5kdc). Estimated time: 30 seconds
+  [1/9]: adding kerberos container to the directory
+  [2/9]: configuring KDC
+  [3/9]: initialize kerberos container
+WARNING: Your system is running out of entropy, you may experience long delays
+  [4/9]: adding default ACIs
+  [5/9]: creating a keytab for the directory
+  [6/9]: creating a keytab for the machine
+  [7/9]: adding the password extension to the directory
+  [8/9]: starting the KDC
+  [9/9]: configuring KDC to start on boot
+Done configuring Kerberos KDC (krb5kdc).
+Configuring kadmin
+  [1/2]: starting kadmin 
+  [2/2]: configuring kadmin to start on boot
+Done configuring kadmin.
+Configuring ipa_memcached
+  [1/2]: starting ipa_memcached 
+  [2/2]: configuring ipa_memcached to start on boot
+Done configuring ipa_memcached.
+Configuring ipa-otpd
+  [1/2]: starting ipa-otpd 
+  [2/2]: configuring ipa-otpd to start on boot
+Done configuring ipa-otpd.
+Configuring ipa-custodia
+  [1/5]: Generating ipa-custodia config file
+  [2/5]: Making sure custodia container exists
+  [3/5]: Generating ipa-custodia keys
+  [4/5]: starting ipa-custodia 
+  [5/5]: configuring ipa-custodia to start on boot
+Done configuring ipa-custodia.
+Configuring the web interface (httpd). Estimated time: 1 minute
+  [1/21]: setting mod_nss port to 443
+  [2/21]: setting mod_nss cipher suite
+  [3/21]: setting mod_nss protocol list to TLSv1.0 - TLSv1.2
+  [4/21]: setting mod_nss password file
+  [5/21]: enabling mod_nss renegotiate
+  [6/21]: adding URL rewriting rules
+  [7/21]: configuring httpd
+  [8/21]: configure certmonger for renewals
+  [9/21]: setting up httpd keytab
+  [10/21]: setting up ssl
+  [11/21]: importing CA certificates from LDAP
+  [12/21]: setting up browser autoconfig
+  [13/21]: publish CA cert
+  [14/21]: clean up any existing httpd ccache
+  [15/21]: configuring SELinux for httpd
+  [16/21]: create KDC proxy user
+  [17/21]: create KDC proxy config
+  [18/21]: enable KDC proxy
+  [19/21]: restarting httpd
+  [20/21]: configuring httpd to start on boot
+  [21/21]: enabling oddjobd
+Done configuring the web interface (httpd).
+Applying LDAP updates
+Upgrading IPA:
+  [1/9]: stopping directory server
+  [2/9]: saving configuration
+  [3/9]: disabling listeners
+  [4/9]: enabling DS global lock
+  [5/9]: starting directory server
+  [6/9]: upgrading server
+  [7/9]: stopping directory server
+  [8/9]: restoring configuration
+  [9/9]: starting directory server
+Done.
+Restarting the directory server
+Restarting the KDC
+ipa         : ERROR    unable to resolve host name freeipa.example.com. to IP address, ipa-ca DNS record will be incomplete
+Please add records in this file to your DNS system: /tmp/ipa.system.records.FRrf6C.db
+Restarting the web server
+Configuring client side components
+Using existing certificate &apos;/etc/ipa/ca.crt&apos;.
+Client hostname: freeipa.example.com
+Realm: EXAMPLE.COM
+DNS Domain: example.com
+IPA Server: freeipa.example.com
+BaseDN: dc=example,dc=com
+
+Skipping synchronizing time with NTP server.
+New SSSD config will be created
+Configured sudoers in /etc/nsswitch.conf
+Configured /etc/sssd/sssd.conf
+trying https://freeipa.example.com/ipa/json
+Forwarding &apos;schema&apos; to json server &apos;https://freeipa.example.com/ipa/json&apos;
+trying https://freeipa.example.com/ipa/session/json
+Forwarding &apos;ping&apos; to json server &apos;https://freeipa.example.com/ipa/session/json&apos;
+Forwarding &apos;ca_is_enabled&apos; to json server &apos;https://freeipa.example.com/ipa/session/json&apos;
+Systemwide CA database updated.
+Adding SSH public key from /etc/ssh/ssh_host_ecdsa_key.pub
+Adding SSH public key from /etc/ssh/ssh_host_ed25519_key.pub
+Adding SSH public key from /etc/ssh/ssh_host_rsa_key.pub
+Forwarding &apos;host_mod&apos; to json server &apos;https://freeipa.example.com/ipa/session/json&apos;
+Could not update DNS SSHFP records.
+SSSD enabled
+Configured /etc/openldap/ldap.conf
+Configured /etc/ssh/ssh_config
+Configured /etc/ssh/sshd_config
+Configuring example.com as NIS domain.
+Client configuration complete.
+
+==============================================================================
+Setup complete
+
+Next steps:
+	1. You must make sure these network ports are open:
+		TCP Ports:
+		  * 80, 443: HTTP/HTTPS
+		  * 389, 636: LDAP/LDAPS
+		  * 88, 464: kerberos
+		UDP Ports:
+		  * 88, 464: kerberos
+		  * 123: ntp
+
+	2. You can now obtain a kerberos ticket using the command: &apos;kinit admin&apos;
+	   This ticket will allow you to use the IPA tools (e.g., ipa user-add)
+	   and the web user interface.
+
+Be sure to back up the CA certificates stored in /root/cacert.p12
+These files are required to create replicas. The password for these
+files is the Directory Manager password</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10237560</commentid>
+    <comment_count>24</comment_count>
+    <who name="">mreynolds</who>
+    <bug_when>2017-03-14 09:19:10 -0400</bug_when>
+    <thetext>Fixed upstream.
+
+
+Scratch build:
+
+https://koji.fedoraproject.org/koji/taskinfo?taskID=18377415
+
+Official Koji build (still building...):
+
+https://koji.fedoraproject.org/koji/taskinfo?taskID=18377564</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10237656</commentid>
+    <comment_count>25</comment_count>
+    <who name="">mreynolds</who>
+    <bug_when>2017-03-14 09:42:11 -0400</bug_when>
+    <thetext>Bodhi update:
+
+https://bodhi.fedoraproject.org/updates/FEDORA-2017-b9fbd8b768</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10238675</commentid>
+    <comment_count>26</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-14 13:08:47 -0400</bug_when>
+    <thetext>389-ds-base-1.3.6.2-1.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-b9fbd8b768</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10238876</commentid>
+    <comment_count>28</comment_count>
+    <who name="">mreynolds</who>
+    <bug_when>2017-03-14 14:10:28 -0400</bug_when>
+    <thetext>The shutdown issue is caused by the content sync plugin not handling its thread count correctly when connections are aborted.  This bug has been present since 389-ds-base-1.3.3
+
+This is being addressed in issue:
+
+https://pagure.io/389-ds-base/issue/49170</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10238883</commentid>
+    <comment_count>29</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2017-03-14 14:14:02 -0400</bug_when>
+    <thetext>well, that&apos;s clearly a different thing from this bug, so we should probably track it separately, right?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10238892</commentid>
+    <comment_count>30</comment_count>
+    <who name="">mreynolds</who>
+    <bug_when>2017-03-14 14:16:31 -0400</bug_when>
+    <thetext>(In reply to Adam Williamson from comment #29)
+&gt; well, that&apos;s clearly a different thing from this bug, so we should probably
+&gt; track it separately, right?
+
+Correct, I will be filing a new bug.  I was just adding the tracking info for the reporter.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10238980</commentid>
+    <comment_count>31</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2017-03-14 14:26:05 -0400</bug_when>
+    <thetext>RH folks on this bug: can you please check through your private comments and make them public unless there&apos;s a real reason for them to be private? This is a *Fedora* bug, and not only that, it&apos;s a Fedora *blocker* bug (by inheritance). It&apos;s really quite important that non-RH people be able to know what&apos;s going on.
+
+There are a few comments that include RH-internal hostnames and stuff and it&apos;s reasonable for those to be private (though perhaps they could be sanitized, or a public summary posted, instead), but there are several comments for which I can see no reason to mark them as private at all.
+
+Thanks!</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10239049</commentid>
+    <comment_count>32</comment_count>
+    <who name="">mreynolds</who>
+    <bug_when>2017-03-14 14:49:28 -0400</bug_when>
+    <thetext>Bug to track shutdown problem:
+
+https://bugzilla.redhat.com/show_bug.cgi?id=1432206</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10239418</commentid>
+    <comment_count>33</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2017-03-14 16:49:27 -0400</bug_when>
+    <thetext>I ran a test with 389-ds 1.3.6.2-1.fc26 and it failed for yet a *different* reason. There seems to have been an error near the end of server deployment which was treated as non-fatal. From ipaserver-install.log:
+
+2017-03-14T19:35:43Z DEBUG Changing admin password
+2017-03-14T19:35:43Z DEBUG Starting external process
+2017-03-14T19:35:43Z DEBUG args=/usr/bin/ldappasswd -h ipa001.domain.local -ZZ -x -D cn=Directory Manager -y /var/lib/ipa/tmpD4VoiL -T /var/lib/ipa/tmplVltDm uid=admin,cn=users,cn=accounts,dc=domain,dc=local
+2017-03-14T19:35:43Z DEBUG Process finished, return code=1
+2017-03-14T19:35:43Z DEBUG stdout=
+2017-03-14T19:35:43Z DEBUG stderr=ldap_start_tls: Operations error (1)
+        additional info: Other operations are still pending on the connection.
+
+2017-03-14T19:35:43Z DEBUG Unable to set admin password Command &apos;/usr/bin/ldappasswd -h ipa001.domain.local -ZZ -x -D cn=Directory Manager -y /var/lib/ipa/tmpD4VoiL -T /var/lib/ipa/tmplVltDm uid=admin,cn=users,cn=accounts,dc=domain,dc=local&apos; returned non-zero exit status 1
+
+then it went ahead and tried to do the client setup, and that failed due to a similar error. From ipaclient-install.log:
+
+017-03-14T19:35:44Z DEBUG Verifying that ipa001.domain.local (realm DOMAIN.LOCAL) is an IPA server
+2017-03-14T19:35:44Z DEBUG Init LDAP connection to: ipa001.domain.local
+2017-03-14T19:35:44Z DEBUG Unhandled LDAPError: OPERATIONS_ERROR: {&apos;info&apos;: &apos;Other operations are still pending on the connection.&apos;, &apos;desc&apos;: &apos;Operations error&apos;}
+2017-03-14T19:35:44Z DEBUG Error checking LDAP: Operations error: Other operations are still pending on the connection.
+2017-03-14T19:35:44Z WARNING Skip ipa001.domain.local: cannot verify if this is an IPA server
+2017-03-14T19:35:44Z DEBUG Discovery result: UNKNOWN_ERROR; server=None, domain=domain.local, kdc=ipa001.domain.local, basedn=None
+2017-03-14T19:35:44Z DEBUG Validated servers: 
+2017-03-14T19:35:44Z ERROR Failed to verify that ipa001.domain.local is an IPA Server.
+2017-03-14T19:35:44Z ERROR This may mean that the remote server is not up or is not reachable due to network or firewall settings.
+2017-03-14T19:35:44Z INFO Please make sure the following ports are opened in the firewall settings:
+     TCP: 80, 88, 389
+     UDP: 88 (at least one of TCP/UDP ports 88 has to be open)
+Also note that following ports are necessary for ipa-client working properly after enrollment:
+     TCP: 464
+     UDP: 464, 123 (if NTP enabled)
+2017-03-14T19:35:44Z WARNING Installation failed. As this is IPA server, changes will not be rolled back.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10239424</commentid>
+    <comment_count>34</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2017-03-14 16:51:46 -0400</bug_when>
+    <thetext>Actually that may not have been treated as a fatal error either, as the openQA test actually *timed out* and gave up at that point; it looks like ipa-server-install was still running. But clearly it wasn&apos;t deploying properly.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10239533</commentid>
+    <comment_count>35</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2017-03-14 17:30:43 -0400</bug_when>
+    <thetext>So I re-ran the test in openQA with updated 389-ds and got the same result: &quot;Other operations are still pending&quot; errors. On closer inspection, the server install process *does* complete. In the openQA test we are using rolekit to deploy the server, so the command run is:
+
+echo &apos;{&quot;admin_password&quot;:&quot;monkeys123&quot;,&quot;dns_forwarders&quot;:{&quot;ipv4&quot;:[&quot;10.5.126.21&quot;],&quot;ipv6&quot;:[&quot;10.5.126.22&quot;]}}&apos; | rolectl deploy domaincontroller --name=domain.local --settings-stdin
+
+that command exits with code 99, and rolekit seems to log that ipa-server-install exits 256.
+
+The entirety of /var from one of these failures can be found at https://openqa.stg.fedoraproject.org/tests/80024/file/role_deploy_domain_controller-var_log.tar.gz for inspection.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10239574</commentid>
+    <comment_count>36</comment_count>
+    <who name="Nathan Kinder">nkinder</who>
+    <bug_when>2017-03-14 18:05:09 -0400</bug_when>
+    <thetext>The ipa-server-install.log file shows this failure, which is concerning (but doesn&apos;t stop the installer from proceeding):
+
+-------------------------------------------------------------------------------
+2017-03-14T21:18:50Z DEBUG args=/usr/bin/ldappasswd -h ipa001.domain.local -ZZ -x -D cn=Directory Manager -y /var/lib/ipa/tmpcoeqop -T /var/lib/ipa/tmpDi9E46 uid=admin,cn=users,cn=accounts,dc=domain,dc=local
+2017-03-14T21:18:50Z DEBUG Process finished, return code=1
+2017-03-14T21:18:50Z DEBUG stdout=
+2017-03-14T21:18:50Z DEBUG stderr=ldap_start_tls: Operations error (1)
+	additional info: Other operations are still pending on the connection.
+
+2017-03-14T21:18:50Z DEBUG Unable to set admin password Command &apos;/usr/bin/ldappasswd -h ipa001.domain.local -ZZ -x -D cn=Directory Manager -y /var/lib/ipa/tmpcoeqop -T /var/lib/ipa/tmpDi9E46 uid=admin,cn=users,cn=accounts,dc=domain,dc=local&apos; returned non-zero exit status 1
+-------------------------------------------------------------------------------
+
+Immediately after this, ipa-server-install attempts to run ipa-client-install, which fails and ultimately triggers the installer to exit.  The ipa-client-install.log shows that there is an LDAP operations error:
+
+-------------------------------------------------------------------------------
+2017-03-14T21:18:51Z DEBUG Init LDAP connection to: ipa001.domain.local
+2017-03-14T21:18:51Z DEBUG Unhandled LDAPError: OPERATIONS_ERROR: {&apos;info&apos;: &apos;Other operations are still pending on the connection.&apos;, &apos;desc&apos;: &apos;Operations error&apos;}
+2017-03-14T21:18:51Z DEBUG Error checking LDAP: Operations error: Other operations are still pending on the connection.
+2017-03-14T21:18:51Z WARNING Skip ipa001.domain.local: cannot verify if this is an IPA server
+2017-03-14T21:18:51Z DEBUG Discovery result: UNKNOWN_ERROR; server=None, domain=domain.local, kdc=ipa001.domain.local, basedn=None
+2017-03-14T21:18:51Z DEBUG Validated servers: 
+2017-03-14T21:18:51Z ERROR Failed to verify that ipa001.domain.local is an IPA Server.
+2017-03-14T21:18:51Z ERROR This may mean that the remote server is not up or is not reachable due to network or firewall settings.
+2017-03-14T21:18:51Z INFO Please make sure the following ports are opened in the firewall settings:
+     TCP: 80, 88, 389
+     UDP: 88 (at least one of TCP/UDP ports 88 has to be open)
+Also note that following ports are necessary for ipa-client working properly after enrollment:
+     TCP: 464
+     UDP: 464, 123 (if NTP enabled)
+2017-03-14T21:18:51Z WARNING Installation failed. As this is IPA server, changes will not be rolled back.
+-------------------------------------------------------------------------------
+
+There are a number of CoS plugin related errors in the ns-slapd errors log, as well as some content-sync-plugin messages:
+
+-------------------------------------------------------------------------------
+[14/Mar/2017:17:17:18.363748750 -0400] - ERR - cos-plugin - cos_cache_query_attr - cos attribute krbPwdPolicyReference failed schema check on dn: cn=dns,dc=domain,dc=local
+[14/Mar/2017:17:17:18.367692831 -0400] - ERR - cos-plugin - cos_cache_query_attr - cos attribute krbPwdPolicyReference failed schema check on dn: cn=dns,dc=domain,dc=local
+[14/Mar/2017:17:17:18.385636077 -0400] - ERR - cos-plugin - cos_cache_query_attr - cos attribute krbPwdPolicyReference failed schema check on dn: cn=dns,dc=domain,dc=local
+...
+[14/Mar/2017:17:19:33.476041525 -0400] - ERR - slapi_connection_acquire - conn=43 fd=76 Attempt to acquire connection in the closing state
+[14/Mar/2017:17:19:33.476724598 -0400] - ERR - content-sync-plugin - sync_send_results - conn=43 op=0 Could not acquire the connection - aborted
+-------------------------------------------------------------------------------
+
+Mark mentioned in comment#28 that the shutdown issue was related to the content-sync plugin.  Is it possible that this is causing the IPA installation failure as well?  Mark just checked in a fix for the shutdown issue a few hours ago as seen here:
+
+  https://pagure.io/389-ds-base/issue/49170
+
+This fix is not in the most recent build in koji (389-ds-base-1.3.6.2-1.fc26).  It would be great to see if a test build containing Mark&apos;s latest fix addresses this issue.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10239642</commentid>
+    <comment_count>37</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2017-03-14 18:43:12 -0400</bug_when>
+    <thetext>Nathan: yes, those are exactly the errors I pointed out above.
+
+I personally doubt the shutdown issue is the cause here as the entire server deployment attempt takes less time to finish (8 minutes) than the shutdown attempt should take to time out (10 minutes), and I didn&apos;t think the server deployment process actually tried to shut down the directory server at all. But I could be wrong!</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10239644</commentid>
+    <comment_count>38</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2017-03-14 18:44:16 -0400</bug_when>
+    <thetext>Oh, ISWYM - you&apos;re suggesting they could have a common cause. It&apos;s possible, for sure. Mark said he is waiting for one other fix before doing an official build with the shutdown fix, I am waiting for that, so I can re-run the test with it.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10239768</commentid>
+    <comment_count>39</comment_count>
+    <who name="wibrown@redhat.com">wibrown</who>
+    <bug_when>2017-03-14 19:46:26 -0400</bug_when>
+    <thetext>So it&apos;s likely that the aborted connection is the real problem here, and then the shutdown block is because of that abort.
+
+We need to tackle it as two issues. First is the shutdown block, and the other is the aborted connection. Given that the connection management is my area, I&apos;ll look into this. I think there is not a lot of info here, so we&apos;ll see how I go.
+
+If this is critical, the new connection framework can be temporarily disabled so we can ship. It&apos;s a one line, and the old connection code is all still there.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10239914</commentid>
+    <comment_count>40</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2017-03-14 20:28:53 -0400</bug_when>
+    <thetext>https://pagure.io/389-ds-base/issue/49170 appears to have a fix for what you term &apos;the shutdown block&apos;, but not (if I&apos;m reading it correctly) what you term &apos;the aborted connection&apos;.
+
+Yes, this is critical. To simplify the Fedora release criteria, one of the Alpha release criteria is &apos;FreeIPA&apos;s gotta basically work&apos;, as in we have to be able to deploy the server, enrol clients into the domain, and do basic FreeIPA-y things like create users and log in to the clients using those user accounts.
+
+Right now this is not the case, and the Alpha go/no-go meeting - at which we decide whether to ship the Alpha on time, or delay - is on Thursday. In order to ship on time we have to have a release candidate that meets all the criteria built and tested by the time of the meeting.
+
+So obviously, if we&apos;re gonna ship Alpha on time, we need package builds and Bodhi updates that make FreeIPA actually work to be in place by, well, ideally later tonight (NA time), but at the latest, early tomorrow (as the compose process takes ~6 hours, then we have to do the actual testing).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10239938</commentid>
+    <comment_count>41</comment_count>
+    <who name="wibrown@redhat.com">wibrown</who>
+    <bug_when>2017-03-14 20:52:24 -0400</bug_when>
+    <thetext>We have a potential fix
+
+https://pagure.io/389-ds-base/issue/49171</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10239940</commentid>
+    <comment_count>42</comment_count>
+    <who name="wibrown@redhat.com">wibrown</who>
+    <bug_when>2017-03-14 20:53:14 -0400</bug_when>
+    <thetext>If this fix does not correct the issue, we will discuss rolling back the feature that is causing the issue.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10239951</commentid>
+    <comment_count>43</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2017-03-14 21:05:22 -0400</bug_when>
+    <thetext>I&apos;m running a scratch build with the patches from 49170 and 49171 applied. I will run the openQA tests against that build once it&apos;s done.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10239952</commentid>
+    <comment_count>44</comment_count>
+    <who name="wibrown@redhat.com">wibrown</who>
+    <bug_when>2017-03-14 21:05:52 -0400</bug_when>
+    <thetext>Thanks, let me know how it goes.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10240014</commentid>
+    <comment_count>45</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2017-03-14 21:49:37 -0400</bug_when>
+    <thetext>The server deployment test passed, this time, but I forgot to run the client enrolment tests in parallel. Running with those now.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10240248</commentid>
+    <comment_count>46</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2017-03-15 00:14:51 -0400</bug_when>
+    <thetext>So now it seems like deployment and enrolment work, but one of the client-side tests - running &apos;getent passwd admin@DOMAIN.LOCAL&apos;, which is expected to produce some info on that account - fails. Will look into it further.
+
+This is exactly the kind of thing that happens when errors early in a complex process are left to fester for months (https://bugzilla.redhat.com/show_bug.cgi?id=1403352 ), BTW, FreeIPA folks: as the later parts of the process don&apos;t get tested, multiple bugs in those spring up without our knowledge in the meantime...</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10240255</commentid>
+    <comment_count>47</comment_count>
+    <who name="wibrown@redhat.com">wibrown</who>
+    <bug_when>2017-03-15 00:20:33 -0400</bug_when>
+    <thetext>That&apos;s really positive that this passes now. I&apos;m going to link this issue with the fix, and move it to POST. Are you okay with this being resolved?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10240311</commentid>
+    <comment_count>48</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-15 00:23:52 -0400</bug_when>
+    <thetext>389-ds-base-1.3.6.2-1.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-b9fbd8b768</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10240387</commentid>
+    <comment_count>49</comment_count>
+    <who name="Nathan Kinder">nkinder</who>
+    <bug_when>2017-03-15 01:20:13 -0400</bug_when>
+    <thetext>Resetting this to ASSIGNED and removing the &quot;fixed-in-version&quot;, as the build mentioned in comment#48 does not contain the fixes from comment#43 that have been tested to resolve the issue.  A new non-scratch build is needed to pick up these patches.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10240419</commentid>
+    <comment_count>50</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2017-03-15 01:50:05 -0400</bug_when>
+    <thetext>wibrown: sure, we can open a new bug for the latest problem. I just don&apos;t have the genki to do it tonight, I&apos;ll look into it tomorrow.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10240441</commentid>
+    <comment_count>51</comment_count>
+    <who name="wibrown@redhat.com">wibrown</who>
+    <bug_when>2017-03-15 02:03:01 -0400</bug_when>
+    <thetext>(In reply to Adam Williamson from comment #50)
+&gt; wibrown: sure, we can open a new bug for the latest problem. I just don&apos;t
+&gt; have the genki to do it tonight, I&apos;ll look into it tomorrow.
+
+
+No problem: I think it would be best to engage the FreeIPA team on the new issue you have found, as it may or may not be related to DS and it&apos;s components. It&apos;s best to let them make that analysis.
+
+Thanks again for all your help and diligence on this issue.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10242059</commentid>
+    <comment_count>52</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-15 10:23:48 -0400</bug_when>
+    <thetext>389-ds-base-1.3.6.2-2.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-d0ad136c8c</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10242067</commentid>
+    <comment_count>53</comment_count>
+    <who name="">mreynolds</who>
+    <bug_when>2017-03-15 10:25:15 -0400</bug_when>
+    <thetext>New fedora package has been built (389-ds-base-1.3.6.2-2.f26)
+
+https://koji.fedoraproject.org/koji/taskinfo?taskID=18395610</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10244114</commentid>
+    <comment_count>54</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-15 20:50:39 -0400</bug_when>
+    <thetext>389-ds-base-1.3.6.2-2.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-d0ad136c8c</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10248036</commentid>
+    <comment_count>55</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-16 21:07:47 -0400</bug_when>
+    <thetext>389-ds-base-1.3.6.2-2.fc26 has been pushed to the Fedora 26 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="0"
+              ispatch="0"
+              isprivate="0"
+          >
+            <attachid>1231518</attachid>
+            <date>2016-12-14 03:51:00 -0500</date>
+            <delta_ts>2016-12-14 03:51:19 -0500</delta_ts>
+            <desc>updated bind template</desc>
+            <filename>bind.named.conf.template</filename>
+            <type>text/plain</type>
+            <size>1264</size>
+            <attacher name="Tomas Krizek">tkrizek</attacher>
+            
+              <data encoding="base64">b3B0aW9ucyB7CgkvLyB0dXJucyBvbiBJUHY2IGZvciBwb3J0IDUzLCBJUHY0IGlzIG9uIGJ5IGRl
+ZmF1bHQgZm9yIGFsbCBpZmFjZXMKCWxpc3Rlbi1vbi12NiB7YW55O307CgoJLy8gUHV0IGZpbGVz
+IHRoYXQgbmFtZWQgaXMgYWxsb3dlZCB0byB3cml0ZSBpbiB0aGUgZGF0YS8gZGlyZWN0b3J5OgoJ
+ZGlyZWN0b3J5ICIkTkFNRURfVkFSX0RJUiI7IC8vIHRoZSBkZWZhdWx0CglkdW1wLWZpbGUJCSJk
+YXRhL2NhY2hlX2R1bXAuZGIiOwoJc3RhdGlzdGljcy1maWxlCQkiZGF0YS9uYW1lZF9zdGF0cy50
+eHQiOwoJbWVtc3RhdGlzdGljcy1maWxlCSJkYXRhL25hbWVkX21lbV9zdGF0cy50eHQiOwoKCS8v
+IEFueSBob3N0IGlzIHBlcm1pdHRlZCB0byBpc3N1ZSByZWN1cnNpdmUgcXVlcmllcwoJYWxsb3ct
+cmVjdXJzaW9uIHsgYW55OyB9OwoKCXRrZXktZ3NzYXBpLWtleXRhYiAiJE5BTUVEX0tFWVRBQiI7
+CglwaWQtZmlsZSAiJE5BTUVEX1BJRCI7CgoJZG5zc2VjLWVuYWJsZSB5ZXM7CglkbnNzZWMtdmFs
+aWRhdGlvbiB5ZXM7CgoJLyogUGF0aCB0byBJU0MgRExWIGtleSAqLwoJYmluZGtleXMtZmlsZSAi
+JEJJTkRLRVlTX0ZJTEUiOwoKCW1hbmFnZWQta2V5cy1kaXJlY3RvcnkgIiRNQU5BR0VEX0tFWVNf
+RElSIjsKfTsKCi8qIElmIHlvdSB3YW50IHRvIGVuYWJsZSBkZWJ1Z2dpbmcsIGVnLiB1c2luZyB0
+aGUgJ3JuZGMgdHJhY2UnIGNvbW1hbmQsCiAqIEJ5IGRlZmF1bHQsIFNFTGludXggcG9saWN5IGRv
+ZXMgbm90IGFsbG93IG5hbWVkIHRvIG1vZGlmeSB0aGUgL3Zhci9uYW1lZCBkaXJlY3RvcnksCiAq
+IHNvIHB1dCB0aGUgZGVmYXVsdCBkZWJ1ZyBsb2cgZmlsZSBpbiBkYXRhLyA6CiAqLwpsb2dnaW5n
+IHsKCWNoYW5uZWwgZGVmYXVsdF9kZWJ1ZyB7CgkJZmlsZSAiZGF0YS9uYW1lZC5ydW4iOwoJCXNl
+dmVyaXR5IGR5bmFtaWM7CgkJcHJpbnQtdGltZSB5ZXM7Cgl9Owp9OwoKem9uZSAiLiIgSU4gewoJ
+dHlwZSBoaW50OwoJZmlsZSAibmFtZWQuY2EiOwp9OwoKaW5jbHVkZSAiJFJGQzE5MTJfWk9ORVMi
+OwppbmNsdWRlICIkUk9PVF9LRVkiOwoKZHluZGIgImlwYS1sZGFwIiAiL3Vzci9saWI2NC9iaW5k
+L2xkYXAuc28iIHsKCXVyaSAibGRhcGk6Ly8lMmZ2YXIlMmZydW4lMmZzbGFwZC0kU0VSVkVSX0lE
+LnNvY2tldCI7CgliYXNlICJjbj1kbnMsICRTVUZGSVgiOwoJc2VydmVyX2lkICIkRlFETiI7Cglh
+dXRoX21ldGhvZCAic2FzbCI7CglzYXNsX21lY2ggIkdTU0FQSSI7CglzYXNsX3VzZXIgIkROUy8k
+RlFETiI7Cn07Cg==
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

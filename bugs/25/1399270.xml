@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1399270</bug_id>
+          
+          <creation_ts>2016-11-28 11:40:00 -0500</creation_ts>
+          <short_desc>autopoint does not work if xz is missing (missing depedency?)</short_desc>
+          <delta_ts>2016-12-03 21:25:36 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>gettext</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Petr Spacek">pspacek</reporter>
+          <assigned_to name="Pavel Raiskup">praiskup</assigned_to>
+          <cc>dueno</cc>
+    
+    
+    <cc>i18n-bugs</cc>
+    
+    
+    <cc>petersen</cc>
+    
+    
+    <cc>praiskup</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>gettext-0.19.8.1-3.fc25</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-12-03 21:25:36</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9935620</commentid>
+    <comment_count>0</comment_count>
+    <who name="Petr Spacek">pspacek</who>
+    <bug_when>2016-11-28 11:40:12 -0500</bug_when>
+    <thetext>Description of problem:
+autopoint fails in packages using AM_GNU_GETTEXT_VERSION macro if xz is not installed.
+
+Version-Release number of selected component (if applicable):
+gettext-devel-0.19.8.1-2.fc25.x86_64
+
+How reproducible:
+100 %
+
+Steps to Reproduce:
+0. Grab a package using AM_GNU_GETTEXT_VERSION macro, e.g.:
+AM_GNU_GETTEXT_VERSION([0.19.8])
+
+1. Run autopoint on it:
+# autoreconf -i
+
+Actual results:
+/usr/bin/autopoint: line 485: xz: command not found
+tar: This does not look like a tar archive
+tar: gettext-0.19.8: Not found in archive
+tar: Exiting with failure status due to previous errors
+autopoint: *** infrastructure files for version 0.19.8 not found; this is autopoint from GNU gettext-tools 0.19.8.1
+autopoint: *** Stop.
+autoreconf: autopoint failed with exit status: 1
+
+
+Expected results:
+autopoint works.
+
+Additional information:
+It would help if xz was installed as depedency of gettext-devel package (which contains autopoint).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9937723</commentid>
+    <comment_count>1</comment_count>
+    <who name="Pavel Raiskup">praiskup</who>
+    <bug_when>2016-11-29 02:45:04 -0500</bug_when>
+    <thetext>Thanks for the report, your analysis seems to be right.
+
+I don&apos;t see adding &apos;xz&apos; as runtime dependency for &apos;gettext-devel&apos; as an
+issue -- the &apos;dirxz&apos; is ./configure time thing (baked-in decision so the
+&apos;xz&apos; dependency is unconditional).
+
+But due to nature of &apos;xz&apos; package -- it is in minimal buildroot and
+(unless something dramatic changes) it will be (mock would have to install
+&apos;xz&apos; on demand when Source tarballs are really xz compressed).  So I&apos;m
+curious what environment are you running autopoint in :).
+
+I&apos;m not yet oriented in gettext too much, but never-mind, this looks like
+safe thing.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9937738</commentid>
+    <comment_count>2</comment_count>
+    <who name="Petr Spacek">pspacek</who>
+    <bug_when>2016-11-29 02:52:13 -0500</bug_when>
+    <thetext>This issue happened inside Docker container fedora:latest (Fedora 25 at the time).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9938820</commentid>
+    <comment_count>3</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-11-29 07:30:18 -0500</bug_when>
+    <thetext>gettext-0.19.8.1-3.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2016-9359679d9e</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9952269</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-02 13:55:54 -0500</bug_when>
+    <thetext>gettext-0.19.8.1-3.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-9359679d9e</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9953916</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-03 21:25:36 -0500</bug_when>
+    <thetext>gettext-0.19.8.1-3.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

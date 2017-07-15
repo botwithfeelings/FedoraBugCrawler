@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1440734</bug_id>
+          
+          <creation_ts>2017-04-10 07:52:00 -0400</creation_ts>
+          <short_desc>[IMAPx] Indefinite waiting for message download</short_desc>
+          <delta_ts>2017-05-09 10:13:07 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>evolution</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>NEXTRELEASE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Lubomir Rintel">lrintel</reporter>
+          <assigned_to name="Milan Crha">mcrha</assigned_to>
+          <cc>desktop-qa-list</cc>
+    
+    
+    <cc>fidencio</cc>
+    
+    
+    <cc>jkoten</cc>
+    
+    
+    <cc>lkundrak</cc>
+    
+    
+    <cc>lrintel</cc>
+    
+    
+    <cc>lucilanga</cc>
+    
+    
+    <cc>mbarnes</cc>
+    
+    
+    <cc>mcrha</cc>
+    
+    
+    <cc>tpopela</cc>
+    
+    
+    <cc>vrutkovs</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>evolution-3.24.3</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          <cf_clone_of>1111600</cf_clone_of>
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-05-09 10:13:07</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          <external_bugs name="GNOME Desktop">720197</external_bugs>
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10319148</commentid>
+    <comment_count>0</comment_count>
+    <who name="Lubomir Rintel">lrintel</who>
+    <bug_when>2017-04-10 07:52:58 -0400</bug_when>
+    <thetext>Since recently, a bug that looks very reminiscent of bug #1111600 started to occur more frequently on my Fedora installation. I suspect the problem perhaps never really went away.
+
+Version-Release number of selected component (if applicable):
+
+evolution-3.22.6-2.fc25.x86_64
+evolution-data-server-3.22.7-1.fc25.x86_64
+
++++ This bug was initially created as a clone of Bug #1111600 +++
+
+Description of problem:
+
+With the 7.0 GA version of evolution, when clicking to a message there&apos;s a very high chance (around 50%) that it won&apos;t reload. The status bar indicates &quot;Retrieving message&quot; task being perpetually restarted.
+
+Version-Release number of selected component (if applicable):
+
+evolution-data-server-3.8.5-24.el7.x86_64
+
+How reproducible:
+
+It happens to me very often after I just click the message title to load it.
+
+Additional info:
+
+When I comment out evolution-data-server-3.8.5-imapx-check-cancelled-jobs.patch the issue goes away.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10321373</commentid>
+    <comment_count>2</comment_count>
+    <who name="Milan Crha">mcrha</who>
+    <bug_when>2017-04-10 13:18:00 -0400</bug_when>
+    <thetext>Thanks for a bug report. Backtrace 10 to backtrace 20 show basically the same thing, one thread is in IDLE, another thread tries to download a message. Interestingly, the g_socket_receive_with_timeout() is called with timeout -1, but IMAPx does set timeout to 90 seconds here:
+https://git.gnome.org/browse/evolution-data-server/tree/camel/camel-network-service.c?h=gnome-3-22#n623
+and here:
+https://git.gnome.org/browse/evolution-data-server/tree/camel/camel-network-service.c?h=gnome-3-22#n650
+as its default timeout. IMAPx itself also plays with the timeout, but never sets it to -1. I do not think that GSSAPI login has anything to do with it, but maybe it does (I do not use it myself).
+
+Back to bactraces, there happened something in time of backtrace 21, the IDLE thread is gone, it seems to me that a periodic refresh time had been reached thus a refresh happened. There is still one thread waiting for a response from the server. There is still one thread down to backtrace 30, which is still trying to download message 199043, but that thread looks differently this time, it cancelled the previous connection and it&apos;s trying to gain a new connection, but waiting for GTask to gain a free thread (there are only up to 10 threads available for GTask-s and even it has some mechanism to allocated more threads that mechanism doesn&apos;t really work [1]).
+
+I suppose that if you cancel the stuck message download and then select a different message and back the previous then it&apos;ll work again, because all that seems to be cancellable. I do not see what happened to the connection in the background, unfortunately.
+
+It&apos;s unlikely that you had some intermittent connection issue, right? For such cases would that 90 seconds timeout work, though I do not see why it got lost somewhere, when it&apos;s clearly being set. The timeout is not a fix for the lost connection, but it would at least not wait forever.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10321376</commentid>
+    <comment_count>3</comment_count>
+    <who name="Milan Crha">mcrha</who>
+    <bug_when>2017-04-10 13:18:36 -0400</bug_when>
+    <thetext>Oops...
+
+[1] https://bugzilla.gnome.org/show_bug.cgi?id=774448</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10396760</commentid>
+    <comment_count>4</comment_count>
+    <who name="Milan Crha">mcrha</who>
+    <bug_when>2017-05-09 10:13:07 -0400</bug_when>
+    <thetext>I pushed your change upstream (offered on IRC):
+
+Created commit_80c5a32 in evo master (3.25.2+) [1]
+Created commit_1b3d8b0 in evo gnome-3-24 (3.24.3+)
+
+[1] https://git.gnome.org/browse/evolution/commit/?id=80c5a32</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

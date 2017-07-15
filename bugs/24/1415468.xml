@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1415468</bug_id>
+          
+          <creation_ts>2017-01-22 04:56:00 -0500</creation_ts>
+          <short_desc>kernel 4.9.4-100 &quot;broke&quot; network stack</short_desc>
+          <delta_ts>2017-04-18 17:00:07 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>kernel</component>
+          <version>24</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Davide Corrado">davide.corrado</reporter>
+          <assigned_to name="Kernel Maintainer List">kernel-maint</assigned_to>
+          <cc>emailtoflorian</cc>
+    
+    
+    <cc>gansalmon</cc>
+    
+    
+    <cc>ichavero</cc>
+    
+    
+    <cc>itamar</cc>
+    
+    
+    <cc>jforbes</cc>
+    
+    
+    <cc>jkastner</cc>
+    
+    
+    <cc>j.markmann</cc>
+    
+    
+    <cc>jonathan</cc>
+    
+    
+    <cc>kernel-maint</cc>
+    
+    
+    <cc>madhu.chinakonda</cc>
+    
+    
+    <cc>mchehab</cc>
+    
+    
+    <cc>mitroko</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-04-18 17:00:07</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10086681</commentid>
+    <comment_count>0</comment_count>
+    <who name="Davide Corrado">davide.corrado</who>
+    <bug_when>2017-01-22 04:56:03 -0500</bug_when>
+    <thetext>Description of problem:
+the new kernel has issues with the network stack on my system. the network works for a minute or so, than no packets reach asny host at all (default gw included)
+
+Version-Release number of selected component (if applicable):
+kernel 4.9.4-100
+
+How reproducible:
+boot into 4.9.4-100.
+motherboard gigabyte f2a88x-dh3, a10 cpu, 02:00.0 Network controller: Realtek Semiconductor Co., Ltd. RTL8192CE PCIe Wireless Network Adapter (rev 01)
+
+Steps to Reproduce:
+1. just boot and waith a minute or so
+2.
+3.
+
+Actual results:
+network broken
+
+Expected results:
+network works
+
+Additional info:
+the previous 4.8 kernel works</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10096720</commentid>
+    <comment_count>1</comment_count>
+    <who name="Jürgen Markmann">j.markmann</who>
+    <bug_when>2017-01-25 14:30:53 -0500</bug_when>
+    <thetext>I had exactly the same problem with a similar WiFi Adapter. Maybe this helps solving the problem:
+
+OS: Fedora 25, 64bit
+Hardware: Asus PCE-N15 (it&apos;s a PCIe adapter)
+
+
+As long as I boot an old 4.8.x kernel, WiFi works. If I boot a 4.9.x kernel, my WiFi fails after approximately one minute. iwconfig still states that there is connection to the access point. ifconfig shows the corresponding network with assigned IP address. But I cannot get one bit through the connection. Even a simple ping fails. The loaded kernel module for the card is rtl8192ce.
+
+It seems that the implentation of the power safe mode is buggy (I found some hints in the net).
+
+The following workaround I found in a forum which works excellently in my case:
+
+Disable power safe of rtl8192ce when loaded. I created a conf file for modprobe /etc/modprobe.d/rtl8192ce.conf with the following entry:
+
+options rtl8192ce ips=0 fwlps=0
+
+After unload/load of rtl8192ce or a reboot, WiFi was working also with 4.9 kernels. Maybe you should disable power safe mode it by default until it&apos;s correctly implemented.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10097205</commentid>
+    <comment_count>2</comment_count>
+    <who name="Dmitry Stremkouski">mitroko</who>
+    <bug_when>2017-01-25 17:53:32 -0500</bug_when>
+    <thetext>Duplicate for 1415339(https://bugzilla.redhat.com/show_bug.cgi?id=1415339)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10111599</commentid>
+    <comment_count>3</comment_count>
+    <who name="Davide Corrado">davide.corrado</who>
+    <bug_when>2017-02-01 03:23:47 -0500</bug_when>
+    <thetext>the issue still exists with latest 4.9 kernels so far.
+in the past (I mean at least one year ago) i was using these options for the given module:
+
+# Disable powersaving
+options rtl8192ce ips=0
+
+# WARNING! Do not enable this shit.
+#          It causes bugs.
+options rtl8192ce fwlps=0
+
+# Use software control instead
+options rtl8192ce swlps=1
+
+
+then, I discovered that they weren&apos;t needed anymore, so I forgot. Reading your reply brought this back. thanks.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10117068</commentid>
+    <comment_count>4</comment_count>
+    <who name="Dmitry Stremkouski">mitroko</who>
+    <bug_when>2017-02-02 15:03:37 -0500</bug_when>
+    <thetext>Thank you guys, that worked for me as well.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10325234</commentid>
+    <comment_count>5</comment_count>
+    <who name="Justin M. Forbes">jforbes</who>
+    <bug_when>2017-04-11 11:00:54 -0400</bug_when>
+    <thetext>*********** MASS BUG UPDATE **************
+
+We apologize for the inconvenience.  There are a large number of bugs to go through and several of them have gone stale.  Due to this, we are doing a mass bug update across all of the Fedora 24 kernel bugs.
+
+Fedora 25 has now been rebased to 4.10.9-100.fc24.  Please test this kernel update (or newer) and let us know if you issue has been resolved or if it is still present with the newer kernel.
+
+If you have moved on to Fedora 26, and are still experiencing this issue, please change the version to Fedora 26.
+
+If you experience different issues, please open a new bug report for those.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10343172</commentid>
+    <comment_count>6</comment_count>
+    <who name="Jürgen Markmann">j.markmann</who>
+    <bug_when>2017-04-18 16:17:19 -0400</bug_when>
+    <thetext>With the current kernel (4.10.9-100), WiFi also works in my case without the extra arguments.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10343272</commentid>
+    <comment_count>7</comment_count>
+    <who name="Justin M. Forbes">jforbes</who>
+    <bug_when>2017-04-18 17:00:07 -0400</bug_when>
+    <thetext>Excellent, going to close this, if others are still seeing the issue with a 4.10 kernel, please reopen.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

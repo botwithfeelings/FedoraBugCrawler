@@ -1,0 +1,905 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1404918</bug_id>
+          
+          <creation_ts>2016-12-15 01:09:00 -0500</creation_ts>
+          <short_desc>Proposal: force C.UTF-8 when Python 3 is run under the C locale</short_desc>
+          <delta_ts>2017-06-29 19:29:16 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>python3</component>
+          <version>26</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard>AcceptedFreezeException</status_whiteboard>
+          <keywords>Reopened</keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>1349185</blocked>
+    
+    
+    <blocked>1349189</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Nick Coghlan">ncoghlan</reporter>
+          <assigned_to name="Charalampos Stratakis">cstratak</assigned_to>
+          <cc>a.badger</cc>
+    
+    
+    <cc>awilliam</cc>
+    
+    
+    <cc>bkabrda</cc>
+    
+    
+    <cc>carl</cc>
+    
+    
+    <cc>cstratak</cc>
+    
+    
+    <cc>dmalcolm</cc>
+    
+    
+    <cc>ivazqueznet</cc>
+    
+    
+    <cc>jdulaney</cc>
+    
+    
+    <cc>jhasse</cc>
+    
+    
+    <cc>jonathansteffan</cc>
+    
+    
+    <cc>mcyprian</cc>
+    
+    
+    <cc>mhroncok</cc>
+    
+    
+    <cc>mruckman</cc>
+    
+    
+    <cc>ncoghlan</cc>
+    
+    
+    <cc>pviktori</cc>
+    
+    
+    <cc>rkuska</cc>
+    
+    
+    <cc>tomspur</cc>
+    
+    
+    <cc>torsava</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>python3-3.6.0-21.fc26 python3-3.6.1-6.fc26 python3-3.6.1-8.fc26</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-06-29 19:29:16</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          <external_bugs name="Python">28180</external_bugs>
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9988519</commentid>
+    <comment_count>0</comment_count>
+    <who name="Nick Coghlan">ncoghlan</who>
+    <bug_when>2016-12-15 01:09:58 -0500</bug_when>
+    <thetext>When run under the C locale, Python 3 doesn&apos;t really work properly on systems where UTF-8 is the correct encoding for interacting with the rest of the system. This is described in detail by Armin Ronacher in the click documentation: http://click.pocoo.org/5/python3/#python-3-surrogate-handling
+
+The attached patch is a proposed change to the system Python that assumes the current process is misconfigured when it detects that &quot;LC_CTYPE&quot; refers to the &quot;C&quot; locale, and in that case prints a warnings to stderr and forces the use of the C.UTF-8 locale instead.
+
+To avoid unintended side effects, it *solely* changes the actual python3.6 command line utility - nothing changes for cases where CPython is used as a dynamically linked library.
+
+Behaviour with the patch:
+
+```
+$ LANG=C python -c &apos;import click; cli = click.command()(lambda:None); cli()&apos;
+Python detected LC_CTYPE=C. Setting LC_ALL &amp; LANG to C.UTF-8.
+```
+
+Behaviour without the patch:
+
+```
+$ LANG=C /usr/bin/python3 -c &apos;import click; cli = click.command()(lambda:None); cli()&apos;
+Traceback (most recent call last):
+  File &quot;&lt;string&gt;&quot;, line 1, in &lt;module&gt;
+  File &quot;/home/ncoghlan/.local/lib/python3.5/site-packages/click/core.py&quot;, line 716, in __call__
+    return self.main(*args, **kwargs)
+  File &quot;/home/ncoghlan/.local/lib/python3.5/site-packages/click/core.py&quot;, line 675, in main
+    _verify_python3_env()
+  File &quot;/home/ncoghlan/.local/lib/python3.5/site-packages/click/_unicodefun.py&quot;, line 119, in _verify_python3_env
+    &apos;mitigation steps.&apos; + extra)
+RuntimeError: Click will abort further execution because Python 3 was configured to use ASCII as encoding for the environment.  Either run this under Python 2 or consult http://click.pocoo.org/python3/ for mitigation steps.
+
+This system supports the C.UTF-8 locale which is recommended.
+You might be able to resolve your issue by exporting the
+following environment variables:
+
+    export LC_ALL=C.UTF-8
+    export LANG=C.UTF-8
+```</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9988525</commentid>
+    <comment_count>1</comment_count>
+      <attachid>1231981</attachid>
+    <who name="Nick Coghlan">ncoghlan</who>
+    <bug_when>2016-12-15 01:11:38 -0500</bug_when>
+    <thetext>Created attachment 1231981
+Initially proposed patch to the Fedora Python 3.6 binary for F26</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9989288</commentid>
+    <comment_count>2</comment_count>
+    <who name="Miro Hrončok">mhroncok</who>
+    <bug_when>2016-12-15 06:22:26 -0500</bug_when>
+    <thetext>We plan to apply the patch after the current Python 3.6 side-tag is merged.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9989341</commentid>
+    <comment_count>3</comment_count>
+    <who name="Nick Coghlan">ncoghlan</who>
+    <bug_when>2016-12-15 06:40:16 -0500</bug_when>
+    <thetext>Note from the current Python SIG discussion: this needs an environment variable to turn off the second-guessing behaviour.
+
+e.g PYTHONALLOWCLOCALE</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9989428</commentid>
+    <comment_count>4</comment_count>
+    <who name="Miro Hrončok">mhroncok</who>
+    <bug_when>2016-12-15 07:04:01 -0500</bug_when>
+    <thetext>...considering the discussion of course. Didn&apos;t have time now to read it all.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9989884</commentid>
+    <comment_count>5</comment_count>
+    <who name="Nick Coghlan">ncoghlan</who>
+    <bug_when>2016-12-15 08:52:43 -0500</bug_when>
+    <thetext>Consolidating the feedback from the mailing list thread [1] so far:
+
+To better cover the runtime embedding cases, add a new warning message inside Py_Initialize that says:
+
+    libpython3 detected LC_CTYPE=C. Some libraries and operating system interfaces may not work correctly.
+    Use `PYTHONALLOWCLOCALE=1 LC_CTYPE=C /usr/bin/python3` if debugging this
+under /usr/bin/python3.
+
+For the command line interpreter, provide the `PYTHONALLOWCLOCALE` off switch, and adjust the warning message as follows:
+
+    Python detected LC_CTYPE=C, forcing LC_ALL &amp; LANG to C.UTF-8 (set
+PYTHONALLOWCLOCALE to disable this behaviour)
+
+And if the environment variable is already set:
+
+    Python detected LC_CTYPE=C, but PYTHONALLOWCLOCALE is set. Some
+libraries, applications and operating system interfaces may not work correctly.
+
+[1] https://lists.fedoraproject.org/archives/list/python-devel@lists.fedoraproject.org/thread/NBYPZLLAA7SNHOZ4TYMDTLJIKACLVTUM/</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9990188</commentid>
+    <comment_count>6</comment_count>
+    <who name="Jan Niklas Hasse">jhasse</who>
+    <bug_when>2016-12-15 09:59:45 -0500</bug_when>
+    <thetext>Why would one want to allow the C locale though? Is there any case where LANG=C works but C.utf-8 doesn&apos;t (for Python 3)?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9990273</commentid>
+    <comment_count>7</comment_count>
+    <who name="Toshio Ernie Kuratomi">a.badger</who>
+    <bug_when>2016-12-15 10:22:05 -0500</bug_when>
+    <thetext>(In reply to Jan Niklas Hasse from comment #6)
+&gt; Why would one want to allow the C locale though? Is there any case where
+&gt; LANG=C works but C.utf-8 doesn&apos;t (for Python 3)?
+
+The use case is debugging.  These are the three cases we&apos;ve come up with in the mailing list thread where it would be desirable to use C locale instead of C.utf-8 for debugging:
+
+* I am a software developer and the user is running my software with python-3.6 on a distribution that doesn&apos;t patch their Python3.
+* I am a software developer and the user is running my softwware on an older version of python-3.x that doesn&apos;t have this change.
+* I am a software developer and I&apos;m running in production under mod_wsgi but debugging/running unittests/etc using /usr/bin/python3.
+
+In those cases, the production version of the software won&apos;t be coercing to a non-ascii-aware locale.  Being able to turn off the coercion when running /usr/bin/python3 is the quickest way to replicate the problems that can be encountered in the production environment.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9996081</commentid>
+    <comment_count>8</comment_count>
+      <attachid>1233034</attachid>
+    <who name="Nick Coghlan">ncoghlan</who>
+    <bug_when>2016-12-18 00:27:38 -0500</bug_when>
+    <thetext>Created attachment 1233034
+Draft implementation with environment based off switch and test cases
+
+The updated PYTHONALLOWCLOCALE patch covers everything discussed both here and in the SIG thread, and also adds a new test case for the behaviour.
+
+The current patch refactors test.support.script_helper slightly, but we should probably just duplicate that code to make the patch easier to maintain and leave any refactoring for the upstream implementation.
+
+Example behaviour:
+==========================
+
+$ ./python -c &quot;import sys; print(sys.getfilesystemencoding())&quot;
+utf-8
+
+$ LANG=C.UTF-8 ./python -c &quot;import sys; print(sys.getfilesystemencoding())&quot;
+utf-8
+
+$ LANG=C ./python -c &quot;import sys; print(sys.getfilesystemencoding())&quot;
+Python detected LC_CTYPE=C, forcing LC_ALL &amp; LANG to C.UTF-8 (set PYTHONALLOWCLOCALE to disable this behaviour).
+utf-8
+
+$ PYTHONALLOWCLOCALE=1 LANG=C ./python -c &quot;import sys; print(sys.getfilesystemencoding())&quot;
+Python detected LC_CTYPE=C, but PYTHONALLOWCLOCALE is set. Some libraries, applications, and operating system interfaces may not work correctly.
+Py_Initialize detected LC_CTYPE=C, which limits Unicode compatibility. Some libraries and operating system interfaces may not work correctly. Use `PYTHONALLOWCLOCALE=1 LC_CTYPE=C python3` to configure a similar environment when running Python directly.
+ascii
+==========================
+
+The reason the library warning also shows up in the last example is that from the library&apos;s point of view, that CLI invocation looks exactly the same as any other embedding application with a problematic locale configuration. One possible option to make that case a bit more readable would be to omit the CLI warning for it, and rely solely on the warning from the library.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9996082</commentid>
+    <comment_count>9</comment_count>
+    <who name="Nick Coghlan">ncoghlan</who>
+    <bug_when>2016-12-18 00:36:45 -0500</bug_when>
+    <thetext>I also made an interesting discovery while working on this patch: the Py_Initialize code already includes a call to `setlocale(LC_CTYPE, &quot;&quot;)` that never gets reverted (the runtime doesn&apos;t even save a reference to the old setting for subsequent restoration).
+
+So that means embedding applications already have to set `LC_ALL`, `LC_CTYPE` or `LANG` in the environment if they want an embedded CPython 3 runtime to pay attention to it - they can&apos;t just call `setlocale()` before calling Py_Initialize.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9997231</commentid>
+    <comment_count>10</comment_count>
+    <who name="Thomas Spura">tomspur</who>
+    <bug_when>2016-12-19 01:27:41 -0500</bug_when>
+    <thetext>Does this also improve the handling of encoding change from utf-8 to ascii if stdout is not a tty from bug #1397428?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9997711</commentid>
+    <comment_count>11</comment_count>
+    <who name="Petr Viktorin">pviktori</who>
+    <bug_when>2016-12-19 05:16:23 -0500</bug_when>
+    <thetext>Thomas, bug 1397428 is for Python 2. In py3 it should be fixed already.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10000902</commentid>
+    <comment_count>12</comment_count>
+    <who name="Thomas Spura">tomspur</who>
+    <bug_when>2016-12-20 01:01:40 -0500</bug_when>
+    <thetext>(In reply to Petr Viktorin from comment #11)
+&gt; Thomas, bug 1397428 is for Python 2. In py3 it should be fixed already.
+
+OK,thanks for the clarification.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10022396</commentid>
+    <comment_count>13</comment_count>
+    <who name="Nick Coghlan">ncoghlan</who>
+    <bug_when>2016-12-27 22:38:16 -0500</bug_when>
+    <thetext>I&apos;ve now created an upstream PEP targeting Python 3.7 for this: https://www.python.org/dev/peps/pep-0538/
+
+An updated patch (which tweaks the warning messages a bit and avoids emitting the double warning when PYTHONALLOWCLOCALE is set) is attached to the corresponding upstream issue: http://bugs.python.org/issue28180
+
+Assuming that gets accepted some time in the next few weeks, would it make sense to file a Self-Contained Change Proposal for F26 to cover the backport to Python 3.6?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10028507</commentid>
+    <comment_count>14</comment_count>
+    <who name="Charalampos Stratakis">cstratak</who>
+    <bug_when>2017-01-02 09:49:47 -0500</bug_when>
+    <thetext>I suppose that a self contained change is not required for that kind of patch. Currently, if that gets accepted upstream we will backport it in rawhide.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10146654</commentid>
+    <comment_count>15</comment_count>
+    <who name="Charalampos Stratakis">cstratak</who>
+    <bug_when>2017-02-14 08:50:27 -0500</bug_when>
+    <thetext>I&apos;m creating the self contained change page.
+
+However when I tried to apply the patch compilation fails with:
+
+/builddir/build/BUILD/Python-3.6.0/Python/pylifecycle.c: In function &apos;_emit_stderr_warning_for_c_locale&apos;:
+/builddir/build/BUILD/Python-3.6.0/Python/pylifecycle.c:315:9: error: format not a string literal and no format arguments [-Werror=format-security]
+         fprintf(stderr, _C_LOCALE_WARNING);</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10146919</commentid>
+    <comment_count>16</comment_count>
+    <who name="Charalampos Stratakis">cstratak</who>
+    <bug_when>2017-02-14 10:17:00 -0500</bug_when>
+    <thetext>Fixed by changing these two fprintf statements from:
+
+fprintf(stderr, _CLI_C_LOCALE_COERCION_WARNING);
+
+to:
+
+fprintf(stderr, &quot;%s&quot;, _CLI_C_LOCALE_COERCION_WARNING);</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10178629</commentid>
+    <comment_count>17</comment_count>
+    <who name="Charalampos Stratakis">cstratak</who>
+    <bug_when>2017-02-23 10:06:31 -0500</bug_when>
+    <thetext>self contained change proposal:
+
+https://fedoraproject.org/wiki/Changes/python3_c.utf-8_locale</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10178675</commentid>
+    <comment_count>18</comment_count>
+    <who name="Jan Niklas Hasse">jhasse</who>
+    <bug_when>2017-02-23 10:14:52 -0500</bug_when>
+    <thetext>What happens with the patch when LANG is unset?
+
+&gt; In those cases, the production version of the software won&apos;t be coercing to a non-ascii-aware locale.  Being able to turn off the coercion when running /usr/bin/python3 is the quickest way to replicate the problems that can be encountered in the production environment.
+
+Couldn&apos;t LANG=C.ascii be used in these cases?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10191738</commentid>
+    <comment_count>19</comment_count>
+    <who name="Fedora End Of Life">jkurik</who>
+    <bug_when>2017-02-28 05:47:27 -0500</bug_when>
+    <thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 26 development cycle.
+Changing version to &apos;26&apos;.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10229106</commentid>
+    <comment_count>20</comment_count>
+    <who name="Fedora Blocker Bugs Application">blockerbugs</who>
+    <bug_when>2017-03-10 12:09:39 -0500</bug_when>
+    <thetext>Proposed as a Freeze Exception for 26-alpha by Fedora user cstratak using the blocker tracking app because:
+
+ As the scheduling didn&apos;t work out, I will have to request a freeze exception for https://fedoraproject.org/wiki/Changes/python3_c.utf-8_locale in order to be tested extensively.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10234212</commentid>
+    <comment_count>21</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-13 14:14:40 -0400</bug_when>
+    <thetext>python3-3.6.0-21.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-904a280f5f</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10234318</commentid>
+    <comment_count>22</comment_count>
+    <who name="Mike Ruckman">mruckman</who>
+    <bug_when>2017-03-13 14:53:11 -0400</bug_when>
+    <thetext>Discussed in today&apos;s Blocker Review meeting. FESCo has declared this an FE: https://meetbot-raw.fedoraproject.org/teams/fesco/fesco.2017-03-10-16.02.html</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10235818</commentid>
+    <comment_count>23</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-13 23:22:22 -0400</bug_when>
+    <thetext>python3-3.6.0-21.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-904a280f5f</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10238239</commentid>
+    <comment_count>24</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-14 11:16:27 -0400</bug_when>
+    <thetext>autoconf-archive-2016.09.16-3.fc26 python3-3.6.0-21.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-904a280f5f</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10240258</commentid>
+    <comment_count>25</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-15 00:21:17 -0400</bug_when>
+    <thetext>autoconf-archive-2016.09.16-3.fc26, python3-3.6.0-21.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-904a280f5f</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10248035</commentid>
+    <comment_count>26</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-16 21:07:38 -0400</bug_when>
+    <thetext>autoconf-archive-2016.09.16-3.fc26, python3-3.6.0-21.fc26 has been pushed to the Fedora 26 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10390767</commentid>
+    <comment_count>27</comment_count>
+    <who name="Nick Coghlan">ncoghlan</who>
+    <bug_when>2017-05-06 10:43:12 -0400</bug_when>
+    <thetext>Progress update on the upstream PEP: it&apos;s getting pretty close to acceptance, but the latest round of reviews prompted a change to make the behaviour more consistent between the &quot;locale coercion&quot; case and the &quot;explicit locale configuration case&quot;.
+
+Specifically, instead of calling Py_SetStandardStreamEncoding from the standalone CLI, the language runtime initialization now automatically uses &quot;surrogateescape&quot; on the standard streams whenever the configured locale is one of the potential coercion target locales (similar to the way the default error handler for the standard streams has been set to &quot;surrogateescape&quot; in the C locale since Python 3.5).
+
+As a non-functional change, the upstream patch has also been refactored to move all of the implementation details into the shared library, with just a couple of private API functions accessed from the standalone CLI implementation.
+
+The changes for both of those relative to the previous patch: https://github.com/ncoghlan/cpython/commit/188e7807b6d9e49377aacbb287c074e5cabf70c5
+
+The bulk of the related specification changes are in https://github.com/python/peps/commit/2fb53e7c1bbb04e1321bca11cc0112aec69f6398 with an important clarification in https://github.com/python/peps/commit/4067701b851031b10a37300375735f8489afb4e6 to note that the handling of sys.stderr isn&apos;t change (that continues to use &quot;backslashreplace&quot; as its error handler, regardless of locale)
+
+With the Beta freeze only a week away, it probably makes sense to update the backport ASAP - the only remaining open question upstream is an idea we wouldn&apos;t backport to 3.6 anyway (specifically, I&apos;ve suggested we consider making the private configuration API in the current patch a public API in Python 3.7)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10390862</commentid>
+    <comment_count>28</comment_count>
+    <who name="Charalampos Stratakis">cstratak</who>
+    <bug_when>2017-05-06 13:29:13 -0400</bug_when>
+    <thetext>(In reply to Nick Coghlan from comment #27)
+&gt; Progress update on the upstream PEP: it&apos;s getting pretty close to
+&gt; acceptance, but the latest round of reviews prompted a change to make the
+&gt; behaviour more consistent between the &quot;locale coercion&quot; case and the
+&gt; &quot;explicit locale configuration case&quot;.
+&gt; 
+&gt; Specifically, instead of calling Py_SetStandardStreamEncoding from the
+&gt; standalone CLI, the language runtime initialization now automatically uses
+&gt; &quot;surrogateescape&quot; on the standard streams whenever the configured locale is
+&gt; one of the potential coercion target locales (similar to the way the default
+&gt; error handler for the standard streams has been set to &quot;surrogateescape&quot; in
+&gt; the C locale since Python 3.5).
+&gt; 
+&gt; As a non-functional change, the upstream patch has also been refactored to
+&gt; move all of the implementation details into the shared library, with just a
+&gt; couple of private API functions accessed from the standalone CLI
+&gt; implementation.
+&gt; 
+&gt; The changes for both of those relative to the previous patch:
+&gt; https://github.com/ncoghlan/cpython/commit/
+&gt; 188e7807b6d9e49377aacbb287c074e5cabf70c5
+&gt; 
+&gt; The bulk of the related specification changes are in
+&gt; https://github.com/python/peps/commit/
+&gt; 2fb53e7c1bbb04e1321bca11cc0112aec69f6398 with an important clarification in
+&gt; https://github.com/python/peps/commit/
+&gt; 4067701b851031b10a37300375735f8489afb4e6 to note that the handling of
+&gt; sys.stderr isn&apos;t change (that continues to use &quot;backslashreplace&quot; as its
+&gt; error handler, regardless of locale)
+&gt; 
+&gt; With the Beta freeze only a week away, it probably makes sense to update the
+&gt; backport ASAP - the only remaining open question upstream is an idea we
+&gt; wouldn&apos;t backport to 3.6 anyway (specifically, I&apos;ve suggested we consider
+&gt; making the private configuration API in the current patch a public API in
+&gt; Python 3.7)
+
+Thanks for the update Nick. I&apos;ll update the backport as soon as possible.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10391305</commentid>
+    <comment_count>29</comment_count>
+    <who name="Charalampos Stratakis">cstratak</who>
+    <bug_when>2017-05-07 07:24:51 -0400</bug_when>
+    <thetext>Commits have been pushed [0][1] and builds have been created [2][3][4] for F26 and rawhide
+
+[0] http://pkgs.fedoraproject.org/cgit/rpms/python3.git/commit/?id=31fe33b583978fe0075269527bf0eba08d233db9
+
+[1] http://pkgs.fedoraproject.org/cgit/rpms/python3.git/commit/?h=f26&amp;id=8fbcd4d716c245670956a0d1a0f10f9a79d41888
+
+[2] https://koji.fedoraproject.org/koji/buildinfo?buildID=887359
+
+[3] https://koji.fedoraproject.org/koji/buildinfo?buildID=887360
+
+[4] https://bodhi.fedoraproject.org/updates/FEDORA-2017-0a50d556e2</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10394743</commentid>
+    <comment_count>30</comment_count>
+    <who name="Nick Coghlan">ncoghlan</who>
+    <bug_when>2017-05-08 23:36:13 -0400</bug_when>
+    <thetext>Thanks. Based on Inada-san&apos;s comments, there&apos;s likely to be at least one more notable change in the upstream version: changing the locale coercion to only set LANG and LC_CTYPE without setting the LC_ALL override.
+
+Context for that: https://mail.python.org/pipermail/python-dev/2017-May/147896.html
+
+There are a couple of additional changes being considered upstream for 3.7 (removing the coercion warning in 3.8, exposing the legacy locale detection and coercion as a public CPython API), but neither of those would affect the Fedora 3.6 backport.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10395160</commentid>
+    <comment_count>31</comment_count>
+    <who name="Nick Coghlan">ncoghlan</who>
+    <bug_when>2017-05-09 03:23:08 -0400</bug_when>
+    <thetext>OK, I&apos;ve pushed the code update to my sandbox branch that changes the locale coercion to always respect LC_ALL rather than attempting to override it: https://github.com/ncoghlan/cpython/commit/476a78133c94d82e19b89f50036cecd9b4214e7a
+
+If you set LC_ALL=C, CPython won&apos;t attempt to change it, but will complain about it.
+
+If you set PYTHONCOERCECLOCALE=0, CPython not only won&apos;t change the C locale, but won&apos;t complain about it either.
+
+Since the locale coercion now only sets LC_CTYPE &amp; LANG, that means it also respects other explicitly set locale categories (like LC_TIME, LC_CURRENCY and LC_MONETARY).
+
+I&apos;ll be pushing the corresponding update to the PEP itself shortly.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10396295</commentid>
+    <comment_count>32</comment_count>
+    <who name="Nick Coghlan">ncoghlan</who>
+    <bug_when>2017-05-09 08:26:21 -0400</bug_when>
+    <thetext>The published PEP has been updated a new python-dev review thread started: https://mail.python.org/pipermail/python-dev/2017-May/147904.html</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10397787</commentid>
+    <comment_count>33</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-09 14:48:32 -0400</bug_when>
+    <thetext>python3-3.6.1-6.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-1e3062e0d6</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10406179</commentid>
+    <comment_count>34</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-11 22:12:09 -0400</bug_when>
+    <thetext>python3-3.6.1-6.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-1e3062e0d6</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10410649</commentid>
+    <comment_count>35</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-14 16:18:42 -0400</bug_when>
+    <thetext>python3-3.6.1-6.fc26 has been pushed to the Fedora 26 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10453792</commentid>
+    <comment_count>36</comment_count>
+    <who name="Nick Coghlan">ncoghlan</who>
+    <bug_when>2017-05-28 03:33:18 -0400</bug_when>
+    <thetext>I&apos;m happy to report that PEP 538 is now accepted upstream: https://mail.python.org/pipermail/python-dev/2017-May/148035.html
+
+There&apos;s one change relative to the behaviour of the downstream patch in the Fedora 26 Beta: upstream CPython will *only* set LC_CTYPE, and leave LANG alone.
+
+The rationale for that final change is here: https://www.python.org/dev/peps/pep-0538/#avoiding-setting-lang-for-utf-8-locale-coercion
+
+Rather than filing a new issue, I figure it makes sense to just set this one back to assigned, and then run it through the update cycle again.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10543410</commentid>
+    <comment_count>37</comment_count>
+    <who name="Charalampos Stratakis">cstratak</who>
+    <bug_when>2017-06-27 05:29:10 -0400</bug_when>
+    <thetext>The latest upstream implementation removes the warning when the locale has been coerced, thus proposing a freeze exception for the new build of python3.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10543414</commentid>
+    <comment_count>38</comment_count>
+    <who name="Fedora Blocker Bugs Application">blockerbugs</who>
+    <bug_when>2017-06-27 05:30:09 -0400</bug_when>
+    <thetext>Proposed as a Freeze Exception for 26-final by Fedora user cstratak using the blocker tracking app because:
+
+ Update to the latest upstream implementation of PEP 538 (rhbz#1432866) which removed the warning about locale coercion to stderr.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10545838</commentid>
+    <comment_count>39</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2017-06-27 17:53:14 -0400</bug_when>
+    <thetext>+1 FE, for me.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10548648</commentid>
+    <comment_count>40</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-28 06:59:52 -0400</bug_when>
+    <thetext>python3-3.6.1-8.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-6b4e8ce90d</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10550856</commentid>
+    <comment_count>41</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-28 15:20:49 -0400</bug_when>
+    <thetext>python3-3.6.1-8.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-6b4e8ce90d</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10555084</commentid>
+    <comment_count>42</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-29 19:29:16 -0400</bug_when>
+    <thetext>python3-3.6.1-8.fc26 has been pushed to the Fedora 26 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="1"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1231978</attachid>
+            <date>2016-12-15 01:09:00 -0500</date>
+            <delta_ts>2016-12-15 01:11:38 -0500</delta_ts>
+            <desc>Proposed patch to the Fedora Python 3.6 binary for F26</desc>
+            <filename>fedora-cpython-force-c-utf-8.diff</filename>
+            <type>text/plain</type>
+            <size>0</size>
+            <attacher name="Nick Coghlan">ncoghlan</attacher>
+            
+              <data encoding="base64"></data>
+
+          </attachment>
+          <attachment
+              isobsolete="0"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1231981</attachid>
+            <date>2016-12-15 01:11:00 -0500</date>
+            <delta_ts>2016-12-18 00:28:13 -0500</delta_ts>
+            <desc>Initially proposed patch to the Fedora Python 3.6 binary for F26</desc>
+            <filename>fedora-cpython-force-c-utf-8.diff</filename>
+            <type>text/plain</type>
+            <size>1543</size>
+            <attacher name="Nick Coghlan">ncoghlan</attacher>
+            
+              <data encoding="base64">ZGlmZiAtciBiNjVhZTE5YmM0MmEgUHJvZ3JhbXMvcHl0aG9uLmMKLS0tIGEvUHJvZ3JhbXMvcHl0
+aG9uLmMJV2VkIERlYyAxNCAxMTo1MjoyOCAyMDE2ICswMTAwCisrKyBiL1Byb2dyYW1zL3B5dGhv
+bi5jCVRodSBEZWMgMTUgMTU6NTY6NTIgMjAxNiArMTAwMApAQCAtMjIsNyArMjIsNyBAQAogICAg
+IC8qIFdlIG5lZWQgYSBzZWNvbmQgY29weSwgYXMgUHl0aG9uIG1pZ2h0IG1vZGlmeSB0aGUgZmly
+c3Qgb25lLiAqLwogICAgIHdjaGFyX3QgKiphcmd2X2NvcHkyOwogICAgIGludCBpLCByZXM7Ci0g
+ICAgY2hhciAqb2xkbG9jOworICAgIGNoYXIgKm9sZGxvYywgKmN0eXBlX2xvYzsKIAogICAgIC8q
+IEZvcmNlIG1hbGxvYygpIGFsbG9jYXRvciB0byBib290c3RyYXAgUHl0aG9uICovCiAgICAgKHZv
+aWQpX1B5TWVtX1NldHVwQWxsb2NhdG9ycygibWFsbG9jIik7CkBAIC00OSw3ICs0OSwzMCBAQAog
+ICAgICAgICByZXR1cm4gMTsKICAgICB9CiAKKyAgICAvKiBSZWNvbmZpZ3VyZSB0aGUgbG9jYWxl
+IHRvIHRoZSBkZWZhdWx0IGZvciB0aGlzIHByb2Nlc3MgKi8KICAgICBzZXRsb2NhbGUoTENfQUxM
+LCAiIik7CisKKyAgICAvKiBXaGVuIHRoZSBMQ19DVFlQRSBjYXRlZ29yeSBzdGlsbCBjbGFpbXMg
+dG8gYmUgdXNpbmcgdGhlIEMgbG9jYWxlLAorICAgICAgIGFzc3VtZSB0aGF0J3MgYSBjb25maWd1
+cmF0aW9uIGVycm9yIGFuZCByZXF1ZXN0IEMuVVRGLTggaW5zdGVhZC4gKi8KKyAgICBjdHlwZV9s
+b2MgPSBzZXRsb2NhbGUoTENfQ1RZUEUsIE5VTEwpOworICAgIGlmIChjdHlwZV9sb2MgIT0gTlVM
+TCAmJiBzdHJjbXAoY3R5cGVfbG9jLCAiQyIpID09IDApIHsKKyAgICAgICAgY29uc3QgY2hhciAq
+bXNnID0KKyAgICAgICAgICAgICJQeXRob24gZGV0ZWN0ZWQgTENfQ1RZUEU9Qy4gU2V0dGluZyBM
+Q19BTEwgJiBMQU5HIHRvIEMuVVRGLTguXG4iOworICAgICAgICBmcHJpbnRmKHN0ZGVyciwgbXNn
+KTsKKyAgICAgICAgaWYgKHNldGVudigiTENfQUxMIiwgIkMuVVRGLTgiLCAxKSkgeworICAgICAg
+ICAgICAgZnByaW50ZihzdGRlcnIsICJGYWlsZWQgdG8gc2V0IExDX0FMTFxuIik7CisgICAgICAg
+ICAgICByZXR1cm4gMTsKKyAgICAgICAgfQorICAgICAgICBpZiAoc2V0ZW52KCJMQU5HIiwgIkMu
+VVRGLTgiLCAxKSkgeworICAgICAgICAgICAgZnByaW50ZihzdGRlcnIsICJGYWlsZWQgdG8gc2V0
+IExBTkdcbiIpOworICAgICAgICAgICAgcmV0dXJuIDE7CisgICAgICAgIH0KKworICAgICAgICAv
+KiBSZWNvbmZpZ3VyZSB3aXRoIHRoZSBvdmVycmlkZGVuIGVudmlyb25tZW50IHZhcmlhYmxlcyAq
+LworICAgICAgICBzZXRsb2NhbGUoTENfQUxMLCAiIik7CisgICAgfQorCisgICAgLyogQ29udmVy
+dCBmcm9tIGNoYXIgdG8gd2NoYXJfdCBiYXNlZCBvbiB0aGUgbG9jYWxlIHNldHRpbmdzICovCiAg
+ICAgZm9yIChpID0gMDsgaSA8IGFyZ2M7IGkrKykgewogICAgICAgICBhcmd2X2NvcHlbaV0gPSBQ
+eV9EZWNvZGVMb2NhbGUoYXJndltpXSwgTlVMTCk7CiAgICAgICAgIGlmICghYXJndl9jb3B5W2ld
+KSB7Cg==
+</data>
+
+          </attachment>
+          <attachment
+              isobsolete="0"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1233034</attachid>
+            <date>2016-12-18 00:27:00 -0500</date>
+            <delta_ts>2016-12-18 00:27:38 -0500</delta_ts>
+            <desc>Draft implementation with environment based off switch and test cases</desc>
+            <filename>fedora-cpython-PYTHONALLOWCLOCALE.diff</filename>
+            <type>text/plain</type>
+            <size>12703</size>
+            <attacher name="Nick Coghlan">ncoghlan</attacher>
+            
+              <data encoding="base64">ZGlmZiAtciBiNjVhZTE5YmM0MmEgTGliL3Rlc3Qvc3VwcG9ydC9zY3JpcHRfaGVscGVyLnB5Ci0t
+LSBhL0xpYi90ZXN0L3N1cHBvcnQvc2NyaXB0X2hlbHBlci5weQlXZWQgRGVjIDE0IDExOjUyOjI4
+IDIwMTYgKzAxMDAKKysrIGIvTGliL3Rlc3Qvc3VwcG9ydC9zY3JpcHRfaGVscGVyLnB5CVN1biBE
+ZWMgMTggMTU6MTc6MzIgMjAxNiArMTAwMApAQCAtNTEsOCArNTEsMzUgQEAKICAgICByZXR1cm4g
+X19jYWNoZWRfaW50ZXJwX3JlcXVpcmVzX2Vudmlyb25tZW50CiAKIAotX1B5dGhvblJ1blJlc3Vs
+dCA9IGNvbGxlY3Rpb25zLm5hbWVkdHVwbGUoIl9QeXRob25SdW5SZXN1bHQiLAotICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKCJyYyIsICJvdXQiLCAiZXJyIikpCitj
+bGFzcyBfUHl0aG9uUnVuUmVzdWx0KGNvbGxlY3Rpb25zLm5hbWVkdHVwbGUoIl9QeXRob25SdW5S
+ZXN1bHQiLAorICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKCJyYyIs
+ICJvdXQiLCAiZXJyIikpKToKKyAgICAiIiJIZWxwZXIgZm9yIHJlcG9ydGluZyBQeXRob24gc3Vi
+cHJvY2VzcyBydW4gcmVzdWx0cyIiIgorICAgIGRlZiBmYWlsKHNlbGYsIGNtZF9saW5lKToKKyAg
+ICAgICAgIiIiUHJvdmlkZSBoZWxwZnVsIGRldGFpbHMgYWJvdXQgZmFpbGVkIHN1YmNvbW1hbmQg
+cnVucyIiIgorICAgICAgICAjIExpbWl0IHRvIDgwIGxpbmVzIHRvIEFTQ0lJIGNoYXJhY3RlcnMK
+KyAgICAgICAgbWF4bGVuID0gODAgKiAxMDAKKyAgICAgICAgb3V0LCBlcnIgPSByZXMub3V0LCBy
+ZXMuZXJyCisgICAgICAgIGlmIGxlbihvdXQpID4gbWF4bGVuOgorICAgICAgICAgICAgb3V0ID0g
+YicoLi4uIHRydW5jYXRlZCBzdGRvdXQgLi4uKScgKyBvdXRbLW1heGxlbjpdCisgICAgICAgIGlm
+IGxlbihlcnIpID4gbWF4bGVuOgorICAgICAgICAgICAgZXJyID0gYicoLi4uIHRydW5jYXRlZCBz
+dGRlcnIgLi4uKScgKyBlcnJbLW1heGxlbjpdCisgICAgICAgIG91dCA9IG91dC5kZWNvZGUoJ2Fz
+Y2lpJywgJ3JlcGxhY2UnKS5yc3RyaXAoKQorICAgICAgICBlcnIgPSBlcnIuZGVjb2RlKCdhc2Np
+aScsICdyZXBsYWNlJykucnN0cmlwKCkKKyAgICAgICAgcmFpc2UgQXNzZXJ0aW9uRXJyb3IoIlBy
+b2Nlc3MgcmV0dXJuIGNvZGUgaXMgJWRcbiIKKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ImNvbW1hbmQgbGluZTogJXJcbiIKKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIlxuIgor
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAic3Rkb3V0OlxuIgorICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAiLS0tXG4iCisgICAgICAgICAgICAgICAgICAgICAgICAgICAgICIlc1xu
+IgorICAgICAgICAgICAgICAgICAgICAgICAgICAgICAiLS0tXG4iCisgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICJcbiIKKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgInN0ZGVycjpc
+biIKKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIi0tLVxuIgorICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAiJXNcbiIKKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIi0tLSIK
+KyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgJSAocmVzLnJjLCBjbWRfbGluZSwKKyAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgb3V0LAorICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICBlcnIpKQogCiAKICMgRXhlY3V0aW5nIHRoZSBpbnRlcnByZXRlciBpbiBhIHN1YnBy
+b2Nlc3MKQEAgLTk5LDMwICsxMjYsNyBAQAogZGVmIF9hc3NlcnRfcHl0aG9uKGV4cGVjdGVkX3N1
+Y2Nlc3MsICphcmdzLCAqKmVudl92YXJzKToKICAgICByZXMsIGNtZF9saW5lID0gcnVuX3B5dGhv
+bl91bnRpbF9lbmQoKmFyZ3MsICoqZW52X3ZhcnMpCiAgICAgaWYgKHJlcy5yYyBhbmQgZXhwZWN0
+ZWRfc3VjY2Vzcykgb3IgKG5vdCByZXMucmMgYW5kIG5vdCBleHBlY3RlZF9zdWNjZXNzKToKLSAg
+ICAgICAgIyBMaW1pdCB0byA4MCBsaW5lcyB0byBBU0NJSSBjaGFyYWN0ZXJzCi0gICAgICAgIG1h
+eGxlbiA9IDgwICogMTAwCi0gICAgICAgIG91dCwgZXJyID0gcmVzLm91dCwgcmVzLmVycgotICAg
+ICAgICBpZiBsZW4ob3V0KSA+IG1heGxlbjoKLSAgICAgICAgICAgIG91dCA9IGInKC4uLiB0cnVu
+Y2F0ZWQgc3Rkb3V0IC4uLiknICsgb3V0Wy1tYXhsZW46XQotICAgICAgICBpZiBsZW4oZXJyKSA+
+IG1heGxlbjoKLSAgICAgICAgICAgIGVyciA9IGInKC4uLiB0cnVuY2F0ZWQgc3RkZXJyIC4uLikn
+ICsgZXJyWy1tYXhsZW46XQotICAgICAgICBvdXQgPSBvdXQuZGVjb2RlKCdhc2NpaScsICdyZXBs
+YWNlJykucnN0cmlwKCkKLSAgICAgICAgZXJyID0gZXJyLmRlY29kZSgnYXNjaWknLCAncmVwbGFj
+ZScpLnJzdHJpcCgpCi0gICAgICAgIHJhaXNlIEFzc2VydGlvbkVycm9yKCJQcm9jZXNzIHJldHVy
+biBjb2RlIGlzICVkXG4iCi0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICJjb21tYW5kIGxp
+bmU6ICVyXG4iCi0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICJcbiIKLSAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgInN0ZG91dDpcbiIKLSAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgIi0tLVxuIgotICAgICAgICAgICAgICAgICAgICAgICAgICAgICAiJXNcbiIKLSAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgIi0tLVxuIgotICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAiXG4iCi0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICJzdGRlcnI6XG4iCi0gICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICItLS1cbiIKLSAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgIiVzXG4iCi0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICItLS0iCi0gICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICUgKHJlcy5yYywgY21kX2xpbmUsCi0gICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgIG91dCwKLSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgZXJy
+KSkKKyAgICAgICAgcmVzLmZhaWwoY21kX2xpbmUpCiAgICAgcmV0dXJuIHJlcwogCiBkZWYgYXNz
+ZXJ0X3B5dGhvbl9vaygqYXJncywgKiplbnZfdmFycyk6CmRpZmYgLXIgYjY1YWUxOWJjNDJhIExp
+Yi90ZXN0L3Rlc3RfbG9jYWxlX292ZXJyaWRlLnB5Ci0tLSAvZGV2L251bGwJVGh1IEphbiAwMSAw
+MDowMDowMCAxOTcwICswMDAwCisrKyBiL0xpYi90ZXN0L3Rlc3RfbG9jYWxlX292ZXJyaWRlLnB5
+CVN1biBEZWMgMTggMTU6MTc6MzIgMjAxNiArMTAwMApAQCAtMCwwICsxLDE0MiBAQAorIyBUZXN0
+cyB0aGUgYXR0ZW1wdGVkIGF1dG9tYXRpYyBjb2VyY2lvbiBvZiB0aGUgQyBsb2NhbGUgdG8gQy5V
+VEYtOAorCitpbXBvcnQgdW5pdHRlc3QKK2ltcG9ydCBzeXMKK2ltcG9ydCBzaHV0aWwKK2ltcG9y
+dCBzdWJwcm9jZXNzCitpbXBvcnQgdGVzdC5zdXBwb3J0Citmcm9tIHRlc3Quc3VwcG9ydC5zY3Jp
+cHRfaGVscGVyIGltcG9ydCAoCisgICAgcnVuX3B5dGhvbl91bnRpbF9lbmQsCisgICAgaW50ZXJw
+cmV0ZXJfcmVxdWlyZXNfZW52aXJvbm1lbnQsCispCisKKyMgSW4gYWRkaXRpb24gdG8gdGhlIGdl
+bmVyYWwgY29uY2VwdCBvZiByZXBsYWNpbmcgdGhlIEMgbG9jYWxlIHdpdGggQy5VVEYtOCwKKyMg
+bWFueSBvZiB0aGUgdGVzdCBzcGVjaWZpY3MgYXJlIGRyYXduIGZyb20gdGhlIFB5MyBsb2NhbGUg
+aGFuZGxpbmcgY29kZSBpbgorIyBjbGljazogaHR0cHM6Ly9naXRodWIuY29tL3BhbGxldHMvY2xp
+Y2svYmxvYi9tYXN0ZXIvY2xpY2svX3VuaWNvZGVmdW4ucHkKKworZGVmIGhhdmVfbG9jYWxlX2Nv
+bW1hbmQoKToKKyAgICAiIiJDaGVjayB3ZSBoYXZlIGFjY2VzcyB0byBhICdsb2NhbGUnIGNvbW1h
+bmQiIiIKKyAgICByZXR1cm4gc2h1dGlsLndoaWNoKCJsb2NhbGUiKSBpcyBub3QgTm9uZQorCitD
+X1VURjhfTE9DQUxFUyA9ICgiYy51dGY4IiwgImMudXRmLTgiKQorCitkZWYgaGF2ZV9jX3V0Zjhf
+bG9jYWxlKCk6CisgICAgIiIiQ2hlY2sgdGhlIHN5c3RlbSBhY3R1YWxseSBoYXMgYSBDLlVURi04
+IGxvY2FsZSB0byB1c2UiIiIKKyAgICBsb2NhbGVfY29tbWFuZCA9IHNodXRpbC53aGljaCgibG9j
+YWxlIikKKyAgICByZXN1bHQgPSBzdWJwcm9jZXNzLnJ1bihbbG9jYWxlX2NvbW1hbmQsICItYSJd
+LCBzdGRvdXQ9c3VicHJvY2Vzcy5QSVBFKQorICAgIGlmIHJlc3VsdC5yZXR1cm5jb2RlOgorICAg
+ICAgICByZXR1cm4gRmFsc2UgIyBTb21ldGhpbmcgd2VudCB3cm9uZyB3aXRoIHRoZSBsb2NhbGUg
+Y2FsbAorICAgIGxvY2FsZV9kYXRhID0gcmVzdWx0LnN0ZG91dC5kZWNvZGUoImFzY2lpIiwgInJl
+cGxhY2UiKS5zcGxpdGxpbmVzKCkKKyAgICByZXR1cm4gYW55KGVudHJ5Lmxvd2VyKCkgaW4gQ19V
+VEY4X0xPQ0FMRVMgZm9yIGVudHJ5IGluIGxvY2FsZV9kYXRhKQorCisjIERldGFpbHMgb2YgdGhl
+IHdhcm5pbmdzIGVtaXR0ZWQgYXQgcnVudGltZQorQ0xJX0NfTE9DQUxFX0NPRVJDSU9OX1dBUk5J
+TkcgPSAoCisgICAgIlB5dGhvbiBkZXRlY3RlZCBMQ19DVFlQRT1DLCBmb3JjaW5nIExDX0FMTCAm
+IExBTkcgdG8gQy5VVEYtOCAiCisgICAgIihzZXQgUFlUSE9OQUxMT1dDTE9DQUxFIHRvIGRpc2Fi
+bGUgdGhpcyBiZWhhdmlvdXIpLiIKKykKKworQ0xJX0NfTE9DQUxFX1dBUk5JTkcgPSAoCisgICAg
+IlB5dGhvbiBkZXRlY3RlZCBMQ19DVFlQRT1DLCBidXQgUFlUSE9OQUxMT1dDTE9DQUxFIGlzIHNl
+dC4gIgorICAgICJTb21lIGxpYnJhcmllcywgYXBwbGljYXRpb25zLCBhbmQgb3BlcmF0aW5nIHN5
+c3RlbSBpbnRlcmZhY2VzICIKKyAgICAibWF5IG5vdCB3b3JrIGNvcnJlY3RseS4iCispCisKK0xJ
+QlJBUllfQ19MT0NBTEVfV0FSTklORyA9ICgKKyAgICAiUHlfSW5pdGlhbGl6ZSBkZXRlY3RlZCBM
+Q19DVFlQRT1DLCB3aGljaCBsaW1pdHMgVW5pY29kZSBjb21wYXRpYmlsaXR5LiAiCisgICAgIlNv
+bWUgbGlicmFyaWVzIGFuZCBvcGVyYXRpbmcgc3lzdGVtIGludGVyZmFjZXMgbWF5IG5vdCB3b3Jr
+IGNvcnJlY3RseS4gIgorICAgICJVc2UgYFBZVEhPTkFMTE9XQ0xPQ0FMRT0xIExDX0NUWVBFPUMg
+cHl0aG9uM2AgdG8gY29uZmlndXJlIGEgc2ltaWxhciAiCisgICAgImVudmlyb25tZW50IHdoZW4g
+cnVubmluZyBQeXRob24gZGlyZWN0bHkuIgorKQorCitAdGVzdC5zdXBwb3J0LmNweXRob25fb25s
+eQorQHVuaXR0ZXN0LnNraXBVbmxlc3MoaGF2ZV9sb2NhbGVfY29tbWFuZCgpLCAiTm8gbG9jYWxl
+IGNvbW1hbmQgYXZhaWxhYmxlIikKK0B1bml0dGVzdC5za2lwVW5sZXNzKGhhdmVfY191dGY4X2xv
+Y2FsZSgpLCAiTm8gQy5VVEYtOCBsb2NhbGUgYXZhaWxhYmxlIikKK2NsYXNzIExvY2FsZU92ZXJy
+aWRlVGVzdCh1bml0dGVzdC5UZXN0Q2FzZSk6CisKKyAgICBkZWYgX2dldF9jaGlsZF9mc2VuY29k
+aW5nKHNlbGYsIGVudl92YXJzKToKKyAgICAgICAgIiIiUmV0cmlldmVzIHN5cy5nZXRmaWxlc3lz
+dGVtZW5jb2RpbmcoKSBmcm9tIGEgY2hpbGQgcHJvY2VzcworCisgICAgICAgIFJldHVybnMgKGZz
+ZW5jb2RpbmcsIHN0ZGVycl9saW5lcyk6CisKKyAgICAgICAgLSBmc2VuY29kaW5nOiBhIGxvd2Vy
+Y2FzZSBzdHIgdmFsdWUgd2l0aCB0aGUgY2hpbGQncyBmc2VuY29kaW5nCisgICAgICAgIC0gc3Rk
+ZXJyX2xpbmVzOiByZXN1bHQgb2YgY2FsbGluZyBzcGxpdGxpbmVzKCkgb24gdGhlIHN0ZGVyciBv
+dXRwdXQKKworICAgICAgICBUaGUgY2hpbGQgaXMgcnVuIGluIGlzb2xhdGVkIG1vZGUgaWYgdGhl
+IGN1cnJlbnQgaW50ZXJwcmV0ZXIgc3VwcG9ydHMKKyAgICAgICAgdGhhdC4KKyAgICAgICAgIiIi
+CisgICAgICAgIGNtZCA9ICJpbXBvcnQgc3lzOyBwcmludChzeXMuZ2V0ZmlsZXN5c3RlbWVuY29k
+aW5nKCkubG93ZXIoKSkiCisgICAgICAgIHJlc3VsdCwgcHlfY21kID0gcnVuX3B5dGhvbl91bnRp
+bF9lbmQoCisgICAgICAgICAgICAiLWMiLCBjbWQsCisgICAgICAgICAgICBfX2lzb2xhdGVkPVRy
+dWUsCisgICAgICAgICAgICAqKmVudl92YXJzCisgICAgICAgICkKKyAgICAgICAgaWYgbm90IHJl
+c3VsdC5yYyA9PSAwOgorICAgICAgICAgICAgcmVzdWx0LmZhaWwocHlfY21kKQorICAgICAgICAj
+IEFsbCBzdWJwcm9jZXNzIG91dHB1dHMgaW4gdGhpcyB0ZXN0IGNhc2Ugc2hvdWxkIGJlIHB1cmUg
+QVNDSUkKKyAgICAgICAgY2hpbGRfZnNlbmNvZGluZyA9IHJlc3VsdC5vdXQuZGVjb2RlKCJhc2Np
+aSIpLnJzdHJpcCgpCisgICAgICAgIGNoaWxkX3N0ZGVycl9saW5lcyA9IHJlc3VsdC5lcnIuZGVj
+b2RlKCJhc2NpaSIpLnJzdHJpcCgpLnNwbGl0bGluZXMoKQorICAgICAgICByZXR1cm4gY2hpbGRf
+ZnNlbmNvZGluZywgY2hpbGRfc3RkZXJyX2xpbmVzCisKKworICAgIGRlZiB0ZXN0X0NfdXRmOF9s
+b2NhbGUoc2VsZik6CisgICAgICAgICMgRW5zdXJlIHRoZSBDLlVURi04IGxvY2FsZSBpcyBhY2Nl
+cHRlZCBlbnRpcmVseSB3aXRob3V0IGNvbXBsYWludAorICAgICAgICBmb3IgZW52X3ZhciBpbiAo
+IkxDX0FMTCIsICJMQ19DVFlQRSIsICJMQU5HIik6CisgICAgICAgICAgICB3aXRoIHNlbGYuc3Vi
+VGVzdChlbnZfdmFyPWVudl92YXIpOgorICAgICAgICAgICAgICAgIHZhcl9kaWN0ID0ge2Vudl92
+YXI6ICJDLlVURi04In0KKyAgICAgICAgICAgICAgICBmc2VuY29kaW5nLCBzdGRlcnJfbGluZXMg
+PSBzZWxmLl9nZXRfY2hpbGRfZnNlbmNvZGluZyh2YXJfZGljdCkKKyAgICAgICAgICAgICAgICBz
+ZWxmLmFzc2VydEVxdWFsKGZzZW5jb2RpbmcsICJ1dGYtOCIpCisgICAgICAgICAgICAgICAgc2Vs
+Zi5hc3NlcnRGYWxzZShzdGRlcnJfbGluZXMpCisKKworICAgIGRlZiBfY2hlY2tfY19sb2NhbGVf
+Y29lcmNpb24oc2VsZiwgZXhwZWN0ZWRfZnNlbmNvZGluZywgYWxsb3dfY19sb2NhbGUpOgorICAg
+ICAgICAiIiJDaGVjayB0aGUgaGFuZGxpbmcgb2YgdGhlIEMgbG9jYWxlIGZvciB2YXJpb3VzIGNv
+bmZpZ3VyYXRpb25zCisKKyAgICAgICAgUGFyYW1ldGVyczoKKyAgICAgICAgICAgIGV4cGVjdGVk
+X2ZzZW5jb2Rpbmc6IHRoZSBlbmNvZGluZyB0aGUgY2hpbGQgaXMgZXhwZWN0ZWQgdG8gcmVwb3J0
+CisgICAgICAgICAgICBhbGxvd19jX2xvY2FsZTogc2V0dGluZyB0byB1c2UgZm9yIFBZVEhPTkFM
+TE9XQ0xPQ0FMRQorICAgICAgICAgICAgICBOb25lOiBkb24ndCBzZXQgdGhlIHZhcmlhYmxlIGF0
+IGFsbAorICAgICAgICAgICAgICBzdHI6IHRoZSB2YWx1ZSBzZXQgaW4gdGhlIGNoaWxkJ3MgZW52
+aXJvbm1lbnQKKyAgICAgICAgIiIiCisgICAgICAgIGlmIGFsbG93X2NfbG9jYWxlOgorICAgICAg
+ICAgICAgIyBDaGVjayBib3RoIHRoZSBjb21tYW5kIGxpbmUgKmFuZCogdGhlIGxpYnJhcnkgZW1p
+dCBhIHdhcm5pbmcKKyAgICAgICAgICAgIGV4cGVjdGVkX3dhcm5pbmcgPSBbCisgICAgICAgICAg
+ICAgICAgQ0xJX0NfTE9DQUxFX1dBUk5JTkcsCisgICAgICAgICAgICAgICAgTElCUkFSWV9DX0xP
+Q0FMRV9XQVJOSU5HLAorICAgICAgICAgICAgXQorICAgICAgICBlbHNlOgorICAgICAgICAgICAg
+IyBDaGVjayBDIGxvY2FsZSBpcyBjb2VyY2VkIHRvIEMuVVRGLTggd2l0aCBhIHdhcm5pbmcgb24g
+c3RkZXJyCisgICAgICAgICAgICBleHBlY3RlZF93YXJuaW5nID0gWworICAgICAgICAgICAgICAg
+IENMSV9DX0xPQ0FMRV9DT0VSQ0lPTl9XQVJOSU5HLAorICAgICAgICAgICAgXQorICAgICAgICBm
+b3IgZW52X3ZhciBpbiAoIkxDX0FMTCIsICJMQ19DVFlQRSIsICJMQU5HIik6CisgICAgICAgICAg
+ICB3aXRoIHNlbGYuc3ViVGVzdChlbnZfdmFyPWVudl92YXIsCisgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICBQWVRIT05BTExPV0NMT0NBTEU9YWxsb3dfY19sb2NhbGUpOgorICAgICAgICAg
+ICAgICAgIHZhcl9kaWN0ID0ge2Vudl92YXI6ICJDIn0KKyAgICAgICAgICAgICAgICBpZiBhbGxv
+d19jX2xvY2FsZSBpcyBub3QgTm9uZToKKyAgICAgICAgICAgICAgICAgICAgdmFyX2RpY3RbIlBZ
+VEhPTkFMTE9XQ0xPQ0FMRSJdID0gYWxsb3dfY19sb2NhbGUKKyAgICAgICAgICAgICAgICBmc2Vu
+Y29kaW5nLCBzdGRlcnJfbGluZXMgPSBzZWxmLl9nZXRfY2hpbGRfZnNlbmNvZGluZyh2YXJfZGlj
+dCkKKyAgICAgICAgICAgICAgICBzZWxmLmFzc2VydEVxdWFsKGZzZW5jb2RpbmcsIGV4cGVjdGVk
+X2ZzZW5jb2RpbmcpCisgICAgICAgICAgICAgICAgc2VsZi5hc3NlcnRFcXVhbChzdGRlcnJfbGlu
+ZXMsIGV4cGVjdGVkX3dhcm5pbmcpCisKKworICAgIGRlZiB0ZXN0X0NfbG9jYWxlKHNlbGYpOgor
+ICAgICAgICAjIFRoaXMgc2hvdWxkIGNvZXJjZSB0byB0aGUgQy5VVEYtOCBsb2NhbGUKKyAgICAg
+ICAgc2VsZi5fY2hlY2tfY19sb2NhbGVfY29lcmNpb24oInV0Zi04IiwgYWxsb3dfY19sb2NhbGU9
+Tm9uZSkKKworICAgIGRlZiB0ZXN0X1BZVEhPTkFMTE9XQ0xPQ0FMRV9lbXB0eShzZWxmKToKKyAg
+ICAgICAgIyBUaGlzIHNob3VsZCBjb2VyY2UgdG8gdGhlIEMuVVRGLTggbG9jYWxlCisgICAgICAg
+IHNlbGYuX2NoZWNrX2NfbG9jYWxlX2NvZXJjaW9uKCJ1dGYtOCIsIGFsbG93X2NfbG9jYWxlPSIi
+KQorCisgICAgZGVmIHRlc3RfUFlUSE9OQUxMT1dDTE9DQUxFX3NldChzZWxmKToKKyAgICAgICAg
+IyAqQW55KiBub24tZW1wdHkgc3RyaW5nIGlzIGNvbnNpZGVyZWQgInNldCIgZm9yIG91ciBwdXJw
+b3NlcworICAgICAgICAjIGFuZCBoZW5jZSBzaG91bGQgcmVzdWx0IGluIHRoZSBsb2NhbGUgY29l
+cmNpb24gYmVpbmcgZGlzYWJsZWQKKyAgICAgICAgZm9yIHNldHRpbmcgaW4gKCIxIiwgIjAiLCAi
+dHJ1ZSIsICJmYWxzZSIpOgorICAgICAgICAgICAgc2VsZi5fY2hlY2tfY19sb2NhbGVfY29lcmNp
+b24oImFzY2lpIiwgYWxsb3dfY19sb2NhbGU9c2V0dGluZykKKworCitkZWYgdGVzdF9tYWluKCk6
+CisgICAgdGVzdC5zdXBwb3J0LnJ1bl91bml0dGVzdChMb2NhbGVPdmVycmlkZVRlc3QpCisgICAg
+dGVzdC5zdXBwb3J0LnJlYXBfY2hpbGRyZW4oKQorCitpZiBfX25hbWVfXyA9PSAiX19tYWluX18i
+OgorICAgIHRlc3RfbWFpbigpCmRpZmYgLXIgYjY1YWUxOWJjNDJhIFByb2dyYW1zL3B5dGhvbi5j
+Ci0tLSBhL1Byb2dyYW1zL3B5dGhvbi5jCVdlZCBEZWMgMTQgMTE6NTI6MjggMjAxNiArMDEwMAor
+KysgYi9Qcm9ncmFtcy9weXRob24uYwlTdW4gRGVjIDE4IDE1OjE3OjMyIDIwMTYgKzEwMDAKQEAg
+LTE1LDYgKzE1LDE1IEBACiB9CiAjZWxzZQogCitzdGF0aWMgY29uc3QgY2hhciAqX0NMSV9DX0xP
+Q0FMRV9DT0VSQ0lPTl9XQVJOSU5HID0KKyAgICAiUHl0aG9uIGRldGVjdGVkIExDX0NUWVBFPUMs
+IGZvcmNpbmcgTENfQUxMICYgTEFORyB0byBDLlVURi04ICIKKyAgICAiKHNldCBQWVRIT05BTExP
+V0NMT0NBTEUgdG8gZGlzYWJsZSB0aGlzIGJlaGF2aW91cikuXG4iOworCitzdGF0aWMgY29uc3Qg
+Y2hhciAqX0NMSV9DX0xPQ0FMRV9XQVJOSU5HID0KKyAgICAiUHl0aG9uIGRldGVjdGVkIExDX0NU
+WVBFPUMsIGJ1dCBQWVRIT05BTExPV0NMT0NBTEUgaXMgc2V0LiAiCisgICAgIlNvbWUgbGlicmFy
+aWVzLCBhcHBsaWNhdGlvbnMsIGFuZCBvcGVyYXRpbmcgc3lzdGVtIGludGVyZmFjZXMgIgorICAg
+ICJtYXkgbm90IHdvcmsgY29ycmVjdGx5LlxuIjsKKwogaW50CiBtYWluKGludCBhcmdjLCBjaGFy
+ICoqYXJndikKIHsKQEAgLTIzLDYgKzMyLDcgQEAKICAgICB3Y2hhcl90ICoqYXJndl9jb3B5MjsK
+ICAgICBpbnQgaSwgcmVzOwogICAgIGNoYXIgKm9sZGxvYzsKKyAgICBjb25zdCBjaGFyICpjdHlw
+ZV9sb2M7CiAKICAgICAvKiBGb3JjZSBtYWxsb2MoKSBhbGxvY2F0b3IgdG8gYm9vdHN0cmFwIFB5
+dGhvbiAqLwogICAgICh2b2lkKV9QeU1lbV9TZXR1cEFsbG9jYXRvcnMoIm1hbGxvYyIpOwpAQCAt
+NDksNyArNTksNDEgQEAKICAgICAgICAgcmV0dXJuIDE7CiAgICAgfQogCisgICAgLyogUmVjb25m
+aWd1cmUgdGhlIGxvY2FsZSB0byB0aGUgZGVmYXVsdCBmb3IgdGhpcyBwcm9jZXNzICovCiAgICAg
+c2V0bG9jYWxlKExDX0FMTCwgIiIpOworCisgICAgLyogV2hlbiB0aGUgTENfQ1RZUEUgY2F0ZWdv
+cnkgc3RpbGwgY2xhaW1zIHRvIGJlIHVzaW5nIHRoZSBDIGxvY2FsZSwKKyAgICAgICBhc3N1bWUg
+dGhhdCdzIGEgY29uZmlndXJhdGlvbiBlcnJvciBhbmQgcmVxdWVzdCBDLlVURi04IGluc3RlYWQu
+ICovCisgICAgY3R5cGVfbG9jID0gc2V0bG9jYWxlKExDX0NUWVBFLCBOVUxMKTsKKyAgICBpZiAo
+Y3R5cGVfbG9jICE9IE5VTEwgJiYgc3RyY21wKGN0eXBlX2xvYywgIkMiKSA9PSAwKSB7CisgICAg
+ICAgIGNvbnN0IGNoYXIgKmFsbG93X2NfbG9jYWxlID0gZ2V0ZW52KCJQWVRIT05BTExPV0NMT0NB
+TEUiKTsKKyAgICAgICAgLyogV2UgaWdub3JlIHRoZSBQeXRob24gLUUgYW5kIC1JIGZsYWdzIGhl
+cmUsIGFzIHdlIG5lZWQgdG8gc29ydCBvdXQKKyAgICAgICAgICogdGhlIGxvY2FsZSBzZXR0aW5n
+cyAqYmVmb3JlKiB3ZSB0cnkgdG8gZG8gYW55dGhpbmcgd2l0aCB0aGUgY29tbWFuZAorICAgICAg
+ICAgKiBsaW5lIGFyZ3VtZW50cy4gRm9yIGNyb3NzLXBsYXRmb3JtIGRlYnVnZ2luZyBwdXJwb3Nl
+cywgd2UgYWxzbyBuZWVkCisgICAgICAgICAqIHRvIGdpdmUgZW5kIHVzZXJzIGEgd2F5IHRvIGZv
+cmNlIGV2ZW4gc2NyaXB0cyB0aGF0IGFyZSBvdGhlcndpc2UKKyAgICAgICAgICogaXNvbGF0ZWQg
+ZnJvbSB0aGVpciBlbnZpcm9ubWVudCB0byB1c2UgdGhlIGxlZ2FjeSBBU0NJSS1jZW50cmljIEMK
+KyAgICAgICAgICogbG9jYWxlLgorICAgICAgICAgKi8KKyAgICAgICAgaWYgKGFsbG93X2NfbG9j
+YWxlID09IE5VTEwgfHwgKmFsbG93X2NfbG9jYWxlID09ICdcMCcpIHsKKyAgICAgICAgICAgIC8q
+IFBZVEhPTkFMTE9XQ0xPQ0FMRSBpcyBub3Qgc2V0LCBvciBpcyBzZXQgdG8gdGhlIGVtcHR5IHN0
+cmluZyAqLworICAgICAgICAgICAgZnByaW50ZihzdGRlcnIsIF9DTElfQ19MT0NBTEVfQ09FUkNJ
+T05fV0FSTklORyk7CisgICAgICAgICAgICBpZiAoc2V0ZW52KCJMQ19BTEwiLCAiQy5VVEYtOCIs
+IDEpKSB7CisgICAgICAgICAgICAgICAgZnByaW50ZihzdGRlcnIsICJGYWlsZWQgdG8gc2V0IExD
+X0FMTFxuIik7CisgICAgICAgICAgICAgICAgcmV0dXJuIDE7CisgICAgICAgICAgICB9CisgICAg
+ICAgICAgICBpZiAoc2V0ZW52KCJMQU5HIiwgIkMuVVRGLTgiLCAxKSkgeworICAgICAgICAgICAg
+ICAgIGZwcmludGYoc3RkZXJyLCAiRmFpbGVkIHRvIHNldCBMQU5HXG4iKTsKKyAgICAgICAgICAg
+ICAgICByZXR1cm4gMTsKKyAgICAgICAgICAgIH0KKworICAgICAgICAgICAgLyogUmVjb25maWd1
+cmUgd2l0aCB0aGUgb3ZlcnJpZGRlbiBlbnZpcm9ubWVudCB2YXJpYWJsZXMgKi8KKyAgICAgICAg
+ICAgIHNldGxvY2FsZShMQ19BTEwsICIiKTsKKyAgICAgICAgfSBlbHNlIHsKKyAgICAgICAgICAg
+IGZwcmludGYoc3RkZXJyLCBfQ0xJX0NfTE9DQUxFX1dBUk5JTkcpOworICAgICAgICB9CisgICAg
+fQorCisgICAgLyogQ29udmVydCBmcm9tIGNoYXIgdG8gd2NoYXJfdCBiYXNlZCBvbiB0aGUgbG9j
+YWxlIHNldHRpbmdzICovCiAgICAgZm9yIChpID0gMDsgaSA8IGFyZ2M7IGkrKykgewogICAgICAg
+ICBhcmd2X2NvcHlbaV0gPSBQeV9EZWNvZGVMb2NhbGUoYXJndltpXSwgTlVMTCk7CiAgICAgICAg
+IGlmICghYXJndl9jb3B5W2ldKSB7CmRpZmYgLXIgYjY1YWUxOWJjNDJhIFB5dGhvbi9weWxpZmVj
+eWNsZS5jCi0tLSBhL1B5dGhvbi9weWxpZmVjeWNsZS5jCVdlZCBEZWMgMTQgMTE6NTI6MjggMjAx
+NiArMDEwMAorKysgYi9QeXRob24vcHlsaWZlY3ljbGUuYwlTdW4gRGVjIDE4IDE1OjE3OjMyIDIw
+MTYgKzEwMDAKQEAgLTMwMSw2ICszMDEsMjEgQEAKIH0KIAogCitzdGF0aWMgY29uc3QgY2hhciAq
+X0NfTE9DQUxFX1dBUk5JTkcgPQorICAgICJQeV9Jbml0aWFsaXplIGRldGVjdGVkIExDX0NUWVBF
+PUMsIHdoaWNoIGxpbWl0cyBVbmljb2RlIGNvbXBhdGliaWxpdHkuICIKKyAgICAiU29tZSBsaWJy
+YXJpZXMgYW5kIG9wZXJhdGluZyBzeXN0ZW0gaW50ZXJmYWNlcyBtYXkgbm90IHdvcmsgY29ycmVj
+dGx5LiAiCisgICAgIlVzZSBgUFlUSE9OQUxMT1dDTE9DQUxFPTEgTENfQ1RZUEU9QyBweXRob24z
+YCB0byBjb25maWd1cmUgYSBzaW1pbGFyICIKKyAgICAiZW52aXJvbm1lbnQgd2hlbiBydW5uaW5n
+IFB5dGhvbiBkaXJlY3RseS5cbiI7CisKK3N0YXRpYyB2b2lkCitfZW1pdF9zdGRlcnJfd2Fybmlu
+Z19mb3JfY19sb2NhbGUodm9pZCkKK3sKKyAgICBjb25zdCBjaGFyICpjdHlwZV9sb2MgPSBzZXRs
+b2NhbGUoTENfQ1RZUEUsIE5VTEwpOworICAgIGlmIChjdHlwZV9sb2MgIT0gTlVMTCAmJiBzdHJj
+bXAoY3R5cGVfbG9jLCAiQyIpID09IDApIHsKKyAgICAgICAgZnByaW50ZihzdGRlcnIsIF9DX0xP
+Q0FMRV9XQVJOSU5HKTsKKyAgICB9Cit9CisKIHZvaWQKIF9QeV9Jbml0aWFsaXplRXhfUHJpdmF0
+ZShpbnQgaW5zdGFsbF9zaWdzLCBpbnQgaW5zdGFsbF9pbXBvcnRsaWIpCiB7CkBAIC0zMjAsNiAr
+MzM1LDcgQEAKICAgICAgICB0aGUgbG9jYWxlJ3MgY2hhcnNldCB3aXRob3V0IGhhdmluZyB0byBz
+d2l0Y2gKICAgICAgICBsb2NhbGVzLiAqLwogICAgIHNldGxvY2FsZShMQ19DVFlQRSwgIiIpOwor
+ICAgIF9lbWl0X3N0ZGVycl93YXJuaW5nX2Zvcl9jX2xvY2FsZSgpOwogI2VuZGlmCiAKICAgICBp
+ZiAoKHAgPSBQeV9HRVRFTlYoIlBZVEhPTkRFQlVHIikpICYmICpwICE9ICdcMCcpCg==
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

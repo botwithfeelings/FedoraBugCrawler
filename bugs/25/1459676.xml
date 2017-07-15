@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1459676</bug_id>
+          
+          <creation_ts>2017-06-07 14:51:00 -0400</creation_ts>
+          <short_desc>Regression: Deleting iptables rules stopped working</short_desc>
+          <delta_ts>2017-07-07 18:59:54 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>kernel</component>
+          <version>25</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>urgent</priority>
+          <bug_severity>urgent</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Andrew Vagin">avagin</reporter>
+          <assigned_to name="Kernel Maintainer List">kernel-maint</assigned_to>
+          <cc>fwestpha</cc>
+    
+    
+    <cc>gansalmon</cc>
+    
+    
+    <cc>ichavero</cc>
+    
+    
+    <cc>itamar</cc>
+    
+    
+    <cc>jonathan</cc>
+    
+    
+    <cc>kernel-maint</cc>
+    
+    
+    <cc>madhu.chinakonda</cc>
+    
+    
+    <cc>mchehab</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>kernel-4.11.7-300.fc26</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-07-07 18:59:54</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10486937</commentid>
+    <comment_count>0</comment_count>
+    <who name="Andrew Vagin">avagin</who>
+    <bug_when>2017-06-07 14:51:45 -0400</bug_when>
+    <thetext>Description of problem:
+[root@zdtm ~]# iptables -w -t filter --protocol tcp -A INPUT --dport 12345 -j DROP
+[root@zdtm ~]# iptables -w -t filter --protocol tcp -D INPUT --dport 12345 -j DROP
+iptables: Bad rule (does a matching rule exist in that chain?).
+[root@zdtm ~]# uname -a
+Linux zdtm.openvz.org 4.11.3-200.fc25.x86_64 #1 SMP Thu May 25 19:03:07 UTC 2017 x86_64 x86_64 x86_64 GNU/Linux
+
+The same set of commands works fine on previous kernels
+[root@zdtm ~]# iptables -w -t filter --protocol tcp -A INPUT --dport 12345 -j DROP
+[root@zdtm ~]# iptables -w -t filter --protocol tcp -D INPUT --dport 12345 -j DROP
+[root@zdtm ~]# uname -a
+
+
+
+Version-Release number of selected component (if applicable):
+
+
+How reproducible:
+100%
+
+
+Steps to Reproduce:
+1. unshare -n
+2. iptables -w -t filter --protocol tcp -A INPUT --dport 12345 -j DROP
+3. iptables -w -t filter --protocol tcp -D INPUT --dport 12345 -j DROP
+
+Actual results:
+iptables returns the error and non-zero exit code
+
+Expected results:
+iptables exits with 0 without errors
+
+
+Additional info:</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10486952</commentid>
+    <comment_count>1</comment_count>
+    <who name="Andrew Vagin">avagin</who>
+    <bug_when>2017-06-07 14:59:30 -0400</bug_when>
+    <thetext>[root@zdtm ~]# unshare -n
+[root@zdtm ~]# iptables -w -t filter --protocol tcp -A INPUT --dport 12345 -j DROP
+[root@zdtm ~]# iptables -w -t filter --protocol tcp -D INPUT --dport 12345 -j DROP
+[root@zdtm ~]# echo $?
+0
+[root@zdtm ~]# uname -a
+Linux zdtm.openvz.org 4.12.0-0.rc3.git0.2.fc27.x86_64+debug #1 SMP Tue May 30 19:21:19 UTC 2017 x86_64 x86_64 x86_64 GNU/Linux</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10526407</commentid>
+    <comment_count>2</comment_count>
+    <who name="Florian Westphal">fwestpha</who>
+    <bug_when>2017-06-21 04:45:21 -0400</bug_when>
+    <thetext>This was fixed with
+commit 324318f0248c31be8a08984146e7e4dd7cdd091d
+netfilter: xtables: zero padding in data_to_user
+
+I&apos;ve sent a request to include it in 4.11.y to stable maintainers.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10528873</commentid>
+    <comment_count>3</comment_count>
+    <who name="Andrew Vagin">avagin</who>
+    <bug_when>2017-06-21 14:03:32 -0400</bug_when>
+    <thetext>Florian, thank you</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10541860</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-26 17:50:21 -0400</bug_when>
+    <thetext>kernel-4.11.7-300.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-44d91780a0</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10541864</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-26 17:51:55 -0400</bug_when>
+    <thetext>kernel-4.11.7-200.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-65f852596f</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10541865</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-26 17:52:45 -0400</bug_when>
+    <thetext>kernel-4.11.7-100.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2017-bbfb70fc1d</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10545171</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-27 13:20:43 -0400</bug_when>
+    <thetext>kernel-4.11.7-100.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-bbfb70fc1d</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10545194</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-27 13:25:58 -0400</bug_when>
+    <thetext>kernel-4.11.7-200.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-65f852596f</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10545652</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-27 16:25:15 -0400</bug_when>
+    <thetext>kernel-4.11.7-300.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-44d91780a0</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10555265</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-29 20:49:50 -0400</bug_when>
+    <thetext>kernel-4.11.7-200.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10557509</commentid>
+    <comment_count>11</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-30 10:53:37 -0400</bug_when>
+    <thetext>kernel-4.11.8-100.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2017-4880e0f183</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10558208</commentid>
+    <comment_count>12</comment_count>
+    <who name="Andrew Vagin">avagin</who>
+    <bug_when>2017-06-30 14:56:47 -0400</bug_when>
+    <thetext>4.11.7 works as expected, thanks.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10559310</commentid>
+    <comment_count>13</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-07-01 23:22:55 -0400</bug_when>
+    <thetext>kernel-4.11.8-100.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-4880e0f183</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10562859</commentid>
+    <comment_count>14</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-07-03 20:20:55 -0400</bug_when>
+    <thetext>kernel-4.11.8-100.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10575990</commentid>
+    <comment_count>15</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-07-07 18:59:54 -0400</bug_when>
+    <thetext>kernel-4.11.7-300.fc26 has been pushed to the Fedora 26 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

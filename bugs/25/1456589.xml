@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1456589</bug_id>
+          
+          <creation_ts>2017-05-29 13:33:00 -0400</creation_ts>
+          <short_desc>cpanspec uses wrong argument format for Module::Build::Tiny</short_desc>
+          <delta_ts>2017-06-09 15:15:28 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>cpanspec</component>
+          <version>25</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>medium</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Charlie Brady">charlieb-fedora-bugzilla</reporter>
+          <assigned_to name="Petr Šabata">psabata</assigned_to>
+          <cc>ktdreyer</cc>
+    
+    
+    <cc>perl-devel</cc>
+    
+    
+    <cc>psabata</cc>
+    
+    
+    <cc>steve</cc>
+    
+    
+    <cc>strobert</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>cpanspec-1.78-27.fc25 cpanspec-1.78-27.fc26</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-06-08 10:31:37</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          <external_bugs name="CPAN">91412</external_bugs>
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10456690</commentid>
+    <comment_count>0</comment_count>
+    <who name="Charlie Brady">charlieb-fedora-bugzilla</who>
+    <bug_when>2017-05-29 13:33:54 -0400</bug_when>
+    <thetext>cpanspec version is 1.78-25.fc25.
+
+If I do &apos;cpanspec Mojo::SQLite&apos; followed by &apos;rpmbuild -ba perl-Mojo-SQLite.spec&apos;
+...
++ cd Mojo-SQLite-2.001
++ rm -rf /home/speech/bradyc/rpms/BUILDROOT/perl-Mojo-SQLite-2.001-1.fc25.x86_64
++ ./Build install destdir=/home/speech/bradyc/rpms/BUILDROOT/perl-Mojo-SQLite-2.001-1.fc25.x86_64 create_packlist=0
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ERROR: Can&apos;t create &apos;/usr/local/share/man/man3&apos;
+Do not have write permissions on &apos;/usr/local/share/man/man3&apos;
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ at /usr/share/perl5/vendor_perl/Module/Build/Tiny.pm line 119.
+error: Bad exit status from /var/tmp/rpm-tmp.Xa08Ob (%install)
+
+
+RPM build errors:
+    Bad exit status from /var/tmp/rpm-tmp.Xa08Ob (%install)
+bash-4.3$
+...
+
+The problem can be fixed via these changes in the generated spec file:
+
+--- perl-Mojo-SQLite.spec	2017-05-29 12:53:13.916904000 -0400
++++ perl-Mojo-SQLite.spec.fixed	2017-05-29 12:52:29.284925000 -0400
+@@ -45,13 +45,13 @@
+ %setup -q -n Mojo-SQLite-%{version}
+ 
+ %build
+-%{__perl} Build.PL installdirs=vendor
++%{__perl} Build.PL --installdirs=vendor
+ ./Build
+ 
+ %install
+ rm -rf $RPM_BUILD_ROOT
+ 
+-./Build install destdir=$RPM_BUILD_ROOT create_packlist=0
++./Build install --destdir=$RPM_BUILD_ROOT --create_packlist=0
+ find $RPM_BUILD_ROOT -depth -type d -exec rmdir {} 2&gt;/dev/null \;
+ 
+ %{_fixperms} $RPM_BUILD_ROOT/*
+
+This is a known problem upstream, and a fix has been provided.
+
+https://github.com/silug/cpanspec/pull/5/files
+
+There are other bugfixes available here as well:
+
+https://github.com/silug/cpanspec/commits/</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10457568</commentid>
+    <comment_count>1</comment_count>
+    <who name="Petr Šabata">psabata</who>
+    <bug_when>2017-05-30 03:56:33 -0400</bug_when>
+    <thetext>Somehow I thought this one&apos;s been in already :)
+
+We bundle several of post-1.78 patches but not all of them.  It might be worth rebasing to upstream master HEAD at some point.  I&apos;m including just this patch for now.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10457600</commentid>
+    <comment_count>2</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-30 04:14:22 -0400</bug_when>
+    <thetext>cpanspec-1.78-27.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-6e9a4e80d0</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10457601</commentid>
+    <comment_count>3</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-30 04:14:33 -0400</bug_when>
+    <thetext>cpanspec-1.78-27.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-b094945c06</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10460427</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-30 17:46:55 -0400</bug_when>
+    <thetext>cpanspec-1.78-27.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-b094945c06</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10460764</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-30 21:04:45 -0400</bug_when>
+    <thetext>cpanspec-1.78-27.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-6e9a4e80d0</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10489787</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-08 10:31:37 -0400</bug_when>
+    <thetext>cpanspec-1.78-27.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10494270</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-09 15:15:28 -0400</bug_when>
+    <thetext>cpanspec-1.78-27.fc26 has been pushed to the Fedora 26 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

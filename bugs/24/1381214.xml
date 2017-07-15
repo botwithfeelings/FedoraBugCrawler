@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1381214</bug_id>
+          
+          <creation_ts>2016-10-03 08:39:00 -0400</creation_ts>
+          <short_desc>Missing plugin dependencies can make gajim unusable</short_desc>
+          <delta_ts>2017-02-14 22:18:46 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>gajim</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords>Reopened</keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Grégoire">gregoire</reporter>
+          <assigned_to name="Michal Schmidt">mschmidt</assigned_to>
+          <cc>lemenkov</cc>
+    
+    
+    <cc>lupinix</cc>
+    
+    
+    <cc>mschmidt</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>gajim-0.16.6-1.fc24 gajim-0.16.7-1.fc24</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-02-14 22:18:46</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9760985</commentid>
+    <comment_count>0</comment_count>
+    <who name="Grégoire">gregoire</who>
+    <bug_when>2016-10-03 08:39:00 -0400</bug_when>
+    <thetext>Description of problem:
+I installed gajim through dnf and then used the built-in plugin manager to install the omemo plugin. Apparently this plugin depends on the axolotl python library which is not available in fedora (as far as I can see).
+When trying to install the OMEMO plugin, the installation doesn&apos;t seem to go through (the plugin doesn&apos;t appear in the list of installed plugins) but there was no error message and gajim continues to work correctly.
+After quitting gajim, it won&apos;t start anymore because of the missing dependency.
+
+Version-Release number of selected component (if applicable):
+0.16.5-3
+
+How reproducible: reproducible
+
+
+Steps to Reproduce:
+1. Start gajim
+2. Click on Edit &gt; Plugins
+3. Click on tab Available
+4. Check the box next to OMEMO and click &quot;Install/Upgrade&quot;
+5. Once the installation completes, quite gajim (note: it&apos;s not enough to close the roster windows) and try to restart it.
+
+Actual results:
+Gajim doesn&apos;t start
+
+Expected results:
+Gajim starts
+
+Additional info:
+If I try to start it from a terminal, it gives me the following traceback (which is how I discovered what was the missing dependency):
+
+Traceback (most recent call last):
+  File &quot;gajim.py&quot;, line 533, in &lt;module&gt;
+    interface.run()
+  File &quot;/usr/share/gajim/src/gui_interface.py&quot;, line 2733, in run
+    gajim.plugin_manager = plugins.PluginManager()
+  File &quot;/usr/share/gajim/src/plugins/helpers.py&quot;, line 129, in __call__
+    cls.instance=super(Singleton, cls).__call__(*args,**kw)
+  File &quot;/usr/share/gajim/src/plugins/pluginmanager.py&quot;, line 104, in __init__
+    pc = PluginManager.scan_dir_for_plugins(path)
+  File &quot;/usr/share/gajim/src/plugins/helpers.py&quot;, line 114, in wrapper
+    result = f(*args, **kwargs)
+  File &quot;/usr/share/gajim/src/plugins/pluginmanager.py&quot;, line 476, in scan_dir_for_plugins
+    if not issubclass(module_attr, GajimPlugin) or \
+  File &quot;/usr/share/gajim/src/common/demandimport.py&quot;, line 86, in __getattribute__
+    self._load()
+  File &quot;/usr/share/gajim/src/common/demandimport.py&quot;, line 58, in _load
+    mod = _origimport(head, globals, locals)
+ImportError: No module named axolotl</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9760996</commentid>
+    <comment_count>1</comment_count>
+    <who name="Grégoire">gregoire</who>
+    <bug_when>2016-10-03 08:42:08 -0400</bug_when>
+    <thetext>If anyone has the same issue, a workaround is to manually delete the omemo plugin which is actually installed despite what the plugin manager says. The following worked for me:
+
+    rm -rf ~/.local/share/gajim/plugins/omemo</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9761697</commentid>
+    <comment_count>2</comment_count>
+    <who name="Michal Schmidt">mschmidt</who>
+    <bug_when>2016-10-03 11:33:00 -0400</bug_when>
+    <thetext>Gajim 0.16.6 has a few fixes that should make it more resistant to tracebacks from plugins. Here&apos;s a build for F24:
+http://koji.fedoraproject.org/koji/buildinfo?buildID=806534</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9761722</commentid>
+    <comment_count>3</comment_count>
+    <who name="Michal Schmidt">mschmidt</who>
+    <bug_when>2016-10-03 11:40:31 -0400</bug_when>
+    <thetext>And a submitted update:
+https://bodhi.fedoraproject.org/updates/gajim-0.16.6-1.fc24</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9766579</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-10-04 22:26:34 -0400</bug_when>
+    <thetext>gajim-0.16.6-1.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-5cf1ef1b53</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9770837</commentid>
+    <comment_count>5</comment_count>
+    <who name="Christian Dersch">lupinix</who>
+    <bug_when>2016-10-06 07:34:06 -0400</bug_when>
+    <thetext>FYI: I created review requests for the axolotl stuff, so hopefully we can use OMEMO soon (works fine here): 
+https://bugzilla.redhat.com/show_bug.cgi?id=1382332
+https://bugzilla.redhat.com/show_bug.cgi?id=1382333</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9775927</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-10-09 02:20:46 -0400</bug_when>
+    <thetext>gajim-0.16.6-1.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9784616</commentid>
+    <comment_count>7</comment_count>
+    <who name="Grégoire">gregoire</who>
+    <bug_when>2016-10-12 09:08:03 -0400</bug_when>
+    <thetext>Thanks for the quick response! I just updated from the stable repository and it seems that the problem is still there: I still cannot start gajim after having installed OMEMO.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9785092</commentid>
+    <comment_count>8</comment_count>
+    <who name="Michal Schmidt">mschmidt</who>
+    <bug_when>2016-10-12 10:57:49 -0400</bug_when>
+    <thetext>Does it still produce a traceback in the terminal? Does it look different from before? Please paste it here.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9785100</commentid>
+    <comment_count>9</comment_count>
+    <who name="Michal Schmidt">mschmidt</who>
+    <bug_when>2016-10-12 10:59:38 -0400</bug_when>
+    <thetext>Ignore comment #8. I reproduced it now too.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10124846</commentid>
+    <comment_count>10</comment_count>
+    <who name="Michal Schmidt">mschmidt</who>
+    <bug_when>2017-02-06 13:23:12 -0500</bug_when>
+    <thetext>In Gajim 0.16.7 upstream finally dropped the &apos;demandimport&apos; module. This bug should not longer appear with that version.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10124887</commentid>
+    <comment_count>11</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-06 13:43:11 -0500</bug_when>
+    <thetext>python-nbxmpp-0.5.5-1.fc24 gajim-0.16.7-1.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2017-e935fe93cf</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10126925</commentid>
+    <comment_count>12</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-07 05:50:26 -0500</bug_when>
+    <thetext>gajim-0.16.7-1.fc24, python-nbxmpp-0.5.5-1.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-e935fe93cf</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10148647</commentid>
+    <comment_count>13</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-14 22:18:46 -0500</bug_when>
+    <thetext>gajim-0.16.7-1.fc24, python-nbxmpp-0.5.5-1.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

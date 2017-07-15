@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1362449</bug_id>
+          
+          <creation_ts>2016-08-02 04:38:00 -0400</creation_ts>
+          <short_desc>Captive Portal always fails on TLS error</short_desc>
+          <delta_ts>2016-11-30 00:29:23 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>gnome-shell</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Langdon White">langdon</reporter>
+          <assigned_to name="Debarshi Ray">debarshir</assigned_to>
+          <cc>debarshir</cc>
+    
+    
+    <cc>dimitris</cc>
+    
+    
+    <cc>fmuellner</cc>
+    
+    
+    <cc>otaylor</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>gnome-shell-3.20.4-3.fc24 gnome-shell-3.22.2-2.fc25</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-11-29 22:52:56</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          <external_bugs name="GNOME Desktop">769940</external_bugs>
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9575923</commentid>
+    <comment_count>0</comment_count>
+    <who name="Langdon White">langdon</who>
+    <bug_when>2016-08-02 04:38:36 -0400</bug_when>
+    <thetext>Description of problem:
+
+Whenever I connect to a new wifi hotspot that has a captive portal signon, I get a TLS error: &quot;Peer failed to perform TLS handshake&quot;
+
+
+Version-Release number of selected component (if applicable):
+gnome-shell.x86_64 3.20.3-3.fc24 
+
+How reproducible: Always
+
+Notes:
+Hard to tell where this issue is. Seems to happen both with local dns resolver and with that disabled. One theory I heard was this may be related to the change to http://fedoraproject.org/static/hotspot.txt to use HSTS which would, possibly, disallow connecting to the &quot;wrong&quot; server when the captive portal redirects the url you are trying to the captive portal login.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9629633</commentid>
+    <comment_count>1</comment_count>
+    <who name="Dimitris">dimitris</who>
+    <bug_when>2016-08-19 03:56:12 -0400</bug_when>
+    <thetext>I&apos;m seeing something very similar in the hotel I&apos;m in at the moment:
+- connectivity check is 302-redirected to an https URL
+
+- As far as I can tell with &quot;openssl s_client -connect&quot;, the certificate chain presented by that server contains only one certificate - an ATT WiFi services cert of some sort.  It appears that the cert is not itself in, or signed by, any root CA recognized by the captive portal window.
+
+- The captive portal window is blank, with just the text &quot;Unacceptable TLS certificate&quot; shown.
+
+I can get around that by opening a Firefox tab to e.g. https://yahoo.com, and temporarily accepting the certificate.  Then I can complete the captive portal flow.
+
+The next NM periodic connectivity check then succeeds, of course, which is how I&apos;m online now.
+
+FWIW based on what I see in curl before the browser workaround, this is a squid-based, evidently somewhat crappy, captive portal.
+
+Is it possible to allow the (webkit-based?) browser window to accept invalid certificates, temporarily?  It&apos;s not like I&apos;m using any real credentials on the captive portal - just one of those not-secret-at-all &quot;access codes&quot; that the hotel hands to every guest, throughout the whole calendar year based on its format.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9629642</commentid>
+    <comment_count>2</comment_count>
+    <who name="Dimitris">dimitris</who>
+    <bug_when>2016-08-19 04:00:27 -0400</bug_when>
+    <thetext>After disconnecting my VPN I could connect to the HTTPS port again, here&apos;s the cert chain if this helps:
+
+$ openssl s_client -connect nmd.hil-sangqhf.snd.wayport.net:443
+CONNECTED(00000003)
+depth=4 OU = GlobalSign Root CA - R3, O = GlobalSign, CN = GlobalSign
+verify return:1
+depth=3 C = BE, OU = Trusted Root, O = GlobalSign nv-sa, CN = Trusted Root CA SHA256 G2
+verify return:1
+depth=2 C = US, ST = Texas, O = ATT Services Inc, OU = ATT Wi-Fi Services, CN = ATT Wi-Fi Services Root Certificate Authority G3
+verify return:1
+depth=1 C = US, ST = Texas, O = ATT Services Inc, OU = ATT Wi-Fi Services, CN = ATT Wi-Fi Services Managed Device Certificate Authority G3
+verify return:1
+depth=0 C = US, ST = Texas, O = ATT Services Inc, OU = ATT Wi-Fi Services, CN = nmd.hil-sangqhf.snd.wayport.net
+verify return:1
+---
+Certificate chain
+ 0 s:/C=US/ST=Texas/O=ATT Services Inc/OU=ATT Wi-Fi Services/CN=nmd.hil-sangqhf.snd.wayport.net
+   i:/C=US/ST=Texas/O=ATT Services Inc/OU=ATT Wi-Fi Services/CN=ATT Wi-Fi Services Managed Device Certificate Authority G3
+ 1 s:/C=US/ST=Texas/O=ATT Services Inc/OU=ATT Wi-Fi Services/CN=ATT Wi-Fi Services Managed Device Certificate Authority G3
+   i:/C=US/ST=Texas/O=ATT Services Inc/OU=ATT Wi-Fi Services/CN=ATT Wi-Fi Services Root Certificate Authority G3
+ 2 s:/C=US/ST=Texas/O=ATT Services Inc/OU=ATT Wi-Fi Services/CN=ATT Wi-Fi Services Root Certificate Authority G3
+   i:/C=BE/OU=Trusted Root/O=GlobalSign nv-sa/CN=Trusted Root CA SHA256 G2
+ 3 s:/C=BE/OU=Trusted Root/O=GlobalSign nv-sa/CN=Trusted Root CA SHA256 G2
+   i:/OU=GlobalSign Root CA - R3/O=GlobalSign/CN=GlobalSign
+---</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9631070</commentid>
+    <comment_count>3</comment_count>
+    <who name="Dimitris">dimitris</who>
+    <bug_when>2016-08-19 12:03:38 -0400</bug_when>
+    <thetext>Possible upstream: https://bugzilla.gnome.org/show_bug.cgi?id=769940</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9917974</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-11-23 18:20:45 -0500</bug_when>
+    <thetext>gnome-shell-3.20.4-3.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-56bb22fcb9</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9924065</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-11-24 09:41:11 -0500</bug_when>
+    <thetext>webkitgtk4-2.14.2-1.fc25 vala-0.34.3-1.fc25 swell-foop-3.22.2-1.fc25 polari-3.22.2-1.fc25 orca-3.22.2-1.fc25 mutter-3.22.2-1.fc25 lightsoff-3.22.2-1.fc25 libgdata-0.17.6-3.fc25 libappstream-glib-0.6.5-1.fc25 gvfs-1.30.2-1.fc25 gupnp-tools-0.8.13-1.fc25 gucharmap-9.0.2-1.fc25 gtksourceview3-3.22.1-1.fc25 gtk3-3.22.4-1.fc25 gtk-doc-1.25-2.fc25 gspell-1.2.1-1.fc25 gnome-system-monitor-3.22.2-1.fc25 gnome-sudoku-3.22.2-1.fc25 gnome-software-3.22.2-1.fc25 gnome-shell-extensions-3.22.2-1.fc25 gnome-shell-3.22.2-2.fc25 gnome-session-3.22.2-1.fc25 gnome-robots-3.22.1-1.fc25 gnome-power-manager-3.22.2-1.fc25 gnome-photos-3.22.2-1.fc25 gnome-online-accounts-3.22.2-1.fc25 gnome-nibbles-3.22.2.2-1.fc25 gnome-music-3.22.2-1.fc25 gnome-mines-3.22.2-1.fc25 gnome-maps-3.22.2-1.fc25 gnome-klotski-3.22.1-1.fc25 gnome-disk-utility-3.22.1-1.fc25 gnome-desktop3-3.22.2-1.fc25 gnome-color-manager-3.22.2-1.fc25 gnome-chess-3.22.2-1.fc25 gnome-calculator-3.22.2-1.fc25 gnome-boxes-3.22.3-1.fc25 glib2-2.50.2-1.fc25 four-in-a-row-3.22.1-1.fc25 five-or-more-3.22.2-1.fc25 file-roller-3.22.2-1.fc25 evolution-ews-3.22.2-1.fc25 evolution-data-server-3.22.2-1.fc25 evolution-3.22.2-1.fc25 epiphany-3.22.3-1.fc25 baobab-3.22.1-1.fc25 aisleriot-3.22.1-1.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2016-5522a26f9b</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9929076</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-11-25 04:39:34 -0500</bug_when>
+    <thetext>gnome-shell-3.20.4-3.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-56bb22fcb9</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9932554</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-11-27 17:58:10 -0500</bug_when>
+    <thetext>aisleriot-3.22.1-1.fc25, baobab-3.22.1-1.fc25, epiphany-3.22.3-1.fc25, evolution-3.22.2-1.fc25, evolution-data-server-3.22.2-1.fc25, evolution-ews-3.22.2-1.fc25, file-roller-3.22.2-1.fc25, five-or-more-3.22.2-1.fc25, four-in-a-row-3.22.1-1.fc25, glib2-2.50.2-1.fc25, gnome-boxes-3.22.3-1.fc25, gnome-calculator-3.22.2-1.fc25, gnome-chess-3.22.2-1.fc25, gnome-color-manager-3.22.2-1.fc25, gnome-desktop3-3.22.2-1.fc25, gnome-disk-utility-3.22.1-1.fc25, gnome-klotski-3.22.1-1.fc25, gnome-maps-3.22.2-1.fc25, gnome-mines-3.22.2-1.fc25, gnome-music-3.22.2-1.fc25, gnome-nibbles-3.22.2.2-1.fc25, gnome-online-accounts-3.22.2-1.fc25, gnome-photos-3.22.2-1.fc25, gnome-power-manager-3.22.2-1.fc25, gnome-robots-3.22.1-1.fc25, gnome-session-3.22.2-1.fc25, gnome-shell-3.22.2-2.fc25, gnome-shell-extensions-3.22.2-1.fc25, gnome-software-3.22.2-1.fc25, gnome-sudoku-3.22.2-1.fc25, gnome-system-monitor-3.22.2-1.fc25, gspell-1.2.1-1.fc25, gtk-doc-1.25-2.fc25, gtk3-3.22.4-1.fc25, gtksourceview3-3.22.1-1.fc25, gucharmap-9.0.2-1.fc25, gupnp-tools-0.8.13-1.fc25, gvfs-1.30.2-1.fc25, libappstream-glib-0.6.5-1.fc25, libgdata-0.17.6-3.fc25, lightsoff-3.22.2-1.fc25, mutter-3.22.2-1.fc25, orca-3.22.2-1.fc25, polari-3.22.2-1.fc25, swell-foop-3.22.2-1.fc25, vala-0.34.3-1.fc25, webkitgtk4-2.14.2-1.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-5522a26f9b</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9941259</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-11-29 22:52:56 -0500</bug_when>
+    <thetext>gnome-shell-3.20.4-3.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9941444</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-11-30 00:29:23 -0500</bug_when>
+    <thetext>aisleriot-3.22.1-1.fc25, baobab-3.22.1-1.fc25, epiphany-3.22.3-1.fc25, evolution-3.22.2-1.fc25, evolution-data-server-3.22.2-1.fc25, evolution-ews-3.22.2-1.fc25, file-roller-3.22.2-1.fc25, five-or-more-3.22.2-1.fc25, four-in-a-row-3.22.1-1.fc25, glib2-2.50.2-1.fc25, gnome-boxes-3.22.3-1.fc25, gnome-calculator-3.22.2-1.fc25, gnome-chess-3.22.2-1.fc25, gnome-color-manager-3.22.2-1.fc25, gnome-desktop3-3.22.2-1.fc25, gnome-disk-utility-3.22.1-1.fc25, gnome-klotski-3.22.1-1.fc25, gnome-maps-3.22.2-1.fc25, gnome-mines-3.22.2-1.fc25, gnome-music-3.22.2-1.fc25, gnome-nibbles-3.22.2.2-1.fc25, gnome-online-accounts-3.22.2-1.fc25, gnome-photos-3.22.2-1.fc25, gnome-power-manager-3.22.2-1.fc25, gnome-robots-3.22.1-1.fc25, gnome-session-3.22.2-1.fc25, gnome-shell-3.22.2-2.fc25, gnome-shell-extensions-3.22.2-1.fc25, gnome-software-3.22.2-1.fc25, gnome-sudoku-3.22.2-1.fc25, gnome-system-monitor-3.22.2-1.fc25, gspell-1.2.1-1.fc25, gtk-doc-1.25-2.fc25, gtk3-3.22.4-1.fc25, gtksourceview3-3.22.1-1.fc25, gucharmap-9.0.2-1.fc25, gupnp-tools-0.8.13-1.fc25, gvfs-1.30.2-1.fc25, libappstream-glib-0.6.5-1.fc25, libgdata-0.17.6-3.fc25, lightsoff-3.22.2-1.fc25, mutter-3.22.2-1.fc25, orca-3.22.2-1.fc25, polari-3.22.2-1.fc25, swell-foop-3.22.2-1.fc25, vala-0.34.3-1.fc25, webkitgtk4-2.14.2-1.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

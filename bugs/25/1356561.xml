@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1356561</bug_id>
+          
+          <creation_ts>2016-07-14 07:38:00 -0400</creation_ts>
+          <short_desc>nslcd.service entering failed state when stopped via systemctl stop nslcd.service</short_desc>
+          <delta_ts>2017-02-08 04:13:27 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>nss-pam-ldapd</component>
+          <version>25</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>RAWHIDE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>medium</priority>
+          <bug_severity>medium</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Simon Reber">sreber</reporter>
+          <assigned_to name="Nalin Dahyabhai">nalin</assigned_to>
+          <cc>jhrozek</cc>
+    
+    
+    <cc>lslebodn</cc>
+    
+    
+    <cc>nalin</cc>
+    
+    
+    <cc>stanislav.moravec</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>nss-pam-ldapd-0.8.14-8.fc26</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-02-08 04:13:27</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9509007</commentid>
+    <comment_count>0</comment_count>
+    <who name="Simon Reber">sreber</who>
+    <bug_when>2016-07-14 07:38:19 -0400</bug_when>
+    <thetext>Description of problem:
+
+nslcd.service service is entering failed state when stopped via systemctl stop nslcd.service. This should not happen as it might impact alert reporting and surrounding tools.
+
+Version-Release number of selected component (if applicable):
+
+ - nss-pam-ldapd-0.8.14-6.fc25.x86_64
+ - 4.7.0-0.rc6.git2.2.fc25.x86_64
+ - systemd-230-3.gitea68351.fc25.x86_64
+
+How reproducible:
+
+always
+
+Steps to Reproduce:
+1. dnf install nss-pam-ldapd-0.8.14-6.fc25.x86_64
+2. systemctl start nslcd.service
+3. systemctl status nslcd.service -&gt; check that it&apos;s active
+4. systemctl stop nslcd.service
+5. systemctl status nslcd.service -&gt; check state
+
+Actual results:
+
+[root@foobar system]# systemctl status nslcd.service
+● nslcd.service - Naming services LDAP client daemon.
+   Loaded: loaded (/usr/lib/systemd/system/nslcd.service; disabled; vendor preset: disabled)
+   Active: failed (Result: exit-code) since Thu 2016-07-14 13:30:12 CEST; 1s ago
+  Process: 4694 ExecStart=/usr/sbin/nslcd (code=exited, status=0/SUCCESS)
+ Main PID: 4695 (code=exited, status=1/FAILURE)
+
+Jul 14 13:30:01 foobar nslcd[4695]: version 0.8.14 starting
+Jul 14 13:30:01 foobar nslcd[4695]: accepting connections
+
+
+Expected results:
+
+[root@foobar system]# systemctl status rsyncd
+● nslcd.service - Naming services LDAP client daemon.
+   Loaded: loaded (/usr/lib/systemd/system/nslcd.service; disabled; vendor preset: disabled)
+   Active: inactive (dead)
+
+Additional info:</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9549649</commentid>
+    <comment_count>1</comment_count>
+    <who name="Jan Kurik">jkurik</who>
+    <bug_when>2016-07-26 00:49:48 -0400</bug_when>
+    <thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 25 development cycle.
+Changing version to &apos;25&apos;.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10123436</commentid>
+    <comment_count>2</comment_count>
+    <who name="Stan Moravec">stanislav.moravec</who>
+    <bug_when>2017-02-06 07:28:32 -0500</bug_when>
+    <thetext>Hello all,
+I see the BZ is NEW since 2016, was there any progress or plan to address?
+
+AFAICT this is result of nslcd main() returning failure at the very end:
+https://github.com/arthurdejong/nss-pam-ldapd/blob/master/nslcd/nslcd.c#L897</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10123503</commentid>
+    <comment_count>3</comment_count>
+    <who name="Jakub Hrozek">jhrozek</who>
+    <bug_when>2017-02-06 07:54:04 -0500</bug_when>
+    <thetext>(In reply to Stan Moravec from comment #2)
+&gt; Hello all,
+&gt; I see the BZ is NEW since 2016, was there any progress or plan to address?
+&gt; 
+&gt; AFAICT this is result of nslcd main() returning failure at the very end:
+&gt; https://github.com/arthurdejong/nss-pam-ldapd/blob/master/nslcd/nslcd.c#L897
+
+I&apos;ll gladly merge patches, but I don&apos;t plan on working on nss-pam-ldapd bugzillas myself.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10130030</commentid>
+    <comment_count>4</comment_count>
+    <who name="Stan Moravec">stanislav.moravec</who>
+    <bug_when>2017-02-08 02:57:27 -0500</bug_when>
+    <thetext>Pls find the fix in the upstream:
+https://arthurdejong.org/git/nss-pam-ldapd/commit/?id=53f797bf8a5433d68b21023fbd960ba79385be54</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10130220</commentid>
+    <comment_count>5</comment_count>
+    <who name="Jakub Hrozek">jhrozek</who>
+    <bug_when>2017-02-08 04:13:27 -0500</bug_when>
+    <thetext>Thanks, fixed in rawhide (I backported the patch, but since it was a one-liner, I hope I didn&apos;t make any mistakes)
+
+Let me know if you&apos;d like me to apply the patch to some other branch.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

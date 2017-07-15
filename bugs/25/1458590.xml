@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1458590</bug_id>
+          
+          <creation_ts>2017-06-04 12:13:00 -0400</creation_ts>
+          <short_desc>SELinux is preventing httpd from &apos;open&apos; accesses on the fifo_file fifo_file.</short_desc>
+          <delta_ts>2017-06-15 05:23:15 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>container-selinux</component>
+          <version>25</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard>abrt_hash:8a5bf8b33be52224c3169a73d3803c1ce79dbbde0540cbbed82e8f65b94dd172;</status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Mike Goodwin">mike</reporter>
+          <assigned_to name="Lokesh Mandvekar">lsm5</assigned_to>
+          <cc>amurdaca</cc>
+    
+    
+    <cc>dominick.grift</cc>
+    
+    
+    <cc>dwalsh</cc>
+    
+    
+    <cc>fkluknav</cc>
+    
+    
+    <cc>jchaloup</cc>
+    
+    
+    <cc>jlebon</cc>
+    
+    
+    <cc>lsm5</cc>
+    
+    
+    <cc>lvrabec</cc>
+    
+    
+    <cc>mgrepl</cc>
+    
+    
+    <cc>plautrba</cc>
+    
+    
+    <cc>pmoore</cc>
+    
+    
+    <cc>ssekidde</cc>
+    
+    
+    <cc>tn</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>container-selinux-2.18-1.fc26 container-selinux-2.18-1.fc25</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-06-13 09:35:27</cf_last_closed>
+          <cf_type>---</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10474962</commentid>
+    <comment_count>0</comment_count>
+    <who name="Mike Goodwin">mike</who>
+    <bug_when>2017-06-04 12:13:18 -0400</bug_when>
+    <thetext>Description of problem:
+`docker run httpd` 
+
+Trying to run official docker container for apache. Same issue as https://bugzilla.redhat.com/show_bug.cgi?id=1456963
+SELinux is preventing httpd from &apos;open&apos; accesses on the fifo_file fifo_file.
+
+*****  Plugin catchall (100. confidence) suggests   **************************
+
+If you believe that httpd should be allowed open access on the fifo_file fifo_file by default.
+Then you should report this as a bug.
+You can generate a local policy module to allow this access.
+Do
+allow this access for now by executing:
+# ausearch -c &apos;httpd&apos; --raw | audit2allow -M my-httpd
+# semodule -X 300 -i my-httpd.pp
+
+Additional Information:
+Source Context                system_u:system_r:container_t:s0:c787,c949
+Target Context                system_u:system_r:container_runtime_t:s0-s0:c0.c10
+                              23
+Target Objects                fifo_file [ fifo_file ]
+Source                        httpd
+Source Path                   httpd
+Port                          &lt;Unknown&gt;
+Host                          (removed)
+Source RPM Packages           
+Target RPM Packages           
+Policy RPM                    selinux-policy-3.13.1-225.16.fc25.noarch
+Selinux Enabled               True
+Policy Type                   targeted
+Enforcing Mode                Enforcing
+Host Name                     (removed)
+Platform                      Linux (removed) 4.11.3-200.fc25.x86_64 #1 SMP Thu
+                              May 25 19:03:07 UTC 2017 x86_64 x86_64
+Alert Count                   1
+First Seen                    2017-06-04 12:11:56 EDT
+Last Seen                     2017-06-04 12:11:56 EDT
+Local ID                      bf3d995f-8be2-47b5-8682-6e4ddf172082
+
+Raw Audit Messages
+type=AVC msg=audit(1496592716.733:11405): avc:  denied  { open } for  pid=3145 comm=&quot;httpd&quot; path=&quot;pipe:[6674380]&quot; dev=&quot;pipefs&quot; ino=6674380 scontext=system_u:system_r:container_t:s0:c787,c949 tcontext=system_u:system_r:container_runtime_t:s0-s0:c0.c1023 tclass=fifo_file permissive=0
+
+
+Hash: httpd,container_t,container_runtime_t,fifo_file,open
+
+Version-Release number of selected component:
+selinux-policy-3.13.1-225.16.fc25.noarch
+
+Additional info:
+reporter:       libreport-2.8.0
+hashmarkername: setroubleshoot
+kernel:         4.11.3-200.fc25.x86_64
+type:           libreport</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10481211</commentid>
+    <comment_count>1</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-06 08:57:49 -0400</bug_when>
+    <thetext>container-selinux-2.17-1.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-483d4b64eb</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10481215</commentid>
+    <comment_count>2</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-06 08:58:16 -0400</bug_when>
+    <thetext>container-selinux-2.17-1.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-6d722cd191</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10482808</commentid>
+    <comment_count>3</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-06 15:05:52 -0400</bug_when>
+    <thetext>container-selinux-2.17-1.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-6d722cd191</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10483237</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-06 16:58:41 -0400</bug_when>
+    <thetext>container-selinux-2.18-1.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-78ffa38344</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10483240</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-06 16:59:08 -0400</bug_when>
+    <thetext>container-selinux-2.18-1.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-e756e8fdde</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10484365</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-07 03:34:59 -0400</bug_when>
+    <thetext>container-selinux-2.18-1.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-78ffa38344</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10487457</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-07 19:10:50 -0400</bug_when>
+    <thetext>container-selinux-2.18-1.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-e756e8fdde</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10501311</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-13 09:35:27 -0400</bug_when>
+    <thetext>container-selinux-2.18-1.fc26 has been pushed to the Fedora 26 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10508533</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-15 05:23:15 -0400</bug_when>
+    <thetext>container-selinux-2.18-1.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

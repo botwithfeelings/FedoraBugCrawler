@@ -1,0 +1,535 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1062943</bug_id>
+          
+          <creation_ts>2014-02-08 22:39:00 -0500</creation_ts>
+          <short_desc>libvirt can not start a VM with non-ACSII chars name: Invalid machine name (from systemd)</short_desc>
+          <delta_ts>2016-04-26 09:37:18 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>libvirt</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>CURRENTRELEASE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords>Reopened</keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>1282846</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Shaohe Feng">shaohef</reporter>
+          <assigned_to name="Libvirt Maintainers">libvirt-maint</assigned_to>
+          <cc>berrange</cc>
+    
+    
+    <cc>bugproxy</cc>
+    
+    
+    <cc>clalancette</cc>
+    
+    
+    <cc>cristiandeives</cc>
+    
+    
+    <cc>crobinso</cc>
+    
+    
+    <cc>fjin</cc>
+    
+    
+    <cc>hannsj_uhl</cc>
+    
+    
+    <cc>itamar</cc>
+    
+    
+    <cc>jforbes</cc>
+    
+    
+    <cc>jherrman</cc>
+    
+    
+    <cc>lagarcia</cc>
+    
+    
+    <cc>laine</cc>
+    
+    
+    <cc>libvirt-maint</cc>
+    
+    
+    <cc>mkletzan</cc>
+    
+    
+    <cc>veillard</cc>
+    
+    
+    <cc>virt-maint</cc>
+    
+    
+    <cc>zhwang</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>libvirt-1.3.2.fc22</cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes>In a prior update, systemd introduced strict requirements for machine names. As an unintended effect, this caused starting virtual domains with non-ASCII characters in their name or with a long name to fail. With this update, libvirt introduces an escaping mechanism that allows such virtual machines to start as expected.</cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-03-17 16:34:38</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>6798989</commentid>
+    <comment_count>0</comment_count>
+    <who name="Shaohe Feng">shaohef</who>
+    <bug_when>2014-02-08 22:39:39 -0500</bug_when>
+    <thetext>Description of problem:
+libvirt can define and undefine a VM with a non-ACSII char name.
+but it can not start this VM.
+
+Version-Release number of selected component (if applicable):
+$ libvirtd --version
+libvirtd (libvirt) 1.1.3.2
+
+How reproducible:
+create a VM with with a non-ACSII chars name, such as &quot;kīмсhī-∨м&quot; and start this VM.
+
+Steps to Reproduce:
+1. define a VM with a non-ACSII chars name. we can define it by virsh.
+2. start this VM.
+3. undefine this VM.
+
+Actual results:
+failed to start VM for invalid argument.
+
+
+Expected results:
+it should start the VM successfully.
+
+Additional info:
+
+the libvirtd.log report
+2014-02-09 03:05:35.001+0000: 11376: error : virDBusCallMethod:1173 : Invalid argument
+
+/var/log/libvirt/qemu/kīмсhī-∨м.log reports
+2014-02-08 15:31:03.391+0000: starting up
+LC_ALL=C PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin QEMU_AUDIO_DRV=none /usr/bin/qemu-kvm -name kīмсhī-∨м -S -machine pc-i440fx-1.6,accel=kvm,usb=off -m 1024 -realtime mlock=off -smp 1,sockets=1,cores=1,threads=1 -uuid 6e8233dd-0c00-4c78-b4a6-bffcd1ced26c -no-user-config -nodefaults -chardev socket,id=charmonitor,path=/var/lib/libvirt/qemu/kīмсhī-∨м.monitor,server,nowait -mon chardev=charmonitor,id=monitor,mode=control -rtc base=utc -no-shutdown -device piix3-usb-uhci,id=usb,bus=pci.0,addr=0x1.0x2 -drive if=none,id=drive-ide0-1-0,readonly=on,format=raw -device ide-cd,bus=ide.1,unit=0,drive=drive-ide0-1-0,id=ide0-1-0 -netdev tap,fd=25,id=hostnet0 -device e1000,netdev=hostnet0,id=net0,mac=52:54:00:3f:27:31,bus=pci.0,addr=0x3 -vnc 0.0.0.0:0 -device cirrus-vga,id=video0,bus=pci.0,addr=0x2 -device intel-hda,id=sound0,bus=pci.0,addr=0x4 -device hda-duplex,id=sound0-codec0,bus=sound0.0,cad=0 -device virtio-balloon-pci,id=balloon0,bus=pci.0,addr=0x5
+2014-02-08 15:31:03.398+0000libvirt:  error : libvirtd quit during handshake: Input/output error</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>6799351</commentid>
+    <comment_count>1</comment_count>
+    <who name="Cole Robinson">crobinso</who>
+    <bug_when>2014-02-09 09:09:39 -0500</bug_when>
+    <thetext>I wonder if this something related to systemd scope names, like https://bugzilla.redhat.com/show_bug.cgi?id=1033369</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>6799432</commentid>
+    <comment_count>2</comment_count>
+    <who name="Shaohe Feng">shaohef</who>
+    <bug_when>2014-02-09 09:59:02 -0500</bug_when>
+    <thetext>The name of the VM I create is &quot;kīмсhī-∨м&quot;, less than 60 characters.
+
+but the &quot;Invalid argument&quot; error also comes from dbus api call (virDBusCallMethod).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>6799434</commentid>
+    <comment_count>3</comment_count>
+    <who name="Shaohe Feng">shaohef</who>
+    <bug_when>2014-02-09 10:01:20 -0500</bug_when>
+    <thetext>Additional info:
+I can create an start a VM with &quot;kīмсhī-∨м&quot; name on F17 and F19.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>6799483</commentid>
+    <comment_count>4</comment_count>
+    <who name="Cole Robinson">crobinso</who>
+    <bug_when>2014-02-09 11:09:15 -0500</bug_when>
+    <thetext>Please re-read my comment: I was suggesting that the non-ascii limitation may be another thing introduced by systemd scope usage, which is new in f20.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>6800184</commentid>
+    <comment_count>5</comment_count>
+    <who name="Shaohe Feng">shaohef</who>
+    <bug_when>2014-02-09 22:20:19 -0500</bug_when>
+    <thetext>I&apos;m not sure it is another limit on scope names. Any doc about the systemd scope usage?
+If it is, it is not good to our project kimchi.https://github.com/kimchi-project/kimchi/
+
+international is an important feature of kimchi.
+kimchi do want different users from different country can manage their VMs by their local language.
+
+If f20 insists on this limit, can kimchi work aroud it?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>6801007</commentid>
+    <comment_count>6</comment_count>
+    <who name="Laine Stump">laine</who>
+    <bug_when>2014-02-10 04:58:10 -0500</bug_when>
+    <thetext>I don&apos;t think there was any suggestion of F20, or anything else, insisting on this limitation; Cole was only making a suggestion of a possible root cause of the problem. Once we&apos;ve determined the root cause, *then* we can figure out how to fix it.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>7929590</commentid>
+    <comment_count>7</comment_count>
+    <who name="">clnperez</who>
+    <bug_when>2015-02-11 14:31:59 -0500</bug_when>
+    <thetext>Any updates on this? We&apos;d still like to have the ability to use VMs with unicode characters (as mentioned in Comment #5).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>7930052</commentid>
+    <comment_count>8</comment_count>
+      <attachid>990633</attachid>
+    <who name="Crístian Deives">cristiandeives</who>
+    <bug_when>2015-02-11 15:47:08 -0500</bug_when>
+    <thetext>Created attachment 990633
+testcase
+
+The attached script reproduces this bug. I can reproduce it on Fedora 21 with libvirt-1.2.9.1-2.fc21.x86_64.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8110867</commentid>
+    <comment_count>9</comment_count>
+    <who name="Cole Robinson">crobinso</who>
+    <bug_when>2015-04-02 13:53:12 -0400</bug_when>
+    <thetext>Still relevant on F22. I wonder if we can switch to using UUID scope names? Not sure if that&apos;s within libvirt&apos;s control or if it&apos;s dictated by systemd APIs
+
+If this is affecting kimchi I&apos;d recommend you rework the app to use standard ascii for VM names, but keep unicode and pretty text as part of the &lt;title&gt; attribute which doesn&apos;t have any restrictions. It&apos;s what gnome-boxes does for example</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8290669</commentid>
+    <comment_count>10</comment_count>
+    <who name="Cole Robinson">crobinso</who>
+    <bug_when>2015-05-31 15:41:21 -0400</bug_when>
+    <thetext>*** Bug 1191835 has been marked as a duplicate of this bug. ***</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8297198</commentid>
+    <comment_count>11</comment_count>
+    <who name="IBM Bug Proxy">bugproxy</who>
+    <bug_when>2015-06-02 09:50:46 -0400</bug_when>
+    <thetext>------- Comment From clnperez@us.ibm.com 2015-06-02 13:44 EDT-------
+On the Kimchi side, we&apos;ve gone with the suggested workaround. Thanks.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8862958</commentid>
+    <comment_count>12</comment_count>
+    <who name="Martin Kletzander">mkletzan</who>
+    <bug_when>2015-11-26 09:38:52 -0500</bug_when>
+    <thetext>Fixed upstream with v1.2.21-144-ge24eda48cfae:
+
+commit e24eda48cfae84a9003456b68eaf753a26123639
+Author: Martin Kletzander &lt;mkletzan@redhat.com&gt;
+Date:   Tue Nov 24 15:56:12 2015 +0100
+
+    systemd: Escape machine name for machined</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8866067</commentid>
+    <comment_count>13</comment_count>
+    <who name="Martin Kletzander">mkletzan</who>
+    <bug_when>2015-11-27 11:06:39 -0500</bug_when>
+    <thetext>One more fix needed is v1.2.21-164-g0e0149ce91d8:
+
+commit 0e0149ce91d84f40b98acf4c4bb0da6e29b9c15c
+Author: Martin Kletzander &lt;mkletzan@redhat.com&gt;
+Date:   Fri Nov 27 14:24:38 2015 +0100
+
+    systemd: Escape only needed characters for machined</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8940370</commentid>
+    <comment_count>14</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2015-12-23 19:50:12 -0500</bug_when>
+    <thetext>libvirt-1.2.13.2-1.fc22 has been submitted as an update to Fedora 22. https://bodhi.fedoraproject.org/updates/FEDORA-2015-2c9678da8c</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8946552</commentid>
+    <comment_count>15</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2015-12-30 15:56:21 -0500</bug_when>
+    <thetext>libvirt-1.2.13.2-1.fc22 has been pushed to the Fedora 22 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2015-2c9678da8c</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8952473</commentid>
+    <comment_count>16</comment_count>
+    <who name="IBM Bug Proxy">bugproxy</who>
+    <bug_when>2016-01-04 13:10:26 -0500</bug_when>
+    <thetext>------- Comment From clnperez@us.ibm.com 2016-01-04 18:14 EDT-------
+I&apos;m still seeing this.
+
+I created the machine with Kimchi, and couldn&apos;t start it there, so I tried using virsh to make sure the error wasn&apos;t coming from Kimchi.
+
+~&gt; sudo virsh list --all | grep k???h?-??
+-     k???h?-??               shut off
+~&gt; sudo virsh start k???h?-??
+error: Failed to start domain k???h?-??
+error: Invalid machine name
+
+From the systems logs:
+Jan 04 12:04:54 christy-toshiba libvirtd[7110]: Invalid machine name</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8964000</commentid>
+    <comment_count>17</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-01-07 22:24:42 -0500</bug_when>
+    <thetext>libvirt-1.2.13.2-1.fc22 has been pushed to the Fedora 22 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8965679</commentid>
+    <comment_count>18</comment_count>
+    <who name="Cole Robinson">crobinso</who>
+    <bug_when>2016-01-08 10:55:36 -0500</bug_when>
+    <thetext>Were you definitely testing with libvirt-1.2.13.2-1.fc22 ? it wasn&apos;t even in the stable repository yet</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8965734</commentid>
+    <comment_count>19</comment_count>
+    <who name="IBM Bug Proxy">bugproxy</who>
+    <bug_when>2016-01-08 11:20:24 -0500</bug_when>
+    <thetext>------- Comment From clnperez@us.ibm.com 2016-01-08 16:22 EDT-------
+(In reply to comment #19)
+&gt; Were you definitely testing with libvirt-1.2.13.2-1.fc22 ? it wasn&apos;t even in
+&gt; the stable repository yet
+
+Yes. I had enabled the testing repository.
+
+------- Comment From clnperez@us.ibm.com 2016-01-08 16:24 EDT-------
+Well, let me double-check. That&apos;s not the version I have installed now and I don&apos;t think I downgraded after I tested.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8966032</commentid>
+    <comment_count>20</comment_count>
+    <who name="IBM Bug Proxy">bugproxy</who>
+    <bug_when>2016-01-08 13:40:55 -0500</bug_when>
+    <thetext>------- Comment From clnperez@us.ibm.com 2016-01-08 18:43 EDT-------
+Confirmed. (The other recreate had been done on another fedora 22 system I have.)
+
+&gt; rpm -qa | grep libvirt-1
+libvirt-1.2.13.2-1.fc22.x86_64
+i&gt; sudo virsh list --all
+Id    Name                           State
+----------------------------------------------------
+-     docker-15.10                   shut off
+-     docker-ubuntu-14.04            shut off
+-     k???h?-??               shut off
+
+&gt; sudo virsh start k???h?-??
+error: Failed to start domain k???h?-??
+error: Invalid machine name</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8984427</commentid>
+    <comment_count>21</comment_count>
+    <who name="Cole Robinson">crobinso</who>
+    <bug_when>2016-01-15 14:40:45 -0500</bug_when>
+    <thetext>I&apos;m curious if anyone can confirm this is still an issue on f23? wondering if it&apos;s some systemd difference on f22, or an incomplete backport</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8998973</commentid>
+    <comment_count>22</comment_count>
+    <who name="Fangge Jin">fjin</who>
+    <bug_when>2016-01-21 05:23:33 -0500</bug_when>
+    <thetext>(In reply to Cole Robinson from comment #21)
+&gt; I&apos;m curious if anyone can confirm this is still an issue on f23? wondering
+&gt; if it&apos;s some systemd difference on f22, or an incomplete backport
+
+I test on f23 using latest libvirt version, it still doesn&apos;t work
+# git describe 
+v1.3.1-11-g020135d
+
+
+# virsh list --all
+ Id    Name                           State
+----------------------------------------------------
+ -     kīмсhī-∨м               shut off
+
+# virsh start kīмсhī-∨м
+error: Failed to start domain kīмсhī-∨м
+error: Invalid machine name</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9030385</commentid>
+    <comment_count>23</comment_count>
+    <who name="Cole Robinson">crobinso</who>
+    <bug_when>2016-02-02 15:43:48 -0500</bug_when>
+    <thetext>There&apos;s new patches upstream for this issue:
+
+https://www.redhat.com/archives/libvir-list/2016-February/msg00133.html</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9074496</commentid>
+    <comment_count>24</comment_count>
+    <who name="zhenfeng wang">zhwang</who>
+    <bug_when>2016-02-18 03:18:00 -0500</bug_when>
+    <thetext>Hi Cole
+Currently, the guest could start successfully no matter we define a guest with non-ACSII chars name or the guest name-length was longer than 59-character, however, still have the following 2 issues, please help check it, thanks
+
+pkginfo
+libvirt-1.3.2-1.fc24_v1.3.1_292_gd46eb9e.x86_64
+
+&lt;1&gt;.The guest will start successfully while the guest name-length was longer than 59-character, but will fail to start while the name-length was longer than 65-character, is it expect result?
+
+STEP
+1.Define a guest which guest name-length is 66-character
+
+# virsh list --all
+ Id    Name                           State
+----------------------------------------------------
+ -     012345678901234567890123456789012345678901234567890123456789012345 shut off
+
+2.Start the guest, the guest will fail to start with the following error
+# virsh start 012345678901234567890123456789012345678901234567890123456789012345
+error: Failed to start domain 012345678901234567890123456789012345678901234567890123456789012345
+error: internal error: Monitor path /var/lib/libvirt/qemu/domain-012345678901234567890123456789012345678901234567890123456789012345/monitor.sock too big for destination
+
+==============================================================================
+
+&lt;2&gt; The guest agent can&apos;t be used while the guest name length longer than 40-characters, this limite will block we use guest agent
+
+STEPS
+1.Define a guest which guest name-length is 41-character and have guest agent configured in the guest&apos;s xml and guest inside
+#virsh list --all
+# virsh list --all
+ Id    Name                           State
+----------------------------------------------------
+ -     01234567890123456789012345678901234567890 shut off
+
+# virsh dumpxml 01234567890123456789012345678901234567890
+--
+   &lt;channel type=&apos;unix&apos;&gt;
+      &lt;source mode=&apos;bind&apos;/&gt;
+      &lt;target type=&apos;virtio&apos; name=&apos;org.qemu.guest_agent.0&apos;/&gt;
+      &lt;address type=&apos;virtio-serial&apos; controller=&apos;0&apos; bus=&apos;0&apos; port=&apos;1&apos;/&gt;
+    &lt;/channel&gt;
+
+2.Start the guest, after guest start completely, check the guest agent state in both guest&apos;s xml and inside guest
+# virsh start 01234567890123456789012345678901234567890
+Domain 01234567890123456789012345678901234567890 started
+
+#virsh dumpxml 01234567890123456789012345678901234567890
+--
+    &lt;channel type=&apos;unix&apos;&gt;
+      &lt;source mode=&apos;bind&apos; path=&apos;/var/lib/libvirt/qemu/channel/target/domain-01234567890123456789012345678901234567890/org.qemu.guest_agent.0&apos;/&gt;
+      &lt;target type=&apos;virtio&apos; name=&apos;org.qemu.guest_agent.0&apos; state=&apos;connected&apos;/&gt;
+      &lt;alias name=&apos;channel0&apos;/&gt;
+      &lt;address type=&apos;virtio-serial&apos; controller=&apos;0&apos; bus=&apos;0&apos; port=&apos;1&apos;/&gt;
+    &lt;/channel&gt;
+
+login guest and check the guest agent status
+guest# systemctl status qemu-guest-agent
+● qemu-guest-agent.service - QEMU Guest Agent
+   Loaded: loaded (/usr/lib/systemd/system/qemu-guest-agent.service; static; vendor preset: enabled)
+   Active: active (running) since Thu 2016-02-18 16:02:07 CST; 1min 31s ago
+ Main PID: 723 (qemu-ga)
+
+3.Run a virsh command which depends on guest agent, will get the following error 
+# virsh domtime 01234567890123456789012345678901234567890
+error: Guest agent is not responding: QEMU guest agent is not available due to an error
+
+check the log info in libvirtd.log
+#cat /var/log/libvirt/libvirtd.log
+2016-02-18 08:01:46.207+0000: 9691: info : libvirt version: 1.3.2, package: 1.fc24_v1.3.1_292_gd46eb9e (Unknown, 2016-02-18-07:03:58, localhost.localdomain)
+2016-02-18 08:01:46.207+0000: 9691: info : hostname: localhost.localdomain
+2016-02-18 08:01:46.207+0000: 9691: error : qemuAgentOpenUnix:206 : internal error: Agent path /var/lib/libvirt/qemu/channel/target/domain-01234567890123456789012345678901234567890/org.qemu.guest_agent.0 too big for destination
+2016-02-18 08:01:46.207+0000: 9691: warning : qemuProcessReconnect:3489 : Cannot connect to QEMU guest agent for 01234567890123456789012345678901234567890
+2016-02-18 08:02:08.021+0000: 9816: error : qemuAgentOpenUnix:206 : internal error: Agent path /var/lib/libvirt/qemu/channel/target/domain-01234567890123456789012345678901234567890/org.qemu.guest_agent.0 too big for destination
+2016-02-18 08:05:00.213+0000: 9635: error : qemuDomainAgentAvailable:3594 : Guest agent is not responding: QEMU guest agent is not available due to an error</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9087155</commentid>
+    <comment_count>25</comment_count>
+    <who name="zhenfeng wang">zhwang</who>
+    <bug_when>2016-02-23 03:55:40 -0500</bug_when>
+    <thetext>Hi Martain
+can you also help check the upper comment? thanks</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9087714</commentid>
+    <comment_count>26</comment_count>
+    <who name="Martin Kletzander">mkletzan</who>
+    <bug_when>2016-02-23 06:46:53 -0500</bug_when>
+    <thetext>That seems like a problem and I know where it&apos;s coming from.  That one more thing we&apos;ll need to deal with, unfortunately.  I&apos;ll have a look at that later today.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9100754</commentid>
+    <comment_count>27</comment_count>
+    <who name="Martin Kletzander">mkletzan</who>
+    <bug_when>2016-02-26 10:30:56 -0500</bug_when>
+    <thetext>Fix proposed upstream:
+
+  https://www.redhat.com/archives/libvir-list/2016-February/msg01369.html</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9109404</commentid>
+    <comment_count>28</comment_count>
+    <who name="Martin Kletzander">mkletzan</who>
+    <bug_when>2016-03-01 04:31:38 -0500</bug_when>
+    <thetext>This should be fixed now in 1.3.2, very long names might have a problem, but the fix is in place and will be in the next release as well.  That is v1.3.2-1-ga89f05ba8df0:
+
+commit a89f05ba8df095875f5ec8a9065a585af63a010b
+Author: Martin Kletzander &lt;mkletzan@redhat.com&gt;
+Date:   Fri Feb 26 09:15:55 2016 +0100
+
+    qemu: Shorten per-domain directory names</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9110607</commentid>
+    <comment_count>29</comment_count>
+    <who name="Cole Robinson">crobinso</who>
+    <bug_when>2016-03-01 10:04:37 -0500</bug_when>
+    <thetext>Reopening so we can track backporting this to stable fedora releases</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9157681</commentid>
+    <comment_count>30</comment_count>
+    <who name="Cole Robinson">crobinso</who>
+    <bug_when>2016-03-17 16:34:38 -0400</bug_when>
+    <thetext>Unfortunately the patches fixing the non-ASCII issue is pretty invasive, they are difficult to backport. So just closing this against F24 where these patches are already present</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="0"
+              ispatch="0"
+              isprivate="0"
+          >
+            <attachid>990633</attachid>
+            <date>2015-02-11 15:47:00 -0500</date>
+            <delta_ts>2015-02-11 15:47:08 -0500</delta_ts>
+            <desc>testcase</desc>
+            <filename>test_unicode_name.py</filename>
+            <type>text/x-python</type>
+            <size>418</size>
+            <attacher name="Crístian Deives">cristiandeives</attacher>
+            
+              <data encoding="base64">IyEvdXNyL2Jpbi9weXRob24KIyAtKi0gY29kaW5nOiB1dGYtOCAtKi0KCmltcG9ydCBsaWJ2aXJ0
+Cgp4bWwgPSAiIiIgCjxkb21haW4gdHlwZT0na3ZtJz4KICAgIDxuYW1lPmNhZsOpPC9uYW1lPgog
+ICAgPG1lbW9yeT4xMDI0PC9tZW1vcnk+CiAgICA8b3M+CiAgICAgICAgPHR5cGU+aHZtPC90eXBl
+PgogICAgPC9vcz4KPC9kb21haW4+CiIiIgoKY29ubiA9IE5vbmUKZG9tID0gTm9uZQoKdHJ5Ogog
+ICAgY29ubiA9IGxpYnZpcnQub3BlbigncWVtdTovLy9zeXN0ZW0nKQogICAgZG9tID0gY29ubi5k
+ZWZpbmVYTUwoeG1sKQogICAgZG9tLmNyZWF0ZSgpCmZpbmFsbHk6CiAgICBpZiBkb20gaXMgbm90
+IE5vbmU6CiAgICAgICAgZG9tLnVuZGVmaW5lKCkKICAgIGlmIGNvbm4gaXMgbm90IE5vbmU6CiAg
+ICAgICAgY29ubi5jbG9zZSgpCg==
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

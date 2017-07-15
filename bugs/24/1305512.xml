@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1305512</bug_id>
+          
+          <creation_ts>2016-02-08 08:09:00 -0500</creation_ts>
+          <short_desc>multiple definition of struct fsxattr when building qemu, collision between xfs_fs.h and fs.h</short_desc>
+          <delta_ts>2016-03-26 14:06:17 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>xfsprogs</component>
+          <version>24</version>
+          <rep_platform>ppc64le</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>1071880</blocked>
+    
+    
+    <blocked>1051573</blocked>
+    
+    
+    <blocked>1304377</blocked>
+    
+    
+    <blocked>1308252</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Menanteau Guy">menantea</reporter>
+          <assigned_to name="Kernel Maintainer List">kernel-maint</assigned_to>
+          <cc>amit.shah</cc>
+    
+    
+    <cc>berrange</cc>
+    
+    
+    <cc>cfergeau</cc>
+    
+    
+    <cc>crobinso</cc>
+    
+    
+    <cc>dchinner</cc>
+    
+    
+    <cc>dwmw2</cc>
+    
+    
+    <cc>esandeen</cc>
+    
+    
+    <cc>gansalmon</cc>
+    
+    
+    <cc>hannsj_uhl</cc>
+    
+    
+    <cc>itamar</cc>
+    
+    
+    <cc>jonathan</cc>
+    
+    
+    <cc>kernel-maint</cc>
+    
+    
+    <cc>madhu.chinakonda</cc>
+    
+    
+    <cc>mchehab</cc>
+    
+    
+    <cc>pbonzini</cc>
+    
+    
+    <cc>pbrobinson</cc>
+    
+    
+    <cc>rjones</cc>
+    
+    
+    <cc>virt-maint</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>xfsprogs-4.5.0-1.fc23 xfsprogs-4.5.0-1.fc24</cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-03-21 19:53:19</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9043007</commentid>
+    <comment_count>0</comment_count>
+    <who name="Menanteau Guy">menantea</who>
+    <bug_when>2016-02-08 08:09:29 -0500</bug_when>
+    <thetext>I tried to build qemu-2.5.0-4 on fedora for release f24 arch ppc64le and I got a redefinition problem of &quot;struct fsxattr&quot;
+
+You can fin the koji scratch build at http://ppc.koji.fedoraproject.org/koji/taskinfo?taskID=3121531
+
+Definitions are in /usr/include/linux/fs.h and /usr/include/xfs/xfs_fs.h
+comming from kernel-4.5.0-0.rc1.git2.1 and xfsprogs-4.3.0-1</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9046540</commentid>
+    <comment_count>1</comment_count>
+    <who name="Cole Robinson">crobinso</who>
+    <bug_when>2016-02-09 10:52:03 -0500</bug_when>
+    <thetext>This kernel commit seems to be the culprit:
+
+commit 334e580a6f97e2e84d1c19a8679603956acaa622
+Author: Dave Chinner &lt;dchinner@redhat.com&gt;
+Date:   Mon Jan 4 16:44:15 2016 +1100
+
+    fs: XFS_IOC_FS[SG]SETXATTR to FS_IOC_FS[SG]ETXATTR promotion
+
+Moves the fsxattr definition from xfs_fs.h to fs.h, but xfsprogs is still shipping the old header. Not really sure what the fix is, moving to kernel for further triage</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9046808</commentid>
+    <comment_count>2</comment_count>
+    <who name="Josh Boyer">jwboyer</who>
+    <bug_when>2016-02-09 12:16:07 -0500</bug_when>
+    <thetext>Dave, Eric, is this something xfsprogs needs to cope with?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9046848</commentid>
+    <comment_count>3</comment_count>
+    <who name="Eric Sandeen">esandeen</who>
+    <bug_when>2016-02-09 12:28:16 -0500</bug_when>
+    <thetext>yep, I guess so.
+
+We can probably wrap it in
+
+#ifndef FS_IOC_FSGETXATTR
+
+in userspace, because that&apos;s the new ioctl that came after the &quot;hoisting&quot;
+
+As a short term workaround, if you can define HAS_FSXATTR for the qemu build, that should keep the current xfsprogs definition out of it:
+
+#ifndef HAVE_FSXATTR
+struct fsxattr {
+...</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9046887</commentid>
+    <comment_count>4</comment_count>
+    <who name="Eric Sandeen">esandeen</who>
+    <bug_when>2016-02-09 12:41:52 -0500</bug_when>
+    <thetext>Perhaps the kernel should also #define HAVE_FSXATTR to make existing/older xfsprogs headers skip the definition...
+
+I&apos;ve sent a patch for xfsprogs to guard in the other direction.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9085008</commentid>
+    <comment_count>5</comment_count>
+    <who name="Cole Robinson">crobinso</who>
+    <bug_when>2016-02-22 10:54:08 -0500</bug_when>
+    <thetext>any timeline for a build?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9093085</commentid>
+    <comment_count>6</comment_count>
+    <who name="Jan Kurik">jkurik</who>
+    <bug_when>2016-02-24 09:26:31 -0500</bug_when>
+    <thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 24 development cycle.
+Changing version to &apos;24&apos;.
+
+More information and reason for this action is here:
+https://fedoraproject.org/wiki/Fedora_Program_Management/HouseKeeping/Fedora24#Rawhide_Rebase</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9109881</commentid>
+    <comment_count>7</comment_count>
+    <who name="Paolo Bonzini">pbonzini</who>
+    <bug_when>2016-03-01 07:19:03 -0500</bug_when>
+    <thetext>I&apos;m fixing this in QEMU by removing the xfsprogs dependency; on modern kernels fallocate does everything that QEMU used xfsctl for.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9150364</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-03-15 14:33:56 -0400</bug_when>
+    <thetext>xfsprogs-4.5.0-1.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-bce977a3af</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9150369</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-03-15 14:34:19 -0400</bug_when>
+    <thetext>xfsprogs-4.5.0-1.fc23 has been submitted as an update to Fedora 23. https://bodhi.fedoraproject.org/updates/FEDORA-2016-82e630d3da</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9150843</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-03-15 17:29:38 -0400</bug_when>
+    <thetext>xfsprogs-4.5.0-1.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-bce977a3af</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9153537</commentid>
+    <comment_count>11</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-03-16 11:22:57 -0400</bug_when>
+    <thetext>xfsprogs-4.5.0-1.fc23 has been pushed to the Fedora 23 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-82e630d3da</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9166881</commentid>
+    <comment_count>12</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-03-21 19:53:07 -0400</bug_when>
+    <thetext>xfsprogs-4.5.0-1.fc23 has been pushed to the Fedora 23 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9180242</commentid>
+    <comment_count>13</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-03-26 14:06:06 -0400</bug_when>
+    <thetext>xfsprogs-4.5.0-1.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

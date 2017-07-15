@@ -1,0 +1,351 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1369130</bug_id>
+          
+          <creation_ts>2016-08-22 10:21:00 -0400</creation_ts>
+          <short_desc>nss_sss should not link against libpthread</short_desc>
+          <delta_ts>2016-12-22 13:18:13 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>sssd</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Florian Weimer">fweimer</reporter>
+          <assigned_to name="Jakub Hrozek">jhrozek</assigned_to>
+          <cc>abokovoy</cc>
+    
+    
+    <cc>fweimer</cc>
+    
+    
+    <cc>jhrozek</cc>
+    
+    
+    <cc>lslebodn</cc>
+    
+    
+    <cc>mzidek</cc>
+    
+    
+    <cc>pbrezina</cc>
+    
+    
+    <cc>preichl</cc>
+    
+    
+    <cc>rharwood</cc>
+    
+    
+    <cc>sbose</cc>
+    
+    
+    <cc>ssorce</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>sssd-1.14.2-2.fc23 sssd-1.14.2-2.fc25 sssd-1.14.2-2.fc24</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-12-16 19:23:46</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          <external_bugs name="Sourceware">20500</external_bugs>
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9636189</commentid>
+    <comment_count>0</comment_count>
+    <who name="Florian Weimer">fweimer</who>
+    <bug_when>2016-08-22 10:21:07 -0400</bug_when>
+    <thetext>/usr/lib64/libnss_sss.so.2 in sssd-client-1.13.4-4.fc24.x86_64 is linked against libpthread.  This causes problems when static binaries attempt to use NSS-based functions:
+
+  https://sourceware.org/bugzilla/show_bug.cgi?id=20500
+
+It also increases the risk for symbol collisions with the application binary.
+
+What libpthread functionality do you *really* need which is not in libc.so.6?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9636272</commentid>
+    <comment_count>1</comment_count>
+    <who name="Jakub Hrozek">jhrozek</who>
+    <bug_when>2016-08-22 10:35:24 -0400</bug_when>
+    <thetext>See https://github.com/SSSD/sssd/blob/master/src/sss_client/common.c#L1067 and onwards, we use mutexes, including robust mutexes. Does libc provide all these even w/o linking to -lpthread?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9636470</commentid>
+    <comment_count>2</comment_count>
+    <who name="Florian Weimer">fweimer</who>
+    <bug_when>2016-08-22 11:27:01 -0400</bug_when>
+    <thetext>(In reply to Jakub Hrozek from comment #1)
+&gt; See https://github.com/SSSD/sssd/blob/master/src/sss_client/common.c#L1067
+&gt; and onwards, we use mutexes, including robust mutexes. Does libc provide all
+&gt; these even w/o linking to -lpthread?
+
+Thanks.  What is the scenario which will result in an EOWNERDEAD error for these robust mutexes?  All these mutexes look process-local, and any event which would trigger EOWNERDEAD would terminate the process, and the mutex would be gone as well.
+
+Plain mutexes are available without libpthread.  But process-shared mutexes (both of the robust and non-robust variant) will not work without linking against libpthread.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9636541</commentid>
+    <comment_count>3</comment_count>
+    <who name="Jakub Hrozek">jhrozek</who>
+    <bug_when>2016-08-22 11:40:37 -0400</bug_when>
+    <thetext>backtracking git history shows the robust mutexes were introduced in commmit 86b61156743b7ebdc049450a6f88452890fd9a61:
+https://github.com/SSSD/sssd/commit/86b61156743b7ebdc049450a6f88452890fd9a61
+which links to:
+https://fedorahosted.org/sssd/ticket/1460
+
+where the reporter gives some explanation and a reproducer program. It&apos;s been some time, so I&apos;m not sure I remember the issue 100%, but I guess robust mutexes were the only solution I could come up with at that time..</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9637377</commentid>
+    <comment_count>4</comment_count>
+    <who name="Florian Weimer">fweimer</who>
+    <bug_when>2016-08-22 15:49:56 -0400</bug_when>
+    <thetext>(In reply to Jakub Hrozek from comment #3)
+&gt; backtracking git history shows the robust mutexes were introduced in commmit
+&gt; 86b61156743b7ebdc049450a6f88452890fd9a61:
+&gt; https://github.com/SSSD/sssd/commit/86b61156743b7ebdc049450a6f88452890fd9a61
+&gt; which links to:
+&gt; https://fedorahosted.org/sssd/ticket/1460
+&gt; 
+&gt; where the reporter gives some explanation and a reproducer program. It&apos;s
+&gt; been some time, so I&apos;m not sure I remember the issue 100%, but I guess
+&gt; robust mutexes were the only solution I could come up with at that time..
+
+The fix is likely wrong.  It does release the lock, but you end up with whatever internal state you had at the point of cancellation.  If that is not fully consistent, an application which has canceled a NSS operation will experience rather subtle bugs.
+
+There also seem to be resource leaks, e.g. sss_cli_recv_rep could leak the buffer if cancellation happens after the malloc call.
+
+If you do not want to make the entire code cancellation-safe, you should defer cancellation on entry to nss_sss.  Or maybe we should change glibc so that it does that automatically for you.  I don&apos;t think many of the existing NSS modules are written with cancellation in mind.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9637392</commentid>
+    <comment_count>5</comment_count>
+    <who name="Lukas Slebodnik">lslebodn</who>
+    <bug_when>2016-08-22 15:57:08 -0400</bug_when>
+    <thetext>(In reply to Florian Weimer from comment #4)
+&gt; (In reply to Jakub Hrozek from comment #3)
+&gt; &gt; backtracking git history shows the robust mutexes were introduced in commmit
+&gt; &gt; 86b61156743b7ebdc049450a6f88452890fd9a61:
+&gt; &gt; https://github.com/SSSD/sssd/commit/86b61156743b7ebdc049450a6f88452890fd9a61
+&gt; &gt; which links to:
+&gt; &gt; https://fedorahosted.org/sssd/ticket/1460
+&gt; &gt; 
+&gt; &gt; where the reporter gives some explanation and a reproducer program. It&apos;s
+&gt; &gt; been some time, so I&apos;m not sure I remember the issue 100%, but I guess
+&gt; &gt; robust mutexes were the only solution I could come up with at that time..
+&gt; 
+&gt; The fix is likely wrong.  It does release the lock, but you end up with
+&gt; whatever internal state you had at the point of cancellation.  If that is
+&gt; not fully consistent, an application which has canceled a NSS operation will
+&gt; experience rather subtle bugs.
+&gt; 
+&gt; There also seem to be resource leaks, e.g. sss_cli_recv_rep could leak the
+&gt; buffer if cancellation happens after the malloc call.
+&gt; 
+&gt; If you do not want to make the entire code cancellation-safe, you should
+&gt; defer cancellation on entry to nss_sss.  Or maybe we should change glibc so
+&gt; that it does that automatically for you.  I don&apos;t think many of the existing
+&gt; NSS modules are written with cancellation in mind.
+
+The commit is quite an old. If would be better to comment git master
+https://git.fedorahosted.org/cgit/sssd.git/tree/src/sss_client/common.c#n1081
+I didn&apos;t compare them :-)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9637414</commentid>
+    <comment_count>6</comment_count>
+    <who name="Florian Weimer">fweimer</who>
+    <bug_when>2016-08-22 16:05:11 -0400</bug_when>
+    <thetext>(In reply to Lukas Slebodnik from comment #5)
+&gt; The commit is quite an old. If would be better to comment git master
+&gt; https://git.fedorahosted.org/cgit/sssd.git/tree/src/sss_client/common.c#n1081
+&gt; I didn&apos;t compare them :-)
+
+My comment 4 was based on master (well, fe25b17660d5aed5b388a23c0ad34425fe728434).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9637541</commentid>
+    <comment_count>7</comment_count>
+    <who name="Simo Sorce">ssorce</who>
+    <bug_when>2016-08-22 16:59:12 -0400</bug_when>
+    <thetext>Florian, I think we should defer cancelation, do you have pointers (or even apatch :-) so we get it right ?
+
+Simo.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9658065</commentid>
+    <comment_count>8</comment_count>
+    <who name="Florian Weimer">fweimer</who>
+    <bug_when>2016-08-29 03:47:43 -0400</bug_when>
+    <thetext>(In reply to Simo Sorce from comment #7)
+&gt; Florian, I think we should defer cancelation, do you have pointers (or even
+&gt; apatch :-) so we get it right ?
+
+I&apos;m not familiar with cancellation, but I expect that this will work:
+
+  int old_state;
+  pthread_setcancelstate (PTHREAD_CANCEL_DISABLE, &amp;old_state);
+  
+  /* Code which runs with cancellation disabled.  */
+
+  pthread_setcancelstate (old_state, &amp;old_state);
+
+This preserves the old state.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9658371</commentid>
+    <comment_count>9</comment_count>
+    <who name="Jakub Hrozek">jhrozek</who>
+    <bug_when>2016-08-29 05:05:06 -0400</bug_when>
+    <thetext>Thank you for the idea, I will clone the bug upstream so that someone can take a stab at implementing this.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9658395</commentid>
+    <comment_count>10</comment_count>
+    <who name="Jakub Hrozek">jhrozek</who>
+    <bug_when>2016-08-29 05:07:38 -0400</bug_when>
+    <thetext>Upstream ticket:
+https://fedorahosted.org/sssd/ticket/3156</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9658702</commentid>
+    <comment_count>11</comment_count>
+    <who name="Lukas Slebodnik">lslebodn</who>
+    <bug_when>2016-08-29 06:12:09 -0400</bug_when>
+    <thetext>Does ticket #3156 cover just a &quot;defer cancelation&quot;?
+
+or in another words; what do we want to do with this BZ in fedora?
+Can we avoid linking with lipthread?
+Does it requires some work on glibc side to for removing linking with pthread?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9658832</commentid>
+    <comment_count>12</comment_count>
+    <who name="Florian Weimer">fweimer</who>
+    <bug_when>2016-08-29 07:01:05 -0400</bug_when>
+    <thetext>(In reply to Lukas Slebodnik from comment #11)
+&gt; Does ticket #3156 cover just a &quot;defer cancelation&quot;?
+
+I don&apos;t know.
+
+&gt; or in another words; what do we want to do with this BZ in fedora?
+&gt; Can we avoid linking with lipthread?
+&gt; Does it requires some work on glibc side to for removing linking with
+&gt; pthread?
+
+If you use regular mutexes instead of robust mutexes, then you should be able to stop linking against libpthread.  Some &lt;pthread.h&gt; functionality is provided by libc as well.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9921059</commentid>
+    <comment_count>13</comment_count>
+    <who name="Lukas Slebodnik">lslebodn</who>
+    <bug_when>2016-11-24 06:58:22 -0500</bug_when>
+    <thetext>master:
+* d2f93542650c2f9613043acfa8e2f368972a70cd</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9982205</commentid>
+    <comment_count>14</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-13 15:08:00 -0500</bug_when>
+    <thetext>sssd-1.14.2-2.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2016-66bc868b6e</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9982211</commentid>
+    <comment_count>15</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-13 15:10:00 -0500</bug_when>
+    <thetext>sssd-1.14.2-2.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-b04d690b49</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9982219</commentid>
+    <comment_count>16</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-13 15:11:51 -0500</bug_when>
+    <thetext>sssd-1.14.2-2.fc23 has been submitted as an update to Fedora 23. https://bodhi.fedoraproject.org/updates/FEDORA-2016-b0d27da617</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9988111</commentid>
+    <comment_count>17</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-14 21:28:15 -0500</bug_when>
+    <thetext>sssd-1.14.2-2.fc23 has been pushed to the Fedora 23 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-b0d27da617</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9988335</commentid>
+    <comment_count>18</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-15 00:03:03 -0500</bug_when>
+    <thetext>sssd-1.14.2-2.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-b04d690b49</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9988379</commentid>
+    <comment_count>19</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-15 00:06:28 -0500</bug_when>
+    <thetext>sssd-1.14.2-2.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-66bc868b6e</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9995211</commentid>
+    <comment_count>20</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-16 19:23:46 -0500</bug_when>
+    <thetext>sssd-1.14.2-2.fc23 has been pushed to the Fedora 23 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10000236</commentid>
+    <comment_count>21</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-19 18:22:42 -0500</bug_when>
+    <thetext>sssd-1.14.2-2.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10016847</commentid>
+    <comment_count>22</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-22 13:18:13 -0500</bug_when>
+    <thetext>sssd-1.14.2-2.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

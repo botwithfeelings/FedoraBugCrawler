@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1406435</bug_id>
+          
+          <creation_ts>2016-12-20 09:09:00 -0500</creation_ts>
+          <short_desc>If no limit to memory provided on container /tmp ends up at 4EB</short_desc>
+          <delta_ts>2017-04-01 12:57:23 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>oci-systemd-hook</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="James Hogarth">james.hogarth</reporter>
+          <assigned_to name="Daniel Walsh">dwalsh</assigned_to>
+          <cc>amurdaca</cc>
+    
+    
+    <cc>dwalsh</cc>
+    
+    
+    <cc>james.hogarth</cc>
+    
+    
+    <cc>lsm5</cc>
+    
+    
+    <cc>nalin</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>oci-systemd-hook-0.1.6-1.gitfe22236.fc25 oci-systemd-hook-0.1.6-1.gitfe22236.fc26</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-03-14 13:23:00</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10003295</commentid>
+    <comment_count>0</comment_count>
+    <who name="James Hogarth">james.hogarth</who>
+    <bug_when>2016-12-20 09:09:33 -0500</bug_when>
+    <thetext>Description of problem:
+When using a systemd based container the oci-systemd-hook makes use of /sys/fs/cgroup/memory/memory.limit_in_bytes to determine the size to make /tmp 
+
+If not explicitly limiting the container this results in a &apos;limit&apos; of 9223372036854771712/2 ... or 4EB to make it readable.
+
+a) this is insane as few systems will have 4EB of RAM available to back this ;)
+b) this causes issues on anything that uses the detected size to work out max sizing 
+c) this breaks 32bit apps in a lovely subtle way. Since getconf FILESIZEBITS /tmp results in 32 the assumptions is large file support is not required. So statfs() (and family) get called instead of the 64bit equivalents and the application promptly fails with: statfs(&quot;/tmp/isjbeOWOh&quot;, 0xffa15b60)    = -1 EOVERFLOW (Value too large for defined data type)
+
+
+Version-Release number of selected component (if applicable):
+docker-1.12.3-12.git97974ae.fc25.x86_64
+oci-systemd-hook-0.1.4-3.git41491a3.fc25.x86_64
+
+
+How reproducible:
+deterministic
+
+Steps to Reproduce:
+1. 
+
+cat &gt; Dockerfile.systemd-test &lt;&lt; EOF
+FROM centos:latest
+
+RUN yum -y install systemd bash
+ENTRYPOINT [&quot;/sbin/init&quot;]
+EOF
+
+
+2. docker build -f Dockerfile.systemd-test -t systemd-test . 
+3. docker run -d --name systemd-test systemd-test
+4. docker exec systemd-test df -h
+
+Actual results:
+Filesystem                                             Size  Used Avail Use% Mounted on
+/dev/mapper/luks-533c35ab-2572-45ad-b18b-5203c8b8563f  231G  183G   46G  81% /
+tmpfs                                                  3.9G     0  3.9G   0% /dev
+tmpfs                                                  3.9G     0  3.9G   0% /sys/fs/cgroup
+/dev/mapper/luks-533c35ab-2572-45ad-b18b-5203c8b8563f  231G  183G   46G  81% /etc/hosts
+shm                                                     64M     0   64M   0% /dev/shm
+tmpfs                                                   64M   16K   64M   1% /run
+tmpfs                                                  4.0E     0  4.0E   0% /tmp
+
+
+Expected results:
+A /tmp that is a sensible size
+
+Additional info:
+This happens on a RHEL7 host as well and also with a fedora container</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10003464</commentid>
+    <comment_count>1</comment_count>
+    <who name="Daniel Walsh">dwalsh</who>
+    <bug_when>2016-12-20 09:22:56 -0500</bug_when>
+    <thetext>I believe the limit is half of physical memory for a tmpfs, which is the same fro the host.
+
+   Mount options for tmpfs
+       size=nbytes
+              Override  default  maximum  size of the filesystem.  The size is
+              given in bytes, and rounded up to entire pages.  The default  is
+              half  of the memory.  The size parameter also accepts a suffix %
+              to limit this tmpfs instance to that percentage of your physical
+              RAM:  the default, when neither size nor nr_blocks is specified,
+              is size=50%
+
+
+Are you saying we are doing something wrong that is allowing this to go behond that?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10003614</commentid>
+    <comment_count>2</comment_count>
+    <who name="James Hogarth">james.hogarth</who>
+    <bug_when>2016-12-20 09:34:42 -0500</bug_when>
+    <thetext>For anyone that bumps into this in their applications there are a couple of workarounds that can be employed:
+
+1) use docker run -m XG -d systemd
+
+Where X is the memory to limit the guest to, rather than permitting infinite which is the default. The hook then uses X/2 for the /tmp size 
+
+2) use docker run -v /tmp -d systemd
+
+This then has /tmp in the volumes listed in the container config so the hook skips mounting of /tmp letting it get the sensible sizing of the underlying volume presented. Note that --tmpfs /tmp:rw,mode=1777,size=10G doesn&apos;t work as it doesn&apos;t get listed in volumes, which is what oci-systemd-hook checks. 
+
+It might be sensible for the hook to also check any tmpfs structures rather than just volume mounts as a nice way of configuring this.
+
+This workaround has the distinct disadvantage that volumes don&apos;t get removed by default when a container is removed so could end up with space usage creep.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10003709</commentid>
+    <comment_count>3</comment_count>
+    <who name="James Hogarth">james.hogarth</who>
+    <bug_when>2016-12-20 09:41:51 -0500</bug_when>
+    <thetext>Yeah Dan - that might be the intention but the path used to get that info doesn&apos;t result in the expected values ...
+
+https://github.com/projectatomic/oci-systemd-hook/blob/master/src/systemdhook.c#L482
+
+That gets the limit as half the limit set by the memory cgroup:
+
+/sys/fs/cgroup/memory/memory.limit_in_bytes
+
+But in a default setup there is no memory limit, so this defaults to maximum accessible on the architecture ... which is ~8EB ... not the actual physical RAM size on the host.
+
+This then results in the 4EB /tmp assigned ... which is kind of crazy ;)
+
+Note that the hook doesn&apos;t use default tmpfs mount options for the sizing but explicitly sets it:
+
+https://github.com/projectatomic/oci-systemd-hook/blob/master/src/systemdhook.c#L513
+
+rc = asprintf(&amp;options, &quot;mode=1777,size=%&quot; PRIu64 &quot;k&quot;, memory_limit_in_kb);</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10004475</commentid>
+    <comment_count>4</comment_count>
+    <who name="Daniel Walsh">dwalsh</who>
+    <bug_when>2016-12-20 10:42:13 -0500</bug_when>
+    <thetext>https://github.com/projectatomic/oci-systemd-hook/pull/40
+
+Any chance you could check if this fixes your issue.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10004486</commentid>
+    <comment_count>5</comment_count>
+    <who name="Daniel Walsh">dwalsh</who>
+    <bug_when>2016-12-20 10:42:56 -0500</bug_when>
+    <thetext>James, you are also saying the 
+
+docker run --tmpfs /tmp:... Does not fix the issue?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10011082</commentid>
+    <comment_count>6</comment_count>
+    <who name="James Hogarth">james.hogarth</who>
+    <bug_when>2016-12-21 08:05:27 -0500</bug_when>
+    <thetext>sure i&apos;ll give it a go this afternoon after my lunch ;)
+
+and indeed I tried docker run --tmpfs /tmp:rw,mode=1777,size=10G and it didn&apos;t fix it ... when you do a df -h in the container it still shows as 4EB in that instance.
+
+I haven&apos;t had time to delve into the whys of that deeply, but on a quick check --tmpfs based things don&apos;t populate Mounts in the docker structure returned by inspect on the container, they appear in Tmpfs instead.
+
+The code to check if it&apos;s mounted already only looks at Mounts:
+
+https://github.com/projectatomic/oci-systemd-hook/blob/master/src/systemdhook.c#L775
+
+A work around from the hook point of view would be to check mounts and tmpfs ... a better &apos;fix&apos; for this, given it&apos;d be a little unexpected not to consider this a mount, would be for docker to populate tmpfs stuff into the mounts array as well.
+
+ docker run --tmpfs /tmp:rw,mode=1777,size=15G --name blahbalhfoo  centos /bin/bash
+
+ docker inspect blahbalhfoo  | grep -iE &apos;(mount|volume|tmpfs)&apos;
+        &quot;MountLabel&quot;: &quot;system_u:object_r:container_file_t:s0:c204,c767&quot;,
+            &quot;VolumeDriver&quot;: &quot;&quot;,
+            &quot;VolumesFrom&quot;: null,
+            &quot;Tmpfs&quot;: {
+        &quot;Mounts&quot;: [],
+            &quot;Volumes&quot;: null,</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10011442</commentid>
+    <comment_count>7</comment_count>
+    <who name="James Hogarth">james.hogarth</who>
+    <bug_when>2016-12-21 10:06:48 -0500</bug_when>
+    <thetext>Confirming that a build from master (with the PR already merged) behaves with an expected behaviour of half my system RAM:
+
+[ja.hogarth@lap37607 ansible_role_wsc]$ docker exec systemd-test df -h
+Filesystem                                             Size  Used Avail Use% Mounted on
+/dev/mapper/luks-533c35ab-2572-45ad-b18b-5203c8b8563f  231G  192G   37G  85% /
+tmpfs                                                  3.9G     0  3.9G   0% /dev
+tmpfs                                                  3.9G     0  3.9G   0% /sys/fs/cgroup
+/dev/mapper/luks-533c35ab-2572-45ad-b18b-5203c8b8563f  231G  192G   37G  85% /etc/hosts
+shm                                                     64M     0   64M   0% /dev/shm
+tmpfs                                                   64M   16K   64M   1% /run
+tmpfs                                                  3.9G     0  3.9G   0% /tmp
+tmpfs                                                  3.9G  4.0K  3.9G   1% /var/log</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10011471</commentid>
+    <comment_count>8</comment_count>
+    <who name="James Hogarth">james.hogarth</who>
+    <bug_when>2016-12-21 10:16:04 -0500</bug_when>
+    <thetext>The --tmpfs case now has a speparate bug and reproducible test case bz1406830</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10134678</commentid>
+    <comment_count>9</comment_count>
+    <who name="Daniel Walsh">dwalsh</who>
+    <bug_when>2017-02-09 09:23:48 -0500</bug_when>
+    <thetext>FIxed in oci-systemd-hook-0.1.5-1.git16f7c8a.fc25</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10230903</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-12 07:41:56 -0400</bug_when>
+    <thetext>oci-systemd-hook-0.1.6-1.gitfe22236.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-a25973481c</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10230906</commentid>
+    <comment_count>11</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-12 07:42:12 -0400</bug_when>
+    <thetext>oci-systemd-hook-0.1.6-1.gitfe22236.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-5e4259e590</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10231440</commentid>
+    <comment_count>12</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-12 20:21:49 -0400</bug_when>
+    <thetext>oci-systemd-hook-0.1.6-1.gitfe22236.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-5e4259e590</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10231542</commentid>
+    <comment_count>13</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-12 21:51:16 -0400</bug_when>
+    <thetext>oci-systemd-hook-0.1.6-1.gitfe22236.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-a25973481c</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10238743</commentid>
+    <comment_count>14</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-14 13:23:00 -0400</bug_when>
+    <thetext>oci-systemd-hook-0.1.6-1.gitfe22236.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10296608</commentid>
+    <comment_count>15</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-01 12:57:23 -0400</bug_when>
+    <thetext>oci-systemd-hook-0.1.6-1.gitfe22236.fc26 has been pushed to the Fedora 26 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

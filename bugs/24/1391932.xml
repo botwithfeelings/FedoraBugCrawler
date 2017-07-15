@@ -1,0 +1,463 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1391932</bug_id>
+          
+          <creation_ts>2016-11-04 08:27:00 -0400</creation_ts>
+          <short_desc>[skopeo][ FTBFS due golang deficiency on ppc64</short_desc>
+          <delta_ts>2017-04-28 05:58:01 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>skopeo</component>
+          <version>24</version>
+          <rep_platform>ppc64</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard>AcceptedFreezeException</status_whiteboard>
+          <keywords>Reopened</keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>1071880</blocked>
+    
+    
+    <blocked>1277290</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Dan Horák">dan</reporter>
+          <assigned_to name="Antonio Murdaca">amurdaca</assigned_to>
+          <cc>amurdaca</cc>
+    
+    
+    <cc>dan</cc>
+    
+    
+    <cc>dwalsh</cc>
+    
+    
+    <cc>gmarr</cc>
+    
+    
+    <cc>jcajka</cc>
+    
+    
+    <cc>kparal</cc>
+    
+    
+    <cc>lsm5</cc>
+    
+    
+    <cc>nalin</cc>
+    
+    
+    <cc>pbrobinson</cc>
+    
+    
+    <cc>pschindl</cc>
+    
+    
+    <cc>sgallagh</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>skopeo-0.1.14-5.git550a480.fc24</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-04-28 05:58:01</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9861698</commentid>
+    <comment_count>0</comment_count>
+    <who name="Dan Horák">dan</who>
+    <bug_when>2016-11-04 08:27:14 -0400</bug_when>
+    <thetext>skopeo builds fail on ppc64 with
+...
++ export GOPATH=/builddir/build/BUILD/skopeo-550a480173090c9b94ac3bce48953b338fa92e94:/builddir/build/BUILD/skopeo-550a480173090c9b94ac3bce48953b338fa92e94/vendor:/usr/share/gocode
++ GOPATH=/builddir/build/BUILD/skopeo-550a480173090c9b94ac3bce48953b338fa92e94:/builddir/build/BUILD/skopeo-550a480173090c9b94ac3bce48953b338fa92e94/vendor:/usr/share/gocode
++ make binary-local docs
+go build -ldflags &quot;-X main.gitCommit=363a82115758b45d0355459d426659b855d5383b&quot; -gcflags &quot;&quot; -o skopeo ./cmd/skopeo
+# github.com/containers/image/signature
+vendor/src/github.com/containers/image/signature/mechanism.go:28: undefined: gpgme.Context
+Makefile:50: recipe for target &apos;binary-local&apos; failed
+make: *** [binary-local] Error 2
+
+I&apos;ve discussed the issue with our golang maintainer and the reason should be a deficiency of golang on ppc64 when interfacing the native libraries. Solution would be to drop ppc64 from ExclusiveArch tag list.
+
+There is also a docker &lt;-&gt; skopeo dependency in the distro and dropping ppc64 here will only help, because even is docker is built on ppc64le only.
+
+
+Version-Release number of selected component (if applicable):
+skopeo-0.1.14-4.git550a480.fc25
+golang-1.7.1-2.fc25.ppc64</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9861713</commentid>
+    <comment_count>1</comment_count>
+    <who name="Fedora Blocker Bugs Application">blockerbugs</who>
+    <bug_when>2016-11-04 08:33:10 -0400</bug_when>
+    <thetext>Proposed as a Freeze Exception for 25-final by Fedora user sharkcz using the blocker tracking app because:
+
+ The missing ppc64le build of skopeo breaks deps in the ppc64le F-25 server compose.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9861715</commentid>
+    <comment_count>2</comment_count>
+    <who name="Antonio Murdaca">amurdaca</who>
+    <bug_when>2016-11-04 08:33:46 -0400</bug_when>
+    <thetext>Miloslav do you know why that&apos;s failing?(seems related to gpgme) 
+
+If gpgme could be fixed I won&apos;t just drop ppc64</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9861745</commentid>
+    <comment_count>3</comment_count>
+    <who name="Dan Horák">dan</who>
+    <bug_when>2016-11-04 08:44:39 -0400</bug_when>
+    <thetext>Antonio, I was told it&apos;s a golang issue, not gpgme. And dropping ppc64 causes no harm to us.
+
+btw, we need something like
+
+diff --git a/skopeo.spec b/skopeo.spec
+index d2b7c83..8354b3b 100644
+--- a/skopeo.spec
++++ b/skopeo.spec
+@@ -40,7 +40,9 @@ Patch0:         skopeo-go142.patch
+ %endif
+ 
+ # e.g. el6 has ppc64 arch without gcc-go, so EA tag is required
+-ExclusiveArch:  %{?go_arches:%{go_arches}}%{!?go_arches:%{ix86} x86_64 %{arm}}
++#ExclusiveArch:  %{?go_arches:%{go_arches}}%{!?go_arches:%{ix86} x86_64 %{arm}}
++# manually listed arches due https://bugzilla.redhat.com/show_bug.cgi?id=1391932 (removed ppc64)
++ExclusiveArch:  %{?go_arches:%{ix86} x86_64 %{arm} aarch64 ppc64le s390x %{mips}}%{!?go_arches:%{ix86} x86_64 %{arm}}
+ %if 0%{?fedora}
+ BuildRequires: go-srpm-macros
+ BuildRequires: compiler(go-compiler)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9861750</commentid>
+    <comment_count>4</comment_count>
+    <who name="Jakub Čajka">jcajka</who>
+    <bug_when>2016-11-04 08:46:14 -0400</bug_when>
+    <thetext>(In reply to Antonio Murdaca from comment #2)
+&gt; Miloslav do you know why that&apos;s failing?(seems related to gpgme) 
+&gt; 
+&gt; If gpgme could be fixed I won&apos;t just drop ppc64
+
+It is caused by lack of support of Cgo and external linking in golang on ppc64.
+I hope that I&apos;m not wrong here as it is long time since I have been playing with those on BE and they were not working/supported(thus they are disabled by default in Fedora&apos;s golang).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9861766</commentid>
+    <comment_count>5</comment_count>
+    <who name="Dan Horák">dan</who>
+    <bug_when>2016-11-04 08:52:41 -0400</bug_when>
+    <thetext>for the record
+
+[sharkcz@tyan-openpower-01 skopeo-550a480173090c9b94ac3bce48953b338fa92e94]$ export CGO_ENABLED=1
+[sharkcz@tyan-openpower-01 skopeo-550a480173090c9b94ac3bce48953b338fa92e94]$ go build -v -ldflags &quot;-X main.gitCommit=116756e71d47e30100d963e1a24fe0a9b8eddfe8&quot; -gcflags &quot;&quot; -o skopeo ./cmd/skopeo
+github.com/docker/engine-api/types/network
+github.com/Sirupsen/logrus
+github.com/opencontainers/image-spec/specs-go
+github.com/containers/image/directory/explicitfilepath
+github.com/docker/distribution/digest
+github.com/docker/distribution/uuid
+golang.org/x/net/context
+github.com/opencontainers/runc/libcontainer/user
+gopkg.in/yaml.v2
+github.com/docker/engine-api/types/strslice
+github.com/docker/go-units
+github.com/docker/engine-api/types/blkiodev
+github.com/docker/engine-api/types/versions
+github.com/docker/engine-api/types/swarm
+runtime/cgo
+github.com/docker/engine-api/types/time
+github.com/containers/image/version
+github.com/imdario/mergo
+k8s.io/kubernetes/pkg/util/errors
+k8s.io/kubernetes/pkg/util/homedir
+k8s.io/kubernetes/pkg/util/sets
+gopkg.in/cheggaaa/pb.v1
+github.com/projectatomic/skopeo/version
+github.com/urfave/cli
+github.com/opencontainers/image-spec/specs-go/v1
+github.com/docker/engine-api/types/filters
+github.com/docker/docker/pkg/homedir
+github.com/docker/distribution/reference
+github.com/containers/image/docker/reference
+github.com/docker/engine-api/types/reference
+github.com/containers/image/docker/policyconfiguration
+github.com/containers/image/types
+os/user
+net
+github.com/mtrmac/gpgme
+github.com/ghodss/yaml
+github.com/golang/glog
+net/http/httptrace
+net/textproto
+github.com/docker/engine-api/types/registry
+crypto/x509
+golang.org/x/net/proxy
+github.com/docker/go-connections/nat
+github.com/docker/engine-api/types/container
+mime/multipart
+github.com/docker/engine-api/types
+crypto/tls
+github.com/docker/libtrust
+net/http
+github.com/docker/go-connections/tlsconfig
+github.com/containers/image/manifest
+github.com/containers/image/image
+github.com/containers/image/oci/layout
+github.com/containers/image/directory
+github.com/gorilla/context
+github.com/docker/distribution/registry/client/transport
+k8s.io/kubernetes/pkg/util/net
+github.com/docker/distribution/registry/api/errcode
+github.com/docker/go-connections/sockets
+net/http/httputil
+github.com/gorilla/mux
+github.com/docker/engine-api/client/transport
+github.com/docker/distribution/context
+github.com/docker/distribution/registry/api/v2
+github.com/docker/engine-api/client/transport/cancellable
+github.com/docker/engine-api/client
+github.com/docker/distribution
+github.com/docker/distribution/registry/storage/cache
+github.com/docker/distribution/registry/storage/cache/memory
+github.com/docker/distribution/registry/client
+github.com/containers/image/docker/daemon
+github.com/containers/image/docker
+github.com/containers/image/openshift
+github.com/containers/image/transports
+github.com/containers/image/signature
+github.com/containers/image/copy
+_/home/sharkcz/skopeo/skopeo-550a480173090c9b94ac3bce48953b338fa92e94/cmd/skopeo
+# _/home/sharkcz/skopeo/skopeo-550a480173090c9b94ac3bce48953b338fa92e94/cmd/skopeo
+/usr/lib/golang/pkg/tool/linux_ppc64/link: $WORK/_/home/sharkcz/skopeo/skopeo-550a480173090c9b94ac3bce48953b338fa92e94/cmd/skopeo.a(_go_.o): cannot use dynamic imports with -d flag
+/usr/lib/golang/pkg/tool/linux_ppc64/link: $WORK/runtime/cgo.a(_go_.o): cannot use dynamic imports with -d flag
+/usr/lib/golang/pkg/tool/linux_ppc64/link: $WORK/github.com/mtrmac/gpgme.a(_go_.o): cannot use dynamic imports with -d flag
+/usr/lib/golang/pkg/tool/linux_ppc64/link: $WORK/net.a(_go_.o): cannot use dynamic imports with -d flag
+/usr/lib/golang/pkg/tool/linux_ppc64/link: $WORK/os/user.a(_go_.o): cannot use dynamic imports with -d flag</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9861792</commentid>
+    <comment_count>6</comment_count>
+    <who name="Dan Horák">dan</who>
+    <bug_when>2016-11-04 09:00:35 -0400</bug_when>
+    <thetext>(In reply to Jakub Čajka from comment #4)
+&gt; (In reply to Antonio Murdaca from comment #2)
+&gt; &gt; Miloslav do you know why that&apos;s failing?(seems related to gpgme) 
+&gt; &gt; 
+&gt; &gt; If gpgme could be fixed I won&apos;t just drop ppc64
+&gt; 
+&gt; It is caused by lack of support of Cgo and external linking in golang on
+&gt; ppc64.
+&gt; I hope that I&apos;m not wrong here as it is long time since I have been playing
+&gt; with those on BE and they were not working/supported(thus they are disabled
+&gt; by default in Fedora&apos;s golang).
+
+Going to build new golang with Cgo and external linking enabled on ppc64, stay tuned ...</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9861806</commentid>
+    <comment_count>7</comment_count>
+    <who name="Antonio Murdaca">amurdaca</who>
+    <bug_when>2016-11-04 09:06:25 -0400</bug_when>
+    <thetext>(In reply to Dan Horák from comment #6)
+&gt; (In reply to Jakub Čajka from comment #4)
+&gt; &gt; (In reply to Antonio Murdaca from comment #2)
+&gt; &gt; &gt; Miloslav do you know why that&apos;s failing?(seems related to gpgme) 
+&gt; &gt; &gt; 
+&gt; &gt; &gt; If gpgme could be fixed I won&apos;t just drop ppc64
+&gt; &gt; 
+&gt; &gt; It is caused by lack of support of Cgo and external linking in golang on
+&gt; &gt; ppc64.
+&gt; &gt; I hope that I&apos;m not wrong here as it is long time since I have been playing
+&gt; &gt; with those on BE and they were not working/supported(thus they are disabled
+&gt; &gt; by default in Fedora&apos;s golang).
+&gt; 
+&gt; Going to build new golang with Cgo and external linking enabled on ppc64,
+&gt; stay tuned ...
+
+Does that mean I should hold updating skopeo to fix this BZ?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9861980</commentid>
+    <comment_count>8</comment_count>
+    <who name="Dan Horák">dan</who>
+    <bug_when>2016-11-04 09:50:47 -0400</bug_when>
+    <thetext>http://ppc.koji.fedoraproject.org/koji/taskinfo?taskID=3859365 is golang rebuilt with
+
+diff --git a/golang.spec b/golang.spec
+index 4e30243..34387a2 100644
+--- a/golang.spec
++++ b/golang.spec
+@@ -27,14 +27,14 @@
+ # Golang build options.
+ 
+ # Build golang using external/internal(close to cgo disabled) linking.
+-%ifarch %{ix86} x86_64 ppc64le %{arm} aarch64 s390x
++%ifarch %{ix86} x86_64 ppc64 ppc64le %{arm} aarch64 s390x
+ %global external_linker 1
+ %else
+ %global external_linker 0
+ %endif
+ 
+ # Build golang with cgo enabled/disabled(later equals more or less to internal linking).
+-%ifarch %{ix86} x86_64 ppc64le %{arm} aarch64 s390x
++%ifarch %{ix86} x86_64 ppc64 ppc64le %{arm} aarch64 s390x
+ %global cgo_enabled 1
+ %else
+ %global cgo_enabled 0
+
+and there is no change, either &quot;undefined: gpgme.Context&quot; with defaults, and the &quot;cannot use dynamic imports with -d flag&quot; message when CGO_ENABLED=1 is set.
+
+Antonio, please drop ppc64 from the arch list until there is some progress on the golang front.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9862487</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-11-04 11:49:22 -0400</bug_when>
+    <thetext>skopeo-0.1.14-5.git550a480.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-ed611fb9ab</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9863812</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-11-04 23:37:22 -0400</bug_when>
+    <thetext>skopeo-0.1.14-5.git550a480.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-ed611fb9ab</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9864615</commentid>
+    <comment_count>11</comment_count>
+    <who name="Antonio Murdaca">amurdaca</who>
+    <bug_when>2016-11-06 05:18:50 -0500</bug_when>
+    <thetext>Everything depending on skopeo (including docker) is failing the dependency check on ppc64. Is that expected?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9869509</commentid>
+    <comment_count>12</comment_count>
+    <who name="Geoffrey Marr">gmarr</who>
+    <bug_when>2016-11-07 20:05:51 -0500</bug_when>
+    <thetext>Discussed during the 2016-11-07 blocker review meeting: [1]
+
+The decision to delay the classification of this as an AcceptedFreezeException was made as we are unsure of all the details surrounding this one; we will look into the issue and get back to this bug at the next Blocker-Review-Meeting.
+
+[1] https://meetbot.fedoraproject.org/fedora-blocker-review/2016-11-07/f25-blocker-review.2016-11-07-17.01.txt</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9879171</commentid>
+    <comment_count>13</comment_count>
+    <who name="Dan Horák">dan</who>
+    <bug_when>2016-11-10 05:03:52 -0500</bug_when>
+    <thetext>(In reply to Geoffrey Marr from comment #12)
+&gt; Discussed during the 2016-11-07 blocker review meeting: [1]
+&gt; 
+&gt; The decision to delay the classification of this as an
+&gt; AcceptedFreezeException was made as we are unsure of all the details
+&gt; surrounding this one; we will look into the issue and get back to this bug
+&gt; at the next Blocker-Review-Meeting.
+&gt; 
+&gt; [1]
+&gt; https://meetbot.fedoraproject.org/fedora-blocker-review/2016-11-07/f25-
+&gt; blocker-review.2016-11-07-17.01.txt
+
+As confirmed with the latest pc64le compose the skopeo-0.1.14-5.git550a480.fc25 build is required for successful Server compose for F-25 ppc64le. The only change between -4 (that&apos;s in f25 now) and -5 is omitting ppc64 as a build arch for skopeo.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9879172</commentid>
+    <comment_count>14</comment_count>
+    <who name="Dan Horák">dan</who>
+    <bug_when>2016-11-10 05:04:56 -0500</bug_when>
+    <thetext>(In reply to Dan Horák from comment #13)
+&gt; (In reply to Geoffrey Marr from comment #12)
+&gt; &gt; Discussed during the 2016-11-07 blocker review meeting: [1]
+&gt; &gt; 
+&gt; &gt; The decision to delay the classification of this as an
+&gt; &gt; AcceptedFreezeException was made as we are unsure of all the details
+&gt; &gt; surrounding this one; we will look into the issue and get back to this bug
+&gt; &gt; at the next Blocker-Review-Meeting.
+&gt; &gt; 
+&gt; &gt; [1]
+&gt; &gt; https://meetbot.fedoraproject.org/fedora-blocker-review/2016-11-07/f25-
+&gt; &gt; blocker-review.2016-11-07-17.01.txt
+&gt; 
+&gt; As confirmed with the latest pc64le compose the
+&gt; skopeo-0.1.14-5.git550a480.fc25 build is required for successful Server
+&gt; compose for F-25 ppc64le. The only change between -4 (that&apos;s in f25 now) and
+&gt; -5 is omitting ppc64 as a build arch for skopeo.
+
+There is a docker-anaconda-addon -&gt; docker -&gt; skopeo-containers depency chain.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9883345</commentid>
+    <comment_count>15</comment_count>
+    <who name="Stephen Gallagher">sgallagh</who>
+    <bug_when>2016-11-11 08:24:48 -0500</bug_when>
+    <thetext>+1 FE since it prevents creation of non-blocking media.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9885512</commentid>
+    <comment_count>16</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-11-12 18:55:15 -0500</bug_when>
+    <thetext>skopeo-0.1.14-5.git550a480.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9892046</commentid>
+    <comment_count>17</comment_count>
+    <who name="Dan Horák">dan</who>
+    <bug_when>2016-11-15 06:07:24 -0500</bug_when>
+    <thetext>f25 update is https://bodhi.fedoraproject.org/updates/FEDORA-2016-5b67a15de6</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9892324</commentid>
+    <comment_count>18</comment_count>
+    <who name="Petr Schindler">pschindl</who>
+    <bug_when>2016-11-15 07:13:25 -0500</bug_when>
+    <thetext>I&apos;m also +1 FE.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9892328</commentid>
+    <comment_count>19</comment_count>
+    <who name="Kamil Páral">kparal</who>
+    <bug_when>2016-11-15 07:14:22 -0500</bug_when>
+    <thetext>+1 FE, marking as accepted.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10371455</commentid>
+    <comment_count>20</comment_count>
+    <who name="Dan Horák">dan</who>
+    <bug_when>2017-04-28 05:58:01 -0400</bug_when>
+    <thetext>Closing F-25 bug.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1351352</bug_id>
+          
+          <creation_ts>2016-06-29 16:25:00 -0400</creation_ts>
+          <short_desc>SELinux relabel fails (due to read-only / ?) on simple Fedora 24 virt-builder image</short_desc>
+          <delta_ts>2016-11-01 06:55:08 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>libguestfs</component>
+          <version>25</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>CURRENTRELEASE</resolution>
+          
+          <see_also>https://bugzilla.redhat.com/show_bug.cgi?id=1351358</see_also>
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>high</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Adam Williamson">awilliam</reporter>
+          <assigned_to name="Richard W.M. Jones">rjones</assigned_to>
+          <cc>awilliam</cc>
+    
+    
+    <cc>cheimes</cc>
+    
+    
+    <cc>mbooth</cc>
+    
+    
+    <cc>ptoscano</cc>
+    
+    
+    <cc>rjones</cc>
+    
+    
+    <cc>virt-maint</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-11-01 06:55:08</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9466156</commentid>
+    <comment_count>0</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2016-06-29 16:25:25 -0400</bug_when>
+    <thetext>If I build a simple fedora-24 image currently:
+
+virt-builder fedora-24 -o test.img --arch x86_64 --root-password password:weakpassword --update --selinux-relabel
+
+then try and boot it:
+
+qemu-kvm -m 2G -nographic test.img
+
+it sticks in a boot loop. This worked a week or so ago, so one of the package updates since then has changed things and made it stop working.
+
+I think what&apos;s happening is that / winds up, for some reason, read-only, so the relabel script can neither relabel it nor remove /.autorelabel - so it sticks in a loop of trying over and over again and never getting anywhere.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9466162</commentid>
+    <comment_count>1</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2016-06-29 16:31:20 -0400</bug_when>
+    <thetext>This can be worked around thus:
+
+virt-builder fedora-24 -o test.img --arch x86_64 --root-password password:weakpassword --update --selinux-relabel --edit &apos;/etc/selinux/config:s/SELINUX=.*/SELINUX=permissive/&apos; --firstboot-command &quot;sed -i -e &apos;s/SELINUX=permissive/SELINUX=enforcing/&apos; /etc/selinux/config&quot;
+
+so on the very first boot - when the relabel is done - SELinux will be set to permissive. When the system automatically reboots from the relabelling it will be in permissive mode, then subsequent boots will be enforcing. To switch the second boot to enforcing mode you could add one more arg, I guess:
+
+virt-builder fedora-24 -o test.img --arch x86_64 --root-password password:weakpassword --update --selinux-relabel --edit &apos;/etc/selinux/config:s/SELINUX=.*/SELINUX=permissive/&apos; --firstboot-command &quot;sed -i -e &apos;s/SELINUX=permissive/SELINUX=enforcing/&apos; /etc/selinux/config&quot; --firstboot-command &quot;setenforce Enforcing&quot;</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9467789</commentid>
+    <comment_count>2</comment_count>
+    <who name="Christian Heimes">cheimes</who>
+    <bug_when>2016-06-30 05:56:58 -0400</bug_when>
+    <thetext>Yesterday I ran into the same issue, too. In my workaround I first use virt-customize to set SELinux to permissive mode, then boot the image once with qemu-system to enforce auto-relabelling, followed by a final virt-edit to chance the system to enforcing mode.
+
+https://github.com/tiran/pki-vagans/blob/master/vagrantbuilder/boxbuilder#L105</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9549856</commentid>
+    <comment_count>3</comment_count>
+    <who name="Jan Kurik">jkurik</who>
+    <bug_when>2016-07-26 00:59:58 -0400</bug_when>
+    <thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 25 development cycle.
+Changing version to &apos;25&apos;.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9767261</commentid>
+    <comment_count>4</comment_count>
+    <who name="Pino Toscano">ptoscano</who>
+    <bug_when>2016-10-05 05:15:55 -0400</bug_when>
+    <thetext>Sorry for the late reply -- which version of libguestfs was used when reporting the issue?
+
+Since libguestfs 1.33.43 there&apos;s a new API for SELinux relabelling used also for --selinux-relabel, which should work much better.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9835034</commentid>
+    <comment_count>5</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2016-10-31 14:49:12 -0400</bug_when>
+    <thetext>I dunno, it was months ago, I don&apos;t have a record to hand. It would have been whatever was in Fedora 24 and Fedora 25 at the time (the bug occurred on both, I believe).
+
+I discussed it with rwmjones at the time, he had a pretty good idea what was going on, I think. We switched from virt-builder to virt-install for the tool in question after this bug, so I&apos;m not really super invested in it any more.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9836666</commentid>
+    <comment_count>6</comment_count>
+    <who name="Richard W.M. Jones">rjones</who>
+    <bug_when>2016-11-01 06:55:08 -0400</bug_when>
+    <thetext>Basically as Pino says we substantially fixed SELinux relabelling
+starting in libguestfs 1.34.  That should be the version available
+in Fedora 24 since around July 2016.  It could be that the bug report
+marginally predates these fixes.
+
+I&apos;m therefore going to close this bug.  If it happens reliably with
+libguestfs &gt;= 1.34 on the host, then please reopen with the precise
+version of libguestfs and command used.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

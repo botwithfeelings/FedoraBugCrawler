@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1441310</bug_id>
+          
+          <creation_ts>2017-04-11 12:11:00 -0400</creation_ts>
+          <short_desc>4.10 mtu restriction causes failures in openshift networking</short_desc>
+          <delta_ts>2017-04-17 16:52:35 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>kernel</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Dusty Mabe">dustymabe</reporter>
+          <assigned_to name="Kernel Maintainer List">kernel-maint</assigned_to>
+          <cc>gansalmon</cc>
+    
+    
+    <cc>ichavero</cc>
+    
+    
+    <cc>itamar</cc>
+    
+    
+    <cc>jonathan</cc>
+    
+    
+    <cc>kernel-maint</cc>
+    
+    
+    <cc>labbott</cc>
+    
+    
+    <cc>madhu.chinakonda</cc>
+    
+    
+    <cc>mchehab</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>kernel-4.10.10-100.fc24 kernel-4.10.10-200.fc25</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-04-17 16:52:08</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10325620</commentid>
+    <comment_count>0</comment_count>
+    <who name="Dusty Mabe">dustymabe</who>
+    <bug_when>2017-04-11 12:11:12 -0400</bug_when>
+    <thetext>Description of problem:
+
+In 4.10 kernels we can&apos;t bring up openshift. Here is example status output from the failing service:
+
+```
+ origin-node[10803]: I0411 00:15:34.995594   10859 kubelet_node_status.go:377] Recording NodeHasNoDiskPressure event message for node 10.0.111.54
+ origin-node[10803]: I0411 00:15:34.995740   10859 kubelet_node_status.go:73] Attempting to register node 10.0.111.54
+ origin-node[10803]: I0411 00:15:35.001804   10859 kubelet_node_status.go:112] Node 10.0.111.54 was previously registered
+ origin-node[10803]: I0411 00:15:35.001845   10859 kubelet_node_status.go:76] Successfully registered node 10.0.111.54
+ origin-node[10803]: I0411 00:15:35.033412   10859 kubelet_node_status.go:377] Recording NodeNotSchedulable event message for node 10.0.111.54
+ origin-node[10803]: I0411 00:15:35.073467   10859 manager.go:290] Recovery completed
+ origin-node[10803]: I0411 00:15:35.159477   10859 conversion.go:133] failed to handle multiple devices for container. Skipping Filesystem stats
+ origin-node[10803]: E0411 00:15:35.878364   10859 controller.go:176] Error removing 10.128.0.0/23 route from dev tun0: timed out waiting for the condition; if the route appears later it will not be deleted.
+ origin-node[10803]: F0411 00:15:35.878402   10859 node.go:350] error: SDN node startup failed: exit status 2
+ systemd[1]: origin-node.service: Main process exited, code=exited, status=255/n/a
+
+```
+
+After some investigation with the openshift networking team this was the smoking gun:
+
+```
+[ 2584.781290] tun0: Invalid MTU 8951 requested, hw max 1500
+```
+
+Which means the kernel either refuses to &quot;up&quot; tun0 or it takes it down right after we &quot;up&quot; it.
+
+The team found this upstream kernel commit which appears to fix the problem:
+
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=425df17c
+
+
+Version-Release number of selected component (if applicable):
+
+I notice the change when performing this upgrade on the updates stream for 25 Fedora Atomic Host:
+
+```
+ostree diff commit old: 89f419931b1e78065d06a9115a361251bce0974f444833707dcf18028db1da1d^^^^^^^^^^^^^^ (6a71adb06bc296c19839e951c38dc0b71ee5d7a82262fef9612f256f0c2a70da)
+ostree diff commit new: 89f419931b1e78065d06a9115a361251bce0974f444833707dcf18028db1da1d^^^^^^^^^^^^^ (6113186465394b1dc798d46464f50590fee32b0419efba7d37608b903f91bec7)
+Upgraded:
+  kernel 4.9.14-200.fc25.x86_64 -&gt; 4.10.5-200.fc25.x86_64
+  kernel-core 4.9.14-200.fc25.x86_64 -&gt; 4.10.5-200.fc25.x86_64
+  kernel-modules 4.9.14-200.fc25.x86_64 -&gt; 4.10.5-200.fc25.x86_64
+```
+
+How reproducible:
+
+Always
+
+Steps to Reproduce:
+1. Boot atomic host (i used  AWS c4.xlarge instances) 
+2. install openshift using openshift-ansible@de6629a
+3. notice origin-node service fails to start</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10325641</commentid>
+    <comment_count>1</comment_count>
+    <who name="Laura Abbott">labbott</who>
+    <bug_when>2017-04-11 12:19:25 -0400</bug_when>
+    <thetext>Dropped the fix into F24/F25 branches. It should show up the next time we do a stable release.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10325661</commentid>
+    <comment_count>2</comment_count>
+    <who name="Dusty Mabe">dustymabe</who>
+    <bug_when>2017-04-11 12:27:49 -0400</bug_when>
+    <thetext>I&apos;m assuming the dev build is going to be a while from now considering there is already one currently in testing. We are going to wait on this change for the next Fedora 25 Atomic release, so anything we could do to have that sooner than later would be great! I understand that it will probably not be &quot;this week&quot;.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10326513</commentid>
+    <comment_count>3</comment_count>
+    <who name="Dusty Mabe">dustymabe</who>
+    <bug_when>2017-04-11 17:34:48 -0400</bug_when>
+    <thetext>I have tested this with a scratch build kernel [1] and openshift networking is restored to normal. /me will patiently wait for this to hit updates. 
+
+Thanks for everyone who helped me debug this. 
+
+[1] https://koji.fedoraproject.org/koji/taskinfo?taskID=18932765</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10333574</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-13 11:32:37 -0400</bug_when>
+    <thetext>kernel-4.10.10-200.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-26c9ecd7a4</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10333582</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-13 11:33:42 -0400</bug_when>
+    <thetext>kernel-4.10.10-100.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2017-8e7549fb91</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10336309</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-14 19:52:49 -0400</bug_when>
+    <thetext>kernel-4.10.10-100.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-8e7549fb91</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10336361</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-14 20:28:12 -0400</bug_when>
+    <thetext>kernel-4.10.10-200.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-26c9ecd7a4</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10339274</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-17 16:52:08 -0400</bug_when>
+    <thetext>kernel-4.10.10-100.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10339286</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-17 16:52:35 -0400</bug_when>
+    <thetext>kernel-4.10.10-200.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

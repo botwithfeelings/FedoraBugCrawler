@@ -1,0 +1,445 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1363792</bug_id>
+          
+          <creation_ts>2016-08-03 10:56:00 -0400</creation_ts>
+          <short_desc>ncurses: &apos;tput reset&apos; outputs &apos; ^[]104&apos; after terminal is cleared</short_desc>
+          <delta_ts>2017-03-09 07:49:04 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>terminator</component>
+          <version>24</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords>Regression, Reopened</keywords>
+          <priority>unspecified</priority>
+          <bug_severity>low</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="David Kaspar [Dee&apos;Kej]">dkaspar</reporter>
+          <assigned_to name="Dominic Hopf">dmaphy</assigned_to>
+          <cc>dmaphy</cc>
+    
+    
+    <cc>egmont</cc>
+    
+    
+    <cc>kevin</cc>
+    
+    
+    <cc>mlichvar</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>terminator-1.90-1.fc25 terminator-1.91-1.fc24</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-03-09 07:49:04</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9581922</commentid>
+    <comment_count>0</comment_count>
+    <who name="David Kaspar [Dee&apos;Kej]">dkaspar</who>
+    <bug_when>2016-08-03 10:56:01 -0400</bug_when>
+    <thetext>Description of problem:
+I have &apos;tput reset&apos; command in my /etc/bashrc file, to clean my terminal when I switch from user to root, or vice versa. Now, after today&apos;s update I see 5 strange characters displayed after the command &apos;tput reset&apos; is finished:
+
+]104
+
+
+Version-Release number of selected component (if applicable):
+ncurses-6.0-5.20160116.fc24.x86_64
+terminator-0.98-3.fc24.noarch
+
+How reproducible:
+Always.
+
+
+Steps to Reproduce:
+1. Install packages above (terminator, ncurses).
+2. Run &apos;terminator&apos;.
+3. Run &apos;tput reset&apos; command.
+
+
+Actual results:
+]104dkaspar@Normandy-SR4 ~ $ 
+
+
+Expected results:
+dkaspar@Normandy-SR4 ~ $ 
+
+
+Additional info:
+This problem does not occur with &apos;gnome-terminal&apos;. I started to see these symbols after today&apos;s update, I haven&apos;t had this problem with previous versions.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9581938</commentid>
+    <comment_count>1</comment_count>
+    <who name="David Kaspar [Dee&apos;Kej]">dkaspar</who>
+    <bug_when>2016-08-03 10:59:58 -0400</bug_when>
+    <thetext>Bugzilla is not able to display the first character I see. When I copy those characters to vim, I see this sequence:
+
+^[]104
+
+where ^[ is highlighted as an (terminal?) escape sequence. I hope this helps.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9583804</commentid>
+    <comment_count>2</comment_count>
+    <who name="Miroslav Lichvar">mlichvar</who>
+    <bug_when>2016-08-04 02:43:27 -0400</bug_when>
+    <thetext>terminator seems to be setting TERM to xterm-256color, so this is probably due to the recent ncurses update, which updated the reset string for xterm in order to reset palette. That sequence is apparently not supported by the old vte used by terminator.
+
+If vte used its own terminfo entry, it wouldn&apos;t have to be catching up with changes in xterm and this wouldn&apos;t be a problem.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9583956</commentid>
+    <comment_count>3</comment_count>
+    <who name="Egmont Koblinger">egmont</who>
+    <bug_when>2016-08-04 03:51:19 -0400</bug_when>
+    <thetext>(In reply to Miroslav Lichvar from comment #2)
+
+&gt; If vte used its own terminfo entry, it wouldn&apos;t have to be catching up with
+&gt; changes in xterm and this wouldn&apos;t be a problem.
+
+If termniator finally released a gtk3 tarball (https://bugs.launchpad.net/terminator/+bug/1030562) or Red Hat switched to that bzr branch, in order to use a recent and maintained vte rather than a 5 year old unmaintained and heavily buggy one, this wouldn&apos;t be a problem either.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9593466</commentid>
+    <comment_count>4</comment_count>
+    <who name="David Kaspar [Dee&apos;Kej]">dkaspar</who>
+    <bug_when>2016-08-08 08:46:52 -0400</bug_when>
+    <thetext>(In reply to Egmont Koblinger from comment #3)
+&gt; (In reply to Miroslav Lichvar from comment #2)
+&gt; 
+&gt; &gt; If vte used its own terminfo entry, it wouldn&apos;t have to be catching up with
+&gt; &gt; changes in xterm and this wouldn&apos;t be a problem.
+&gt; 
+&gt; If termniator finally released a gtk3 tarball
+&gt; (https://bugs.launchpad.net/terminator/+bug/1030562) or Red Hat switched to
+&gt; that bzr branch, in order to use a recent and maintained vte rather than a 5
+&gt; year old unmaintained and heavily buggy one, this wouldn&apos;t be a problem
+&gt; either.
+
+Can we actually get bazaar stuff into Fedora? Aren&apos;t there some licensing issues?
+
+Also, I would like to point out that Red Hat is not single-handedly responsible for Fedora... The Terminator package is being maintained by someone outside Red Hat. This is a community project, which Red Hat sponsors. Not the other way... :)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9593520</commentid>
+    <comment_count>5</comment_count>
+    <who name="Egmont Koblinger">egmont</who>
+    <bug_when>2016-08-08 08:55:35 -0400</bug_when>
+    <thetext>(In reply to David Kaspar [Dee&apos;Kej] from comment #4)
+
+&gt; Can we actually get bazaar stuff into Fedora? Aren&apos;t there some licensing
+&gt; issues?
+
+I really doubt it. It&apos;s the source code that has a certain license, and it should not vary based on whether you take a tarball or check out from vcs. I am not a lawyer though.
+
+&gt; Also, I would like to point out that Red Hat is not single-handedly
+&gt; responsible for Fedora... The Terminator package is being maintained by
+&gt; someone outside Red Hat. This is a community project, which Red Hat
+&gt; sponsors. Not the other way... :)
+
+Thanks for the clarification, apparenty I meant Fedora instead.
+
+Seriously: I believe the correct way to resolve this bug would be for Fedora to switch to the latest bzr version, plus perhaps 3 more patches applied accordingly to the aforementioned upstream bug. This approach would fix hundreds of other bugs at the same time in vte (the actual terminal emulation) and Terminator itself would also be at least as good as previously. (Apparently upstream maintainer is not responsive and does not intend to release a gtk3 tarball, I do not understand why.)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9594297</commentid>
+    <comment_count>6</comment_count>
+    <who name="Kevin Fenzi">kevin</who>
+    <bug_when>2016-08-08 11:17:05 -0400</bug_when>
+    <thetext>So, I am unsure how to fix this in vte or if it should be even. 
+
+Perhaps we should move this bug to terminator and ask the maintainer if they can move to the gtk3 version?
+
+I&apos;d really like to move all the old terminals that are still gtk2 to gtk3 and retire this old unsupported vte.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9594371</commentid>
+    <comment_count>7</comment_count>
+    <who name="David Kaspar [Dee&apos;Kej]">dkaspar</who>
+    <bug_when>2016-08-08 11:34:01 -0400</bug_when>
+    <thetext>2 All: I think both of the issues should be solved, but probably separately.
+
+For this BZ, I think the most sense makes to switch it to Terminator and ask the maintainer if he could upgrade it to GTK3.
+
+As for the vte, I think if there are any problems with maintainership and the package is getting outdated, we should write to fedora-devel mailing list and discuss further development with community. They might have some crucial context that we might be missing here...
+
+Could anyone start the conversation on the mailing list? I&apos;m currently engaged in other matters... :-/</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9594413</commentid>
+    <comment_count>8</comment_count>
+    <who name="Egmont Koblinger">egmont</who>
+    <bug_when>2016-08-08 11:41:52 -0400</bug_when>
+    <thetext>(In reply to Kevin Fenzi from comment #6)
+
+&gt; Perhaps we should move this bug to terminator and ask the maintainer if they
+&gt; can move to the gtk3 version?
+
+That&apos;s what I think the proper solution would be. (Well, the really proper one would be if the developer released a tarball, but that&apos;s out of your control.)
+
+Based on the changelog of vte for the last ~5 years, one could file perhaps another 100 bugs assigned to terminator or old vte, the majority of them probably more serious than the current one. So I see absolutely no point in trying to fix/upgrade/patch/maintain an ancient unmaintained vte.
+
+(In reply to David Kaspar [Dee&apos;Kej] from comment #7)
+
+&gt; As for the vte, [...]
+
+Just for the record, I&apos;ve been an active contributor/developer of vte in the last almost 3 years. According to my best knowledge, neither myself, nor the main developer has any interest in working on the old gtk2 version. If anyone volunteered in maintaining that, I would personally find that a total waste of resources that should instead be spent on porting these apps to gtk3 and fixing the remaining issues there.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9594419</commentid>
+    <comment_count>9</comment_count>
+    <who name="Kevin Fenzi">kevin</who>
+    <bug_when>2016-08-08 11:43:33 -0400</bug_when>
+    <thetext>(In reply to David Kaspar [Dee&apos;Kej] from comment #7)
+&gt; 2 All: I think both of the issues should be solved, but probably separately.
+&gt; 
+&gt; For this BZ, I think the most sense makes to switch it to Terminator and ask
+&gt; the maintainer if he could upgrade it to GTK3.
+
+Sure. 
+ 
+&gt; As for the vte, I think if there are any problems with maintainership and
+&gt; the package is getting outdated, we should write to fedora-devel mailing
+&gt; list and discuss further development with community. They might have some
+&gt; crucial context that we might be missing here...
+
+Unlikely. This vte is the last shipped version that supported gtk2. 
+There is no upstream development on it. It gets no bugfixes or updates. 
+
+I&apos;ve only kept it around since I need it for xfce4-terminal, which has since moved to gtk3. So, I&apos;d like to look at urging the last stragglers here to move to gtk3 so we can retire it. 
+
+&gt; 
+&gt; Could anyone start the conversation on the mailing list? I&apos;m currently
+&gt; engaged in other matters... :-/
+
+I don&apos;t see a need...</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9594427</commentid>
+    <comment_count>10</comment_count>
+    <who name="Kevin Fenzi">kevin</who>
+    <bug_when>2016-08-08 11:44:52 -0400</bug_when>
+    <thetext>Moving to terminator maintainer(s) for comment on upgrading terminator to gtk3...</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9597141</commentid>
+    <comment_count>11</comment_count>
+    <who name="David Kaspar [Dee&apos;Kej]">dkaspar</who>
+    <bug_when>2016-08-09 04:52:38 -0400</bug_when>
+    <thetext>Thank you guys for the clarification. I didn&apos;t understand the situation completely before. What you&apos;ve written make sense. :)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9600474</commentid>
+    <comment_count>12</comment_count>
+    <who name="Dominic Hopf">dmaphy</who>
+    <bug_when>2016-08-09 16:21:53 -0400</bug_when>
+    <thetext>Ok guys, so here is a first try of a GTK3 package of Terminator:
+
+https://dmaphy.fedorapeople.org/terminator/terminator-0.99-0.3.1753bzr.fc24.noarch.rpm
+
+The source package is here:
+
+https://dmaphy.fedorapeople.org/terminator/terminator-0.99-0.3.1753bzr.fc24.src.rpm
+
+
+Apparently I&apos;ve built it from the bazaar branch, but without applying any additional patches to it (just one small fix for the .desktop-file).
+
+Please keep in mind that this is no official Fedora Package yet, since the GTK3 version even isn&apos;t released upstream.
+
+I&apos;m not sure how to proceed properly to get this into Fedora without an official upstream release tarball, my approach would be to make this available for Rawhide in a first step.
+
+Feel free to check it out and let me know of any issues you have with this package.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9600513</commentid>
+    <comment_count>13</comment_count>
+    <who name="Dominic Hopf">dmaphy</who>
+    <bug_when>2016-08-09 16:31:35 -0400</bug_when>
+    <thetext>Oh, and if you prefer Copr this would be the way to go for now: https://copr.fedorainfracloud.org/coprs/dmaphy/Terminator/.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9600541</commentid>
+    <comment_count>14</comment_count>
+    <who name="Egmont Koblinger">egmont</who>
+    <bug_when>2016-08-09 16:39:47 -0400</bug_when>
+    <thetext>Thanks!
+
+I&apos;ve no clue what&apos;s Fedora&apos;s policy wrt. unreleased versions, so I cannot help you there.
+
+My installation of terminator from bzr reports version number 0.97 if I invoke &quot;terminator --version&quot;. Not sure about your package. If that one too, probably it should be patched.
+
+According to the discussion in that bug, gtk3 tarballs are expected to be numbered 1.97-1.98-1.99-ish and then hit 2.0 at some point. Version numbers 0.99 and 1.0 are to be used for future gtk2 releases (if any).
+
+I don&apos;t know if you, on behalf of Fedora or Red Hat, pinging the maintainer would have any effect. He hasn&apos;t done any noticeable work in like 8 months now, doesn&apos;t respond to questions about gtk3 tarballs, yet every once in a while he comments on other bugs. Maybe if he sees some pressure from others, not just me, that could make a difference.
+
+On a side note: Given the terribly poor maintenance and lack of communication by the author, and getting stuck at an ancient vte version, maybe this package could be obsoleted/removed. Terminix [https://github.com/gnunn1/terminix] is a great replacement with similar paned layout, being actively developed, and is based on newest vte. At the very least it would be nice if Fedora / Red Hat also shipped Terminix.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9602079</commentid>
+    <comment_count>15</comment_count>
+    <who name="David Kaspar [Dee&apos;Kej]">dkaspar</who>
+    <bug_when>2016-08-10 07:00:32 -0400</bug_when>
+    <thetext>Hello!
+
+(In reply to Dominic Hopf from comment #12)
+&gt; Ok guys, so here is a first try of a GTK3 package of Terminator:
+&gt; 
+&gt; https://dmaphy.fedorapeople.org/terminator/terminator-0.99-0.3.1753bzr.fc24.
+&gt; noarch.rpm
+
+I&apos;m testing it right now. This version solves the problem reported in this BZ. I will keep testing it and let you know if I find any other issues.
+
+By the way, I think it should be possible to make packages from something other than source tarball. The package has to be changed a little, if I&apos;m not mistaken. I will ask my peer once he gets back from his PTO. :)
+
+
+(In reply to Egmont Koblinger from comment #14)
+&gt; I don&apos;t know if you, on behalf of Fedora or Red Hat, pinging the maintainer
+&gt; would have any effect. He hasn&apos;t done any noticeable work in like 8 months
+&gt; now, doesn&apos;t respond to questions about gtk3 tarballs, yet every once in a
+&gt; while he comments on other bugs. Maybe if he sees some pressure from others,
+&gt; not just me, that could make a difference.
+I guees giving it a shot will not hurt anything. Do you have a link to contact upstream? Googling brought a bunch of different results for me, and I&apos;m not sure if Launchpad guys are considered upstream right now.
+
+&gt; On a side note: Given the terribly poor maintenance and lack of
+&gt; communication by the author, and getting stuck at an ancient vte version,
+&gt; maybe this package could be obsoleted/removed. Terminix
+&gt; [https://github.com/gnunn1/terminix] is a great replacement with similar
+&gt; paned layout, being actively developed, and is based on newest vte. At the
+&gt; very least it would be nice if Fedora / Red Hat also shipped Terminix.
+Getting Terminix inside Fedora is a good idea. However, I would be careful about removing/replacing Terminator. Many peopla that I know rely on it heavily, so that would make a lot of people angry... Just saying. :)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9602124</commentid>
+    <comment_count>16</comment_count>
+    <who name="Egmont Koblinger">egmont</who>
+    <bug_when>2016-08-10 07:18:05 -0400</bug_when>
+    <thetext>It&apos;s officially hosted on Launchpad, and there&apos;s a blog at http://gnometerminator.blogspot.hu/. The maintainer is Stephen Boddy.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9602863</commentid>
+    <comment_count>17</comment_count>
+    <who name="David Kaspar [Dee&apos;Kej]">dkaspar</who>
+    <bug_when>2016-08-10 09:48:04 -0400</bug_when>
+    <thetext>(In reply to Dominic Hopf from comment #12)
+&gt; I&apos;m not sure how to proceed properly to get this into Fedora without an
+&gt; official upstream release tarball, my approach would be to make this
+&gt; available for Rawhide in a first step.
+
+https://fedoraproject.org/wiki/Packaging:SourceURL
+
+From the page above:
+&quot;&quot;&quot;
+There are several cases where upstream is not providing the source to you in an upstream tarball. In these cases you must document how to generate the tarball used in the rpm either through a spec file comment or a script included as a separate SourceX:.
+&quot;&quot;&quot;</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9919730</commentid>
+    <comment_count>18</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-11-24 05:41:41 -0500</bug_when>
+    <thetext>terminator-1.90-1.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-ec937ddb3c</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9919749</commentid>
+    <comment_count>19</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-11-24 05:42:22 -0500</bug_when>
+    <thetext>terminator-1.90-1.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2016-082f9377fd</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9929091</commentid>
+    <comment_count>20</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-11-25 04:39:56 -0500</bug_when>
+    <thetext>terminator-1.90-1.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-ec937ddb3c</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9929181</commentid>
+    <comment_count>21</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-11-25 04:43:05 -0500</bug_when>
+    <thetext>terminator-1.90-1.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-082f9377fd</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9941435</commentid>
+    <comment_count>22</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-11-30 00:29:01 -0500</bug_when>
+    <thetext>terminator-1.90-1.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9954400</commentid>
+    <comment_count>23</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-04 10:57:37 -0500</bug_when>
+    <thetext>terminator-1.90-5.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-77620715b6</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9958486</commentid>
+    <comment_count>24</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-05 22:59:39 -0500</bug_when>
+    <thetext>terminator-1.90-5.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-77620715b6</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10185967</commentid>
+    <comment_count>25</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-27 05:51:18 -0500</bug_when>
+    <thetext>terminator-1.91-1.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2017-e906b78dcf</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10189110</commentid>
+    <comment_count>26</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-27 18:51:51 -0500</bug_when>
+    <thetext>terminator-1.91-1.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-e906b78dcf</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10224701</commentid>
+    <comment_count>27</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-09 07:49:04 -0500</bug_when>
+    <thetext>terminator-1.91-1.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

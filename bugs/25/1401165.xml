@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1401165</bug_id>
+          
+          <creation_ts>2016-12-03 02:06:00 -0500</creation_ts>
+          <short_desc>IPv6 DNS problems in qemu user networking</short_desc>
+          <delta_ts>2017-04-19 05:24:40 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>qemu</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Jan ONDREJ">ondrejj</reporter>
+          <assigned_to name="Fedora Virtualization Maintainers">virt-maint</assigned_to>
+          <cc>amit.shah</cc>
+    
+    
+    <cc>berrange</cc>
+    
+    
+    <cc>cfergeau</cc>
+    
+    
+    <cc>crobinso</cc>
+    
+    
+    <cc>dwmw2</cc>
+    
+    
+    <cc>itamar</cc>
+    
+    
+    <cc>ondrejj</cc>
+    
+    
+    <cc>pbonzini</cc>
+    
+    
+    <cc>rjones</cc>
+    
+    
+    <cc>thuth</cc>
+    
+    
+    <cc>virt-maint</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>qemu-2.7.1-6.fc25</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-04-19 05:24:40</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9953094</commentid>
+    <comment_count>0</comment_count>
+    <who name="Jan ONDREJ">ondrejj</who>
+    <bug_when>2016-12-03 02:06:50 -0500</bug_when>
+    <thetext>Description of problem:
+No DNS response using qemu in Fedora 25, when trying user networking (default).
+
+Version-Release number of selected component (if applicable):
+qemu-kvm-2.7.0-7.fc25.x86_64
+
+How reproducible:
+always
+
+Steps to Reproduce:
+1. run qemu-kvm
+2. press Ctrl+B to run ipxe shell
+3. try: chain http://www.fedoraproject.org/
+
+Actual results:
+Error 0x3e11623b (http://ipxe.org/3e11623b)
+URL says: Error: No DNS servers available
+
+Expected results:
+Different error message.
+
+Additional info:
+Does not matter, which url do you use, just use something which needs DNS translation. You can try for example my http://boot.salstar.sk/, which should start my ipxe boot menu.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9981944</commentid>
+    <comment_count>1</comment_count>
+    <who name="Richard W.M. Jones">rjones</who>
+    <bug_when>2016-12-13 13:28:24 -0500</bug_when>
+    <thetext>Does virt-rescue work for you?  It uses qemu user networking too,
+and works fine for me.
+
+$ LIBGUESTFS_BACKEND=direct virt-rescue --network --scratch
+...
+Welcome to virt-rescue, the libguestfs rescue shell.
+
+Note: The contents of / are the rescue appliance.
+You have to mount the guest&apos;s partitions under /sysroot
+before you can examine them.
+
+bash: cannot set terminal process group (1): Inappropriate ioctl for device
+bash: no job control in this shell
+&gt;&lt;rescue&gt; exec 3&lt;&gt;/dev/tcp/redhat.com/80
+&gt;&lt;rescue&gt; echo &quot;GET /&quot; &gt;&amp;3
+&gt;&lt;rescue&gt; cat &lt;&amp;3
+HTTP/1.0 301 Moved Permanently
+Location: http://www.redhat.com/
+Server: BigIP
+Connection: close
+Content-Length: 0
+
+&gt;&lt;rescue&gt; exit</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9982116</commentid>
+    <comment_count>2</comment_count>
+    <who name="Jan ONDREJ">ondrejj</who>
+    <bug_when>2016-12-13 14:28:28 -0500</bug_when>
+    <thetext>Yes, virt-rescue works well. Looks like my steps to reproduce have some bugs.
+
+Try this (my boot menu, small file):
+
+wget http://boot.salstar.sk/ipxe/ipxe.lkrn
+qemu-kvm -kernel ipxe.lkrn
+
+Fails with network unreachable error, but without DNS it can continue.
+
+After downgrade to qemu from Fedora 24 works well again, so looks like there is no problem with my ipxe build, but with qemu.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9982349</commentid>
+    <comment_count>3</comment_count>
+    <who name="Jan ONDREJ">ondrejj</who>
+    <bug_when>2016-12-13 16:05:13 -0500</bug_when>
+    <thetext>After some debugging with nixze on IRC #ipxe, looks like there are ipv6 problems with qemu. My boot script is running on ipv6 network and communicates with IPv6 DNS and web server, which don&apos;t work.
+
+As last in network dump, there are DNS queries and reply, but no connection to web server.
+
+Does this information helps?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9982630</commentid>
+    <comment_count>4</comment_count>
+    <who name="Richard W.M. Jones">rjones</who>
+    <bug_when>2016-12-13 18:02:18 -0500</bug_when>
+    <thetext>Yes I don&apos;t think user networking (ie SLIRP) supports IPv6 at all,
+and probably it never will.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9983385</commentid>
+    <comment_count>5</comment_count>
+    <who name="Jan ONDREJ">ondrejj</who>
+    <bug_when>2016-12-14 01:17:53 -0500</bug_when>
+    <thetext>(In reply to Richard W.M. Jones from comment #4)
+&gt; Yes I don&apos;t think user networking (ie SLIRP) supports IPv6 at all,
+&gt; and probably it never will.
+
+Then why it&apos;s working with qemu-2.6, but don&apos;t with 2.7?
+
+May be it&apos;s partially supported? DNS requests respond with IPv6 addresses, which has not been done in 2.6?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9984658</commentid>
+    <comment_count>6</comment_count>
+    <who name="Paolo Bonzini">pbonzini</who>
+    <bug_when>2016-12-14 07:50:24 -0500</bug_when>
+    <thetext>SLIRP supports IPv6, but there could be bugs.  Please report to qemu-devel@nongnu.org.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10254597</commentid>
+    <comment_count>7</comment_count>
+    <who name="Cole Robinson">crobinso</who>
+    <bug_when>2017-03-20 10:37:02 -0400</bug_when>
+    <thetext>Using this reproducer:
+
+(In reply to Jan ONDREJ from comment #2)
+&gt; 
+&gt; wget http://boot.salstar.sk/ipxe/ipxe.lkrn
+&gt; qemu-kvm -kernel ipxe.lkrn
+
+I bisected to:
+
+commit f7725df38750c1eaebc6665159bb58ec23864c92
+Author: Samuel Thibault &lt;samuel.thibault@ens-lyon.org&gt;
+Date:   Sun Mar 20 16:02:52 2016 +0100
+
+    slirp: Add RDNSS advertisement
+    
+    This adds the RDNSS option to IPv6 router advertisements, so that the guest
+    can autoconfigure the DNS server address.
+    
+    Signed-off-by: Samuel Thibault &lt;samuel.thibault@ens-lyon.org&gt;
+    Reviewed-by: Thomas Huth &lt;thuth@redhat.com&gt;
+    
+    ---
+    Changes since last submission:
+    - Disable on windows, until we have support for it
+
+
+And infact if you revert that commit on qemu master, things work again. So either that patch is buggy or maybe it exposes a config issue
+
+thuth, since you reviewed that patch, and have had other slirp patches, any thoughts?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10254933</commentid>
+    <comment_count>8</comment_count>
+    <who name="Thomas Huth">thuth</who>
+    <bug_when>2017-03-20 11:45:29 -0400</bug_when>
+    <thetext>No clue ... so I&apos;d suggest that you try to discuss this issue on qemu-devel mailing list with Samuel in CC: ...
+
+Anyway, it might also be interesting to get a dump of the network packages on both, the QEMU side and the host side. For the host side, you can use wireshark. For QEMU, please start it with the following parameter:
+
+ -object filter-dump,id=fid1,netdev=&lt;netdevid&gt;,file=/path/to/dumpfile.dat</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10256044</commentid>
+    <comment_count>9</comment_count>
+    <who name="Cole Robinson">crobinso</who>
+    <bug_when>2017-03-20 17:44:46 -0400</bug_when>
+    <thetext>Jan, probably better if you initiate the report, I don&apos;t know what your PXE config is and I don&apos;t have one locally to test with. Building/testing upstream qemu is:
+
+sudo dnf builddep qemu
+git clone git://git.qemu-project.org/qemu.git
+cd qemu
+./configure --target-list=&quot;x86_64-softmmu&quot; --disable-werror
+make
+./x86_64-softmmu/qemu-system-x86_64 $options</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10261951</commentid>
+    <comment_count>10</comment_count>
+    <who name="Cole Robinson">crobinso</who>
+    <bug_when>2017-03-21 11:50:26 -0400</bug_when>
+    <thetext>Or if someone can distill a reproducer that doesn&apos;t depend on custom ipxe config, maybe just a series of commands from the ipxe prompt, I can report it upstream</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10263850</commentid>
+    <comment_count>11</comment_count>
+    <who name="Jan ONDREJ">ondrejj</who>
+    <bug_when>2017-03-22 03:29:56 -0400</bug_when>
+    <thetext>My boot scripts are public. Can anybody try, if they fails for you too?
+
+Just boot qemu into command line and then:
+
+chain http://boot.salstar.sk/
+
+Difference from qemu distribution ipxe is, that these supports IPv6.
+
+For those, who wants my binaries to boot directly, here are:
+  http://boot.salstar.sk/ipxe/
+
+My binaries are build manually after each commit to upstream ipxe.git. If somebody interested in my ipxe configuration, it&apos;s on my page too.
+
+Is this enough for reproduce?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10280936</commentid>
+    <comment_count>12</comment_count>
+    <who name="Cole Robinson">crobinso</who>
+    <bug_when>2017-03-27 16:25:25 -0400</bug_when>
+    <thetext>Patches were posted upstream, I&apos;ll pull them into Fedora once they land in qemu.git
+
+http://lists.nongnu.org/archive/html/qemu-devel/2017-03/msg05107.html</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10336740</commentid>
+    <comment_count>13</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-15 14:23:41 -0400</bug_when>
+    <thetext>qemu-2.7.1-6.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-01925dba3c</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10337214</commentid>
+    <comment_count>14</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-16 17:23:25 -0400</bug_when>
+    <thetext>qemu-2.7.1-6.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-01925dba3c</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10344916</commentid>
+    <comment_count>15</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-19 05:24:40 -0400</bug_when>
+    <thetext>qemu-2.7.1-6.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

@@ -1,0 +1,559 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1401605</bug_id>
+          
+          <creation_ts>2016-12-05 11:28:00 -0500</creation_ts>
+          <short_desc>Adding Kerberos user fails for non-domain accounts</short_desc>
+          <delta_ts>2016-12-16 17:23:08 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>realmd</component>
+          <version>25</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>high</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Stephen Gallagher">sgallagh</reporter>
+          <assigned_to name="Sumit Bose">sbose</assigned_to>
+          <cc>crobinso</cc>
+    
+    
+    <cc>ctubbsii</cc>
+    
+    
+    <cc>debarshir</cc>
+    
+    
+    <cc>ignatenko</cc>
+    
+    
+    <cc>jhrozek</cc>
+    
+    
+    <cc>mcatanzaro</cc>
+    
+    
+    <cc>npmccallum</cc>
+    
+    
+    <cc>pemensik</cc>
+    
+    
+    <cc>puiterwijk</cc>
+    
+    
+    <cc>sbose</cc>
+    
+    
+    <cc>stefw</cc>
+    
+    
+    <cc>tom</cc>
+    
+    
+    <cc>tomek</cc>
+    
+    
+    <cc>vondruch</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>realmd-0.16.2-7.fc25 realmd-0.16.2-6.fc24</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-12-15 18:32:12</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9956918</commentid>
+    <comment_count>0</comment_count>
+      <attachid>1228110</attachid>
+    <who name="Stephen Gallagher">sgallagh</who>
+    <bug_when>2016-12-05 11:28:07 -0500</bug_when>
+    <thetext>Created attachment 1228110
+journal of realmd join attempt
+
+Description of problem:
+Recently, the Fedora Project started supporting Kerberos logins for Koji and other tools. They provided instructions on how to set this up for GNOME at https://fedoraproject.org/wiki/Infrastructure/Kerberos#GUI_.28gnome.2Fworkstation.29
+
+However, these instructions do not work: the system cannot locate the FEDORAPROJECT.ORG realm and the user cannot be authenticated.
+
+
+Version-Release number of selected component (if applicable):
+gnome-online-accounts-3.22.1-1.fc25.x86_64
+
+How reproducible:
+Every time
+
+Steps to Reproduce:
+1. Open settings -&gt; Online Accounts -&gt; Click on the + to add an account -&gt; Click on &quot;Other&quot; at the end of the list -&gt; Click on &quot;Enterprise login (kerberos)&quot;
+2. Enter FEDORAPROJECT.ORG for the domain
+3. Enter your FAS name in the name field.
+
+
+Actual results:
+Hitting &quot;Connect&quot; causes the throbber to spin briefly, then a minus icon (-) appears next to the domain.
+
+Expected results:
+The user should be prompted for their Kerberos password and then a TGT granted.
+
+Additional info:
+
+realmd log attached
+
+After some discussion today with the realmd maintainer and a kerberos expert, we don&apos;t think it makes sense to have gnome-online-accounts attempt to use realmd for this setup. Realmd is intended for joining a machine to a domain (such that the user can log in as a domain user), while what we are attempting to do here is simply acquire a Kerberos TGT for a single user.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9957455</commentid>
+    <comment_count>1</comment_count>
+    <who name="Sumit Bose">sbose</who>
+    <bug_when>2016-12-05 14:55:44 -0500</bug_when>
+    <thetext>It looks that GOA uses realmd only to discover the domain not trying to join it. It currently fails because realmd only check the _kerberos._udp DNS SRV record bit for fedoraproject.org only _kerberos._tcp is defined because nothing is listening on the udp port.
+
+I&apos;ll try to add a fallback to _tcp to realmd.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9957462</commentid>
+    <comment_count>2</comment_count>
+    <who name="Nathaniel McCallum">npmccallum</who>
+    <bug_when>2016-12-05 15:00:15 -0500</bug_when>
+    <thetext>If that is the right approach, realmd should also implement URI lookups:
+
+  https://tools.ietf.org/html/draft-mccallum-kitten-krb-service-discovery-03
+
+However, I still have the broader question as to why it tries to discover the domain at all. It should probably just try to acquire a ticket. This eliminates a dependency on realmd. It also means that all supported means of ticket acquisition will be supported; not just those supported by realmd.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9959698</commentid>
+    <comment_count>3</comment_count>
+      <attachid>1228434</attachid>
+    <who name="Sumit Bose">sbose</who>
+    <bug_when>2016-12-06 06:50:20 -0500</bug_when>
+    <thetext>Created attachment 1228434
+[PATCH] Kerberos: fall back to tcp SRV lookup
+
+Hi Stef,
+
+can you have a look at the attached patch? fedoraproject.org does not have _kerberos._upd.fedoraproject.org defined but the matching _tcp. Moving to _tcp in general would break &apos;classical&apos; Kerberos setup where only _udp is available. Hence I think it is better to add a fallback here.
+
+Thanks for you help.
+
+bye,
+Sumit</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9959729</commentid>
+    <comment_count>4</comment_count>
+    <who name="Sumit Bose">sbose</who>
+    <bug_when>2016-12-06 07:01:45 -0500</bug_when>
+    <thetext>(In reply to Nathaniel McCallum from comment #2)
+&gt; If that is the right approach, realmd should also implement URI lookups:
+&gt; 
+&gt;   https://tools.ietf.org/html/draft-mccallum-kitten-krb-service-discovery-03
+&gt; 
+
+yes, I was thinking about the same. Would you mind to open a separate ticket about it for realmd? Because besides the code needed for parsing the URI it should be discussed which lookup scheme URI or SRV is the preferred one. Maybe it would be even worth to add some guidance to the draft about this?
+
+&gt; However, I still have the broader question as to why it tries to discover
+&gt; the domain at all. It should probably just try to acquire a ticket. This
+&gt; eliminates a dependency on realmd. It also means that all supported means of
+&gt; ticket acquisition will be supported; not just those supported by realmd.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9960007</commentid>
+    <comment_count>5</comment_count>
+    <who name="Sumit Bose">sbose</who>
+    <bug_when>2016-12-06 07:31:12 -0500</bug_when>
+    <thetext>(In reply to Sumit Bose from comment #4)
+&gt; (In reply to Nathaniel McCallum from comment #2)
+&gt; &gt; If that is the right approach, realmd should also implement URI lookups:
+&gt; &gt; 
+&gt; &gt;   https://tools.ietf.org/html/draft-mccallum-kitten-krb-service-discovery-03
+&gt; &gt; 
+&gt; 
+&gt; yes, I was thinking about the same. Would you mind to open a separate ticket
+&gt; about it for realmd? Because besides the code needed for parsing the URI it
+&gt; should be discussed which lookup scheme URI or SRV is the preferred one.
+&gt; Maybe it would be even worth to add some guidance to the draft about this?
+&gt; 
+
+glib2 lacks URI lookup support, I opened https://bugzilla.gnome.org/show_bug.cgi?id=775703.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9960301</commentid>
+    <comment_count>6</comment_count>
+    <who name="Nathaniel McCallum">npmccallum</who>
+    <bug_when>2016-12-06 08:44:24 -0500</bug_when>
+    <thetext>I still don&apos;t understand why adding discovery support to realmd is the right way to fix this bug. GOA should just try to get a ticket and let libkrb5 perform the discovery. GOA will need to do this anyway to support any of the advanced authentication mechanisms (OTP, SPAKE, etc.).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9980869</commentid>
+    <comment_count>7</comment_count>
+    <who name="Stephen Gallagher">sgallagh</who>
+    <bug_when>2016-12-13 08:35:59 -0500</bug_when>
+    <thetext>(In reply to Nathaniel McCallum from comment #6)
+&gt; I still don&apos;t understand why adding discovery support to realmd is the right
+&gt; way to fix this bug. GOA should just try to get a ticket and let libkrb5
+&gt; perform the discovery. GOA will need to do this anyway to support any of the
+&gt; advanced authentication mechanisms (OTP, SPAKE, etc.).
+
+Whether or not it&apos;s the right way to fix the issue long-term, it *does* resolve the immediate problem which is affecting many users. In the interest of getting them up and running, can we just push this as a band-aid for now and move the discussion of long-term solutions elsewhere?
+
+As near as I can tell, there&apos;s no *risk* or bad architecture decision being made in the proposed patch that would make it harder to change our approach later, so please just go ahead and fix it.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9981015</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-13 09:16:33 -0500</bug_when>
+    <thetext>realmd-0.16.2-7.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2016-81125d299a</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9981246</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-13 10:11:00 -0500</bug_when>
+    <thetext>realmd-0.16.2-6.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-43b75c5a14</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9981297</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-13 10:26:13 -0500</bug_when>
+    <thetext>realmd-0.16.2-3.fc23 has been submitted as an update to Fedora 23. https://bodhi.fedoraproject.org/updates/FEDORA-2016-3f5324625f</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9982000</commentid>
+    <comment_count>11</comment_count>
+    <who name="Petr Menšík">pemensik</who>
+    <bug_when>2016-12-13 13:40:21 -0500</bug_when>
+    <thetext>I agree with #c2 Discovery of fedoraproject.org configuration is problematic. Even if I configure my system to accept ticket by manual configuration, kinit works but kerberos user in UI fails.
+
+Detection of URI from DNS is problematic anyway. For example BIND 9.9.4 in RHEL7 is not able to fetch current URI from _kerberos.fedoraproject.org. Not only serve from its own zones, but also not willing to cache it.
+
+I think if I enter domain manually, it should just try to obtain a ticket. Especially if _kerberos._udp SRV record is missing.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9982991</commentid>
+    <comment_count>12</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-13 21:22:35 -0500</bug_when>
+    <thetext>realmd-0.16.2-3.fc23 has been pushed to the Fedora 23 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-3f5324625f</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9983024</commentid>
+    <comment_count>13</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-13 21:24:14 -0500</bug_when>
+    <thetext>realmd-0.16.2-6.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-43b75c5a14</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9983033</commentid>
+    <comment_count>14</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-13 21:24:34 -0500</bug_when>
+    <thetext>realmd-0.16.2-7.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-81125d299a</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9984282</commentid>
+    <comment_count>15</comment_count>
+    <who name="Sumit Bose">sbose</who>
+    <bug_when>2016-12-14 06:18:27 -0500</bug_when>
+    <thetext>As you can see there are realmd updates available for F23, F24 and F25 which should make goa work with realmd and FEDORAPROJECT.ORG.
+
+Since the fallback to TCP make sense for realmd in general as well I would prefer if this ticket can be kept assigned to realmd. If you think that goa does not use realmd correctly or should not use realmd at all please open a new ticket for goa. Thank you.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9991680</commentid>
+    <comment_count>16</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-15 18:32:12 -0500</bug_when>
+    <thetext>realmd-0.16.2-7.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9991832</commentid>
+    <comment_count>17</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-15 19:26:56 -0500</bug_when>
+    <thetext>realmd-0.16.2-7.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9995008</commentid>
+    <comment_count>18</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-16 17:23:08 -0500</bug_when>
+    <thetext>realmd-0.16.2-6.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="0"
+              ispatch="0"
+              isprivate="0"
+          >
+            <attachid>1228110</attachid>
+            <date>2016-12-05 11:28:00 -0500</date>
+            <delta_ts>2016-12-05 11:28:07 -0500</delta_ts>
+            <desc>journal of realmd join attempt</desc>
+            <filename>journal.log</filename>
+            <type>text/plain</type>
+            <size>6915</size>
+            <attacher name="Stephen Gallagher">sgallagh</attacher>
+            
+              <data encoding="base64">RGVjIDA1IDExOjE5OjA2IHNnYWxsYWdoNTQwLnNnYWxsYWdoLnJodCBnbm9tZS1zaGVsbFs0Njgz
+XTogSlMgTE9HOiBSZWNlaXZlZCBlcnJvciBmcm9tIERCdXMgc2VhcmNoIHByb3ZpZGVyIG9yZy5n
+bm9tZS5Tb2Z0d2FyZS5kZXNrdG9wOiBHaW8uSU9FcnJvckVudW06IFRpbWVvdXQgd2FzIHJlYWNo
+ZWQKRGVjIDA1IDExOjE5OjI2IHNnYWxsYWdoNTQwLnNnYWxsYWdoLnJodCByZWFsbWRbMTQ0NDJd
+OiAgKiBSZXNvbHZpbmc6IF9sZGFwLl90Y3AuZmVkb3JhcHJvamVjdC5vcmcKRGVjIDA1IDExOjE5
+OjI2IHNnYWxsYWdoNTQwLnNnYWxsYWdoLnJodCByZWFsbWRbMTQ0NDJdOiAgKiBSZXNvbHZpbmc6
+IF9sZGFwLl90Y3AuZmVkb3JhcHJvamVjdC5vcmcKRGVjIDA1IDExOjE5OjI2IHNnYWxsYWdoNTQw
+LnNnYWxsYWdoLnJodCByZWFsbWRbMTQ0NDJdOiBSZXNvbHZpbmcgZmVkb3JhcHJvamVjdC5vcmcg
+ZmFpbGVkOiBObyBETlMgcmVjb3JkIG9mIHRoZSByZXF1ZXN0ZWQgdHlwZSBmb3IgJ19rZXJiZXJv
+cy5fdWRwLmZlZG9yYXByb2plY3Qub3JnJwpEZWMgMDUgMTE6MTk6MjYgc2dhbGxhZ2g1NDAuc2dh
+bGxhZ2gucmh0IHJlYWxtZFsxNDQ0Ml06IE5vIEROUyByZWNvcmQgb2YgdGhlIHJlcXVlc3RlZCB0
+eXBlIGZvciAnX2xkYXAuX3RjcC5mZWRvcmFwcm9qZWN0Lm9yZycKRGVjIDA1IDExOjE5OjI2IHNn
+YWxsYWdoNTQwLnNnYWxsYWdoLnJodCByZWFsbWRbMTQ0NDJdOiAgKiBSZXNvbHZpbmc6IGZlZG9y
+YXByb2plY3Qub3JnCkRlYyAwNSAxMToxOToyNiBzZ2FsbGFnaDU0MC5zZ2FsbGFnaC5yaHQgcmVh
+bG1kWzE0NDQyXTogICogUmVzb2x2aW5nOiBmZWRvcmFwcm9qZWN0Lm9yZwpEZWMgMDUgMTE6MTk6
+MjYgc2dhbGxhZ2g1NDAuc2dhbGxhZ2gucmh0IHJlYWxtZFsxNDQ0Ml06ICAqIFBlcmZvcm1pbmcg
+TERBUCBEU0UgbG9va3VwIG9uOiA2Ni4zNS42Mi4xNjIKRGVjIDA1IDExOjE5OjI2IHNnYWxsYWdo
+NTQwLnNnYWxsYWdoLnJodCByZWFsbWRbMTQ0NDJdOiAgKiBQZXJmb3JtaW5nIExEQVAgRFNFIGxv
+b2t1cCBvbjogNjYuMzUuNjIuMTYyCkRlYyAwNSAxMToxOToyNiBzZ2FsbGFnaDU0MC5zZ2FsbGFn
+aC5yaHQgcmVhbG1kWzE0NDQyXTogICogUGVyZm9ybWluZyBMREFQIERTRSBsb29rdXAgb246IDE0
+MC4yMTEuMTY5LjIwNgpEZWMgMDUgMTE6MTk6MjYgc2dhbGxhZ2g1NDAuc2dhbGxhZ2gucmh0IHJl
+YWxtZFsxNDQ0Ml06ICAqIFBlcmZvcm1pbmcgTERBUCBEU0UgbG9va3VwIG9uOiAxNDAuMjExLjE2
+OS4yMDYKRGVjIDA1IDExOjE5OjI2IHNnYWxsYWdoNTQwLnNnYWxsYWdoLnJodCByZWFsbWRbMTQ0
+NDJdOiAgKiBQZXJmb3JtaW5nIExEQVAgRFNFIGxvb2t1cCBvbjogMTQwLjIxMS4xNjkuMTk2CkRl
+YyAwNSAxMToxOToyNiBzZ2FsbGFnaDU0MC5zZ2FsbGFnaC5yaHQgcmVhbG1kWzE0NDQyXTogICog
+UGVyZm9ybWluZyBMREFQIERTRSBsb29rdXAgb246IDE0MC4yMTEuMTY5LjE5NgpEZWMgMDUgMTE6
+MTk6MjYgc2dhbGxhZ2g1NDAuc2dhbGxhZ2gucmh0IHJlYWxtZFsxNDQ0Ml06IHNvY2tldCBjbG9z
+ZWQgb3IgZXJyb3IKRGVjIDA1IDExOjE5OjI2IHNnYWxsYWdoNTQwLnNnYWxsYWdoLnJodCByZWFs
+bWRbMTQ0NDJdOiAgISBDYW4ndCBjb250YWN0IExEQVAgc2VydmVyCkRlYyAwNSAxMToxOToyNiBz
+Z2FsbGFnaDU0MC5zZ2FsbGFnaC5yaHQgcmVhbG1kWzE0NDQyXTogICEgQ2FuJ3QgY29udGFjdCBM
+REFQIHNlcnZlcgpEZWMgMDUgMTE6MTk6MjYgc2dhbGxhZ2g1NDAuc2dhbGxhZ2gucmh0IHJlYWxt
+ZFsxNDQ0Ml06ICAqIFBlcmZvcm1pbmcgTERBUCBEU0UgbG9va3VwIG9uOiAyMDkuMTMyLjE4MS4x
+NgpEZWMgMDUgMTE6MTk6MjYgc2dhbGxhZ2g1NDAuc2dhbGxhZ2gucmh0IHJlYWxtZFsxNDQ0Ml06
+ICAqIFBlcmZvcm1pbmcgTERBUCBEU0UgbG9va3VwIG9uOiAyMDkuMTMyLjE4MS4xNgpEZWMgMDUg
+MTE6MTk6MjYgc2dhbGxhZ2g1NDAuc2dhbGxhZ2gucmh0IHJlYWxtZFsxNDQ0Ml06IHNvY2tldCBj
+bG9zZWQgb3IgZXJyb3IKRGVjIDA1IDExOjE5OjI2IHNnYWxsYWdoNTQwLnNnYWxsYWdoLnJodCBy
+ZWFsbWRbMTQ0NDJdOiAgISBDYW4ndCBjb250YWN0IExEQVAgc2VydmVyCkRlYyAwNSAxMToxOToy
+NiBzZ2FsbGFnaDU0MC5zZ2FsbGFnaC5yaHQgcmVhbG1kWzE0NDQyXTogICEgQ2FuJ3QgY29udGFj
+dCBMREFQIHNlcnZlcgpEZWMgMDUgMTE6MTk6MjYgc2dhbGxhZ2g1NDAuc2dhbGxhZ2gucmh0IHJl
+YWxtZFsxNDQ0Ml06ICAqIFBlcmZvcm1pbmcgTERBUCBEU0UgbG9va3VwIG9uOiAxNTIuMTkuMTM0
+LjE0MgpEZWMgMDUgMTE6MTk6MjYgc2dhbGxhZ2g1NDAuc2dhbGxhZ2gucmh0IHJlYWxtZFsxNDQ0
+Ml06ICAqIFBlcmZvcm1pbmcgTERBUCBEU0UgbG9va3VwIG9uOiAxNTIuMTkuMTM0LjE0MgpEZWMg
+MDUgMTE6MTk6MjYgc2dhbGxhZ2g1NDAuc2dhbGxhZ2gucmh0IHJlYWxtZFsxNDQ0Ml06IHNvY2tl
+dCBjbG9zZWQgb3IgZXJyb3IKRGVjIDA1IDExOjE5OjI2IHNnYWxsYWdoNTQwLnNnYWxsYWdoLnJo
+dCByZWFsbWRbMTQ0NDJdOiAgISBDYW4ndCBjb250YWN0IExEQVAgc2VydmVyCkRlYyAwNSAxMTox
+OToyNiBzZ2FsbGFnaDU0MC5zZ2FsbGFnaC5yaHQgcmVhbG1kWzE0NDQyXTogICEgQ2FuJ3QgY29u
+dGFjdCBMREFQIHNlcnZlcgpEZWMgMDUgMTE6MTk6MjYgc2dhbGxhZ2g1NDAuc2dhbGxhZ2gucmh0
+IHJlYWxtZFsxNDQ0Ml06ICAqIFBlcmZvcm1pbmcgTERBUCBEU0UgbG9va3VwIG9uOiA2Ny4yMDMu
+Mi42NwpEZWMgMDUgMTE6MTk6MjYgc2dhbGxhZ2g1NDAuc2dhbGxhZ2gucmh0IHJlYWxtZFsxNDQ0
+Ml06ICAqIFBlcmZvcm1pbmcgTERBUCBEU0UgbG9va3VwIG9uOiA2Ny4yMDMuMi42NwpEZWMgMDUg
+MTE6MTk6MjYgc2dhbGxhZ2g1NDAuc2dhbGxhZ2gucmh0IHJlYWxtZFsxNDQ0Ml06IHNvY2tldCBj
+bG9zZWQgb3IgZXJyb3IKRGVjIDA1IDExOjE5OjI2IHNnYWxsYWdoNTQwLnNnYWxsYWdoLnJodCBy
+ZWFsbWRbMTQ0NDJdOiAgISBDYW4ndCBjb250YWN0IExEQVAgc2VydmVyCkRlYyAwNSAxMToxOToy
+NiBzZ2FsbGFnaDU0MC5zZ2FsbGFnaC5yaHQgcmVhbG1kWzE0NDQyXTogICEgQ2FuJ3QgY29udGFj
+dCBMREFQIHNlcnZlcgpEZWMgMDUgMTE6MTk6MjYgc2dhbGxhZ2g1NDAuc2dhbGxhZ2gucmh0IHJl
+YWxtZFsxNDQ0Ml06ICAqIFBlcmZvcm1pbmcgTERBUCBEU0UgbG9va3VwIG9uOiAyMDkuMTMyLjE4
+MS4xNQpEZWMgMDUgMTE6MTk6MjYgc2dhbGxhZ2g1NDAuc2dhbGxhZ2gucmh0IHJlYWxtZFsxNDQ0
+Ml06ICAqIFBlcmZvcm1pbmcgTERBUCBEU0UgbG9va3VwIG9uOiAyMDkuMTMyLjE4MS4xNQpEZWMg
+MDUgMTE6MTk6MjYgc2dhbGxhZ2g1NDAuc2dhbGxhZ2gucmh0IHJlYWxtZFsxNDQ0Ml06IHNvY2tl
+dCBjbG9zZWQgb3IgZXJyb3IKRGVjIDA1IDExOjE5OjI2IHNnYWxsYWdoNTQwLnNnYWxsYWdoLnJo
+dCByZWFsbWRbMTQ0NDJdOiAgISBDYW4ndCBjb250YWN0IExEQVAgc2VydmVyCkRlYyAwNSAxMTox
+OToyNiBzZ2FsbGFnaDU0MC5zZ2FsbGFnaC5yaHQgcmVhbG1kWzE0NDQyXTogICEgQ2FuJ3QgY29u
+dGFjdCBMREFQIHNlcnZlcgpEZWMgMDUgMTE6MTk6MjYgc2dhbGxhZ2g1NDAuc2dhbGxhZ2gucmh0
+IHJlYWxtZFsxNDQ0Ml06ICAqIFBlcmZvcm1pbmcgTERBUCBEU0UgbG9va3VwIG9uOiAxNTIuMTku
+MTM0LjE5OApEZWMgMDUgMTE6MTk6MjYgc2dhbGxhZ2g1NDAuc2dhbGxhZ2gucmh0IHJlYWxtZFsx
+NDQ0Ml06ICAqIFBlcmZvcm1pbmcgTERBUCBEU0UgbG9va3VwIG9uOiAxNTIuMTkuMTM0LjE5OApE
+ZWMgMDUgMTE6MTk6MjYgc2dhbGxhZ2g1NDAuc2dhbGxhZ2gucmh0IHJlYWxtZFsxNDQ0Ml06IHNv
+Y2tldCBjbG9zZWQgb3IgZXJyb3IKRGVjIDA1IDExOjE5OjI2IHNnYWxsYWdoNTQwLnNnYWxsYWdo
+LnJodCByZWFsbWRbMTQ0NDJdOiAgISBDYW4ndCBjb250YWN0IExEQVAgc2VydmVyCkRlYyAwNSAx
+MToxOToyNiBzZ2FsbGFnaDU0MC5zZ2FsbGFnaC5yaHQgcmVhbG1kWzE0NDQyXTogICEgQ2FuJ3Qg
+Y29udGFjdCBMREFQIHNlcnZlcgpEZWMgMDUgMTE6MTk6MjYgc2dhbGxhZ2g1NDAuc2dhbGxhZ2gu
+cmh0IHJlYWxtZFsxNDQ0Ml06ICAqIFBlcmZvcm1pbmcgTERBUCBEU0UgbG9va3VwIG9uOiA4LjQz
+Ljg1LjY3CkRlYyAwNSAxMToxOToyNiBzZ2FsbGFnaDU0MC5zZ2FsbGFnaC5yaHQgcmVhbG1kWzE0
+NDQyXTogICogUGVyZm9ybWluZyBMREFQIERTRSBsb29rdXAgb246IDguNDMuODUuNjcKRGVjIDA1
+IDExOjE5OjI2IHNnYWxsYWdoNTQwLnNnYWxsYWdoLnJodCByZWFsbWRbMTQ0NDJdOiBzb2NrZXQg
+Y2xvc2VkIG9yIGVycm9yCkRlYyAwNSAxMToxOToyNiBzZ2FsbGFnaDU0MC5zZ2FsbGFnaC5yaHQg
+cmVhbG1kWzE0NDQyXTogICEgQ2FuJ3QgY29udGFjdCBMREFQIHNlcnZlcgpEZWMgMDUgMTE6MTk6
+MjYgc2dhbGxhZ2g1NDAuc2dhbGxhZ2gucmh0IHJlYWxtZFsxNDQ0Ml06ICAhIENhbid0IGNvbnRh
+Y3QgTERBUCBzZXJ2ZXIKRGVjIDA1IDExOjE5OjI2IHNnYWxsYWdoNTQwLnNnYWxsYWdoLnJodCBy
+ZWFsbWRbMTQ0NDJdOiAgKiBQZXJmb3JtaW5nIExEQVAgRFNFIGxvb2t1cCBvbjogNjcuMjE5LjE0
+NC42OApEZWMgMDUgMTE6MTk6MjYgc2dhbGxhZ2g1NDAuc2dhbGxhZ2gucmh0IHJlYWxtZFsxNDQ0
+Ml06ICAqIFBlcmZvcm1pbmcgTERBUCBEU0UgbG9va3VwIG9uOiA2Ny4yMTkuMTQ0LjY4CkRlYyAw
+NSAxMToxOToyNiBzZ2FsbGFnaDU0MC5zZ2FsbGFnaC5yaHQgcmVhbG1kWzE0NDQyXTogc29ja2V0
+IGNsb3NlZCBvciBlcnJvcgpEZWMgMDUgMTE6MTk6MjYgc2dhbGxhZ2g1NDAuc2dhbGxhZ2gucmh0
+IHJlYWxtZFsxNDQ0Ml06ICAhIENhbid0IGNvbnRhY3QgTERBUCBzZXJ2ZXIKRGVjIDA1IDExOjE5
+OjI2IHNnYWxsYWdoNTQwLnNnYWxsYWdoLnJodCByZWFsbWRbMTQ0NDJdOiAgISBDYW4ndCBjb250
+YWN0IExEQVAgc2VydmVyCkRlYyAwNSAxMToxOToyNiBzZ2FsbGFnaDU0MC5zZ2FsbGFnaC5yaHQg
+cmVhbG1kWzE0NDQyXTogICogUGVyZm9ybWluZyBMREFQIERTRSBsb29rdXAgb246IDI2MTA6Mjg6
+MzA5MDozMDAxOmRlYWQ6YmVlZjpjYWZlOmZlZDMKRGVjIDA1IDExOjE5OjI2IHNnYWxsYWdoNTQw
+LnNnYWxsYWdoLnJodCByZWFsbWRbMTQ0NDJdOiAgKiBQZXJmb3JtaW5nIExEQVAgRFNFIGxvb2t1
+cCBvbjogMjYxMDoyODozMDkwOjMwMDE6ZGVhZDpiZWVmOmNhZmU6ZmVkMwpEZWMgMDUgMTE6MTk6
+MjYgc2dhbGxhZ2g1NDAuc2dhbGxhZ2gucmh0IHJlYWxtZFsxNDQ0Ml06IHNvY2tldCBjbG9zZWQg
+b3IgZXJyb3IKRGVjIDA1IDExOjE5OjI2IHNnYWxsYWdoNTQwLnNnYWxsYWdoLnJodCByZWFsbWRb
+MTQ0NDJdOiAgISBDYW4ndCBjb250YWN0IExEQVAgc2VydmVyCkRlYyAwNSAxMToxOToyNiBzZ2Fs
+bGFnaDU0MC5zZ2FsbGFnaC5yaHQgcmVhbG1kWzE0NDQyXTogICEgQ2FuJ3QgY29udGFjdCBMREFQ
+IHNlcnZlcgpEZWMgMDUgMTE6MTk6MjYgc2dhbGxhZ2g1NDAuc2dhbGxhZ2gucmh0IHJlYWxtZFsx
+NDQ0Ml06ICAqIFBlcmZvcm1pbmcgTERBUCBEU0UgbG9va3VwIG9uOiAyNjA3OmYxODg6OmRlYWQ6
+YmVlZjpjYWZlOmZlZDEKRGVjIDA1IDExOjE5OjI2IHNnYWxsYWdoNTQwLnNnYWxsYWdoLnJodCBy
+ZWFsbWRbMTQ0NDJdOiAgKiBQZXJmb3JtaW5nIExEQVAgRFNFIGxvb2t1cCBvbjogMjYwNzpmMTg4
+OjpkZWFkOmJlZWY6Y2FmZTpmZWQxCkRlYyAwNSAxMToxOToyNiBzZ2FsbGFnaDU0MC5zZ2FsbGFn
+aC5yaHQgcmVhbG1kWzE0NDQyXTogc29ja2V0IGNsb3NlZCBvciBlcnJvcgpEZWMgMDUgMTE6MTk6
+MjYgc2dhbGxhZ2g1NDAuc2dhbGxhZ2gucmh0IHJlYWxtZFsxNDQ0Ml06ICAhIENhbid0IGNvbnRh
+Y3QgTERBUCBzZXJ2ZXIKRGVjIDA1IDExOjE5OjI2IHNnYWxsYWdoNTQwLnNnYWxsYWdoLnJodCBy
+ZWFsbWRbMTQ0NDJdOiAgISBDYW4ndCBjb250YWN0IExEQVAgc2VydmVyCkRlYyAwNSAxMToxOToy
+NiBzZ2FsbGFnaDU0MC5zZ2FsbGFnaC5yaHQgcmVhbG1kWzE0NDQyXTogICogUGVyZm9ybWluZyBM
+REFQIERTRSBsb29rdXAgb246IDI2MDQ6MTU4MDpmZTAwOjA6ZGVhZDpiZWVmOmNhZmU6ZmVkMQpE
+ZWMgMDUgMTE6MTk6MjYgc2dhbGxhZ2g1NDAuc2dhbGxhZ2gucmh0IHJlYWxtZFsxNDQ0Ml06ICAq
+IFBlcmZvcm1pbmcgTERBUCBEU0UgbG9va3VwIG9uOiAyNjA0OjE1ODA6ZmUwMDowOmRlYWQ6YmVl
+ZjpjYWZlOmZlZDEKRGVjIDA1IDExOjE5OjI2IHNnYWxsYWdoNTQwLnNnYWxsYWdoLnJodCByZWFs
+bWRbMTQ0NDJdOiBzb2NrZXQgY2xvc2VkIG9yIGVycm9yCkRlYyAwNSAxMToxOToyNiBzZ2FsbGFn
+aDU0MC5zZ2FsbGFnaC5yaHQgcmVhbG1kWzE0NDQyXTogICEgQ2FuJ3QgY29udGFjdCBMREFQIHNl
+cnZlcgpEZWMgMDUgMTE6MTk6MjYgc2dhbGxhZ2g1NDAuc2dhbGxhZ2gucmh0IHJlYWxtZFsxNDQ0
+Ml06ICAhIENhbid0IGNvbnRhY3QgTERBUCBzZXJ2ZXIKRGVjIDA1IDExOjE5OjI2IHNnYWxsYWdo
+NTQwLnNnYWxsYWdoLnJodCByZWFsbWRbMTQ0NDJdOiBzb2NrZXQgY2xvc2VkIG9yIGVycm9yCkRl
+YyAwNSAxMToxOToyNiBzZ2FsbGFnaDU0MC5zZ2FsbGFnaC5yaHQgcmVhbG1kWzE0NDQyXTogICEg
+Q2FuJ3QgY29udGFjdCBMREFQIHNlcnZlcgpEZWMgMDUgMTE6MTk6MjYgc2dhbGxhZ2g1NDAuc2dh
+bGxhZ2gucmh0IHJlYWxtZFsxNDQ0Ml06ICAhIENhbid0IGNvbnRhY3QgTERBUCBzZXJ2ZXIKRGVj
+IDA1IDExOjE5OjI2IHNnYWxsYWdoNTQwLnNnYWxsYWdoLnJodCByZWFsbWRbMTQ0NDJdOiBzb2Nr
+ZXQgY2xvc2VkIG9yIGVycm9yCkRlYyAwNSAxMToxOToyNiBzZ2FsbGFnaDU0MC5zZ2FsbGFnaC5y
+aHQgcmVhbG1kWzE0NDQyXTogICEgQ2FuJ3QgY29udGFjdCBMREFQIHNlcnZlcgpEZWMgMDUgMTE6
+MTk6MjYgc2dhbGxhZ2g1NDAuc2dhbGxhZ2gucmh0IHJlYWxtZFsxNDQ0Ml06ICAhIENhbid0IGNv
+bnRhY3QgTERBUCBzZXJ2ZXIK
+</data>
+
+          </attachment>
+          <attachment
+              isobsolete="0"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1228434</attachid>
+            <date>2016-12-06 06:50:00 -0500</date>
+            <delta_ts>2016-12-06 06:50:20 -0500</delta_ts>
+            <desc>[PATCH] Kerberos: fall back to tcp SRV lookup</desc>
+            <filename>0001-Kerberos-fall-back-to-tcp-SRV-lookup.patch</filename>
+            <type>text/plain</type>
+            <size>3771</size>
+            <attacher name="Sumit Bose">sbose</attacher>
+            
+              <data encoding="base64">RnJvbSA2ZjBhYTc5YzNlOGRkOTNlNzIzZjI5YmY0NmUxYjhiMTQ0MDMyNTRmIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBTdW1pdCBCb3NlIDxzYm9zZUByZWRoYXQuY29tPgpEYXRlOiBN
+b24sIDUgRGVjIDIwMTYgMTg6MjU6NDQgKzAxMDAKU3ViamVjdDogW1BBVENIXSBLZXJiZXJvczog
+ZmFsbCBiYWNrIHRvIHRjcCBTUlYgbG9va3VwCgotLS0KIHNlcnZpY2UvcmVhbG0ta2VyYmVyb3Mt
+cHJvdmlkZXIuYyB8IDQ4ICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrKystLS0tLS0tLQog
+MSBmaWxlIGNoYW5nZWQsIDM5IGluc2VydGlvbnMoKyksIDkgZGVsZXRpb25zKC0pCgpkaWZmIC0t
+Z2l0IGEvc2VydmljZS9yZWFsbS1rZXJiZXJvcy1wcm92aWRlci5jIGIvc2VydmljZS9yZWFsbS1r
+ZXJiZXJvcy1wcm92aWRlci5jCmluZGV4IDJiM2EwZjguLjE0NzdhZTggMTAwNjQ0Ci0tLSBhL3Nl
+cnZpY2UvcmVhbG0ta2VyYmVyb3MtcHJvdmlkZXIuYworKysgYi9zZXJ2aWNlL3JlYWxtLWtlcmJl
+cm9zLXByb3ZpZGVyLmMKQEAgLTE5LDYgKzE5LDcgQEAKICNpbmNsdWRlICJyZWFsbS1rZXJiZXJv
+cy1wcm92aWRlci5oIgogCiAjaW5jbHVkZSA8ZXJybm8uaD4KKyNpbmNsdWRlIDxzdHJpbmcuaD4K
+IAogc3RydWN0IF9SZWFsbUtlcmJlcm9zUHJvdmlkZXIgewogCVJlYWxtUHJvdmlkZXIgcGFyZW50
+OwpAQCAtMzgsMjggKzM5LDU0IEBAIHJlYWxtX2tlcmJlcm9zX3Byb3ZpZGVyX2luaXQgKFJlYWxt
+S2VyYmVyb3NQcm92aWRlciAqc2VsZikKIAogfQogCit0eXBlZGVmIHN0cnVjdCB7CisJZ2NoYXIg
+Km5hbWU7CisJY29uc3QgY2hhciAqcHJvdDsKK30gTmFtZVByb3RQYWlyOworCitzdGF0aWMgdm9p
+ZAorbmFtZV9wcm90X3BhaXJfZnJlZSAoZ3BvaW50ZXIgZGF0YSkKK3sKKwlOYW1lUHJvdFBhaXIg
+Km5hbWVfcHJvdF9wYWlyID0gZGF0YTsKKwlnX2ZyZWUgKG5hbWVfcHJvdF9wYWlyLT5uYW1lKTsK
+KwlnX2ZyZWUgKG5hbWVfcHJvdF9wYWlyKTsKK30KKwogc3RhdGljIHZvaWQKIG9uX2tlcmJlcm9z
+X2Rpc2NvdmVyIChHT2JqZWN0ICpzb3VyY2UsCiAgICAgICAgICAgICAgICAgICAgICAgR0FzeW5j
+UmVzdWx0ICpyZXN1bHQsCiAgICAgICAgICAgICAgICAgICAgICAgZ3BvaW50ZXIgdXNlcl9kYXRh
+KQogewogCUdUYXNrICp0YXNrID0gR19UQVNLICh1c2VyX2RhdGEpOwotCWNvbnN0IGdjaGFyICpk
+b21haW4gPSBnX3Rhc2tfZ2V0X3Rhc2tfZGF0YSAodGFzayk7CisJTmFtZVByb3RQYWlyICpuYW1l
+X3Byb3RfcGFpciA9IGdfdGFza19nZXRfdGFza19kYXRhICh0YXNrKTsKIAlHRXJyb3IgKmVycm9y
+ID0gTlVMTDsKIAlSZWFsbURpc2NvICpkaXNjbzsKIAlHTGlzdCAqdGFyZ2V0czsKKwlHUmVzb2x2
+ZXIgKnJlc29sdmVyOwogCiAJdGFyZ2V0cyA9IGdfcmVzb2x2ZXJfbG9va3VwX3NlcnZpY2VfZmlu
+aXNoIChHX1JFU09MVkVSIChzb3VyY2UpLCByZXN1bHQsICZlcnJvcik7CiAJaWYgKHRhcmdldHMp
+IHsKIAkJZ19saXN0X2ZyZWVfZnVsbCAodGFyZ2V0cywgKEdEZXN0cm95Tm90aWZ5KWdfc3J2X3Rh
+cmdldF9mcmVlKTsKLQkJZGlzY28gPSByZWFsbV9kaXNjb19uZXcgKGRvbWFpbik7Ci0JCWRpc2Nv
+LT5rZXJiZXJvc19yZWFsbSA9IGdfYXNjaWlfc3RydXAgKGRvbWFpbiwgLTEpOworCQlkaXNjbyA9
+IHJlYWxtX2Rpc2NvX25ldyAobmFtZV9wcm90X3BhaXItPm5hbWUpOworCQlkaXNjby0+a2VyYmVy
+b3NfcmVhbG0gPSBnX2FzY2lpX3N0cnVwIChuYW1lX3Byb3RfcGFpci0+bmFtZSwgLTEpOwogCQln
+X3Rhc2tfcmV0dXJuX3BvaW50ZXIgKHRhc2ssIGRpc2NvLCByZWFsbV9kaXNjb191bnJlZik7CiAK
+IAl9IGVsc2UgaWYgKGVycm9yKSB7Ci0JCWdfZGVidWcgKCJSZXNvbHZpbmcgJXMgZmFpbGVkOiAl
+cyIsIGRvbWFpbiwgZXJyb3ItPm1lc3NhZ2UpOworCQlnX2RlYnVnICgiUmVzb2x2aW5nICVzIGZh
+aWxlZDogJXMiLCBuYW1lX3Byb3RfcGFpci0+bmFtZSwgZXJyb3ItPm1lc3NhZ2UpOwogCQlnX2Vy
+cm9yX2ZyZWUgKGVycm9yKTsKLQkJZ190YXNrX3JldHVybl9wb2ludGVyICh0YXNrLCBOVUxMLCBO
+VUxMKTsKKworCQlpZiAoc3RyY21wIChuYW1lX3Byb3RfcGFpci0+cHJvdCwgInRjcCIpID09IDAp
+IHsKKwkJCWdfdGFza19yZXR1cm5fcG9pbnRlciAodGFzaywgTlVMTCwgTlVMTCk7CisJCX0gZWxz
+ZSB7CisJCQkvKiBUcnkgdGNwICovCisJCQluYW1lX3Byb3RfcGFpci0+cHJvdCA9ICJ0Y3AiOwor
+CQkJcmVzb2x2ZXIgPSBnX3Jlc29sdmVyX2dldF9kZWZhdWx0ICgpOworCQkJZ19yZXNvbHZlcl9s
+b29rdXBfc2VydmljZV9hc3luYyAocmVzb2x2ZXIsICJrZXJiZXJvcyIsIG5hbWVfcHJvdF9wYWly
+LT5wcm90LAorCQkJICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgbmFtZV9wcm90X3Bh
+aXItPm5hbWUsCisJCQkgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBnX3Rhc2tfZ2V0
+X2NhbmNlbGxhYmxlICh0YXNrKSwKKwkJCSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+IG9uX2tlcmJlcm9zX2Rpc2NvdmVyLCBnX29iamVjdF9yZWYgKHRhc2spKTsKKwkJCWdfb2JqZWN0
+X3VucmVmIChyZXNvbHZlcik7CisJCX0KIAl9CiAKIAlnX29iamVjdF91bnJlZiAodGFzayk7CkBA
+IC03Niw3ICsxMDMsNyBAQCByZWFsbV9rZXJiZXJvc19wcm92aWRlcl9kaXNjb3Zlcl9hc3luYyAo
+UmVhbG1Qcm92aWRlciAqcHJvdmlkZXIsCiAJR1Rhc2sgKnRhc2s7CiAJY29uc3QgZ2NoYXIgKnNv
+ZnR3YXJlOwogCUdSZXNvbHZlciAqcmVzb2x2ZXI7Ci0JZ2NoYXIgKm5hbWU7CisJTmFtZVByb3RQ
+YWlyICpuYW1lX3Byb3RfcGFpcjsKIAogCXRhc2sgPSBnX3Rhc2tfbmV3IChwcm92aWRlciwgTlVM
+TCwgY2FsbGJhY2ssIHVzZXJfZGF0YSk7CiAKQEAgLTg2LDEyICsxMTMsMTUgQEAgcmVhbG1fa2Vy
+YmVyb3NfcHJvdmlkZXJfZGlzY292ZXJfYXN5bmMgKFJlYWxtUHJvdmlkZXIgKnByb3ZpZGVyLAog
+CQlnX3Rhc2tfcmV0dXJuX3BvaW50ZXIgKHRhc2ssIE5VTEwsIE5VTEwpOwogCiAJfSBlbHNlIHsK
+LQkJbmFtZSA9IGdfaG9zdG5hbWVfdG9fYXNjaWkgKHN0cmluZyk7CisJCW5hbWVfcHJvdF9wYWly
+ID0gZ19uZXcwIChOYW1lUHJvdFBhaXIsIDEpOworCQluYW1lX3Byb3RfcGFpci0+bmFtZSA9IGdf
+aG9zdG5hbWVfdG9fYXNjaWkgKHN0cmluZyk7CisJCW5hbWVfcHJvdF9wYWlyLT5wcm90ID0gInVk
+cCI7CiAJCXJlc29sdmVyID0gZ19yZXNvbHZlcl9nZXRfZGVmYXVsdCAoKTsKLQkJZ19yZXNvbHZl
+cl9sb29rdXBfc2VydmljZV9hc3luYyAocmVzb2x2ZXIsICJrZXJiZXJvcyIsICJ1ZHAiLCBuYW1l
+LAorCQlnX3Jlc29sdmVyX2xvb2t1cF9zZXJ2aWNlX2FzeW5jIChyZXNvbHZlciwgImtlcmJlcm9z
+IiwgbmFtZV9wcm90X3BhaXItPnByb3QsCisJCSAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgIG5hbWVfcHJvdF9wYWlyLT5uYW1lLAogCQkgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICByZWFsbV9pbnZvY2F0aW9uX2dldF9jYW5jZWxsYWJsZSAoaW52b2NhdGlvbiksCiAJCSAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIG9uX2tlcmJlcm9zX2Rpc2NvdmVyLCBnX29i
+amVjdF9yZWYgKHRhc2spKTsKLQkJZ190YXNrX3NldF90YXNrX2RhdGEgKHRhc2ssIG5hbWUsIGdf
+ZnJlZSk7CisJCWdfdGFza19zZXRfdGFza19kYXRhICh0YXNrLCBuYW1lX3Byb3RfcGFpciwgbmFt
+ZV9wcm90X3BhaXJfZnJlZSk7CiAJCWdfb2JqZWN0X3VucmVmIChyZXNvbHZlcik7CiAJfQogCi0t
+IAoyLjkuMwoK
+</data>
+<flag name="review"
+          id="2886949"
+          type_id="155"
+          status="?"
+          setter="sbose"
+          requestee="stefw"
+    />
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

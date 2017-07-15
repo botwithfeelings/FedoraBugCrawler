@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1365661</bug_id>
+          
+          <creation_ts>2016-08-09 15:07:00 -0400</creation_ts>
+          <short_desc>Cloud images fail to compose from 20160809.n.0</short_desc>
+          <delta_ts>2016-08-23 12:03:54 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>distribution</component>
+          <version>25</version>
+          <rep_platform>All</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard>AcceptedBlocker</status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>urgent</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>1277284</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Adam Williamson">awilliam</reporter>
+          <assigned_to name="Václav Pavlín">vpavlin</assigned_to>
+          <cc>dennis</cc>
+    
+    
+    <cc>kevin</cc>
+    
+    
+    <cc>mattdm</cc>
+    
+    
+    <cc>mcsontos</cc>
+    
+    
+    <cc>robatino</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-08-23 12:03:54</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9600294</commentid>
+    <comment_count>0</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2016-08-09 15:07:54 -0400</bug_when>
+    <thetext>We lost all Cloud images with the 20160809.n.0 compose. Here&apos;s the cloud base x86_64 task:
+
+http://koji.fedoraproject.org/koji/taskinfo?taskID=15185144
+
+This is an automatic Alpha blocker, as per https://fedoraproject.org/wiki/Fedora_Program_Management/ReleaseBlocking/Fedora25 , the cloud base images are release-blocking - https://fedoraproject.org/wiki/QA:SOP_blocker_bug_process#Automatic_blockers :
+
+&quot;Bugs which entirely prevent the composition of one or more of the release-blocking images required to be built for a currently-pending (pre-)release&quot;</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9624313</commentid>
+    <comment_count>1</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2016-08-17 17:19:15 -0400</bug_when>
+    <thetext>This still seems to be the case; as far as we can tell, every single cloud image compose attempt for f25 since 20160809.n.0 has failed. All f24 (two-week Atomic) attempts have succeeded. Rawhide failed on 20160809 and 20160810, but succeeded on 20160811 (twice) and 20160812.
+
+We&apos;re thinking (or, to be honest, hoping) that this somehow has to do with the issue of unsigned packages in the f25 repos, and that it may work again with the currently-running compose - Fedora-25-20160817.n.1 - which should have the signatures cleaned up. So for now we&apos;re just watching that compose and hoping it&apos;ll work.
+
+For the record, debugging this is rather hard as imagefactory does not provide us with any useful logs. Basically all the information we have is that anaconda stops at this screen:
+
+https://kojipkgs.fedoraproject.org//work/tasks/5172/15285172/screenshot.ppm
+
+and there&apos;s no disk activity for a few minutes. We don&apos;t get any of the anaconda logs, so we&apos;re really pretty in the dark as to what&apos;s going on.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9624377</commentid>
+    <comment_count>2</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2016-08-17 17:58:52 -0400</bug_when>
+    <thetext>Nope. 20160817.n.1 failed.
+
+http://koji.fedoraproject.org/koji/taskinfo?taskID=15289597</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9627893</commentid>
+    <comment_count>3</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2016-08-18 14:16:52 -0400</bug_when>
+    <thetext>So, we got a bit more detailed logging from imagefactory:
+
+https://kojipkgs.fedoraproject.org//work/tasks/5799/15295799/oz-x86_64.log
+
+the anaconda logs are now included, all mushed up together. If you separate &apos;em out with grep you can make a bit more sense of it. It seems that what happens is anaconda is waiting for udev to settle, and it&apos;s not settling. anaconda keeps calling &apos;udevadm settle --timeout=300&apos;, and it keeps hitting the timeout - every five minutes it returns with code 1, and anaconda runs it again. After a while, imagefactory times out due to lack of disk activity (which I guess it uses as an indication that something&apos;s gone wrong so it should give up).
+
+It&apos;s just a thought, but this *may* be to do with the kernel. Right around the time composes started failing in both F25 and Rawhide, there was a significant kernel version bump, from kernel-4.8.0-0.rc0.git7.1.fc26 and kernel-4.8.0-0.rc0.git3.1.fc25 to kernel-4.8.0-0.rc1.git0.1.fc26 and kernel-4.8.0-0.rc1.git0.1.fc25 - i.e. it went from &apos;rc0&apos; (which AIUI are early git snapshots) to &apos;rc1.git0&apos;.
+
+Then F25 was frozen, so that&apos;s *still* the kernel that&apos;s being used in F25 composes. Meanwhile Rawhide kept getting new kernel builds, including kernel-4.8.0-0.rc1.git3.1.fc26 on 20160811, which is when Rawhide builds started working again.
+
+There was a failed attempt to build the cloud-base images for Rawhide-20160810.n.0 , and a successful attempt for Rawhide-20160811.n.1 (there was no attempt for 20160811.n.0). And looking at the logs:
+
+https://kojipkgs.fedoraproject.org/compose/rawhide/Fedora-Rawhide-20160810.n.0/logs/x86_64/createrepo-Cloud.x86_64.log
+https://kojipkgs.fedoraproject.org/compose/rawhide/Fedora-Rawhide-20160811.n.1/logs/x86_64/createrepo-Cloud.rpm.x86_64.log
+
+we can see the kernels are indeed different:
+
+20160810.n.0: kernel-4.8.0-0.rc1.git1.1.fc26.x86_64.rpm
+20160811.n.1: kernel-4.8.0-0.rc1.git3.1.fc26.x86_64.rpm
+
+so I&apos;m kinda wondering if this would go away on F25 with a newer kernel...</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9630626</commentid>
+    <comment_count>4</comment_count>
+    <who name="Marian Csontos">mcsontos</who>
+    <bug_when>2016-08-19 09:47:48 -0400</bug_when>
+    <thetext>Any chance these are VMs with cirrus as video? I have seen this backtrace in F25 VMs:
+
+https://repos.fedorapeople.org/thl/kernel-vanilla-fedora/fedora-25/x86_64/dmesg-4.8.0-0.rc1.git0.1.vanilla.knurd.1.fc25.x86_64.log
+
+After switching away from cirrus to vga I have workable F25 installation.
+
+And among other things udev was blocking waiting. This is the last message on the console:
+
+    A start job is running for udev Wai...itialization (...)
+
+And this was there too:
+
+[    1.122327] BUG: unable to handle kernel NULL pointer dereference at 0000000000000018
+[    1.122335] IP: [&lt;ffffffffc017f7d8&gt;] drm_pick_crtcs+0x118/0x290 [drm_kms_helper]
+[    1.122336] PGD 0 
+[    1.122337] Oops: 0000 [#1] SMP
+[    1.122346] Modules linked in: cirrus(+) drm_kms_helper virtio_scsi ttm virtio_net crc32c_intel drm serio_raw ata_generic pata_acpi virtio_pci virtio_ring virtio
+[    1.122348] CPU: 1 PID: 269 Comm: systemd-udevd Not tainted 4.8.0-0.rc1.git0.1.vanilla.knurd.1.fc25.x86_64 #1
+[    1.122348] Hardware name: Red Hat KVM, BIOS 0.5.1 01/01/2011
+[    1.122349] task: ffff999936091c40 task.stack: ffff999936adc000
+[    1.122353] RIP: 0010:[&lt;ffffffffc017f7d8&gt;]  [&lt;ffffffffc017f7d8&gt;] drm_pick_crtcs+0x118/0x290 [drm_kms_helper]
+[    1.122354] RSP: 0018:ffff999936adf7d0  EFLAGS: 00010217
+[    1.122355] RAX: ffffffffc00d5930 RBX: 0000000000000000 RCX: 0000000000001000
+[    1.122355] RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffff9999362d9c00
+[    1.122356] RBP: ffff999936adf838 R08: ffff99997fd1c920 R09: ffff99997c97daf0
+[    1.122356] R10: ffff99997c97dd80 R11: ffff99997c97d958 R12: ffff999936a94600
+[    1.122356] R13: 0000000000001000 R14: ffff9999362d9c00 R15: ffff99997c97d698
+[    1.122357] FS:  00007fbefd940640(0000) GS:ffff99997fd00000(0000) knlGS:0000000000000000
+[    1.122358] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[    1.122358] CR2: 0000000000000018 CR3: 0000000036013000 CR4: 00000000000006e0
+[    1.122361] Stack:
+[    1.122362]  ffff99997c97d958 0000000000000000 0000000100000003 ffff99997c97dd80
+[    1.122363]  0000000000000000 ffff99997c97d958 0000000000001000 ffff99997c97daf0
+[    1.122364]  0000000000000001 ffff999936a94600 ffff999936a94600 ffff99997c97d958
+[    1.122365] Call Trace:
+[    1.122369]  [&lt;ffffffffc017ff9d&gt;] drm_setup_crtcs+0x39d/0xae0 [drm_kms_helper]
+[    1.122373]  [&lt;ffffffffc01809ef&gt;] drm_fb_helper_initial_config+0xcf/0x420 [drm_kms_helper]
+[    1.122376]  [&lt;ffffffffc00d6e70&gt;] cirrus_fbdev_init+0x90/0xa0 [cirrus]
+[    1.122380]  [&lt;ffffffffc00d64e2&gt;] cirrus_modeset_init+0x192/0x1e0 [cirrus]
+[    1.122383]  [&lt;ffffffffc00d730f&gt;] ? cirrus_mm_init+0x11f/0x1a0 [cirrus]
+[    1.122384]  [&lt;ffffffffc00d5458&gt;] cirrus_driver_load+0xb8/0x100 [cirrus]
+[    1.122400]  [&lt;ffffffffc00f0567&gt;] drm_dev_register+0xa7/0xd0 [drm]
+[    1.122406]  [&lt;ffffffffc00f263f&gt;] drm_get_pci_dev+0x8f/0x1d0 [drm]
+[    1.122408]  [&lt;ffffffffc00d66a5&gt;] cirrus_pci_probe+0x95/0xb0 [cirrus]
+[    1.122413]  [&lt;ffffffffa1432e65&gt;] local_pci_probe+0x45/0xa0
+[    1.122415]  [&lt;ffffffffa14342b3&gt;] pci_device_probe+0x103/0x150
+[    1.122422]  [&lt;ffffffffa1528513&gt;] driver_probe_device+0x223/0x430
+[    1.122423]  [&lt;ffffffffa15287ff&gt;] __driver_attach+0xdf/0xf0
+[    1.122424]  [&lt;ffffffffa1528720&gt;] ? driver_probe_device+0x430/0x430
+[    1.122425]  [&lt;ffffffffa1525e9c&gt;] bus_for_each_dev+0x6c/0xc0
+[    1.122426]  [&lt;ffffffffa1527c1e&gt;] driver_attach+0x1e/0x20
+[    1.122427]  [&lt;ffffffffa1527630&gt;] bus_add_driver+0x170/0x270
+[    1.122428]  [&lt;ffffffffc0162000&gt;] ? 0xffffffffc0162000
+[    1.122429]  [&lt;ffffffffa1529120&gt;] driver_register+0x60/0xe0
+[    1.122430]  [&lt;ffffffffc0162000&gt;] ? 0xffffffffc0162000
+[    1.122431]  [&lt;ffffffffa14327cc&gt;] __pci_register_driver+0x4c/0x50
+[    1.122437]  [&lt;ffffffffc00f2860&gt;] drm_pci_init+0xe0/0x110 [drm]
+[    1.122437]  [&lt;ffffffffc0162000&gt;] ? 0xffffffffc0162000
+[    1.122439]  [&lt;ffffffffc016203c&gt;] cirrus_init+0x3c/0x1000 [cirrus]
+[    1.122441]  [&lt;ffffffffa1002190&gt;] do_one_initcall+0x50/0x180
+[    1.122445]  [&lt;ffffffffa12225d9&gt;] ? kmem_cache_alloc_trace+0x159/0x1b0
+[    1.122447]  [&lt;ffffffffa11b30c9&gt;] ? do_init_module+0x27/0x1ef
+[    1.122447]  [&lt;ffffffffa11b3101&gt;] do_init_module+0x5f/0x1ef
+[    1.122451]  [&lt;ffffffffa112a977&gt;] load_module+0x22b7/0x29d0
+[    1.122452]  [&lt;ffffffffa1127550&gt;] ? __symbol_put+0x60/0x60
+[    1.122453]  [&lt;ffffffffa112b1f6&gt;] SYSC_init_module+0x166/0x180
+[    1.122454]  [&lt;ffffffffa112b32e&gt;] SyS_init_module+0xe/0x10
+[    1.122455]  [&lt;ffffffffa1003c57&gt;] do_syscall_64+0x67/0x160
+[    1.122461]  [&lt;ffffffffa17fa3e1&gt;] entry_SYSCALL64_slow_path+0x25/0x25
+[    1.122471] Code: 85 7b 01 00 00 48 8b 00 48 39 c2 75 e3 49 8b 54 24 08 49 8b 86 98 02 00 00 4c 89 f7 4c 89 55 b0 48 8b 92 08 04 00 00 48 8b 40 10 &lt;48&gt; 83 7a 18 00 74 09 48 85 c0 0f 84 52 01 00 00 ff d0 4c 8b 55 
+[    1.122475] RIP  [&lt;ffffffffc017f7d8&gt;] drm_pick_crtcs+0x118/0x290 [drm_kms_helper]
+[    1.122476]  RSP &lt;ffff999936adf7d0&gt;
+[    1.122476] CR2: 0000000000000018
+[    1.122477] ---[ end trace 52e0620db783c8e6 ]---
+
+And the `udevadm settle`&apos;s stack is here:
+
+[&lt;ffffffff9c2648b4&gt;] poll_schedule_timeout+0x44/0x70
+[&lt;ffffffff9c265f61&gt;] do_sys_poll+0x4a1/0x550
+[&lt;ffffffff9c266101&gt;] SyS_poll+0x71/0x130
+[&lt;ffffffff9c003c57&gt;] do_syscall_64+0x67/0x160
+[&lt;ffffffff9c7ff721&gt;] return_from_SYSCALL_64+0x0/0x6a
+[&lt;ffffffffffffffff&gt;] 0xffffffffffffffff
+
+I have not tried to update kernel and switching back to cirrus yet.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9630701</commentid>
+    <comment_count>5</comment_count>
+    <who name="Marian Csontos">mcsontos</who>
+    <bug_when>2016-08-19 10:11:05 -0400</bug_when>
+    <thetext>After updating kernel from updates-testing, and switching back to cirrus VM boots and works fine.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9636935</commentid>
+    <comment_count>6</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2016-08-22 13:22:30 -0400</bug_when>
+    <thetext>so the kernel theory seems plausible at least, and a new kernel is currently headed to stable:
+
+https://fedorahosted.org/rel-eng/ticket/6463#comment:8
+
+so I&apos;ll mark this bug as ON_QA to indicate that we&apos;re hopeful the new kernel will fix it, and we&apos;ll check the first compose that happens after that stable push.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9641227</commentid>
+    <comment_count>7</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2016-08-23 12:03:54 -0400</bug_when>
+    <thetext>Cloud image builds did succeed for the 20160822.n.1 compose. There was an issue with appliance-creator (ARM appliance) images which prevented the compose from fully completing, but I&apos;m pretty sure this bug is now fixed.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

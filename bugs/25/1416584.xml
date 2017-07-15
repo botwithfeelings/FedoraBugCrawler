@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1416584</bug_id>
+          
+          <creation_ts>2017-01-25 18:01:00 -0500</creation_ts>
+          <short_desc>ssh-agent cert signing error: &quot;process_sign_request2: RSA-CERT key not found&quot; in 7.4p1 1.fc25</short_desc>
+          <delta_ts>2017-02-07 20:51:52 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>openssh</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Peter Moody">pmoody</reporter>
+          <assigned_to name="Jakub Jelen">jjelen</assigned_to>
+          <cc>evan</cc>
+    
+    
+    <cc>jjelen</cc>
+    
+    
+    <cc>mattias.ellert</cc>
+    
+    
+    <cc>mgrepl</cc>
+    
+    
+    <cc>plautrba</cc>
+    
+    
+    <cc>tmraz</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>openssh-7.4p1-2.fc25</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-02-07 20:51:52</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10097214</commentid>
+    <comment_count>0</comment_count>
+    <who name="Peter Moody">pmoody</who>
+    <bug_when>2017-01-25 18:01:21 -0500</bug_when>
+    <thetext>Description of problem:
+
+we have an inhouse pam module, like pam-ssh-agent-auth except that it works with ssh certs. 
+
+this works fine with stock openssh-7.4p1, but with redhat&apos;s &quot;7.4p1 release 1.fc25&quot;, it fails. if you run ssh-agent -d -a /tmp/ssh.sock and use that auth sock, the agent prints the following.
+
+debug1: type 11
+debug1: type 13
+process_sign_request2: RSA-CERT key not found
+debug1: XXX shrink: 5 &lt; 6
+
+type 11 is the request identities and 13 is a signing request.
+
+Version-Release number of selected component (if applicable):
+
+7.4p1 release 1.fc25
+
+How reproducible:
+
+I&apos;ve got some go code that will give a &apos;minimal&apos; reproducer but I need to get approval from the muckimucks here b/c it&apos;s pulled straight from this internal pam module.
+
+the basic concept is that, on a remote machine with a forwarded ssh-agent, the pam module connects to SSH_AUTH_SOCK, lists the keys on the agent looking for one of our ssh certificates and when it finds one, it asks the agent to sign some random data with the associated private key and then verifies the signature. that signing operation is what&apos;s failing.
+
+I&apos;m going to try and get permission to post this repro, but hopefully there&apos;s enough info there to point at the errant fedora patch that&apos;s causing this. as I said, this works fine in stock 7.4p1
+
+Steps to Reproduce:
+1.
+2.
+3.
+
+Actual results:
+
+
+Expected results:
+
+
+Additional info:</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10100475</commentid>
+    <comment_count>1</comment_count>
+      <attachid>1244891</attachid>
+    <who name="Peter Moody">pmoody</who>
+    <bug_when>2017-01-26 19:18:38 -0500</bug_when>
+    <thetext>Created attachment 1244891
+go repro
+
+build and run like so:
+
+$ go get
+$ go build -o sign sign.go
+$ ./sign
+
+you should see 
+
+$ ./sign 
+error signing data: agent: failed to sign challenge
+false
+
+if you&apos;re running the ssh-agent in the foreground and you&apos;ve set your SSH_AUTH_SOCK to use that agent, you&apos;ll see the &quot;process_sign_request2: RSA-CERT key not found&quot; message in that window.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10105053</commentid>
+    <comment_count>2</comment_count>
+    <who name="Jakub Jelen">jjelen</who>
+    <bug_when>2017-01-30 02:54:10 -0500</bug_when>
+    <thetext>Hello. Thank you for the report.
+It will be most probably again related to the openssl 1.1.0 patch, which is not upstream. I hope I will have a look into it during this week.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10116107</commentid>
+    <comment_count>3</comment_count>
+    <who name="Jakub Jelen">jjelen</who>
+    <bug_when>2017-02-02 09:48:42 -0500</bug_when>
+    <thetext>The problem is again ssh-agent protocol [1], which does not contain N and E parameters of public key, but new OpenSSL requires it.
+
+I already added code to compute N, but computing E is not so simple. I don&apos;t have definite fix, except for rebuilding with older openssl.
+
+[1] https://github.com/openssh/openssh-portable/blob/master/PROTOCOL.agent#L245</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10116520</commentid>
+    <comment_count>4</comment_count>
+    <who name="Tomas Mraz">tmraz</who>
+    <bug_when>2017-02-02 11:33:37 -0500</bug_when>
+    <thetext>Jakub, have you tried to set zero bignum for E? It&apos;s a hack but it should work if the values are not used in the computation. (It should not be used unless RSA_FLAG_EXT_PKEY is set.) Unfortunately the N value is used to obtain the size of the signature, so you have to compute it.
+
+I wonder what the code did with old openssl because the N value is clearly used in the source for the private key signature operation - I suppose that is what openssh later does with the private key. Or what are the operations done with the private key?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10116741</commentid>
+    <comment_count>5</comment_count>
+    <who name="Peter Moody">pmoody</who>
+    <bug_when>2017-02-02 12:48:10 -0500</bug_when>
+    <thetext>how does the agent sign requests that come from a remote sshd?
+
+in our environment, these certs are used to auth to sshd as well as to pam. and sshd definitely asks the agent to sign some random data with the private key associated with this cert. 
+
+eg. this is me using a cert to auth to one of our prod hosts.
+
+debug3: fd 4 is O_NONBLOCK
+debug1: type 11               # request identities
+debug1: XXX shrink: 3 &lt; 4
+debug3: fd 4 is O_NONBLOCK
+debug1: type 11               # request identities
+debug1: type 13               # sign request
+debug3: fd 5 is O_NONBLOCK
+debug1: type 11               # request identities
+debug1: type 13               # sign request
+debug3: fd 6 is O_NONBLOCK
+debug1: XXX shrink: 5 &lt; 6
+
+# now I&apos;m authenticated.
+
+also, if this is just about computing N and E (sorry, my openssl library knowledge pretty much begins and ends with how it&apos;s spelled), does that mean that it shouldn&apos;t affect other key types, like ed25519 or ecdsa keys? I haven&apos;t tried those yet, but I can if it would help.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10116821</commentid>
+    <comment_count>6</comment_count>
+    <who name="Jakub Jelen">jjelen</who>
+    <bug_when>2017-02-02 13:23:13 -0500</bug_when>
+    <thetext>The other key types should work fine. They do not have so weird interface in the agent (I hope).
+
+The keys are now set to zero, but from there comes this bug during the attempt to use the certificate for the signature.
+
+With ssh-signature request, the agent gets keyblob and fails when it searches for matching key already stored in the agent (comparing directly N and E parts, which obviously fails if one of them is zero).
+
+Removing the whole patch in Fedora 25 solves the problem. I didn&apos;t find the minimal subset which is causing the problem yet.
+
+In F25 we don&apos;t have OpenSSL 1.1.0 so the change is most probably not related to openssl 1.1.0 itself, but only to the new interface or some broken logic in the patch. I will have a further look tomorrow.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10118417</commentid>
+    <comment_count>7</comment_count>
+    <who name="Tomas Mraz">tmraz</who>
+    <bug_when>2017-02-03 04:00:52 -0500</bug_when>
+    <thetext>How could it match N and E before when it was not set at all?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10118608</commentid>
+    <comment_count>8</comment_count>
+    <who name="Jakub Jelen">jjelen</who>
+    <bug_when>2017-02-03 05:08:29 -0500</bug_when>
+    <thetext>After further inspection, the N and E are already set in the rsa structure from the certificate blob (which I somehow missed during the original implementation and which was already missed by the original author of the patch).
+
+Skipping the assignment of these values makes it working again. I will send an update soon. So far testing scratch build for F25:
+
+https://koji.fedoraproject.org/koji/taskinfo?taskID=17563323
+
+Thanks for the good reproducer and patience :)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10123321</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-06 06:51:57 -0500</bug_when>
+    <thetext>openssh-7.4p1-2.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-40057be2c5</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10124079</commentid>
+    <comment_count>10</comment_count>
+    <who name="Peter Moody">pmoody</who>
+    <bug_when>2017-02-06 10:16:15 -0500</bug_when>
+    <thetext>Thanks, Jackub.
+
+is there a package that my fedora user(s) can test?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10124232</commentid>
+    <comment_count>11</comment_count>
+    <who name="Jakub Jelen">jjelen</who>
+    <bug_when>2017-02-06 10:27:19 -0500</bug_when>
+    <thetext>Yes, there is the scratch build in the comment #8 or the update for Fedora 25 in comment #9 (should go into the testing soon). So far you can pick that up from koji:
+https://koji.fedoraproject.org/koji/buildinfo?buildID=838740</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10125873</commentid>
+    <comment_count>12</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-06 21:49:25 -0500</bug_when>
+    <thetext>openssh-7.4p1-2.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-40057be2c5</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10125958</commentid>
+    <comment_count>13</comment_count>
+    <who name="Evan Klitzke">evan</who>
+    <bug_when>2017-02-06 22:48:10 -0500</bug_when>
+    <thetext>I am the original user affected by this bug (I work with Peter, and run Fedora). I can confirm that the packages you linked to in #11 fix this bug for me.
+
+Thanks so much for your help -- you already fixed bug 1402029 for us, and I appreciate the hard work to fix this issue as well.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10129583</commentid>
+    <comment_count>14</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-07 20:51:52 -0500</bug_when>
+    <thetext>openssh-7.4p1-2.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="0"
+              ispatch="0"
+              isprivate="0"
+          >
+            <attachid>1244891</attachid>
+            <date>2017-01-26 19:18:00 -0500</date>
+            <delta_ts>2017-01-26 19:18:38 -0500</delta_ts>
+            <desc>go repro</desc>
+            <filename>sign.go</filename>
+            <type>text/plain</type>
+            <size>2529</size>
+            <attacher name="Peter Moody">pmoody</attacher>
+            
+              <data encoding="base64">cGFja2FnZSBtYWluCgppbXBvcnQgKAoJImJ5dGVzIgoJImNyeXB0by9yYW5kIgoJImNyeXB0by9y
+c2EiCgkiZm10IgoJIm5ldCIKCSJvcyIKCSJ0aW1lIgoKCSJnb2xhbmcub3JnL3gvY3J5cHRvL3Nz
+aCIKCSJnb2xhbmcub3JnL3gvY3J5cHRvL3NzaC9hZ2VudCIKKQoKZnVuYyBhdXRoZW50aWNhdGUo
+YSBhZ2VudC5BZ2VudCwgY2FQdWJrZXkgc3NoLlB1YmxpY0tleSkgYm9vbCB7CglrZXlzLCBlcnIg
+Oj0gYS5MaXN0KCkKCWlmIGVyciAhPSBuaWwgewoJCWZtdC5QcmludGYoIkVycm9yIGxpc3Rpbmcg
+a2V5czogJXYiLCBlcnIpCgkJcmV0dXJuIGZhbHNlCgl9CgoJaWYgbGVuKGtleXMpID09IDAgewoJ
+CWZtdC5QcmludGYoIk5vIGNlcnRzIGxvYWRlZC5cbiIpCgkJcmV0dXJuIGZhbHNlCgl9CgoJYyA6
+PSAmc3NoLkNlcnRDaGVja2VyewoJCUlzQXV0aG9yaXR5OiBmdW5jKGF1dGggc3NoLlB1YmxpY0tl
+eSkgYm9vbCB7CgkJCXJldHVybiBieXRlcy5FcXVhbChhdXRoLk1hcnNoYWwoKSwgY2FQdWJrZXku
+TWFyc2hhbCgpKQoJCX0sCgl9CgoJZm9yIGlkeCA6PSByYW5nZSBrZXlzIHsKCQlwdWJLZXksIGVy
+ciA6PSBzc2guUGFyc2VQdWJsaWNLZXkoa2V5c1tpZHhdLk1hcnNoYWwoKSkKCQlpZiBlcnIgIT0g
+bmlsIHsKCQkJY29udGludWUKCQl9CgoJCWNlcnQsIG9rIDo9IHB1YktleS4oKnNzaC5DZXJ0aWZp
+Y2F0ZSkKCQlpZiAhb2sgewoJCQljb250aW51ZQoJCX0KCgkJaWYgZXJyIDo9IGMuQ2hlY2tDZXJ0
+KGNlcnQuVmFsaWRQcmluY2lwYWxzWzBdLCBjZXJ0KTsgZXJyICE9IG5pbCB7CgkJCWNvbnRpbnVl
+CgkJfQoKCQkvLyBmb3IgdGhlIHNzaCBhZ2VudCB0byBzaWduIHNvbWUgZGF0YSB2YWxpZGF0aW5n
+IHRoYXQgdGhleSBkbyBpbiBmYWN0CgkJLy8gaGF2ZSB0aGUgcHJpdmF0ZSBrZXkKCQlyYW5kQnl0
+ZXMgOj0gbWFrZShbXWJ5dGUsIDMyKQoJCWlmIF8sIGVyciA6PSByYW5kLlJlYWQocmFuZEJ5dGVz
+KTsgZXJyICE9IG5pbCB7CgkJCWZtdC5QcmludGYoIkVycm9yIGdyYWJiaW5nIHJhbmRvbSBieXRl
+czogJXZcbiIsIGVycikKCQkJcmV0dXJuIGZhbHNlCgkJfQoKCQlzaWduZWREYXRhLCBlcnIgOj0g
+YS5TaWduKHB1YktleSwgcmFuZEJ5dGVzKQoJCWlmIGVyciAhPSBuaWwgewoJCQlmbXQuUHJpbnRm
+KCJlcnJvciBzaWduaW5nIGRhdGE6ICV2XG4iLCBlcnIpCgkJCXJldHVybiBmYWxzZQoJCX0KCgkJ
+aWYgZXJyIDo9IHB1YktleS5WZXJpZnkocmFuZEJ5dGVzLCBzaWduZWREYXRhKTsgZXJyICE9IG5p
+bCB7CgkJCWZtdC5QcmludGYoInNpZ25hdHVyZSB2ZXJpZmljYXRpb24gZmFpbGVkOiAldlxuIiwg
+ZXJyKQoJCQlyZXR1cm4gZmFsc2UKCQl9CgoJCWZtdC5QcmludGYoIkF1dGhlbnRpY2F0aW9uIHN1
+Y2NlZWRlZCBmb3IgJXMsIGNlcnQgJWRcbiIsIGNlcnQuVmFsaWRQcmluY2lwYWxzWzBdLCBjZXJ0
+LlNlcmlhbCkKCQlyZXR1cm4gdHJ1ZQoJfQoJZm10LlByaW50Zigibm8gdmFsaWQgY2VydHMgZm91
+bmQiKQoJcmV0dXJuIGZhbHNlCn0KCmZ1bmMgZ2VuZXJhdGVLZXlzKCkgKnJzYS5Qcml2YXRlS2V5
+IHsKCWssIGUgOj0gcnNhLkdlbmVyYXRlS2V5KHJhbmQuUmVhZGVyLCAyMDQ4KQoJaWYgZSAhPSBu
+aWwgewoJCXBhbmljKGUpCgl9CglyZXR1cm4gawp9CgpmdW5jIG1haW4oKSB7CglhZ2VudFNvY2ss
+IGUgOj0gbmV0LkRpYWwoInVuaXgiLCBvcy5HZXRlbnYoIlNTSF9BVVRIX1NPQ0siKSkKCWlmIGUg
+IT0gbmlsIHsKCQlwYW5pYyhlKQoJfQoJYSA6PSBhZ2VudC5OZXdDbGllbnQoYWdlbnRTb2NrKQoK
+CXByaXYgOj0gZ2VuZXJhdGVLZXlzKCkKCXNpZ25lciwgZSA6PSBzc2guTmV3U2lnbmVyRnJvbUtl
+eShwcml2KQoJaWYgZSAhPSBuaWwgewoJCXBhbmljKGUpCgl9CgoJdXNlclByaXYgOj0gZ2VuZXJh
+dGVLZXlzKCkKCXVzZXJQdWIsIGUgOj0gc3NoLk5ld1B1YmxpY0tleSgmdXNlclByaXYuUHVibGlj
+S2V5KQoKCWFkZGVkS2V5IDo9IGFnZW50LkFkZGVkS2V5e1ByaXZhdGVLZXk6IHVzZXJQcml2LCBM
+aWZldGltZVNlY3M6IDEwLCBDb21tZW50OiAicmVwcm8ifQoJaWYgZSA6PSBhLkFkZChhZGRlZEtl
+eSk7IGUgIT0gbmlsIHsKCQlwYW5pYyhlKQoJfQoKCWMgOj0gJnNzaC5DZXJ0aWZpY2F0ZXsKCQlL
+ZXk6ICAgICAgICAgICAgIHVzZXJQdWIsCgkJQ2VydFR5cGU6ICAgICAgICBzc2guVXNlckNlcnQs
+CgkJU2VyaWFsOiAgICAgICAgICAxLAoJCVZhbGlkQmVmb3JlOiAgICAgdWludDY0KHRpbWUuTm93
+KCkuQWRkKHRpbWUuTWludXRlKS5Vbml4KCkpLAoJCVZhbGlkQWZ0ZXI6ICAgICAgMCwKCQlWYWxp
+ZFByaW5jaXBhbHM6IFtdc3RyaW5ne29zLkdldGVudigiVVNFUiIpfSwKCX0KCglpZiBlIDo9IGMu
+U2lnbkNlcnQocmFuZC5SZWFkZXIsIHNpZ25lcik7IGUgIT0gbmlsIHsKCQlwYW5pYyhlKQoJfQoK
+CWFkZGVkS2V5LkNlcnRpZmljYXRlID0gYwoJaWYgZSA6PSBhLkFkZChhZGRlZEtleSk7IGUgIT0g
+bmlsIHsKCQlwYW5pYyhlKQoJfQoKCWZtdC5QcmludGYoIiV2IiwgYXV0aGVudGljYXRlKGEsIHNp
+Z25lci5QdWJsaWNLZXkoKSkpCn0K
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

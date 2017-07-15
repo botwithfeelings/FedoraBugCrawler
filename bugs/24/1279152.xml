@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1279152</bug_id>
+          
+          <creation_ts>2015-11-08 02:44:00 -0500</creation_ts>
+          <short_desc>libopenraw-pixbuf-loader causes SEGV in nautilus</short_desc>
+          <delta_ts>2016-07-09 19:53:23 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>libopenraw</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          <dependson>1285604</dependson>
+          <blocked>1279153</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Yaakov Selkowitz">yselkowi</reporter>
+          <assigned_to name="Debarshi Ray">debarshir</assigned_to>
+          <cc>belegdol</cc>
+    
+    
+    <cc>chkr</cc>
+    
+    
+    <cc>debarshir</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>libopenraw-0.0.9-18.fc24 libopenraw-0.0.9-18.fc23</cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-07-02 11:25:11</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          <external_bugs name="FreeDesktop.org">93712</external_bugs>
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>8800712</commentid>
+    <comment_count>0</comment_count>
+    <who name="Yaakov Selkowitz">yselkowi</who>
+    <bug_when>2015-11-08 02:44:55 -0500</bug_when>
+    <thetext>Version-Release number of selected component (if applicable):
+libopenraw-pixbuf-loader-0.0.9-10.fc22.x86_64
+
+How reproducible:
+100%
+
+Steps to Reproduce:
+1. install libopenraw-pixbuf-loader
+2. download (into e.g. ~/Downloads) a RAW file not supported by libopenraw, e.g. http://www.rawsamples.ch/raws/olympus/sp350/RAW_OLYMPUS_SP350.ORF
+3. start/open nautilus
+4. in Preferences-&gt;Preview, make sure &quot;Show thumbnails&quot; is not &quot;Never&quot; and &quot;Only for files smaller than&quot; is set to at least 100MB (the above example is ~12MB)
+5. then browse to the folder (e.g. ~/Downloads) containing the RAW file.
+
+Actual results:
+Segfault.
+
+Expected results:
+Error message to stderr, no thumbnail generated.
+
+Description of problem:
+gdk_pixbuf_loader_close is documented to set a non-NULL @error when returning FALSE, but lines 821-831 allow the possibility of returning FALSE without setting @error:
+
+https://git.gnome.org/browse/gdk-pixbuf/tree/gdk-pixbuf/gdk-pixbuf-loader.c?h=gdk-pixbuf-2-32#n766
+
+libgnome-desktop&apos;s _gdk_pixbuf_new_from_uri_at_scale (used by Nautilus to generate thumbnails for image formats supported by GdkPixbuf) depends on the documented behaviour by accessing error-&gt;message without checking that error != NULL:
+
+https://git.gnome.org/browse/gnome-desktop/tree/libgnome-desktop/gnome-desktop-thumbnail.c?h=gnome-3-18#n552
+
+However, libopenraw&apos;s gdk_pixbuf__or_image_stop_load, which is the vfunc called by gdk_pixbuf_loader_close, completely ignores @error:
+
+http://cgit.freedesktop.org/libopenraw/tree/gnome/pixbuf-loader.c#n93
+
+So, when faced with a RAW image that libopenraw does not support (which, at least in 0.0.9 are many, given that there are four years of yet unreleased development in upstream git), libopenraw-pixbuf-loader causes gdk_pixbuf_loader_close to return FALSE but does *not* set @error as promised.  The result is a NULL dereference in libgnome-desktop causing nautilus to SEGV.
+
+Ultimately, there is plenty of blame to go around here:
+
+* libopenraw-0.0.9 does not support many currently available RAW formats.  The possibility of shipping a git snapshot, or even better getting upstream to ship a new release, would make this library much more useful.  I have not investigated the API/ABI compatibility of git master vs. 0.0.9.
+
+* Regardless, libopenraw&apos;s gdk_pixbuf__or_image_stop_load should conform with the documented requirement of gdk_pixbuf_loader close along the lines of the following:
+
+--- a/gnome/pixbuf-loader.c
++++ b/gnome/pixbuf-loader.c
+@@ -98,7 +98,6 @@ gdk_pixbuf__or_image_stop_load (gpointer
+
+     GdkPixbuf *pixbuf = NULL;
+     ORRawFileRef raw_file = NULL;
+-    (void)error;
+
+     raw_file = or_rawfile_new_from_memory(context-&gt;data-&gt;data, context-&gt;data-&gt;len,
+                                           OR_DATA_TYPE_NONE);
+@@ -129,6 +128,11 @@ gdk_pixbuf__or_image_stop_load (gpointer
+                                       context-&gt;user_data);
+         }
+         result = TRUE;
++    } else if (error) {
++        g_set_error (error,
++                     GDK_PIXBUF_ERROR,
++                     GDK_PIXBUF_ERROR_FAILED,
++                     &quot;Unable to load RAW file&quot;);
+     }
+ 
+ 
+* gdk_pixbuf_loader_close must conform with its documentation and assure that (a non-NULL) @error is always set when returning FALSE, in case a(nother) loader&apos;s stop_load vfunc does not conform.
+
+* it could be argued that libgnome-desktop should check for error != NULL before error-&gt;message, but OTOH gdk-pixbuf&apos;s documentation does indicate that it is a safe assumption to make.
+
+I believe this affects all supported versions of Fedora.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9092464</commentid>
+    <comment_count>1</comment_count>
+    <who name="Jan Kurik">jkurik</who>
+    <bug_when>2016-02-24 08:55:36 -0500</bug_when>
+    <thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 24 development cycle.
+Changing version to &apos;24&apos;.
+
+More information and reason for this action is here:
+https://fedoraproject.org/wiki/Fedora_Program_Management/HouseKeeping/Fedora24#Rawhide_Rebase</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9462296</commentid>
+    <comment_count>2</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-06-29 03:26:31 -0400</bug_when>
+    <thetext>libopenraw-0.0.9-18.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-9f290d01ea</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9462308</commentid>
+    <comment_count>3</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-06-29 03:26:58 -0400</bug_when>
+    <thetext>libopenraw-0.0.9-18.fc23 has been submitted as an update to Fedora 23. https://bodhi.fedoraproject.org/updates/FEDORA-2016-3cb527ae3d</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9465896</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-06-29 14:25:45 -0400</bug_when>
+    <thetext>libopenraw-0.0.9-18.fc23 has been pushed to the Fedora 23 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-3cb527ae3d</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9466408</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-06-29 18:55:43 -0400</bug_when>
+    <thetext>libopenraw-0.0.9-18.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-9f290d01ea</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9473971</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-02 11:25:09 -0400</bug_when>
+    <thetext>libopenraw-0.0.9-18.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9493809</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-09 19:53:21 -0400</bug_when>
+    <thetext>libopenraw-0.0.9-18.fc23 has been pushed to the Fedora 23 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

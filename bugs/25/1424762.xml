@@ -1,0 +1,533 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1424762</bug_id>
+          
+          <creation_ts>2017-02-19 04:46:00 -0500</creation_ts>
+          <short_desc>Install size is too big</short_desc>
+          <delta_ts>2017-03-23 13:21:05 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>mupdf</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>low</priority>
+          <bug_severity>medium</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Till Hofmann">till.hofmann</reporter>
+          <assigned_to name="Pavel Zhukov">pavel</assigned_to>
+          <cc>jfrieben</cc>
+    
+    
+    <cc>kevin</cc>
+    
+    
+    <cc>mjg</cc>
+    
+    
+    <cc>pavel</cc>
+    
+    
+    <cc>rdieter</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>mupdf-1.10a-4.fc25 mupdf-1.10a-4.fc24</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-03-07 08:21:46</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10164423</commentid>
+    <comment_count>0</comment_count>
+    <who name="Till Hofmann">till.hofmann</who>
+    <bug_when>2017-02-19 04:46:10 -0500</bug_when>
+    <thetext>Description of problem:
+The size of the package changed from 39MB (1.8-2) to 214MB (1.10a-1).
+In particular, the size of /usr/bin/mupdf-x11 changed from 9.3MB to 34MB.
+
+Version-Release number of selected component (if applicable):
+1.10a-1</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10172092</commentid>
+    <comment_count>1</comment_count>
+    <who name="Kevin Kofler">kevin</who>
+    <bug_when>2017-02-21 13:47:08 -0500</bug_when>
+    <thetext>Indeed, this has:
+%global debug_package %{nil}
+which is NOT valid for a package with compiled C code.
+
+This was added by the latest commit:
+http://pkgs.fedoraproject.org/cgit/rpms/mupdf.git/commit/mupdf.spec?id=c923519b02ec8fd5e2a3054b193630c041b5a8c4
+with no explanation whatsoever. It MUST be removed.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10177247</commentid>
+    <comment_count>2</comment_count>
+    <who name="Pavel Zhukov">pavel</who>
+    <bug_when>2017-02-23 02:07:55 -0500</bug_when>
+    <thetext>Thank you for raising this. I&apos;m aware of this issue.
+
+The reason of this is empty debug file list:
+
+So I decided to fix CVE asap by disabling debuginfo for now and forgot to open a bug
+
+
+[1] 
+https://kojipkgs.fedoraproject.org//work/tasks/7988/18007988/build.log
+[2]
+Processing files: mupdf-debuginfo-1.10a-2.fc24.x86_64
+RPM build errors:
+error: Empty %files file /builddir/build/BUILD/mupdf-1.10a-source/debugfiles.list
+    Empty %files file /builddir/build/BUILD/mupdf-1.10a-source/debugfiles.list
+Child return code was: 1</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10181761</commentid>
+    <comment_count>3</comment_count>
+    <who name="Kevin Kofler">kevin</who>
+    <bug_when>2017-02-24 09:04:46 -0500</bug_when>
+    <thetext>But disabling the debuginfo is not a solution, it is not allowed.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10181773</commentid>
+    <comment_count>4</comment_count>
+    <who name="Kevin Kofler">kevin</who>
+    <bug_when>2017-02-24 09:07:55 -0500</bug_when>
+    <thetext>There is also the issue that the verbose build output is missing. You are using &quot;make %{?_smp_mflags} verbose=1&quot;
+but that is not the correct syntax, because we still see only &quot;CC build/release/fontdump.o&quot; and not the actual compiler invocation.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10181788</commentid>
+    <comment_count>5</comment_count>
+    <who name="Kevin Kofler">kevin</who>
+    <bug_when>2017-02-24 09:12:32 -0500</bug_when>
+    <thetext>Looking at the (handwritten) makefile, it should be verbose=yes, not verbose=1.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10182505</commentid>
+    <comment_count>6</comment_count>
+    <who name="Pavel Zhukov">pavel</who>
+    <bug_when>2017-02-24 11:45:15 -0500</bug_when>
+    <thetext>(In reply to Kevin Kofler from comment #3)
+&gt; it is not allowed.
+Not true.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10182507</commentid>
+    <comment_count>7</comment_count>
+    <who name="Pavel Zhukov">pavel</who>
+    <bug_when>2017-02-24 11:46:00 -0500</bug_when>
+    <thetext>(In reply to Kevin Kofler from comment #5)
+&gt; Looking at the (handwritten) makefile, it should be verbose=yes, not
+&gt; verbose=1.
+
+Feel free to open a bug upstream</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10182623</commentid>
+    <comment_count>8</comment_count>
+    <who name="Kevin Kofler">kevin</who>
+    <bug_when>2017-02-24 12:21:06 -0500</bug_when>
+    <thetext>(In reply to Pavel Zhukov from comment #6)
+&gt; (In reply to Kevin Kofler from comment #3)
+&gt; &gt; it is not allowed.
+&gt; Not true.
+
+It is true.
+
+
+https://fedoraproject.org/wiki/Packaging:Guidelines#Debuginfo_packages
+
+&gt; Packages should produce useful -debuginfo packages, or explicitly disable them
+&gt; when it is not possible to generate a useful one but rpmbuild would do it
+&gt; anyway.
+
+So you should explicitly disable -debuginfo IF rpmbuild is producing a useless/empty one, this is not the case here.
+
+You can argue that &quot;it is not possible to generate a useful one&quot; because it errors, but &quot;it is not possible to generate a useful one but rpmbuild would do it anyway&quot; is still not true because &quot;rpmbuild would do it anyway&quot; is false (rpmbuild does NOT &quot;do it anyway&quot;, it errors). So the condition for explicitly disabling -debuginfo is not satisfied.
+
+You are instead hitting a bug somewhere which needs to be addressed. I suspect it is an issue with how the executables are built, which is why I need to see the build output, which is why I raised the issue about the missing verbose output (also something most reviewers would treat as a blocker, because it does not allow verifying complaince with the packaging guidelines for compiler flags).
+
+&gt; Whenever a -debuginfo package is explicitly disabled, an explanation why it 
+&gt; was done is required in the specfile.
+
+This is also missing in your specfile.
+
+
+https://fedoraproject.org/wiki/Packaging:Debuginfo
+
+&gt; Missing debuginfo packages
+&gt;
+&gt; It is normal for noarch package builds to not produce a debuginfo package. If
+&gt; it&apos;s missing in other cases (where it has not been explicitly disabled),
+&gt; something&apos;s wrong.
+
+That&apos;s the case we have here, something&apos;s clearly wrong.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10182626</commentid>
+    <comment_count>9</comment_count>
+    <who name="Kevin Kofler">kevin</who>
+    <bug_when>2017-02-24 12:21:51 -0500</bug_when>
+    <thetext>(In reply to Pavel Zhukov from comment #7)
+&gt; (In reply to Kevin Kofler from comment #5)
+&gt; &gt; Looking at the (handwritten) makefile, it should be verbose=yes, not
+&gt; &gt; verbose=1.
+&gt; 
+&gt; Feel free to open a bug upstream
+
+This is not an upstream bug, it is a bug in your specfile.
+
+You need to change:
+make %{?_smp_mflags} verbose=1
+to:
+make %{?_smp_mflags} verbose=yes</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10182642</commentid>
+    <comment_count>10</comment_count>
+    <who name="Pavel Zhukov">pavel</who>
+    <bug_when>2017-02-24 12:29:20 -0500</bug_when>
+    <thetext>(In reply to Kevin Kofler from comment #9)
+&gt; (In reply to Pavel Zhukov from comment #7)
+&gt; &gt; (In reply to Kevin Kofler from comment #5)
+&gt; &gt; &gt; Looking at the (handwritten) makefile, it should be verbose=yes, not
+&gt; &gt; &gt; verbose=1.
+&gt; &gt; 
+&gt; &gt; Feel free to open a bug upstream
+&gt; 
+&gt; This is not an upstream bug, it is a bug in your specfile.
+&gt; 
+&gt; You need to change:
+&gt; make %{?_smp_mflags} verbose=1
+&gt; to:
+&gt; make %{?_smp_mflags} verbose=yes
+
+It&apos;s not related to this bug anyway nor solved the big size problem. This happens because upstream project change it&apos;s structure too often and in very unpredictable way. And it&apos;s not &quot;lightweight pdf viewer&quot; as it was but rather set of xxxxx for pdf processing.
+As I don&apos;t use huge number of buggy &quot;features&quot; of the project (like curl support, embedded js, converters etc) I don&apos;t care about them too much.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10182645</commentid>
+    <comment_count>11</comment_count>
+    <who name="Pavel Zhukov">pavel</who>
+    <bug_when>2017-02-24 12:30:43 -0500</bug_when>
+    <thetext>(In reply to Kevin Kofler from comment #8)
+
+&gt; So you should explicitly disable -debuginfo IF rpmbuild is producing a
+&gt; useless/empty one, this is not the case here.
+Not true again., It&apos;s *the* case here. rpmbuild produces  empty debuginfo. That&apos;s it.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10182804</commentid>
+    <comment_count>12</comment_count>
+    <who name="Kevin Kofler">kevin</who>
+    <bug_when>2017-02-24 14:02:32 -0500</bug_when>
+    <thetext>(In reply to Pavel Zhukov from comment #10)
+&gt; (In reply to Kevin Kofler from comment #9)
+&gt; &gt; (In reply to Pavel Zhukov from comment #7)
+&gt; &gt; &gt; (In reply to Kevin Kofler from comment #5)
+&gt; &gt; &gt; &gt; Looking at the (handwritten) makefile, it should be verbose=yes, not
+&gt; &gt; &gt; &gt; verbose=1.
+&gt; &gt; &gt; 
+&gt; &gt; &gt; Feel free to open a bug upstream
+&gt; &gt; 
+&gt; &gt; This is not an upstream bug, it is a bug in your specfile.
+&gt; &gt; 
+&gt; &gt; You need to change:
+&gt; &gt; make %{?_smp_mflags} verbose=1
+&gt; &gt; to:
+&gt; &gt; make %{?_smp_mflags} verbose=yes
+&gt; 
+&gt; It&apos;s not related to this bug anyway nor solved the big size problem.
+
+The verbose build output is needed to debug the build issue that causes the debuginfo issue. It may give us a hint as to what is going wrong with the build. Right now, I have no idea what the makefile is doing behind the scenes.
+
+&gt; This happens because upstream project change it&apos;s structure too often and in 
+&gt; very unpredictable way. And it&apos;s not &quot;lightweight pdf viewer&quot; as it was but
+&gt; rather set of xxxxx for pdf processing.
+&gt; As I don&apos;t use huge number of buggy &quot;features&quot; of the project (like curl
+&gt; support, embedded js, converters etc) I don&apos;t care about them too much.
+
+Then I think the package needs a new maintainer or comaintainer.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10194893</commentid>
+    <comment_count>13</comment_count>
+    <who name="Michael J Gruber">mjg</who>
+    <bug_when>2017-02-28 13:35:54 -0500</bug_when>
+    <thetext>Let me also mention that the size is due to changed linkage in mupdf; in particular, statically linking against bundled libraries.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10195455</commentid>
+    <comment_count>14</comment_count>
+    <who name="Kevin Kofler">kevin</who>
+    <bug_when>2017-02-28 17:57:43 -0500</bug_when>
+    <thetext>The verbose command lines show that your linking command lines contain &quot;-Wl,-s&quot;, e.g.:
+cc -Wl,--gc-sections -Wl,-s -o build/release/fontdump build/release/fontdump.o -lpthread  -lm -lfreetype -lharfbuzz -ljbig2dec -ljpeg     -lopenjp2 -lz
+
+That is what breaks the debuginfo package generation. You need to remove that flag (patch or sed it out of the makefile(s), or override the makefile variable that sets it on the make command line) and reenable debug_package.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10195512</commentid>
+    <comment_count>15</comment_count>
+    <who name="Rex Dieter">rdieter</who>
+    <bug_when>2017-02-28 19:02:05 -0500</bug_when>
+    <thetext>Simply dropping the explicit strip here doesn&apos;t seem to help make the main package much smaller, but does fix the no -debuginfo problem.
+
+Doing a test with local builds I still end up with:
+
+$ ls -sh1 x86_64/
+total 173M
+109M mupdf-1.10a-2.fc25.x86_64.rpm
+ 39M mupdf-debuginfo-1.10a-2.fc25.x86_64.rpm
+ 26M mupdf-devel-1.10a-2.fc25.x86_64.rpm
+
+Something else is going on here, I suspect it may have to do with embedding resources (like fonts) into the executable.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10195792</commentid>
+    <comment_count>16</comment_count>
+    <who name="Kevin Kofler">kevin</who>
+    <bug_when>2017-02-28 21:26:30 -0500</bug_when>
+    <thetext>It indeed embeds the fonts, which is a very silly thing to do, why does it not use the (system) TTF files? Yet another project trying to apply Windows development practices to *nix? It looks like it has always done that, but CJK fonts were added in June 2016:
+http://git.ghostscript.com/?p=mupdf.git;a=commit;h=954e3bb173c3302bf458875e86c49c712f0789d4
+which are probably the reason for the size increase. (Previously, only Noto Sans Fallback was provided, which is a lot smaller than the full-blown CJK font Source Han Sans they added now.)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10195800</commentid>
+    <comment_count>17</comment_count>
+    <who name="Kevin Kofler">kevin</who>
+    <bug_when>2017-02-28 21:32:41 -0500</bug_when>
+    <thetext>I also think it would be useful to do what Debian does, and put mutool into a mupdf-tools subpackage. The embedded fonts are only used in the GUI viewer, and there are also dependencies on GUI libraries there. And you can really use mutool without the mupdf application, and also the other way round.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10196458</commentid>
+    <comment_count>18</comment_count>
+    <who name="Pavel Zhukov">pavel</who>
+    <bug_when>2017-03-01 03:49:14 -0500</bug_when>
+    <thetext>(In reply to Kevin Kofler from comment #16)
+&gt; It indeed embeds the fonts, which is a very silly thing to do, why does it
+&gt; not use the (system) TTF files? Yet another project trying to apply Windows
+&gt; development practices to *nix?
+Kevin, feel free to open BZ upstream. I tried to do so few times and all requests were closed with &quot;I don&apos;t care&quot; even if patch was attached. As far as I don&apos;t use any features but mupdf-x11 the best solution for me would be forking of the project.
+
+According to -s option. I have the patch but it&apos;ll land rawhide most likely as it doesn&apos;t solve the big size issue and require patching of upstream files.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10196561</commentid>
+    <comment_count>19</comment_count>
+    <who name="Michael J Gruber">mjg</who>
+    <bug_when>2017-03-01 04:27:43 -0500</bug_when>
+    <thetext>Yes, there were a lot of changes between mupdf 1.8 and 1.10a, which is why incremental updates could have helped.
+
+Since I don&apos;t quite see where this is going here, I&apos;m trying to develop the spec step-by-step at
+
+https://github.com/mjg/mupdf.spec
+
+so that at each step, a koji scratch build (at least) for f25 succeeds and one can see which step does what. I don&apos;t consider our testing repo a testbed for non-finalized specs, let alone the stable repo.
+
+In -2, the maintainer already reverted the removal of &quot;rm -rf thirdparty&quot;, good.
+
+-3 corrects the wrong BR xulrunner-devel.
+
+-4 reenables debug builds. After that, we should be in compliance with packaging guidelines again. (Upstream changed from default debug builds to default release builds between 1.8 and 1.10a.)
+
+Stripping gets the size of the executables down from 40MB to 32MB or so. The debuginfo script complains about the size of the elf parts but &quot;succeeds&quot;.
+
+Upstream has a policy of bundling everything - that&apos;s not easy on packagers, but we do the unbundling for other packages, too.
+
+Next step is the embedded font issue. Other distros create a .so that all executables link to dynamically, so that that space is wasted once only.
+
+Also, as mentioned already, a changed subpackage structure may be in order.
+
+I&apos;d be happy to take pull requests there or hints here, of course. I have a personal interest in keeping mupdf working and alive in Fedora.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10196804</commentid>
+    <comment_count>20</comment_count>
+    <who name="Kevin Kofler">kevin</who>
+    <bug_when>2017-03-01 05:47:19 -0500</bug_when>
+    <thetext>(In reply to Pavel Zhukov from comment #18)
+&gt; According to -s option. I have the patch but it&apos;ll land rawhide most likely
+&gt; as it doesn&apos;t solve the big size issue and require patching of upstream
+&gt; files.
+
+Well, -4 would make a lot more sense to push as an update than -2. The only potentially user-visible change in -2 (compared to -1) is the fixed unbundling, which you did not even mention in the changelog and the update notes. Adding a comment to the specfile and enabling verbose build outputs are things that can make your package more compliant to the packaging guidelines, but what is the point of pushing a Bodhi update for that? On the other hand, -4 enables the -debuginfo subpackage again, which is user-visible, even if the size issue is still there.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10199115</commentid>
+    <comment_count>21</comment_count>
+    <who name="Pavel Zhukov">pavel</who>
+    <bug_when>2017-03-01 16:14:38 -0500</bug_when>
+    <thetext>(In reply to Michael J Gruber from comment #19)
+&gt; Yes, there were a lot of changes between mupdf 1.8 and 1.10a, which is why
+&gt; incremental updates could have helped.
+&gt; 
+&gt; Since I don&apos;t quite see where this is going here, I&apos;m trying to develop the
+&gt; spec step-by-step at
+&gt; 
+&gt; https://github.com/mjg/mupdf.spec
+&gt; 
+&gt; so that at each step, a koji scratch build (at least) for f25 succeeds and
+&gt; one can see which step does what. I don&apos;t consider our testing repo a
+&gt; testbed for non-finalized specs, let alone the stable repo.
+&gt; 
+&gt; In -2, the maintainer already reverted the removal of &quot;rm -rf thirdparty&quot;,
+&gt; good.
+&gt; 
+&gt; -3 corrects the wrong BR xulrunner-devel.
+
+Well...
+It&apos;s not about karma. mupdf has 4 (I can be mistaken but quite many) CVE&apos;s assigned so first and most important part was to patch it against security issues as I had bug opened to update the packages I decided to go with update instead of patching. I think this is understandable.  That&apos;s why I&apos;ve disabled debuginfo. I don&apos;t remember the reason of removing of rm -rf thirdparty libraries directory maybe it&apos;s was too late and I wanted to go to bed :) 
+As we&apos;re on branching time right now I&apos;m trying to fix all FTBFS bugs assigned to me to keep packages in the release. GCC7 brought many cakes for me and I have to eat them all. 
+I really appreciate your comments and help to make the package better and I use mupdf on daily basis. But please don&apos;t forget about f26 branching and related load.
+Patches and co-maintainers are more than welcomed :)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10200453</commentid>
+    <comment_count>22</comment_count>
+    <who name="Joachim Frieben">jfrieben</who>
+    <bug_when>2017-03-02 00:38:22 -0500</bug_when>
+    <thetext>The latest Fedora 25 RPM mupdf-1.10a-1.fc25.x86_64 has a size of 133 MB. From the package description: &quot;A lightweight PDF viewer and toolkit&quot; ;o)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10201511</commentid>
+    <comment_count>23</comment_count>
+    <who name="Michael J Gruber">mjg</who>
+    <bug_when>2017-03-02 06:51:17 -0500</bug_when>
+    <thetext>So, I can get the size down to roughly 4M per binary now by avoiding the font embedding. PDFs seem to display fine. I&apos;m wondering about a few things, though:
+
+- Do we need the embedded fons for something?
+- Why is this even smaller than the 1.8 binaries?
+- What to do with library?
+
+mupdf-devel shipped a static library, which is not quite what we should do. There&apos;s a Gentoo/LFS patch that changes this to a shared library, for which we would need to introduce versioning and maybe a different package split (main, devel, libs).
+
+Maybe do the down-sizing now (leaving the static devel as is) and worry about the library later?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10201944</commentid>
+    <comment_count>24</comment_count>
+    <who name="Michael J Gruber">mjg</who>
+    <bug_when>2017-03-02 08:38:54 -0500</bug_when>
+    <thetext>So, spec and sources (for -5) as in
+
+https://github.com/mjg/mupdf.spec/tree/a735ad2b424987d966d2a4736c33283db01cc278
+
+result in a small rpm (9M) and small binaries. They seem to work for me and build on f25, f26 and rawhide:
+
+https://koji.fedoraproject.org/koji/taskinfo?taskID=18137343
+https://koji.fedoraproject.org/koji/taskinfo?taskID=18137438
+https://koji.fedoraproject.org/koji/taskinfo?taskID=18137504
+
+The library issue is treated exactly the same way as in 1.8, but it&apos;s 1.10a with the necessary patches for debug info and package size.
+
+Feel free to use that. If you prefer me to apply for comaintainership and push those changes, that&apos;s fine too.
+
+A new package split will require more planning and crosschecks with users of mupdf/tool in Fedora land, I think,</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10202558</commentid>
+    <comment_count>25</comment_count>
+    <who name="Kevin Kofler">kevin</who>
+    <bug_when>2017-03-02 10:51:53 -0500</bug_when>
+    <thetext>&gt; - Do we need the embedded fons for something?
+
+If you checked that the system font loading already works, then no.
+
+You will probably want to Require or at least Recommend the expected fonts though. At least urw-fonts.
+
+&gt; - Why is this even smaller than the 1.8 binaries?
+
+Because 1.8 already embedded plenty of fonts, just not the full-size CJK ones (only the lightweight Noto Sans Fallback for CJK).
+
+&gt; - What to do with library?
+
+I&apos;d just build it as an unversioned shared library. rpmlint will complain about it, but who cares? As long as no other package builds against it, versioning it is pointless.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10203792</commentid>
+    <comment_count>26</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-02 15:59:40 -0500</bug_when>
+    <thetext>mupdf-1.10a-4.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-9a819664a6</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10203798</commentid>
+    <comment_count>27</comment_count>
+    <who name="Pavel Zhukov">pavel</who>
+    <bug_when>2017-03-02 16:02:37 -0500</bug_when>
+    <thetext>Thank you very much for testing and patches.
+Please test
+https://bodhi.fedoraproject.org/updates/FEDORA-2017-3b97b275da and https://bodhi.fedoraproject.org/updates/FEDORA-2017-9a819664a6 this bugfix and fix for https://bugzilla.redhat.com/show_bug.cgi?id=1425338 should be there.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10203883</commentid>
+    <comment_count>28</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-02 16:29:57 -0500</bug_when>
+    <thetext>mupdf-1.10a-4.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2017-3b97b275da</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10203885</commentid>
+    <comment_count>29</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-02 16:30:08 -0500</bug_when>
+    <thetext>mupdf-1.10a-4.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2017-3b97b275da</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10204716</commentid>
+    <comment_count>30</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-02 23:54:13 -0500</bug_when>
+    <thetext>mupdf-1.10a-4.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-9a819664a6</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10204781</commentid>
+    <comment_count>31</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-03 00:24:54 -0500</bug_when>
+    <thetext>mupdf-1.10a-4.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-3b97b275da</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10216509</commentid>
+    <comment_count>32</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-07 08:21:46 -0500</bug_when>
+    <thetext>mupdf-1.10a-4.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10270901</commentid>
+    <comment_count>33</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-23 13:21:05 -0400</bug_when>
+    <thetext>mupdf-1.10a-4.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

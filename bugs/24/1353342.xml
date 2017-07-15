@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1353342</bug_id>
+          
+          <creation_ts>2016-07-06 16:39:00 -0400</creation_ts>
+          <short_desc>xfce4-terminal disappears on remote display when monitor goes into energy saving mode</short_desc>
+          <delta_ts>2017-06-09 14:57:15 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>xfce4-terminal</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Leif Hedstrom">leif</reporter>
+          <assigned_to name="Kevin Fenzi">kevin</assigned_to>
+          <cc>cwickert</cc>
+    
+    
+    <cc>kevin</cc>
+    
+    
+    <cc>nonamedotc</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>xfce4-terminal-0.8.5.1-1.fc25 xfce4-terminal-0.8.5.1-1.fc26</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-05-24 01:01:29</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9485340</commentid>
+    <comment_count>0</comment_count>
+    <who name="Leif Hedstrom">leif</who>
+    <bug_when>2016-07-06 16:39:47 -0400</bug_when>
+    <thetext>I run remote X11 to display a few apps from my Linux box to my X server (xquartz) running on a Mac. After upgrading to F24, the xfce4-terminal windows that I start up will always vanish when the monitor (on the Mac) goes into energy saver mode.
+
+This only seems to affect xfce4-terminal windows, all other windows, including Emacs and various other xfce4 windows stay put. I know that the network is not getting disconnected when it goes into the energy saving mode on the monitor.
+
+I also went back and tried the xfce4-terminal on a F23 VM, and it does not have these issues.
+
+I&apos;m running it something like this:
+
+$ export APACHE=&quot;/home/leif/apache/trafficserver.git&quot;
+$ export DISPLAY=munin:0.0
+$ xfce4-terminal --geometry 140x44+1500+670 --working-directory=${APACHE} --tab --working-directory=${APACHE}/BUILDS/release
+
+It all works fine, up until the monitor goes into energy saver, at which point the window disappears.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9497754</commentid>
+    <comment_count>1</comment_count>
+    <who name="Kevin Fenzi">kevin</who>
+    <bug_when>2016-07-11 15:33:18 -0400</bug_when>
+    <thetext>Thats pretty odd. 
+
+Can you perhaps try and strace it?
+
+dnf install strace
+strace -f -o /tmp/trace.out xfce4-terminal ... arguments ... 
+
+and then attach the trace.out here?
+
+When it disappears does it exit with any error you can see? or just like it was cleanly quit?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9510123</commentid>
+    <comment_count>2</comment_count>
+    <who name="Leif Hedstrom">leif</who>
+    <bug_when>2016-07-14 11:59:06 -0400</bug_when>
+    <thetext>Below is the trace from an &quot;idle&quot; state (no activity) to me putting the display in sleep mode. The only thing looking odd is the exit(0), but I did notice that the main process does not end; The windows just disappear somewhere, I&apos;m not sure where :-/.
+
+Also, I do get this warning about session manager on startup, not sure if that matters? (I&apos;m not running an xfce4 session, of course, but that didn&apos;t seem to matter in F23).
+
+Failed to connect to session manager: Failed to connect to the session manager: SESSION_MANAGER environment variable not defined
+
+Thanks!
+
+-- Leif
+
+$ strace -f xfce4-terminal --geometry 140x32+1500+0 --working-directory=/opt/ats --tab --working-directory=/opt/ats
+.
+.
+.
+
+
+ &lt;unfinished ...&gt;
+[pid  9706] &lt;... futex resumed&gt; )       = -1 ETIMEDOUT (Connection timed out)
+[pid  9706] madvise(0x7ff4a00d9000, 8368128, MADV_DONTNEED) = 0
+[pid  9706] exit(0)                     = ?
+[pid  9706] +++ exited with 0 +++
+[pid  9703] &lt;... poll resumed&gt; )        = 1 ([{fd=4, revents=POLLIN}])
+[pid  9703] recvmsg(4, {msg_name(0)=NULL, msg_iov(1)=[{&quot;\34\0\6\6A\1\0\0\337\0\0\0\362o\34\352\0\0\0\0\0p\0\0\0\0\0\0\0\30\232@&quot;..., 4096}], msg_controllen=0, msg_flags=0}, 0) = 96
+[pid  9703] recvmsg(4, 0x7ffe09652c70, 0) = -1 EAGAIN (Resource temporarily unavailable)
+[pid  9703] poll([{fd=4, events=POLLIN|POLLOUT}], 1, -1) = 1 ([{fd=4, revents=POLLOUT}])
+[pid  9703] writev(4, [{&quot;\21\30\2\0\337\0\0\0&quot;, 8}, {NULL, 0}, {&quot;&quot;, 0}], 3) = 8
+[pid  9703] poll([{fd=4, events=POLLIN}], 1, -1) = 1 ([{fd=4, revents=POLLIN}])
+[pid  9703] recvmsg(4, {msg_name(0)=NULL, msg_iov(1)=[{&quot;\1\0\7\6\6\0\0\0\25\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0&quot;..., 4096}], msg_controllen=0, msg_flags=0}, 0) = 56
+[pid  9703] recvmsg(4, 0x7ffe09652980, 0) = -1 EAGAIN (Resource temporarily unavailable)
+[pid  9703] poll([{fd=3, events=POLLIN}, {fd=4, events=POLLIN}], 2, 0) = 0 (Timeout)
+[pid  9703] recvmsg(4, 0x7ffe09652c50, 0) = -1 EAGAIN (Resource temporarily unavailable)
+[pid  9703] poll([{fd=3, events=POLLIN}, {fd=4, events=POLLIN}, {fd=9, events=POLLIN}, {fd=12, events=POLLIN}], 4, -1) = 1 ([{fd=4, revents=POLLIN}])
+[pid  9703] recvmsg(4, {msg_name(0)=NULL, msg_iov(1)=[{&quot;\34\0\7\6\3\0\240\0\1\1\0\0\26s\34\352\0\0\0\0d\355\0\245\220g\247\1\1\0\0\0&quot;..., 4096}], msg_controllen=0, msg_flags=0}, 0) = 64
+[pid  9703] recvmsg(4, 0x7ffe09652c70, 0) = -1 EAGAIN (Resource temporarily unavailable)
+[pid  9703] poll([{fd=4, events=POLLIN|POLLOUT}], 1, -1) = 1 ([{fd=4, revents=POLLOUT}])
+[pid  9703] writev(4, [{&quot;\24\0\6\0\3\0\240\0\1\1\0\0\4\0\0\0\0\0\0\0\377\377\377\377&quot;, 24}, {NULL, 0}, {&quot;&quot;, 0}], 3) = 24
+[pid  9703] poll([{fd=4, events=POLLIN}], 1, -1) = 1 ([{fd=4, revents=POLLIN}])
+[pid  9703] recvmsg(4, {msg_name(0)=NULL, msg_iov(1)=[{&quot;\1 \10\6\0\0\0\0\4\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0&quot;, 4096}], msg_controllen=0, msg_flags=0}, 0) = 32
+[pid  9703] recvmsg(4, 0x7ffe09652920, 0) = -1 EAGAIN (Resource temporarily unavailable)
+[pid  9703] recvmsg(4, 0x7ffe09652920, 0) = -1 EAGAIN (Resource temporarily unavailable)
+[pid  9703] recvmsg(4, 0x7ffe09652c50, 0) = -1 EAGAIN (Resource temporarily unavailable)
+[pid  9703] poll([{fd=3, events=POLLIN}, {fd=4, events=POLLIN}, {fd=9, events=POLLIN}, {fd=12, events=POLLIN}], 4, -1
+^Cstrace: Process 9703 detached
+ &lt;detached ...&gt;
+strace: Process 9704 detached
+strace: Process 9705 detached
+strace: Process 9707 detached
+strace: Process 9708 detached
+strace: Process 9709 detached</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9529116</commentid>
+    <comment_count>3</comment_count>
+    <who name="Kevin Fenzi">kevin</who>
+    <bug_when>2016-07-19 16:18:37 -0400</bug_when>
+    <thetext>Odd. If you run it with: --disable-server does it behave the same way?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9532974</commentid>
+    <comment_count>4</comment_count>
+    <who name="Leif Hedstrom">leif</who>
+    <bug_when>2016-07-20 11:16:49 -0400</bug_when>
+    <thetext>Yeah, I had tested with that option before, but tried again just to be safe. And the windows still disappears (but the processes do not).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9533285</commentid>
+    <comment_count>5</comment_count>
+    <who name="Kevin Fenzi">kevin</who>
+    <bug_when>2016-07-20 12:18:45 -0400</bug_when>
+    <thetext>Well, I am stumped. :( 
+
+Would you be willing to file this upstream and see what they say?
+
+Or I can if you prefer not to...</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9534163</commentid>
+    <comment_count>6</comment_count>
+    <who name="Leif Hedstrom">leif</who>
+    <bug_when>2016-07-20 16:01:55 -0400</bug_when>
+    <thetext>If you wouldn&apos;t mind filing one, that&apos;d be great. In the mean time, I&apos;ll keep trying / debugging, but I&apos;m also kinda stumped :-/. I noticed once, that the window went into a weird location, so maybe, just maybe, it&apos;s resizing itself and puts itself somewhere where I can&apos;t find it (and I don&apos;t have a window manager really, so can&apos;t find &apos;em).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9537450</commentid>
+    <comment_count>7</comment_count>
+    <who name="Leif Hedstrom">leif</who>
+    <bug_when>2016-07-21 11:17:58 -0400</bug_when>
+    <thetext>Little more details. I can see the windows still exist, they are just not visible anywhere on the screen. It&apos;s as if they got outside of the display port or some such. Their size is intact, but their location is completely wrong (not sure how to get that info though, is there an X command to ask a window for it&apos;s position?).
+
+Is this possibly related to GTK&apos;s removal of support for options like --geometry? (which is why I switched to xfce4-terminal in the first place :).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9537488</commentid>
+    <comment_count>8</comment_count>
+    <who name="Leif Hedstrom">leif</who>
+    <bug_when>2016-07-21 11:25:58 -0400</bug_when>
+    <thetext>Well, I found all the window info, I don&apos;t know if this helps at all, but here it is:
+
+
+fedora (09:21) 281/3 $ xwininfo -tree -root
+
+xwininfo: Window id: 0x141 (the root window) (has no name)
+
+  Root window id: 0x141 (the root window) (has no name)
+  Parent window id: 0x0 (none)
+     11 children:
+     0x40000a (has no name): ()  1275x873+3000+1362  +3000+1362
+        3 children:
+        0x40000c (has no name): ()  15x15+1260+858  +4260+2220
+        0x40000b (has no name): ()  56x16+8+2  +3008+1364
+        0xc00003 &quot;Terminal - leif@fedora:/home/leif/apache/trafficserver.git&quot;: (&quot;xfce4-terminal&quot; &quot;Xfce4-terminal&quot;)  1275x851+0+22  +3000+1384
+           1 child:
+           0xc00004 (has no name): ()  1x1+-1+-1  +2999+1383
+     0x400010 (has no name): ()  1366x1561+201+2  +201+2
+        3 children:
+        0x400012 (has no name): ()  15x15+1351+1546  +1552+1548
+        0x400011 (has no name): ()  56x16+8+2  +209+4
+        0xe00120 &quot;LogAccessHttp.cc - emacs@fedora.ogre.com&quot;: (&quot;emacs&quot; &quot;Emacs&quot;)  1366x1539+0+22  +201+24
+           2 children:
+           0xe00124 (has no name): ()  1366x1515+0+24  +201+48
+           0xe00121 (has no name): ()  1x1+-1+-1  +200+23
+     0x400004 (has no name): ()  484x338+11+0  +11+0
+        3 children:
+        0x400006 (has no name): ()  15x15+469+323  +480+323
+        0x400005 (has no name): ()  56x16+8+2  +19+2
+        0x60000d &quot;leif@munin:~&quot;: (&quot;xterm&quot; &quot;XTerm&quot;)  484x316+0+22  +11+22
+           1 child:
+           0x600011 (has no name): ()  484x316+0+0  +11+22
+     0x400007 (has no name): ()  1275x657+3000+22  +3000+22
+        3 children:
+        0x400009 (has no name): ()  15x15+1260+642  +4260+664
+        0x400008 (has no name): ()  56x16+8+2  +3008+24
+        0xa00003 &quot;Terminal - root@fedora:/opt/ats&quot;: (&quot;xfce4-terminal&quot; &quot;Xfce4-terminal&quot;)  1275x635+0+22  +3000+44
+           1 child:
+           0xa00004 (has no name): ()  1x1+-1+-1  +2999+43
+     0xc00090 &quot;Xfce Terminal&quot;: ()  10x10+-100+-100  +-100+-100
+     0xe00171 (has no name): (&quot;emacs&quot; &quot;Emacs&quot;)  28x43+0+0  +0+0
+        1 child:
+        0xe00172 (has no name): ()  1x1+-1+-1  +-1+-1
+     0xe00001 &quot;emacs&quot;: (&quot;emacs&quot; &quot;Emacs&quot;)  10x10+10+10  +10+10
+     0xc00001 &quot;Xfce Terminal&quot;: (&quot;xfce4-terminal&quot; &quot;Xfce4-terminal&quot;)  10x10+10+10  +10+10
+        1 child:
+        0xc00002 (has no name): ()  1x1+-1+-1  +9+9
+     0xa00001 &quot;Xfce Terminal&quot;: (&quot;xfce4-terminal&quot; &quot;Xfce4-terminal&quot;)  10x10+10+10  +10+10
+        1 child:
+        0xa00002 (has no name): ()  1x1+-1+-1  +9+9
+     0x800001 (has no name): ()  1x1+0+0  +0+0
+     0x400001 (has no name): ()  1x1+0+0  +0+0
+
+
+My setup actually has two monitors, but I can&apos;t see these missing xfce4-terminal windows on either display. xdpyinfo shows:
+
+screen #0:
+  dimensions:    5888x1670 pixels (1556x441 millimeters)
+  resolution:    96x96 dots per inch
+
+(that&apos;s the sum of both monitor&apos;s resolution).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9537508</commentid>
+    <comment_count>9</comment_count>
+    <who name="Leif Hedstrom">leif</who>
+    <bug_when>2016-07-21 11:27:42 -0400</bug_when>
+    <thetext>Also, just to be sure, when I start the xfce4-terminal&apos;s, they do show up in the right place, so it is honoring the -gemotry option just fine. It just seems to move the windows into limbo when the display goes to sleep mode (other X11 windows, like Emacs, are not affected).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9537901</commentid>
+    <comment_count>10</comment_count>
+    <who name="Leif Hedstrom">leif</who>
+    <bug_when>2016-07-21 13:26:08 -0400</bug_when>
+    <thetext>I&apos;ve tried like every command known to man kind to try to get the windows back. They don&apos;t appear to be minimized though, just completely out of the viewport :-/. I even tried e.g. 
+
+$ wmctrl -a 0x00c00003
+
+
+and 
+
+wmctrl -r 0x00a00003 -e 140x32+1500+0
+
+
+Nada. :-/</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10410689</commentid>
+    <comment_count>11</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-14 17:31:32 -0400</bug_when>
+    <thetext>xfce4-terminal-0.8.5.1-1.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-3d226f0c56</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10410693</commentid>
+    <comment_count>12</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-14 17:32:01 -0400</bug_when>
+    <thetext>xfce4-terminal-0.8.5.1-1.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-00f84706bf</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10413561</commentid>
+    <comment_count>13</comment_count>
+    <who name="Leif Hedstrom">leif</who>
+    <bug_when>2017-05-15 11:08:10 -0400</bug_when>
+    <thetext>I&apos;m not experiencing this in the latest F25 versions, so I think you can close this now.
+
+Thanks!
+
+-- leif</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10414428</commentid>
+    <comment_count>14</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-15 16:36:00 -0400</bug_when>
+    <thetext>xfce4-terminal-0.8.5.1-1.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-3d226f0c56</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10414643</commentid>
+    <comment_count>15</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-15 18:04:33 -0400</bug_when>
+    <thetext>xfce4-terminal-0.8.5.1-1.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-00f84706bf</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10442135</commentid>
+    <comment_count>16</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-24 01:01:29 -0400</bug_when>
+    <thetext>xfce4-terminal-0.8.5.1-1.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10493987</commentid>
+    <comment_count>17</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-09 14:57:15 -0400</bug_when>
+    <thetext>xfce4-terminal-0.8.5.1-1.fc26 has been pushed to the Fedora 26 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

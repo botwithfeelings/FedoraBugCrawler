@@ -1,0 +1,692 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1334554</bug_id>
+          
+          <creation_ts>2016-05-09 22:09:00 -0400</creation_ts>
+          <short_desc>Provide back compat /usr/lib/xen/bin/qemu-system-i386</short_desc>
+          <delta_ts>2016-05-28 19:55:12 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>xen</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords>Reopened</keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Konrad Rzeszutek Wilk">ketuzsezr</reporter>
+          <assigned_to name="Michael Young">m.a.young</assigned_to>
+          <cc>agedosier</cc>
+    
+    
+    <cc>berrange</cc>
+    
+    
+    <cc>clalancette</cc>
+    
+    
+    <cc>crobinso</cc>
+    
+    
+    <cc>itamar</cc>
+    
+    
+    <cc>jfehlig</cc>
+    
+    
+    <cc>ketuzsezr</cc>
+    
+    
+    <cc>laine</cc>
+    
+    
+    <cc>libvirt-maint</cc>
+    
+    
+    <cc>m.a.young</cc>
+    
+    
+    <cc>raistlin</cc>
+    
+    
+    <cc>veillard</cc>
+    
+    
+    <cc>virt-maint</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>xen-4.6.1-8.fc24 xen-4.5.3-5.fc22 xen-4.5.3-5.fc23</cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-05-28 19:22:31</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9308591</commentid>
+    <comment_count>0</comment_count>
+    <who name="Konrad Rzeszutek Wilk">ketuzsezr</who>
+    <bug_when>2016-05-09 22:09:08 -0400</bug_when>
+    <thetext>Description of problem:
+
+When trying to create a guest under virt-manager with Xen installed
+(dnf install xen; reboot; boot in it) I get this message:
+nable to complete install: &apos;unsupported configuration: emulator &apos;/usr/lib/xen/bin/qemu-system-i386&apos; not found&apos;
+
+Traceback (most recent call last):
+  File &quot;/usr/share/virt-manager/virtManager/asyncjob.py&quot;, line 90, in cb_wrapper
+    callback(asyncjob, *args, **kwargs)
+  File &quot;/usr/share/virt-manager/virtManager/create.py&quot;, line 2277, in _do_async_install
+    guest.start_install(meter=meter)
+  File &quot;/usr/share/virt-manager/virtinst/guest.py&quot;, line 501, in start_install
+    noboot)
+  File &quot;/usr/share/virt-manager/virtinst/guest.py&quot;, line 416, in _create_guest
+    dom = self.conn.createLinux(start_xml or final_xml, 0)
+  File &quot;/usr/lib64/python2.7/site-packages/libvirt.py&quot;, line 3701, in createLinux
+    if ret is None:raise libvirtError(&apos;virDomainCreateLinux() failed&apos;, conn=self)
+libvirtError: unsupported configuration: emulator &apos;/usr/lib/xen/bin/qemu-system-i386&apos; not found
+
+
+Which is true. There is no such file anymore:
+[root@tst032 ~]# rpm -ql xen-runtime | grep qemu | grep -v share
+/etc/xen/scripts/qemu-ifup
+/usr/bin/qemu-img-xen
+/usr/bin/qemu-nbd-xen
+/usr/lib/systemd/system/xen-qemu-dom0-disk-backend.service
+/usr/lib/xen/bin/qemu-dm
+
+
+Version-Release number of selected component (if applicable):
+[root@tst032 ~]# rpm -qa | grep virt-manager
+virt-manager-common-1.3.2-3.fc24.noarch
+virt-manager-1.3.2-3.fc24.noarch
+
+
+How reproducible:
+
+100%
+Steps to Reproduce:
+1. virt-manager
+2. create a guest (fully virt)
+3. try launching it.
+
+Actual results:
+
+Error message
+
+Expected results:
+
+VNC window
+
+Additional info:</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9308598</commentid>
+    <comment_count>1</comment_count>
+    <who name="Konrad Rzeszutek Wilk">ketuzsezr</who>
+    <bug_when>2016-05-09 22:11:19 -0400</bug_when>
+    <thetext>My work-around was to link qemu-dm:
+
+cd /usr/lib/xen/bin;ln -s qemu-dm qemu-system-i386</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9308606</commentid>
+    <comment_count>2</comment_count>
+    <who name="Konrad Rzeszutek Wilk">ketuzsezr</who>
+    <bug_when>2016-05-09 22:17:15 -0400</bug_when>
+    <thetext>What is weird that xen.spec has:
+./configure --prefix=%{_prefix} --libdir=%{_libdir} --with-system-seabios=%{seabiosloc} --with-system-qemu=/usr/bin/qemu-system-i386
+
+Which means that the Xen package won&apos;t built its own version of qemu-system-i386 but expects one at /usr/bin/qemu-system-i386
+
+But the only ones there are:
+[root@tst032 SPECS]# ls -al /usr/bin/ | grep qemu-
+-rwxr-xr-x.  1 root root    1293984 May  2 16:42 qemu-img
+lrwxrwxrwx.  1 root root          8 Apr 18 17:35 qemu-img-xen -&gt; qemu-img
+-rwxr-xr-x.  1 root root    1380512 May  2 16:42 qemu-io
+-rwxr-xr-x.  1 root root    1269760 May  2 16:42 qemu-nbd
+lrwxrwxrwx.  1 root root          8 Apr 18 17:35 qemu-nbd-xen -&gt; qemu-img
+
+
+?
+Adding MA Young on this bug.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9311357</commentid>
+    <comment_count>3</comment_count>
+    <who name="Cole Robinson">crobinso</who>
+    <bug_when>2016-05-10 11:40:00 -0400</bug_when>
+    <thetext>Thanks for the report, please provide virt-manager --debug when reproducing</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9311722</commentid>
+    <comment_count>4</comment_count>
+      <attachid>1155802</attachid>
+    <who name="Konrad Rzeszutek Wilk">ketuzsezr</who>
+    <bug_when>2016-05-10 13:11:13 -0400</bug_when>
+    <thetext>Created attachment 1155802
+virt-install   -v -n F24-64 --memory 1024 --cdrom /root/Fedora-Server-dvd-x86_64-24_Alpha-1.7.iso --disk /var/lib/libvirt/images/f24-i686.img --network bridge=switch,mac=00:0f:4b:01:00:87 --debug 2&gt;~
+
+#cd /usr/lib/xen/bin
+# # Delete the work-around:
+# rm qemu-system-i386 
+# virt-install   -v -n F24-64 --memory 1024 --cdrom /root/Fedora-Server-dvd-x86_64-24_Alpha-1.7.iso --disk /var/lib/libvirt/images/f24-i686.img --network bridge=switch,mac=00:0f:4b:01:00:87 --debug 2&gt;~/stderr.1334554.txt</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9311780</commentid>
+    <comment_count>5</comment_count>
+    <who name="Cole Robinson">crobinso</who>
+    <bug_when>2016-05-10 13:32:07 -0400</bug_when>
+    <thetext>Can you provide &apos;sudo virsh capabilities&apos; as well ? virt-manager --debug has it but I forgot virt-install --debug doesn&apos;t have it</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9311796</commentid>
+    <comment_count>6</comment_count>
+    <who name="Cole Robinson">crobinso</who>
+    <bug_when>2016-05-10 13:37:14 -0400</bug_when>
+    <thetext>capabilities will confirm, but I suspect this is an issue with libvirt libxl code, which has this:
+
+# ifndef LIBXL_FIRMWARE_DIR
+#  define LIBXL_FIRMWARE_DIR &quot;/usr/lib/xen/boot&quot;
+# endif
+# ifndef LIBXL_EXECBIN_DIR
+#  define LIBXL_EXECBIN_DIR &quot;/usr/lib/xen/bin&quot;
+# endif
+
+Maybe there&apos;s a way this can be programmatically determined via libxl? Does xen --with-system-qemu=/usr/bin/qemu-system-i386 make it into libxl somehow?
+
+CCing jfehlig who&apos;s the libvirt libxl maintainer</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9311849</commentid>
+    <comment_count>7</comment_count>
+    <who name="Jim Fehlig">jfehlig</who>
+    <bug_when>2016-05-10 13:51:40 -0400</bug_when>
+    <thetext>What version of Xen? LIBXL_{EXECBIN,FIRMWARE}_DIR come from the corresponding entries in /usr/share/pkgconfig/xenlight.pc. I guess those are not updated when specifying alternate firmwares or qemu (--with-system-seabios, --with-system-qemu).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9311923</commentid>
+    <comment_count>8</comment_count>
+    <who name="Konrad Rzeszutek Wilk">ketuzsezr</who>
+    <bug_when>2016-05-10 13:57:44 -0400</bug_when>
+    <thetext>(In reply to Jim Fehlig from comment #7)
+&gt; What version of Xen? LIBXL_{EXECBIN,FIRMWARE}_DIR come from the
+&gt; corresponding entries in /usr/share/pkgconfig/xenlight.pc. I guess those are
+&gt; not updated when specifying alternate firmwares or qemu
+&gt; (--with-system-seabios, --with-system-qemu).
+
+[root@tst032 ~]# rpm -qa | grep xen
+xen-licenses-4.6.1-6.fc24.x86_64
+xen-libs-4.6.1-6.fc24.x86_64
+xen-runtime-4.6.1-6.fc24.x86_64
+libvirt-daemon-driver-xen-1.3.3.1-1.fc24.x86_64
+xen-hypervisor-4.6.1-6.fc24.x86_64
+xen-4.6.1-6.fc24.x86_64
+
+And said file:
+[root@tst032 ~]# more /usr/share/pkgconfig/xenlight.pc 
+prefix=/usr
+includedir=${prefix}/include
+libdir=/usr/lib64
+xenfirmwaredir=/usr/lib/xen/boot
+libexec_bin=/usr/lib/xen/bin
+
+Name: Xenlight
+Description: The Xenlight library for Xen hypervisor
+Version: 4.6.0
+Cflags: -I${includedir}
+Libs: -L${libdir} -lxenlight</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9311969</commentid>
+    <comment_count>9</comment_count>
+      <attachid>1155823</attachid>
+    <who name="Konrad Rzeszutek Wilk">ketuzsezr</who>
+    <bug_when>2016-05-10 14:00:32 -0400</bug_when>
+    <thetext>Created attachment 1155823
+virsh capabilities output
+
+(In reply to Cole Robinson from comment #5)
+&gt; Can you provide &apos;sudo virsh capabilities&apos; as well ? virt-manager --debug has
+&gt; it but I forgot virt-install --debug doesn&apos;t have it
+
+Pls see attached.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9311996</commentid>
+    <comment_count>10</comment_count>
+    <who name="Konrad Rzeszutek Wilk">ketuzsezr</who>
+    <bug_when>2016-05-10 14:06:54 -0400</bug_when>
+    <thetext>..
+&gt; Maybe there&apos;s a way this can be programmatically determined via libxl? Does
+&gt; xen --with-system-qemu=/usr/bin/qemu-system-i386 make it into libxl somehow?
+&gt; 
+Means:
+  --with-system-qemu[=PATH]                                                     
+                          Use system supplied qemu PATH or qemu (taken from        
+                          $PATH) as qemu-xen device model instead of building   
+                          and installing our own version        
+
+And
+#dnf provides /usr/bin/qemu-system-i386
+Last metadata expiration check: 0:00:43 ago on Tue May 10 14:04:30 2016.
+qemu-system-x86-2:2.6.0-0.2.rc4.fc24.x86_64 : QEMU system emulator for x86
+Repo        : updates-testing
+
+qemu-system-x86-2:2.6.0-0.1.rc2.fc24.x86_64 : QEMU system emulator for x86
+Repo        : fedora
+
+.. which of course I don&apos;t have installed.
+
+
+Perhaps the xen.spec file needs an extra Requires: qemu-system-x86?
+It has:
+
+[root@tst032 SPECS]# cat xen.spec |grep Requires | grep qem
+BuildRequires: seabios-bin ipxe-roms-qemu
+#Requires: /usr/bin/qemu-img /usr/bin/qemu-nbd
+Requires: /usr/bin/qemu-img</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9312009</commentid>
+    <comment_count>11</comment_count>
+    <who name="Konrad Rzeszutek Wilk">ketuzsezr</who>
+    <bug_when>2016-05-10 14:11:49 -0400</bug_when>
+    <thetext>(In reply to Konrad Rzeszutek Wilk from comment #10)
+&gt; ..
+&gt; &gt; Maybe there&apos;s a way this can be programmatically determined via libxl? Does
+&gt; &gt; xen --with-system-qemu=/usr/bin/qemu-system-i386 make it into libxl somehow?
+&gt; &gt; 
+&gt; Means:
+&gt;   --with-system-qemu[=PATH]                                                 
+&gt; 
+&gt;                           Use system supplied qemu PATH or qemu (taken from 
+&gt; 
+&gt;                           $PATH) as qemu-xen device model instead of
+&gt; building   
+&gt;                           and installing our own version        
+&gt; 
+&gt; And
+&gt; #dnf provides /usr/bin/qemu-system-i386
+
+&lt;facepalm&gt;
+
+/usr/lib/xen/bin/qemu-system-i386!
+
+Right, so now I caught up on what you folks were talking about!</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9312954</commentid>
+    <comment_count>12</comment_count>
+    <who name="Jim Fehlig">jfehlig</who>
+    <bug_when>2016-05-10 16:22:00 -0400</bug_when>
+    <thetext>(In reply to Cole Robinson from comment #6)
+&gt; Maybe there&apos;s a way this can be programmatically determined via libxl? Does
+&gt; xen --with-system-qemu=/usr/bin/qemu-system-i386 make it into libxl somehow?
+
+Sadly it doesn&apos;t. If using the qemu, seabios, etc built by Xen, then the pkgconfig variables are correct. But obviously the information is useless when using the system variants of those. I&apos;m not sure how to best fix this. Options are adding similar configure options to libvirt or allow the paths to be specified in /etc/libvirt/libxl.conf. Opinions or other suggestions?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9313102</commentid>
+    <comment_count>13</comment_count>
+    <who name="Cole Robinson">crobinso</who>
+    <bug_when>2016-05-10 16:31:46 -0400</bug_when>
+    <thetext>The simplest fix for Fedora is probably to have xen set up those symlinks for the time being
+
+But if this is configured at the xen level, then maybe the proper fix is to add a libxl API to report the default emulator to libvirt. Adding a libvirt configure flag to match is not ideal since it means the packages need to coordinate.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9313210</commentid>
+    <comment_count>14</comment_count>
+    <who name="Jim Fehlig">jfehlig</who>
+    <bug_when>2016-05-10 16:41:48 -0400</bug_when>
+    <thetext>(In reply to Cole Robinson from comment #13)
+&gt; The simplest fix for Fedora is probably to have xen set up those symlinks
+&gt; for the time being
+
+Yes. Or install a wrapper that invokes the system qemu. It is probably needed anyhow for all the existing VM config containing &lt;emulator&gt;/usr/lib/xen/bin/qemu-system-i386&lt;/emulator&gt;
+
+&gt; But if this is configured at the xen level, then maybe the proper fix is to
+&gt; add a libxl API to report the default emulator to libvirt.
+
+Yes, that would be ideal. libxl needs to gain the ability to report capabilities info.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9313242</commentid>
+    <comment_count>15</comment_count>
+    <who name="Cole Robinson">crobinso</who>
+    <bug_when>2016-05-10 16:45:43 -0400</bug_when>
+    <thetext>(In reply to Jim Fehlig from comment #14)
+&gt; (In reply to Cole Robinson from comment #13)
+&gt; &gt; The simplest fix for Fedora is probably to have xen set up those symlinks
+&gt; &gt; for the time being
+&gt; 
+&gt; Yes. Or install a wrapper that invokes the system qemu. It is probably
+&gt; needed anyhow for all the existing VM config containing
+&gt; &lt;emulator&gt;/usr/lib/xen/bin/qemu-system-i386&lt;/emulator&gt;
+
+That&apos;s a very good point, so bouncing this to the xen package. xen will probably need to ship symlinks forever unfortunately, it&apos;s roughly what we have to do in the qemu package for /usr/bin/qemu-kvm which was once a distinct binary</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9317442</commentid>
+    <comment_count>16</comment_count>
+    <who name="Dario Faggioli">raistlin</who>
+    <bug_when>2016-05-11 11:10:04 -0400</bug_when>
+    <thetext>Looks like duplicate of this one (or vice versa):
+
+https://bugzilla.redhat.com/show_bug.cgi?id=1299745</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9318584</commentid>
+    <comment_count>17</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-05-11 19:05:47 -0400</bug_when>
+    <thetext>xen-4.6.1-8.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-a21b2cb7a0</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9318977</commentid>
+    <comment_count>18</comment_count>
+    <who name="Konrad Rzeszutek Wilk">ketuzsezr</who>
+    <bug_when>2016-05-11 21:59:51 -0400</bug_when>
+    <thetext>Thanks! Fix verified.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9322241</commentid>
+    <comment_count>19</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-05-12 13:47:50 -0400</bug_when>
+    <thetext>xen-4.5.3-4.fc23 has been submitted as an update to Fedora 23. https://bodhi.fedoraproject.org/updates/FEDORA-2016-beba065b97</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9322877</commentid>
+    <comment_count>20</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-05-12 18:27:24 -0400</bug_when>
+    <thetext>xen-4.6.1-8.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-a21b2cb7a0</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9322893</commentid>
+    <comment_count>21</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-05-12 18:31:24 -0400</bug_when>
+    <thetext>xen-4.5.3-4.fc22 has been submitted as an update to Fedora 22. https://bodhi.fedoraproject.org/updates/FEDORA-2016-a54261a145</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9330180</commentid>
+    <comment_count>22</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-05-16 11:21:20 -0400</bug_when>
+    <thetext>xen-4.5.3-4.fc22 has been pushed to the Fedora 22 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-a54261a145</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9330206</commentid>
+    <comment_count>23</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-05-16 11:24:09 -0400</bug_when>
+    <thetext>xen-4.5.3-4.fc23 has been pushed to the Fedora 23 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-beba065b97</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9330457</commentid>
+    <comment_count>24</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-05-16 12:19:32 -0400</bug_when>
+    <thetext>xen-4.6.1-8.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9335269</commentid>
+    <comment_count>25</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-05-17 18:05:31 -0400</bug_when>
+    <thetext>xen-4.5.3-5.fc23 has been submitted as an update to Fedora 23. https://bodhi.fedoraproject.org/updates/FEDORA-2016-19c82866bb</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9335294</commentid>
+    <comment_count>26</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-05-17 18:25:30 -0400</bug_when>
+    <thetext>xen-4.5.3-5.fc22 has been submitted as an update to Fedora 22. https://bodhi.fedoraproject.org/updates/FEDORA-2016-8fd9019541</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9346115</commentid>
+    <comment_count>27</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-05-20 21:23:54 -0400</bug_when>
+    <thetext>xen-4.5.3-5.fc22 has been pushed to the Fedora 22 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-8fd9019541</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9346290</commentid>
+    <comment_count>28</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-05-20 22:28:49 -0400</bug_when>
+    <thetext>xen-4.5.3-5.fc23 has been pushed to the Fedora 23 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-19c82866bb</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9367108</commentid>
+    <comment_count>29</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-05-28 19:21:33 -0400</bug_when>
+    <thetext>xen-4.5.3-5.fc22 has been pushed to the Fedora 22 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9367128</commentid>
+    <comment_count>30</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-05-28 19:54:57 -0400</bug_when>
+    <thetext>xen-4.5.3-5.fc23 has been pushed to the Fedora 23 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="0"
+              ispatch="0"
+              isprivate="0"
+          >
+            <attachid>1155802</attachid>
+            <date>2016-05-10 13:11:00 -0400</date>
+            <delta_ts>2016-05-10 13:11:13 -0400</delta_ts>
+            <desc>virt-install   -v -n F24-64 --memory 1024 --cdrom /root/Fedora-Server-dvd-x86_64-24_Alpha-1.7.iso --disk /var/lib/libvirt/images/f24-i686.img --network bridge=switch,mac=00:0f:4b:01:00:87 --debug 2&gt;~</desc>
+            <filename>stderr.1334554.txt</filename>
+            <type>text/plain</type>
+            <size>6047</size>
+            <attacher name="Konrad Rzeszutek Wilk">ketuzsezr</attacher>
+            
+              <data encoding="base64">W1R1ZSwgMTAgTWF5IDIwMTYgMTM6MDg6MDkgdmlydC1pbnN0YWxsIDIyOThdIERFQlVHIChjbGk6
+MjU2KSBMYXVuY2hlZCB3aXRoIGNvbW1hbmQgbGluZTogL3Vzci9zaGFyZS92aXJ0LW1hbmFnZXIv
+dmlydC1pbnN0YWxsIC12IC1uIEYyNC02NCAtLW1lbW9yeSAxMDI0IC0tY2Ryb20gL3Jvb3QvRmVk
+b3JhLVNlcnZlci1kdmQteDg2XzY0LTI0X0FscGhhLTEuNy5pc28gLS1kaXNrIC92YXIvbGliL2xp
+YnZpcnQvaW1hZ2VzL2YyNC1pNjg2LmltZyAtLW5ldHdvcmsgYnJpZGdlPXN3aXRjaCxtYWM9MDA6
+MGY6NGI6MDE6MDA6ODcgLS1kZWJ1ZwpbVHVlLCAxMCBNYXkgMjAxNiAxMzowODowOSB2aXJ0LWlu
+c3RhbGwgMjI5OF0gREVCVUcgKGNsaToyNjYpIFJlcXVlc3RpbmcgbGlidmlydCBVUkkgZGVmYXVs
+dApbVHVlLCAxMCBNYXkgMjAxNiAxMzowODowOSB2aXJ0LWluc3RhbGwgMjI5OF0gREVCVUcgKGNs
+aToyNzApIFJlY2VpdmVkIGxpYnZpcnQgVVJJIHhlbjovLy8KW1R1ZSwgMTAgTWF5IDIwMTYgMTM6
+MDg6MDkgdmlydC1pbnN0YWxsIDIyOThdIERFQlVHICh2aXJ0LWluc3RhbGw6MzU3KSBSZXF1ZXN0
+aW5nIHZpcnQgbWV0aG9kICdodm0nLCBodiB0eXBlICdkZWZhdWx0Jy4KW1R1ZSwgMTAgTWF5IDIw
+MTYgMTM6MDg6MDkgdmlydC1pbnN0YWxsIDIyOThdIERFQlVHICh2aXJ0LWluc3RhbGw6NTc2KSBS
+ZWNlaXZlZCB2aXJ0IG1ldGhvZCAneGVuJwpbVHVlLCAxMCBNYXkgMjAxNiAxMzowODowOSB2aXJ0
+LWluc3RhbGwgMjI5OF0gREVCVUcgKHZpcnQtaW5zdGFsbDo1NzcpIEh5cGVydmlzb3IgbmFtZSBp
+cyAnaHZtJwpbVHVlLCAxMCBNYXkgMjAxNiAxMzowODowOSB2aXJ0LWluc3RhbGwgMjI5OF0gREVC
+VUcgKHZpcnQtaW5zdGFsbDoyNjkpIERpc3RpbGxlZCAtLW5ldHdvcmsgb3B0aW9uczogWydicmlk
+Z2U9c3dpdGNoLG1hYz0wMDowZjo0YjowMTowMDo4NyddCltUdWUsIDEwIE1heSAyMDE2IDEzOjA4
+OjA5IHZpcnQtaW5zdGFsbCAyMjk4XSBERUJVRyAodmlydC1pbnN0YWxsOjE4MikgRGlzdGlsbGVk
+IC0tZGlzayBvcHRpb25zOiBbJy92YXIvbGliL2xpYnZpcnQvaW1hZ2VzL2YyNC1pNjg2LmltZydd
+CltUdWUsIDEwIE1heSAyMDE2IDEzOjA4OjEwIHZpcnQtaW5zdGFsbCAyMjk4XSBERUJVRyAoZGlz
+dHJvaW5zdGFsbGVyOjUxNCkgaW5zdGFsbGVyLmRldGVjdF9kaXN0cm8gcmV0dXJuZWQ9Tm9uZQpb
+VHVlLCAxMCBNYXkgMjAxNiAxMzowODoxMCB2aXJ0LWluc3RhbGwgMjI5OF0gREVCVUcgKGd1ZXN0
+OjI0MSkgU2V0dGluZyBHdWVzdC5vc192YXJpYW50IHRvICdOb25lJwpbVHVlLCAxMCBNYXkgMjAx
+NiAxMzowODoxMCB2aXJ0LWluc3RhbGwgMjI5OF0gREVCVUcgKGhvc3RrZXltYXA6MTE3KSBGb3Vu
+ZCBrZXltYXA9dXMgaW4gL2V0Yy92Y29uc29sZS5jb25mCltUdWUsIDEwIE1heSAyMDE2IDEzOjA4
+OjEwIHZpcnQtaW5zdGFsbCAyMjk4XSBERUJVRyAodmlydC1pbnN0YWxsOjczMSkgR3Vlc3QuaGFz
+X2luc3RhbGxfcGhhc2U6IFRydWUKW1R1ZSwgMTAgTWF5IDIwMTYgMTM6MDg6MTAgdmlydC1pbnN0
+YWxsIDIyOThdIERFQlVHIChndWVzdDoxMTIwKSBVc2luZyBkZWZhdWx0X2dyYXBoaWNzPXNwaWNl
+CltUdWUsIDEwIE1heSAyMDE2IDEzOjA4OjEwIHZpcnQtaW5zdGFsbCAyMjk4XSBERUJVRyAoZ3Vl
+c3Q6MTEyNSkgc3BpY2UgcmVxdWVzdGVkIGJ1dCBIViBkb2Vzbid0IHN1cHBvcnQgaXQuIFVzaW5n
+IHZuYy4KW1R1ZSwgMTAgTWF5IDIwMTYgMTM6MDg6MTAgdmlydC1pbnN0YWxsIDIyOThdIERFQlVH
+IChndWVzdDozOTgpIEdlbmVyYXRlZCBpbnN0YWxsIFhNTDogCjxkb21haW4gdHlwZT0ieGVuIj4K
+ICA8bmFtZT5GMjQtNjQ8L25hbWU+CiAgPHV1aWQ+OGQ5YjFlMDQtYWIyOS00MzlkLTlkYjUtYWNl
+MDI5YTkwNDlhPC91dWlkPgogIDxtZW1vcnk+MTA0ODU3NjwvbWVtb3J5PgogIDxjdXJyZW50TWVt
+b3J5PjEwNDg1NzY8L2N1cnJlbnRNZW1vcnk+CiAgPHZjcHU+MTwvdmNwdT4KICA8b3M+CiAgICA8
+dHlwZSBhcmNoPSJ4ODZfNjQiPmh2bTwvdHlwZT4KICAgIDxsb2FkZXI+L3Vzci9saWIveGVuL2Jv
+b3QvaHZtbG9hZGVyPC9sb2FkZXI+CiAgICA8Ym9vdCBkZXY9ImNkcm9tIi8+CiAgICA8Ym9vdCBk
+ZXY9ImhkIi8+CiAgPC9vcz4KICA8ZmVhdHVyZXM+CiAgICA8YWNwaS8+CiAgICA8YXBpYy8+CiAg
+ICA8cGFlLz4KICA8L2ZlYXR1cmVzPgogIDxjbG9jayBvZmZzZXQ9InV0YyIvPgogIDxvbl9wb3dl
+cm9mZj5kZXN0cm95PC9vbl9wb3dlcm9mZj4KICA8b25fcmVib290PmRlc3Ryb3k8L29uX3JlYm9v
+dD4KICA8b25fY3Jhc2g+ZGVzdHJveTwvb25fY3Jhc2g+CiAgPGRldmljZXM+CiAgICA8ZW11bGF0
+b3I+L3Vzci9saWIveGVuL2Jpbi9xZW11LXN5c3RlbS1pMzg2PC9lbXVsYXRvcj4KICAgIDxkaXNr
+IHR5cGU9ImZpbGUiIGRldmljZT0iZGlzayI+CiAgICAgIDxkcml2ZXIgbmFtZT0icWVtdSIgdHlw
+ZT0icmF3Ii8+CiAgICAgIDxzb3VyY2UgZmlsZT0iL3Zhci9saWIvbGlidmlydC9pbWFnZXMvZjI0
+LWk2ODYuaW1nIi8+CiAgICAgIDx0YXJnZXQgZGV2PSJoZGEiIGJ1cz0iaWRlIi8+CiAgICA8L2Rp
+c2s+CiAgICA8ZGlzayB0eXBlPSJmaWxlIiBkZXZpY2U9ImNkcm9tIj4KICAgICAgPGRyaXZlciBu
+YW1lPSJxZW11IiB0eXBlPSJyYXciLz4KICAgICAgPHNvdXJjZSBmaWxlPSIvcm9vdC9GZWRvcmEt
+U2VydmVyLWR2ZC14ODZfNjQtMjRfQWxwaGEtMS43LmlzbyIvPgogICAgICA8dGFyZ2V0IGRldj0i
+aGRiIiBidXM9ImlkZSIvPgogICAgICA8cmVhZG9ubHkvPgogICAgPC9kaXNrPgogICAgPGludGVy
+ZmFjZSB0eXBlPSJicmlkZ2UiPgogICAgICA8c291cmNlIGJyaWRnZT0ic3dpdGNoIi8+CiAgICAg
+IDxtYWMgYWRkcmVzcz0iMDA6MGY6NGI6MDE6MDA6ODciLz4KICAgIDwvaW50ZXJmYWNlPgogICAg
+PGlucHV0IHR5cGU9Im1vdXNlIiBidXM9InBzMiIvPgogICAgPGdyYXBoaWNzIHR5cGU9InZuYyIg
+cG9ydD0iLTEiIGtleW1hcD0iZW4tdXMiLz4KICAgIDxjb25zb2xlIHR5cGU9InB0eSIvPgogIDwv
+ZGV2aWNlcz4KPC9kb21haW4+CgpbVHVlLCAxMCBNYXkgMjAxNiAxMzowODoxMCB2aXJ0LWluc3Rh
+bGwgMjI5OF0gREVCVUcgKGd1ZXN0OjM5OSkgR2VuZXJhdGVkIGJvb3QgWE1MOiAKPGRvbWFpbiB0
+eXBlPSJ4ZW4iPgogIDxuYW1lPkYyNC02NDwvbmFtZT4KICA8dXVpZD44ZDliMWUwNC1hYjI5LTQz
+OWQtOWRiNS1hY2UwMjlhOTA0OWE8L3V1aWQ+CiAgPG1lbW9yeT4xMDQ4NTc2PC9tZW1vcnk+CiAg
+PGN1cnJlbnRNZW1vcnk+MTA0ODU3NjwvY3VycmVudE1lbW9yeT4KICA8dmNwdT4xPC92Y3B1Pgog
+IDxvcz4KICAgIDx0eXBlIGFyY2g9Ing4Nl82NCI+aHZtPC90eXBlPgogICAgPGxvYWRlcj4vdXNy
+L2xpYi94ZW4vYm9vdC9odm1sb2FkZXI8L2xvYWRlcj4KICAgIDxib290IGRldj0iaGQiLz4KICA8
+L29zPgogIDxmZWF0dXJlcz4KICAgIDxhY3BpLz4KICAgIDxhcGljLz4KICAgIDxwYWUvPgogIDwv
+ZmVhdHVyZXM+CiAgPGNsb2NrIG9mZnNldD0idXRjIi8+CiAgPG9uX3Bvd2Vyb2ZmPmRlc3Ryb3k8
+L29uX3Bvd2Vyb2ZmPgogIDxvbl9yZWJvb3Q+cmVzdGFydDwvb25fcmVib290PgogIDxvbl9jcmFz
+aD5yZXN0YXJ0PC9vbl9jcmFzaD4KICA8ZGV2aWNlcz4KICAgIDxlbXVsYXRvcj4vdXNyL2xpYi94
+ZW4vYmluL3FlbXUtc3lzdGVtLWkzODY8L2VtdWxhdG9yPgogICAgPGRpc2sgdHlwZT0iZmlsZSIg
+ZGV2aWNlPSJkaXNrIj4KICAgICAgPGRyaXZlciBuYW1lPSJxZW11IiB0eXBlPSJyYXciLz4KICAg
+ICAgPHNvdXJjZSBmaWxlPSIvdmFyL2xpYi9saWJ2aXJ0L2ltYWdlcy9mMjQtaTY4Ni5pbWciLz4K
+ICAgICAgPHRhcmdldCBkZXY9ImhkYSIgYnVzPSJpZGUiLz4KICAgIDwvZGlzaz4KICAgIDxkaXNr
+IHR5cGU9ImZpbGUiIGRldmljZT0iY2Ryb20iPgogICAgICA8dGFyZ2V0IGRldj0iaGRiIiBidXM9
+ImlkZSIvPgogICAgICA8cmVhZG9ubHkvPgogICAgPC9kaXNrPgogICAgPGludGVyZmFjZSB0eXBl
+PSJicmlkZ2UiPgogICAgICA8c291cmNlIGJyaWRnZT0ic3dpdGNoIi8+CiAgICAgIDxtYWMgYWRk
+cmVzcz0iMDA6MGY6NGI6MDE6MDA6ODciLz4KICAgIDwvaW50ZXJmYWNlPgogICAgPGlucHV0IHR5
+cGU9Im1vdXNlIiBidXM9InBzMiIvPgogICAgPGdyYXBoaWNzIHR5cGU9InZuYyIgcG9ydD0iLTEi
+IGtleW1hcD0iZW4tdXMiLz4KICAgIDxjb25zb2xlIHR5cGU9InB0eSIvPgogIDwvZGV2aWNlcz4K
+PC9kb21haW4+CgpbVHVlLCAxMCBNYXkgMjAxNiAxMzowODoxMCB2aXJ0LWluc3RhbGwgMjI5OF0g
+REVCVUcgKGNsaTozMDUpICAgRmlsZSAiL3Vzci9zaGFyZS92aXJ0LW1hbmFnZXIvdmlydC1pbnN0
+YWxsIiwgbGluZSAxMDYzLCBpbiA8bW9kdWxlPgogICAgc3lzLmV4aXQobWFpbigpKQogIEZpbGUg
+Ii91c3Ivc2hhcmUvdmlydC1tYW5hZ2VyL3ZpcnQtaW5zdGFsbCIsIGxpbmUgMTA1NywgaW4gbWFp
+bgogICAgc3RhcnRfaW5zdGFsbChndWVzdCwgY29udGludWVfaW5zdCwgb3B0aW9ucykKICBGaWxl
+ICIvdXNyL3NoYXJlL3ZpcnQtbWFuYWdlci92aXJ0LWluc3RhbGwiLCBsaW5lIDc2OCwgaW4gc3Rh
+cnRfaW5zdGFsbAogICAgZmFpbChlLCBkb19leGl0PUZhbHNlKQogIEZpbGUgIi91c3Ivc2hhcmUv
+dmlydC1tYW5hZ2VyL3ZpcnRpbnN0L2NsaS5weSIsIGxpbmUgMzA1LCBpbiBmYWlsCiAgICBsb2dn
+aW5nLmRlYnVnKCIiLmpvaW4odHJhY2ViYWNrLmZvcm1hdF9zdGFjaygpKSkKCltUdWUsIDEwIE1h
+eSAyMDE2IDEzOjA4OjEwIHZpcnQtaW5zdGFsbCAyMjk4XSBFUlJPUiAoY2xpOjMwNikgdW5zdXBw
+b3J0ZWQgY29uZmlndXJhdGlvbjogZW11bGF0b3IgJy91c3IvbGliL3hlbi9iaW4vcWVtdS1zeXN0
+ZW0taTM4Nicgbm90IGZvdW5kCltUdWUsIDEwIE1heSAyMDE2IDEzOjA4OjEwIHZpcnQtaW5zdGFs
+bCAyMjk4XSBERUJVRyAoY2xpOjMwOCkgClRyYWNlYmFjayAobW9zdCByZWNlbnQgY2FsbCBsYXN0
+KToKICBGaWxlICIvdXNyL3NoYXJlL3ZpcnQtbWFuYWdlci92aXJ0LWluc3RhbGwiLCBsaW5lIDc0
+MSwgaW4gc3RhcnRfaW5zdGFsbAogICAgZG9tID0gZ3Vlc3Quc3RhcnRfaW5zdGFsbChtZXRlcj1t
+ZXRlciwgbm9ib290PW9wdGlvbnMubm9yZWJvb3QpCiAgRmlsZSAiL3Vzci9zaGFyZS92aXJ0LW1h
+bmFnZXIvdmlydGluc3QvZ3Vlc3QucHkiLCBsaW5lIDUwMSwgaW4gc3RhcnRfaW5zdGFsbAogICAg
+bm9ib290KQogIEZpbGUgIi91c3Ivc2hhcmUvdmlydC1tYW5hZ2VyL3ZpcnRpbnN0L2d1ZXN0LnB5
+IiwgbGluZSA0MTYsIGluIF9jcmVhdGVfZ3Vlc3QKICAgIGRvbSA9IHNlbGYuY29ubi5jcmVhdGVM
+aW51eChzdGFydF94bWwgb3IgZmluYWxfeG1sLCAwKQogIEZpbGUgIi91c3IvbGliNjQvcHl0aG9u
+Mi43L3NpdGUtcGFja2FnZXMvbGlidmlydC5weSIsIGxpbmUgMzcwMSwgaW4gY3JlYXRlTGludXgK
+ICAgIGlmIHJldCBpcyBOb25lOnJhaXNlIGxpYnZpcnRFcnJvcigndmlyRG9tYWluQ3JlYXRlTGlu
+dXgoKSBmYWlsZWQnLCBjb25uPXNlbGYpCmxpYnZpcnRFcnJvcjogdW5zdXBwb3J0ZWQgY29uZmln
+dXJhdGlvbjogZW11bGF0b3IgJy91c3IvbGliL3hlbi9iaW4vcWVtdS1zeXN0ZW0taTM4Nicgbm90
+IGZvdW5kCltUdWUsIDEwIE1heSAyMDE2IDEzOjA4OjEwIHZpcnQtaW5zdGFsbCAyMjk4XSBERUJV
+RyAoY2xpOjMxOSkgRG9tYWluIGluc3RhbGxhdGlvbiBkb2VzIG5vdCBhcHBlYXIgdG8gaGF2ZSBi
+ZWVuIHN1Y2Nlc3NmdWwuCklmIGl0IHdhcywgeW91IGNhbiByZXN0YXJ0IHlvdXIgZG9tYWluIGJ5
+IHJ1bm5pbmc6CiAgdmlyc2ggLS1jb25uZWN0IHhlbjovLy8gc3RhcnQgRjI0LTY0Cm90aGVyd2lz
+ZSwgcGxlYXNlIHJlc3RhcnQgeW91ciBpbnN0YWxsYXRpb24uCkRvbWFpbiBpbnN0YWxsYXRpb24g
+ZG9lcyBub3QgYXBwZWFyIHRvIGhhdmUgYmVlbiBzdWNjZXNzZnVsLgpJZiBpdCB3YXMsIHlvdSBj
+YW4gcmVzdGFydCB5b3VyIGRvbWFpbiBieSBydW5uaW5nOgogIHZpcnNoIC0tY29ubmVjdCB4ZW46
+Ly8vIHN0YXJ0IEYyNC02NApvdGhlcndpc2UsIHBsZWFzZSByZXN0YXJ0IHlvdXIgaW5zdGFsbGF0
+aW9uLgo=
+</data>
+
+          </attachment>
+          <attachment
+              isobsolete="0"
+              ispatch="0"
+              isprivate="0"
+          >
+            <attachid>1155823</attachid>
+            <date>2016-05-10 14:00:00 -0400</date>
+            <delta_ts>2016-05-10 14:00:32 -0400</delta_ts>
+            <desc>virsh capabilities output</desc>
+            <filename>capabilities.txt</filename>
+            <type>text/plain</type>
+            <size>2143</size>
+            <attacher name="Konrad Rzeszutek Wilk">ketuzsezr</attacher>
+            
+              <data encoding="base64">PGNhcGFiaWxpdGllcz4KCiAgPGhvc3Q+CiAgICA8Y3B1PgogICAgICA8YXJjaD54ODZfNjQ8L2Fy
+Y2g+CiAgICAgIDxmZWF0dXJlcz4KICAgICAgICA8cGFlLz4KICAgICAgPC9mZWF0dXJlcz4KICAg
+IDwvY3B1PgogICAgPHBvd2VyX21hbmFnZW1lbnQvPgogICAgPG1pZ3JhdGlvbl9mZWF0dXJlcz4K
+ICAgICAgPGxpdmUvPgogICAgPC9taWdyYXRpb25fZmVhdHVyZXM+CiAgICA8bmV0cHJlZml4PnZp
+ZjwvbmV0cHJlZml4PgogICAgPHRvcG9sb2d5PgogICAgICA8Y2VsbHMgbnVtPScxJz4KICAgICAg
+ICA8Y2VsbCBpZD0nMCc+CiAgICAgICAgICA8bWVtb3J5IHVuaXQ9J0tpQic+NDcxNjU0NDwvbWVt
+b3J5PgogICAgICAgICAgPGNwdXMgbnVtPSc0Jz4KICAgICAgICAgICAgPGNwdSBpZD0nMCcgc29j
+a2V0X2lkPScwJyBjb3JlX2lkPScwJyBzaWJsaW5ncz0nMC0xJy8+CiAgICAgICAgICAgIDxjcHUg
+aWQ9JzEnIHNvY2tldF9pZD0nMCcgY29yZV9pZD0nMCcgc2libGluZ3M9JzAtMScvPgogICAgICAg
+ICAgICA8Y3B1IGlkPScyJyBzb2NrZXRfaWQ9JzAnIGNvcmVfaWQ9JzEnIHNpYmxpbmdzPScyLTMn
+Lz4KICAgICAgICAgICAgPGNwdSBpZD0nMycgc29ja2V0X2lkPScwJyBjb3JlX2lkPScxJyBzaWJs
+aW5ncz0nMi0zJy8+CiAgICAgICAgICA8L2NwdXM+CiAgICAgICAgPC9jZWxsPgogICAgICA8L2Nl
+bGxzPgogICAgPC90b3BvbG9neT4KICA8L2hvc3Q+CgogIDxndWVzdD4KICAgIDxvc190eXBlPnhl
+bjwvb3NfdHlwZT4KICAgIDxhcmNoIG5hbWU9J3g4Nl82NCc+CiAgICAgIDx3b3Jkc2l6ZT42NDwv
+d29yZHNpemU+CiAgICAgIDxlbXVsYXRvcj4vdXNyL2xpYi94ZW4vYmluL3FlbXUtc3lzdGVtLWkz
+ODY8L2VtdWxhdG9yPgogICAgICA8bWFjaGluZT54ZW5wdjwvbWFjaGluZT4KICAgICAgPGRvbWFp
+biB0eXBlPSd4ZW4nLz4KICAgIDwvYXJjaD4KICA8L2d1ZXN0PgoKICA8Z3Vlc3Q+CiAgICA8b3Nf
+dHlwZT54ZW48L29zX3R5cGU+CiAgICA8YXJjaCBuYW1lPSdpNjg2Jz4KICAgICAgPHdvcmRzaXpl
+PjMyPC93b3Jkc2l6ZT4KICAgICAgPGVtdWxhdG9yPi91c3IvbGliL3hlbi9iaW4vcWVtdS1zeXN0
+ZW0taTM4NjwvZW11bGF0b3I+CiAgICAgIDxtYWNoaW5lPnhlbnB2PC9tYWNoaW5lPgogICAgICA8
+ZG9tYWluIHR5cGU9J3hlbicvPgogICAgPC9hcmNoPgogICAgPGZlYXR1cmVzPgogICAgICA8cGFl
+Lz4KICAgIDwvZmVhdHVyZXM+CiAgPC9ndWVzdD4KCiAgPGd1ZXN0PgogICAgPG9zX3R5cGU+aHZt
+PC9vc190eXBlPgogICAgPGFyY2ggbmFtZT0naTY4Nic+CiAgICAgIDx3b3Jkc2l6ZT4zMjwvd29y
+ZHNpemU+CiAgICAgIDxlbXVsYXRvcj4vdXNyL2xpYi94ZW4vYmluL3FlbXUtc3lzdGVtLWkzODY8
+L2VtdWxhdG9yPgogICAgICA8bG9hZGVyPi91c3IvbGliL3hlbi9ib290L2h2bWxvYWRlcjwvbG9h
+ZGVyPgogICAgICA8bWFjaGluZT54ZW5mdjwvbWFjaGluZT4KICAgICAgPGRvbWFpbiB0eXBlPSd4
+ZW4nLz4KICAgIDwvYXJjaD4KICAgIDxmZWF0dXJlcz4KICAgICAgPHBhZS8+CiAgICAgIDxub25w
+YWUvPgogICAgICA8YWNwaSBkZWZhdWx0PSdvbicgdG9nZ2xlPSd5ZXMnLz4KICAgICAgPGFwaWMg
+ZGVmYXVsdD0nb24nIHRvZ2dsZT0nbm8nLz4KICAgICAgPGhhcCBkZWZhdWx0PSdvbicgdG9nZ2xl
+PSd5ZXMnLz4KICAgIDwvZmVhdHVyZXM+CiAgPC9ndWVzdD4KCiAgPGd1ZXN0PgogICAgPG9zX3R5
+cGU+aHZtPC9vc190eXBlPgogICAgPGFyY2ggbmFtZT0neDg2XzY0Jz4KICAgICAgPHdvcmRzaXpl
+PjY0PC93b3Jkc2l6ZT4KICAgICAgPGVtdWxhdG9yPi91c3IvbGliL3hlbi9iaW4vcWVtdS1zeXN0
+ZW0taTM4NjwvZW11bGF0b3I+CiAgICAgIDxsb2FkZXI+L3Vzci9saWIveGVuL2Jvb3QvaHZtbG9h
+ZGVyPC9sb2FkZXI+CiAgICAgIDxtYWNoaW5lPnhlbmZ2PC9tYWNoaW5lPgogICAgICA8ZG9tYWlu
+IHR5cGU9J3hlbicvPgogICAgPC9hcmNoPgogICAgPGZlYXR1cmVzPgogICAgICA8YWNwaSBkZWZh
+dWx0PSdvbicgdG9nZ2xlPSd5ZXMnLz4KICAgICAgPGFwaWMgZGVmYXVsdD0nb24nIHRvZ2dsZT0n
+bm8nLz4KICAgICAgPGhhcCBkZWZhdWx0PSdvbicgdG9nZ2xlPSd5ZXMnLz4KICAgIDwvZmVhdHVy
+ZXM+CiAgPC9ndWVzdD4KCjwvY2FwYWJpbGl0aWVzPgoKCg==
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1350994</bug_id>
+          
+          <creation_ts>2016-06-28 20:39:00 -0400</creation_ts>
+          <short_desc>update for sqlite-3.13.0</short_desc>
+          <delta_ts>2016-08-05 16:54:01 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>spatialite-tools</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>medium</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="J. Randall Owens">jrowens.fedora</reporter>
+          <assigned_to name="Volker Fröhlich">volker27</assigned_to>
+          <cc>christopherjabrams</cc>
+    
+    
+    <cc>hdfssk</cc>
+    
+    
+    <cc>jdornak</cc>
+    
+    
+    <cc>jstanek</cc>
+    
+    
+    <cc>volker27</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>spatialite-tools-4.3.0-12.fc24</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-08-05 16:54:01</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9461019</commentid>
+    <comment_count>0</comment_count>
+    <who name="J. Randall Owens">jrowens.fedora</who>
+    <bug_when>2016-06-28 20:39:05 -0400</bug_when>
+    <thetext>Description of problem:
+spatialite-tools requires sqlite = 3.11.0, preventing sqlite upgrade
+
+Version-Release number of selected component (if applicable):
+spatialite-tools-4.3.0-9.fc24
+
+How reproducible:
+readily
+
+Steps to Reproduce:
+1. install spatialite-tools and old sqlite-3.11.0-3.fc24 (if you can find it)
+2. dnf upgrade --best
+
+Actual results:
+Error: package spatialite-tools-4.3.0-9.fc24.x86_64 requires sqlite = 3.11.0, but none of the providers can be installed.
+
+Expected results:
+upgrades sqlite
+
+Additional info:
+It looks like libspatialite &amp; spatialite-gui just require libsqlite3.so.0(), so this shouldn&apos;t bite them too.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9510606</commentid>
+    <comment_count>1</comment_count>
+    <who name="J. Randall Owens">jrowens.fedora</who>
+    <bug_when>2016-07-14 16:06:02 -0400</bug_when>
+    <thetext>And it&apos;s just been bumped to sqlite-3.13.0. Speaking of bumps…</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9552348</commentid>
+    <comment_count>2</comment_count>
+      <attachid>1184291</attachid>
+    <who name="hdfssk">hdfssk</who>
+    <bug_when>2016-07-26 10:42:50 -0400</bug_when>
+    <thetext>Created attachment 1184291
+Removes explicit sqlite version builddep from spatialite-tools spec file
+
+Bugzilla 1048587 explains why these rebuilds were necessary. Briefly:
+&quot;&quot;&quot;
+a problem exists, but it&apos;s strictly confined to the spatialite.c
+source alone ... the spatialite CLI front-end simply is a direct
+derivative of the original sqlite3 front-end ... unhappily, the
+sqlite3 own code internally includes somewhere a formal check
+ensuring that the dynamically loaded .so should exactly
+correspond to the same version declared by the header file used
+at compile time. ... any other tool (e.g. spatialite_osm_map or
+spatialite_gui) seems to be completely immune from this issue ...
+I imagine that spatialite-tools 4.2 will surely be the last
+version including the spatialite CLI frontent, and starting since
+4.3 this component should be definitely removed from
+spatialite-tools.
+&quot;&quot;&quot;
+So the builddep for a particular version of sqlite was necessary
+to support building spatialite.c, and spatialite.c is no longer
+part of spatialite-tools 4.3.0.
+
+I’ve verified that spatialite.c isn&apos;t in the current source, and
+rebuilt spatialite-tools without checking for an exact sqlite version
+(spec file patch is attached). /usr/bin/spatialite runs without
+complaint, so it seems like this is a safe change to make to the package
+going forward:
+
+$ spatialite
+SpatiaLite version ..: 4.3.0a	Supported Extensions:
+	- &apos;VirtualShape&apos;	[direct Shapefile access]
+	- &apos;VirtualDbf&apos;		[direct DBF access]
+	- &apos;VirtualXL&apos;		[direct XLS access]
+	- &apos;VirtualText&apos;		[direct CSV/TXT access]
+	- &apos;VirtualNetwork&apos;	[Dijkstra shortest path]
+	- &apos;RTree&apos;		[Spatial Index - R*Tree]
+	- &apos;MbrCache&apos;		[Spatial Index - MBR cache]
+	- &apos;VirtualSpatialIndex&apos;	[R*Tree metahandler]
+	- &apos;VirtualElementary&apos;	[ElemGeoms metahandler]
+	- &apos;VirtualXPath&apos;	[XML Path Language - XPath]
+	- &apos;VirtualFDO&apos;		[FDO-OGR interoperability]
+	- &apos;VirtualGPKG&apos;	[OGC GeoPackage interoperability]
+	- &apos;VirtualBBox&apos;		[BoundingBox tables]
+	- &apos;SpatiaLite&apos;		[Spatial SQL - OGC]
+PROJ.4 version ......: Rel. 4.9.2, 08 September 2015
+GEOS version ........: 3.5.0-CAPI-1.9.0 r4084
+TARGET CPU ..........: x86_64-redhat-linux
+the SPATIAL_REF_SYS table already contains some row(s)
+SQLite version ......: 3.13.0
+Enter &quot;.help&quot; for instructions
+SQLite version 3.13.0 2016-05-18 10:57:30
+Enter &quot;.help&quot; for instructions
+Enter SQL statements terminated with a &quot;;&quot;
+spatialite&gt;</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9562646</commentid>
+    <comment_count>3</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-28 06:13:30 -0400</bug_when>
+    <thetext>spatialite-tools-4.3.0-12.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-a5fca8d0a6</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9565436</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-28 23:55:41 -0400</bug_when>
+    <thetext>spatialite-tools-4.3.0-12.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-a5fca8d0a6</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9590048</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-05 16:53:58 -0400</bug_when>
+    <thetext>spatialite-tools-4.3.0-12.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="0"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1184291</attachid>
+            <date>2016-07-26 10:42:00 -0400</date>
+            <delta_ts>2016-07-26 10:42:50 -0400</delta_ts>
+            <desc>Removes explicit sqlite version builddep from spatialite-tools spec file</desc>
+            <filename>spatialite-tools-noexactversionbuilddep.patch</filename>
+            <type>text/plain</type>
+            <size>1337</size>
+            <attacher name="hdfssk">hdfssk</attacher>
+            
+              <data encoding="base64">LS0tIHNwYXRpYWxpdGUtdG9vbHMuc3BlYwkyMDE2LTA3LTI2IDEwOjEzOjIxLjQ0NjE2MjIwMCAt
+MDQwMAorKysgc3BhdGlhbGl0ZS10b29scy5zcGVjLm9yaWdpbmFsCTIwMTYtMDctMjYgMTA6MjI6
+NDIuNjMwNDE5MzAwIC0wNDAwCkBAIC0xMyw3ICsxMyw3IEBACiAKIE5hbWU6ICAgICAgICAgICBz
+cGF0aWFsaXRlLXRvb2xzCiBWZXJzaW9uOiAgICAgICAgNC4zLjAKLVJlbGVhc2U6ICAgICAgICAx
+MCV7P2Rpc3R9CitSZWxlYXNlOiAgICAgICAgOSV7P2Rpc3R9CiBTdW1tYXJ5OiAgICAgICAgQSBz
+ZXQgb2YgdXNlZnVsIENMSSB0b29scyBmb3IgU3BhdGlhTGl0ZQogCiBHcm91cDogICAgICAgICAg
+RGV2ZWxvcG1lbnQvVG9vbHMKQEAgLTI4LDE0ICsyOCwxNCBAQAogQnVpbGRSZXF1aXJlczogIHBy
+b2otZGV2ZWwKIEJ1aWxkUmVxdWlyZXM6ICByZWFkbGluZS1kZXZlbAogQnVpbGRSZXF1aXJlczog
+IHJlYWRvc20tZGV2ZWwKLUJ1aWxkUmVxdWlyZXM6ICBzcWxpdGUtZGV2ZWwgJXs/c3FsaXRldmVy
+OiA+PSAle3NxbGl0ZXZlcn19CitCdWlsZFJlcXVpcmVzOiAgc3FsaXRlLWRldmVsICV7P3NxbGl0
+ZXZlcjogPSAle3NxbGl0ZXZlcn19CiBCdWlsZFJlcXVpcmVzOiAgbGlieG1sMi1kZXZlbAogQnVp
+bGRSZXF1aXJlczogIHpsaWItZGV2ZWwKICMgQlogMTA0ODU4NwogIyBUaGUgc3BhdGlhbGl0ZSBi
+aW5hcnkgaXMgYSBkZXJpdmF0aXZlIG9mIHRoZSBzcWxpdGUgc2hlbGwgYW5kCiAjIGluaGVyaXRz
+IGl0cyBjaGVjayBmb3IgdGhlIGV4YWN0IHNhbWUgbGlicmFyeSB2ZXJzaW9uLgogIyBUaGlzIHBh
+Y2thZ2UgdGh1cyByZXF1aXJlcyBhIHJlYnVpbGQhIFNob3VsZCBiZSBzb3J0ZWQgb3V0IGluIDQu
+MyEKLVJlcXVpcmVzOiAgc3FsaXRlICV7P3NxbGl0ZXZlcjogPj0gJXtzcWxpdGV2ZXJ9fQorUmVx
+dWlyZXM6ICBzcWxpdGUgJXs/c3FsaXRldmVyOiA9ICV7c3FsaXRldmVyfX0KIAogJWRlc2NyaXB0
+aW9uCiBTcGF0aWFsaXRlLVRvb2xzIGlzIGEgc2V0IG9mIHVzZWZ1bCBDTEkgdG9vbHMgZm9yIFNw
+YXRpYUxpdGUuCkBAIC03Miw5ICs3Miw2IEBACiAle19iaW5kaXJ9L3NwYXRpYWxpdGVfeG1sXyoK
+IAogJWNoYW5nZWxvZwotKiBUdWUgSnVsIDI2IDIwMTYgSG9ub3JlIERva3RvcnIgPGhkZnNza0Bn
+bWFpbC5jb20+IC0gNC4zLjAtMTAKLS0gUmVtb3ZlZCBleGFjdCBsaWJyYXJ5IHZlcnNpb24gY2hl
+Y2ssIHdoaWNoIEJaIDEwNDg1ODcgY2xhaW1zIGZpeGVkIHNpbmNlIDQuMS4xCi0KICogV2VkIEZl
+YiAxNyAyMDE2IEphbiBTdGFuZWsgPGpzdGFuZWtAcmVkaGF0LmNvbT4gLSA0LjMuMC05CiAtIFJl
+YnVpbGQgZm9yIHNxbGl0ZSAzLjExLjAKIAo=
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

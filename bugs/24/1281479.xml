@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1281479</bug_id>
+          
+          <creation_ts>2015-11-12 10:42:00 -0500</creation_ts>
+          <short_desc>cloc bundles non-free code</short_desc>
+          <delta_ts>2016-06-21 17:50:08 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>cloc</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>urgent</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Petr Šabata">psabata</reporter>
+          <assigned_to name="Ricky Elrod">relrod</assigned_to>
+          <cc>bughunt</cc>
+    
+    
+    <cc>relrod</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>cloc-1.66-1.fc22 cloc-1.66-1.fc23 cloc-1.66-1.el7</cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-06-04 22:51:26</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>8815602</commentid>
+    <comment_count>0</comment_count>
+    <who name="Petr Šabata">psabata</who>
+    <bug_when>2015-11-12 10:42:25 -0500</bug_when>
+    <thetext>While fixing the FTBFS issue (bug #1239400, bug #1271897), I noticed the cloc script bundles code from an ancient release of Regexp::Common, published under the Artistic license.  This license isn&apos;t considered free by Fedora Project:
+https://fedoraproject.org/wiki/Licensing:Main?rd=Licensing#Bad_Licenses
+
+This is pretty bad.  There are only two ways out:
+
+1) You unbundle the non-free code and re-package the upstream tarball;
+   the current releases of Regexp::Common are free -- perhaps try updating the
+   bundled blocks?  Or even better, change cloc to use the package provided by
+   Fedora.
+
+2) You kill the package.
+
+All Fedora and EPEL packages are affected.
+
+
+Extra note: cloc also bundles parts of SLOCCount (`GPL&apos;), Win32::Autoglob (`GPL+ or Artistic&apos;), and Algorithm::Diff (also `GPL+ or Artistic&apos;), therefore the current License tag is incorrect.  There&apos;s no point in updating it until the abovementioned issue is resolved, though.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8867587</commentid>
+    <comment_count>1</comment_count>
+    <who name="David Tonhofer">bughunt</who>
+    <bug_when>2015-11-29 08:11:21 -0500</bug_when>
+    <thetext>(Disclaimer: Not an IP lawyer or a license Guru, but I have the book on Open Source Licenses)
+
+Well, I needed the latest cloc 1.65 (now at https://github.com/AlDanial/cloc) for Fedora 22 (which has an old 1.62), so I took a look:
+
+cloc itself is &quot;GNU GPL 2 or later&quot;
+
+but states that it:
+
+# Includes code from:
+#   - SLOCCount v2.26
+#     http://www.dwheeler.com/sloccount/
+#     by David Wheeler.
+#   - Regexp::Common v2.120
+#     http://search.cpan.org/~abigail/Regexp-Common-2.120/lib/Regexp/Common.pm
+#     by Damian Conway and Abigail.
+#   - Win32::Autoglob
+#     http://search.cpan.org/~sburke/Win32-Autoglob-1.01/Autoglob.pm
+#     by Sean M. Burke.
+#   - Algorithm::Diff
+#     http://search.cpan.org/~tyemq/Algorithm-Diff-1.1902/lib/Algorithm/Diff.pm
+#     by Tye McQueen.
+
+Regexp::Common (2013031301): &quot;AL 2.0, MIT or BSD&quot;
+http://search.cpan.org/~abigail/Regexp-Common-2013031301/lib/Regexp/Common.pm#LICENSE_and_COPYRIGHT
+
+That would solve the problem...
+
+Others:
+-------
+
+SLOCCount: &quot;released under the General Public License (GPL)&quot;
+Regexp::Common v2.120
+
+Win32::Autoglob: &quot;http://search.cpan.org/~sburke/Win32-Autoglob-1.01/Autoglob.pm#COPYRIGHT_AND_DISCLAIMERS&quot;
+&quot;This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.&quot;
+
+Algorithm::Diff: &quot;http://search.cpan.org/~tyemq/Algorithm-Diff-1.1902/lib/Algorithm/Diff.pm#LICENSE&quot;
+&quot;This program is free software; you can redistribute it and/or modify it under the same terms as Perl.&quot;
+
+Perl is distributed under AL or GPL (http://dev.perl.org/licenses/).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8868686</commentid>
+    <comment_count>2</comment_count>
+    <who name="Petr Šabata">psabata</who>
+    <bug_when>2015-11-30 03:48:10 -0500</bug_when>
+    <thetext>The problem is the bundled code is from R::C 2.120, which was Artistic only (you can check that on BackPAN), as mentioned in the original comment, along with the rest.  Later releases are more permissive but the one the code was taken from wasn&apos;t free.
+
+I don&apos;t know what the code does but all this bundling is really ugly.  Why not just use the module&apos;s API?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8868737</commentid>
+    <comment_count>3</comment_count>
+    <who name="David Tonhofer">bughunt</who>
+    <bug_when>2015-11-30 04:13:00 -0500</bug_when>
+    <thetext>I think it just needs to be bumped to the latest version.
+
++1 for calls instead of bundle, but the author will have to do that.
+
+The README is also uncertain about the license:
+
+https://github.com/AlDanial/cloc#___top</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8868739</commentid>
+    <comment_count>4</comment_count>
+    <who name="David Tonhofer">bughunt</who>
+    <bug_when>2015-11-30 04:13:31 -0500</bug_when>
+    <thetext>I meant:
+
+https://github.com/AlDanial/cloc#License</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8874222</commentid>
+    <comment_count>5</comment_count>
+    <who name="Ricky Elrod">relrod</who>
+    <bug_when>2015-12-01 12:25:28 -0500</bug_when>
+    <thetext>Sorry for missing this report. I&apos;ll file an issue upstream and see if we can get them to bump Regexp::Common or stop bundling it.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8874267</commentid>
+    <comment_count>6</comment_count>
+    <who name="Ricky Elrod">relrod</who>
+    <bug_when>2015-12-01 12:32:24 -0500</bug_when>
+    <thetext>I just filed https://github.com/AlDanial/cloc/issues/36.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8891604</commentid>
+    <comment_count>7</comment_count>
+    <who name="David Tonhofer">bughunt</who>
+    <bug_when>2015-12-04 11:21:31 -0500</bug_when>
+    <thetext>Thanks Ricky.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8892806</commentid>
+    <comment_count>8</comment_count>
+    <who name="Ricky Elrod">relrod</who>
+    <bug_when>2015-12-05 04:26:10 -0500</bug_when>
+    <thetext>The author fixed this here: https://github.com/AlDanial/cloc/commit/157c37071b985623501a53175422bf663f3ee2ad
+
+I will bump the Fedora packages to that commit and submit to testing later today.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8895857</commentid>
+    <comment_count>9</comment_count>
+    <who name="Petr Šabata">psabata</who>
+    <bug_when>2015-12-07 06:58:14 -0500</bug_when>
+    <thetext>Don&apos;t forget to update the License tag, too :)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9094231</commentid>
+    <comment_count>10</comment_count>
+    <who name="Jan Kurik">jkurik</who>
+    <bug_when>2016-02-24 10:29:26 -0500</bug_when>
+    <thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 24 development cycle.
+Changing version to &apos;24&apos;.
+
+More information and reason for this action is here:
+https://fedoraproject.org/wiki/Fedora_Program_Management/HouseKeeping/Fedora24#Rawhide_Rebase</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9338962</commentid>
+    <comment_count>11</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-05-18 20:08:22 -0400</bug_when>
+    <thetext>cloc-1.66-1.fc23 has been submitted as an update to Fedora 23. https://bodhi.fedoraproject.org/updates/FEDORA-2016-0526bc3356</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9339072</commentid>
+    <comment_count>12</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-05-18 20:27:09 -0400</bug_when>
+    <thetext>cloc-1.66-1.fc22 has been submitted as an update to Fedora 22. https://bodhi.fedoraproject.org/updates/FEDORA-2016-eb9a871511</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9342198</commentid>
+    <comment_count>13</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-05-19 13:12:50 -0400</bug_when>
+    <thetext>cloc-1.66-1.el7 has been submitted as an update to Fedora EPEL 7. https://bodhi.fedoraproject.org/updates/FEDORA-EPEL-2016-75ecd1ffab</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9346099</commentid>
+    <comment_count>14</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-05-20 21:23:09 -0400</bug_when>
+    <thetext>cloc-1.66-1.fc22 has been pushed to the Fedora 22 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-eb9a871511</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9346267</commentid>
+    <comment_count>15</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-05-20 22:27:52 -0400</bug_when>
+    <thetext>cloc-1.66-1.fc23 has been pushed to the Fedora 23 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-0526bc3356</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9346357</commentid>
+    <comment_count>16</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-05-21 02:22:05 -0400</bug_when>
+    <thetext>cloc-1.66-1.el7 has been pushed to the Fedora EPEL 7 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-EPEL-2016-75ecd1ffab</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9387444</commentid>
+    <comment_count>17</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-06-04 22:51:19 -0400</bug_when>
+    <thetext>cloc-1.66-1.fc22 has been pushed to the Fedora 22 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9387465</commentid>
+    <comment_count>18</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-06-04 22:57:35 -0400</bug_when>
+    <thetext>cloc-1.66-1.fc23 has been pushed to the Fedora 23 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9438402</commentid>
+    <comment_count>19</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-06-21 17:50:01 -0400</bug_when>
+    <thetext>cloc-1.66-1.el7 has been pushed to the Fedora EPEL 7 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

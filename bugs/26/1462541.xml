@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1462541</bug_id>
+          
+          <creation_ts>2017-06-18 12:25:00 -0400</creation_ts>
+          <short_desc>openssl with DTLS hangs as a server</short_desc>
+          <delta_ts>2017-06-25 12:20:40 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>openssl</component>
+          <version>26</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Nikos Mavrogiannopoulos">nmavrogi</reporter>
+          <assigned_to name="Tomas Mraz">tmraz</assigned_to>
+          <cc>tmraz</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>openssl-1.1.0f-4.fc26</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-06-25 12:20:40</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10516160</commentid>
+    <comment_count>0</comment_count>
+    <who name="Nikos Mavrogiannopoulos">nmavrogi</who>
+    <bug_when>2017-06-18 12:25:48 -0400</bug_when>
+    <thetext>Description of problem:
+When attempting to run a DTLS server using openssl from Fedora 26, the server hangs while receiving packets from the client.
+
+Version-Release number of selected component (if applicable):
+openssl-1.1.0f-3
+
+How reproducible:
+(instructions require the gnutls git repo for certs/keys)
+$ cd tests/suite
+$ openssl s_server -cipher ALL -quiet -accept 5555 -keyform pem -certform pem  -timeout -key ./../certs/rsa-2432.pem -cert ./../certs/cert-rsa-2432.pem -dkey ./../key-tests/data/dsa.1024.pem -dcert ./../key-tests/data/cert.dsa.1024.pem  -CAfile ./../../doc/credentials/x509/ca.pem -state  -dtls1_2
+
+In other terminal:
+$ gnutls-cli --udp 127.0.0.1 -p 5555 --insecure
+
+(the cmd openssl s_client -connect 127.0.0.1:5555 -dtls
+does not seem to work either)
+
+The client hangs waiting for reply from the server. The server seems like it is not receiving the followup client hello messages.
+
+
+I tried reproducing with upstream 1.1.0f from repository and I couldn&apos;t. The connection was established.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10523475</commentid>
+    <comment_count>1</comment_count>
+    <who name="Tomas Mraz">tmraz</who>
+    <bug_when>2017-06-20 10:14:30 -0400</bug_when>
+    <thetext>Investigated and found that this is not broken by downstream patches but by enabling the sctp protocol support.
+
+I&apos;ll forward this to upstream.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10535893</commentid>
+    <comment_count>2</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-23 11:38:16 -0400</bug_when>
+    <thetext>openssl-1.1.0f-4.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-09d4464361</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10537663</commentid>
+    <comment_count>3</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-24 21:19:21 -0400</bug_when>
+    <thetext>openssl-1.1.0f-4.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-09d4464361</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10538174</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-25 12:20:40 -0400</bug_when>
+    <thetext>openssl-1.1.0f-4.fc26 has been pushed to the Fedora 26 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

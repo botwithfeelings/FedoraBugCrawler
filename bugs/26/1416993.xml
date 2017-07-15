@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1416993</bug_id>
+          
+          <creation_ts>2017-01-26 18:49:00 -0500</creation_ts>
+          <short_desc>SELinux is preventing iw from &apos;write&apos; accesses on the file /run/tlp/lock_tlp.</short_desc>
+          <delta_ts>2017-06-23 06:31:25 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>selinux-policy</component>
+          <version>26</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>CURRENTRELEASE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard>abrt_hash:7bb98eff09db578f92e6b6786d9a3a24547375babba86273a01aedc9f76717e2;VARIANT_ID=workstation;</status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter>arturpolak1</reporter>
+          <assigned_to name="Lukas Vrabec">lvrabec</assigned_to>
+          <cc>dominick.grift</cc>
+    
+    
+    <cc>dopey</cc>
+    
+    
+    <cc>dwalsh</cc>
+    
+    
+    <cc>lvrabec</cc>
+    
+    
+    <cc>mgrepl</cc>
+    
+    
+    <cc>pichardo.software</cc>
+    
+    
+    <cc>plautrba</cc>
+    
+    
+    <cc>pmoore</cc>
+    
+    
+    <cc>redhat</cc>
+    
+    
+    <cc>ssekidde</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-06-23 06:31:25</cf_last_closed>
+          <cf_type>---</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10100403</commentid>
+    <comment_count>0</comment_count>
+    <who name="">arturpolak1</who>
+    <bug_when>2017-01-26 18:49:28 -0500</bug_when>
+    <thetext>Description of problem:
+SELinux is preventing iw from &apos;write&apos; accesses on the file /run/tlp/lock_tlp.
+
+*****  Plugin restorecon (99.5 confidence) suggests   ************************
+
+If aby naprawić etykietę. 
+domyślna etykieta /run/tlp/lock_tlp powinna wynosić tlp_var_run_t.
+Then można wykonać polecenie restorecon.
+Do
+# /sbin/restorecon -v /run/tlp/lock_tlp
+
+*****  Plugin catchall (1.49 confidence) suggests   **************************
+
+If aby iw powinno mieć domyślnie write dostęp do lock_tlp file.
+Then proszę to zgłosić jako błąd.
+Można utworzyć lokalny moduł polityki, aby umożliwić ten dostęp.
+Do
+allow this access for now by executing:
+# ausearch -c &apos;iw&apos; --raw | audit2allow -M my-iw
+# semodule -X 300 -i my-iw.pp
+
+Additional Information:
+Source Context                system_u:system_r:ifconfig_t:s0-s0:c0.c1023
+Target Context                unconfined_u:object_r:var_run_t:s0
+Target Objects                /run/tlp/lock_tlp [ file ]
+Source                        iw
+Source Path                   iw
+Port                          &lt;Unknown&gt;
+Host                          (removed)
+Source RPM Packages           
+Target RPM Packages           
+Policy RPM                    selinux-policy-3.13.1-225.6.fc25.noarch
+Selinux Enabled               True
+Policy Type                   targeted
+Enforcing Mode                Enforcing
+Host Name                     (removed)
+Platform                      Linux (removed) 4.9.4-201.fc25.x86_64 #1 SMP Tue
+                              Jan 17 18:58:54 UTC 2017 x86_64 x86_64
+Alert Count                   2
+First Seen                    2017-01-24 01:24:10 CET
+Last Seen                     2017-01-24 01:24:10 CET
+Local ID                      75e49558-6969-4505-aeb3-b00488beebcf
+
+Raw Audit Messages
+type=AVC msg=audit(1485217450.95:424): avc:  denied  { write } for  pid=12561 comm=&quot;ethtool&quot; path=&quot;/run/tlp/lock_tlp&quot; dev=&quot;tmpfs&quot; ino=159882 scontext=system_u:system_r:ifconfig_t:s0-s0:c0.c1023 tcontext=unconfined_u:object_r:var_run_t:s0 tclass=file permissive=0
+
+
+Hash: iw,ifconfig_t,var_run_t,file,write
+
+Version-Release number of selected component:
+selinux-policy-3.13.1-225.6.fc25.noarch
+
+Additional info:
+component:      selinux-policy
+reporter:       libreport-2.9.0
+hashmarkername: setroubleshoot
+kernel:         4.10.0-0.rc5.git1.1.fc26.x86_64
+type:           libreport
+
+Potential duplicate: bug 1373791</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10163938</commentid>
+    <comment_count>1</comment_count>
+    <who name="Alexander Bartel">redhat</who>
+    <bug_when>2017-02-18 08:03:47 -0500</bug_when>
+    <thetext>SELinux is preventing iw from write access on the file /run/tlp/lock_tlp.
+
+Additional Information:
+Source Context                system_u:system_r:ifconfig_t:s0-s0:c0.c1023
+Target Context                system_u:object_r:tlp_var_run_t:s0
+Target Objects                /run/tlp/lock_tlp [ file ]
+Source                        iw
+Source Path                   iw
+Port                          &lt;Unknown&gt;
+Host                          ***
+Source RPM Packages           
+Target RPM Packages           
+Policy RPM                    selinux-policy-3.13.1-225.6.fc25.noarch
+Selinux Enabled               True
+Policy Type                   targeted
+Enforcing Mode                Enforcing
+Host Name                     ***
+Platform                      Linux *** 4.9.9-200.fc25.x86_64 #1 SMP Thu
+                              Feb 9 17:28:13 UTC 2017 x86_64 x86_64
+Alert Count                   3
+First Seen                    2017-02-18 13:44:27 CET
+Last Seen                     2017-02-18 13:44:48 CET
+Local ID                      5bfbc5da-0b3e-49bb-bebf-fa355cb21ebf
+
+Raw Audit Messages
+type=AVC msg=audit(1487421888.38:433): avc:  denied  { write } for  pid=10305 comm=&quot;ethtool&quot; path=&quot;/run/tlp/lock_tlp&quot; dev=&quot;tmpfs&quot; ino=33436 scontext=system_u:system_r:ifconfig_t:s0-s0:c0.c1023 tcontext=system_u:object_r:tlp_var_run_t:s0 tclass=file permissive=0
+
+
+Hash: iw,ifconfig_t,tlp_var_run_t,file,write</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10192053</commentid>
+    <comment_count>2</comment_count>
+    <who name="Fedora End Of Life">jkurik</who>
+    <bug_when>2017-02-28 06:06:24 -0500</bug_when>
+    <thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 26 development cycle.
+Changing version to &apos;26&apos;.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10453699</commentid>
+    <comment_count>3</comment_count>
+    <who name="Andy Wang">dopey</who>
+    <bug_when>2017-05-27 22:35:41 -0400</bug_when>
+    <thetext>I&apos;m seeing this same issue on fedora 25 with:
+Policy RPM                    selinux-policy-3.13.1-225.16.fc25.noarch</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10520135</commentid>
+    <comment_count>4</comment_count>
+    <who name="J. PIchardo">pichardo.software</who>
+    <bug_when>2017-06-19 14:37:54 -0400</bug_when>
+    <thetext>Same for me on Fedora 25 on 4.11.5-200.fc25.x86_64</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10534754</commentid>
+    <comment_count>5</comment_count>
+    <who name="Lukas Vrabec">lvrabec</who>
+    <bug_when>2017-06-23 06:31:25 -0400</bug_when>
+    <thetext>Guys please, check the actual version of selinux-policy package. This issue is already fixed. Update system to fix this issue. 
+
+Thanks.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1314753</bug_id>
+          
+          <creation_ts>2016-03-04 07:13:00 -0500</creation_ts>
+          <short_desc>Incorrect ExecStop= directive in ejabberd.service</short_desc>
+          <delta_ts>2016-03-06 10:47:13 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>ejabberd</component>
+          <version>24</version>
+          <rep_platform>All</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>RAWHIDE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>1315046</blocked>
+    
+    
+    <blocked>1315047</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="ArcFi">arcfi</reporter>
+          <assigned_to name="Randy Barlow">rbarlow</assigned_to>
+          <cc>arcfi</cc>
+    
+    
+    <cc>erlang</cc>
+    
+    
+    <cc>jeremy</cc>
+    
+    
+    <cc>lemenkov</cc>
+    
+    
+    <cc>martin</cc>
+    
+    
+    <cc>rbarlow</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>ejabberd-16.01-4.fc24</cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-03-06 10:47:13</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9121041</commentid>
+    <comment_count>0</comment_count>
+    <who name="ArcFi">arcfi</who>
+    <bug_when>2016-03-04 07:13:53 -0500</bug_when>
+    <thetext>Description of problem:
+Incorrect ExecStop= directive in ejabberd.service resulting in unit stop failing.
+The correct directive is:
+ExecStop=/usr/bin/bash /usr/bin/ejabberdctl stop
+
+Version-Release number of selected component (if applicable):
+ejabberd-14.07-6.fc22.x86_64
+
+How reproducible:
+Always.
+
+Steps to Reproduce:
+1. systemctl stop ejabberd.service
+2. systemctl status ejabberd.service
+
+Actual results:
+systemd[1]: Stopping A distributed, fault-tolerant Jabber/XMPP server...
+ejabberdctl[3067]: Refusing to render service to dead parents.
+systemd[1]: ejabberd.service: Control process exited, code=exited status=127
+systemd[1]: Stopped A distributed, fault-tolerant Jabber/XMPP server.
+systemd[1]: ejabberd.service: Unit entered failed state.
+systemd[1]: ejabberd.service: Failed with result &apos;exit-code&apos;.
+
+Expected results:
+# grep ExecStop= /usr/lib/systemd/system/ejabberd.service 
+ExecStop=/usr/bin/bash /usr/bin/ejabberdctl stop</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9123424</commentid>
+    <comment_count>1</comment_count>
+    <who name="Randy Barlow">rbarlow</who>
+    <bug_when>2016-03-06 01:48:08 -0500</bug_when>
+    <thetext>This is easy to fix in Fedora 24, but unfortunately the SRPM does not build anymore on F22 or F23 with this build error:
+
+Compiling /builddir/build/BUILD/ejabberd-14.07/deps/jiffy/c_src/double-conversion/bignum.cc
+/builddir/build/BUILD/ejabberd-14.07/deps/jiffy/c_src/double-conversion/bignum.cc: In member function &apos;void double_conversion::Bignum::AssignDecimalString(double_conversion::Vector&lt;const char&gt;)&apos;:
+/builddir/build/BUILD/ejabberd-14.07/deps/jiffy/c_src/double-conversion/bignum.cc:101:6: error: assuming signed overflow does not occur when assuming that (X + c) &lt; X is always false [-Werror=strict-overflow]
+ void Bignum::AssignDecimalString(Vector&lt;const char&gt; value) {
+      ^
+cc1plus: all warnings being treated as errors
+
+I will have an F24 fix out shortly, but I don&apos;t have time to investigate these build failures this weekend.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9123757</commentid>
+    <comment_count>2</comment_count>
+    <who name="Randy Barlow">rbarlow</who>
+    <bug_when>2016-03-06 10:47:13 -0500</bug_when>
+    <thetext>I have fixed this issue in Fedora 24. ejabberd is currently FTBFS in Rawhide due to dependency issues, and it also currently FTBFS in F22 and F23. In Rawhide, F22, and F23 I have made the requested change in the package source control, but we will need to resolve the build failures there in order to release a fix. Unfortunately, I won&apos;t have a lot of time to look into those build failures for a while.
+
+I have cloned this bug into F22 and F23 so it can be tracked there. Since this one is marked for Rawhide, I&apos;m going to switch it to F24 and mark it closed. Rawhide will get fixed when we package ejabberd &gt;= 16.02 so I don&apos;t think we need to keep an open bug on that one since the next build will contain the fix.
+
+Thanks for reporting this issue, and feel free to follow up on the clone bugs if you like!
+
+http://koji.fedoraproject.org/koji/taskinfo?taskID=13248914</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

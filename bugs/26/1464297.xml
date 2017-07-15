@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1464297</bug_id>
+          
+          <creation_ts>2017-06-22 22:21:00 -0400</creation_ts>
+          <short_desc>anaconda is disabling ipv6 even though not asked to</short_desc>
+          <delta_ts>2017-06-28 16:47:58 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>anaconda</component>
+          <version>26</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard>AcceptedBlocker</status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>1349188</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Dusty Mabe">dustymabe</reporter>
+          <assigned_to name="Radek Vykydal">rvykydal</assigned_to>
+          <cc>anaconda-maint-list</cc>
+    
+    
+    <cc>awilliam</cc>
+    
+    
+    <cc>dustymabe</cc>
+    
+    
+    <cc>g.kaviyarasu</cc>
+    
+    
+    <cc>jonathan</cc>
+    
+    
+    <cc>mkolman</cc>
+    
+    
+    <cc>robatino</cc>
+    
+    
+    <cc>rvykydal</cc>
+    
+    
+    <cc>vanmeeuwen+fedora</cc>
+    
+    
+    <cc>vponcova</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>anaconda-26.21.10-1 anaconda-26.21.10-1.fc26</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-06-27 23:52:10</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10533457</commentid>
+    <comment_count>0</comment_count>
+    <who name="Dusty Mabe">dustymabe</who>
+    <bug_when>2017-06-22 22:21:52 -0400</bug_when>
+    <thetext>Description of problem:
+
+Anaconda configures system to not use ipv6 even though &apos;noipv6&apos; was NOT provided on the command line:
+
+From cloud image from the 20th [1]:
+
+```
+# cat /etc/sysctl.d/anaconda.conf
+# Anaconda disabling ipv6 (noipv6 option)
+net.ipv6.conf.all.disable_ipv6=1
+net.ipv6.conf.default.disable_ipv6=1
+# ip addr show dev eth0
+2: eth0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 52:54:00:33:9b:22 brd ff:ff:ff:ff:ff:ff
+    inet 192.168.121.137/24 brd 192.168.121.255 scope global dynamic eth0
+       valid_lft 2463sec preferred_lft 2463sec
+```
+
+From a cloud image from the 18th [2]:
+
+```
+[fedora@cloudhost sysctl.d]$ ls -l /etc/sysctl.d/
+total 0
+lrwxrwxrwx. 1 root root 14 Jun 15 15:48 99-sysctl.conf -&gt; ../sysctl.conf
+$ ip addr show dev eth0
+2: eth0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 52:54:00:d1:eb:86 brd ff:ff:ff:ff:ff:ff
+    inet 192.168.122.8/24 brd 192.168.122.255 scope global dynamic eth0
+       valid_lft 2976sec preferred_lft 2976sec
+    inet6 fe80::5054:ff:fed1:eb86/64 scope link 
+       valid_lft forever preferred_lft forever
+```
+
+[1] https://kojipkgs.fedoraproject.org/compose/branched/Fedora-26-20170620.n.0/compose/CloudImages/x86_64/images/Fedora-Cloud-Base-26-20170620.n.0.x86_64.qcow2
+[2] https://kojipkgs.fedoraproject.org/compose/branched/Fedora-26-20170618.n.0/compose/CloudImages/x86_64/images/Fedora-Cloud-Base-26-20170618.n.0.x86_64.qcow2
+
+
+Version-Release number of selected component (if applicable):
+anaconda-26.21.9-1.fc26 
+
+How reproducible:
+always
+
+This is most likely a side-effect from https://github.com/rhinstaller/anaconda/commit/9580b33</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10533459</commentid>
+    <comment_count>1</comment_count>
+    <who name="Dusty Mabe">dustymabe</who>
+    <bug_when>2017-06-22 22:23:02 -0400</bug_when>
+    <thetext>Note that this is also causing our container minimal images to fail because /etc/sysctl.d/ directory does not exist there: https://koji.fedoraproject.org/koji/taskinfo?taskID=20101174</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10534290</commentid>
+    <comment_count>2</comment_count>
+    <who name="Radek Vykydal">rvykydal</who>
+    <bug_when>2017-06-23 03:57:34 -0400</bug_when>
+    <thetext>(In reply to Dusty Mabe from comment #0)
+ 
+&gt; This is most likely a side-effect from
+&gt; https://github.com/rhinstaller/anaconda/commit/9580b33
+
+Exactly, thanks for spotting it.
+
+https://github.com/rhinstaller/anaconda/pull/1112</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10536321</commentid>
+    <comment_count>3</comment_count>
+    <who name="Dusty Mabe">dustymabe</who>
+    <bug_when>2017-06-23 14:17:25 -0400</bug_when>
+    <thetext>can we get that submitted as an update?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10536325</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Blocker Bugs Application">blockerbugs</who>
+    <bug_when>2017-06-23 14:19:02 -0400</bug_when>
+    <thetext>Proposed as a Blocker for 26-final by Fedora user dustymabe using the blocker tracking app because:
+
+ Don&apos;t know if there is a criteria this offends, but disabling ipv6 is not good. I&apos;m going to propose as blocker and we can de-escalate to FE if needed.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10536471</commentid>
+    <comment_count>5</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2017-06-23 15:32:51 -0400</bug_when>
+    <thetext>I&apos;d say it&apos;s a conditional violation of pretty much any networking-related criterion (if IPv6 is disabled during install, all the &apos;remote repository&apos; criteria; if IPv6 is only disabled on the installed system, all the &apos;must be able to install updates&apos; criteria) in the case that the network is IPv6-only, which is becoming increasingly common. On that basis I&apos;d be +1 blocker.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10540805</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-26 11:19:20 -0400</bug_when>
+    <thetext>anaconda-26.21.10-1.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-3aec86381a</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10542155</commentid>
+    <comment_count>7</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2017-06-26 20:50:03 -0400</bug_when>
+    <thetext>Discussed at 2017-06-26 blocker review meeting: https://meetbot-raw.fedoraproject.org/fedora-blocker-review/2017-06-26/f26-blocker-review.2017-06-26-16.03.html . Accepted as a blocker along the lines of #c5: this is a conditional breakage of all the criteria that involve network access, when said access can only be achieved via IPv6. We decided this was now common enough to warrant making the bug a blocker.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10542853</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-27 02:25:57 -0400</bug_when>
+    <thetext>anaconda-26.21.10-1.fc26, anaconda-user-help-26.1-5.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-3aec86381a</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10546619</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-27 23:52:10 -0400</bug_when>
+    <thetext>anaconda-26.21.10-1.fc26, anaconda-user-help-26.1-5.fc26 has been pushed to the Fedora 26 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10551116</commentid>
+    <comment_count>10</comment_count>
+    <who name="Dusty Mabe">dustymabe</who>
+    <bug_when>2017-06-28 16:47:58 -0400</bug_when>
+    <thetext>verified that ipv6 is now enabled and the container minimal image built fine last night: https://koji.fedoraproject.org/koji/taskinfo?taskID=20226164</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

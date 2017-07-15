@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1370872</bug_id>
+          
+          <creation_ts>2016-08-27 13:04:00 -0400</creation_ts>
+          <short_desc>SELinux is preventing NetworkManager from &apos;unlink&apos; accesses on the file /etc/resolv.conf.</short_desc>
+          <delta_ts>2016-11-09 22:29:49 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>selinux-policy</component>
+          <version>24</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard>abrt_hash:77261c568d4cfcbf07123b7b7e390e3dff8311e7b19383353fadd043dc635488;VARIANT_ID=workstation;</status_whiteboard>
+          <keywords></keywords>
+          <priority>high</priority>
+          <bug_severity>medium</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Melvin Jones">melvinj</reporter>
+          <assigned_to name="Lukas Vrabec">lvrabec</assigned_to>
+          <cc>dominick.grift</cc>
+    
+    
+    <cc>dwalsh</cc>
+    
+    
+    <cc>lvrabec</cc>
+    
+    
+    <cc>melvinj</cc>
+    
+    
+    <cc>mgrepl</cc>
+    
+    
+    <cc>plautrba</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>selinux-policy-3.13.1-191.20.fc24</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-11-09 22:29:49</cf_last_closed>
+          <cf_type>---</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9656395</commentid>
+    <comment_count>0</comment_count>
+    <who name="Melvin Jones">melvinj</who>
+    <bug_when>2016-08-27 13:04:05 -0400</bug_when>
+    <thetext>Description of problem:
+I am using ShrewSoft VPN Client on Fedora 24 and whenever I connect to my remote site I get this SELinux alert.
+
+It appears that the changes to the nameservers are made to the /etc/resolv.conf file but it seems that NetworkManager is trying an unlink on the file and I&apos;m not sure why.  The connection works as expected, so there isn&apos;t a problem, but I&apos;m just confused by the alert.  I&apos;m not sure why NetworkManager needs unlink access or even if it should have that access.
+SELinux is preventing NetworkManager from &apos;unlink&apos; accesses on the file /etc/resolv.conf.
+
+*****  Plugin restorecon (94.8 confidence) suggests   ************************
+
+If you want to fix the label. 
+/etc/resolv.conf default label should be net_conf_t.
+Then you can run restorecon.
+Do
+# /sbin/restorecon -v /etc/resolv.conf
+
+*****  Plugin catchall_labels (5.21 confidence) suggests   *******************
+
+If you want to allow NetworkManager to have unlink access on the resolv.conf file
+Then you need to change the label on /etc/resolv.conf
+Do
+# semanage fcontext -a -t FILE_TYPE &apos;/etc/resolv.conf&apos;
+where FILE_TYPE is one of the following: NetworkManager_etc_rw_t, NetworkManager_tmp_t, NetworkManager_var_lib_t, NetworkManager_var_run_t, dhcpc_state_t, dhcpc_var_run_t, dnsmasq_var_run_t, hostname_etc_t, named_cache_t, net_conf_t, pppd_var_run_t, systemd_passwd_var_run_t.
+Then execute:
+restorecon -v &apos;/etc/resolv.conf&apos;
+
+
+*****  Plugin catchall (1.44 confidence) suggests   **************************
+
+If you believe that NetworkManager should be allowed unlink access on the resolv.conf file by default.
+Then you should report this as a bug.
+You can generate a local policy module to allow this access.
+Do
+allow this access for now by executing:
+# ausearch -c &apos;NetworkManager&apos; --raw | audit2allow -M my-NetworkManager
+# semodule -X 300 -i my-NetworkManager.pp
+
+Additional Information:
+Source Context                system_u:system_r:NetworkManager_t:s0
+Target Context                system_u:object_r:etc_t:s0
+Target Objects                /etc/resolv.conf [ file ]
+Source                        NetworkManager
+Source Path                   NetworkManager
+Port                          &lt;Unknown&gt;
+Host                          (removed)
+Source RPM Packages           
+Target RPM Packages           
+Policy RPM                    selinux-policy-3.13.1-191.13.fc24.noarch
+Selinux Enabled               True
+Policy Type                   targeted
+Enforcing Mode                Enforcing
+Host Name                     (removed)
+Platform                      Linux (removed) 4.6.7-300.fc24.x86_64 #1 SMP Wed
+                              Aug 17 18:48:43 UTC 2016 x86_64 x86_64
+Alert Count                   12
+First Seen                    2016-08-16 15:44:29 EDT
+Last Seen                     2016-08-27 12:56:33 EDT
+Local ID                      fa271e6a-1973-48a0-b404-d694219ce7e0
+
+Raw Audit Messages
+type=AVC msg=audit(1472316993.835:274): avc:  denied  { unlink } for  pid=1040 comm=&quot;NetworkManager&quot; name=&quot;resolv.conf&quot; dev=&quot;sda7&quot; ino=130836 scontext=system_u:system_r:NetworkManager_t:s0 tcontext=system_u:object_r:etc_t:s0 tclass=file permissive=0
+
+
+Hash: NetworkManager,NetworkManager_t,etc_t,file,unlink
+
+Version-Release number of selected component:
+selinux-policy-3.13.1-191.13.fc24.noarch
+
+Additional info:
+reporter:       libreport-2.7.2
+hashmarkername: setroubleshoot
+kernel:         4.6.7-300.fc24.x86_64
+type:           libreport
+
+Potential duplicate: bug 876757</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9658693</commentid>
+    <comment_count>1</comment_count>
+    <who name="Daniel Walsh">dwalsh</who>
+    <bug_when>2016-08-29 06:09:44 -0400</bug_when>
+    <thetext>Network Manager manages the /etc/resolv.conf file, so it renames content over the file.  The weird thing is that ShrewSoft VPN Client on Fedora 24 is mislabeling the file when it creates it.  Most likely it is creating a temporary file in /etc and then renaming it over /etc/resolv.conf.
+
+If you could figure out the file name that the tool is creating, then we might be able to setup a file trans fule for this creation.  Or if you could modify the code to run a restorecon after it creates the file, or you could try to use restorecond to watch for new file creations and then fix the label.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9663272</commentid>
+    <comment_count>2</comment_count>
+    <who name="Lukas Vrabec">lvrabec</who>
+    <bug_when>2016-08-30 08:20:32 -0400</bug_when>
+    <thetext>Dan is right. Could you provide info?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9663378</commentid>
+    <comment_count>3</comment_count>
+    <who name="Melvin Jones">melvinj</who>
+    <bug_when>2016-08-30 08:41:47 -0400</bug_when>
+    <thetext>Thanks for the follow up.
+
+I looked into it and this is what is happening.  When I am not connected using ShrewSoft the /etc/resolv.conf file is a symlink that points to /var/run/NetworkManager/resolv.conf, which has the proper type of net_conf_t.
+
+Whenever I connect with Shrewsoft, it removes the symlink and adds it&apos;s own version of /etc/resolv.conf with has a type of etc_t.
+
+I am not sure what happens at this point, but it appears NetworkManager tries to remove the file so it can recreate the symlink or something?
+
+Like I said before, it still works fine besides the alert that comes up.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9663505</commentid>
+    <comment_count>4</comment_count>
+    <who name="Lukas Vrabec">lvrabec</who>
+    <bug_when>2016-08-30 09:05:27 -0400</bug_when>
+    <thetext>Melvin,
+Could you connect using ShrewSoft and then attach output of:
+
+# ps -efZ | grep ShrewSoft
+
+Thanks.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9663866</commentid>
+    <comment_count>5</comment_count>
+    <who name="Melvin Jones">melvinj</who>
+    <bug_when>2016-08-30 10:26:10 -0400</bug_when>
+    <thetext>[melvin@MyComputer ~]$ ps -efZ | grep ike
+
+system_u:system_r:unconfined_service_t:s0 root 19988 1  0 08:37 ?      00:00:00 /usr/sbin/iked -f /etc/iked.conf
+
+unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 melvin 21044 1  0 10:21 pts/1 00:00:00 /usr/bin/qikea
+
+unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 melvin 21048 21044  1 10:21 pts/1 00:00:00 qikec -r MySite
+
+iked is the daemon that runs in the background, qikea is the GUI which holds all of the connections and qikec runs whenever you actually create a connection and put in your username/password.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9665004</commentid>
+    <comment_count>6</comment_count>
+    <who name="Daniel Walsh">dwalsh</who>
+    <bug_when>2016-08-30 16:22:38 -0400</bug_when>
+    <thetext>https://github.com/fedora-selinux/selinux-policy/pull/152
+
+Might fix the problem.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9861652</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-11-04 08:11:36 -0400</bug_when>
+    <thetext>selinux-policy-3.13.1-191.20.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-7ce27629b3</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9863800</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-11-04 23:36:21 -0400</bug_when>
+    <thetext>selinux-policy-3.13.1-191.20.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-7ce27629b3</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9878138</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-11-09 22:29:49 -0500</bug_when>
+    <thetext>selinux-policy-3.13.1-191.20.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

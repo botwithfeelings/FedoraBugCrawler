@@ -1,0 +1,585 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1422771</bug_id>
+          
+          <creation_ts>2017-02-16 02:41:00 -0500</creation_ts>
+          <short_desc>sendmail.service tweak</short_desc>
+          <delta_ts>2017-03-08 06:18:25 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>sendmail</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Fabrice Bellet">fabrice</reporter>
+          <assigned_to name="Jaroslav Škarvada">jskarvad</assigned_to>
+          <cc>joopbraak</cc>
+    
+    
+    <cc>jskarvad</cc>
+    
+    
+    <cc>msekleta</cc>
+    
+    
+    <cc>olysonek</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>sendmail-8.15.2-8.fc25</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-03-02 22:54:33</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10152478</commentid>
+    <comment_count>0</comment_count>
+    <who name="Fabrice Bellet">fabrice</who>
+    <bug_when>2017-02-16 02:41:15 -0500</bug_when>
+    <thetext>The systemd  and sm-client services maybe could be improved by adding a &quot;StartLimitInterval=0&quot; instruction. The reason of this modification is that the network-manager dispatcher script may restart the service at the same rate the user requests a network change, and this may easily hit the default start-hit-rate limit of systemd (5 bursts starts per 10 secs). When it happens, the service is silently _not_ restarted:
+
+Feb 15 18:00:43 bonobo.bellet.info systemd[1]: sendmail.service: Failed with result &apos;start-limit-hit&apos;.
+
+As a side comment, I&apos;m also wondering if the nm-dispatcher script for sendmail could not only restart sendmail when the hostname is modified ? This is what is important for sendmail I think (knowing its own hostname, to decide when delivery should be local or relayed).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10152835</commentid>
+    <comment_count>1</comment_count>
+    <who name="Jaroslav Škarvada">jskarvad</who>
+    <bug_when>2017-02-16 05:22:26 -0500</bug_when>
+    <thetext>(In reply to Fabrice Bellet from comment #0)
+&gt; The systemd  and sm-client services maybe could be improved by adding a
+&gt; &quot;StartLimitInterval=0&quot; instruction. The reason of this modification is that
+&gt; the network-manager dispatcher script may restart the service at the same
+&gt; rate the user requests a network change, and this may easily hit the default
+&gt; start-hit-rate limit of systemd (5 bursts starts per 10 secs). When it
+&gt; happens, the service is silently _not_ restarted:
+&gt; 
+&gt; Feb 15 18:00:43 bonobo.bellet.info systemd[1]: sendmail.service: Failed with
+&gt; result &apos;start-limit-hit&apos;.
+&gt;
+Thanks for info. But didn&apos;t you mean &quot;StartLimitIntervalSec&quot;?
+
+&gt; As a side comment, I&apos;m also wondering if the nm-dispatcher script for
+&gt; sendmail could not only restart sendmail when the hostname is modified ?
+&gt; This is what is important for sendmail I think (knowing its own hostname, to
+&gt; decide when delivery should be local or relayed).
+
+Last time when I looked on this problem, I wasn&apos;t able to find anything related in NM. Maybe worth NM RFE?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10153945</commentid>
+    <comment_count>2</comment_count>
+    <who name="Fabrice Bellet">fabrice</who>
+    <bug_when>2017-02-16 10:35:42 -0500</bug_when>
+    <thetext>(In reply to Jaroslav Škarvada from comment #1)
+&gt; Thanks for info. But didn&apos;t you mean &quot;StartLimitIntervalSec&quot;?
+
+Ah. that&apos;s interesting, because I didn&apos;t notice the option name mismatch. I copied this option from other service files (lvm2-pvscan@.service and kdump.service on my fedora 25 box).
+
+StartLimitIntervalSec=0 doesn&apos;t do the job. StartLimitBurst=0 seems the required option instead, if we want to stay with &quot;documented&quot; options :)
+
+&gt; 
+&gt; &gt; As a side comment, I&apos;m also wondering if the nm-dispatcher script for
+&gt; &gt; sendmail could not only restart sendmail when the hostname is modified ?
+&gt; &gt; This is what is important for sendmail I think (knowing its own hostname, to
+&gt; &gt; decide when delivery should be local or relayed).
+&gt; 
+&gt; Last time when I looked on this problem, I wasn&apos;t able to find anything
+&gt; related in NM. Maybe worth NM RFE?
+
+For what I know of current networkmanager capabilities, dispatcher scripts can react on hostname change initiated by networkmanager itself (arg $2 == hostname). This event can be triggered automatically when receiving the IP address from a DHCP server (from address lookup), or manually when the user changes the hostname with &quot;nmcli general hostname newhostname&quot;. This second possibility _also_ modifies the static hostname in /etc/hostname.
+
+There may also be subtleties, depending on whether /etc/hostname is empty, or whether hostname==localhost.localdomain at NetworkManager startup, but I&apos;m not 100% sure about that.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10154013</commentid>
+    <comment_count>3</comment_count>
+    <who name="Jaroslav Škarvada">jskarvad</who>
+    <bug_when>2017-02-16 10:53:50 -0500</bug_when>
+    <thetext>(In reply to Fabrice Bellet from comment #2)
+&gt; (In reply to Jaroslav Škarvada from comment #1)
+&gt; &gt; Thanks for info. But didn&apos;t you mean &quot;StartLimitIntervalSec&quot;?
+&gt; 
+&gt; Ah. that&apos;s interesting, because I didn&apos;t notice the option name mismatch. I
+&gt; copied this option from other service files (lvm2-pvscan@.service and
+&gt; kdump.service on my fedora 25 box).
+&gt; 
+&gt; StartLimitIntervalSec=0 doesn&apos;t do the job. StartLimitBurst=0 seems the
+&gt; required option instead, if we want to stay with &quot;documented&quot; options :)
+&gt;
+Has the &quot;StartLimitInterval=0&quot; worked for you? If yes I am going to sort it out with the systemd guys, because it doesn&apos;t seem to be documented.
+
+&gt; &gt; 
+&gt; &gt; &gt; As a side comment, I&apos;m also wondering if the nm-dispatcher script for
+&gt; &gt; &gt; sendmail could not only restart sendmail when the hostname is modified ?
+&gt; &gt; &gt; This is what is important for sendmail I think (knowing its own hostname, to
+&gt; &gt; &gt; decide when delivery should be local or relayed).
+&gt; &gt; 
+&gt; &gt; Last time when I looked on this problem, I wasn&apos;t able to find anything
+&gt; &gt; related in NM. Maybe worth NM RFE?
+&gt; 
+&gt; For what I know of current networkmanager capabilities, dispatcher scripts
+&gt; can react on hostname change initiated by networkmanager itself (arg $2 ==
+&gt; hostname). This event can be triggered automatically when receiving the IP
+&gt; address from a DHCP server (from address lookup), or manually when the user
+&gt; changes the hostname with &quot;nmcli general hostname newhostname&quot;. This second
+&gt; possibility _also_ modifies the static hostname in /etc/hostname.
+&gt; 
+&gt; There may also be subtleties, depending on whether /etc/hostname is empty,
+&gt; or whether hostname==localhost.localdomain at NetworkManager startup, but
+&gt; I&apos;m not 100% sure about that.
+
+Thanks for info, but I am currently not 100% sure whether it&apos;s enough, because IIRC sendmail is doing reverse DNS check which could reveal inconsistency if the IP changes.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10154626</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fabrice Bellet">fabrice</who>
+    <bug_when>2017-02-16 14:29:20 -0500</bug_when>
+    <thetext>(In reply to Jaroslav Škarvada from comment #3)
+&gt; Has the &quot;StartLimitInterval=0&quot; worked for you? If yes I am going to sort it
+&gt; out with the systemd guys, because it doesn&apos;t seem to be documented.
+
+Yes, &quot;StartLimitInterval=0&quot; has the desired behaviour for me (both in sendmail.service and sm-client.service)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10157137</commentid>
+    <comment_count>5</comment_count>
+    <who name="Jaroslav Škarvada">jskarvad</who>
+    <bug_when>2017-02-17 04:59:23 -0500</bug_when>
+    <thetext>(In reply to Fabrice Bellet from comment #4)
+&gt; (In reply to Jaroslav Škarvada from comment #3)
+&gt; &gt; Has the &quot;StartLimitInterval=0&quot; worked for you? If yes I am going to sort it
+&gt; &gt; out with the systemd guys, because it doesn&apos;t seem to be documented.
+&gt; 
+&gt; Yes, &quot;StartLimitInterval=0&quot; has the desired behaviour for me (both in
+&gt; sendmail.service and sm-client.service)
+
+Interesting, it seems StartLimitInterval is just obsoleted alias for StartLimitIntervalSec (in f25, i.e. systemd-231-13.fc25). Adding Michal to sort it out.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10166274</commentid>
+    <comment_count>6</comment_count>
+    <who name="Michal Sekletar">msekleta</who>
+    <bug_when>2017-02-20 04:32:53 -0500</bug_when>
+    <thetext>(In reply to Jaroslav Škarvada from comment #5)
+&gt; (In reply to Fabrice Bellet from comment #4)
+&gt; &gt; (In reply to Jaroslav Škarvada from comment #3)
+&gt; &gt; &gt; Has the &quot;StartLimitInterval=0&quot; worked for you? If yes I am going to sort it
+&gt; &gt; &gt; out with the systemd guys, because it doesn&apos;t seem to be documented.
+&gt; &gt; 
+&gt; &gt; Yes, &quot;StartLimitInterval=0&quot; has the desired behaviour for me (both in
+&gt; &gt; sendmail.service and sm-client.service)
+&gt; 
+&gt; Interesting, it seems StartLimitInterval is just obsoleted alias for
+&gt; StartLimitIntervalSec (in f25, i.e. systemd-231-13.fc25). Adding Michal to
+&gt; sort it out.
+
+StartLimitInterval is the proper name of the option while StartLimitIntervalSec is name of the DBus property. In configuration files please use the former.
+
+For complete list of options (with pointers to additional docs) see &quot;man 7 systemd.directives&quot;</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10168694</commentid>
+    <comment_count>7</comment_count>
+    <who name="Jaroslav Škarvada">jskarvad</who>
+    <bug_when>2017-02-20 16:32:41 -0500</bug_when>
+    <thetext>(In reply to Michal Sekletar from comment #6)
+&gt; (In reply to Jaroslav Škarvada from comment #5)
+&gt; &gt; (In reply to Fabrice Bellet from comment #4)
+&gt; &gt; &gt; (In reply to Jaroslav Škarvada from comment #3)
+&gt; &gt; &gt; &gt; Has the &quot;StartLimitInterval=0&quot; worked for you? If yes I am going to sort it
+&gt; &gt; &gt; &gt; out with the systemd guys, because it doesn&apos;t seem to be documented.
+&gt; &gt; &gt; 
+&gt; &gt; &gt; Yes, &quot;StartLimitInterval=0&quot; has the desired behaviour for me (both in
+&gt; &gt; &gt; sendmail.service and sm-client.service)
+&gt; &gt; 
+&gt; &gt; Interesting, it seems StartLimitInterval is just obsoleted alias for
+&gt; &gt; StartLimitIntervalSec (in f25, i.e. systemd-231-13.fc25). Adding Michal to
+&gt; &gt; sort it out.
+&gt; 
+&gt; StartLimitInterval is the proper name of the option while
+&gt; StartLimitIntervalSec is name of the DBus property. In configuration files
+&gt; please use the former.
+&gt; 
+&gt; For complete list of options (with pointers to additional docs) see &quot;man 7
+&gt; systemd.directives&quot;
+
+Sorry I cannot find it in the &quot;man 7 systemd.directives&quot;, is it systemd bug / non documented option?:
+
+$ man 7 systemd.directives | grep StartLimitInterval
+       StartLimitIntervalSec=
+       DefaultStartLimitIntervalSec=
+
+$ man systemd.unit | grep StartLimitInterval
+       StartLimitIntervalSec=, StartLimitBurst=
+           modified. Use StartLimitIntervalSec= to configure the checking interval (defaults to DefaultStartLimitIntervalSec= in
+           Configure the action to take if the rate limit configured with StartLimitIntervalSec= and StartLimitBurst= is hit. Takes</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10169856</commentid>
+    <comment_count>8</comment_count>
+    <who name="Michal Sekletar">msekleta</who>
+    <bug_when>2017-02-21 04:08:35 -0500</bug_when>
+    <thetext>(In reply to Jaroslav Škarvada from comment #7)
+&gt; (In reply to Michal Sekletar from comment #6)
+&gt; &gt; (In reply to Jaroslav Škarvada from comment #5)
+&gt; &gt; &gt; (In reply to Fabrice Bellet from comment #4)
+&gt; &gt; &gt; &gt; (In reply to Jaroslav Škarvada from comment #3)
+&gt; &gt; &gt; &gt; &gt; Has the &quot;StartLimitInterval=0&quot; worked for you? If yes I am going to sort it
+&gt; &gt; &gt; &gt; &gt; out with the systemd guys, because it doesn&apos;t seem to be documented.
+&gt; &gt; &gt; &gt; 
+&gt; &gt; &gt; &gt; Yes, &quot;StartLimitInterval=0&quot; has the desired behaviour for me (both in
+&gt; &gt; &gt; &gt; sendmail.service and sm-client.service)
+&gt; &gt; &gt; 
+&gt; &gt; &gt; Interesting, it seems StartLimitInterval is just obsoleted alias for
+&gt; &gt; &gt; StartLimitIntervalSec (in f25, i.e. systemd-231-13.fc25). Adding Michal to
+&gt; &gt; &gt; sort it out.
+&gt; &gt; 
+&gt; &gt; StartLimitInterval is the proper name of the option while
+&gt; &gt; StartLimitIntervalSec is name of the DBus property. In configuration files
+&gt; &gt; please use the former.
+&gt; &gt; 
+&gt; &gt; For complete list of options (with pointers to additional docs) see &quot;man 7
+&gt; &gt; systemd.directives&quot;
+&gt; 
+&gt; Sorry I cannot find it in the &quot;man 7 systemd.directives&quot;, is it systemd bug
+&gt; / non documented option?:
+&gt; 
+&gt; $ man 7 systemd.directives | grep StartLimitInterval
+&gt;        StartLimitIntervalSec=
+&gt;        DefaultStartLimitIntervalSec=
+&gt; 
+&gt; $ man systemd.unit | grep StartLimitInterval
+&gt;        StartLimitIntervalSec=, StartLimitBurst=
+&gt;            modified. Use StartLimitIntervalSec= to configure the checking
+&gt; interval (defaults to DefaultStartLimitIntervalSec= in
+&gt;            Configure the action to take if the rate limit configured with
+&gt; StartLimitIntervalSec= and StartLimitBurst= is hit. Takes
+
+You are right. Sorry for the confusion. My systemd version still have StartLimitInterval though.
+
+Here is upstream commit that renamed StartLimitInterval to StartLimitIntervalSec,
+
+https://github.com/systemd/systemd/commit/f0367da7d1a61ad698a55d17b5c28ddce0dc265a
+
+Note that old name still works. Hence I&apos;d stick to old name if you don&apos;t want to have different unit file versions for different Fedora releases. But it is your call.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10170181</commentid>
+    <comment_count>9</comment_count>
+    <who name="Jaroslav Škarvada">jskarvad</who>
+    <bug_when>2017-02-21 05:16:29 -0500</bug_when>
+    <thetext>Thanks for info. I can see clearly in the code it&apos;s just rename, so I don&apos;t understand why StartLimitInterval=0 worked for reporter, but StartLimitIntervalSec=0 didn&apos;t.
+
+Michal what&apos;s the correct way to disable the rate limiting in the unit file (i.e. to allow unlimited number of service restarts even with multiple failures)? I am unable to find it in the documentation. According to the reporter in the comment 2, it seems that StartLimitInterval=0 works, StartLimitBurst=0 doesn&apos;t work, and StartLimitBurst=0 works, which seems quite strange for me (I am going to retest).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10170323</commentid>
+    <comment_count>10</comment_count>
+    <who name="Michal Sekletar">msekleta</who>
+    <bug_when>2017-02-21 05:56:02 -0500</bug_when>
+    <thetext>(In reply to Jaroslav Škarvada from comment #9)
+&gt; Thanks for info. I can see clearly in the code it&apos;s just rename, so I don&apos;t
+&gt; understand why StartLimitInterval=0 worked for reporter, but
+&gt; StartLimitIntervalSec=0 didn&apos;t.
+&gt; 
+&gt; Michal what&apos;s the correct way to disable the rate limiting in the unit file
+&gt; (i.e. to allow unlimited number of service restarts even with multiple
+&gt; failures)? I am unable to find it in the documentation. According to the
+&gt; reporter in the comment 2, it seems that StartLimitInterval=0 works,
+&gt; StartLimitBurst=0 doesn&apos;t work, and StartLimitBurst=0 works, which seems
+&gt; quite strange for me (I am going to retest).
+
+Safest bet is to set both to zero. However, according to our docs setting just the interval should be sufficient, 
+
+&quot;Use StartLimitInterval= to configure the checking interval (defaults to DefaultStartLimitInterval= in manager configuration file, set to 0 to disable any kind of rate limiting).&quot;</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10171640</commentid>
+    <comment_count>11</comment_count>
+    <who name="Jaroslav Škarvada">jskarvad</who>
+    <bug_when>2017-02-21 11:24:46 -0500</bug_when>
+    <thetext>As I thought and proved by following simple experiment StartLimitIntervalSec works the same as StartLimitInterval. I have default systemd settings which means &quot;by default, units which are started more than 5 times within 10 seconds are not permitted to start any more times until the 10 second interval ends&quot;. This means six quick restarts should do the trick. Reproducer:
+
+Default sendmail.service:
+# systemctl restart sendmail; systemctl restart sendmail; systemctl restart sendmail; systemctl restart sendmail; systemctl restart sendmail; systemctl restart sendmail
+Job for sendmail.service failed.
+See &quot;systemctl status sendmail.service&quot; and &quot;journalctl -xe&quot; for details.
+# echo $?
+1
+
+sendmail.service with StartLimitIntervalSec=0:
+# systemctl daemon-reload
+# systemctl restart sendmail; systemctl restart sendmail; systemctl restart sendmail; systemctl restart sendmail; systemctl restart sendmail; systemctl restart sendmail
+# echo $?
+0
+
+sendmail.service with StartLimitInterval=0
+# systemctl daemon-reload
+# systemctl restart sendmail; systemctl restart sendmail; systemctl restart sendmail; systemctl restart sendmail; systemctl restart sendmail; systemctl restart sendmail
+# echo $?
+0
+
+sendmail.service with StartLimitBurst=0
+# systemctl daemon-reload
+# systemctl restart sendmail; systemctl restart sendmail; systemctl restart sendmail; systemctl restart sendmail; systemctl restart sendmail; systemctl restart sendmail
+# echo $?
+0
+
+I.e. all three variants works. I will probably go with StartLimitIntervalSec instead of StartLimitInterval which is marked as obsoleted and I am not going to backport this feature to older Fedoras.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10171861</commentid>
+    <comment_count>12</comment_count>
+    <who name="Fabrice Bellet">fabrice</who>
+    <bug_when>2017-02-21 12:13:44 -0500</bug_when>
+    <thetext>That&apos;s odd, because I have a different behaviour when adding StartLimitInterval=0 or StartLimitIntervalSec=0. 
+
+[root@bonobo ~]# rpm -q systemd
+systemd-231-12.fc25.x86_64
+[root@bonobo ~]# rpm -V systemd
+S.5....T.  c /etc/systemd/coredump.conf
+S.5....T.  c /etc/systemd/logind.conf
+.......T.  c /etc/systemd/system.conf
+[root@bonobo ~]# systemctl is-enabled sendmail
+enabled
+
+
+I modified /usr/lib/systemd/system/sendmail.service, adding StartLimitInterval=0 or StartLimitIntervalSec=0 at the end of section [Service]. Could the section be relevant in that case ?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10171932</commentid>
+    <comment_count>13</comment_count>
+    <who name="Jaroslav Škarvada">jskarvad</who>
+    <bug_when>2017-02-21 12:35:35 -0500</bug_when>
+    <thetext>(In reply to Fabrice Bellet from comment #12)
+&gt; That&apos;s odd, because I have a different behaviour when adding
+&gt; StartLimitInterval=0 or StartLimitIntervalSec=0. 
+&gt; 
+&gt; [root@bonobo ~]# rpm -q systemd
+&gt; systemd-231-12.fc25.x86_64
+&gt; [root@bonobo ~]# rpm -V systemd
+&gt; S.5....T.  c /etc/systemd/coredump.conf
+&gt; S.5....T.  c /etc/systemd/logind.conf
+&gt; .......T.  c /etc/systemd/system.conf
+&gt; [root@bonobo ~]# systemctl is-enabled sendmail
+&gt; enabled
+&gt; 
+&gt; 
+&gt; I modified /usr/lib/systemd/system/sendmail.service, adding
+&gt; StartLimitInterval=0 or StartLimitIntervalSec=0 at the end of section
+&gt; [Service]. Could the section be relevant in that case ?
+
+AFAIK (and according to the doc) it should be in the [unit] section, and my tests in comment 11 used it so, i.e.:
+
+# cat /usr/lib/systemd/system/sendmail.service
+[Unit]
+Description=Sendmail Mail Transport Agent
+After=syslog.target network.target
+Conflicts=postfix.service exim.service
+Wants=sm-client.service
+StartLimitIntervalSec=0
+
+[Service]
+Type=forking
+PIDFile=/run/sendmail.pid
+Environment=SENDMAIL_OPTS=-q1h
+EnvironmentFile=-/etc/sysconfig/sendmail
+ExecStartPre=-/etc/mail/make
+ExecStartPre=-/etc/mail/make aliases
+ExecStart=/usr/sbin/sendmail -bd $SENDMAIL_OPTS $SENDMAIL_OPTARG
+
+[Install]
+WantedBy=multi-user.target
+Also=sm-client.service</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10171937</commentid>
+    <comment_count>14</comment_count>
+    <who name="Jaroslav Škarvada">jskarvad</who>
+    <bug_when>2017-02-21 12:38:17 -0500</bug_when>
+    <thetext>Maybe StartLimitInterval somehow bubbles from the [Service] section, or maybe it&apos;s there allowed for backward compatibility, I didn&apos;t check this in the systemd code.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10171945</commentid>
+    <comment_count>15</comment_count>
+    <who name="Jaroslav Škarvada">jskarvad</who>
+    <bug_when>2017-02-21 12:41:57 -0500</bug_when>
+    <thetext>Yup, it seems so in the systemd code (load-fragment-gperf.gperf.m4):
+
+m4_dnl The following three only exist for compatibility, they moved into Unit, see above
+Service.StartLimitInterval,      config_parse_sec,                   0,                             offsetof(Unit, start_limit.interval)
+Service.StartLimitBurst,         config_parse_unsigned,              0,                             offsetof(Unit, start_limit.burst)
+Service.StartLimitAction,        config_parse_failure_action,        0,                             offsetof(Unit, start_limit_action)
+
+And there is no StartLimitIntervalSec.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10171947</commentid>
+    <comment_count>16</comment_count>
+    <who name="Jaroslav Škarvada">jskarvad</who>
+    <bug_when>2017-02-21 12:43:46 -0500</bug_when>
+    <thetext>Michal, I expected answer similar to comment 11 and comment 15, just nitpicking ;)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10171952</commentid>
+    <comment_count>17</comment_count>
+    <who name="Jaroslav Škarvada">jskarvad</who>
+    <bug_when>2017-02-21 12:44:49 -0500</bug_when>
+    <thetext>Fabrice could you confirm StartLimitIntervalSec worked for you in the [unit] section?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10172266</commentid>
+    <comment_count>18</comment_count>
+    <who name="Fabrice Bellet">fabrice</who>
+    <bug_when>2017-02-21 14:27:35 -0500</bug_when>
+    <thetext>(In reply to Jaroslav Škarvada from comment #17)
+&gt; Fabrice could you confirm StartLimitIntervalSec worked for you in the [unit]
+&gt; section?
+
+Yes, that&apos;s right: StartLimitIntervalSec=0 works too, when inserted in the [unit] section.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10172730</commentid>
+    <comment_count>19</comment_count>
+    <who name="Jaroslav Škarvada">jskarvad</who>
+    <bug_when>2017-02-21 18:30:28 -0500</bug_when>
+    <thetext>Thanks, I am happy we sorted it out.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10172747</commentid>
+    <comment_count>20</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-21 18:57:09 -0500</bug_when>
+    <thetext>sendmail-8.15.2-8.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-b64ee22a45</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10173900</commentid>
+    <comment_count>21</comment_count>
+    <who name="Fabrice Bellet">fabrice</who>
+    <bug_when>2017-02-22 05:10:25 -0500</bug_when>
+    <thetext>Should sm-client.service be modified too ? I notice that the start-limit-hit failed state is now reported on sm-client.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10176317</commentid>
+    <comment_count>22</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-22 16:09:01 -0500</bug_when>
+    <thetext>sendmail-8.15.2-8.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-b64ee22a45</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10178141</commentid>
+    <comment_count>23</comment_count>
+    <who name="Jaroslav Škarvada">jskarvad</who>
+    <bug_when>2017-02-23 07:46:30 -0500</bug_when>
+    <thetext>(In reply to Fabrice Bellet from comment #21)
+&gt; Should sm-client.service be modified too ? I notice that the start-limit-hit
+&gt; failed state is now reported on sm-client.
+
+Yes, you are right, it&apos;s also worth the fix.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10178322</commentid>
+    <comment_count>24</comment_count>
+    <who name="Michal Sekletar">msekleta</who>
+    <bug_when>2017-02-23 08:38:49 -0500</bug_when>
+    <thetext>(In reply to Jaroslav Škarvada from comment #16)
+&gt; Michal, I expected answer similar to comment 11 and comment 15, just
+&gt; nitpicking ;)
+
+Mehh, if I were to try and experiment with all configurations/options/setups I see in different bugs that I am handling then I wouldn&apos;t get any work done at all because I&apos;d be just configuring systems all the time ;)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10204577</commentid>
+    <comment_count>25</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-02 22:54:33 -0500</bug_when>
+    <thetext>sendmail-8.15.2-8.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10216039</commentid>
+    <comment_count>26</comment_count>
+    <who name="joopbraak">joopbraak</who>
+    <bug_when>2017-03-07 05:59:15 -0500</bug_when>
+    <thetext>This limit in restarting sendmail service is there for a reason I assume? Why does sendmail have to be patched to fix a buggy networkmanager? The fix should be in networkmanager, not in sendmail.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10216299</commentid>
+    <comment_count>27</comment_count>
+    <who name="Jaroslav Škarvada">jskarvad</who>
+    <bug_when>2017-03-07 07:22:06 -0500</bug_when>
+    <thetext>(In reply to joopbraak from comment #26)
+&gt; This limit in restarting sendmail service is there for a reason I assume?
+&gt; Why does sendmail have to be patched to fix a buggy networkmanager? The fix
+&gt; should be in networkmanager, not in sendmail.
+
+It&apos;s workaround. The limit is by default on for all services, I guess it&apos;s there to prevent loops of never ending restarts which shouldn&apos;t be this case. And there are other services also utilizing this functionality. But feel free to propose better solution / patches. Unfortunately at the moment we have nothing better.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10220156</commentid>
+    <comment_count>28</comment_count>
+    <who name="joopbraak">joopbraak</who>
+    <bug_when>2017-03-08 05:36:01 -0500</bug_when>
+    <thetext>Like Fabrice Bellet said:
+
+&quot;As a side comment, I&apos;m also wondering if the nm-dispatcher script for sendmail could not only restart sendmail when the hostname is modified ? This is what is important for sendmail I think (knowing its own hostname, to decide when delivery should be local or relayed).&quot;
+
+or just build in a delay in restarting the service?
+
+I&apos;m no coder, but it doesn&apos;t seem that difficult to me.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10220520</commentid>
+    <comment_count>29</comment_count>
+    <who name="Jaroslav Škarvada">jskarvad</who>
+    <bug_when>2017-03-08 06:18:25 -0500</bug_when>
+    <thetext>(In reply to joopbraak from comment #28)
+&gt; Like Fabrice Bellet said:
+&gt; 
+&gt; &quot;As a side comment, I&apos;m also wondering if the nm-dispatcher script for
+&gt; sendmail could not only restart sendmail when the hostname is modified ?
+&gt; This is what is important for sendmail I think (knowing its own hostname, to
+&gt; decide when delivery should be local or relayed).&quot;
+&gt;
+To be honest I don&apos;t know. Also see comment 2 there maybe more complication. The dispatcher script will also have to compare the new hostname with the current hostname and restart only if there is a change - and there may be races so we could miss restart. Nor counting that currently I don&apos;t know whether it&apos;s enough to just react on the hostname change.
+
+Please note I am not against such change, but there is no code at the moment. And even with the code, it would require testing.
+
+&gt; or just build in a delay in restarting the service?
+&gt; 
+&gt; I&apos;m no coder, but it doesn&apos;t seem that difficult to me.
+
+This would need some layer in between to count the delay (i.e. the manager), locking, etc. Not trivial. I am currently not aware of such systemd functionality.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

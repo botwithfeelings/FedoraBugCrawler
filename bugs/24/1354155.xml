@@ -1,0 +1,450 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1354155</bug_id>
+          
+          <creation_ts>2016-07-10 02:55:00 -0400</creation_ts>
+          <short_desc>SDL_Init fails when SDL_VIDEODRIVER=wayland</short_desc>
+          <delta_ts>2016-07-18 16:52:10 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>SDL2</component>
+          <version>24</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>medium</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>1277927</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Joseph Mullally">jwmullally</reporter>
+          <assigned_to name="Igor Gnatenko">ignatenko</assigned_to>
+          <cc>ignatenko</cc>
+    
+    
+    <cc>tcallawa</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>SDL2-2.0.4-6.fc24 SDL2-2.0.4-6.fc23</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-07-16 20:52:19</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9494215</commentid>
+    <comment_count>0</comment_count>
+    <who name="Joseph Mullally">jwmullally</who>
+    <bug_when>2016-07-10 02:55:57 -0400</bug_when>
+    <thetext>Description of problem:
+Hi,
+
+I was investigating some graphical glitching for an SDL game (OpenRA) under FC24 under Wayland which doesn&apos;t show up under Xorg. When doing some SDL tests, I saw that SDL2 applications were still defaulting to &quot;x11&quot; under Wayland (if &quot;lg&quot; output and tests below are to be believed...). I&apos;m running a fairly default FC24 install.
+
+2 question/issues:
+A) Does &quot;SDL_Init( SDL_INIT_VIDEO )&quot; still default to &quot;x11&quot; under Wayland?
+
+The tests below show it is. Does this apply: https://wiki.archlinux.org/index.php/wayland#SDL and if so whats the plan around this transition? If the aim is to have Wayland be the default for FC25, should this be patched now for people testing Wayland in FC24 to flush out bugs?
+
+B) Is &quot;SDL_Init(SDL_INIT_VIDEO);&quot; known to work for the Wayland SDL video driver?
+
+It crashes for me, see below - maybe something more is needed for this patch: http://pkgs.fedoraproject.org/cgit/rpms/SDL2.git/tree/SDL2-wayland-dyn-wl_proxy_marshal_constructor_versioned.patch?id=fac91fa8fec7a8dc2f02008bd1eb43a6628f3932
+Or maybe I am not linking this properly...
+
+Thanks!
+
+
+
+Version-Release number of selected component (if applicable):
+$ rpm -qa SDL2
+SDL2-2.0.4-4.fc24.x86_64
+
+How reproducible:
+All the time under Gnome + Wayland
+
+Steps to Reproduce:
+
+
+### Directly calling SDL_Init() shows this issue
+[jman@talos test_sdl]$ cat test_sdl.c
+#include &lt;stdio.h&gt;
+#include &lt;SDL.h&gt;
+int main( int argc, char *argv[] ) {
+    if( SDL_Init( SDL_INIT_VIDEO ) &lt; 0 ) {
+        printf( &quot;SDL_Init() error: %s\n&quot;, SDL_GetError() );
+        return 1;
+    }
+    printf( &quot;SDL_Init() succeeded.\n&quot; );
+    printf( &quot;SDL_GetCurrentVideoDriver(): %s\n&quot;, SDL_GetCurrentVideoDriver() );
+    return 0;
+}
+
+[jman@talos test_sdl]$ ./test_sdl 
+SDL_Init() succeeded.
+SDL_GetCurrentVideoDriver(): x11
+[jman@talos test_sdl]$ SDL_VIDEODRIVER=x11 ./test_sdl
+SDL_Init() succeeded.
+SDL_GetCurrentVideoDriver(): x11
+[jman@talos test_sdl]$ SDL_VIDEODRIVER=blabla ./test_sdl
+SDL_Init() error: blabla not available
+[jman@talos test_sdl]$ SDL_VIDEODRIVER=wayland ./test_sdl
+Segmentation fault (core dumped)
+
+### OpenArena just for comparison, not directly concerned about it at the moment...
+### &quot;lg&quot; shows x11 windows by default
+### crashes when wayland driver is chosen
+[jman@talos test_sdl]$ openarena
+[jman@talos test_sdl]$ SDL_VIDEODRIVER=wayland openarena
+SDL_Init( SDL_INIT_VIDEO ) FAILED (No available video device)
+
+
+
+[jman@talos test_sdl]$ SDL_VIDEODRIVER=wayland gdb ./test_sdl
+GNU gdb (GDB) Fedora 7.11.1-75.fc24
+[...skip...]
+Reading symbols from ./test_sdl...done.
+(gdb) run
+Starting program: /home/jman/test_sdl/test_sdl 
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library &quot;/lib64/libthread_db.so.1&quot;.
+
+Program received signal SIGSEGV, Segmentation fault.
+0x0000000000000000 in ?? ()
+(gdb) bt
+#0  0x0000000000000000 in ?? ()
+#1  0x00007ffff7b8fb4c in wl_registry_bind (version=1, interface=&lt;optimized out&gt;, name=&lt;optimized out&gt;, wl_registry=&lt;optimized out&gt;)
+    at /usr/include/wayland-client-protocol.h:305
+#2  display_handle_global (data=0x605490, registry=&lt;optimized out&gt;, id=&lt;optimized out&gt;, interface=&lt;optimized out&gt;, version=&lt;optimized out&gt;)
+    at /usr/src/debug/SDL2-2.0.4/src/video/wayland/SDL_waylandvideo.c:246
+#3  0x00007ffff367ac58 in ffi_call_unix64 () at ../src/x86/unix64.S:76
+#4  0x00007ffff367a6ba in ffi_call (cif=cif@entry=0x7fffffffdbd0, fn=&lt;optimized out&gt;, rvalue=&lt;optimized out&gt;, rvalue@entry=0x0, avalue=avalue@entry=0x7fffffffdca0)
+    at ../src/x86/ffi64.c:525
+#5  0x00007ffff3885a9e in wl_closure_invoke (closure=closure@entry=0x6044d0, flags=flags@entry=1, target=&lt;optimized out&gt;, target@entry=0x604300, 
+    opcode=opcode@entry=0, data=&lt;optimized out&gt;) at src/connection.c:949
+#6  0x00007ffff3882840 in dispatch_event (display=display@entry=0x605520, queue=&lt;optimized out&gt;) at src/wayland-client.c:1274
+#7  0x00007ffff3883a14 in dispatch_queue (queue=0x6055e8, display=0x605520) at src/wayland-client.c:1420
+#8  wl_display_dispatch_queue_pending (display=0x605520, queue=0x6055e8) at src/wayland-client.c:1662
+#9  0x00007ffff3883d2f in wl_display_roundtrip_queue (display=0x605520, queue=0x6055e8) at src/wayland-client.c:1085
+#10 0x00007ffff7b8f824 in Wayland_VideoInit (_this=&lt;optimized out&gt;) at /usr/src/debug/SDL2-2.0.4/src/video/wayland/SDL_waylandvideo.c:299
+#11 0x00007ffff7b7a50c in SDL_VideoInit_REAL (driver_name=&lt;optimized out&gt;, driver_name@entry=0x0) at /usr/src/debug/SDL2-2.0.4/src/video/SDL_video.c:513
+#12 0x00007ffff7ae2587 in SDL_InitSubSystem_REAL (flags=16416) at /usr/src/debug/SDL2-2.0.4/src/SDL.c:173
+#13 0x000000000040078f in main (argc=1, argv=0x7fffffffdfa8) at test_sdl.c:4
+
+###
+### &quot;WAYLAND_wl_proxy_marshal_constructor_versioned&quot; an uninitialzed pointer/hook?
+###
+(gdb) frame 1
+#1  0x00007ffff7b8fb4c in wl_registry_bind (version=1, interface=&lt;optimized out&gt;, name=&lt;optimized out&gt;, wl_registry=&lt;optimized out&gt;)
+    at /usr/include/wayland-client-protocol.h:305
+305		id = wl_proxy_marshal_constructor_versioned((struct wl_proxy *) wl_registry,
+(gdb) print wl_proxy_marshal_constructor_versioned
+$1 = {struct wl_proxy *(struct wl_proxy *, uint32_t, const struct wl_interface *, uint32_t, ...)} 0x7ffff3882eb0 &lt;wl_proxy_marshal_constructor_versioned&gt;
+(gdb) print WAYLAND_wl_proxy_marshal_constructor_versioned
+$2 = (struct wl_proxy *(*)(struct wl_proxy *, uint32_t, 
+    const struct wl_interface *, uint32_t, ...)) 0x0
+(gdb)
+
+
+### Pretty sure I am running Wayland:
+### - Picked it at the login screen
+### - &quot;lg&quot; shows some Wayland windows active
+### - &quot;ps&quot; shows Wayland process no Xorg processes
+
+[jman@talos test_sdl]$ ps fwww
+  PID TTY      STAT   TIME COMMAND
+25208 tty2     Ssl+   0:00 /usr/libexec/gdm-wayland-session gnome-session
+25210 tty2     Sl+    0:00  \_ /usr/libexec/gnome-session-binary
+25230 tty2     Sl+    7:13      \_ /usr/bin/gnome-shell
+25246 tty2     Sl+    2:23      |   \_ /usr/bin/Xwayland :0 -rootless -noreset -listen 4 -listen 5 -displayfd 6
+25536 tty2     Rl+   31:08      |   \_ /usr/lib64/firefox/firefox
+25900 tty2     Sl+    0:02      |   \_ /usr/bin/python /usr/bin/terminator
+25908 tty2     S+     0:00      |   |   \_ gnome-pty-helper
+25909 pts/0    Ss     0:00      |   |   \_ /bin/bash
+13879 pts/0    R+     0:00      |   |       \_ ps fwww
+27670 tty2     Sl+    0:28      |   \_ gedit
+28820 tty2     Sl+    0:49      |   \_ /usr/bin/python /usr/bin/terminator
+28827 tty2     S+     0:00      |   |   \_ gnome-pty-helper
+28828 pts/1    Ss     0:01      |   |   \_ /bin/bash
+13847 pts/1    Sl+    0:00      |   |   |   \_ gdb ./test_sdl
+ 3104 pts/2    Ss+    0:00      |   |   \_ /bin/bash
+ 9094 tty2     Sl+    0:00      |   \_ /usr/bin/python /usr/bin/terminator
+ 9101 tty2     S+     0:00      |       \_ gnome-pty-helper
+ 9102 pts/3    Ss+    0:00      |       \_ /bin/bash
+25279 tty2     Sl+    0:12      \_ /usr/libexec/gnome-settings-daemon
+25359 tty2     SNl+   0:00      \_ /usr/libexec/tracker-miner-apps
+25365 tty2     Sl+    0:00      \_ /usr/bin/python /usr/libexec/gnome-tweak-tool-lid-inhibitor
+25367 tty2     Sl+    0:01      \_ /usr/bin/gnome-software --gapplication-service
+25368 tty2     SNl+   0:00      \_ /usr/libexec/tracker-extract
+25369 tty2     SNl+   0:00      \_ /usr/libexec/tracker-miner-user-guides
+25370 tty2     Sl+    0:00      \_ abrt-applet
+25384 tty2     S+     0:00      \_ /usr/bin/seapplet
+25397 tty2     SNl+   0:00      \_ /usr/libexec/tracker-miner-fs
+25402 tty2     Sl+    0:00      \_ /usr/libexec/evolution/evolution-alarm-notify
+25377 tty2     Sl+    0:00 /usr/libexec/gsd-printer
+
+
+[jman@talos test_sdl]$ lshw -short | grep display
+/0/100/2                   display        HD Graphics 5300</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9494218</commentid>
+    <comment_count>1</comment_count>
+    <who name="Joseph Mullally">jwmullally</who>
+    <bug_when>2016-07-10 03:01:46 -0400</bug_when>
+    <thetext>This is how I was compiling that test C code:
+
+$ gcc -o test_sdl test_sdl.c -g -lSDL2 -lGL -I/usr/include/SDL2</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9494624</commentid>
+    <comment_count>2</comment_count>
+      <attachid>1178090</attachid>
+    <who name="Joseph Mullally">jwmullally</who>
+    <bug_when>2016-07-10 14:25:52 -0400</bug_when>
+    <thetext>Created attachment 1178090
+Updated version of the original patch</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9494625</commentid>
+    <comment_count>3</comment_count>
+      <attachid>1178091</attachid>
+    <who name="Joseph Mullally">jwmullally</who>
+    <bug_when>2016-07-10 14:31:42 -0400</bug_when>
+    <thetext>Created attachment 1178091
+0001-fix-Wayland-dynamic-symbol-loading-bz1354155.patch
+
+Yup, it looks like this fix from 
+https://bugzilla.libsdl.org/show_bug.cgi?id=3255
+was missing another step added later here:
+https://bugzilla.libsdl.org/show_bug.cgi?id=3265
+https://hg.libsdl.org/SDL/rev/330f500d5815
+
+Attached an update to the patch:
+- SDL2-wayland-dyn-wl_proxy_marshal_constructor_versioned.patch (updated version of the original patch)
+- 0001-make-static-subpackage.patch (git format-patch)
+
+After applying, SDL_Init() works as expected and test applications seem to work OK, so this takes care of B) above.
+
+$ SDL_VIDEODRIVER=wayland ./test_sdl
+SDL_Init() succeeded.
+SDL_GetCurrentVideoDriver(): wayland
+
+$ cd ~/rpmbuild/BUILD/SDL2-2.0.4/test
+$ SDL_VIDEODRIVER=wayland ./testdisplayinfo 
+INFO: Using video target &apos;wayland&apos;.
+INFO: See 1 displays.
+INFO: 0: &quot;SyncMaster&quot; (1680x1050, (0, 0)), 1 modes.
+...
+$ SDL_VIDEODRIVER=wayland ./testgl2
+&lt;works OK&gt;
+
+One extra question: Are the SDL test applications built into any RPMs? They could be very useful to include in SDL2-devel as common reference tests for the upcoming wave of SDL wayland troubleshooting...</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9494677</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-10 15:17:45 -0400</bug_when>
+    <thetext>SDL2-2.0.4-6.fc23 has been submitted as an update to Fedora 23. https://bodhi.fedoraproject.org/updates/FEDORA-2016-a9097aa363</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9494678</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-10 15:17:52 -0400</bug_when>
+    <thetext>SDL2-2.0.4-6.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-d7e30fd6ac</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9494680</commentid>
+    <comment_count>6</comment_count>
+    <who name="Igor Gnatenko">ignatenko</who>
+    <bug_when>2016-07-10 15:21:36 -0400</bug_when>
+    <thetext>(In reply to Joseph Mullally from comment #1)
+&gt; This is how I was compiling that test C code:
+&gt; 
+&gt; $ gcc -o test_sdl test_sdl.c -g -lSDL2 -lGL -I/usr/include/SDL2
+
+Thanks a lot for contribution!</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9499726</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-11 23:55:48 -0400</bug_when>
+    <thetext>SDL2-2.0.4-6.fc23 has been pushed to the Fedora 23 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-a9097aa363</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9499769</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-11 23:59:22 -0400</bug_when>
+    <thetext>SDL2-2.0.4-6.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-d7e30fd6ac</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9515067</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-16 20:52:17 -0400</bug_when>
+    <thetext>SDL2-2.0.4-6.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9519040</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-18 16:52:08 -0400</bug_when>
+    <thetext>SDL2-2.0.4-6.fc23 has been pushed to the Fedora 23 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="0"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1178090</attachid>
+            <date>2016-07-10 14:25:00 -0400</date>
+            <delta_ts>2016-07-10 14:25:52 -0400</delta_ts>
+            <desc>Updated version of the original patch</desc>
+            <filename>SDL2-wayland-dyn-wl_proxy_marshal_constructor_versioned.patch</filename>
+            <type>text/plain</type>
+            <size>1648</size>
+            <attacher name="Joseph Mullally">jwmullally</attacher>
+            
+              <data encoding="base64">ZGlmZiAtdXAgU0RMMi0yLjAuNC9zcmMvdmlkZW8vd2F5bGFuZC9TRExfd2F5bGFuZGR5bi5oLmZp
+eCBTREwyLTIuMC40L3NyYy92aWRlby93YXlsYW5kL1NETF93YXlsYW5kZHluLmgKLS0tIFNETDIt
+Mi4wLjQvc3JjL3ZpZGVvL3dheWxhbmQvU0RMX3dheWxhbmRkeW4uaC5maXgJMjAxNi0wMi0wNSAx
+MjoxODoyOS41MTQzNDg0MDYgLTA1MDAKKysrIFNETDItMi4wLjQvc3JjL3ZpZGVvL3dheWxhbmQv
+U0RMX3dheWxhbmRkeW4uaAkyMDE2LTAyLTA1IDEyOjE4OjQ1Ljg5ODk5MDQ4OSAtMDUwMApAQCAt
+NzksNiArNzksNyBAQCB2b2lkIFNETF9XQVlMQU5EX1VubG9hZFN5bWJvbHModm9pZCk7CiAjZGVm
+aW5lIHdsX3Byb3h5X2dldF91c2VyX2RhdGEgKCpXQVlMQU5EX3dsX3Byb3h5X2dldF91c2VyX2Rh
+dGEpCiAjZGVmaW5lIHdsX3Byb3h5X2FkZF9saXN0ZW5lciAoKldBWUxBTkRfd2xfcHJveHlfYWRk
+X2xpc3RlbmVyKQogI2RlZmluZSB3bF9wcm94eV9tYXJzaGFsX2NvbnN0cnVjdG9yICgqV0FZTEFO
+RF93bF9wcm94eV9tYXJzaGFsX2NvbnN0cnVjdG9yKQorI2RlZmluZSB3bF9wcm94eV9tYXJzaGFs
+X2NvbnN0cnVjdG9yX3ZlcnNpb25lZCAoKldBWUxBTkRfd2xfcHJveHlfbWFyc2hhbF9jb25zdHJ1
+Y3Rvcl92ZXJzaW9uZWQpCiAKICNkZWZpbmUgd2xfc2VhdF9pbnRlcmZhY2UgKCpXQVlMQU5EX3ds
+X3NlYXRfaW50ZXJmYWNlKQogI2RlZmluZSB3bF9zdXJmYWNlX2ludGVyZmFjZSAoKldBWUxBTkRf
+d2xfc3VyZmFjZV9pbnRlcmZhY2UpCmRpZmYgLXVwIFNETDItMi4wLjQvc3JjL3ZpZGVvL3dheWxh
+bmQvU0RMX3dheWxhbmRzeW0uaC5maXggU0RMMi0yLjAuNC9zcmMvdmlkZW8vd2F5bGFuZC9TRExf
+d2F5bGFuZHN5bS5oCi0tLSBTREwyLTIuMC40L3NyYy92aWRlby93YXlsYW5kL1NETF93YXlsYW5k
+c3ltLmguZml4CTIwMTYtMDctMTAgMTc6NTU6NTMuOTcwNDI0OTU1ICswMTAwCisrKyBTREwyLTIu
+MC40L3NyYy92aWRlby93YXlsYW5kL1NETF93YXlsYW5kc3ltLmgJMjAxNi0wNy0xMCAxODowMzow
+MS42MjcxMDk2MjYgKzAxMDAKQEAgLTU1LDYgKzU1LDkgQEAgU0RMX1dBWUxBTkRfU1lNKHZvaWQs
+IHdsX2xpc3RfaW5zZXJ0X2xpcwogU0RMX1dBWUxBTkRfTU9EVUxFKFdBWUxBTkRfQ0xJRU5UXzFf
+NCkKIFNETF9XQVlMQU5EX1NZTShzdHJ1Y3Qgd2xfcHJveHkgKiwgd2xfcHJveHlfbWFyc2hhbF9j
+b25zdHJ1Y3RvciwgKHN0cnVjdCB3bF9wcm94eSAqLCB1aW50MzJfdCBvcGNvZGUsIGNvbnN0IHN0
+cnVjdCB3bF9pbnRlcmZhY2UgKmludGVyZmFjZSwgLi4uKSkKIAorU0RMX1dBWUxBTkRfTU9EVUxF
+KFdBWUxBTkRfQ0xJRU5UXzFfMTApCitTRExfV0FZTEFORF9TWU0oc3RydWN0IHdsX3Byb3h5ICos
+IHdsX3Byb3h5X21hcnNoYWxfY29uc3RydWN0b3JfdmVyc2lvbmVkLCAoc3RydWN0IHdsX3Byb3h5
+ICpwcm94eSwgdWludDMyX3Qgb3Bjb2RlLCBjb25zdCBzdHJ1Y3Qgd2xfaW50ZXJmYWNlICppbnRl
+cmZhY2UsIHVpbnQzMl90IHZlcnNpb24sIC4uLikpCisKIFNETF9XQVlMQU5EX0lOVEVSRkFDRSh3
+bF9zZWF0X2ludGVyZmFjZSkKIFNETF9XQVlMQU5EX0lOVEVSRkFDRSh3bF9zdXJmYWNlX2ludGVy
+ZmFjZSkKIFNETF9XQVlMQU5EX0lOVEVSRkFDRSh3bF9zaG1fcG9vbF9pbnRlcmZhY2UpCg==
+</data>
+
+          </attachment>
+          <attachment
+              isobsolete="0"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1178091</attachid>
+            <date>2016-07-10 14:31:00 -0400</date>
+            <delta_ts>2016-07-10 14:31:42 -0400</delta_ts>
+            <desc>0001-fix-Wayland-dynamic-symbol-loading-bz1354155.patch</desc>
+            <filename>0001-fix-Wayland-dynamic-symbol-loading-bz1354155.patch</filename>
+            <type>text/plain</type>
+            <size>2528</size>
+            <attacher name="Joseph Mullally">jwmullally</attacher>
+            
+              <data encoding="base64">RnJvbSA2YTA5NmQ1YjkzMzU1NGJhY2VmMTM3NzE4YTcxNDA1NDgwY2I3MzNmIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBKb3NlcGggTXVsbGFsbHkgPGp3bXVsbGFsbHlAZ21haWwuY29t
+PgpEYXRlOiBTdW4sIDEwIEp1bCAyMDE2IDE4OjE3OjI2ICswMTAwClN1YmplY3Q6IFtQQVRDSF0g
+Zml4IFdheWxhbmQgZHluYW1pYyBzeW1ib2wgbG9hZGluZyAoYnoxMzU0MTU1KQoKLS0tCiAuLi53
+YXlsYW5kLWR5bi13bF9wcm94eV9tYXJzaGFsX2NvbnN0cnVjdG9yX3ZlcnNpb25lZC5wYXRjaCB8
+IDEzICsrKysrKysrKysrKysKIFNETDIuc3BlYyAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgIHwgIDUgKysrKy0KIDIgZmlsZXMgY2hhbmdlZCwgMTcgaW5z
+ZXJ0aW9ucygrKSwgMSBkZWxldGlvbigtKQoKZGlmZiAtLWdpdCBhL1NETDItd2F5bGFuZC1keW4t
+d2xfcHJveHlfbWFyc2hhbF9jb25zdHJ1Y3Rvcl92ZXJzaW9uZWQucGF0Y2ggYi9TREwyLXdheWxh
+bmQtZHluLXdsX3Byb3h5X21hcnNoYWxfY29uc3RydWN0b3JfdmVyc2lvbmVkLnBhdGNoCmluZGV4
+IDY2Nzk0YmUuLjNmMjMzYWQgMTAwNjQ0Ci0tLSBhL1NETDItd2F5bGFuZC1keW4td2xfcHJveHlf
+bWFyc2hhbF9jb25zdHJ1Y3Rvcl92ZXJzaW9uZWQucGF0Y2gKKysrIGIvU0RMMi13YXlsYW5kLWR5
+bi13bF9wcm94eV9tYXJzaGFsX2NvbnN0cnVjdG9yX3ZlcnNpb25lZC5wYXRjaApAQCAtOSwzICs5
+LDE2IEBAIGRpZmYgLXVwIFNETDItMi4wLjQvc3JjL3ZpZGVvL3dheWxhbmQvU0RMX3dheWxhbmRk
+eW4uaC5maXggU0RMMi0yLjAuNC9zcmMvdmlkZW8vCiAgCiAgI2RlZmluZSB3bF9zZWF0X2ludGVy
+ZmFjZSAoKldBWUxBTkRfd2xfc2VhdF9pbnRlcmZhY2UpCiAgI2RlZmluZSB3bF9zdXJmYWNlX2lu
+dGVyZmFjZSAoKldBWUxBTkRfd2xfc3VyZmFjZV9pbnRlcmZhY2UpCitkaWZmIC11cCBTREwyLTIu
+MC40L3NyYy92aWRlby93YXlsYW5kL1NETF93YXlsYW5kc3ltLmguZml4IFNETDItMi4wLjQvc3Jj
+L3ZpZGVvL3dheWxhbmQvU0RMX3dheWxhbmRzeW0uaAorLS0tIFNETDItMi4wLjQvc3JjL3ZpZGVv
+L3dheWxhbmQvU0RMX3dheWxhbmRzeW0uaC5maXgJMjAxNi0wNy0xMCAxNzo1NTo1My45NzA0MjQ5
+NTUgKzAxMDAKKysrKyBTREwyLTIuMC40L3NyYy92aWRlby93YXlsYW5kL1NETF93YXlsYW5kc3lt
+LmgJMjAxNi0wNy0xMCAxODowMzowMS42MjcxMDk2MjYgKzAxMDAKK0BAIC01NSw2ICs1NSw5IEBA
+IFNETF9XQVlMQU5EX1NZTSh2b2lkLCB3bF9saXN0X2luc2VydF9saXMKKyBTRExfV0FZTEFORF9N
+T0RVTEUoV0FZTEFORF9DTElFTlRfMV80KQorIFNETF9XQVlMQU5EX1NZTShzdHJ1Y3Qgd2xfcHJv
+eHkgKiwgd2xfcHJveHlfbWFyc2hhbF9jb25zdHJ1Y3RvciwgKHN0cnVjdCB3bF9wcm94eSAqLCB1
+aW50MzJfdCBvcGNvZGUsIGNvbnN0IHN0cnVjdCB3bF9pbnRlcmZhY2UgKmludGVyZmFjZSwgLi4u
+KSkKKyAKKytTRExfV0FZTEFORF9NT0RVTEUoV0FZTEFORF9DTElFTlRfMV8xMCkKKytTRExfV0FZ
+TEFORF9TWU0oc3RydWN0IHdsX3Byb3h5ICosIHdsX3Byb3h5X21hcnNoYWxfY29uc3RydWN0b3Jf
+dmVyc2lvbmVkLCAoc3RydWN0IHdsX3Byb3h5ICpwcm94eSwgdWludDMyX3Qgb3Bjb2RlLCBjb25z
+dCBzdHJ1Y3Qgd2xfaW50ZXJmYWNlICppbnRlcmZhY2UsIHVpbnQzMl90IHZlcnNpb24sIC4uLikp
+CisrCisgU0RMX1dBWUxBTkRfSU5URVJGQUNFKHdsX3NlYXRfaW50ZXJmYWNlKQorIFNETF9XQVlM
+QU5EX0lOVEVSRkFDRSh3bF9zdXJmYWNlX2ludGVyZmFjZSkKKyBTRExfV0FZTEFORF9JTlRFUkZB
+Q0Uod2xfc2htX3Bvb2xfaW50ZXJmYWNlKQpkaWZmIC0tZ2l0IGEvU0RMMi5zcGVjIGIvU0RMMi5z
+cGVjCmluZGV4IDNiNTE5NzguLjMxNmFlZmIgMTAwNjQ0Ci0tLSBhL1NETDIuc3BlYworKysgYi9T
+REwyLnNwZWMKQEAgLTEsNiArMSw2IEBACiBOYW1lOiAgICAgICAgICAgU0RMMgogVmVyc2lvbjog
+ICAgICAgIDIuMC40Ci1SZWxlYXNlOiAgICAgICAgNCV7P2Rpc3R9CitSZWxlYXNlOiAgICAgICAg
+NSV7P2Rpc3R9CiBTdW1tYXJ5OiAgICAgICAgQSBjcm9zcy1wbGF0Zm9ybSBtdWx0aW1lZGlhIGxp
+YnJhcnkKIEdyb3VwOiAgICAgICAgICBTeXN0ZW0gRW52aXJvbm1lbnQvTGlicmFyaWVzCiBVUkw6
+ICAgICAgICAgICAgaHR0cDovL3d3dy5saWJzZGwub3JnLwpAQCAtMTMwLDYgKzEzMCw5IEBAIHJt
+IC1mICV7YnVpbGRyb290fSV7X2xpYmRpcn0vKi5sYQogJXtfbGliZGlyfS9saWIqLmEKIAogJWNo
+YW5nZWxvZworKiBTdW4gSnVsIDEwIDIwMTYgSm9zZXBoIE11bGxhbGx5IDxqd211bGxhbGx5QGdt
+YWlsLmNvbT4gLSAyLjAuNC01CistIGZpeCBXYXlsYW5kIGR5bmFtaWMgc3ltYm9sIGxvYWRpbmcg
+KGJ6MTM1NDE1NSkKKwogKiBUaHUgRmViIDI1IDIwMTYgVG9tIENhbGxhd2F5IDxzcG90QGZlZG9y
+YXByb2plY3Qub3JnPiAtIDIuMC40LTQKIC0gZW5hYmxlIHN0YXRpYyBzdWJwYWNrYWdlIChiejEy
+NTM5MzApCiAKLS0gCjIuNy40Cgo=
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

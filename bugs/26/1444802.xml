@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1444802</bug_id>
+          
+          <creation_ts>2017-04-24 07:04:00 -0400</creation_ts>
+          <short_desc>coreutils shouldn&apos;t obsolete coreutils-single</short_desc>
+          <delta_ts>2017-05-01 14:17:02 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>coreutils</component>
+          <version>26</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Petr Šabata">psabata</reporter>
+          <assigned_to name="Kamil Dudka">kdudka</assigned_to>
+          <cc>admiller</cc>
+    
+    
+    <cc>ignatenko</cc>
+    
+    
+    <cc>jamartis</cc>
+    
+    
+    <cc>kdudka</cc>
+    
+    
+    <cc>kzak</cc>
+    
+    
+    <cc>ooprala</cc>
+    
+    
+    <cc>ovasik</cc>
+    
+    
+    <cc>p</cc>
+    
+    
+    <cc>sgallagh</cc>
+    
+    
+    <cc>twaugh</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>coreutils-8.27-3.fc27 coreutils-8.27-5.fc26</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-05-01 14:17:02</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10356034</commentid>
+    <comment_count>0</comment_count>
+    <who name="Petr Šabata">psabata</who>
+    <bug_when>2017-04-24 07:04:40 -0400</bug_when>
+    <thetext>Description of problem:
+With DNF2 it&apos;s no longer possible to install coreutils-single as it&apos;s obsoleted by the main package, &quot;to give priority&quot; to it, according to a comment in the SPEC file.
+
+The reason this ever worked is, according to Igor, a bug in the old DNF which the new release fixed.  That makes sense to me.
+
+Which variant is installed shouldn&apos;t be decided by the packager but by the deployment tools, e.g. Anaconda or mock configuration.
+
+Please, revert c553cab787c2499ffaa36748a2de7c0e08fe31d5.
+
+Version-Release number of selected component (if applicable):
+8.24-105 and newer.
+
+How reproducible:
+Always.
+
+Steps to Reproduce:
+1. Attempt to install coreutils-single with DNF2.
+
+Actual results:
+coreutils is installed.
+
+Expected results:
+coreutils-single is installed.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10356046</commentid>
+    <comment_count>1</comment_count>
+    <who name="Petr Šabata">psabata</who>
+    <bug_when>2017-04-24 07:08:38 -0400</bug_when>
+    <thetext>That said, I&apos;m aware coreutils-single provides coreutils (and it should probably provide all the /bin/* tools as well) and I&apos;m not sure which one the depsolver would choose if you simply install &quot;coreutils&quot;.  I don&apos;t have an advice here; I just know the current implementation is wrong :)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10359868</commentid>
+    <comment_count>2</comment_count>
+    <who name="Kamil Dudka">kdudka</who>
+    <bug_when>2017-04-25 07:54:42 -0400</bug_when>
+    <thetext>Confirmed.  I can reproduce the issue with dnf-2.3.0-1.fc27.  Even though Igor calls it a bug fix, it is at least a backward incompatible change to dnf, which should be avoided.
+
+I am not against dropping the Obsoletes tag from coreutils but please consider also the compatibility aspect of the dnf change that is causing it.  I am pretty sure that coreutils is not the only package affected by the change (and not all affected packages are under our control).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10359952</commentid>
+    <comment_count>3</comment_count>
+    <who name="Stephen Gallagher">sgallagh</who>
+    <bug_when>2017-04-25 08:14:36 -0400</bug_when>
+    <thetext>Kamil: What if we were to rename the other coreutils package to `coreutils-standard` and have them both `Provides: coreutils` (for compatibility with things that `Require: coreutils` and then we can add `Suggests: coreutils-standard` to the fedora-release package, which will trigger DNF to prefer coreutils-standard if neither of them is currently on the system, but otherwise leave it alone.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10360028</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-25 08:26:12 -0400</bug_when>
+    <thetext>coreutils-8.27-3.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-db1b943779</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10360095</commentid>
+    <comment_count>5</comment_count>
+    <who name="Kamil Dudka">kdudka</who>
+    <bug_when>2017-04-25 08:38:17 -0400</bug_when>
+    <thetext>(In reply to Stephen Gallagher from comment #3)
+&gt; Kamil: What if we were to rename the other coreutils package to
+&gt; `coreutils-standard` [...]
+
+Sounds like a bad idea to me.  We should not rename such fundamental packages to work around limitations of the package manager.
+
+Both the packages provide &quot;coreutils = %{version}-%{release}&quot; already.  If there is no way to tell the package manager to require a package _named_ coreutils, we can introduce an additional Provides for the &quot;full&quot; package that can be used for bootstrapping.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10362820</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-25 23:52:36 -0400</bug_when>
+    <thetext>coreutils-8.27-3.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-db1b943779</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10370525</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-27 20:23:06 -0400</bug_when>
+    <thetext>coreutils-8.27-4.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-54c2e9124e</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10372012</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-28 08:25:54 -0400</bug_when>
+    <thetext>coreutils-8.27-5.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-b17d54561b</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10374777</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-29 23:51:52 -0400</bug_when>
+    <thetext>coreutils-8.27-5.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-b17d54561b</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10376853</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-01 14:17:02 -0400</bug_when>
+    <thetext>coreutils-8.27-5.fc26 has been pushed to the Fedora 26 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

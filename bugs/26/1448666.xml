@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1448666</bug_id>
+          
+          <creation_ts>2017-05-06 20:13:00 -0400</creation_ts>
+          <short_desc>gcc 7.1 warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]</short_desc>
+          <delta_ts>2017-06-26 13:28:56 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>gcc</component>
+          <version>26</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>RAWHIDE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>medium</priority>
+          <bug_severity>medium</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Brad Hubbard">bhubbard</reporter>
+          <assigned_to name="Jakub Jelinek">jakub</assigned_to>
+          <cc>davejohansen</cc>
+    
+    
+    <cc>fweimer</cc>
+    
+    
+    <cc>jakub</cc>
+    
+    
+    <cc>jlayton</cc>
+    
+    
+    <cc>jwakely</cc>
+    
+    
+    <cc>law</cc>
+    
+    
+    <cc>mpolacek</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-06-26 13:28:56</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          <external_bugs name="GNU Compiler Collection">80593</external_bugs>
+    
+    
+    
+    <external_bugs name="Ceph Project Bug Tracker">19864</external_bugs>
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10391005</commentid>
+    <comment_count>0</comment_count>
+    <who name="Brad Hubbard">bhubbard</who>
+    <bug_when>2017-05-06 20:13:04 -0400</bug_when>
+    <thetext>Description of problem:
+
+Code that previously compiled without warning on f25 gcc 6.3.1 now generates the warning in the summary.
+
+
+Version-Release number of selected component (if applicable):
+gcc-c++-7.1.1-1.fc26.x86_64
+
+How reproducible:
+100%
+
+Steps to Reproduce:
+$ lsb_release -r
+Release:        25
+$ gcc --version
+gcc (GCC) 6.3.1 20161221 (Red Hat 6.3.1-1)
+Copyright (C) 2016 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+$ cat &lt;&lt; EOF &gt; punning.cpp
+#include &lt;type_traits&gt;
+#include &lt;mutex&gt;
+
+int main()
+{
+  std::aligned_storage&lt;sizeof(std::mutex)&gt;::type state_mutex_bytes;
+  new (&amp;state_mutex_bytes) std::mutex;
+  std::mutex&amp; r = *static_cast&lt;std::mutex*&gt;(static_cast&lt;void*&gt;(&amp;state_mutex_bytes));
+  (void)r;
+}
+EOF
+$ g++ -Wall -O2 -c punning.cpp
+$
+
+$ lsb_release -r
+Release:        26
+$ gcc --version
+gcc (GCC) 7.1.1 20170503 (Red Hat 7.1.1-1)
+Copyright (C) 2017 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+$ cat &lt;&lt; EOF &gt; punning.cpp
+#include &lt;type_traits&gt;
+#include &lt;mutex&gt;
+
+int main()
+{
+  std::aligned_storage&lt;sizeof(std::mutex)&gt;::type state_mutex_bytes;
+  new (&amp;state_mutex_bytes) std::mutex;
+  std::mutex&amp; r = *static_cast&lt;std::mutex*&gt;(static_cast&lt;void*&gt;(&amp;state_mutex_bytes));
+  (void)r;
+}
+EOF
+$ g++ -Wall -O2 -c punning.cpp
+punning.cpp: In function ‘int main()’:
+punning.cpp:8:83: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   std::mutex&amp; r = *static_cast&lt;std::mutex*&gt;(static_cast&lt;void*&gt;(&amp;state_mutex_bytes));
+                                                                                   ^
+
+
+Actual results:
+punning.cpp: In function ‘int main()’:
+punning.cpp:8:83: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   std::mutex&amp; r = *static_cast&lt;std::mutex*&gt;(static_cast&lt;void*&gt;(&amp;state_mutex_bytes));
+
+Expected results:
+No warning generated
+
+Additional info:
+I believe this is https://gcc.gnu.org/bugzilla/show_bug.cgi?id=80593
+
+There is also a reproducer in the upstream bug bug I included mine because it is closer to the actual issue seen here, https://copr-be.cloud.fedoraproject.org/results/badone/Ceph-nightlies/fedora-26-x86_64/00546644-ceph/build.log.gz</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10457266</commentid>
+    <comment_count>2</comment_count>
+    <who name="Brad Hubbard">bhubbard</who>
+    <bug_when>2017-05-30 00:52:16 -0400</bug_when>
+    <thetext>I created a test package here https://copr-be.cloud.fedoraproject.org/results/badone/misc/fedora-26-x86_64/00557857-gcc/ which includes the patch for pr80593 and can confirm it allows both the test case and the original ceph (rocksdb) code to build successfully without this warning.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10529446</commentid>
+    <comment_count>3</comment_count>
+    <who name="Jeff Layton">jlayton</who>
+    <bug_when>2017-06-21 19:27:51 -0400</bug_when>
+    <thetext>*** Bug 1463739 has been marked as a duplicate of this bug. ***</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10529448</commentid>
+    <comment_count>4</comment_count>
+    <who name="Jeff Layton">jlayton</who>
+    <bug_when>2017-06-21 19:34:23 -0400</bug_when>
+    <thetext>Jakub, any chance we can get the patch for this into the F26 package until it gets synched up to mainline? It&apos;s kind of a hinderance for building ceph at the moment.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10541174</commentid>
+    <comment_count>5</comment_count>
+    <who name="Jakub Jelinek">jakub</who>
+    <bug_when>2017-06-26 13:28:56 -0400</bug_when>
+    <thetext>Should be fixed now.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1318494</bug_id>
+          
+          <creation_ts>2016-03-17 00:59:00 -0400</creation_ts>
+          <short_desc>fails to create UEFI bootable media by default</short_desc>
+          <delta_ts>2016-09-19 22:47:37 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>liveusb-creator</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          <see_also>https://bugzilla.redhat.com/show_bug.cgi?id=1330522</see_also>
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>1310542</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Chris Murphy">bugzilla</reporter>
+          <assigned_to name="Luke Macken">lmacken</assigned_to>
+          <cc>bcl</cc>
+    
+    
+    <cc>jreiser</cc>
+    
+    
+    <cc>kparal</cc>
+    
+    
+    <cc>lmacken</cc>
+    
+    
+    <cc>mbriza</cc>
+    
+    
+    <cc>pfrields</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>liveusb-creator-3.93.3-1.fc24</cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-04-26 12:34:04</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9155083</commentid>
+    <comment_count>0</comment_count>
+    <who name="Chris Murphy">bugzilla</who>
+    <bug_when>2016-03-17 00:59:21 -0400</bug_when>
+    <thetext>Description of problem:
+
+This version doesn&apos;t use dd by default, instead it keeps the MBR and partition type code intact (I used MBR 0x07) which may fail to be recognized on some UEFI firmwares. But mainly it fails because the grub.cfg is malformed so it can&apos;t find the kernel or initramfs.
+
+
+Version-Release number of selected component (if applicable):
+liveusb-creator-3.90.0-1.fc24.noarch
+
+
+How reproducible:
+Always.
+
+
+Steps to Reproduce:
+1. Wipe a USB stick (no GPT primary or secondary, or MBR)
+2. Create new MBR using fdisk, create new partition type 07
+3. Format stick as FAT32.
+4. Launch Live USB Creator
+5. Select Custom OS and choose Fedora-Workstation-Live-x86_64-24_Alpha-5.iso
+6. Click Create Live USB, click on Options and note defaults are &apos;use dd to write&apos; is not checked, while &apos;reset the mbr&apos; is checked. Click Write to disk.
+
+Actual results:
+
+UEFI boot fails with
+error: file &apos;/images/pxeboot/vmlinux&apos; not found
+error: you need to load the kernel first.
+
+Press any key to continue...
+
+Expected results:
+
+Should boot; more specifically dd should be default since we know that works for BIOS and UEFI systems including Macs.
+
+Additional info:
+
+When using dd to create the same media, UEFI computer and Macbook Pro both boot.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9162101</commentid>
+    <comment_count>1</comment_count>
+    <who name="John Reiser">jreiser</who>
+    <bug_when>2016-03-19 17:51:43 -0400</bug_when>
+    <thetext>*** Bug 1319408 has been marked as a duplicate of this bug. ***</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9162308</commentid>
+    <comment_count>2</comment_count>
+    <who name="John Reiser">jreiser</who>
+    <bug_when>2016-03-19 23:59:22 -0400</bug_when>
+    <thetext>As noted in duplicate bug 1319408, UEFI booting works if the boot stanza is edited  to remove the &apos;0&apos; character from &quot;vmlinuz0&quot; and &quot;initrd0.img&quot;.  [Type &apos;e&apos; to see the actual stanza, then edit it before typing &lt;Ctrl&gt;-x to boot.]
+
+So there are at least 5 ways to make UEFI booting work:
+0. List this manual workaround in the Common Bugs for the Release.
+1. Remove the &apos;0&apos; from the source text of the booting stanza for UEFI boot.
+2. Create a link or alias in the FAT filesystem so that accesses to vmlinuz0 become re-directed to vmlinuz.
+3. Have two separate files that are duplicates (contain the same bytes in the same order): one with name vmlinuz, the other with vmlinuz0.
+4. Change the actual filename in the filesystem from vmlinuz to vmlinuz0, and change the non-UEFI booting stanza to refer to vmlinuz0.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9164021</commentid>
+    <comment_count>3</comment_count>
+    <who name="Martin Bříza">mbriza</who>
+    <bug_when>2016-03-21 06:01:52 -0400</bug_when>
+    <thetext>As mentioned in bug 1310542, I&apos;m now building a new release of Fedora Media Writer. Please test if that fixes your problem.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9165446</commentid>
+    <comment_count>4</comment_count>
+    <who name="John Reiser">jreiser</who>
+    <bug_when>2016-03-21 11:56:05 -0400</bug_when>
+    <thetext>Searching koji for &quot;FedoraMediaWriter&quot; (or &quot;fedora-media-writer&quot; etc.) yields no packages.  I guess the package still is  &quot;liveusb-creator&quot; with the builds listed at  http://koji.fedoraproject.org/koji/packageinfo?packageID=6691 .  I will try the Fedora 22 version at http://koji.fedoraproject.org/koji/buildinfo?buildID=747138 .</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9166008</commentid>
+    <comment_count>5</comment_count>
+    <who name="John Reiser">jreiser</who>
+    <bug_when>2016-03-21 13:38:46 -0400</bug_when>
+    <thetext>The build does not work on Fedora 22; the approach is not backwards compatible with Fedora 22.
+
+[root@f22]# rpm --freshen liveusb-creator-3.91.0-1.fc22.noarch.rpm
+error: Failed dependencies:
+	PyQt5 is needed by liveusb-creator-3.91.0-1.fc22.noarch
+	python-pyquery is needed by liveusb-creator-3.91.0-1.fc22.noarch
+	qt5-qtquickcontrols is needed by liveusb-creator-3.91.0-1.fc22.noarch
+
+Fedora 22 has PyQt4-4.11.4-1.fc22.x86_64, but neither python-pyquery nor qt5-qtquickcontrols.
+
+It is unreasonable to expect that anyone with Fedora 22 will install those dependencies.  Please make a backwards-compatible version.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9166110</commentid>
+    <comment_count>6</comment_count>
+    <who name="Chris Murphy">bugzilla</who>
+    <bug_when>2016-03-21 14:13:54 -0400</bug_when>
+    <thetext>(In reply to John Reiser from comment #5)
+I think the F22 issue is worthy of a separate bug, and set to block bug 1310542 for tracking.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9166428</commentid>
+    <comment_count>7</comment_count>
+    <who name="John Reiser">jreiser</who>
+    <bug_when>2016-03-21 15:41:45 -0400</bug_when>
+    <thetext>(In reply to Chris Murphy from comment #6)
+&gt; I think the F22 issue is worthy of a separate bug, and set to block bug
+&gt; 1310542 for tracking.
+
+bug 1319915 &quot;liveusb-creator not backwards compatible with Fedora 22 or Fedora 23&quot;</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9226474</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-04-11 12:20:02 -0400</bug_when>
+    <thetext>liveusb-creator-3.92.1-1.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-ff4136b90c</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9228722</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-04-12 06:52:36 -0400</bug_when>
+    <thetext>liveusb-creator-3.92.1-1.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-ff4136b90c</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9258427</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-04-21 12:12:06 -0400</bug_when>
+    <thetext>liveusb-creator-3.93.1-1.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-ff4136b90c</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9259164</commentid>
+    <comment_count>11</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-04-21 17:58:54 -0400</bug_when>
+    <thetext>liveusb-creator-3.93.1-1.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-ff4136b90c</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9260031</commentid>
+    <comment_count>12</comment_count>
+    <who name="Kamil Páral">kparal</who>
+    <bug_when>2016-04-22 03:38:51 -0400</bug_when>
+    <thetext>this is fixed with dd mode by default</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9261679</commentid>
+    <comment_count>13</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-04-22 13:06:26 -0400</bug_when>
+    <thetext>liveusb-creator-3.93.2-1.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-ff4136b90c</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9263131</commentid>
+    <comment_count>14</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-04-23 21:25:03 -0400</bug_when>
+    <thetext>liveusb-creator-3.93.2-1.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-ff4136b90c</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9268263</commentid>
+    <comment_count>15</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-04-26 04:13:16 -0400</bug_when>
+    <thetext>liveusb-creator-3.93.3-1.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-ff4136b90c</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9270205</commentid>
+    <comment_count>16</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-04-26 12:23:19 -0400</bug_when>
+    <thetext>liveusb-creator-3.93.3-1.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-ff4136b90c</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9270260</commentid>
+    <comment_count>17</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-04-26 12:32:51 -0400</bug_when>
+    <thetext>liveusb-creator-3.93.3-1.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

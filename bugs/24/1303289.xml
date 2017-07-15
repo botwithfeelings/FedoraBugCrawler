@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1303289</bug_id>
+          
+          <creation_ts>2016-01-30 04:24:00 -0500</creation_ts>
+          <short_desc>mapnik 3.0.9-10 not built with $RPM_OPT_FLAGS</short_desc>
+          <delta_ts>2016-04-15 11:44:00 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>mapnik</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>RAWHIDE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>496968</blocked>
+    
+    
+    <blocked>1279265</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Ville Skyttä">ville.skytta</reporter>
+          <assigned_to name="Tom Hughes">tom</assigned_to>
+          <cc>alexl</cc>
+    
+    
+    <cc>cristian.balint</cc>
+    
+    
+    <cc>rdieter</cc>
+    
+    
+    <cc>tom</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-04-15 11:35:45</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9022609</commentid>
+    <comment_count>0</comment_count>
+    <who name="Ville Skyttä">ville.skytta</who>
+    <bug_when>2016-01-30 04:24:30 -0500</bug_when>
+    <thetext>mapnik 3.0.9-10 (nor -9) is no longer built with $RPM_OPT_FLAGS, see build logs and incomplete debuginfo. -8 did not have this problem.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9022616</commentid>
+    <comment_count>1</comment_count>
+    <who name="Tom Hughes">tom</who>
+    <bug_when>2016-01-30 05:17:08 -0500</bug_when>
+    <thetext>I see nothing in http://pkgs.fedoraproject.org/cgit/rpms/mapnik.git/commit/?id=273d5e672be86246cfc942eb64c101a843e43343 that would cause the build flags to change (other than dropping the rpath from the link) so this seems to be a mystery.
+
+Maybe some change in another package has triggered it somehow?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9022619</commentid>
+    <comment_count>2</comment_count>
+    <who name="Tom Hughes">tom</who>
+    <bug_when>2016-01-30 05:51:12 -0500</bug_when>
+    <thetext>I don&apos;t see any change in the flags in the logs between -8 and -9 in fact as best I can see none of the 3.x builds have been using the right flags.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9022621</commentid>
+    <comment_count>3</comment_count>
+    <who name="Ville Skyttä">ville.skytta</who>
+    <bug_when>2016-01-30 05:57:30 -0500</bug_when>
+    <thetext>Seeing that mapnik uses qt, I was from the start quite convinced that this was the result of bug 1279265 comment 13. But in skimming the commits and specfile I somehow missed the direct qmake-qt4 invocation in the specfile. So that is most likely part of the problem.
+
+However, I suppose there is more to it that might have been lurking there for a longer time, because the build does RPM_OPT_FLAGS tweaking with SConstruct, but apparently doing that doesn&apos;t affect the build in any way (the flags don&apos;t end up showing anywhere in the current build log). This should be investigated.
+
+(In reply to Tom Hughes from comment #2)
+&gt; I don&apos;t see any change in the flags in the logs between -8 and -9 in fact as
+&gt; best I can see none of the 3.x builds have been using the right flags.
+
+You seem to be right. Maybe the qmake thing has just been shadowing the issue until now.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9022642</commentid>
+    <comment_count>4</comment_count>
+    <who name="Tom Hughes">tom</who>
+    <bug_when>2016-01-30 07:28:32 -0500</bug_when>
+    <thetext>Unfortunately it seems the builders can&apos;t cope when the compiler options are used - the x86 build died with:
+
+virtual memory exhausted: Operation not permitted
+scons: *** [src/renderer_common/process_group_symbolizer.os] Error 1
+scons: building terminated because of errors.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9022708</commentid>
+    <comment_count>5</comment_count>
+    <who name="Rex Dieter">rdieter</who>
+    <bug_when>2016-01-30 10:25:13 -0500</bug_when>
+    <thetext>fyi, you&apos;ll also want to replace the call to
+qmake-qt4
+in the .spec to use
+%{qmake_qt4}
+macro</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9030074</commentid>
+    <comment_count>6</comment_count>
+    <who name="Tom Hughes">tom</who>
+    <bug_when>2016-02-02 13:53:29 -0500</bug_when>
+    <thetext>I&apos;ve managed to build it with the right optimisation flags now, but I had to disable debug generation for the 32 bit platforms to avoid koji running out of memory.
+
+Upstream has already done some work to refactor the problem code so the compiler has an easier time with it so I&apos;m hopeful that the next release will allow me to remove the bodge.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9092974</commentid>
+    <comment_count>7</comment_count>
+    <who name="Jan Kurik">jkurik</who>
+    <bug_when>2016-02-24 09:22:06 -0500</bug_when>
+    <thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 24 development cycle.
+Changing version to &apos;24&apos;.
+
+More information and reason for this action is here:
+https://fedoraproject.org/wiki/Fedora_Program_Management/HouseKeeping/Fedora24#Rawhide_Rebase</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9240862</commentid>
+    <comment_count>8</comment_count>
+    <who name="Rex Dieter">rdieter</who>
+    <bug_when>2016-04-15 11:35:45 -0400</bug_when>
+    <thetext>I&apos;m assuming/hoping this is fixed since,
+
+* Wed Mar  2 2016 Tom Hughes &lt;tom@compton.nu&gt; - 3.0.10-1
+- Add upstream patch to reduce compile time memory usage
+- Re-enable debugging on x86 to stop koji running out of memory
+
+
+Feel free to re-open if that&apos;s not the case.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9240883</commentid>
+    <comment_count>9</comment_count>
+    <who name="Tom Hughes">tom</who>
+    <bug_when>2016-04-15 11:44:00 -0400</bug_when>
+    <thetext>Yes, it should be fixed now, even if that changelog entry is semi-nonsensical...</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

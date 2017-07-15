@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1367220</bug_id>
+          
+          <creation_ts>2016-08-15 18:49:00 -0400</creation_ts>
+          <short_desc>Fedora 25 composes failing due to use of old pungi(?)</short_desc>
+          <delta_ts>2016-08-16 15:13:44 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>pungi</component>
+          <version>25</version>
+          <rep_platform>All</rep_platform>
+          <op_sys>All</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>CURRENTRELEASE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard>AcceptedBlocker</status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>urgent</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>1277284</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Adam Williamson">awilliam</reporter>
+          <assigned_to name="Dennis Gilmore">dennis</assigned_to>
+          <cc>admiller</cc>
+    
+    
+    <cc>dennis</cc>
+    
+    
+    <cc>lsedlar</cc>
+    
+    
+    <cc>robatino</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-08-16 14:56:58</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9616689</commentid>
+    <comment_count>0</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2016-08-15 18:49:17 -0400</bug_when>
+    <thetext>Fedora 25 composes are currently failing. I believe this is because pungi-fedora has been updated for the backwards-incompatible change to how &apos;failable&apos; deliverables are defined:
+
+https://pagure.io/pungi-fedora/c/2ac4a62920900ae8198e2f0fadd2196ed0c57ce3?branch=master
+
+but pungi 4.1.8 - which introduces the change - is not &apos;stable&apos; for Fedora 25 yet. It has been built:
+
+http://koji.fedoraproject.org/koji/buildinfo?buildID=790649
+
+but it was after the Bodhi activation point, and there is no update submitted. So we need, I believe, to have an update for pungi 4.1.8 submitted (and marked as fixing this bug), and then we need to push it stable so the compose process uses it. Either that, or we need to revert the pungi-fedora change (which would in turn break Rawhide, since 4.1.8 has gone stable there...so in fact we&apos;d need an f25 branch for pungi-fedora so we could diverge configuration between f25 and Rawhide).
+
+The symptom is that the compose process fails as soon as any image fails to compose, as no images are considered &apos;failable&apos; by the old Pungi, after the configuration changes.
+
+20160815.n.1 compose failed due to the KDE live image compose failing. All the other composes between 20160810.n.0 and 20160815.n.0 failed when an OStree compose attempt failed. If you look here:
+
+https://kojipkgs.fedoraproject.org/compose//branched/Fedora-25-20160810.n.0/logs/x86_64/ostree/ostree-2/runroot.log
+
+you can see the OStree failure actually occurred in 20160810.n.0 too, but did not fail the whole compose. And we know of course that live images often fail to compose due to https://bugzilla.redhat.com/show_bug.cgi?id=1315541 .
+
+This is an automatic Alpha blocker: &quot;Bugs which entirely prevent the composition of one or more of the release-blocking images required to be built for a currently-pending (pre-)release&quot; - this bug prevents the compose of *all* images.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9616739</commentid>
+    <comment_count>1</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2016-08-15 19:04:17 -0400</bug_when>
+    <thetext>Ah, so in fact I think the issue was the opposite: the new pungi is being used (apparently it doesn&apos;t matter if it was stable), but the f25 branch of pungi-fedora was not updated with the new &apos;failable&apos; configuration stuff until 7 hours ago:
+
+https://pagure.io/pungi-fedora/c/716f612efd6a8e5e3a6d980f382343169bd8047e?branch=f25
+
+the currently running compose - https://kojipkgs.fedoraproject.org/compose//branched/Fedora-25-20160815.n.2/ - should I *think* be the first run with the updated pungi-fedora config, so we&apos;ll see how that goes.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9617381</commentid>
+    <comment_count>2</comment_count>
+    <who name="Lubomír Sedlář">lsedlar</who>
+    <bug_when>2016-08-16 02:25:19 -0400</bug_when>
+    <thetext>You can see what configuration was used for a compose in logs/global/config-dump-$date.global.log.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9617427</commentid>
+    <comment_count>3</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2016-08-16 02:41:07 -0400</bug_when>
+    <thetext>yes, but we can&apos;t (at least, nowhere I could spot) see what version of pungi is used. I think the situation is as described in #c1, though. 20160815.n.2 completed, so I think this is fixed,  but I&apos;ll leave it open in case dgilmore wants to chime in.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9617465</commentid>
+    <comment_count>4</comment_count>
+    <who name="Lubomír Sedlář">lsedlar</who>
+    <bug_when>2016-08-16 02:55:02 -0400</bug_when>
+    <thetext>You&apos;re right, which is exactly why I opened https://pagure.io/pungi/pull-request/364 to add pungi version information to the log.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9620150</commentid>
+    <comment_count>5</comment_count>
+    <who name="Dennis Gilmore">dennis</who>
+    <bug_when>2016-08-16 14:56:58 -0400</bug_when>
+    <thetext>bugzilla is not an appropriate place for filing issues like this. the composes run on f24 using the f24 build. we have put pungi in the infra builder repo to ensure we use the version we want.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9620183</commentid>
+    <comment_count>6</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2016-08-16 15:13:44 -0400</bug_when>
+    <thetext>We need to file release blocking issues on Bugzilla in order to track them. Complete failure to compose for multiple days in a row is clearly a release blocking issue.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

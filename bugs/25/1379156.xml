@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1379156</bug_id>
+          
+          <creation_ts>2016-09-25 09:25:00 -0400</creation_ts>
+          <short_desc>Headless mode fails with qt 5.7 / Fedora 25</short_desc>
+          <delta_ts>2016-10-08 22:45:24 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>calibre</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Hans de Goede">hdegoede</reporter>
+          <assigned_to name="Kevin Fenzi">kevin</assigned_to>
+          <cc>chkr</cc>
+    
+    
+    <cc>frankly3d</cc>
+    
+    
+    <cc>helio</cc>
+    
+    
+    <cc>kevin</cc>
+    
+    
+    <cc>nushio</cc>
+    
+    
+    <cc>zbyszek</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>calibre-2.69.0-1.fc25</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-10-08 22:45:24</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9740833</commentid>
+    <comment_count>0</comment_count>
+    <who name="Hans de Goede">hdegoede</who>
+    <bug_when>2016-09-25 09:25:58 -0400</bug_when>
+    <thetext>Hi,
+
+Headless mode (and book import from the gui which seems to depend on headless mode for some books) fails when using qt 5.7 (with the Fedora calibre-2.68.0 pkgs on Fedora 25), the error reported is:
+
+&quot;
+This application failed to start because it could not find or load the Qt platform plugin &quot;headless&quot;
+in &quot;/usr/lib64/calibre/calibre/plugins&quot;.
+
+Available platform plugins are: eglfs, linuxfb, minimal, minimalegl, offscreen, xcb.
+
+Reinstalling the application may fix this problem.
+&quot;
+
+I&apos;ve managed to hack around this (fixing using calibre under X at least) with this:
+
+--- /usr/lib64/calibre/calibre/gui2/__init__.py~ 2016-09-17 17:58:30.000000000 +0200
++++ /usr/lib64/calibre/calibre/gui2/__init__.py 2016-09-25 15:02:29.831338885 +0200
+@@ -876,10 +876,7 @@
+         self.file_event_hook = None
+         if override_program_name:
+             args = [override_program_name] + args[1:]
+- if headless:
+- if not args:
+- args = sys.argv[:1]
+- args.extend([&apos;-platformpluginpath&apos;, sys.extensions_location, &apos;-platform&apos;, &apos;headless&apos;])
++ headless = False
+         self.headless = headless
+         qargs = [i.encode(&apos;utf-8&apos;) if isinstance(i, unicode) else i for i in args]
+         self.pi = plugins[&apos;progress_indicator&apos;][0]
+@@ -1186,6 +1183,7 @@
+ _ea_lock = Lock()
+
+ def ensure_app(headless=True):
++ headless = False
+     global _store_app
+     with _ea_lock:
+         if _store_app is None and QApplication.instance() is None:
+
+Which allows me to import books again. I realize this is a useless fix, but it proves that the problem is with headless and that calibre works fine otherwise.
+
+I&apos;ve filed an upstream bug for this here:
+
+https://bugs.launchpad.net/calibre/+bug/1627494
+
+Hopefully upstream will fix this soon, if not we should probably use my hack to at least get the gui to work properly on F25.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9742406</commentid>
+    <comment_count>1</comment_count>
+    <who name="Hans de Goede">hdegoede</who>
+    <bug_when>2016-09-26 07:41:45 -0400</bug_when>
+    <thetext>The problem is a #if QT version check in src/calibre/headless/main.cpp somehow failing to properly detect the right qt version. Upstream has done this commit:
+
+https://github.com/kovidgoyal/calibre/commit/eb43e53372bbd4a4d7d51eb6c0beec5f39312e4f
+
+Which fixes this by getting rid of the #if, so we should probably cherry-pick this.
+
+It would be good to actually know why the #if fails though ... This may be related to the building of the headless plugin not honoring rpm_opt_flags.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9751080</commentid>
+    <comment_count>2</comment_count>
+    <who name="Kevin Fenzi">kevin</who>
+    <bug_when>2016-09-28 14:50:15 -0400</bug_when>
+    <thetext>I&apos;ll cherry pick this soon if they don&apos;t do a new release with it. 
+(They usually do releases weekly around thursday/friday).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9759244</commentid>
+    <comment_count>3</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-10-01 18:22:26 -0400</bug_when>
+    <thetext>calibre-2.69.0-1.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-9eb14544b5</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9775673</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-10-08 22:45:24 -0400</bug_when>
+    <thetext>calibre-2.69.0-1.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

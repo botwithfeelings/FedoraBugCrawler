@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1413987</bug_id>
+          
+          <creation_ts>2017-01-17 08:49:00 -0500</creation_ts>
+          <short_desc>docker pull with private registry (Artifactory) fails to request bearer token</short_desc>
+          <delta_ts>2017-02-07 20:51:26 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>docker</component>
+          <version>25</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>high</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>1418939</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Mark Mielke">mark</reporter>
+          <assigned_to name="Antonio Murdaca">amurdaca</assigned_to>
+          <cc>adimania</cc>
+    
+    
+    <cc>admiller</cc>
+    
+    
+    <cc>amurdaca</cc>
+    
+    
+    <cc>dwalsh</cc>
+    
+    
+    <cc>ichavero</cc>
+    
+    
+    <cc>jcajka</cc>
+    
+    
+    <cc>jchaloup</cc>
+    
+    
+    <cc>lsm5</cc>
+    
+    
+    <cc>marianne</cc>
+    
+    
+    <cc>mattias.hofvander</cc>
+    
+    
+    <cc>miminar</cc>
+    
+    
+    <cc>nalin</cc>
+    
+    
+    <cc>obockows</cc>
+    
+    
+    <cc>riek</cc>
+    
+    
+    <cc>stefano.cavallari</cc>
+    
+    
+    <cc>vbatts</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>docker-1.12.6-6.gitae7d637.fc25</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-02-07 20:51:26</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10071673</commentid>
+    <comment_count>0</comment_count>
+    <who name="Mark Mielke">mark</who>
+    <bug_when>2017-01-17 08:49:51 -0500</bug_when>
+    <thetext>Description of problem:
+
+This issue is new to Fedora 25 and Docker 1.12. It did not happen on Fedora 24 (1.10.3-55) or RHEL 7 (1.10.3, 1.9.1, others).
+
+Testing with 1.12.6-4.gitf499e8b.fc25.x86_64 to try to &quot;docker pull&quot; from a private repository running Artifactory, I am seeing this output:
+
+    unauthorized: The client does not have permission for manifest
+
+This issue may be related to 1403908. I am opening this as a separate issue to track my particular symptoms to closure. I am re-summarizing the findings that I listed in 1403908.
+
+The Artifactory instance is hosted behind an Nginx transparent reverse proxy. I was able to adjust the Nginx configuration to capture additional information including the request &quot;Authentication&quot; headers, and the response &quot;WWW-Authenticate&quot; headers (if any).
+
+Here is the &quot;fail&quot; case, which is running on Fedora 25 / Docker 1.12.6-4:
+
+10.179.128.4 - - [17/Jan/2017:08:06:20 -0500] TLSv1.2/ECDHE-RSA-AES128-GCM-SHA256 &quot;Authorization: -&quot; &quot;WWW-Authenticate: Bearer realm=\x22https://prism.ciena.com/v2/token\x22,service=\x22prism.ciena.com\x22,scope=\x22repository:docker-prism.ciena.com-v2-local:pull,push\x22&quot; 0.001s &quot;GET /v2/ HTTP/1.1&quot; 401 512 &quot;-&quot; &quot;docker/1.12.6 go/go1.7.4 kernel/4.9.3-200.fc25.x86_64 os/linux arch/amd64 UpstreamClient(Docker-Client/1.12.6 \x5C(linux\x5C))&quot;
+10.179.128.4 - - [17/Jan/2017:08:06:20 -0500] TLSv1.2/ECDHE-RSA-AES128-GCM-SHA256 &quot;Authorization: -&quot; &quot;WWW-Authenticate: Bearer realm=\x22https://prism.ciena.com/v2/token\x22,service=\x22prism.ciena.com\x22,scope=\x22repository:docker-prism.ciena.com-v2-local:pull,push\x22&quot; 0.001s &quot;GET /v2/ HTTP/1.1&quot; 401 512 &quot;-&quot; &quot;docker/1.12.6 go/go1.7.4 kernel/4.9.3-200.fc25.x86_64 os/linux arch/amd64 UpstreamClient(Docker-Client/1.12.6 \x5C(linux\x5C))&quot;
+10.179.128.4 - - [17/Jan/2017:08:06:20 -0500] TLSv1.2/ECDHE-RSA-AES128-GCM-SHA256 &quot;Authorization: -&quot; &quot;WWW-Authenticate: -&quot; 0.003s &quot;GET /v2/nginx/manifests/nginx-1.11.8-20161229 HTTP/1.1&quot; 403 483 &quot;-&quot; &quot;docker/1.12.6 go/go1.7.4 kernel/4.9.3-200.fc25.x86_64 os/linux arch/amd64 UpstreamClient(Docker-Client/1.12.6 \x5C(linux\x5C))&quot;
+10.179.128.4 - - [17/Jan/2017:08:06:20 -0500] TLSv1.2/ECDHE-RSA-AES128-GCM-SHA256 &quot;Authorization: -&quot; &quot;WWW-Authenticate: -&quot; 0.001s &quot;GET /v2/nginx/manifests/nginx-1.11.8-20161229 HTTP/1.1&quot; 403 483 &quot;-&quot; &quot;docker/1.12.6 go/go1.7.4 kernel/4.9.3-200.fc25.x86_64 os/linux arch/amd64 UpstreamClient(Docker-Client/1.12.6 \x5C(linux\x5C))&quot;
+
+This shows that Docker 1.12.6 is sending HTTP GET on /v2/ and getting 401. It is re-issuing the *same* HTTP GET on /v2/ without any &quot;Authorization&quot; credentials. Artifactory gives the same 401 response. Docker than proceeds to fetch the manifests file which fail with 403 as Artifactory does not consider the request to be properly authorized.
+
+Here is the &quot;success&quot; case, which is running on on Fedora 24 / Docker 1.10.3-55 (with password and bearer token masked):
+
+10.179.128.11 - - [17/Jan/2017:08:06:57 -0500] TLSv1.2/ECDHE-RSA-AES128-GCM-SHA256 &quot;Authorization: -&quot; &quot;WWW-Authenticate: Bearer realm=\x22https://prism.ciena.com/v2/token\x22,service=\x22prism.ciena.com\x22,scope=\x22repository:docker-prism.ciena.com-v2-local:pull,push\x22&quot; 0.001s &quot;GET /v2/ HTTP/1.1&quot; 401 512 &quot;-&quot; &quot;docker/1.10.3 go/go1.6.3 kernel/4.8.16-200.fc24.x86_64 os/linux arch/amd64&quot;
+10.179.128.11 - mmielke [17/Jan/2017:08:06:59 -0500] TLSv1.2/ECDHE-RSA-AES128-GCM-SHA256 &quot;Authorization: Basic XXXXXXXX&quot; &quot;WWW-Authenticate: -&quot; 1.636s &quot;GET /v2/token?account=mmielke&amp;scope=repository%3Anginx%3Apull&amp;service=prism.ciena.com HTTP/1.1&quot; 200 409 &quot;-&quot; &quot;docker/1.10.3 go/go1.6.3 kernel/4.8.16-200.fc24.x86_64 os/linux arch/amd64&quot;
+10.179.128.11 - - [17/Jan/2017:08:06:59 -0500] TLSv1.2/ECDHE-RSA-AES128-GCM-SHA256 &quot;Authorization: Bearer XXXXXXXX&quot; &quot;WWW-Authenticate: -&quot; 0.012s &quot;GET /v2/nginx/manifests/nginx-1.11.8-20161229 HTTP/1.1&quot; 200 1894 &quot;-&quot; &quot;docker/1.10.3 go/go1.6.3 kernel/4.8.16-200.fc24.x86_64 os/linux arch/amd64&quot;
+
+This shows that Docker 1.10.3 is sending HTTP GET on /v2/ and getting 401. It then sending basic auth credentials to the /v2/token service to obtain the bearer token. It then provides the bearer token when request the manifest file. This all works as expected. Artifactory considers the requests properly authorized.
+
+Given that I don&apos;t see anything particular about Artifactory above, I am tentatively marking this issue as &quot;High&quot; priority. If, however, there is something particular about Artifactory, and there is a limited user base affected, then please reduce the priority.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10071683</commentid>
+    <comment_count>1</comment_count>
+    <who name="Antonio Murdaca">amurdaca</who>
+    <bug_when>2017-01-17 08:51:41 -0500</bug_when>
+    <thetext>For reference we were discussing this here https://bugzilla.redhat.com/show_bug.cgi?id=1403908</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10071772</commentid>
+    <comment_count>2</comment_count>
+    <who name="Mark Mielke">mark</who>
+    <bug_when>2017-01-17 09:08:37 -0500</bug_when>
+    <thetext>Antonio requested:
+
+    Also, any chance you can test this (now-old) update in your F25 box and tell me if that works? https://bodhi.fedoraproject.org/updates/FEDORA-2016-2f28826f76
+
+I tried this update, and the &quot;docker pull&quot; works. I was able to &quot;rpm -Uvh --oldpackage&quot; downgrade to the 1.12.5-3 version and it worked, and &quot;dnf upgrade&quot; to 1.12.6-4 and see it repeatedly toggle between working and failing.
+
+The trace from Nginx is a little different than 1.10:
+
+10.179.128.18 - - [17/Jan/2017:09:00:01 -0500] TLSv1.2/ECDHE-RSA-AES128-GCM-SHA256 &quot;Authorization: -&quot; &quot;WWW-Authenticate: Bearer realm=\x22https://prism.ciena.com/v2/token\x22,service=\x22prism.ciena.com\x22,scope=\x22repository:docker-prism.ciena.com-v2-local:pull,push\x22&quot; 0.001s &quot;GET /v2/ HTTP/1.1&quot; 401 512 &quot;-&quot; &quot;docker/1.12.5 go/go1.7.4 kernel/4.9.3-200.fc25.x86_64 os/linux arch/amd64 UpstreamClient(Docker-Client/1.12.5 \x5C(linux\x5C))&quot;
+10.179.128.18 - - [17/Jan/2017:09:00:01 -0500] TLSv1.2/ECDHE-RSA-AES128-GCM-SHA256 &quot;Authorization: -&quot; &quot;WWW-Authenticate: Bearer realm=\x22https://prism.ciena.com/v2/token\x22,service=\x22prism.ciena.com\x22,scope=\x22repository:docker-prism.ciena.com-v2-local:pull,push\x22&quot; 0.001s &quot;GET /v2/ HTTP/1.1&quot; 401 512 &quot;-&quot; &quot;docker/1.12.5 go/go1.7.4 kernel/4.9.3-200.fc25.x86_64 os/linux arch/amd64 UpstreamClient(Docker-Client/1.12.5 \x5C(linux\x5C))&quot;
+10.179.128.18 - - [17/Jan/2017:09:00:01 -0500] TLSv1.2/ECDHE-RSA-AES128-GCM-SHA256 &quot;Authorization: -&quot; &quot;WWW-Authenticate: -&quot; 0.001s &quot;GET /v2/nginx/manifests/nginx-1.11.8-20161229 HTTP/1.1&quot; 403 483 &quot;-&quot; &quot;docker/1.12.5 go/go1.7.4 kernel/4.9.3-200.fc25.x86_64 os/linux arch/amd64 UpstreamClient(Docker-Client/1.12.5 \x5C(linux\x5C))&quot;
+10.179.128.18 - mmielke [17/Jan/2017:09:00:03 -0500] TLSv1.2/ECDHE-RSA-AES128-GCM-SHA256 &quot;Authorization: Basic XXXXXXXX&quot; &quot;WWW-Authenticate: -&quot; 1.977s &quot;GET /v2/nginx/manifests/nginx-1.11.8-20161229 HTTP/1.1&quot; 200 1894 &quot;-&quot; &quot;docker/1.12.5 go/go1.7.4 kernel/4.9.3-200.fc25.x86_64 os/linux arch/amd64 UpstreamClient(Docker-Client/1.12.5 \x5C(linux\x5C))&quot;
+10.179.128.18 - mmielke [17/Jan/2017:09:00:05 -0500] TLSv1.2/ECDHE-RSA-AES128-GCM-SHA256 &quot;Authorization: Basic XXXXXXXX&quot; &quot;WWW-Authenticate: -&quot; 1.520s &quot;GET /v2/nginx/manifests/nginx-1.11.8-20161229 HTTP/1.1&quot; 200 1894 &quot;-&quot; &quot;docker/1.12.5 go/go1.7.4 kernel/4.9.3-200.fc25.x86_64 os/linux arch/amd64 UpstreamClient(Docker-Client/1.12.5 \x5C(linux\x5C))&quot;
+10.179.128.18 - mmielke [17/Jan/2017:09:00:05 -0500] TLSv1.2/ECDHE-RSA-AES128-GCM-SHA256 &quot;Authorization: Basic XXXXXXXX&quot; &quot;WWW-Authenticate: -&quot; 0.001s &quot;GET /v2/token?account=mmielke&amp;scope=repository%3Anginx%3Apull&amp;service=prism.ciena.com HTTP/1.1&quot; 200 409 &quot;-&quot; &quot;docker/1.12.5 go/go1.7.4 kernel/4.9.3-200.fc25.x86_64 os/linux arch/amd64 UpstreamClient(Docker-Client/1.12.5 \x5C(linux\x5C))&quot;
+10.179.128.18 - - [17/Jan/2017:09:00:05 -0500] TLSv1.2/ECDHE-RSA-AES128-GCM-SHA256 &quot;Authorization: Bearer XXXXXXXX&quot; &quot;WWW-Authenticate: -&quot; 0.009s &quot;GET /v2/nginx/manifests/sha256:114dec9d608249f96a4a8a2567ed3fd9a2d1061160b9b3a41fc07091f0bd6b1c HTTP/1.1&quot; 200 1894 &quot;-&quot; &quot;docker/1.12.5 go/go1.7.4 kernel/4.9.3-200.fc25.x86_64 os/linux arch/amd64 UpstreamClient(Docker-Client/1.12.5 \x5C(linux\x5C))&quot;
+
+It looks like it still does the HTTP GET on /v2/ without authentication credentials, even though it received 401 on the first request. In Docker 1.10, it used to respond to this 401 immediately with credentials.
+
+When it does fetch the manifests, it fails with 403, but then it tries basic auth twice (the same request twice?) which seems like this might be a mistake? 
+
+Then, when it does fetch the image layer, it finally provides the bearer token which also succeeds?
+
+I think I prefer the 1.10 behaviour. :-)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10106455</commentid>
+    <comment_count>3</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-30 11:37:02 -0500</bug_when>
+    <thetext>docker-1.12.6-6.gitae7d637.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-1f25542810</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10106459</commentid>
+    <comment_count>4</comment_count>
+    <who name="Antonio Murdaca">amurdaca</who>
+    <bug_when>2017-01-30 11:38:18 -0500</bug_when>
+    <thetext>Mark could you try out the update in fedora updates-testing? That fixes this bugzilla for me</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10107686</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-30 22:52:17 -0500</bug_when>
+    <thetext>docker-1.12.6-6.gitae7d637.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-1f25542810</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10114754</commentid>
+    <comment_count>6</comment_count>
+    <who name="Mark Mielke">mark</who>
+    <bug_when>2017-02-01 22:30:11 -0500</bug_when>
+    <thetext>Thanks, Antonio. I am seeing success with this update so far.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10129579</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-07 20:51:26 -0500</bug_when>
+    <thetext>docker-1.12.6-6.gitae7d637.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

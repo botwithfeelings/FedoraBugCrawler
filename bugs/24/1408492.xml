@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1408492</bug_id>
+          
+          <creation_ts>2016-12-23 13:48:00 -0500</creation_ts>
+          <short_desc>Munin 2.0.28 update breaks dynazoom</short_desc>
+          <delta_ts>2017-01-20 15:48:00 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>munin</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Chad Feller">cfeller</reporter>
+          <assigned_to name="d. johnson">drjohnson1</assigned_to>
+          <cc>drjohnson1</cc>
+    
+    
+    <cc>ingvar</cc>
+    
+    
+    <cc>jvanek</cc>
+    
+    
+    <cc>marianne</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>munin-2.0.29-1.fc25 munin-2.0.29-1.fc24 munin-2.0.29-1.el7 munin-2.0.29-1.el6</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-01-12 00:23:30</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10018784</commentid>
+    <comment_count>0</comment_count>
+    <who name="Chad Feller">cfeller</who>
+    <bug_when>2016-12-23 13:48:59 -0500</bug_when>
+    <thetext>Description of problem:  Upon updating from munin 2.0.26 to munin 2.0.28 the dynazoom functionality is broken.  Errors such as this:
+
+2016/12/23 10:14:04 [WARNING] Could not draw graph &quot;/var/lib/munin/cgi-tmp/munin-cgi-graph/&lt;group&gt;/&lt;hostname&gt;/diskstats_latency/sda-pinpoint=1482408674,1482516674.png?&amp;lower_limit=&amp;upper_limit=&amp;size_x=800&amp;size_y=400&quot;: /var/lib/munin/cgi-tmp/munin-cgi-graph/&lt;group&gt;/&lt;hostname&gt;/diskstats_latency/sda-pinpoint=1482408674,1482516674.png?&amp;lower_limit=&amp;upper_limit=&amp;size_x=800&amp;size_y=400
+
+can be seen in the logs.
+
+It appears that there was changes to the code in:
+
+  /var/www/cgi-bin/munin-cgi-graph
+
+Which now tries to write to:
+
+  /var/lib/munin/cgi-tmp/munin-cgi-graph
+
+Which doesn&apos;t exist.
+
+manually creating the directory:
+
+  mkdir -p /var/lib/munin/cgi-tmp/munin-cgi-graph
+
+and setting the permissions:
+
+  chmod 775 /var/lib/munin/cgi-tmp/munin-cgi-graph
+
+  chown munin:apache /var/lib/munin/cgi-tmp/munin-cgi-graph
+
+fixes the issue.
+
+Version-Release number of selected component (if applicable):
+munin-node-2.0.28-2.fc24.noarch
+munin-2.0.28-2.fc24.noarch
+munin-common-2.0.28-2.fc24.noarch
+
+
+Additional info:
+I can confirm that bug also exists in:
+
+  munin-2.0.28-2.el7.noarch 
+
+currently in epel-testing.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10018797</commentid>
+    <comment_count>1</comment_count>
+    <who name="Chad Feller">cfeller</who>
+    <bug_when>2016-12-23 14:22:38 -0500</bug_when>
+    <thetext>Additionally, on selinux systems in enforcing mode, there is selinux policy preventing apache from writing to that directory.  
+
+Putting selinux into permissive mode, I see the following:
+
+type=AVC msg=audit(1482520635.898:15772): avc:  denied  { execmem } for  pid=27210 comm=&quot;munin-cgi-graph&quot; scontext=system_u:system_r:munin_script_t:s0 tcontext=system_u:system_r:munin_script_t:s0 tclass=process permissive=1
+type=AVC msg=audit(1482520636.153:15773): avc:  denied  { write } for  pid=27210 comm=&quot;munin-cgi-graph&quot; name=&quot;&lt;hostname&gt;&quot; dev=&quot;dm-0&quot; ino=24911877 scontext=system_u:system_r:munin_script_t:s0 tcontext=system_u:object_r:munin_var_lib_t:s0 tclass=dir permissive=1
+type=AVC msg=audit(1482520636.154:15774): avc:  denied  { add_name } for  pid=27210 comm=&quot;munin-cgi-graph&quot; name=&quot;entropy-pinpoint=1482412210,1482520210.png?&amp;lower_limit=&amp;upper_limit=&amp;size_x=800&amp;size_y=400&quot; scontext=system_u:system_r:munin_script_t:s0 tcontext=system_u:object_r:munin_var_lib_t:s0 tclass=dir permissive=1
+type=AVC msg=audit(1482520636.154:15775): avc:  denied  { create } for  pid=27210 comm=&quot;munin-cgi-graph&quot; name=&quot;entropy-pinpoint=1482412210,1482520210.png?&amp;lower_limit=&amp;upper_limit=&amp;size_x=800&amp;size_y=400&quot; scontext=system_u:system_r:munin_script_t:s0 tcontext=system_u:object_r:munin_var_lib_t:s0 tclass=file permissive=1
+type=AVC msg=audit(1482520636.154:15776): avc:  denied  { write } for  pid=27210 comm=&quot;munin-cgi-graph&quot; path=&quot;/var/lib/munin/cgi-tmp/munin-cgi-graph/&lt;group&gt;/&lt;hostname&gt;/entropy-pinpoint=1482412210,1482520210.png?&amp;lower_limit=&amp;upper_limit=&amp;size_x=800&amp;size_y=400&quot; dev=&quot;dm-0&quot; ino=24903967 scontext=system_u:system_r:munin_script_t:s0 tcontext=system_u:object_r:munin_var_lib_t:s0 tclass=file permissive=1
+type=AVC msg=audit(1482520636.190:15777): avc:  denied  { setattr } for  pid=27210 comm=&quot;munin-cgi-graph&quot; name=&quot;entropy-pinpoint=1482412210,1482520210.png?&amp;lower_limit=&amp;upper_limit=&amp;size_x=800&amp;size_y=400&quot; dev=&quot;dm-0&quot; ino=24903967 scontext=system_u:system_r:munin_script_t:s0 tcontext=system_u:object_r:munin_var_lib_t:s0 tclass=file permissive=1
+type=AVC msg=audit(1482520636.191:15778): avc:  denied  { remove_name } for  pid=27210 comm=&quot;munin-cgi-graph&quot; name=&quot;entropy-pinpoint=1482412210,1482520210.png?&amp;lower_limit=&amp;upper_limit=&amp;size_x=800&amp;size_y=400&quot; dev=&quot;dm-0&quot; ino=24903967 scontext=system_u:system_r:munin_script_t:s0 tcontext=system_u:object_r:munin_var_lib_t:s0 tclass=dir permissive=1
+type=AVC msg=audit(1482520636.191:15779): avc:  denied  { unlink } for  pid=27210 comm=&quot;munin-cgi-graph&quot; name=&quot;entropy-pinpoint=1482412210,1482520210.png?&amp;lower_limit=&amp;upper_limit=&amp;size_x=800&amp;size_y=400&quot; dev=&quot;dm-0&quot; ino=24903967 scontext=system_u:system_r:munin_script_t:s0 tcontext=system_u:object_r:munin_var_lib_t:s0 tclass=file permissive=1
+
+selinux policy and/or permissions will have to be updated as well to allow this.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10018883</commentid>
+    <comment_count>2</comment_count>
+    <who name="d. johnson">drjohnson1</who>
+    <bug_when>2016-12-23 17:49:42 -0500</bug_when>
+    <thetext>What did you set your cgitmpdir to ?
+
+This is set in /etc/munin/munin.conf and might be something like /var/tmp/ or other web server writable location.  (&quot;semanage fcontext -l |grep tmp_t&quot; for examples)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10018887</commentid>
+    <comment_count>3</comment_count>
+    <who name="Chad Feller">cfeller</who>
+    <bug_when>2016-12-23 18:01:00 -0500</bug_when>
+    <thetext>(In reply to d. johnson from comment #2)
+&gt; What did you set your cgitmpdir to ?
+&gt; 
+&gt; This is set in /etc/munin/munin.conf and might be something like /var/tmp/
+&gt; or other web server writable location.  (&quot;semanage fcontext -l |grep tmp_t&quot;
+&gt; for examples)
+
+Nothing, I&apos;ve always gone with the defaults for things like this.  
+
+In this particular instance, it seems like the defaults changed but the packaging didn&apos;t.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10018889</commentid>
+    <comment_count>4</comment_count>
+    <who name="Chad Feller">cfeller</who>
+    <bug_when>2016-12-23 18:08:11 -0500</bug_when>
+    <thetext>Futhermore, the munin.conf for 2.0.28 shows:
+
+# temporary cgi files are here. note that it has to be writable by 
+# the cgi user (usually nobody or httpd).
+#
+# cgitmpdir /var/lib/munin/cgi-tmp</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10024018</commentid>
+    <comment_count>5</comment_count>
+    <who name="marianne@tuxette.fr">marianne</who>
+    <bug_when>2016-12-29 08:49:59 -0500</bug_when>
+    <thetext>Same bug in epel 6. 
+Chad, thanks for the workaround</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10029496</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-03 00:44:49 -0500</bug_when>
+    <thetext>munin-2.0.29-1.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-2e436bf718</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10029497</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-03 00:45:43 -0500</bug_when>
+    <thetext>munin-2.0.29-1.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2017-cc24f72215</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10029499</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-03 00:46:07 -0500</bug_when>
+    <thetext>munin-2.0.29-1.el7 has been submitted as an update to Fedora EPEL 7. https://bodhi.fedoraproject.org/updates/FEDORA-EPEL-2017-98c134f556</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10029500</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-03 00:46:35 -0500</bug_when>
+    <thetext>munin-2.0.29-1.el6 has been submitted as an update to Fedora EPEL 6. https://bodhi.fedoraproject.org/updates/FEDORA-EPEL-2017-309a41ab53</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10031788</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-03 16:48:30 -0500</bug_when>
+    <thetext>munin-2.0.29-1.el7 has been pushed to the Fedora EPEL 7 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-EPEL-2017-98c134f556</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10031865</commentid>
+    <comment_count>11</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-03 17:21:00 -0500</bug_when>
+    <thetext>munin-2.0.29-1.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-2e436bf718</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10031935</commentid>
+    <comment_count>12</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-03 18:17:59 -0500</bug_when>
+    <thetext>munin-2.0.29-1.el6 has been pushed to the Fedora EPEL 6 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-EPEL-2017-309a41ab53</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10031979</commentid>
+    <comment_count>13</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-03 18:50:35 -0500</bug_when>
+    <thetext>munin-2.0.29-1.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-cc24f72215</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10042601</commentid>
+    <comment_count>14</comment_count>
+    <who name="Chad Feller">cfeller</who>
+    <bug_when>2017-01-07 12:42:30 -0500</bug_when>
+    <thetext>All looks good.  I verified on EL7 and Fedora 25 (I upgraded my workstation from 24 -&gt; 25 since opening this ticket).
+
+I left appropriate feedback on bodhi.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10055726</commentid>
+    <comment_count>15</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-12 00:23:30 -0500</bug_when>
+    <thetext>munin-2.0.29-1.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10055878</commentid>
+    <comment_count>16</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-12 01:49:13 -0500</bug_when>
+    <thetext>munin-2.0.29-1.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10083905</commentid>
+    <comment_count>17</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-20 10:20:21 -0500</bug_when>
+    <thetext>munin-2.0.29-1.el7 has been pushed to the Fedora EPEL 7 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10085034</commentid>
+    <comment_count>18</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-20 15:48:00 -0500</bug_when>
+    <thetext>munin-2.0.29-1.el6 has been pushed to the Fedora EPEL 6 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

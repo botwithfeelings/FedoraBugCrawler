@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1365338</bug_id>
+          
+          <creation_ts>2016-08-08 21:26:00 -0400</creation_ts>
+          <short_desc>After system update, espeak quits when reading from pipe</short_desc>
+          <delta_ts>2016-08-27 06:28:47 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>espeak</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Paul DeStefano">paul.destefano-redhat</reporter>
+          <assigned_to name="Ondřej Lysoněk">olysonek</assigned_to>
+          <cc>jskarvad</cc>
+    
+    
+    <cc>olysonek</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>espeak-1.48.04-9.fc24 espeak-1.48.04-9.fc25</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-08-17 23:50:28</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9596067</commentid>
+    <comment_count>0</comment_count>
+    <who name="Paul DeStefano">paul.destefano-redhat</who>
+    <bug_when>2016-08-08 21:26:55 -0400</bug_when>
+    <thetext>Description of problem:
+I updated my Fedora 24 system yesterday, espeak will not work reading from a pipe.
+
+Version-Release number of selected component (if applicable):
+espeak-1.48.04-8.fc24.x86_64
+
+How reproducible:
+Always since update.
+
+Steps to Reproduce:
+1. create named pipe &lt;pipfile&gt;: mknod /tmp/namedpipe p
+2. run espeak: espeak --stdout -f /tmp/namedpipe | paplay --playback
+3. send text to pipe: echo &apos;hi there&apos; &gt;/tmp/namedpipe
+
+Actual results:
+If you strace espeak after step (2), then run step (3) you get:
+
+strace: Process 11283 attached
+open(&quot;/home/pdestefa/tmp/_reuse/tts.pipe.txt&quot;, O_RDONLY) = 3
+fstat(1, {st_mode=S_IFIFO|0600, st_size=0, ...}) = 0
+close(3)                                = 0
+tgkill(11283, 11285, SIGRTMIN)          = 0
+futex(0x7f8f4965f9d0, FUTEX_WAIT, 11285, NULL) = 0
+munmap(0x7f8f55e28000, 409600)          = 0
+write(1, &quot;RIFF$\360\377\177WAVEfmt \20\0\0\0\1\0\1\0\&quot;V\0\0D\254\0\0&quot;..., 352) = 352
+exit_group(0)                           = ?
++++ exited with 0 +++
+
+Output is invalid, only a few hundred bytes.  paplay plays it, but wave contains nothing audible.
+
+Expected results:
+Should read from pine and produce wav output.  Should be a read call before close, right?
+
+Additional info:
+This worked yesterday!  I&apos;ve been using this exact same command for months now, since F24 released, and it has worked perfectly.  I use it many times every day.
+
+Espeak works if you use an unnamed pipe (i.e: echo &apos;hi there&apos; | espeak --stdout | paplay --playback ), so I&apos;m completely baffled why this doesn&apos;t work now or what could have changed.
+
+I did not update espeak, or the kernel, but other things.  I realize this isn&apos;t a change in espeak that caused this, but I can&apos;t think of anyone else who might be able to help me with this new problem other than espeak developers.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9597912</commentid>
+    <comment_count>1</comment_count>
+    <who name="Jaroslav Škarvada">jskarvad</who>
+    <bug_when>2016-08-09 08:01:19 -0400</bug_when>
+    <thetext>(In reply to Paul DeStefano from comment #0)
+&gt; Description of problem:
+&gt; I updated my Fedora 24 system yesterday, espeak will not work reading from a
+&gt; pipe.
+&gt; 
+&gt; Version-Release number of selected component (if applicable):
+&gt; espeak-1.48.04-8.fc24.x86_64
+&gt; 
+&gt; How reproducible:
+&gt; Always since update.
+&gt; 
+&gt; Steps to Reproduce:
+&gt; 1. create named pipe &lt;pipfile&gt;: mknod /tmp/namedpipe p
+&gt; 2. run espeak: espeak --stdout -f /tmp/namedpipe | paplay --playback
+&gt; 3. send text to pipe: echo &apos;hi there&apos; &gt;/tmp/namedpipe
+&gt; 
+&gt; Actual results:
+&gt; If you strace espeak after step (2), then run step (3) you get:
+&gt; 
+&gt; strace: Process 11283 attached
+&gt; open(&quot;/home/pdestefa/tmp/_reuse/tts.pipe.txt&quot;, O_RDONLY) = 3
+&gt; fstat(1, {st_mode=S_IFIFO|0600, st_size=0, ...}) = 0
+&gt; close(3)                                = 0
+&gt; tgkill(11283, 11285, SIGRTMIN)          = 0
+&gt; futex(0x7f8f4965f9d0, FUTEX_WAIT, 11285, NULL) = 0
+&gt; munmap(0x7f8f55e28000, 409600)          = 0
+&gt; write(1, &quot;RIFF$\360\377\177WAVEfmt \20\0\0\0\1\0\1\0\&quot;V\0\0D\254\0\0&quot;...,
+&gt; 352) = 352
+&gt; exit_group(0)                           = ?
+&gt; +++ exited with 0 +++
+&gt; 
+&gt; Output is invalid, only a few hundred bytes.  paplay plays it, but wave
+&gt; contains nothing audible.
+&gt; 
+&gt; Expected results:
+&gt; Should read from pine and produce wav output.  Should be a read call before
+&gt; close, right?
+&gt; 
+&gt; Additional info:
+&gt; This worked yesterday!  I&apos;ve been using this exact same command for months
+&gt; now, since F24 released, and it has worked perfectly.  I use it many times
+&gt; every day.
+&gt; 
+&gt; Espeak works if you use an unnamed pipe (i.e: echo &apos;hi there&apos; | espeak
+&gt; --stdout | paplay --playback ), so I&apos;m completely baffled why this doesn&apos;t
+&gt; work now or what could have changed.
+&gt; 
+&gt; I did not update espeak, or the kernel, but other things.  I realize this
+&gt; isn&apos;t a change in espeak that caused this, but I can&apos;t think of anyone else
+&gt; who might be able to help me with this new problem other than espeak
+&gt; developers.
+
+I am not aware of any change. It&apos;s also reproducible on f23 (espeak-1.48.04-6.fc23.x86_64). If it worked for you yesterday, I think it was by an 	
+coincidence.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9598465</commentid>
+    <comment_count>2</comment_count>
+    <who name="Jaroslav Škarvada">jskarvad</who>
+    <bug_when>2016-08-09 10:12:07 -0400</bug_when>
+    <thetext>It has never worked:
+
+espeak.cpp:
+filesize = GetFileLength(filename);
+
+This is 0 for FIFO, so the upstream didn&apos;t count with FIFOs.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9604301</commentid>
+    <comment_count>3</comment_count>
+    <who name="Paul DeStefano">paul.destefano-redhat</who>
+    <bug_when>2016-08-10 15:32:00 -0400</bug_when>
+    <thetext>I understand the code you found; that makes complete sense.  But, I have incontrovertible proof that it did work for two whole months.  Could GetFileLength() have changed it&apos;s behavior?
+
+What happens when espeak uses STDIN?  It must have a different code path for that?
+
+Can I use this bug to get espeak to work with named pipes?  The fact that it works with unnamed pipes and not namedpipes seems like a bug to me, but if that distinction was intentional then I guess it&apos;s an enhancement request.  If the former, I could submit a patch, but without knowing the history, I don&apos;t feel comfortable designing the solution myself.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9614538</commentid>
+    <comment_count>4</comment_count>
+    <who name="Jaroslav Škarvada">jskarvad</who>
+    <bug_when>2016-08-15 05:56:17 -0400</bug_when>
+    <thetext>(In reply to Paul DeStefano from comment #3)
+&gt; I understand the code you found; that makes complete sense.  But, I have
+&gt; incontrovertible proof that it did work for two whole months.  Could
+&gt; GetFileLength() have changed it&apos;s behavior?
+&gt; 
+It seems we rebased it &quot;Fri Mar 7 2014&quot; so if there was any change it had to be done outside of espeak.
+
+&gt; What happens when espeak uses STDIN?  It must have a different code path for
+&gt; that?
+&gt; 
+Yes it&apos;s different code path there.
+
+&gt; Can I use this bug to get espeak to work with named pipes?  The fact that it
+&gt; works with unnamed pipes and not namedpipes seems like a bug to me, but if
+&gt; that distinction was intentional then I guess it&apos;s an enhancement request. 
+&gt; If the former, I could submit a patch, but without knowing the history, I
+&gt; don&apos;t feel comfortable designing the solution myself.
+
+Ondra is working on it and I am sure he will provide patch/solution soon.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9614866</commentid>
+    <comment_count>5</comment_count>
+      <attachid>1190885</attachid>
+    <who name="Ondřej Lysoněk">olysonek</who>
+    <bug_when>2016-08-15 08:22:25 -0400</bug_when>
+    <thetext>Created attachment 1190885
+proposed patch
+
+The attached patch should resolve the issue. However before rebuilding, I&apos;ll send it upstream and wait for their comments.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9616587</commentid>
+    <comment_count>6</comment_count>
+    <who name="Paul DeStefano">paul.destefano-redhat</who>
+    <bug_when>2016-08-15 17:33:25 -0400</bug_when>
+    <thetext>Awesome!  Thanks so much.  I realize not many people were annoyed by this, so I appreciate your help.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9618732</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-16 08:38:10 -0400</bug_when>
+    <thetext>espeak-1.48.04-9.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2016-fe889d7399</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9618802</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-16 08:58:38 -0400</bug_when>
+    <thetext>espeak-1.48.04-9.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-c64030073d</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9619698</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-16 12:25:17 -0400</bug_when>
+    <thetext>espeak-1.48.04-9.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-fe889d7399</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9620733</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-16 19:20:55 -0400</bug_when>
+    <thetext>espeak-1.48.04-9.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-c64030073d</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9624991</commentid>
+    <comment_count>11</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-17 23:50:25 -0400</bug_when>
+    <thetext>espeak-1.48.04-9.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9655537</commentid>
+    <comment_count>12</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-27 06:28:45 -0400</bug_when>
+    <thetext>espeak-1.48.04-9.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="0"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1190885</attachid>
+            <date>2016-08-15 08:22:00 -0400</date>
+            <delta_ts>2016-08-15 08:22:25 -0400</delta_ts>
+            <desc>proposed patch</desc>
+            <filename>file_1365338.txt</filename>
+            <type>text/plain</type>
+            <size>976</size>
+            <attacher name="Ondřej Lysoněk">olysonek</attacher>
+            
+              <data encoding="base64">ZGlmZiAtLWdpdCBhL3NyYy9lc3BlYWsuY3BwIGIvc3JjL2VzcGVhay5jcHANCmluZGV4IDE3ZTY0
+ZmEuLjgxM2JlNTAgMTAwNjQ0DQotLS0gYS9zcmMvZXNwZWFrLmNwcA0KKysrIGIvc3JjL2VzcGVh
+ay5jcHANCkBAIC03MjYsOCArNzI2LDE3IEBAIGludCBtYWluIChpbnQgYXJnYywgY2hhciAqKmFy
+Z3YpDQogCX0NCiAJZWxzZQ0KIAl7DQorCQlzdHJ1Y3Qgc3RhdCBzdDsNCisJCWlmIChzdGF0KGZp
+bGVuYW1lLCAmc3QpICE9IDApIHsNCisJCQlmcHJpbnRmKHN0ZGVyciwgIkZhaWxlZCB0byBzdGF0
+KCkgZmlsZSAnJXMnXG4iLCBmaWxlbmFtZSk7DQorCQkJZXhpdCgxKTsNCisJCX0NCiAJCWZpbGVz
+aXplID0gR2V0RmlsZUxlbmd0aChmaWxlbmFtZSk7DQogCQlmX3RleHQgPSBmb3BlbihmaWxlbmFt
+ZSwiciIpOw0KKwkJaWYgKFNfSVNGSUZPKHN0LnN0X21vZGUpKQ0KKwkJew0KKwkJCWZsYWdfc3Rk
+aW4gPSAyOw0KKwkJfQ0KIAl9DQogDQogCWlmKChmX3RleHQgPT0gTlVMTCkgJiYgKHBfdGV4dCA9
+PSBOVUxMKSkNCkBAIC03NTEsMTMgKzc2MCwxNiBAQCBpbnQgbWFpbiAoaW50IGFyZ2MsIGNoYXIg
+Kiphcmd2KQ0KIA0KIAkJaWYoZmxhZ19zdGRpbiA9PSAyKQ0KIAkJew0KLQkJCS8vIGxpbmUgYnkg
+bGluZSBpbnB1dCBvbiBzdGRpbg0KLQkJCXdoaWxlKGZnZXRzKHBfdGV4dCxtYXgsc3RkaW4pICE9
+IE5VTEwpDQorCQkJLy8gbGluZSBieSBsaW5lIGlucHV0IG9uIHN0ZGluIG9yIGZyb20gRklGTw0K
+KwkJCXdoaWxlKGZnZXRzKHBfdGV4dCxtYXgsZl90ZXh0KSAhPSBOVUxMKQ0KIAkJCXsNCiAJCQkJ
+cF90ZXh0W21heC0xXSA9IDA7DQogCQkJCWVzcGVha19TeW50aChwX3RleHQsbWF4LDAsUE9TX0NI
+QVJBQ1RFUiwwLHN5bnRoX2ZsYWdzLE5VTEwsTlVMTCk7DQogDQogCQkJfQ0KKwkJCWlmIChmX3Rl
+eHQgIT0gc3RkaW4pIHsNCisJCQkJZmNsb3NlKGZfdGV4dCk7DQorCQkJfQ0KIAkJfQ0KIAkJZWxz
+ZQ0KIAkJew==
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

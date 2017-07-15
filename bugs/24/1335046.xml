@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1335046</bug_id>
+          
+          <creation_ts>2016-05-11 04:44:00 -0400</creation_ts>
+          <short_desc>TypeError: Argument 0 does not allow None as a value</short_desc>
+          <delta_ts>2016-11-15 08:33:10 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>anaconda</component>
+          <version>24</version>
+          <rep_platform>s390x</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard>AcceptedFreezeException</status_whiteboard>
+          <keywords></keywords>
+          <priority>medium</priority>
+          <bug_severity>medium</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>467765</blocked>
+    
+    
+    <blocked>1277290</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Jan Stodola">jstodola</reporter>
+          <assigned_to name="Samantha N. Bueno">sbueno</assigned_to>
+          <cc>anaconda-maint-list</cc>
+    
+    
+    <cc>g.kaviyarasu</cc>
+    
+    
+    <cc>gmarr</cc>
+    
+    
+    <cc>jonathan</cc>
+    
+    
+    <cc>sbueno</cc>
+    
+    
+    <cc>vanmeeuwen+fedora</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>anaconda-25.20.8-1.fc25</cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-11-15 08:33:10</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9316070</commentid>
+    <comment_count>0</comment_count>
+    <who name="Jan Stodola">jstodola</who>
+    <bug_when>2016-05-11 04:44:07 -0400</bug_when>
+    <thetext>Description of problem:
+There is a traceback when asking anaconda to add a zFCP LUN without entering any value for the device number/WWPN/LUN:
+
+anaconda 24.13.4-1 exception report
+Traceback (most recent call first):
+  File &quot;/usr/lib64/python3.5/site-packages/gi/overrides/BlockDev.py&quot;, line 399, in wrapped
+    ret = orig_obj(*args, **kwargs)
+  File &quot;/usr/lib/python3.5/site-packages/blivet/zfcp.py&quot;, line 55, in __init__
+    self.devnum = blockdev.s390.sanitize_dev_input(devnum)
+  File &quot;/usr/lib/python3.5/site-packages/blivet/zfcp.py&quot;, line 340, in addFCP
+    d = ZFCPDevice(devnum, wwpn, fcplun)
+  File &quot;/usr/lib64/python3.5/site-packages/pyanaconda/ui/gui/spokes/advstorage/zfcp.py&quot;, line 147, in _discover
+    self.zfcp.addFCP(args[0], args[1], args[2])
+  File &quot;/usr/lib64/python3.5/site-packages/pyanaconda/ui/gui/spokes/advstorage/zfcp.py&quot;, line 113, in on_start_clicked
+    self._discover(device, wwpn, lun)
+TypeError: Argument 0 does not allow None as a value
+
+
+Version-Release number of selected component (if applicable):
+python-blivet-1.20.1-1.fc24
+anaconda-24.13.4-1.fc24
+
+How reproducible:
+always
+
+Steps to Reproduce:
+1. proceed to the Installation Destination spoke
+2. click &quot;Add a disk...&quot;
+3. click &quot;Add zFCP LUN...&quot;
+4. click &quot;Start Discovery&quot; without entering any value
+
+Actual results:
+traceback
+
+Expected results:
+warning or error message, but being able to continue with the installation</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9316102</commentid>
+    <comment_count>2</comment_count>
+    <who name="Jan Stodola">jstodola</who>
+    <bug_when>2016-05-11 04:49:12 -0400</bug_when>
+    <thetext>Similar issue in case of adding DASD without entering a device number:
+
+anaconda 24.13.4-1 exception report
+Traceback (most recent call first):
+  File &quot;/usr/lib64/python3.5/site-packages/gi/overrides/BlockDev.py&quot;, line 399, in wrapped
+    ret = orig_obj(*args, **kwargs)
+  File &quot;/usr/lib64/python3.5/site-packages/pyanaconda/ui/gui/spokes/advstorage/dasd.py&quot;, line 135, in _discover
+    blockdev.s390.dasd_online(device)
+  File &quot;/usr/lib64/python3.5/site-packages/pyanaconda/ui/gui/spokes/advstorage/dasd.py&quot;, line 103, in on_start_clicked
+    self._discover(device)
+TypeError: Argument 0 does not allow None as a value</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9838689</commentid>
+    <comment_count>3</comment_count>
+    <who name="Samantha N. Bueno">sbueno</who>
+    <bug_when>2016-11-01 16:32:07 -0400</bug_when>
+    <thetext>https://github.com/rhinstaller/anaconda/pull/857 should fix the issues with manually adding DASDs and zFCP devices.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9849261</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Blocker Bugs Application">blockerbugs</who>
+    <bug_when>2016-11-02 15:44:44 -0400</bug_when>
+    <thetext>Proposed as a Freeze Exception for 25-final by Fedora user sbueno using the blocker tracking app because:
+
+ An s390x bug which causes a traceback if a user passes no input when trying to manually add zFCP devices or DASDs in the advanced storage spoke. The fix for this is simple and isolated to s390x-specific code.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9869320</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-11-07 18:31:33 -0500</bug_when>
+    <thetext>anaconda-25.20.7-1.fc25 python-blivet-2.1.6-3.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2016-91844f4982</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9869485</commentid>
+    <comment_count>6</comment_count>
+    <who name="Geoffrey Marr">gmarr</who>
+    <bug_when>2016-11-07 19:57:46 -0500</bug_when>
+    <thetext>Discussed during the 2016-11-07 blocker review meeting: [1]
+
+The decision to classify this bug as an AcceptedFreezeException was made as this fixes a significant issue for s390x users and the fix is limited to s390-specific code so cannot affect primary arches.
+
+[1] https://meetbot.fedoraproject.org/fedora-blocker-review/2016-11-07/f25-blocker-review.2016-11-07-17.01.txt</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9874236</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-11-08 21:26:23 -0500</bug_when>
+    <thetext>anaconda-25.20.8-1.fc25, python-blivet-2.1.6-3.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-91844f4982</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9892674</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-11-15 08:33:10 -0500</bug_when>
+    <thetext>anaconda-25.20.8-1.fc25, python-blivet-2.1.6-3.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

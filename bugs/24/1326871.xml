@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1326871</bug_id>
+          
+          <creation_ts>2016-04-13 11:22:00 -0400</creation_ts>
+          <short_desc>_isa on armv7hnl is incorrect</short_desc>
+          <delta_ts>2016-05-19 07:42:47 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>rpm</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>RAWHIDE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords>Reopened</keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Dennis Gilmore">dennis</reporter>
+          <assigned_to>packaging-team-maint</assigned_to>
+          <cc>jzeleny</cc>
+    
+    
+    <cc>lemenkov</cc>
+    
+    
+    <cc>lkardos</cc>
+    
+    
+    <cc>novyjindrich</cc>
+    
+    
+    <cc>packaging-team-maint</cc>
+    
+    
+    <cc>pbrobinson</cc>
+    
+    
+    <cc>pknirsch</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-05-19 07:42:47</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9233780</commentid>
+    <comment_count>0</comment_count>
+    <who name="Dennis Gilmore">dennis</who>
+    <bug_when>2016-04-13 11:22:31 -0400</bug_when>
+    <thetext>Description of problem:
+if you build a rpm for armv7hnl the isa shows as armv7hnl-32 resulting in uninstallable rpms  as the isa for armv7hl is armv7hl-32  we should ensure that the armhfp isa is armv7hl-32 for all armv7h*l arches
+
+
+diff -uNr rpm-4.13.0-rc1.orig/installplatform rpm-4.13.0-rc1/installplatform
+--- rpm-4.13.0-rc1.orig/installplatform	2016-04-13 10:14:28.731942821 -0500
++++ rpm-4.13.0-rc1/installplatform	2016-04-13 10:19:15.203361436 -0500
+@@ -96,6 +96,12 @@
+ 	CANONARCH=${ARCH}
+ 	CANONCOLOR=0
+ 	;;
++    armv7h*)
++	ISANAME=armv7hl
++	ISABITS=32
++	CANONARCH=arm
++	CANONCOLOR=0
++	;;
+     arm*)
+ 	ISANAME=`echo ${ARCH} | sed &quot;s/^\([^-]*\)-.*/\1/&quot;`
+ 	ISABITS=32
+
+is probably what is needed to fix this</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9234132</commentid>
+    <comment_count>1</comment_count>
+    <who name="Peter Lemenkov">lemenkov</who>
+    <bug_when>2016-04-13 13:45:17 -0400</bug_when>
+    <thetext>Interesting that %{?_isa} macro contents looks different on different stages. If i try to use it during %build or %install stages I&apos;ve got &quot;(armv7hl-32)&quot; which is fine. However if I try to get it during dependency checking (see the next line), it will pass wrong value.
+
+https://github.com/lemenkov/erlang-rpm-macros/blob/master/erlang.attr
+
+%__erlang_requires %{_rpmconfigdir}/erlang-find-requires.py -b %{buildroot} -i %{?_isa} -l %{_libdir}</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9245485</commentid>
+    <comment_count>2</comment_count>
+    <who name="Ľuboš Kardoš">lkardos</who>
+    <bug_when>2016-04-18 05:37:30 -0400</bug_when>
+    <thetext>
+(In reply to Peter Lemenkov from comment #1)
+&gt; Interesting that %{?_isa} macro contents looks different on different
+&gt; stages. If i try to use it during %build or %install stages I&apos;ve got
+&gt; &quot;(armv7hl-32)&quot; which is fine. However if I try to get it during dependency
+&gt; checking (see the next line), it will pass wrong value.
+&gt; 
+&gt; https://github.com/lemenkov/erlang-rpm-macros/blob/master/erlang.attr
+&gt; 
+&gt; %__erlang_requires %{_rpmconfigdir}/erlang-find-requires.py -b %{buildroot}
+&gt; -i %{?_isa} -l %{_libdir}
+
+The reason why you have different %_isa during build and dependency generation is that you build armv7hl package (using --target armv7hl) on armv7hnl and you use the old mechanism for filtering dependency. This old dependency mechanism uses the obsoleted external dependency generator (script /usr/lib/rpm/redhat/find-requires) instead of the internal one. The target value (armv7hl) is not passed to this external dependency generator so it is ignored and because the machine is armv7hnl, the %_isa macro is filled with armv7hnl.
+
+So this problem can be solved by using the new mechanism for filtering dependencies [1] which uses the internal dependency generator. If the internal dependency generator is used then all macros are set according to the target option if it is present on rpmbuild commandline.
+
+Whether the %_isa macro should be set to &quot;armv7hl&quot; also during build on armv7hnl machine when the option &quot;--target armv7hl&quot; is not used is different question. That would mean that some armv7hnl package could work with armv7hl library similarly as i686 package can work with i586 library.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9245488</commentid>
+    <comment_count>3</comment_count>
+    <who name="Ľuboš Kardoš">lkardos</who>
+    <bug_when>2016-04-18 05:38:16 -0400</bug_when>
+    <thetext>[1] https://fedoraproject.org/wiki/Packaging:AutoProvidesAndRequiresFiltering</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9245512</commentid>
+    <comment_count>4</comment_count>
+    <who name="Ľuboš Kardoš">lkardos</who>
+    <bug_when>2016-04-18 05:47:47 -0400</bug_when>
+    <thetext>&gt; Whether the %_isa macro should be set to &quot;armv7hl&quot; also during build on
+&gt; armv7hnl machine when the option &quot;--target armv7hl&quot; is not used is different
+&gt; question. That would mean that some armv7hnl package could work with armv7hl
+&gt; library similarly as i686 package can work with i586 library.
+
+I am not the one who can decide this. Peter can you help and provide your opinion. Thanks.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9245516</commentid>
+    <comment_count>5</comment_count>
+    <who name="Peter Lemenkov">lemenkov</who>
+    <bug_when>2016-04-18 05:49:06 -0400</bug_when>
+    <thetext>Thanks for the explanation, Ľuboš!
+
+So I suppose we may close this ticket. Also we should remove outdated scripts you mentioned entirely, since they cause issues like that.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9246930</commentid>
+    <comment_count>6</comment_count>
+    <who name="Ľuboš Kardoš">lkardos</who>
+    <bug_when>2016-04-18 08:48:56 -0400</bug_when>
+    <thetext>(In reply to Peter Lemenkov from comment #5)
+&gt; Thanks for the explanation, Ľuboš!
+&gt; 
+&gt; So I suppose we may close this ticket. Also we should remove outdated
+&gt; scripts you mentioned entirely, since they cause issues like that.
+
+I am not sure I can remove these scripts right now some people can still depend on them, but at least I added a warning when the deprecated external dependency generator is used [1]
+
+[1] https://github.com/rpm-software-management/rpm/commit/cfcdd942ade7e50e8738b4721fad0c19008d9b84</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9247254</commentid>
+    <comment_count>7</comment_count>
+    <who name="Dennis Gilmore">dennis</who>
+    <bug_when>2016-04-18 10:10:23 -0400</bug_when>
+    <thetext>you can install and run armv7hnl packages with armv7hl,  they are the equivalent of i586 and i686. the isa probably should be armhfp but that would require a mass rebuild and a workaround to allow an isa of armv7hl to be installed in the short term.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9303468</commentid>
+    <comment_count>8</comment_count>
+    <who name="Ľuboš Kardoš">lkardos</who>
+    <bug_when>2016-05-09 04:56:09 -0400</bug_when>
+    <thetext>The problem which blocked building of some packages was explained and solved (see comment 5). I also added a warning to rpm upstream which is showed when deprecated external generator is used. So I am closing this bug.
+
+If you want to change isa for armv7hnl and armv7hl to armhfp as it was suggested in comment 7 then please open a new bug for that request.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9318232</commentid>
+    <comment_count>9</comment_count>
+    <who name="Dennis Gilmore">dennis</who>
+    <bug_when>2016-05-11 16:27:09 -0400</bug_when>
+    <thetext>This bug was opened to have the isa changed. I am not sure we can change to armhfp without carrying some extra patches so that armv7hl is valid also as we transition.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9340538</commentid>
+    <comment_count>10</comment_count>
+    <who name="Ľuboš Kardoš">lkardos</who>
+    <bug_when>2016-05-19 07:42:47 -0400</bug_when>
+    <thetext>Patch applied upstream [1] and in rawhide [2].
+
+[1] https://github.com/rpm-software-management/rpm/commit/5d5dd569d01300db833e434ff49beb8b22627310
+[2] http://koji.fedoraproject.org/koji/buildinfo?buildID=767042</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

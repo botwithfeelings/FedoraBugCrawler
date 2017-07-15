@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1398853</bug_id>
+          
+          <creation_ts>2016-11-26 11:31:00 -0500</creation_ts>
+          <short_desc>SELinux file context for /usr/lib/systemd/resolv.conf should be net_conf_t</short_desc>
+          <delta_ts>2016-12-08 13:23:19 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>selinux-policy-targeted</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Anthony Messina">amessina</reporter>
+          <assigned_to name="Lukas Vrabec">lvrabec</assigned_to>
+          <cc>dwalsh</cc>
+          <qa_contact name="Ben Levenson">benl</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-12-08 13:23:19</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9931297</commentid>
+    <comment_count>0</comment_count>
+    <who name="Anthony Messina">amessina</who>
+    <bug_when>2016-11-26 11:31:51 -0500</bug_when>
+    <thetext>According to the systemd-resolved man page
+
+&quot;A static file /usr/lib/systemd/resolv.conf is provided that lists the 127.0.0.53 DNS stub (see above) as only DNS server. This file may be symlinked from /etc/resolv.conf in order to connect all local clients that bypass local DNS APIs to systemd-resolved. This mode of operation is recommended.&quot;
+
+In order for this to work properly, the SELinux file context for /usr/lib/systemd/resolv.conf should be net_conf_t so other daemons are allowed to access it via the symlink (similar to the label fix a while back for /run/systemd/resolve/resolv.conf)
+
+$ ls -l /etc/resolv.conf 
+lrwxrwxrwx. 1 root root 28 Nov 25 20:23 /etc/resolv.conf -&gt; /usr/lib/systemd/resolv.conf</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9935898</commentid>
+    <comment_count>1</comment_count>
+    <who name="Daniel Walsh">dwalsh</who>
+    <bug_when>2016-11-28 12:51:28 -0500</bug_when>
+    <thetext>Should other domains including NetworkManager_t be allowed to write it?  If not, it would probably be better labeled usr_t.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9936171</commentid>
+    <comment_count>2</comment_count>
+    <who name="Anthony Messina">amessina</who>
+    <bug_when>2016-11-28 14:33:47 -0500</bug_when>
+    <thetext>(In reply to Daniel Walsh from comment #1)
+&gt; Should other domains including NetworkManager_t be allowed to write it?  If
+&gt; not, it would probably be better labeled usr_t.
+
+Other domains probably shouldn&apos;t be messing with it. This is just a workaround which reduced the AVCs (that have to be allowed) until Fedora&apos;s SELinux policies can catch up (hopefully very soon) to systemd&apos;s tools.
+
+One thing that systemd is fond of is symlinks, which many of the previously existing domain policies don&apos;t like -- Postfix for example.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9936424</commentid>
+    <comment_count>3</comment_count>
+    <who name="Daniel Walsh">dwalsh</who>
+    <bug_when>2016-11-28 16:25:34 -0500</bug_when>
+    <thetext>If we labeled it usr_t or even lib_t then all these domains could read it but not modify it.
+
+Sadly we currently label it init_exec_t, which is no good.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9936763</commentid>
+    <comment_count>4</comment_count>
+    <who name="Anthony Messina">amessina</who>
+    <bug_when>2016-11-28 19:30:35 -0500</bug_when>
+    <thetext>(In reply to Daniel Walsh from comment #3)
+&gt; If we labeled it usr_t or even lib_t then all these domains could read it
+&gt; but not modify it.
+&gt; 
+&gt; Sadly we currently label it init_exec_t, which is no good.
+
+https://github.com/fedora-selinux/selinux-policy/commit/55636311de67f0782fde3d89ea82559d16c2c3ca
+
+This should get closer.  Regardless of the label, won&apos;t other policy prevent the symlink from /etc/resolve.conf to /usr/lib/systemd/resolv.conf or /run/systemd/resolve/resolv.conf, the latter of which is defaulted to net_conf_t?  It seems a lot of things will need lnk_file support.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9939426</commentid>
+    <comment_count>5</comment_count>
+    <who name="Daniel Walsh">dwalsh</who>
+    <bug_when>2016-11-29 10:05:03 -0500</bug_when>
+    <thetext>No I think all domains that need to read /etc/resolv.conf already can read a link file that is labeled as net_conf_t,  The problem is they can not read a file with a label of init_exec_t.  Changing this label to net_conf_t allows the access but it also allows all domains that can write to net_conf_t to be allowed to write to the file, from an SELinux point of view.  Getting this to a label like lib_t or usr_t, would solve both problems.  In that all domains that need to read /etc/resolv.conf can now read the file, but domains that can write /etc/resolv.conf will NOT be allowed to write /usr/lib/systemd/resolv.conf</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9939898</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-11-29 12:04:51 -0500</bug_when>
+    <thetext>selinux-policy-3.13.1-225.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2016-9d027c3768</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9952865</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-02 23:31:59 -0500</bug_when>
+    <thetext>selinux-policy-3.13.1-225.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-9d027c3768</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9957016</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-05 12:03:22 -0500</bug_when>
+    <thetext>selinux-policy-3.13.1-225.1.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2016-e3864b8972</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9962629</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-06 21:26:11 -0500</bug_when>
+    <thetext>selinux-policy-3.13.1-225.1.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-e3864b8972</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9969151</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-08 13:23:19 -0500</bug_when>
+    <thetext>selinux-policy-3.13.1-225.1.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

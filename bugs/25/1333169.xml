@@ -1,0 +1,633 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1333169</bug_id>
+          
+          <creation_ts>2016-05-04 16:22:00 -0400</creation_ts>
+          <short_desc>tracer ships both python2 and python3 libraries in the same package</short_desc>
+          <delta_ts>2016-08-22 15:20:35 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>tracer</component>
+          <version>25</version>
+          <rep_platform>All</rep_platform>
+          <op_sys>Mac OS</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>high</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>1285816</blocked>
+    
+    
+    <blocked>1340802</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Orion Poplawski">orion</reporter>
+          <assigned_to name="Jakub Kadlčík">jkadlcik</assigned_to>
+          <cc>dominik</cc>
+    
+    
+    <cc>jkadlcik</cc>
+    
+    
+    <cc>laurent.rineau__fedora</cc>
+    
+    
+    <cc>pviktori</cc>
+    
+    
+    <cc>torsava</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>tracer-0.6.11-1.fc24 tracer-0.6.11-1.fc23</cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-08-22 12:53:07</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9293314</commentid>
+    <comment_count>0</comment_count>
+    <who name="Orion Poplawski">orion</who>
+    <bug_when>2016-05-04 16:22:31 -0400</bug_when>
+    <thetext>Description of problem:
+
+tracer ships both python2 and python3 libraries in the same package, which is completely wrong.  Please review https://fedoraproject.org/wiki/Packaging:Python
+
+Version-Release number of selected component (if applicable):
+0.6.9-1.fc25</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9504870</commentid>
+    <comment_count>1</comment_count>
+    <who name="Tomas Orsava">torsava</who>
+    <bug_when>2016-07-13 08:37:03 -0400</bug_when>
+    <thetext>The tracer RPM requires both Python 2 and Python 3.
+
+Except in very special circumstances, there is no need for one package
+to drag in both Python stacks. Usually, this is a packaging error: for
+example, a stray &quot;/usr/bin/python&quot; shebang in a Python 3 package can
+introduce a Python 2 dependency.
+
+Please split your package, or remove the stray dependencies.
+There is a section on shebangs in the Python RPM Porting Guide [0]
+which covers this issue.
+
+It&apos;s ok to do this in Rawhide only, however, it would be greatly
+appreciated if you could push it to Fedora 24 as well.
+
+
+If anything is unclear, or if you need any kind of assistance, you can
+ask on IRC (#fedora-python on Freenode), or reply here. We&apos;ll be happy
+to help investigating or fixing this issue!
+
+
+[0] http://python-rpm-porting.readthedocs.io/en/latest/application-modules.html#are-shebangs-dragging-you-down-to-python-2</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9511323</commentid>
+    <comment_count>2</comment_count>
+      <attachid>1180035</attachid>
+    <who name="Jakub Kadlčík">jkadlcik</who>
+    <bug_when>2016-07-15 01:10:01 -0400</bug_when>
+    <thetext>Created attachment 1180035
+Use %{python_sitelib}
+
+Will this changes in tracer.spec be good enough?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9516911</commentid>
+    <comment_count>3</comment_count>
+    <who name="Tomas Orsava">torsava</who>
+    <bug_when>2016-07-18 06:01:16 -0400</bug_when>
+    <thetext>Hi Jakub!
+
+I believe that is not sufficient. The main problem is that your package should be split into 2 subpackages: one for Python 2 and one for Python 3.
+
+There is a guide on how to do this, step by step, I highly recommend it:
+
+http://python-rpm-porting.readthedocs.io</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9538986</commentid>
+    <comment_count>4</comment_count>
+      <attachid>1182669</attachid>
+    <who name="Jakub Kadlčík">jkadlcik</who>
+    <bug_when>2016-07-21 17:33:41 -0400</bug_when>
+    <thetext>Created attachment 1182669
+Split package into separate python2 and python3 subpackages
+
+Thank you Tomas for that tip.
+
+I&apos;ve tried to rewrite the .spec file according to documentation that you posted, but there are few things that differs.
+
+First, naming. The guide describes how to port python-foo into python2-foo and python3-foo packages. But in this case we even want to have foo package.
+
+Second, that guide assumes that package is installed by `%{__python} setup.py install` while tracer is not.
+
+I gave it my best and tried to improvise. Does this patch looks better for you?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9549214</commentid>
+    <comment_count>5</comment_count>
+    <who name="Jan Kurik">jkurik</who>
+    <bug_when>2016-07-26 00:25:05 -0400</bug_when>
+    <thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 25 development cycle.
+Changing version to &apos;25&apos;.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9558126</commentid>
+    <comment_count>6</comment_count>
+    <who name="Tomas Orsava">torsava</who>
+    <bug_when>2016-07-27 07:24:35 -0400</bug_when>
+    <thetext>Hi Jakub!
+
+There are some problems with the spec file:
+
+- Use this line underneath the definition of the Python 2 subpackage: `Provides: %{name} = %{version}-%{release}`
+That will make the package available also under the name &apos;tracer&apos;.
+And get rid of this line in your spec: `Requires:	python3-%{name} = %{version}-%{release}`
+
+- For the two descriptions of the subpackages, copy the entire description there.
+
+- You can use a different installation method, that&apos;s fine. However, I suggest not to just copy the executable to the /usr/bin/tracer position. I suggest you use a symlink to /usr/bin/tracer-2 instead. If there are both Python versions of the executable available, guidelines say that the binary without the number should launch the python 2 version.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9563148</commentid>
+    <comment_count>7</comment_count>
+    <who name="Jakub Kadlčík">jkadlcik</who>
+    <bug_when>2016-07-28 08:13:55 -0400</bug_when>
+    <thetext>&gt; Use this line [...] And get rid of this line ...
+
+Yeah, much better. Thank you
+However now there is a problem, because when I install tracer package, it will not drag python?-tracer as a dependency, so it will not install any files.
+
+&gt; For the two descriptions of the subpackages, copy the entire description there
+
+Well, ok. But it is kind of inconvenient
+
+&gt; I suggest you use a symlink to /usr/bin/tracer-2 instead
+
+Sure, no problem
+
+&gt; guidelines say that the binary without the number should launch the python 2 version.
+
+I saw binary file in python3 subpackage here http://python-rpm-porting.readthedocs.io/en/latest/application-modules.html#ported-rpm-spec-file , so I thought that should be there. But no problem I changed it.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9563176</commentid>
+    <comment_count>8</comment_count>
+      <attachid>1185063</attachid>
+    <who name="Jakub Kadlčík">jkadlcik</who>
+    <bug_when>2016-07-28 08:17:09 -0400</bug_when>
+    <thetext>Created attachment 1185063
+Suggested changes</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9563313</commentid>
+    <comment_count>9</comment_count>
+    <who name="Tomas Orsava">torsava</who>
+    <bug_when>2016-07-28 08:33:27 -0400</bug_when>
+    <thetext>(In reply to Jakub Kadlčík from comment #7)
+&gt; &gt; Use this line [...] And get rid of this line ...
+&gt; 
+&gt; Yeah, much better. Thank you
+&gt; However now there is a problem, because when I install tracer package, it
+&gt; will not drag python?-tracer as a dependency, so it will not install any
+&gt; files.
+
+That is slightly incorrect. The &apos;Provides&apos; tag works kind of like a symlink, or an icon. If you do &apos;dnf install tracer&apos;, it will actually install the &apos;python2-tracer&apos; package. So no problems should arise.
+
+&gt; 
+&gt; &gt; For the two descriptions of the subpackages, copy the entire description there
+&gt; 
+&gt; Well, ok. But it is kind of inconvenient
+&gt; 
+&gt; &gt; I suggest you use a symlink to /usr/bin/tracer-2 instead
+&gt; 
+&gt; Sure, no problem
+&gt; 
+&gt; &gt; guidelines say that the binary without the number should launch the python 2 version.
+&gt; 
+&gt; I saw binary file in python3 subpackage here
+&gt; http://python-rpm-porting.readthedocs.io/en/latest/application-modules.
+&gt; html#ported-rpm-spec-file , so I thought that should be there. But no
+&gt; problem I changed it.
+
+That is a slightly different case: If you want to package only 1 version of the executable, it should be the Python 3 version. But because you want to package both Python 2 and Python 3 versions of the executable, the unversioned executable should be in the Python 2 subpackage. See this section: 
+
+http://python-rpm-porting.readthedocs.io/en/latest/tools.html#ported-rpm-spec-file</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9563327</commentid>
+    <comment_count>10</comment_count>
+    <who name="Tomas Orsava">torsava</who>
+    <bug_when>2016-07-28 08:37:52 -0400</bug_when>
+    <thetext>I think the patch looks good, though I suggest you test it first, for example in mock).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9566143</commentid>
+    <comment_count>11</comment_count>
+    <who name="Jakub Kadlčík">jkadlcik</who>
+    <bug_when>2016-07-29 04:11:17 -0400</bug_when>
+    <thetext>&gt; If you do &apos;dnf install tracer&apos;, it will actually install the &apos;python2-tracer&apos; package. So no problems should arise.
+
+Well my experience is different.
+
+I just built tracer in Copr [1], enabled the repository on my machine and did `dnf install tracer`. It installed only tracer package without python2-tracer, so
+
+[vagrant@localhost ~]$ rpm -ql tracer
+(contains no files)
+
+[vagrant@localhost ~]$ rpm -ql python2-tracer
+package python2-tracer is not installed
+
+[vagrant@localhost ~]$ rpm -ql python3-tracer
+package python3-tracer is not installed
+
+[vagrant@localhost ~]$ ls /usr/bin/tracer*
+ls: cannot access /usr/bin/tracer*: No such file or directory
+
+
+
+[1] https://copr.fedorainfracloud.org/coprs/frostyx/tracer/build/428836/</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9566238</commentid>
+    <comment_count>12</comment_count>
+    <who name="Petr Viktorin">pviktori</who>
+    <bug_when>2016-07-29 04:46:47 -0400</bug_when>
+    <thetext>The problem is that there is an empty &quot;%files&quot; section:
+
+...
+-%files -f %{name}.lang
+-%doc LICENSE README.md
++%files
++%files -n python2-%{name} -f %{name}.lang
++%license LICENSE
++%doc README.md
+...
+
+You want only &quot;%files -n python2-%{name}&quot; and &quot;%files -n python3-%{name}&quot;, not &quot;%files&quot;. That way the empty &quot;tracer&quot; binary package won&apos;t be built.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9572513</commentid>
+    <comment_count>13</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-01 06:58:05 -0400</bug_when>
+    <thetext>tracer-0.6.10-1.fc23 has been submitted as an update to Fedora 23. https://bodhi.fedoraproject.org/updates/FEDORA-2016-5ddfc70876</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9572516</commentid>
+    <comment_count>14</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-01 06:58:18 -0400</bug_when>
+    <thetext>tracer-0.6.10-1.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-86aee67549</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9574474</commentid>
+    <comment_count>15</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-01 16:53:38 -0400</bug_when>
+    <thetext>tracer-0.6.10-1.fc23 has been pushed to the Fedora 23 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-5ddfc70876</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9574506</commentid>
+    <comment_count>16</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-01 16:56:54 -0400</bug_when>
+    <thetext>tracer-0.6.10-1.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-86aee67549</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9586848</commentid>
+    <comment_count>17</comment_count>
+    <who name="Jakub Kadlčík">jkadlcik</who>
+    <bug_when>2016-08-04 17:21:10 -0400</bug_when>
+    <thetext>Well, I don&apos;t know.
+
+sudo dnf --enablerepo=updates-testing --refresh --best install tracer
+
+still gets 0.6.9-1.fc23 from @updates. However when I try
+
+sudo dnf --enablerepo=updates-testing --refresh --best install python2-tracer
+
+I get 0.6.10-1.fc23 from @updates-testing
+
+Am I missing something? Is it supposed to work this way or the spec file is still wrong?
+
+
+Thank you guys for helping.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9588296</commentid>
+    <comment_count>18</comment_count>
+    <who name="Tomas Orsava">torsava</who>
+    <bug_when>2016-08-05 06:39:22 -0400</bug_when>
+    <thetext>Hi Jakub!
+
+When I try this command, it looks correct:
+
+$ dnf --enablerepo=updates-testing --refresh repoquery --provides python2-tracer
+...
+python-tracer = 0.6.10-1.fc23
+python2-tracer = 0.6.10-1.fc23
+tracer = 0.6.10-1.fc23
+
+Therefore I think this may be just an issue of the testing repos.
+
+You can add also a `Obsoletes:      %{name} &lt;= %{version}-%{release}` tag underneath the `Provides` tag to be absolutely sure.
+
+Alternatively, try pushing to stable. If the problem persists, the only harm will be that people using `tracer` won&apos;t get the update just yet, and you can add the Obsoletes tag.
+
+P.S. I believe you forgot to push your update to the newly created `f25` branch.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9590540</commentid>
+    <comment_count>19</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-06 06:01:04 -0400</bug_when>
+    <thetext>tracer-0.6.11-1.fc23 has been submitted as an update to Fedora 23. https://bodhi.fedoraproject.org/updates/FEDORA-2016-2d83b8297f</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9590543</commentid>
+    <comment_count>20</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-06 06:01:16 -0400</bug_when>
+    <thetext>tracer-0.6.11-1.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-286047f96a</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9596026</commentid>
+    <comment_count>21</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-08 21:23:01 -0400</bug_when>
+    <thetext>tracer-0.6.11-1.fc23 has been pushed to the Fedora 23 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-2d83b8297f</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9596069</commentid>
+    <comment_count>22</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-08 21:26:57 -0400</bug_when>
+    <thetext>tracer-0.6.11-1.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-286047f96a</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9636845</commentid>
+    <comment_count>23</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-22 12:53:02 -0400</bug_when>
+    <thetext>tracer-0.6.11-1.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9637328</commentid>
+    <comment_count>24</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-22 15:20:30 -0400</bug_when>
+    <thetext>tracer-0.6.11-1.fc23 has been pushed to the Fedora 23 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="1"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1180035</attachid>
+            <date>2016-07-15 01:10:00 -0400</date>
+            <delta_ts>2016-07-21 17:33:41 -0400</delta_ts>
+            <desc>Use %{python_sitelib}</desc>
+            <filename>0001-Don-t-install-both-python2-and-python3-libraries.patch</filename>
+            <type>text/plain</type>
+            <size>2000</size>
+            <attacher name="Jakub Kadlčík">jkadlcik</attacher>
+            
+              <data encoding="base64">RnJvbSBlZjc5OGU5ZTU1YWVmMmVkYjY2ZDc5NzExZDZiYTdmYzZlYTc3NjZjIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiA9P1VURi04P3E/SmFrdWI9MjBLYWRsPUM0PThEPUMzPUFEaz89
+IDxmcm9zdHl4QGVtYWlsLmN6PgpEYXRlOiBGcmksIDE1IEp1bCAyMDE2IDA3OjAyOjQzICswMjAw
+ClN1YmplY3Q6IFtQQVRDSF0gRG9uJ3QgaW5zdGFsbCBib3RoIHB5dGhvbjIgYW5kIHB5dGhvbjMg
+bGlicmFyaWVzCgotLS0KIHRyYWNlci5zcGVjIHwgMTMgKysrKystLS0tLS0tLQogMSBmaWxlIGNo
+YW5nZWQsIDUgaW5zZXJ0aW9ucygrKSwgOCBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS90cmFj
+ZXIuc3BlYyBiL3RyYWNlci5zcGVjCmluZGV4IGIxODY0NjUuLjA4NmVjODYgMTAwNjQ0Ci0tLSBh
+L3RyYWNlci5zcGVjCisrKyBiL3RyYWNlci5zcGVjCkBAIC0xNSw5ICsxNSw4IEBAIFNvdXJjZTA6
+CSV7bmFtZX0tJXt2ZXJzaW9ufS50YXIuZ3oKIAogQnVpbGRSZXF1aXJlczoJYXNjaWlkb2MKIEJ1
+aWxkUmVxdWlyZXM6CWdldHRleHQKLUJ1aWxkUmVxdWlyZXM6CXB5dGhvbjItZGV2ZWwKLUJ1aWxk
+UmVxdWlyZXM6CXB5dGhvbjMtZGV2ZWwKICVpZiAwJXs/d2l0aF9weXRob24zfQorQnVpbGRSZXF1
+aXJlczoJcHl0aG9uMy1kZXZlbAogQnVpbGRSZXF1aXJlczoJcHl0aG9uMy1zcGhpbngKIEJ1aWxk
+UmVxdWlyZXM6CXB5dGhvbjMtYmVhdXRpZnVsc291cDQKIEJ1aWxkUmVxdWlyZXM6CXB5dGhvbjMt
+cHN1dGlsCkBAIC0yOCw2ICsyNyw3IEBAIFJlcXVpcmVzOglweXRob24zCiBSZXF1aXJlczoJcHl0
+aG9uMy1iZWF1dGlmdWxzb3VwNAogUmVxdWlyZXM6CXB5dGhvbjMtcHN1dGlsCiAlZWxzZQorQnVp
+bGRSZXF1aXJlczoJcHl0aG9uMi1kZXZlbAogQnVpbGRSZXF1aXJlczoJcHl0aG9uLXNwaGlueAog
+QnVpbGRSZXF1aXJlczoJcHl0aG9uLWJlYXV0aWZ1bHNvdXA0CiBCdWlsZFJlcXVpcmVzOglweXRo
+b24tcHN1dGlsCkBAIC01OSwxMiArNTksMTAgQEAgbWFrZSAlez9fc21wX21mbGFnc30gbWFuCiBt
+a2RpciAtcCAle2J1aWxkcm9vdH0vJXtfYmluZGlyfQogbWtkaXIgLXAgJXtidWlsZHJvb3R9LyV7
+X2RhdGFkaXJ9L3RyYWNlcgogbWtkaXIgLXAgJXtidWlsZHJvb3R9JXtfbWFuZGlyfS9tYW44Ci1t
+a2RpciAtcCAle2J1aWxkcm9vdH0vJXtweXRob24yX3NpdGVsaWJ9L3RyYWNlcgotbWtkaXIgLXAg
+JXtidWlsZHJvb3R9LyV7cHl0aG9uM19zaXRlbGlifS90cmFjZXIKK21rZGlyIC1wICV7YnVpbGRy
+b290fS8le3B5dGhvbl9zaXRlbGlifS90cmFjZXIKIGNwIC1hIGJpbi90cmFjZXIucHkgJXtidWls
+ZHJvb3R9LyV7X2JpbmRpcn0vdHJhY2VyCiBjcCAtYSBkYXRhLyogJXtidWlsZHJvb3R9LyV7X2Rh
+dGFkaXJ9L3RyYWNlci8KLWNwIC1hciB0cmFjZXIvKiB0ZXN0cyAle2J1aWxkcm9vdH0vJXtweXRo
+b24yX3NpdGVsaWJ9L3RyYWNlci8KLWNwIC1hciB0cmFjZXIvKiB0ZXN0cyAle2J1aWxkcm9vdH0v
+JXtweXRob24zX3NpdGVsaWJ9L3RyYWNlci8KK2NwIC1hciB0cmFjZXIvKiB0ZXN0cyAle2J1aWxk
+cm9vdH0vJXtweXRob25fc2l0ZWxpYn0vdHJhY2VyLwogaW5zdGFsbCAtbTY0NCBkb2MvYnVpbGQv
+bWFuL3RyYWNlci44ICV7YnVpbGRyb290fS8le19tYW5kaXJ9L21hbjgvCiBtYWtlIERFU1RESVI9
+JXtidWlsZHJvb3R9L3Vzci9zaGFyZS8gbW8KICVmaW5kX2xhbmcgJXtuYW1lfQpAQCAtNzUsOCAr
+NzMsNyBAQCBtYWtlIERFU1RESVI9JXtidWlsZHJvb3R9L3Vzci9zaGFyZS8gbW8KICVkb2MgJXtf
+bWFuZGlyfS9tYW44L3RyYWNlci44KgogJXtfYmluZGlyfS90cmFjZXIKICV7X2RhdGFkaXJ9L3Ry
+YWNlci8KLSV7cHl0aG9uMl9zaXRlbGlifS90cmFjZXIvCi0le3B5dGhvbjNfc2l0ZWxpYn0vdHJh
+Y2VyLworJXtweXRob25fc2l0ZWxpYn0vdHJhY2VyLwogCiAlY2hhbmdlbG9nCiAqIFRodSBBcHIg
+MTQgMjAxNiBKYWt1YiBLYWRsxI3DrWsgPGZyb3N0eXhAZW1haWwuY3o+IDAuNi45LTEKLS0gCjIu
+NS41Cgo=
+</data>
+
+          </attachment>
+          <attachment
+              isobsolete="0"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1182669</attachid>
+            <date>2016-07-21 17:33:00 -0400</date>
+            <delta_ts>2016-07-21 17:33:41 -0400</delta_ts>
+            <desc>Split package into separate python2 and python3 subpackages</desc>
+            <filename>0001-Split-RPM-package-into-separate-python2-and-python3-.patch</filename>
+            <type>text/plain</type>
+            <size>3958</size>
+            <attacher name="Jakub Kadlčík">jkadlcik</attacher>
+            
+              <data encoding="base64">RnJvbSA0OWNiZmQ2MTE1ZTRmOGI4YmI2OWI5ZGM3ZGFkOWFmM2YyMWI0MzAzIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiA9P1VURi04P3E/SmFrdWI9MjBLYWRsPUM0PThEPUMzPUFEaz89
+IDxmcm9zdHl4QGVtYWlsLmN6PgpEYXRlOiBGcmksIDE1IEp1bCAyMDE2IDA3OjAyOjQzICswMjAw
+ClN1YmplY3Q6IFtQQVRDSF0gU3BsaXQgUlBNIHBhY2thZ2UgaW50byBzZXBhcmF0ZSBweXRob24y
+IGFuZCBweXRob24zCiBzdWJwYWNrYWdlcwoKLS0tCiB0cmFjZXIuc3BlYyB8IDc4ICsrKysrKysr
+KysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKy0tLS0tLS0tLS0tLS0tLS0KIDEg
+ZmlsZSBjaGFuZ2VkLCA1OCBpbnNlcnRpb25zKCspLCAyMCBkZWxldGlvbnMoLSkKCmRpZmYgLS1n
+aXQgYS90cmFjZXIuc3BlYyBiL3RyYWNlci5zcGVjCmluZGV4IGIxODY0NjUuLjRjNjYwMDAgMTAw
+NjQ0Ci0tLSBhL3RyYWNlci5zcGVjCisrKyBiL3RyYWNlci5zcGVjCkBAIC0xMywyMSArMTMsMTQg
+QEAgVVJMOgkJaHR0cDovL3RyYWNlci1wYWNrYWdlLmNvbS8KICMgdGl0byBidWlsZCAtLXRnegog
+U291cmNlMDoJJXtuYW1lfS0le3ZlcnNpb259LnRhci5negogCi1CdWlsZFJlcXVpcmVzOglhc2Np
+aWRvYwotQnVpbGRSZXF1aXJlczoJZ2V0dGV4dAogQnVpbGRSZXF1aXJlczoJcHl0aG9uMi1kZXZl
+bAogQnVpbGRSZXF1aXJlczoJcHl0aG9uMy1kZXZlbAotJWlmIDAlez93aXRoX3B5dGhvbjN9Ci1C
+dWlsZFJlcXVpcmVzOglweXRob24zLXNwaGlueAotQnVpbGRSZXF1aXJlczoJcHl0aG9uMy1iZWF1
+dGlmdWxzb3VwNAotQnVpbGRSZXF1aXJlczoJcHl0aG9uMy1wc3V0aWwKLUJ1aWxkUmVxdWlyZXM6
+CXB5dGhvbjMtcHlnbWVudHMKLUJ1aWxkUmVxdWlyZXM6CXB5dGhvbjMtbHhtbAotUmVxdWlyZXM6
+CXJwbS1weXRob24zCi1SZXF1aXJlczoJcHl0aG9uMwotUmVxdWlyZXM6CXB5dGhvbjMtYmVhdXRp
+ZnVsc291cDQKLVJlcXVpcmVzOglweXRob24zLXBzdXRpbAotJWVsc2UKK0J1aWxkUmVxdWlyZXM6
+CWFzY2lpZG9jCitCdWlsZFJlcXVpcmVzOglnZXR0ZXh0CitSZXF1aXJlczoJcHl0aG9uMy0le25h
+bWV9ID0gJXt2ZXJzaW9ufS0le3JlbGVhc2V9CisKKyVwYWNrYWdlIC1uIHB5dGhvbjItJXtuYW1l
+fQorU3VtbWFyeToJCSV7c3VtbWFyeX0KIEJ1aWxkUmVxdWlyZXM6CXB5dGhvbi1zcGhpbngKIEJ1
+aWxkUmVxdWlyZXM6CXB5dGhvbi1iZWF1dGlmdWxzb3VwNAogQnVpbGRSZXF1aXJlczoJcHl0aG9u
+LXBzdXRpbApAQCAtMzcsNyArMzAsMjEgQEAgUmVxdWlyZXM6CXJwbS1weXRob24KIFJlcXVpcmVz
+OglweXRob24KIFJlcXVpcmVzOglweXRob24tYmVhdXRpZnVsc291cDQKIFJlcXVpcmVzOglweXRo
+b24tcHN1dGlsCi0lZW5kaWYKKyV7P3B5dGhvbl9wcm92aWRlOiVweXRob25fcHJvdmlkZSBweXRo
+b24yLSV7bmFtZX19CisKKyVwYWNrYWdlIC1uIHB5dGhvbjMtJXtuYW1lfQorU3VtbWFyeToJCSV7
+c3VtbWFyeX0KK0J1aWxkUmVxdWlyZXM6CXB5dGhvbjMtc3BoaW54CitCdWlsZFJlcXVpcmVzOglw
+eXRob24zLWJlYXV0aWZ1bHNvdXA0CitCdWlsZFJlcXVpcmVzOglweXRob24zLXBzdXRpbAorQnVp
+bGRSZXF1aXJlczoJcHl0aG9uMy1weWdtZW50cworQnVpbGRSZXF1aXJlczoJcHl0aG9uMy1seG1s
+CitSZXF1aXJlczoJcnBtLXB5dGhvbjMKK1JlcXVpcmVzOglweXRob24zCitSZXF1aXJlczoJcHl0
+aG9uMy1iZWF1dGlmdWxzb3VwNAorUmVxdWlyZXM6CXB5dGhvbjMtcHN1dGlsCislez9weXRob25f
+cHJvdmlkZTolcHl0aG9uX3Byb3ZpZGUgcHl0aG9uMy0le25hbWV9fQorCiAKICVkZXNjcmlwdGlv
+bgogVHJhY2VyIGRldGVybWluZXMgd2hpY2ggYXBwbGljYXRpb25zIHVzZSBvdXRkYXRlZCBmaWxl
+cyBhbmQgcHJpbnRzIHRoZW0uIEZvcgpAQCAtNDcsMjEgKzU0LDQxIEBAIHNpbXBsZSBpZGVhLiBJ
+ZiBhcHBsaWNhdGlvbiBoYXMgbG9hZGVkIGluIG1lbW9yeSBhbnkgdmVyc2lvbiBvZiBhIGZpbGUK
+IHdoaWNoIGlzIHByb3ZpZGVkIGJ5IGFueSBwYWNrYWdlIHVwZGF0ZWQgc2luY2Ugc3lzdGVtIHdh
+cyBib290ZWQgdXAsIHRyYWNlcgogY29uc2lkZXIgdGhpcyBhcHBsaWNhdGlvbiBhcyBvdXRkYXRl
+ZC4KIAorJWRlc2NyaXB0aW9uIC1uIHB5dGhvbjItJXtuYW1lfQorUHl0aG9uIDIgcGFja2FnZSBm
+b3IgJXtuYW1lfQorCislZGVzY3JpcHRpb24gLW4gcHl0aG9uMy0le25hbWV9CitQeXRob24gMyBw
+YWNrYWdlIGZvciAle25hbWV9CisKKwogJXByZXAKICVzZXR1cCAtcQogCiAKICVidWlsZAorJXB5
+Ml9idWlsZAorJXB5M19idWlsZAogbWFrZSAlez9fc21wX21mbGFnc30gbWFuCitzZWQgInMvXC91
+c3JcL2JpblwvcHl0aG9uL1wvdXNyXC9iaW5cL3B5dGhvbjIvIiBiaW4vdHJhY2VyLnB5ID4gYmlu
+L3RyYWNlci0yCitzZWQgInMvXC91c3JcL2JpblwvcHl0aG9uL1wvdXNyXC9iaW5cL3B5dGhvbjMv
+IiBiaW4vdHJhY2VyLnB5ID4gYmluL3RyYWNlci0zCitzZWQgInMvXC91c3JcL2JpblwvcHl0aG9u
+L1wvdXNyXC9iaW5cL3B5dGhvbjMvIiBiaW4vdHJhY2VyLnB5ID4gYmluL3RyYWNlcgorY2htb2Qg
+K3ggYmluL3RyYWNlci0yIGJpbi90cmFjZXItMyBiaW4vdHJhY2VyCiAKIAogJWluc3RhbGwKKyMg
+QFRPRE8gdXNlIGZvbGxvd2luZyBtYWNyb3MKKyMgJSVweTJfaW5zdGFsbAorIyAlJXB5M19pbnN0
+YWxsCiBta2RpciAtcCAle2J1aWxkcm9vdH0vJXtfYmluZGlyfQogbWtkaXIgLXAgJXtidWlsZHJv
+b3R9LyV7X2RhdGFkaXJ9L3RyYWNlcgotbWtkaXIgLXAgJXtidWlsZHJvb3R9JXtfbWFuZGlyfS9t
+YW44Citta2RpciAtcCAle2J1aWxkcm9vdH0vJXtfbWFuZGlyfS9tYW44CiBta2RpciAtcCAle2J1
+aWxkcm9vdH0vJXtweXRob24yX3NpdGVsaWJ9L3RyYWNlcgogbWtkaXIgLXAgJXtidWlsZHJvb3R9
+LyV7cHl0aG9uM19zaXRlbGlifS90cmFjZXIKLWNwIC1hIGJpbi90cmFjZXIucHkgJXtidWlsZHJv
+b3R9LyV7X2JpbmRpcn0vdHJhY2VyCisKK2NwIC1hIGJpbi90cmFjZXItMiAle2J1aWxkcm9vdH0v
+JXtfYmluZGlyfS8KK2NwIC1hIGJpbi90cmFjZXItMyAle2J1aWxkcm9vdH0vJXtfYmluZGlyfS8K
+K2NwIC1hIGJpbi90cmFjZXIgJXtidWlsZHJvb3R9LyV7X2JpbmRpcn0vCisKIGNwIC1hIGRhdGEv
+KiAle2J1aWxkcm9vdH0vJXtfZGF0YWRpcn0vdHJhY2VyLwogY3AgLWFyIHRyYWNlci8qIHRlc3Rz
+ICV7YnVpbGRyb290fS8le3B5dGhvbjJfc2l0ZWxpYn0vdHJhY2VyLwogY3AgLWFyIHRyYWNlci8q
+IHRlc3RzICV7YnVpbGRyb290fS8le3B5dGhvbjNfc2l0ZWxpYn0vdHJhY2VyLwpAQCAtNzAsMTMg
+Kzk3LDI0IEBAIG1ha2UgREVTVERJUj0le2J1aWxkcm9vdH0vdXNyL3NoYXJlLyBtbwogJWZpbmRf
+bGFuZyAle25hbWV9CiAKIAotJWZpbGVzIC1mICV7bmFtZX0ubGFuZwotJWRvYyBMSUNFTlNFIFJF
+QURNRS5tZAorJWZpbGVzCislZmlsZXMgLW4gcHl0aG9uMi0le25hbWV9IC1mICV7bmFtZX0ubGFu
+ZworJWxpY2Vuc2UgTElDRU5TRQorJWRvYyBSRUFETUUubWQKKyV7cHl0aG9uMl9zaXRlbGlifS90
+cmFjZXIKKyV7X2JpbmRpcn0vdHJhY2VyLTIKKyV7X2RhdGFkaXJ9L3RyYWNlci8KICVkb2MgJXtf
+bWFuZGlyfS9tYW44L3RyYWNlci44KgorCislZmlsZXMgLW4gcHl0aG9uMy0le25hbWV9IC1mICV7
+bmFtZX0ubGFuZworJWxpY2Vuc2UgTElDRU5TRQorJWRvYyBSRUFETUUubWQKKyV7cHl0aG9uM19z
+aXRlbGlifS90cmFjZXIKKyV7X2JpbmRpcn0vdHJhY2VyLTMKICV7X2JpbmRpcn0vdHJhY2VyCiAl
+e19kYXRhZGlyfS90cmFjZXIvCi0le3B5dGhvbjJfc2l0ZWxpYn0vdHJhY2VyLwotJXtweXRob24z
+X3NpdGVsaWJ9L3RyYWNlci8KKyVkb2MgJXtfbWFuZGlyfS9tYW44L3RyYWNlci44KgorCiAKICVj
+aGFuZ2Vsb2cKICogVGh1IEFwciAxNCAyMDE2IEpha3ViIEthZGzEjcOtayA8ZnJvc3R5eEBlbWFp
+bC5jej4gMC42LjktMQotLSAKMi41LjUKCg==
+</data>
+
+          </attachment>
+          <attachment
+              isobsolete="0"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1185063</attachid>
+            <date>2016-07-28 08:17:00 -0400</date>
+            <delta_ts>2016-07-28 08:17:09 -0400</delta_ts>
+            <desc>Suggested changes</desc>
+            <filename>0001-More-changes-in-.spec-file.patch</filename>
+            <type>text/plain</type>
+            <size>3108</size>
+            <attacher name="Jakub Kadlčík">jkadlcik</attacher>
+            
+              <data encoding="base64">RnJvbSA5MTRlZDRmNzBhYWQ2N2EwODEyN2UwNTEyYTk3ODg2NjQyYzZhYjMwIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiA9P1VURi04P3E/SmFrdWI9MjBLYWRsPUM0PThEPUMzPUFEaz89
+IDxmcm9zdHl4QGVtYWlsLmN6PgpEYXRlOiBUaHUsIDI4IEp1bCAyMDE2IDE0OjA1OjU2ICswMjAw
+ClN1YmplY3Q6IFtQQVRDSF0gTW9yZSBjaGFuZ2VzIGluIC5zcGVjIGZpbGUKCi0tLQogdHJhY2Vy
+LnNwZWMgfCAyMyArKysrKysrKysrKysrKysrLS0tLS0tLQogMSBmaWxlIGNoYW5nZWQsIDE2IGlu
+c2VydGlvbnMoKyksIDcgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvdHJhY2VyLnNwZWMgYi90
+cmFjZXIuc3BlYwppbmRleCA0YzY2MDAwLi4zNzU2NzNkIDEwMDY0NAotLS0gYS90cmFjZXIuc3Bl
+YworKysgYi90cmFjZXIuc3BlYwpAQCAtMTcsMTAgKzE3LDEwIEBAIEJ1aWxkUmVxdWlyZXM6CXB5
+dGhvbjItZGV2ZWwKIEJ1aWxkUmVxdWlyZXM6CXB5dGhvbjMtZGV2ZWwKIEJ1aWxkUmVxdWlyZXM6
+CWFzY2lpZG9jCiBCdWlsZFJlcXVpcmVzOglnZXR0ZXh0Ci1SZXF1aXJlczoJcHl0aG9uMy0le25h
+bWV9ID0gJXt2ZXJzaW9ufS0le3JlbGVhc2V9CiAKICVwYWNrYWdlIC1uIHB5dGhvbjItJXtuYW1l
+fQogU3VtbWFyeToJCSV7c3VtbWFyeX0KK1Byb3ZpZGVzOgkJJXtuYW1lfSA9ICV7dmVyc2lvbn0t
+JXtyZWxlYXNlfQogQnVpbGRSZXF1aXJlczoJcHl0aG9uLXNwaGlueAogQnVpbGRSZXF1aXJlczoJ
+cHl0aG9uLWJlYXV0aWZ1bHNvdXA0CiBCdWlsZFJlcXVpcmVzOglweXRob24tcHN1dGlsCkBAIC01
+NSwxMCArNTUsMjAgQEAgd2hpY2ggaXMgcHJvdmlkZWQgYnkgYW55IHBhY2thZ2UgdXBkYXRlZCBz
+aW5jZSBzeXN0ZW0gd2FzIGJvb3RlZCB1cCwgdHJhY2VyCiBjb25zaWRlciB0aGlzIGFwcGxpY2F0
+aW9uIGFzIG91dGRhdGVkLgogCiAlZGVzY3JpcHRpb24gLW4gcHl0aG9uMi0le25hbWV9Ci1QeXRo
+b24gMiBwYWNrYWdlIGZvciAle25hbWV9CitUcmFjZXIgZGV0ZXJtaW5lcyB3aGljaCBhcHBsaWNh
+dGlvbnMgdXNlIG91dGRhdGVkIGZpbGVzIGFuZCBwcmludHMgdGhlbS4gRm9yCitzcGVjaWFsIGtp
+bmQgb2YgYXBwbGljYXRpb25zIHN1Y2ggYXMgc2VydmljZXMgb3IgZGFlbW9ucywgaXQgc3VnZ2Vz
+dHMgYSBzdGFuZGFyZAorY29tbWFuZCB0byByZXN0YXJ0IGl0LiBEZXRlY3Rpbmcgd2hldGhlciBm
+aWxlIGlzIG91dGRhdGVkIG9yIG5vdCBpcyBiYXNlZCBvbiBhCitzaW1wbGUgaWRlYS4gSWYgYXBw
+bGljYXRpb24gaGFzIGxvYWRlZCBpbiBtZW1vcnkgYW55IHZlcnNpb24gb2YgYSBmaWxlCit3aGlj
+aCBpcyBwcm92aWRlZCBieSBhbnkgcGFja2FnZSB1cGRhdGVkIHNpbmNlIHN5c3RlbSB3YXMgYm9v
+dGVkIHVwLCB0cmFjZXIKK2NvbnNpZGVyIHRoaXMgYXBwbGljYXRpb24gYXMgb3V0ZGF0ZWQuCiAK
+ICVkZXNjcmlwdGlvbiAtbiBweXRob24zLSV7bmFtZX0KLVB5dGhvbiAzIHBhY2thZ2UgZm9yICV7
+bmFtZX0KK1RyYWNlciBkZXRlcm1pbmVzIHdoaWNoIGFwcGxpY2F0aW9ucyB1c2Ugb3V0ZGF0ZWQg
+ZmlsZXMgYW5kIHByaW50cyB0aGVtLiBGb3IKK3NwZWNpYWwga2luZCBvZiBhcHBsaWNhdGlvbnMg
+c3VjaCBhcyBzZXJ2aWNlcyBvciBkYWVtb25zLCBpdCBzdWdnZXN0cyBhIHN0YW5kYXJkCitjb21t
+YW5kIHRvIHJlc3RhcnQgaXQuIERldGVjdGluZyB3aGV0aGVyIGZpbGUgaXMgb3V0ZGF0ZWQgb3Ig
+bm90IGlzIGJhc2VkIG9uIGEKK3NpbXBsZSBpZGVhLiBJZiBhcHBsaWNhdGlvbiBoYXMgbG9hZGVk
+IGluIG1lbW9yeSBhbnkgdmVyc2lvbiBvZiBhIGZpbGUKK3doaWNoIGlzIHByb3ZpZGVkIGJ5IGFu
+eSBwYWNrYWdlIHVwZGF0ZWQgc2luY2Ugc3lzdGVtIHdhcyBib290ZWQgdXAsIHRyYWNlcgorY29u
+c2lkZXIgdGhpcyBhcHBsaWNhdGlvbiBhcyBvdXRkYXRlZC4KIAogCiAlcHJlcApAQCAtNzEsOCAr
+ODEsNyBAQCBQeXRob24gMyBwYWNrYWdlIGZvciAle25hbWV9CiBtYWtlICV7P19zbXBfbWZsYWdz
+fSBtYW4KIHNlZCAicy9cL3VzclwvYmluXC9weXRob24vXC91c3JcL2JpblwvcHl0aG9uMi8iIGJp
+bi90cmFjZXIucHkgPiBiaW4vdHJhY2VyLTIKIHNlZCAicy9cL3VzclwvYmluXC9weXRob24vXC91
+c3JcL2JpblwvcHl0aG9uMy8iIGJpbi90cmFjZXIucHkgPiBiaW4vdHJhY2VyLTMKLXNlZCAicy9c
+L3VzclwvYmluXC9weXRob24vXC91c3JcL2JpblwvcHl0aG9uMy8iIGJpbi90cmFjZXIucHkgPiBi
+aW4vdHJhY2VyCi1jaG1vZCAreCBiaW4vdHJhY2VyLTIgYmluL3RyYWNlci0zIGJpbi90cmFjZXIK
+K2NobW9kICt4IGJpbi90cmFjZXItMiBiaW4vdHJhY2VyLTMKIAogCiAlaW5zdGFsbApAQCAtODcs
+NyArOTYsNyBAQCBta2RpciAtcCAle2J1aWxkcm9vdH0vJXtweXRob24zX3NpdGVsaWJ9L3RyYWNl
+cgogCiBjcCAtYSBiaW4vdHJhY2VyLTIgJXtidWlsZHJvb3R9LyV7X2JpbmRpcn0vCiBjcCAtYSBi
+aW4vdHJhY2VyLTMgJXtidWlsZHJvb3R9LyV7X2JpbmRpcn0vCi1jcCAtYSBiaW4vdHJhY2VyICV7
+YnVpbGRyb290fS8le19iaW5kaXJ9LworbG4gLXMgJXtfYmluZGlyfS90cmFjZXItMiAle2J1aWxk
+cm9vdH0vJXtfYmluZGlyfS90cmFjZXIKIAogY3AgLWEgZGF0YS8qICV7YnVpbGRyb290fS8le19k
+YXRhZGlyfS90cmFjZXIvCiBjcCAtYXIgdHJhY2VyLyogdGVzdHMgJXtidWlsZHJvb3R9LyV7cHl0
+aG9uMl9zaXRlbGlifS90cmFjZXIvCkBAIC0xMDMsNiArMTEyLDcgQEAgbWFrZSBERVNURElSPSV7
+YnVpbGRyb290fS91c3Ivc2hhcmUvIG1vCiAlZG9jIFJFQURNRS5tZAogJXtweXRob24yX3NpdGVs
+aWJ9L3RyYWNlcgogJXtfYmluZGlyfS90cmFjZXItMgorJXtfYmluZGlyfS90cmFjZXIKICV7X2Rh
+dGFkaXJ9L3RyYWNlci8KICVkb2MgJXtfbWFuZGlyfS9tYW44L3RyYWNlci44KgogCkBAIC0xMTEs
+NyArMTIxLDYgQEAgbWFrZSBERVNURElSPSV7YnVpbGRyb290fS91c3Ivc2hhcmUvIG1vCiAlZG9j
+IFJFQURNRS5tZAogJXtweXRob24zX3NpdGVsaWJ9L3RyYWNlcgogJXtfYmluZGlyfS90cmFjZXIt
+MwotJXtfYmluZGlyfS90cmFjZXIKICV7X2RhdGFkaXJ9L3RyYWNlci8KICVkb2MgJXtfbWFuZGly
+fS9tYW44L3RyYWNlci44KgogCi0tIAoyLjUuNQoK
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

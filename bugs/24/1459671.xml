@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1459671</bug_id>
+          
+          <creation_ts>2017-06-07 14:29:00 -0400</creation_ts>
+          <short_desc>mariadb fails to start with tokudb; jemalloc not correctly enabled</short_desc>
+          <delta_ts>2017-06-16 19:43:47 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>mariadb</component>
+          <version>24</version>
+          <rep_platform>All</rep_platform>
+          <op_sys>All</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>CURRENTRELEASE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>medium</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Michael Hampton">error</reporter>
+          <assigned_to name="Michal Schorm">mschorm</assigned_to>
+          <cc>dciabrin</cc>
+    
+    
+    <cc>hhorak</cc>
+    
+    
+    <cc>jstanek</cc>
+    
+    
+    <cc>mbayer</cc>
+    
+    
+    <cc>mkocka</cc>
+    
+    
+    <cc>mmuzila</cc>
+    
+    
+    <cc>mschorm</cc>
+    
+    
+    <cc>praiskup</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>mariadb-10.1.24-3.fc26 mariadb-10.1.24-3.fc24 mariadb-10.1.24-3.fc25</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-06-16 09:17:33</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10486740</commentid>
+    <comment_count>0</comment_count>
+    <who name="Michael Hampton">error</who>
+    <bug_when>2017-06-07 14:29:22 -0400</bug_when>
+    <thetext>Description of problem:
+In current builds of mariadb, jemalloc is documented as enabled, but is not actually enabled.
+
+
+Version-Release number of selected component (if applicable):
+mariadb-10.1.24-1.fc24
+mariadb-10.1.24-1.fc25
+mariadb-10.1.24-1.fc26
+mariadb-10.1.24-1.fc27
+
+
+How reproducible:
+Always
+
+
+Steps to Reproduce:
+1. Install mariadb-server
+2. Attempt to enable tokudb in my.cnf with plugin-load-add=ha_tokudb.so
+3. systemctl start mariadb
+
+
+Actual results:
+mariadb fails to start with errors:
+2017-06-07 18:16:37 140270400252096 [ERROR] TokuDB is not initialized because jemalloc is not loaded
+2017-06-07 18:16:37 140270400252096 [ERROR] Plugin &apos;TokuDB&apos; init function returned error.
+2017-06-07 18:16:37 140270400252096 [ERROR] Plugin &apos;TokuDB&apos; registration as a STORAGE ENGINE failed.
+
+
+Expected results:
+mariadb should start normally and tokudb engine should be available.
+
+
+Additional info:
+The build log in koji also reveals that jemalloc wasn&apos;t actually built in:
+
+CMake Warning at storage/tokudb/CMakeLists.txt:33 (MESSAGE):
+  TokuDB is enabled, but jemalloc is not.  This configuration is not
+  supported
+
+It appears that the problem is &quot;-DWITH_JEMALLOC=ON&quot; in the %configure line. This form is not correct; like the other feature defines, it should be &quot;-DWITH_JEMALLOC=system&quot;.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10488237</commentid>
+    <comment_count>1</comment_count>
+    <who name="Michal Schorm">mschorm</who>
+    <bug_when>2017-06-08 03:22:18 -0400</bug_when>
+    <thetext>Thanks for the report.
+
+I&apos;m working on the fix.
+I won&apos;t push any current mariadb Bodhi update to the stable.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10488843</commentid>
+    <comment_count>2</comment_count>
+      <attachid>1286099</attachid>
+    <who name="Michael Hampton">error</who>
+    <bug_when>2017-06-08 06:10:22 -0400</bug_when>
+    <thetext>Created attachment 1286099
+Patch to enable jemalloc
+
+It&apos;s a pretty trivial patch to get this fixed.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10490156</commentid>
+    <comment_count>3</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-08 12:07:46 -0400</bug_when>
+    <thetext>mariadb-10.1.24-2.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2017-d04e48112b</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10490158</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-08 12:08:08 -0400</bug_when>
+    <thetext>mariadb-10.1.24-2.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-89daff1f64</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10490160</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-08 12:08:23 -0400</bug_when>
+    <thetext>mariadb-10.1.24-2.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-120af70498</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10492982</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-09 09:31:44 -0400</bug_when>
+    <thetext>mariadb-10.1.24-2.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-d04e48112b</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10493049</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-09 09:40:58 -0400</bug_when>
+    <thetext>mariadb-10.1.24-2.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-89daff1f64</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10493140</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-09 10:04:15 -0400</bug_when>
+    <thetext>mariadb-10.1.24-3.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2017-8425f676f2</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10493142</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-09 10:04:34 -0400</bug_when>
+    <thetext>mariadb-10.1.24-3.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-2c0609b92a</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10493144</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-09 10:04:47 -0400</bug_when>
+    <thetext>mariadb-10.1.24-3.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-09dd8907da</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10495280</commentid>
+    <comment_count>11</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-10 08:31:29 -0400</bug_when>
+    <thetext>mariadb-10.1.24-3.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-8425f676f2</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10495304</commentid>
+    <comment_count>12</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-10 08:34:23 -0400</bug_when>
+    <thetext>mariadb-10.1.24-3.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-2c0609b92a</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10496438</commentid>
+    <comment_count>13</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-12 00:38:28 -0400</bug_when>
+    <thetext>mariadb-10.1.24-3.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-09dd8907da</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10513053</commentid>
+    <comment_count>14</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-16 09:17:33 -0400</bug_when>
+    <thetext>mariadb-10.1.24-3.fc26 has been pushed to the Fedora 26 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10513936</commentid>
+    <comment_count>15</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-16 13:49:52 -0400</bug_when>
+    <thetext>mariadb-10.1.24-3.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10514092</commentid>
+    <comment_count>16</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-16 14:51:44 -0400</bug_when>
+    <thetext>mariadb-10.1.24-3.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10514665</commentid>
+    <comment_count>17</comment_count>
+    <who name="Michal Schorm">mschorm</who>
+    <bug_when>2017-06-16 19:43:47 -0400</bug_when>
+    <thetext>Build reached stable repositories.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="0"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1286099</attachid>
+            <date>2017-06-08 06:10:00 -0400</date>
+            <delta_ts>2017-06-08 06:10:22 -0400</delta_ts>
+            <desc>Patch to enable jemalloc</desc>
+            <filename>mariadb.spec.patch</filename>
+            <type>text/plain</type>
+            <size>433</size>
+            <attacher name="Michael Hampton">error</attacher>
+            
+              <data encoding="base64">LS0tIG1hcmlhZGIuc3BlYy5vcmlnCTIwMTctMDYtMDIgMjA6NTQ6MzkuMDAwMDAwMDAwIC0wNDAw
+CisrKyBtYXJpYWRiLnNwZWMJMjAxNy0wNi0wNyAxOToyMDozNy4xNzU5MDU0ODEgLTA0MDAKQEAg
+LTcyNyw3ICs3MjcsNyBAQCBleHBvcnQgTERGTEFHUwogICAgICAgICAgLURXSVRIX1NTTD1zeXN0
+ZW0gXAogICAgICAgICAgLURXSVRIX1pMSUI9c3lzdGVtIFwKICV7P3dpdGhfcGNyZTogLURXSVRI
+X1BDUkU9c3lzdGVtfVwKLSAgICAgICAgIC1EV0lUSF9KRU1BTExPQz1PTiBcCisgICAgICAgICAt
+RFdJVEhfSkVNQUxMT0M9c3lzdGVtIFwKICV7IT93aXRoX3Rva3VkYjogLURXSVRIT1VUX1RPS1VE
+Qj1PTn1cCiAleyE/d2l0aF9tcm9vbmdhOiAtRFdJVEhPVVRfTVJPT05HQT1PTn1cCiAleyE/d2l0
+aF9vcWdyYXBoOiAtRFdJVEhPVVRfT1FHUkFQSD1PTn1cCg==
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

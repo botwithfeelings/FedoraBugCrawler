@@ -1,0 +1,1712 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1366775</bug_id>
+          
+          <creation_ts>2016-08-12 14:59:00 -0400</creation_ts>
+          <short_desc>/usr/libexec/gnome-settings-daemon is hammering CPU after login tring to connect to local printing service</short_desc>
+          <delta_ts>2016-10-04 01:56:30 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>cups</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords>Patch</keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>1277289</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Tomasz Kłoczko">kloczko.tomasz</reporter>
+          <assigned_to name="Zdenek Dohnal">zdohnal</assigned_to>
+          <cc>awilliam</cc>
+    
+    
+    <cc>fmuellner</cc>
+    
+    
+    <cc>gmarr</cc>
+    
+    
+    <cc>jpopelka</cc>
+    
+    
+    <cc>klember</cc>
+    
+    
+    <cc>mcatanzaro</cc>
+    
+    
+    <cc>mkasik</cc>
+    
+    
+    <cc>ofourdan</cc>
+    
+    
+    <cc>pgrunt</cc>
+    
+    
+    <cc>pschindl</cc>
+    
+    
+    <cc>rhbz2</cc>
+    
+    
+    <cc>robatino</cc>
+    
+    
+    <cc>rstrode</cc>
+    
+    
+    <cc>tiagomatos</cc>
+    
+    
+    <cc>twaugh</cc>
+    
+    
+    <cc>yaneti</cc>
+    
+    
+    <cc>zbyszek</cc>
+    
+    
+    <cc>zdohnal</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>cups-2.2.0-2.fc25</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-09-24 11:13:20</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          <external_bugs name="GNOME Desktop">768174</external_bugs>
+    
+    
+    
+    <external_bugs name="Github">apple/cups/issues/4870</external_bugs>
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9612171</commentid>
+    <comment_count>0</comment_count>
+    <who name="Tomasz Kłoczko">kloczko.tomasz</who>
+    <bug_when>2016-08-12 14:59:26 -0400</bug_when>
+    <thetext>Description of problem:
+Just found that /usr/libexec/gnome-settings-daemon is hammering CPU after login to Gnome.
+
+
+Version-Release number of selected component (if applicable):
+# rpm -qf /usr/libexec/gnome-settings-daemon
+gnome-settings-daemon-3.20.1-3.fc25.x86_64
+
+
+How reproducible:
+
+
+Steps to Reproduce:
+1. Open GUI Gnome session 
+2. check activity of the /usr/libexec/gnome-settings-daemon
+3.
+
+Actual results:
+
+
+Expected results:
+
+
+Additional info:
+
+I made additional diagnostics observing wht is doing /usr/libexec/gnome-settings-daemon using strace. Seems /usr/libexec/gnome-settings-daemon is trying to connect to ipv6 localhost on port 631.
+
+After attaching to gnome-settings-daemon using strace in putput I see few times a second repeated:
+
+--- SIGPIPE {si_signo=SIGPIPE, si_code=SI_USER, si_pid=4623, si_uid=1000} ---
+close(20)                               = 0
+socket(AF_INET6, SOCK_STREAM, IPPROTO_IP) = 20
+setsockopt(20, SOL_SOCKET, SO_REUSEADDR, [1], 4) = 0
+setsockopt(20, SOL_SOCKET, SO_REUSEPORT, [1], 4) = 0
+setsockopt(20, SOL_TCP, TCP_NODELAY, [1], 4) = 0
+fcntl(20, F_SETFD, FD_CLOEXEC)          = 0
+fcntl(20, F_GETFL)                      = 0x2 (flags O_RDWR)
+fcntl(20, F_SETFL, O_RDWR|O_NONBLOCK)   = 0
+connect(20, {sa_family=AF_INET6, sin6_port=htons(631), inet_pton(AF_INET6, &quot;::1&quot;, &amp;sin6_addr), sin6_flowinfo=htonl(0), sin6_scope_id=0}, 28) = -1 EINPROGRESS (Operation now in progress)
+fcntl(20, F_SETFL, O_RDWR)              = 0
+poll([{fd=20, events=POLLIN|POLLOUT}], 1, 100) = 1 ([{fd=20, revents=POLLIN|POLLOUT|POLLERR|POLLHUP}])
+sendto(20, &quot;POST / HTTP/1.1\r\nContent-Length:&quot;..., 193, 0, NULL, 0) = -1 ECONNREFUSED (Connection refused)
+sendto(20, &quot;POST / HTTP/1.1\r\nContent-Length:&quot;..., 193, 0, NULL, 0) = -1 EPIPE (Broken pipe)
+--- SIGPIPE {si_signo=SIGPIPE, si_code=SI_USER, si_pid=4623, si_uid=1000} ---
+sendto(20, &quot;POST / HTTP/1.1\r\nContent-Length:&quot;..., 193, 0, NULL, 0) = -1 EPIPE (Broken pipe)
+--- SIGPIPE {si_signo=SIGPIPE, si_code=SI_USER, si_pid=4623, si_uid=1000} ---
+close(20)                               = 0
+socket(AF_INET6, SOCK_STREAM, IPPROTO_IP) = 20
+setsockopt(20, SOL_SOCKET, SO_REUSEADDR, [1], 4) = 0
+setsockopt(20, SOL_SOCKET, SO_REUSEPORT, [1], 4) = 0
+setsockopt(20, SOL_TCP, TCP_NODELAY, [1], 4) = 0
+fcntl(20, F_SETFD, FD_CLOEXEC)          = 0
+fcntl(20, F_GETFL)                      = 0x2 (flags O_RDWR)
+fcntl(20, F_SETFL, O_RDWR|O_NONBLOCK)   = 0
+connect(20, {sa_family=AF_INET6, sin6_port=htons(631), inet_pton(AF_INET6, &quot;::1&quot;, &amp;sin6_addr), sin6_flowinfo=htonl(0), sin6_scope_id=0}, 28) = -1 EINPROGRESS (Operation now in progress)
+fcntl(20, F_SETFL, O_RDWR)              = 0
+poll([{fd=20, events=POLLIN|POLLOUT}], 1, 100) = 1 ([{fd=20, revents=POLLIN|POLLOUT|POLLERR|POLLHUP}])
+sendto(20, &quot;POST / HTTP/1.1\r\nContent-Length:&quot;..., 193, 0, NULL, 0) = -1 ECONNREFUSED (Connection refused)
+sendto(20, &quot;POST / HTTP/1.1\r\nContent-Length:&quot;..., 193, 0, NULL, 0) = -1 EPIPE (Broken pipe)
+--- SIGPIPE {si_signo=SIGPIPE, si_code=SI_USER, si_pid=4623, si_uid=1000} ---
+sendto(20, &quot;POST / HTTP/1.1\r\nContent-Length:&quot;..., 193, 0, NULL, 0) = -1 EPIPE (Broken pipe)
+
+[root@domek ~]# grep -w 631 /etc/services 
+ipp             631/tcp                         # Internet Printing Protocol
+ipp             631/udp                         # Internet Printing Protocol
+
+Seems like this process doesn&apos;t know what to do if there is no locally started printing service.
+
+Killing tjhs proces does no help because new instance is started.
+I found that if I&apos;ll start o nterminal &quot;/usr/libexec/gnome-settings-daemon -r&quot; and kill original /usr/libexec/gnome-settings-daemon and after this stop /usr/libexec/gnome-settings-daemon started from terminal by pressing ctrl-c new /usr/libexec/gnome-settings-daemon is not started.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9614424</commentid>
+    <comment_count>1</comment_count>
+    <who name="Marek Kašík">mkasik</who>
+    <bug_when>2016-08-15 05:09:48 -0400</bug_when>
+    <thetext>Actually, it should know what to do. We have there connection test which should avoid this situation. Have you disabled the cups service or removed it somehow?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9614482</commentid>
+    <comment_count>2</comment_count>
+    <who name="Tomasz Kłoczko">kloczko.tomasz</who>
+    <bug_when>2016-08-15 05:34:01 -0400</bug_when>
+    <thetext>I&apos;ve disabled it because I don&apos;t need it.
+
+[root@domek entries]# rpm -q cups
+cups-2.2-0.2b2.fc26.x86_64
+[root@domek entries]# systemctl status cups
+● cups.service - CUPS Scheduler
+   Loaded: loaded (/usr/lib/systemd/system/cups.service; disabled; vendor preset: enabled)
+   Active: inactive (dead)
+     Docs: man:cupsd(8)
+
+Probably I should uninstall package :)
+
+[root@domek entries]# rpm -e cups
+error: Failed dependencies:
+	cups is needed by (installed) gutenprint-cups-5.2.11-2.fc24.x86_64
+	cups is needed by (installed) foomatic-db-ppds-4.0-50.20150819.fc24.noarch
+[root@domek entries]# rpm -e cups gutenprint-cups-5.2.11-2.fc24.x86_64 foomatic-db-ppds-4.0-50.20150819.fc24.noarch
+error: Failed dependencies:
+	foomatic-db-ppds = 4.0-50.20150819.fc24 is needed by (installed) foomatic-db-4.0-50.20150819.fc24.noarch
+[root@domek entries]# rpm -e cups gutenprint-cups-5.2.11-2.fc24.x86_64 foomatic-db-ppds-4.0-50.20150819.fc24.noarch foomatic-db-4.0-50.20150819.fc24.noarch
+warning: /etc/cups/subscriptions.conf saved as /etc/cups/subscriptions.conf.rpmsave
+
+I&apos;m not sure is gutenprint or foomatic packages where installed by some suggested dependencies or somehow cups has been added by something else.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9618277</commentid>
+    <comment_count>3</comment_count>
+    <who name="Marek Kašík">mkasik</who>
+    <bug_when>2016-08-16 06:54:19 -0400</bug_when>
+    <thetext>Could you try to run it as &quot;/usr/libexec/gnome-settings-daemon -r --debug&quot; and attach here the log?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9624192</commentid>
+    <comment_count>4</comment_count>
+    <who name="Tomasz Kłoczko">kloczko.tomasz</who>
+    <bug_when>2016-08-17 16:12:51 -0400</bug_when>
+    <thetext>$ /usr/libexec/gnome-settings-daemon -r --debug
+** (gnome-settings-daemon:26075): DEBUG: Starting settings manager
+** (gnome-settings-daemon:26075): DEBUG: loading PNPIDs
+** (gnome-settings-daemon:26075): DEBUG: Loading settings plugins from dir: /usr/lib64/gnome-settings-daemon-3.0/
+** (gnome-settings-daemon:26075): DEBUG: Loading plugin: /usr/lib64/gnome-settings-daemon-3.0/a11y-keyboard.gnome-settings-plugin
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsPluginInfo: name=&apos;Accessibility Keyboard&apos; file=&apos;/usr/lib64/gnome-settings-daemon-3.0/a11y-keyboard.gnome-settings-plugin&apos; location=&apos;a11y-keyboard&apos;
+** (gnome-settings-daemon:26075): DEBUG: Loading plugin: /usr/lib64/gnome-settings-daemon-3.0/a11y-settings.gnome-settings-plugin
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsPluginInfo: name=&apos;Accessibility settings&apos; file=&apos;/usr/lib64/gnome-settings-daemon-3.0/a11y-settings.gnome-settings-plugin&apos; location=&apos;a11y-settings&apos;
+** (gnome-settings-daemon:26075): DEBUG: Loading plugin: /usr/lib64/gnome-settings-daemon-3.0/clipboard.gnome-settings-plugin
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsPluginInfo: name=&apos;Clipboard&apos; file=&apos;/usr/lib64/gnome-settings-daemon-3.0/clipboard.gnome-settings-plugin&apos; location=&apos;clipboard&apos;
+** (gnome-settings-daemon:26075): DEBUG: Loading plugin: /usr/lib64/gnome-settings-daemon-3.0/color.gnome-settings-plugin
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsPluginInfo: name=&apos;Colour&apos; file=&apos;/usr/lib64/gnome-settings-daemon-3.0/color.gnome-settings-plugin&apos; location=&apos;color&apos;
+** (gnome-settings-daemon:26075): DEBUG: Loading plugin: /usr/lib64/gnome-settings-daemon-3.0/datetime.gnome-settings-plugin
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsPluginInfo: name=&apos;Date and Time&apos; file=&apos;/usr/lib64/gnome-settings-daemon-3.0/datetime.gnome-settings-plugin&apos; location=&apos;datetime&apos;
+** (gnome-settings-daemon:26075): DEBUG: Loading plugin: /usr/lib64/gnome-settings-daemon-3.0/housekeeping.gnome-settings-plugin
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsPluginInfo: name=&apos;Housekeeping&apos; file=&apos;/usr/lib64/gnome-settings-daemon-3.0/housekeeping.gnome-settings-plugin&apos; location=&apos;housekeeping&apos;
+** (gnome-settings-daemon:26075): DEBUG: Loading plugin: /usr/lib64/gnome-settings-daemon-3.0/keyboard.gnome-settings-plugin
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsPluginInfo: name=&apos;Keyboard&apos; file=&apos;/usr/lib64/gnome-settings-daemon-3.0/keyboard.gnome-settings-plugin&apos; location=&apos;keyboard&apos;
+** (gnome-settings-daemon:26075): DEBUG: Loading plugin: /usr/lib64/gnome-settings-daemon-3.0/media-keys.gnome-settings-plugin
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsPluginInfo: name=&apos;Media keys&apos; file=&apos;/usr/lib64/gnome-settings-daemon-3.0/media-keys.gnome-settings-plugin&apos; location=&apos;media-keys&apos;
+** (gnome-settings-daemon:26075): DEBUG: Loading plugin: /usr/lib64/gnome-settings-daemon-3.0/mouse.gnome-settings-plugin
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsPluginInfo: name=&apos;Mouse&apos; file=&apos;/usr/lib64/gnome-settings-daemon-3.0/mouse.gnome-settings-plugin&apos; location=&apos;mouse&apos;
+** (gnome-settings-daemon:26075): DEBUG: Loading plugin: /usr/lib64/gnome-settings-daemon-3.0/orientation.gnome-settings-plugin
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsPluginInfo: name=&apos;Orientation&apos; file=&apos;/usr/lib64/gnome-settings-daemon-3.0/orientation.gnome-settings-plugin&apos; location=&apos;orientation&apos;
+** (gnome-settings-daemon:26075): DEBUG: Loading plugin: /usr/lib64/gnome-settings-daemon-3.0/power.gnome-settings-plugin
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsPluginInfo: name=&apos;Power&apos; file=&apos;/usr/lib64/gnome-settings-daemon-3.0/power.gnome-settings-plugin&apos; location=&apos;power&apos;
+** (gnome-settings-daemon:26075): DEBUG: Loading plugin: /usr/lib64/gnome-settings-daemon-3.0/print-notifications.gnome-settings-plugin
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsPluginInfo: name=&apos;Print-notifications&apos; file=&apos;/usr/lib64/gnome-settings-daemon-3.0/print-notifications.gnome-settings-plugin&apos; location=&apos;print-notifications&apos;
+** (gnome-settings-daemon:26075): DEBUG: Loading plugin: /usr/lib64/gnome-settings-daemon-3.0/rfkill.gnome-settings-plugin
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsPluginInfo: name=&apos;Rfkill&apos; file=&apos;/usr/lib64/gnome-settings-daemon-3.0/rfkill.gnome-settings-plugin&apos; location=&apos;rfkill&apos;
+** (gnome-settings-daemon:26075): DEBUG: Loading plugin: /usr/lib64/gnome-settings-daemon-3.0/screensaver-proxy.gnome-settings-plugin
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsPluginInfo: name=&apos;Screensaver Proxy&apos; file=&apos;/usr/lib64/gnome-settings-daemon-3.0/screensaver-proxy.gnome-settings-plugin&apos; location=&apos;screensaver-proxy&apos;
+** (gnome-settings-daemon:26075): DEBUG: Loading plugin: /usr/lib64/gnome-settings-daemon-3.0/sharing.gnome-settings-plugin
+** (gnome-settings-daemon:26075): DEBUG: Could not find &apos;Website&apos; in /usr/lib64/gnome-settings-daemon-3.0/sharing.gnome-settings-plugin
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsPluginInfo: name=&apos;Sharing&apos; file=&apos;/usr/lib64/gnome-settings-daemon-3.0/sharing.gnome-settings-plugin&apos; location=&apos;sharing&apos;
+** (gnome-settings-daemon:26075): DEBUG: Loading plugin: /usr/lib64/gnome-settings-daemon-3.0/smartcard.gnome-settings-plugin
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsPluginInfo: name=&apos;Smartcard&apos; file=&apos;/usr/lib64/gnome-settings-daemon-3.0/smartcard.gnome-settings-plugin&apos; location=&apos;smartcard&apos;
+** (gnome-settings-daemon:26075): DEBUG: Loading plugin: /usr/lib64/gnome-settings-daemon-3.0/sound.gnome-settings-plugin
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsPluginInfo: name=&apos;Sound&apos; file=&apos;/usr/lib64/gnome-settings-daemon-3.0/sound.gnome-settings-plugin&apos; location=&apos;sound&apos;
+** (gnome-settings-daemon:26075): DEBUG: Loading plugin: /usr/lib64/gnome-settings-daemon-3.0/wacom.gnome-settings-plugin
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsPluginInfo: name=&apos;Wacom&apos; file=&apos;/usr/lib64/gnome-settings-daemon-3.0/wacom.gnome-settings-plugin&apos; location=&apos;gsdwacom&apos;
+** (gnome-settings-daemon:26075): DEBUG: Loading plugin: /usr/lib64/gnome-settings-daemon-3.0/xrandr.gnome-settings-plugin
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsPluginInfo: name=&apos;XRandR&apos; file=&apos;/usr/lib64/gnome-settings-daemon-3.0/xrandr.gnome-settings-plugin&apos; location=&apos;xrandr&apos;
+** (gnome-settings-daemon:26075): DEBUG: Loading plugin: /usr/lib64/gnome-settings-daemon-3.0/xsettings.gnome-settings-plugin
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsPluginInfo: name=&apos;X Settings&apos; file=&apos;/usr/lib64/gnome-settings-daemon-3.0/xsettings.gnome-settings-plugin&apos; location=&apos;xsettings&apos;
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsModule 0x5609ec24e8a0 initialising
+** (gnome-settings-daemon:26075): DEBUG: Loading /usr/lib64/gnome-settings-daemon-3.0/libpower.so
+** (gnome-settings-daemon:26075): DEBUG: Creating object of type GsdPowerPlugin
+(gnome-settings-daemon:26075): power-plugin-DEBUG: GsdPower initializing
+(gnome-settings-daemon:26075): power-plugin-DEBUG: Activating gsd_power plugin
+(gnome-settings-daemon:26075): power-plugin-DEBUG: Starting power manager
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsManager: emitting plugin-activated power
+** (gnome-settings-daemon:26075): DEBUG: Plugin power: active
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsModule 0x5609ec25a9e0 initialising
+** (gnome-settings-daemon:26075): DEBUG: Loading /usr/lib64/gnome-settings-daemon-3.0/libhousekeeping.so
+** (gnome-settings-daemon:26075): DEBUG: Creating object of type GsdHousekeepingPlugin
+(gnome-settings-daemon:26075): housekeeping-plugin-DEBUG: GsdHousekeeping initializing
+(gnome-settings-daemon:26075): housekeeping-plugin-DEBUG: Activating gsd_housekeeping plugin
+(gnome-settings-daemon:26075): housekeeping-plugin-DEBUG: Starting housekeeping manager
+(gnome-settings-daemon:26075): housekeeping-plugin-DEBUG: housekeeping: will tidy up in 2 minutes
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsManager: emitting plugin-activated housekeeping
+** (gnome-settings-daemon:26075): DEBUG: Plugin housekeeping: active
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsModule 0x7efcac004b70 initialising
+** (gnome-settings-daemon:26075): DEBUG: Loading /usr/lib64/gnome-settings-daemon-3.0/libxsettings.so
+** (gnome-settings-daemon:26075): DEBUG: Creating object of type GnomeXSettingsPlugin
+** (gnome-settings-daemon:26075): DEBUG: GnomeXSettings initializing
+** (gnome-settings-daemon:26075): DEBUG: Activating gnome_xsettings plugin
+** (gnome-settings-daemon:26075): DEBUG: Starting xsettings manager
+** (gnome-settings-daemon:26075): DEBUG: Starting remote-display manager
+
+** (gnome-settings-daemon:26075): WARNING **: Schemas &apos;org.gnome.desktop.a11y&apos; has not been setup
+** (gnome-settings-daemon:26075): DEBUG: GsdXSettingsGtk initializing
+** (gnome-settings-daemon:26075): DEBUG: Setting GTK modules &apos;pk-gtk-module:canberra-gtk-module&apos;
+** (gnome-settings-daemon:26075): DEBUG: xft_settings_set_xresources: orig res &apos;Xft.dpi:	96
+Xft.hinting:	1
+Xft.hintstyle:	hintslight
+Xft.antialias:	1
+Xft.rgba:	none
+Xcursor.size:	24
+Xcursor.theme:	Adwaita
+&apos;
+** (gnome-settings-daemon:26075): DEBUG: xft_settings_set_xresources: new res &apos;Xft.dpi:	96
+Xft.hinting:	1
+Xft.hintstyle:	hintslight
+Xft.antialias:	1
+Xft.rgba:	none
+Xcursor.size:	24
+Xcursor.theme:	Adwaita
+&apos;
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsManager: emitting plugin-activated xsettings
+** (gnome-settings-daemon:26075): DEBUG: Plugin xsettings: active
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsModule 0x5609ec2122d0 initialising
+** (gnome-settings-daemon:26075): DEBUG: Loading /usr/lib64/gnome-settings-daemon-3.0/libxrandr.so
+** (gnome-settings-daemon:26075): DEBUG: Creating object of type GsdXrandrPlugin
+(gnome-settings-daemon:26075): xrandr-plugin-DEBUG: GsdXrandr initializing
+(gnome-settings-daemon:26075): xrandr-plugin-DEBUG: Activating gsd_xrandr plugin
+(gnome-settings-daemon:26075): xrandr-plugin-DEBUG: Starting xrandr manager
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsManager: emitting plugin-activated xrandr
+** (gnome-settings-daemon:26075): DEBUG: Plugin xrandr: active
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsModule 0x5609ec212370 initialising
+** (gnome-settings-daemon:26075): DEBUG: Loading /usr/lib64/gnome-settings-daemon-3.0/libsound.so
+** (gnome-settings-daemon:26075): DEBUG: Creating object of type GsdSoundPlugin
+(gnome-settings-daemon:26075): sound-plugin-DEBUG: GsdSound initializing
+(gnome-settings-daemon:26075): sound-plugin-DEBUG: Activating gsd_sound plugin
+(gnome-settings-daemon:26075): sound-plugin-DEBUG: Starting sound manager
+(gnome-settings-daemon:26075): sound-plugin-DEBUG: Registering directory monitor for /home/tkloczko/.local/share/sounds
+(gnome-settings-daemon:26075): sound-plugin-DEBUG: Registering directory monitor for /usr/share/sounds
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsManager: emitting plugin-activated sound
+** (gnome-settings-daemon:26075): DEBUG: Plugin sound: active
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsModule 0x5609ec212140 initialising
+** (gnome-settings-daemon:26075): DEBUG: Loading /usr/lib64/gnome-settings-daemon-3.0/libgsdwacom.so
+** (gnome-settings-daemon:26075): DEBUG: Creating object of type GsdWacomPlugin
+(gnome-settings-daemon:26075): wacom-plugin-DEBUG: GsdWacom initializing
+(gnome-settings-daemon:26075): wacom-plugin-DEBUG: Activating gsd_wacom plugin
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsManager: emitting plugin-activated gsdwacom
+** (gnome-settings-daemon:26075): DEBUG: Plugin gsdwacom: active
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsModule 0x5609ec2120a0 initialising
+** (gnome-settings-daemon:26075): DEBUG: Loading /usr/lib64/gnome-settings-daemon-3.0/libkeyboard.so
+** (gnome-settings-daemon:26075): DEBUG: Creating object of type GsdKeyboardPlugin
+(gnome-settings-daemon:26075): keyboard-plugin-DEBUG: GsdKeyboard initializing
+(gnome-settings-daemon:26075): keyboard-plugin-DEBUG: Activating gsd_keyboard plugin
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsManager: emitting plugin-activated keyboard
+** (gnome-settings-daemon:26075): DEBUG: Plugin keyboard: active
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsModule 0x5609ec264e80 initialising
+** (gnome-settings-daemon:26075): DEBUG: Loading /usr/lib64/gnome-settings-daemon-3.0/libmouse.so
+** (gnome-settings-daemon:26075): DEBUG: Creating object of type GsdMousePlugin
+(gnome-settings-daemon:26075): mouse-plugin-DEBUG: GsdMouse initializing
+(gnome-settings-daemon:26075): mouse-plugin-DEBUG: Activating gsd_mouse plugin
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsManager: emitting plugin-activated mouse
+** (gnome-settings-daemon:26075): DEBUG: Plugin mouse: active
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsModule 0x5609ec212050 initialising
+** (gnome-settings-daemon:26075): DEBUG: Loading /usr/lib64/gnome-settings-daemon-3.0/liba11y-settings.so
+** (gnome-settings-daemon:26075): DEBUG: Creating object of type GsdA11ySettingsPlugin
+(gnome-settings-daemon:26075): a11y-settings-plugin-DEBUG: GsdA11ySettings initializing
+(gnome-settings-daemon:26075): a11y-settings-plugin-DEBUG: Activating gsd_a11y_settings plugin
+(gnome-settings-daemon:26075): a11y-settings-plugin-DEBUG: Starting a11y_settings manager
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsManager: emitting plugin-activated a11y-settings
+** (gnome-settings-daemon:26075): DEBUG: Plugin a11y-settings: active
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsModule 0x5609ec2ae4a0 initialising
+** (gnome-settings-daemon:26075): DEBUG: Loading /usr/lib64/gnome-settings-daemon-3.0/liba11y-keyboard.so
+** (gnome-settings-daemon:26075): DEBUG: Creating object of type GsdA11yKeyboardPlugin
+** (gnome-settings-daemon:26075): DEBUG: GsdA11yKeyboard initializing
+** (gnome-settings-daemon:26075): DEBUG: Activating gsd_a11y_keyboard plugin
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsManager: emitting plugin-activated a11y-keyboard
+** (gnome-settings-daemon:26075): DEBUG: Plugin a11y-keyboard: active
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsModule 0x5609ec2ae4f0 initialising
+** (gnome-settings-daemon:26075): DEBUG: Loading /usr/lib64/gnome-settings-daemon-3.0/libsmartcard.so
+** (gnome-settings-daemon:26075): DEBUG: Creating object of type GsdSmartcardPlugin
+(gnome-settings-daemon:26075): smartcard-plugin-DEBUG: GsdSmartcard initializing
+(gnome-settings-daemon:26075): smartcard-plugin-DEBUG: GsdSmartcardManagerError: Registering dbus error org.gnome.SettingsDaemon.Smartcard.Manager.Error.Generic
+(gnome-settings-daemon:26075): smartcard-plugin-DEBUG: GsdSmartcardManagerError: Registering dbus error org.gnome.SettingsDaemon.Smartcard.Manager.Error.WithNss
+(gnome-settings-daemon:26075): smartcard-plugin-DEBUG: GsdSmartcardManagerError: Registering dbus error org.gnome.SettingsDaemon.Smartcard.Manager.Error.LoadingDriver
+(gnome-settings-daemon:26075): smartcard-plugin-DEBUG: GsdSmartcardManagerError: Registering dbus error org.gnome.SettingsDaemon.Smartcard.Manager.Error.WatchingForEvents
+(gnome-settings-daemon:26075): smartcard-plugin-DEBUG: GsdSmartcardManagerError: Registering dbus error org.gnome.SettingsDaemon.Smartcard.Manager.Error.ReportingEvents
+(gnome-settings-daemon:26075): smartcard-plugin-DEBUG: GsdSmartcardManagerError: Registering dbus error org.gnome.SettingsDaemon.Smartcard.Manager.Error.FindingSmartcard
+(gnome-settings-daemon:26075): smartcard-plugin-DEBUG: Activating gsd_smartcard plugin
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsManager: emitting plugin-activated smartcard
+** (gnome-settings-daemon:26075): DEBUG: Plugin smartcard: active
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsModule 0x5609ec2ae540 initialising
+** (gnome-settings-daemon:26075): DEBUG: Loading /usr/lib64/gnome-settings-daemon-3.0/libscreensaver-proxy.so
+** (gnome-settings-daemon:26075): DEBUG: Creating object of type GsdScreensaverProxyPlugin
+(gnome-settings-daemon:26075): screensaver-proxy-plugin-DEBUG: GsdScreensaverProxy initializing
+(gnome-settings-daemon:26075): screensaver-proxy-plugin-DEBUG: Activating gsd_screensaver_proxy plugin
+(gnome-settings-daemon:26075): screensaver-proxy-plugin-DEBUG: Starting screensaver-proxy manager
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsManager: emitting plugin-activated screensaver-proxy
+** (gnome-settings-daemon:26075): DEBUG: Plugin screensaver-proxy: active
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsModule 0x5609ec2ae590 initialising
+** (gnome-settings-daemon:26075): DEBUG: Loading /usr/lib64/gnome-settings-daemon-3.0/libcolor.so
+** (gnome-settings-daemon:26075): DEBUG: Creating object of type GsdColorPlugin
+(gnome-settings-daemon:26075): color-plugin-DEBUG: GsdColor initializing
+(gnome-settings-daemon:26075): color-plugin-DEBUG: Activating gsd_color plugin
+(gnome-settings-daemon:26075): color-plugin-DEBUG: Starting color manager
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsManager: emitting plugin-activated color
+** (gnome-settings-daemon:26075): DEBUG: Plugin color: active
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsModule 0x5609ec2ae6d0 initialising
+** (gnome-settings-daemon:26075): DEBUG: Loading /usr/lib64/gnome-settings-daemon-3.0/libsharing.so
+** (gnome-settings-daemon:26075): DEBUG: Creating object of type GsdSharingPlugin
+(gnome-settings-daemon:26075): sharing-plugin-DEBUG: GsdSharing initializing
+(gnome-settings-daemon:26075): sharing-plugin-DEBUG: Activating gsd_sharing plugin
+(gnome-settings-daemon:26075): sharing-plugin-DEBUG: Starting sharing manager
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsManager: emitting plugin-activated sharing
+** (gnome-settings-daemon:26075): DEBUG: Plugin sharing: active
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsModule 0x5609ec2ae990 initialising
+** (gnome-settings-daemon:26075): DEBUG: Loading /usr/lib64/gnome-settings-daemon-3.0/librfkill.so
+** (gnome-settings-daemon:26075): DEBUG: Creating object of type GsdRfkillPlugin
+(gnome-settings-daemon:26075): rfkill-plugin-DEBUG: GsdRfkill initializing
+(gnome-settings-daemon:26075): rfkill-plugin-DEBUG: Activating gsd_rfkill plugin
+(gnome-settings-daemon:26075): rfkill-plugin-DEBUG: Read killswitch of type &apos;WLAN&apos; (idx=0): soft 0 hard 0
+(gnome-settings-daemon:26075): rfkill-plugin-DEBUG: Read killswitch of type &apos;BLUETOOTH&apos; (idx=1): soft 0 hard 0
+(gnome-settings-daemon:26075): rfkill-plugin-DEBUG: Read killswitch of type &apos;WLAN&apos; (idx=2): soft 0 hard 0
+(gnome-settings-daemon:26075): rfkill-plugin-DEBUG: Read killswitch of type &apos;BLUETOOTH&apos; (idx=3): soft 0 hard 0
+(gnome-settings-daemon:26075): rfkill-plugin-DEBUG: Added rfkill with ID 0
+(gnome-settings-daemon:26075): rfkill-plugin-DEBUG: Added Bluetooth rfkill with ID 1
+(gnome-settings-daemon:26075): rfkill-plugin-DEBUG: Added rfkill with ID 2
+(gnome-settings-daemon:26075): rfkill-plugin-DEBUG: Added Bluetooth rfkill with ID 3
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsManager: emitting plugin-activated rfkill
+** (gnome-settings-daemon:26075): DEBUG: Plugin rfkill: active
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsModule 0x5609ec2ae400 initialising
+** (gnome-settings-daemon:26075): DEBUG: Loading /usr/lib64/gnome-settings-daemon-3.0/libprint-notifications.so
+** (gnome-settings-daemon:26075): DEBUG: Creating object of type GsdPrintNotificationsPlugin
+(gnome-settings-daemon:26075): print-notifications-plugin-DEBUG: GsdPrintNotifications initializing
+(gnome-settings-daemon:26075): print-notifications-plugin-DEBUG: Activating gsd_print_notifications plugin
+(gnome-settings-daemon:26075): print-notifications-plugin-DEBUG: Starting print-notifications manager
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsManager: emitting plugin-activated print-notifications
+** (gnome-settings-daemon:26075): DEBUG: Plugin print-notifications: active
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsModule 0x5609ec24e990 initialising
+** (gnome-settings-daemon:26075): DEBUG: Loading /usr/lib64/gnome-settings-daemon-3.0/liborientation.so
+** (gnome-settings-daemon:26075): DEBUG: Creating object of type GsdOrientationPlugin
+(gnome-settings-daemon:26075): orientation-plugin-DEBUG: GsdOrientation initializing
+(gnome-settings-daemon:26075): orientation-plugin-DEBUG: Activating gsd_orientation plugin
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsManager: emitting plugin-activated orientation
+** (gnome-settings-daemon:26075): DEBUG: Plugin orientation: active
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsModule 0x5609ec2aeb20 initialising
+** (gnome-settings-daemon:26075): DEBUG: Loading /usr/lib64/gnome-settings-daemon-3.0/libmedia-keys.so
+** (gnome-settings-daemon:26075): DEBUG: Creating object of type GsdMediaKeysPlugin
+(gnome-settings-daemon:26075): media-keys-plugin-DEBUG: GsdMediaKeys initializing
+(gnome-settings-daemon:26075): media-keys-plugin-DEBUG: Adding system inhibitors for power keys
+(gnome-settings-daemon:26075): media-keys-plugin-DEBUG: Activating gsd_media_keys plugin
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsManager: emitting plugin-activated media-keys
+** (gnome-settings-daemon:26075): DEBUG: Plugin media-keys: active
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsModule 0x5609ec2fa540 initialising
+** (gnome-settings-daemon:26075): DEBUG: Loading /usr/lib64/gnome-settings-daemon-3.0/libdatetime.so
+** (gnome-settings-daemon:26075): DEBUG: Creating object of type GsdDatetimePlugin
+(gnome-settings-daemon:26075): datetime-plugin-DEBUG: GsdDatetime initializing
+(gnome-settings-daemon:26075): datetime-plugin-DEBUG: Activating gsd_datetime plugin
+(gnome-settings-daemon:26075): datetime-plugin-DEBUG: Starting datetime manager
+(gnome-settings-daemon:26075): datetime-plugin-DEBUG: Automatic timezone enabled
+(gnome-settings-daemon:26075): datetime-plugin-DEBUG: Starting timezone monitor
+(gnome-settings-daemon:26075): datetime-plugin-DEBUG: Incomplete GWeather location entry: (UM) Wake Island, Wake Island Army Airfield Airport
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsManager: emitting plugin-activated datetime
+** (gnome-settings-daemon:26075): DEBUG: Plugin datetime: active
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsModule 0x5609ec2aead0 initialising
+** (gnome-settings-daemon:26075): DEBUG: Loading /usr/lib64/gnome-settings-daemon-3.0/libclipboard.so
+** (gnome-settings-daemon:26075): DEBUG: Creating object of type GsdClipboardPlugin
+(gnome-settings-daemon:26075): clipboard-plugin-DEBUG: GsdClipboard initializing
+(gnome-settings-daemon:26075): clipboard-plugin-DEBUG: Activating gsd_clipboard plugin
+** (gnome-settings-daemon:26075): DEBUG: GnomeSettingsManager: emitting plugin-activated clipboard
+** (gnome-settings-daemon:26075): DEBUG: Plugin clipboard: active
+** (gnome-settings-daemon:26075): DEBUG: Failed to set the environment: GDBus.Error:org.gnome.SessionManager.NotInInitialization: Setenv interface is only available during the DisplayServer and Initialization phase
+** (gnome-settings-daemon:26075): DEBUG: Failed to set the environment: GDBus.Error:org.gnome.SessionManager.NotInInitialization: Setenv interface is only available during the DisplayServer and Initialization phase
+** (gnome-settings-daemon:26075): DEBUG: Failed to set the environment: GDBus.Error:org.gnome.SessionManager.NotInInitialization: Setenv interface is only available during the DisplayServer and Initialization phase
+** (gnome-settings-daemon:26075): DEBUG: Failed to set the environment: GDBus.Error:org.gnome.SessionManager.NotInInitialization: Setenv interface is only available during the DisplayServer and Initialization phase
+** (gnome-settings-daemon:26075): DEBUG: Failed to set the environment: GDBus.Error:org.gnome.SessionManager.NotInInitialization: Setenv interface is only available during the DisplayServer and Initialization phase
+** (gnome-settings-daemon:26075): DEBUG: Failed to set the environment: GDBus.Error:org.gnome.SessionManager.NotInInitialization: Setenv interface is only available during the DisplayServer and Initialization phase
+** (gnome-settings-daemon:26075): DEBUG: Failed to set the environment: GDBus.Error:org.gnome.SessionManager.NotInInitialization: Setenv interface is only available during the DisplayServer and Initialization phase
+(gnome-settings-daemon:26075): media-keys-plugin-DEBUG: System inhibitor fd is 18
+** (gnome-settings-daemon:26075): DEBUG: Vino vanished
+** (gnome-settings-daemon:26075): DEBUG: Registered client at path /org/gnome/SessionManager/Client8
+(gnome-settings-daemon:26075): keyboard-plugin-DEBUG: Starting keyboard manager
+(gnome-settings-daemon:26075): keyboard-plugin-DEBUG: Started the keyboard plugin, applying all settings
+(gnome-settings-daemon:26075): keyboard-plugin-DEBUG: Applying the bell settings
+(gnome-settings-daemon:26075): keyboard-plugin-DEBUG: Applying the num-lock settings
+** (gnome-settings-daemon:26075): DEBUG: Starting a11y_keyboard manager
+(gnome-settings-daemon:26075): smartcard-plugin-DEBUG: attempting to load NSS database &apos;/etc/pki/nssdb&apos;
+(gnome-settings-daemon:26075): smartcard-plugin-DEBUG: NSS database &apos;/etc/pki/nssdb&apos; loaded
+
+
+Above is last line of the debug output and after this this process starts consuming whole single CPU core. From top output:
+
+top - 21:10:04 up 3 days, 23:45,  2 users,  load average: 2.61, 2.26, 1.87
+Tasks: 324 total,   4 running, 319 sleeping,   0 stopped,   1 zombie
+%Cpu(s): 40.7 us, 18.6 sy,  0.0 ni, 36.4 id,  0.4 wa,  0.0 hi,  3.9 si,  0.0 st
+KiB Mem :  8088772 total,   445000 free,  4461116 used,  3182656 buff/cache
+KiB Swap: 10485756 total,  9037972 free,  1447784 used.  3004080 avail Mem 
+
+  PID USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM     TIME+ COMMAND                                                                                              
+ 5290 tkloczko  20   0 4006896 2.431g 146220 R 103.3 31.5 237:03.34 /usr/lib64/firefox/firefox                                                                           
+26075 tkloczko  20   0 1045592  36824  26420 R 100.0  0.5   3:03.62 /usr/libexec/gnome-settings-daemon -r --debug
+
+After tracing pid 26075 using strace I see that it does what I&apos;ve origially reported and none of additioanl messages are sent on stdout/stderr.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9624238</commentid>
+    <comment_count>5</comment_count>
+    <who name="Tomasz Kłoczko">kloczko.tomasz</who>
+    <bug_when>2016-08-17 16:39:32 -0400</bug_when>
+    <thetext>Just downloaded and unpacked src.rpm and I see that connections to loacalhosts are only from 3 points in source code:
+
+plugins/print-notifications/gsd-printer.c:        uri = g_strdup_printf (&quot;ipp://localhost/printers/%s&quot;,
+plugins/print-notifications/gsd-print-notifications-manager.c:            (g_ascii_strncasecmp (server_name, &quot;localhost&quot;, 9) == 0 ||
+plugins/print-notifications/gsd-print-notifications-manager.c:                        job_uri = g_strdup_printf (&quot;ipp://localhost/jobs/%d&quot;, notify_job_id);
+po/mk.po:# Maratonec 4 &lt;maraton@localhost.localdomain&gt;, 2002.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9637390</commentid>
+    <comment_count>6</comment_count>
+    <who name="Tomasz Kłoczko">kloczko.tomasz</who>
+    <bug_when>2016-08-22 15:56:06 -0400</bug_when>
+    <thetext>For the record only.
+Link to this external bug report: https://bugzilla.gnome.org/show_bug.cgi?id=768174</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9670867</commentid>
+    <comment_count>7</comment_count>
+    <who name="Marek Kašík">mkasik</who>
+    <bug_when>2016-09-01 06:33:21 -0400</bug_when>
+    <thetext>This is probably a bug in CUPS which was introduced between 2.1.4 and 2.2. It seems that it could be this issue: https://github.com/apple/cups/issues/4870.
+I&apos;ve tried the fix which is already in repository (the &quot;http*Connect did not work on Linux when cupsd was not running&quot;) but it doesn&apos;t fix it for me yet. Downgrading to 2.1.4 fixes the problem for me.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9670888</commentid>
+    <comment_count>8</comment_count>
+    <who name="Marek Kašík">mkasik</who>
+    <bug_when>2016-09-01 06:38:42 -0400</bug_when>
+    <thetext>*** Bug 1368909 has been marked as a duplicate of this bug. ***</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9671067</commentid>
+    <comment_count>9</comment_count>
+    <who name="Christian Stadelmann">rhbz2</who>
+    <bug_when>2016-09-01 07:23:11 -0400</bug_when>
+    <thetext>*** Bug 1372092 has been marked as a duplicate of this bug. ***</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9671107</commentid>
+    <comment_count>10</comment_count>
+    <who name="Christian Stadelmann">rhbz2</who>
+    <bug_when>2016-09-01 07:28:41 -0400</bug_when>
+    <thetext>Bugzilla just added the BetaBlocker from my closed duplicate here (interesting, didn&apos;t expect that to happen automatically). For the record, here comes the justification I originally put to https://bugzilla.redhat.com/show_bug.cgi?id=1372092#c1 :
+
+Nominating as blocker since
+* This bug results in a general system slowdown
+* Applications relying on g-s-d break, miss functionality or are rendered useless
+* Login takes very long (&gt;10 seconds compared to 2 seconds on F24 on the same machine)
+* Logout takes _very_ long (about 30 seconds compared to &lt;1 second on F24 on the same machine)
+
+Citing Beta Release Criteria [1], section &quot;Shutdown, reboot, logout&quot;:
+
+Similar to the Alpha criterion for shutting down, shutdown and reboot mechanisms must take storage volumes down cleanly and correctly request a shutdown or reboot from the system firmware. Logging out must return the user to the environment from which they logged in, working as expected. 
+
+logout of 30 seconds is not expected.
+
+I won&apos;t mind if it won&apos;t make for a Beta blocker, Final blocker or freeze exception would be fine too.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9676964</commentid>
+    <comment_count>11</comment_count>
+    <who name="Tomasz Kłoczko">kloczko.tomasz</who>
+    <bug_when>2016-09-03 08:57:47 -0400</bug_when>
+    <thetext>Just found that exactly the same effect is when I&apos;m trying to enter Settings -&gt; Printer.
+With empty list of available/defined printers gnome-control-center process eats available CPU.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9699933</commentid>
+    <comment_count>12</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2016-09-12 12:37:57 -0400</bug_when>
+    <thetext>So in the blocker meeting discussion of this, we had a few questions:
+
+* Under what circumstances does this happen, exactly? Someone sees it in VMs but not on bare metal, someone else doesn&apos;t even see it in a VM, I saw it (at least g-s-d eating CPU time) once but don&apos;t see it right now on my bare metal system...
+
+* Are we actually sure that all the &apos;consequences&apos; listed in #c10 actually happen all the time, and are actually caused by this bug? For instance, I *did* get a rather slow login on my current boot, but I *don&apos;t* see g-s-d eating lots of CPU time. Even on the boot where I saw g-s-d eating CPU time, I don&apos;t recall seeing &apos;Applications relying on g-s-d break, miss functionality or are rendered useless&apos;, and kparal is sceptical of that as well.
+
+If anyone can clarify these points, it&apos;d be great.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9700300</commentid>
+    <comment_count>13</comment_count>
+    <who name="Yanko Kaneti">yaneti</who>
+    <bug_when>2016-09-12 14:47:49 -0400</bug_when>
+    <thetext>(In reply to Adam Williamson from comment #12)
+&gt; So in the blocker meeting discussion of this, we had a few questions:
+&gt; 
+&gt; * Under what circumstances does this happen, exactly? Someone sees it in VMs
+&gt; but not on bare metal, someone else doesn&apos;t even see it in a VM, I saw it
+&gt; (at least g-s-d eating CPU time) once but don&apos;t see it right now on my bare
+&gt; metal system...
+
+Stop cups service, and disable the cups socket. Then either logout/login or start gnome-control-center-&gt;printers.
+
+&gt; 
+&gt; * Are we actually sure that all the &apos;consequences&apos; listed in #c10 actually
+&gt; happen all the time, and are actually caused by this bug? For instance, I
+&gt; *did* get a rather slow login on my current boot, but I *don&apos;t* see g-s-d
+&gt; eating lots of CPU time. Even on the boot where I saw g-s-d eating CPU time,
+&gt; I don&apos;t recall seeing &apos;Applications relying on g-s-d break, miss
+&gt; functionality or are rendered useless&apos;, and kparal is sceptical of that as
+&gt; well.
+
+Getting gnome-settings-daemon in an loop which prevents it from loading properly all its plugins could break a number of things depenging on the order it happens, from keyboard shortcuts to power management, to tablet handling, to mouse settings....</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9700332</commentid>
+    <comment_count>14</comment_count>
+    <who name="Christian Stadelmann">rhbz2</who>
+    <bug_when>2016-09-12 14:58:11 -0400</bug_when>
+    <thetext>(In reply to Adam Williamson from comment #12)
+&gt; So in the blocker meeting discussion of this, we had a few questions:
+
+I hope to give some answers but that&apos;s probably not enough so feel free to add more.
+
+&gt; * Under what circumstances does this happen, exactly? Someone sees it in VMs
+&gt; but not on bare metal, someone else doesn&apos;t even see it in a VM, I saw it
+&gt; (at least g-s-d eating CPU time) once but don&apos;t see it right now on my bare
+&gt; metal system...
+
+Some conditions to trigger this bug:
+* have cups-libs-2.2 installed. 2.1.4 doesn&apos;t have this problem.
+
+Some conditions I am not sure about:
+* Don&apos;t have cups daemon installed
+* or don&apos;t have cups daemon running
+* or don&apos;t have a printer installed
+
+&gt; * Are we actually sure that all the &apos;consequences&apos; listed in #c10 actually
+&gt; happen all the time, and are actually caused by this bug? For instance, I
+&gt; *did* get a rather slow login on my current boot, but I *don&apos;t* see g-s-d
+&gt; eating lots of CPU time. Even on the boot where I saw g-s-d eating CPU time,
+&gt; I don&apos;t recall seeing &apos;Applications relying on g-s-d break, miss
+&gt; functionality or are rendered useless&apos;, and kparal is sceptical of that as
+&gt; well.
+
+Some consequences:
+* gnome-shell indicators for WLAN doesn&apos;t work
+* display brightness cannot be changed from gnome-shell any more
+* changing stuff in gnome-control-center or gnome-tweak-tool sometimes doesn&apos;t have any effect at all, sometimes is applied only on next login
+
+
+
+Exact steps to reproduce for me:
+0. have a Fedora 25 Alpha.2 x86_64 iso
+1. install in a VM
+2. run `dnf remove cups cups-f*`
+3. run `rm -rf /etc/cups`
+4. reboot and login</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9700611</commentid>
+    <comment_count>15</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2016-09-12 17:40:44 -0400</bug_when>
+    <thetext>If you have to actively disable the CUPS service or wipe files in /etc to trigger this, we&apos;re not likely to accept it as a blocker. It&apos;s only likely to be a blocker if you can encounter it without doing any of that stuff.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9700754</commentid>
+    <comment_count>16</comment_count>
+    <who name="Geoffrey Marr">gmarr</who>
+    <bug_when>2016-09-12 20:23:28 -0400</bug_when>
+    <thetext>Discussed during the 2016-09-12 blocker review meeting: [1]
+
+The decision to delay the classification of this as a bug was made as we generally agree this doesn&apos;t violate the criteria sufficiently to be considered a Beta blocker, however we will consider this bug again as a Final blocker as there are several unclear issues with this that we want to consult about before a decision is made.
+
+[1] https://meetbot.fedoraproject.org/fedora-blocker-review/2016-09-12/f25-blocker-review.2016-09-12-16.01.txt</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9706996</commentid>
+    <comment_count>17</comment_count>
+    <who name="Marek Kašík">mkasik</who>
+    <bug_when>2016-09-14 08:15:53 -0400</bug_when>
+    <thetext>Just a note, I&apos;ve just tested the new patch from Michael but gnome-settings-daemon still consumes ~80% of CPU (https://github.com/apple/cups/commit/e8916f41d892d9f24837101c845f32d215bdc04d).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9710502</commentid>
+    <comment_count>18</comment_count>
+    <who name="Tim Waugh">twaugh</who>
+    <bug_when>2016-09-15 06:45:16 -0400</bug_when>
+    <thetext>Is this a CUPS change? Is the component wrong for this bug?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9710544</commentid>
+    <comment_count>19</comment_count>
+    <who name="Marek Kašík">mkasik</who>
+    <bug_when>2016-09-15 07:06:17 -0400</bug_when>
+    <thetext>CUPS 2.1.4 doesn&apos;t cause the issue so I think the component is correct.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9710619</commentid>
+    <comment_count>20</comment_count>
+      <attachid>1201185</attachid>
+    <who name="Christian Stadelmann">rhbz2</who>
+    <bug_when>2016-09-15 07:36:57 -0400</bug_when>
+    <thetext>Created attachment 1201185
+logging output from gdb attached to gnome-settings-daemon with problem reproduced
+
+I&apos;ve attached a backtrace for this bug. It seems like cups-libs doesn&apos;t care that cups.socket is missing but retries again and again, triggering SIGPIPE all the time.
+
+(In reply to Christian Stadelmann from comment #10)
+&gt; * Login takes very long (&gt;10 seconds compared to 2 seconds on F24 on the
+&gt; same machine)
+
+Actually, this is a separate bug. I don&apos;t know where to report it though. Trying to investigate further.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9715625</commentid>
+    <comment_count>21</comment_count>
+    <who name="Christian Stadelmann">rhbz2</who>
+    <bug_when>2016-09-16 16:35:21 -0400</bug_when>
+    <thetext>An upgrade to cups 2.2.0-1.fc25 doesn&apos;t fix the bug despite github issue #4870 being marked as fixed.
+
+Noe that this bug causes every logout to fail, always resulting in a forced kill of gnome-shell and other GUI applications.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9720837</commentid>
+    <comment_count>22</comment_count>
+    <who name="Christian Stadelmann">rhbz2</who>
+    <bug_when>2016-09-19 07:13:44 -0400</bug_when>
+    <thetext>I&apos;ve added a new (2.2.0-1.fc25) backtrace to upstream, hoping they are able to fix this.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9720941</commentid>
+    <comment_count>23</comment_count>
+    <who name="Tomasz Kłoczko">kloczko.tomasz</who>
+    <bug_when>2016-09-19 07:41:48 -0400</bug_when>
+    <thetext>Just tested and cups 2.2.0 still has this issue :(</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9722378</commentid>
+    <comment_count>24</comment_count>
+    <who name="Petr Schindler">pschindl</who>
+    <bug_when>2016-09-19 13:45:39 -0400</bug_when>
+    <thetext>Discussed at 2016-09-19 blocker review meeting: [1]. 
+
+We decided to delay the decision:  Based on information gathered during the meeting, it seems like there is a possibility of multiple bugs here. Until we can confirm that this is one single bug, we are delaying the classification of this as a blocker.
+
+[1] https://meetbot-raw.fedoraproject.org/fedora-blocker-review/2016-09-19/</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9722591</commentid>
+    <comment_count>25</comment_count>
+    <who name="Zdenek Dohnal">zdohnal</who>
+    <bug_when>2016-09-19 15:00:55 -0400</bug_when>
+    <thetext>It seems this pull request [1] fixes this issue. I tested it on Fedora 25 by running testcups (as Michael suggested on github) and running &apos;make check&apos;. When I disabled CUPS and opened Settings -&gt; Printers gnome-control-center doesn&apos;t consume large amount of CPU. Printing test page was successful. Scratch build is available at [2]. Would you mind testing it?
+
+[1] https://github.com/xuzhen/cups/commit/aea1878c64f580700bb27b61068dccb1593a3bc3
+[2] http://koji.fedoraproject.org/koji/taskinfo?taskID=15708849</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9722597</commentid>
+    <comment_count>26</comment_count>
+    <who name="Zdenek Dohnal">zdohnal</who>
+    <bug_when>2016-09-19 15:02:54 -0400</bug_when>
+    <thetext>I will wait for Michael opinion on this patch before I will push this to git.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9725031</commentid>
+    <comment_count>27</comment_count>
+    <who name="Marek Kašík">mkasik</who>
+    <bug_when>2016-09-20 04:19:40 -0400</bug_when>
+    <thetext>Thank you for the scratch build, it fixes the problem for me.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9727860</commentid>
+    <comment_count>28</comment_count>
+    <who name="Michael Catanzaro">mcatanzaro</who>
+    <bug_when>2016-09-20 17:45:09 -0400</bug_when>
+    <thetext>(In reply to Zdenek Dohnal from comment #25)
+&gt; It seems this pull request [1] fixes this issue.
+
+Andreas Henriksson on IRC reports that [2] (different commit with a different upstream issue number!) fixes the issue for him.
+
+[2] https://github.com/apple/cups/commit/0ca77b3e89dc1f75c91e1a084dba861e378c6c8d</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9728953</commentid>
+    <comment_count>29</comment_count>
+    <who name="Zdenek Dohnal">zdohnal</who>
+    <bug_when>2016-09-21 04:14:45 -0400</bug_when>
+    <thetext>(In reply to Michael Catanzaro from comment #28)
+&gt; Andreas Henriksson on IRC reports that [2] (different commit with a
+&gt; different upstream issue number!) fixes the issue for him.
+&gt; 
+&gt; [2]
+&gt; https://github.com/apple/cups/commit/0ca77b3e89dc1f75c91e1a084dba861e378c6c8d
+
+Yes, that is new commit from Michael, he fixed it more sophisticated way. I will test it and I will build it after that.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9729818</commentid>
+    <comment_count>30</comment_count>
+    <who name="Tomasz Kłoczko">kloczko.tomasz</who>
+    <bug_when>2016-09-21 08:29:54 -0400</bug_when>
+    <thetext>Even if this patch will fix looping in partial failing service IMO bug still is in different place because cups client library should not be trying to initialize any service if there is no any printers defined.
+Looks like cups initialisation is trying to establish connectivity to the printer even with empty list of printers.
+IMO this should not be like this.
+
+Just found that reported here bug is affecting even lpstat.cups command. This command started without parameters or with -l is looping as well trying to establish connectivity to localhost. However:
+
+[root@domek cups]# rpm -qa \^cups\*
+cups-filters-libs-1.11.2-1.fc26.x86_64
+cups-devel-2.2.0-1.fc26.x86_64
+cups-filesystem-2.2.0-1.fc26.noarch
+cups-filters-1.11.2-1.fc26.x86_64
+cups-libs-2.2.0-1.fc26.x86_64
+cups-client-2.2.0-1.fc26.x86_64
+cups-pk-helper-0.2.6-1.fc24.x86_64
+cups-debuginfo-2.2.0-1.fc26.x86_64
+
+[root@domek cups]# lpstat.cups -H
+localhost:631
+[root@domek cups]# rpm -qal cups\* | grep /etc | xargs grep localhost
+
+So looks like localhost:631 print server is hardcoded into library.
+IMO we can talk here about at least two bugs.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9733194</commentid>
+    <comment_count>31</comment_count>
+    <who name="Zdenek Dohnal">zdohnal</who>
+    <bug_when>2016-09-22 04:54:10 -0400</bug_when>
+    <thetext>For now, scratch build fixing looping in partial failing service:
+
+http://koji.fedoraproject.org/koji/taskinfo?taskID=15732870</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9734246</commentid>
+    <comment_count>32</comment_count>
+    <who name="Zdenek Dohnal">zdohnal</who>
+    <bug_when>2016-09-22 09:36:42 -0400</bug_when>
+    <thetext>(In reply to Tomasz Kłoczko from comment #30)
+&gt; Even if this patch will fix looping in partial failing service IMO bug still
+&gt; is in different place because cups client library should not be trying to
+&gt; initialize any service if there is no any printers defined.
+&gt; Looks like cups initialisation is trying to establish connectivity to the
+&gt; printer even with empty list of printers.
+&gt; IMO this should not be like this.
+
+This is correct behavior. LibCUPS needs to try to initialize cupsd service, because libcups does not know that there are no printers from start (that information is sent by cupsd on libcups&apos; request). And if cupsd does not run, this try fails.  
+
+&gt; 
+&gt; Just found that reported here bug is affecting even lpstat.cups command.
+&gt; This command started without parameters or with -l is looping as well trying
+&gt; to establish connectivity to localhost. However:
+&gt; 
+
+I did not encounter any loop when running lpstat after the newest update. It ends immediately with message &apos;lpstat: Bad file descriptor&apos;.
+
+&gt; [root@domek cups]# rpm -qa \^cups\*
+&gt; cups-filters-libs-1.11.2-1.fc26.x86_64
+&gt; cups-devel-2.2.0-1.fc26.x86_64
+&gt; cups-filesystem-2.2.0-1.fc26.noarch
+&gt; cups-filters-1.11.2-1.fc26.x86_64
+&gt; cups-libs-2.2.0-1.fc26.x86_64
+&gt; cups-client-2.2.0-1.fc26.x86_64
+&gt; cups-pk-helper-0.2.6-1.fc24.x86_64
+&gt; cups-debuginfo-2.2.0-1.fc26.x86_64
+&gt; 
+&gt; [root@domek cups]# lpstat.cups -H
+&gt; localhost:631
+&gt; [root@domek cups]# rpm -qal cups\* | grep /etc | xargs grep localhost
+&gt; 
+&gt; So looks like localhost:631 print server is hardcoded into library.
+&gt; IMO we can talk here about at least two bugs.
+
+When I ran your commands, I got different results (after stopping and disabling cupsd):
+
+[root@localhost ~]# rpm -qa \^cups\*
+cups-client-2.2.0-2.fc25.x86_64
+cups-pk-helper-0.2.6-1.fc24.x86_64
+cups-lpd-2.2.0-2.fc25.x86_64
+cups-debuginfo-2.2.0-2.fc25.x86_64
+cups-filters-1.10.0-3.fc25.x86_64
+cups-filesystem-2.2.0-2.fc25.noarch
+cups-devel-2.2.0-2.fc25.x86_64
+cups-filters-libs-1.10.0-3.fc25.x86_64
+cups-libs-2.2.0-2.fc25.x86_64
+cups-2.2.0-2.fc25.x86_64
+cups-ipptool-2.2.0-2.fc25.x86_64
+
+[root@localhost ~]# lpstat.cups -H
+localhost:631
+
+[root@localhost ~]# rpm -qal cups\* | grep /etc | xargs grep localhost
+grep: /etc/cups: Is a directory
+/etc/cups/cupsd.conf:Listen localhost:631
+/etc/cups/cupsd.conf.default:Listen localhost:631
+grep: /etc/cups/ppd: Is a directory
+grep: /etc/cups/ssl: Is a directory
+
+[root@localhost ~]# lpstat -l
+lpstat: Bad file descriptor
+
+So after stopping+disabling cupsd, libcups is trying to access address and port, on which cupsd suppose to listen (when cupsd is running and enabled - even its .socket and .path units in systemd - output of command &apos;lpstat.cups -H&apos; is /var/run/cups/cups.sock). In your case it is localhost:631, because you have it set in your cupsd.conf file.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9734370</commentid>
+    <comment_count>33</comment_count>
+      <attachid>1203772</attachid>
+    <who name="Zdenek Dohnal">zdohnal</who>
+    <bug_when>2016-09-22 10:02:06 -0400</bug_when>
+    <thetext>Created attachment 1203772
+Proposed patch
+
+Patch was tested and now is in Bodhi.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9736342</commentid>
+    <comment_count>34</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-23 01:24:57 -0400</bug_when>
+    <thetext>cups-2.2.0-2.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-3b495837e7</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9737799</commentid>
+    <comment_count>35</comment_count>
+    <who name="Tomasz Kłoczko">kloczko.tomasz</who>
+    <bug_when>2016-09-23 09:18:35 -0400</bug_when>
+    <thetext>&gt; This is correct behavior. LibCUPS needs to try to initialize cupsd service, because libcups does not know that there are no printers from start (that information is sent by cupsd on libcups&apos; request). And if cupsd does not run, this try fails. 
+
+Connecting to CUPS service by client library should be IMO done only if it is defined on client side at least one defined printer.
+In other words cups client library should not been trying to connect to localhost because nothing guarantees that such printer service (without setup) will be available.
+I&apos;m not sure am I understand you correctly .. if above means that libcups is used as well on CUPS service side (in cupsd) it may mean that this library contains more than client API/ABI and someone should shift part of the library code to cupsd code.
+
+&gt; When I ran your commands, I got different results (after stopping and disabling cupsd):
+[..]
+&gt;[root@localhost ~]# rpm -qal cups\* | grep /etc | xargs grep localhost
+&gt;grep: /etc/cups: Is a directory
+&gt;/etc/cups/cupsd.conf:Listen localhost:631
+&gt;/etc/cups/cupsd.conf.default:Listen localhost:631
+&gt;grep: /etc/cups/ppd: Is a directory
+&gt;grep: /etc/cups/ssl: Is a directory
+
+/etc/cups/cupsd.conf it is cupsd config file and above lone shows that your cupsd will be listening on localhost.
+
+Client conf file is in /etc/cups/client.conf:
+
+$ strace -e trace=file lpstat 2&gt;&amp;1 | grep cups
+open(&quot;/lib64/libcups.so.2&quot;, O_RDONLY|O_CLOEXEC) = 3
+open(&quot;/etc/cups/client.conf&quot;, O_RDONLY) = -1 ENOENT (No such file or directory)
+open(&quot;/home/tkloczko/.cups/client.conf&quot;, O_RDONLY) = -1 ENOENT (No such file or directory)
+access(&quot;/var/run/cups/cups.sock&quot;, R_OK) = -1 ENOENT (No such file or directory)
+^C
+
+Seems like this file is not listed in cups-libs package and it should be added by add at least empty file by add to %install section &quot;&gt; %{buildroot}%{sysconfdir}/cups/client.conf&quot; line and in &quot;%files libs&quot; section &quot;%config(noreplace) %{sysconfdir}/cups/client.conf&quot; line should be added as well to guard proper permission of this file by rpm database verification (rpm -Va).
+
+Again: as long as there is no in /etc/cups/client.conf or ~/.cups/client.conf defined any printers libcups should not been trying to connect to anything.
+Hardcoded trying to connect /var/run/cups/cups.sock socket should be removed as well.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9738205</commentid>
+    <comment_count>36</comment_count>
+    <who name="Geoffrey Marr">gmarr</who>
+    <bug_when>2016-09-23 11:19:10 -0400</bug_when>
+    <thetext>Tested with scratch build and with package in updates-testing. No longer experience high CPU usage on login. System reports low CPU usage regardless of whether or not the CUPS service is enabled or disabled. Printed test page successfully. As far as the original issue is concerned (high CPU usage), this update (cups-2.2.0-2.fc25) solves the problem.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9738295</commentid>
+    <comment_count>37</comment_count>
+    <who name="Zdenek Dohnal">zdohnal</who>
+    <bug_when>2016-09-23 11:50:11 -0400</bug_when>
+    <thetext>(In reply to Tomasz Kłoczko from comment #35)
+&gt; Connecting to CUPS service by client library should be IMO done only if it
+&gt; is defined on client side at least one defined printer.
+&gt; In other words cups client library should not been trying to connect to
+&gt; localhost because nothing guarantees that such printer service (without
+&gt; setup) will be available.
+
+How else libcups can find out cupsd isn&apos;t running? Libcups needs to try to connect to cupsd, which checks, if there is printer or not. Libcups doesn&apos;t know by default, if there is any printer. Libcups is just library, which allows application to act as cups client, which need to send request to cupsd for information. If cupsd isn&apos;t running or cups.socket or cups.path is disabled, it ends with error. All is correct behavior.
+
+&gt; I&apos;m not sure am I understand you correctly .. if above means that libcups is
+&gt; used as well on CUPS service side (in cupsd) it may mean that this library
+&gt; contains more than client API/ABI and someone should shift part of the
+&gt; library code to cupsd code.
+ 
+No, libcups is just just library, which allows application to act as cups client, which needs to ask cupsd (server, which is running as service) for info. If cupsd is down, libcups returns error and application, which uses libcups, needs to deal with it.
+
+&gt; /etc/cups/cupsd.conf it is cupsd config file and above lone shows that your
+&gt; cupsd will be listening on localhost.
+
+I thought your command stuck in infinite loop, so I sent you my output for you to find out there is no issue in the newest version.
+
+&gt; 
+&gt; Client conf file is in /etc/cups/client.conf:
+&gt; 
+&gt; $ strace -e trace=file lpstat 2&gt;&amp;1 | grep cups
+&gt; open(&quot;/lib64/libcups.so.2&quot;, O_RDONLY|O_CLOEXEC) = 3
+&gt; open(&quot;/etc/cups/client.conf&quot;, O_RDONLY) = -1 ENOENT (No such file or
+&gt; directory)
+&gt; open(&quot;/home/tkloczko/.cups/client.conf&quot;, O_RDONLY) = -1 ENOENT (No such file
+&gt; or directory)
+&gt; access(&quot;/var/run/cups/cups.sock&quot;, R_OK) = -1 ENOENT (No such file or
+&gt; directory)
+&gt; ^C
+
+My output of that command:
+
+[zdenekdohnal@localhost ~]$ strace -e trace=file lpstat 2&gt;&amp;1 | grep cups
+open(&quot;/lib64/libcups.so.2&quot;, O_RDONLY|O_CLOEXEC) = 3
+open(&quot;/etc/cups/client.conf&quot;, O_RDONLY) = 3
+open(&quot;/home/zdenekdohnal/.cups/client.conf&quot;, O_RDONLY) = -1 ENOENT (No such file or directory)
+access(&quot;/var/run/cups/cups.sock&quot;, R_OK) = -1 ENOENT (No such file or directory)
+access(&quot;/usr/share/locale/en_US/cups_en_US.po&quot;, F_OK) = -1 ENOENT (No such file or directory)
+access(&quot;/usr/share/locale/en/cups_en.po&quot;, F_OK) = -1 ENOENT (No such file or directory)
+open(&quot;/usr/share/locale/C/cups_C.po&quot;, O_RDONLY) = -1 ENOENT (No such file or directory)
+
+It seems you are missing client.conf, which is shipped with main package of cups. Would you mind finding out if you have installed main package (cups-2.2.0-1)? Because as I look on you output of &apos;rpm -qa&apos;, I do not see any main package. I have empty client.conf and printing works.
+
+&gt; Again: as long as there is no in /etc/cups/client.conf or
+&gt; ~/.cups/client.conf defined any printers libcups should not been trying to
+&gt; connect to anything.
+
+Even if there is no client.conf, libcups can use discovery.
+
+&gt; Hardcoded trying to connect /var/run/cups/cups.sock socket should be removed
+&gt; as well.
+
+This is not &apos;hardcoded&apos; (if you think hardcoded as something that cannot be change - only in source code), it is default setting in cupsd.conf, which you can change. And any case, I thought you are reporting bug in lpstat (which didn&apos;t happen).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9738545</commentid>
+    <comment_count>38</comment_count>
+    <who name="Tomasz Kłoczko">kloczko.tomasz</who>
+    <bug_when>2016-09-23 13:46:44 -0400</bug_when>
+    <thetext>&gt; How else libcups can find out cupsd isn&apos;t running?
+
+If there is no any defined in client.conf printers checking should be abandoned and state of the client library ABI should be assuming that there is no cupsd on localhost.
+That is all ..
+Checking is cupsd running on the same system is not needed to any client functionalities after client library initialization.
+
+Try to think about other client type service like for example DNS.
+If resolver does not have any defined in /etc/resolv.conf lines with &quot;nameserver&quot; resolver functions are not trying to connect named on localhost. Isn&apos;t it?
+You can find exactly the same pattern in many other client libraries.
+
+&gt; My output of that command:
+
+Yes because you have printer service defined in this file.
+I haven&apos;t even installed cupsd package.
+
+
+&gt; libcups is just just library, which allows application to act as cups client, which needs to ask cupsd (server, which is running as service) for info.
+
+So when there is no any printers defined in /etc/cups/clien.conf or ~/.cups/client.conf such library on calling any function after check that there is no any printers should just finish with error that there is no printers.
+
+&gt; Even if there is no client.conf, libcups can use discovery.
+
+Of course if API provides function allowing to connect ad check remote service configuration passing in parameters any arbitrary address of printing service.
+However by default libcups should nob be trying to connect to anything as same as libc resolver is not trying to discover DNS server if there is no /etc/resolv.conf or this file is empty.
+
+&gt; No, libcups is just just library, which allows application to act as cups client, which needs to ask cupsd (server, which is running as service) for info. 
+
+Seems it is not entirely true. Just build cups package with LDFLAGS=&quot;-Wl,--as-needed&quot; and seems like this linking option is not possible to remove from /usr/sbin/cupsd elf NEEDED list. Seems like CUPS server is using for something library which theoretically should be only client library. Strange ..
+
+Here is my list of changes which you can apply to the spec:
+
+-- 
+--- cups.spec.orig      2016-09-15 13:56:10.000000000 +0100
++++ cups.spec   2016-09-23 18:11:49.457152603 +0100
+@@ -77,15 +77,13 @@
+ BuildRequires: openldap-devel
+ BuildRequires: pkgconfig(libusb-1.0)
+ BuildRequires: krb5-devel
++BuildRequires: libstdc++-devel
+ BuildRequires: pkgconfig(avahi-client)
+ BuildRequires: systemd
+ BuildRequires: pkgconfig(libsystemd)
+ BuildRequires: pkgconfig(dbus-1)
+ BuildRequires: automake
+ 
+-# Make sure we get postscriptdriver tags.
+-BuildRequires: python-cups
+-
+ %if %{lspp}
+ BuildRequires: libselinux-devel
+ BuildRequires: audit-libs-devel
+@@ -122,9 +120,6 @@
+ Summary: CUPS printing system - development environment
+ License: LGPLv2
+ Requires: %{name}-libs%{?_isa} = %{epoch}:%{version}-%{release}
+-Requires: gnutls-devel
+-Requires: krb5-devel
+-Requires: zlib-devel
+ Provides: cupsddk-devel
+ 
+ %package libs
+@@ -284,6 +279,7 @@
+ export CFLAGS=&quot;$RPM_OPT_FLAGS -fstack-protector-all -DLDAP_DEPRECATED=1&quot;
+ # --enable-debug to avoid stripping binaries
+ %configure --with-docdir=%{_datadir}/%{name}/www --enable-debug \
++       LDFLAGS=&quot;-Wl,--as-need&quot; \
+ %if %{lspp}
+        --enable-lspp \
+ %endif
+-- 
+
+python-cups does not need to be installed to build cups python support.
+Fact that libcups is linked with gnutls, krb5 and zlib does not mean that anyone who will add -lcups to linking options will need to have even installed those devel packages. None of the cups headers files is using header files from these packages as well.
+cups source code contains C++ parts so libstdc++-devel needs to be added
+
+Result of -Wl,--as-need on only &quot;objdump -x /usr/sbin/cups&quot;:
+
+--- cups-NEEDED.old	2016-09-23 17:40:41.472774323 +0100
++++ cups-NEEDED.new	2016-09-23 17:40:51.627832704 +0100
+@@ -20,14 +20,11 @@
+ libc.so.6()(64bit)  
+ libc.so.6(GLIBC_2.14)(64bit)  
+ libc.so.6(GLIBC_2.15)(64bit)  
+-libc.so.6(GLIBC_2.16)(64bit)  
+ libc.so.6(GLIBC_2.2.5)(64bit)  
+ libc.so.6(GLIBC_2.3)(64bit)  
+ libc.so.6(GLIBC_2.3.2)(64bit)  
+ libc.so.6(GLIBC_2.3.4)(64bit)  
+ libc.so.6(GLIBC_2.4)(64bit)  
+-libcom_err.so.2()(64bit)  
+-libcrypt.so.1()(64bit)  
+ libcups.so.2()(64bit)  
+ libcupscgi.so.1()(64bit)  
+ libcupsimage.so.2()(64bit)  
+@@ -35,14 +32,10 @@
+ libcupsppdc.so.1()(64bit)  
+ libdbus-1.so.3()(64bit)  
+ libdbus-1.so.3(LIBDBUS_1_3)(64bit)  
+-libdl.so.2()(64bit)  
+ libgcc_s.so.1()(64bit)  
+ libgcc_s.so.1(GCC_3.0)(64bit)  
+-libgnutls.so.30()(64bit)  
+ libgssapi_krb5.so.2()(64bit)  
+ libgssapi_krb5.so.2(gssapi_krb5_2_MIT)(64bit)  
+-libk5crypto.so.3()(64bit)  
+-libkrb5.so.3()(64bit)  
+ libm.so.6()(64bit)  
+ libm.so.6(GLIBC_2.2.5)(64bit)  
+ libpam.so.0()(64bit)  
+@@ -53,12 +46,10 @@
+ libselinux.so.1()(64bit)  
+ libstdc++.so.6()(64bit)  
+ libstdc++.so.6(CXXABI_1.3)(64bit)  
+-libstdc++.so.6(CXXABI_1.3.9)(64bit)  
+ libstdc++.so.6(GLIBCXX_3.4)(64bit)  
+ libsystemd.so.0()(64bit)  
+ libsystemd.so.0(LIBSYSTEMD_209)(64bit)  
+ libusb-1.0.so.0()(64bit)  
+-libz.so.1()(64bit)  
+ rpmlib(CompressedFileNames) &lt;= 3.0.4-1
+ rpmlib(FileDigests) &lt;= 4.6.0-1
+ rpmlib(PayloadFilesHavePrefix) &lt;= 4.0-1
+
+So as you see cupsd does not uses at all many libraries with which this ony binary is linked.
+With -Wl,--as-need binary packages will have shorter list of rpm REQUIRES dependencies.
+
+Back to /etc/cups/client.conf.
+This file should be part of cups-libs package because it is client side configuration file.
+Despite this that cupsd is linked with libcups cupsd binary is not doing anything with it and can start without reporting any issues without this file.
+client.conf is not listed as well in cupsd(8) man page as used configuration file.
+
+Probably it would be good to spend some time investigate why cupsd is using libcups (as theoretically it is only client side library).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9740119</commentid>
+    <comment_count>39</comment_count>
+    <who name="Zbigniew Jędrzejewski-Szmek">zbyszek</who>
+    <bug_when>2016-09-24 07:43:43 -0400</bug_when>
+    <thetext>&gt; This file should be part of cups-libs package because it is client side configuration file.
+
+Agreed, is should be. But considering that the file is empty by default, this is mostly a cosmetic change that gives a hint that this file can be used without cups daemon.
+
+&gt; If there is no any defined in client.conf printers checking should be abandoned
+
+No, the list of printers is defined on the server side. An empty client.conf file means &quot;connect to server on localhost&quot;.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9740150</commentid>
+    <comment_count>40</comment_count>
+    <who name="Tomasz Kłoczko">kloczko.tomasz</who>
+    <bug_when>2016-09-24 08:14:34 -0400</bug_when>
+    <thetext>&gt; No, the list of printers is defined on the server side. An empty client.conf file means &quot;connect to server on localhost&quot;.
+
+Correction: list of defined print services to test on runtime.
+If there is no defined on client side list of those services client library should not try to test any of them.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9740166</commentid>
+    <comment_count>41</comment_count>
+    <who name="Zbigniew Jędrzejewski-Szmek">zbyszek</who>
+    <bug_when>2016-09-24 08:23:47 -0400</bug_when>
+    <thetext>(In reply to Tomasz Kłoczko from comment #40)
+&gt; &gt; No, the list of printers is defined on the server side. An empty client.conf file means &quot;connect to server on localhost&quot;.
+&gt; 
+&gt; Correction: list of defined print services to test on runtime.
+&gt; If there is no defined on client side list of those services client library
+&gt; should not try to test any of them.
+
+Even if this were true (I don&apos;t think so), this is a separate issue from this one.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9740231</commentid>
+    <comment_count>42</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-24 11:13:20 -0400</bug_when>
+    <thetext>cups-2.2.0-2.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9763654</commentid>
+    <comment_count>43</comment_count>
+    <who name="Pavel Grunt">pgrunt</who>
+    <bug_when>2016-10-04 01:56:30 -0400</bug_when>
+    <thetext>*** Bug 1380260 has been marked as a duplicate of this bug. ***</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="0"
+              ispatch="0"
+              isprivate="0"
+          >
+            <attachid>1201185</attachid>
+            <date>2016-09-15 07:36:00 -0400</date>
+            <delta_ts>2016-09-15 07:36:57 -0400</delta_ts>
+            <desc>logging output from gdb attached to gnome-settings-daemon with problem reproduced</desc>
+            <filename>g-s-d-busy-loop-cups.gdb-log.txt</filename>
+            <type>text/plain</type>
+            <size>25377</size>
+            <attacher name="Christian Stadelmann">rhbz2</attacher>
+            
+              <data encoding="base64">VGhyZWFkIDEgImdub21lLXNldHRpbmdzLSIgcmVjZWl2ZWQgc2lnbmFsIFNJR1BJUEUsIEJyb2tl
+biBwaXBlLgoweDAwMDA3ZjU1NTA5NWFhYmYgaW4gX19saWJjX3NlbmQgKGZkPTE4LCBidWY9YnVm
+QGVudHJ5PTB4NTViYzQ0ZjUwYTg4LCBuPW5AZW50cnk9MTk0LCBmbGFncz1mbGFnc0BlbnRyeT0w
+KQogICAgYXQgLi4vc3lzZGVwcy91bml4L3N5c3YvbGludXgveDg2XzY0L3NlbmQuYzoyNgoyNgkg
+IHJldHVybiBTWVNDQUxMX0NBTkNFTCAoc2VuZHRvLCBmZCwgYnVmLCBuLCBmbGFncywgTlVMTCwg
+KHNpemVfdCkgMCk7CiMwICAweDAwMDA3ZjU1NTA5NWFhYmYgaW4gX19saWJjX3NlbmQgKGZkPTE4
+LCBidWY9YnVmQGVudHJ5PTB4NTViYzQ0ZjUwYTg4LCBuPW5AZW50cnk9MTk0LCBmbGFncz1mbGFn
+c0BlbnRyeT0wKQogICAgYXQgLi4vc3lzZGVwcy91bml4L3N5c3YvbGludXgveDg2XzY0L3NlbmQu
+YzoyNgojMSAgMHgwMDAwN2Y1NTI0NDRjODFmIGluIGh0dHBfd3JpdGUgKGh0dHA9aHR0cEBlbnRy
+eT0weDU1YmM0NGY0ZTI5MCwgCiAgICBidWZmZXI9YnVmZmVyQGVudHJ5PTB4NTViYzQ0ZjUwYTg4
+ICJQT1NUIC8gSFRUUC8xLjFcclxuQ29udGVudC1MZW5ndGg6IDcyNFxyXG5Db250ZW50LVR5cGU6
+IGFwcGxpY2F0aW9uL2lwcFxyXG5Ib3N0OiBsb2NhbGhvc3Q6NjMxXHJcblVzZXItQWdlbnQ6IENV
+UFMvMi4ycmMxIChMaW51eCA0LjguMC0wLnJjNS5naXQxLjEuZmMyNS54ODZfNjQ7IHg4Nl82NCkg
+SVBQLzIuMFxyXG5FeHBlY3Q6IDEwMC1jb250aW51ZVxyXG5cclxuIiwgbGVuZ3RoPTE5NCkKICAg
+IGF0IGh0dHAuYzo0NzEwCiMyICAweDAwMDA3ZjU1MjQ0NGNkOWYgaW4gaHR0cEZsdXNoV3JpdGUg
+KGh0dHA9aHR0cEBlbnRyeT0weDU1YmM0NGY0ZTI5MCkgYXQgaHR0cC5jOjcwNQojMyAgMHgwMDAw
+N2Y1NTI0NDUwY2IzIGluIGh0dHBfc2VuZCAoaHR0cD1odHRwQGVudHJ5PTB4NTViYzQ0ZjRlMjkw
+LCByZXF1ZXN0PXJlcXVlc3RAZW50cnk9SFRUUF9TVEFURV9QT1NULCAKICAgIHVyaT11cmlAZW50
+cnk9MHg3ZjU1MjQ0ODYzZjcgIi8iKSBhdCBodHRwLmM6NDQxNwojNCAgMHgwMDAwN2Y1NTI0NDUx
+NjU1IGluIGh0dHBQb3N0IChodHRwPWh0dHBAZW50cnk9MHg1NWJjNDRmNGUyOTAsIHVyaT11cmlA
+ZW50cnk9MHg3ZjU1MjQ0ODYzZjcgIi8iKSBhdCBodHRwLmM6MTg3OAojNSAgMHgwMDAwN2Y1NTI0
+NDc5MTY1IGluIGN1cHNTZW5kUmVxdWVzdCAoaHR0cD1odHRwQGVudHJ5PTB4NTViYzQ0ZjRlMjkw
+LCByZXF1ZXN0PXJlcXVlc3RAZW50cnk9MHg1NWJjNDRmNGI1NzAsIAogICAgcmVzb3VyY2U9cmVz
+b3VyY2VAZW50cnk9MHg3ZjU1MjQ0ODYzZjcgIi8iLCBsZW5ndGg9bGVuZ3RoQGVudHJ5PTcyNCkg
+YXQgcmVxdWVzdC5jOjcxMgojNiAgMHgwMDAwN2Y1NTI0NDc5NmU0IGluIGN1cHNEb0lPUmVxdWVz
+dCAoaHR0cD0weDU1YmM0NGY0ZTI5MCwgaHR0cEBlbnRyeT0weDAsIHJlcXVlc3Q9cmVxdWVzdEBl
+bnRyeT0weDU1YmM0NGY0YjU3MCwgCiAgICByZXNvdXJjZT1yZXNvdXJjZUBlbnRyeT0weDdmNTUy
+NDQ4NjNmNyAiLyIsIGluZmlsZT1pbmZpbGVAZW50cnk9LTEsIG91dGZpbGU9b3V0ZmlsZUBlbnRy
+eT0tMSkgYXQgcmVxdWVzdC5jOjIxMQojNyAgMHgwMDAwN2Y1NTI0NDc5YWI2IGluIGN1cHNEb1Jl
+cXVlc3QgKGh0dHA9aHR0cEBlbnRyeT0weDAsIHJlcXVlc3Q9cmVxdWVzdEBlbnRyeT0weDU1YmM0
+NGY0YjU3MCwgCiAgICByZXNvdXJjZT1yZXNvdXJjZUBlbnRyeT0weDdmNTUyNDQ4NjNmNyAiLyIp
+IGF0IHJlcXVlc3QuYzozMDEKIzggIDB4MDAwMDdmNTUyNDQ0MWQzYiBpbiBfY3Vwc0dldERlc3Rz
+IChodHRwPWh0dHBAZW50cnk9MHgwLCBvcD1vcEBlbnRyeT1JUFBfT1BfQ1VQU19HRVRfUFJJTlRF
+UlMsIG5hbWU9bmFtZUBlbnRyeT0weDAsIAogICAgZGVzdHM9ZGVzdHNAZW50cnk9MHg1NWJjNDRl
+NGU5NTAsIHR5cGU9dHlwZUBlbnRyeT0wLCBtYXNrPW1hc2tAZW50cnk9MTM0MjE3NzI4KSBhdCBk
+ZXN0LmM6MTYzMwojOSAgMHgwMDAwN2Y1NTI0NDQyZmJmIGluIGN1cHNHZXREZXN0czIgKGh0dHA9
+aHR0cEBlbnRyeT0weDAsIGRlc3RzPWRlc3RzQGVudHJ5PTB4NTViYzQ0ZTRlOTUwKSBhdCBkZXN0
+LmM6MTg1NQojMTAgMHgwMDAwN2Y1NTI0NDQzMjUyIGluIGN1cHNHZXREZXN0cyAoZGVzdHM9ZGVz
+dHNAZW50cnk9MHg1NWJjNDRlNGU5NTApIGF0IGRlc3QuYzoxODAyCiMxMSAweDAwMDA3ZjU1MjQ2
+YWJhNTUgaW4gZ3NkX3ByaW50X25vdGlmaWNhdGlvbnNfbWFuYWdlcl9zdGFydF9pZGxlIChkYXRh
+PWRhdGFAZW50cnk9MHg1NWJjNDRlNGU5YTApCiAgICBhdCBnc2QtcHJpbnQtbm90aWZpY2F0aW9u
+cy1tYW5hZ2VyLmM6MTM2MgojMTIgMHgwMDAwN2Y1NTUwYmFlOTg3IGluIGdfaWRsZV9kaXNwYXRj
+aCAoc291cmNlPTB4NTViYzQ0ZTU0NzcwLCAKICAgIGNhbGxiYWNrPTB4N2Y1NTI0NmFiOTgwIDxn
+c2RfcHJpbnRfbm90aWZpY2F0aW9uc19tYW5hZ2VyX3N0YXJ0X2lkbGU+LCB1c2VyX2RhdGE9MHg1
+NWJjNDRlNGU5YTApIGF0IGdtYWluLmM6NTU0MwojMTMgMHgwMDAwN2Y1NTUwYmIxZjIyIGluIGdf
+bWFpbl9kaXNwYXRjaCAoY29udGV4dD0weDU1YmM0NGFjZjBmMCkgYXQgZ21haW4uYzozMjAxCiMx
+NCBnX21haW5fY29udGV4dF9kaXNwYXRjaCAoY29udGV4dD1jb250ZXh0QGVudHJ5PTB4NTViYzQ0
+YWNmMGYwKSBhdCBnbWFpbi5jOjM4NTQKIzE1IDB4MDAwMDdmNTU1MGJiMjJhMCBpbiBnX21haW5f
+Y29udGV4dF9pdGVyYXRlIChjb250ZXh0PTB4NTViYzQ0YWNmMGYwLCBibG9jaz1ibG9ja0BlbnRy
+eT0xLCBkaXNwYXRjaD1kaXNwYXRjaEBlbnRyeT0xLCAKICAgIHNlbGY9PG9wdGltaXplZCBvdXQ+
+KSBhdCBnbWFpbi5jOjM5MjcKIzE2IDB4MDAwMDdmNTU1MGJiMjVjMiBpbiBnX21haW5fbG9vcF9y
+dW4gKGxvb3A9MHg1NWJjNDRkYWYxODApIGF0IGdtYWluLmM6NDEyMwojMTcgMHgwMDAwN2Y1NTUy
+Nzk2ZmU1IGluIGd0a19tYWluICgpIGF0IGd0a21haW4uYzoxMjk1CiMxOCAweDAwMDA1NWJjNDMy
+NDk2NmIgaW4gbWFpbiAoYXJnYz08b3B0aW1pemVkIG91dD4sIGFyZ3Y9PG9wdGltaXplZCBvdXQ+
+KSBhdCBtYWluLmM6NDM0CkNvbnRpbnVpbmcuCgpUaHJlYWQgMSAiZ25vbWUtc2V0dGluZ3MtIiBy
+ZWNlaXZlZCBzaWduYWwgU0lHUElQRSwgQnJva2VuIHBpcGUuCjB4MDAwMDdmNTU1MDk1YWFiZiBp
+biBfX2xpYmNfc2VuZCAoZmQ9MTgsIGJ1Zj1idWZAZW50cnk9MHg1NWJjNDRmNTBhODgsIG49bkBl
+bnRyeT0xOTQsIGZsYWdzPWZsYWdzQGVudHJ5PTApCiAgICBhdCAuLi9zeXNkZXBzL3VuaXgvc3lz
+di9saW51eC94ODZfNjQvc2VuZC5jOjI2CjI2CSAgcmV0dXJuIFNZU0NBTExfQ0FOQ0VMIChzZW5k
+dG8sIGZkLCBidWYsIG4sIGZsYWdzLCBOVUxMLCAoc2l6ZV90KSAwKTsKIzAgIDB4MDAwMDdmNTU1
+MDk1YWFiZiBpbiBfX2xpYmNfc2VuZCAoZmQ9MTgsIGJ1Zj1idWZAZW50cnk9MHg1NWJjNDRmNTBh
+ODgsIG49bkBlbnRyeT0xOTQsIGZsYWdzPWZsYWdzQGVudHJ5PTApCiAgICBhdCAuLi9zeXNkZXBz
+L3VuaXgvc3lzdi9saW51eC94ODZfNjQvc2VuZC5jOjI2CiMxICAweDAwMDA3ZjU1MjQ0NGM4MWYg
+aW4gaHR0cF93cml0ZSAoaHR0cD1odHRwQGVudHJ5PTB4NTViYzQ0ZjRlMjkwLCAKICAgIGJ1ZmZl
+cj1idWZmZXJAZW50cnk9MHg1NWJjNDRmNTBhODggIlBPU1QgLyBIVFRQLzEuMVxyXG5Db250ZW50
+LUxlbmd0aDogNzI0XHJcbkNvbnRlbnQtVHlwZTogYXBwbGljYXRpb24vaXBwXHJcbkhvc3Q6IGxv
+Y2FsaG9zdDo2MzFcclxuVXNlci1BZ2VudDogQ1VQUy8yLjJyYzEgKExpbnV4IDQuOC4wLTAucmM1
+LmdpdDEuMS5mYzI1Lng4Nl82NDsgeDg2XzY0KSBJUFAvMi4wXHJcbkV4cGVjdDogMTAwLWNvbnRp
+bnVlXHJcblxyXG4iLCBsZW5ndGg9MTk0KQogICAgYXQgaHR0cC5jOjQ3MTAKIzIgIDB4MDAwMDdm
+NTUyNDQ0Y2Q5ZiBpbiBodHRwRmx1c2hXcml0ZSAoaHR0cD1odHRwQGVudHJ5PTB4NTViYzQ0ZjRl
+MjkwKSBhdCBodHRwLmM6NzA1CiMzICAweDAwMDA3ZjU1MjQ0NTBjYjMgaW4gaHR0cF9zZW5kICho
+dHRwPWh0dHBAZW50cnk9MHg1NWJjNDRmNGUyOTAsIHJlcXVlc3Q9cmVxdWVzdEBlbnRyeT1IVFRQ
+X1NUQVRFX1BPU1QsIAogICAgdXJpPXVyaUBlbnRyeT0weDdmNTUyNDQ4NjNmNyAiLyIpIGF0IGh0
+dHAuYzo0NDE3CiM0ICAweDAwMDA3ZjU1MjQ0NTE2NTUgaW4gaHR0cFBvc3QgKGh0dHA9aHR0cEBl
+bnRyeT0weDU1YmM0NGY0ZTI5MCwgdXJpPXVyaUBlbnRyeT0weDdmNTUyNDQ4NjNmNyAiLyIpIGF0
+IGh0dHAuYzoxODc4CiM1ICAweDAwMDA3ZjU1MjQ0NzkxNjUgaW4gY3Vwc1NlbmRSZXF1ZXN0ICho
+dHRwPWh0dHBAZW50cnk9MHg1NWJjNDRmNGUyOTAsIHJlcXVlc3Q9cmVxdWVzdEBlbnRyeT0weDU1
+YmM0NGY0YjU3MCwgCiAgICByZXNvdXJjZT1yZXNvdXJjZUBlbnRyeT0weDdmNTUyNDQ4NjNmNyAi
+LyIsIGxlbmd0aD1sZW5ndGhAZW50cnk9NzI0KSBhdCByZXF1ZXN0LmM6NzEyCiM2ICAweDAwMDA3
+ZjU1MjQ0Nzk2ZTQgaW4gY3Vwc0RvSU9SZXF1ZXN0IChodHRwPTB4NTViYzQ0ZjRlMjkwLCBodHRw
+QGVudHJ5PTB4MCwgcmVxdWVzdD1yZXF1ZXN0QGVudHJ5PTB4NTViYzQ0ZjRiNTcwLCAKICAgIHJl
+c291cmNlPXJlc291cmNlQGVudHJ5PTB4N2Y1NTI0NDg2M2Y3ICIvIiwgaW5maWxlPWluZmlsZUBl
+bnRyeT0tMSwgb3V0ZmlsZT1vdXRmaWxlQGVudHJ5PS0xKSBhdCByZXF1ZXN0LmM6MjExCiM3ICAw
+eDAwMDA3ZjU1MjQ0NzlhYjYgaW4gY3Vwc0RvUmVxdWVzdCAoaHR0cD1odHRwQGVudHJ5PTB4MCwg
+cmVxdWVzdD1yZXF1ZXN0QGVudHJ5PTB4NTViYzQ0ZjRiNTcwLCAKICAgIHJlc291cmNlPXJlc291
+cmNlQGVudHJ5PTB4N2Y1NTI0NDg2M2Y3ICIvIikgYXQgcmVxdWVzdC5jOjMwMQojOCAgMHgwMDAw
+N2Y1NTI0NDQxZDNiIGluIF9jdXBzR2V0RGVzdHMgKGh0dHA9aHR0cEBlbnRyeT0weDAsIG9wPW9w
+QGVudHJ5PUlQUF9PUF9DVVBTX0dFVF9QUklOVEVSUywgbmFtZT1uYW1lQGVudHJ5PTB4MCwgCiAg
+ICBkZXN0cz1kZXN0c0BlbnRyeT0weDU1YmM0NGU0ZTk1MCwgdHlwZT10eXBlQGVudHJ5PTAsIG1h
+c2s9bWFza0BlbnRyeT0xMzQyMTc3MjgpIGF0IGRlc3QuYzoxNjMzCiM5ICAweDAwMDA3ZjU1MjQ0
+NDJmYmYgaW4gY3Vwc0dldERlc3RzMiAoaHR0cD1odHRwQGVudHJ5PTB4MCwgZGVzdHM9ZGVzdHNA
+ZW50cnk9MHg1NWJjNDRlNGU5NTApIGF0IGRlc3QuYzoxODU1CiMxMCAweDAwMDA3ZjU1MjQ0NDMy
+NTIgaW4gY3Vwc0dldERlc3RzIChkZXN0cz1kZXN0c0BlbnRyeT0weDU1YmM0NGU0ZTk1MCkgYXQg
+ZGVzdC5jOjE4MDIKIzExIDB4MDAwMDdmNTUyNDZhYmE1NSBpbiBnc2RfcHJpbnRfbm90aWZpY2F0
+aW9uc19tYW5hZ2VyX3N0YXJ0X2lkbGUgKGRhdGE9ZGF0YUBlbnRyeT0weDU1YmM0NGU0ZTlhMCkK
+ICAgIGF0IGdzZC1wcmludC1ub3RpZmljYXRpb25zLW1hbmFnZXIuYzoxMzYyCiMxMiAweDAwMDA3
+ZjU1NTBiYWU5ODcgaW4gZ19pZGxlX2Rpc3BhdGNoIChzb3VyY2U9MHg1NWJjNDRlNTQ3NzAsIAog
+ICAgY2FsbGJhY2s9MHg3ZjU1MjQ2YWI5ODAgPGdzZF9wcmludF9ub3RpZmljYXRpb25zX21hbmFn
+ZXJfc3RhcnRfaWRsZT4sIHVzZXJfZGF0YT0weDU1YmM0NGU0ZTlhMCkgYXQgZ21haW4uYzo1NTQz
+CiMxMyAweDAwMDA3ZjU1NTBiYjFmMjIgaW4gZ19tYWluX2Rpc3BhdGNoIChjb250ZXh0PTB4NTVi
+YzQ0YWNmMGYwKSBhdCBnbWFpbi5jOjMyMDEKIzE0IGdfbWFpbl9jb250ZXh0X2Rpc3BhdGNoIChj
+b250ZXh0PWNvbnRleHRAZW50cnk9MHg1NWJjNDRhY2YwZjApIGF0IGdtYWluLmM6Mzg1NAojMTUg
+MHgwMDAwN2Y1NTUwYmIyMmEwIGluIGdfbWFpbl9jb250ZXh0X2l0ZXJhdGUgKGNvbnRleHQ9MHg1
+NWJjNDRhY2YwZjAsIGJsb2NrPWJsb2NrQGVudHJ5PTEsIGRpc3BhdGNoPWRpc3BhdGNoQGVudHJ5
+PTEsIAogICAgc2VsZj08b3B0aW1pemVkIG91dD4pIGF0IGdtYWluLmM6MzkyNwojMTYgMHgwMDAw
+N2Y1NTUwYmIyNWMyIGluIGdfbWFpbl9sb29wX3J1biAobG9vcD0weDU1YmM0NGRhZjE4MCkgYXQg
+Z21haW4uYzo0MTIzCiMxNyAweDAwMDA3ZjU1NTI3OTZmZTUgaW4gZ3RrX21haW4gKCkgYXQgZ3Rr
+bWFpbi5jOjEyOTUKIzE4IDB4MDAwMDU1YmM0MzI0OTY2YiBpbiBtYWluIChhcmdjPTxvcHRpbWl6
+ZWQgb3V0PiwgYXJndj08b3B0aW1pemVkIG91dD4pIGF0IG1haW4uYzo0MzQKQ29udGludWluZy4K
+ClRocmVhZCAxICJnbm9tZS1zZXR0aW5ncy0iIHJlY2VpdmVkIHNpZ25hbCBTSUdQSVBFLCBCcm9r
+ZW4gcGlwZS4KMHgwMDAwN2Y1NTUwOTVhYWJmIGluIF9fbGliY19zZW5kIChmZD0xOCwgYnVmPWJ1
+ZkBlbnRyeT0weDU1YmM0NGY1MGE4OCwgbj1uQGVudHJ5PTE5NCwgZmxhZ3M9ZmxhZ3NAZW50cnk9
+MCkKICAgIGF0IC4uL3N5c2RlcHMvdW5peC9zeXN2L2xpbnV4L3g4Nl82NC9zZW5kLmM6MjYKMjYJ
+ICByZXR1cm4gU1lTQ0FMTF9DQU5DRUwgKHNlbmR0bywgZmQsIGJ1ZiwgbiwgZmxhZ3MsIE5VTEws
+IChzaXplX3QpIDApOwojMCAgMHgwMDAwN2Y1NTUwOTVhYWJmIGluIF9fbGliY19zZW5kIChmZD0x
+OCwgYnVmPWJ1ZkBlbnRyeT0weDU1YmM0NGY1MGE4OCwgbj1uQGVudHJ5PTE5NCwgZmxhZ3M9Zmxh
+Z3NAZW50cnk9MCkKICAgIGF0IC4uL3N5c2RlcHMvdW5peC9zeXN2L2xpbnV4L3g4Nl82NC9zZW5k
+LmM6MjYKIzEgIDB4MDAwMDdmNTUyNDQ0YzgxZiBpbiBodHRwX3dyaXRlIChodHRwPWh0dHBAZW50
+cnk9MHg1NWJjNDRmNGUyOTAsIAogICAgYnVmZmVyPWJ1ZmZlckBlbnRyeT0weDU1YmM0NGY1MGE4
+OCAiUE9TVCAvIEhUVFAvMS4xXHJcbkNvbnRlbnQtTGVuZ3RoOiA3MjRcclxuQ29udGVudC1UeXBl
+OiBhcHBsaWNhdGlvbi9pcHBcclxuSG9zdDogbG9jYWxob3N0OjYzMVxyXG5Vc2VyLUFnZW50OiBD
+VVBTLzIuMnJjMSAoTGludXggNC44LjAtMC5yYzUuZ2l0MS4xLmZjMjUueDg2XzY0OyB4ODZfNjQp
+IElQUC8yLjBcclxuRXhwZWN0OiAxMDAtY29udGludWVcclxuXHJcbiIsIGxlbmd0aD0xOTQpCiAg
+ICBhdCBodHRwLmM6NDcxMAojMiAgMHgwMDAwN2Y1NTI0NDRjZDlmIGluIGh0dHBGbHVzaFdyaXRl
+IChodHRwPWh0dHBAZW50cnk9MHg1NWJjNDRmNGUyOTApIGF0IGh0dHAuYzo3MDUKIzMgIDB4MDAw
+MDdmNTUyNDQ1MGNiMyBpbiBodHRwX3NlbmQgKGh0dHA9aHR0cEBlbnRyeT0weDU1YmM0NGY0ZTI5
+MCwgcmVxdWVzdD1yZXF1ZXN0QGVudHJ5PUhUVFBfU1RBVEVfUE9TVCwgCiAgICB1cmk9dXJpQGVu
+dHJ5PTB4N2Y1NTI0NDg2M2Y3ICIvIikgYXQgaHR0cC5jOjQ0MTcKIzQgIDB4MDAwMDdmNTUyNDQ1
+MTY1NSBpbiBodHRwUG9zdCAoaHR0cD1odHRwQGVudHJ5PTB4NTViYzQ0ZjRlMjkwLCB1cmk9dXJp
+QGVudHJ5PTB4N2Y1NTI0NDg2M2Y3ICIvIikgYXQgaHR0cC5jOjE4NzgKIzUgIDB4MDAwMDdmNTUy
+NDQ3OTE2NSBpbiBjdXBzU2VuZFJlcXVlc3QgKGh0dHA9aHR0cEBlbnRyeT0weDU1YmM0NGY0ZTI5
+MCwgcmVxdWVzdD1yZXF1ZXN0QGVudHJ5PTB4NTViYzQ0ZjRiNTcwLCAKICAgIHJlc291cmNlPXJl
+c291cmNlQGVudHJ5PTB4N2Y1NTI0NDg2M2Y3ICIvIiwgbGVuZ3RoPWxlbmd0aEBlbnRyeT03MjQp
+IGF0IHJlcXVlc3QuYzo3MTIKIzYgIDB4MDAwMDdmNTUyNDQ3OTZlNCBpbiBjdXBzRG9JT1JlcXVl
+c3QgKGh0dHA9MHg1NWJjNDRmNGUyOTAsIGh0dHBAZW50cnk9MHgwLCByZXF1ZXN0PXJlcXVlc3RA
+ZW50cnk9MHg1NWJjNDRmNGI1NzAsIAogICAgcmVzb3VyY2U9cmVzb3VyY2VAZW50cnk9MHg3ZjU1
+MjQ0ODYzZjcgIi8iLCBpbmZpbGU9aW5maWxlQGVudHJ5PS0xLCBvdXRmaWxlPW91dGZpbGVAZW50
+cnk9LTEpIGF0IHJlcXVlc3QuYzoyMTEKIzcgIDB4MDAwMDdmNTUyNDQ3OWFiNiBpbiBjdXBzRG9S
+ZXF1ZXN0IChodHRwPWh0dHBAZW50cnk9MHgwLCByZXF1ZXN0PXJlcXVlc3RAZW50cnk9MHg1NWJj
+NDRmNGI1NzAsIAogICAgcmVzb3VyY2U9cmVzb3VyY2VAZW50cnk9MHg3ZjU1MjQ0ODYzZjcgIi8i
+KSBhdCByZXF1ZXN0LmM6MzAxCiM4ICAweDAwMDA3ZjU1MjQ0NDFkM2IgaW4gX2N1cHNHZXREZXN0
+cyAoaHR0cD1odHRwQGVudHJ5PTB4MCwgb3A9b3BAZW50cnk9SVBQX09QX0NVUFNfR0VUX1BSSU5U
+RVJTLCBuYW1lPW5hbWVAZW50cnk9MHgwLCAKICAgIGRlc3RzPWRlc3RzQGVudHJ5PTB4NTViYzQ0
+ZTRlOTUwLCB0eXBlPXR5cGVAZW50cnk9MCwgbWFzaz1tYXNrQGVudHJ5PTEzNDIxNzcyOCkgYXQg
+ZGVzdC5jOjE2MzMKIzkgIDB4MDAwMDdmNTUyNDQ0MmZiZiBpbiBjdXBzR2V0RGVzdHMyIChodHRw
+PWh0dHBAZW50cnk9MHgwLCBkZXN0cz1kZXN0c0BlbnRyeT0weDU1YmM0NGU0ZTk1MCkgYXQgZGVz
+dC5jOjE4NTUKIzEwIDB4MDAwMDdmNTUyNDQ0MzI1MiBpbiBjdXBzR2V0RGVzdHMgKGRlc3RzPWRl
+c3RzQGVudHJ5PTB4NTViYzQ0ZTRlOTUwKSBhdCBkZXN0LmM6MTgwMgojMTEgMHgwMDAwN2Y1NTI0
+NmFiYTU1IGluIGdzZF9wcmludF9ub3RpZmljYXRpb25zX21hbmFnZXJfc3RhcnRfaWRsZSAoZGF0
+YT1kYXRhQGVudHJ5PTB4NTViYzQ0ZTRlOWEwKQogICAgYXQgZ3NkLXByaW50LW5vdGlmaWNhdGlv
+bnMtbWFuYWdlci5jOjEzNjIKIzEyIDB4MDAwMDdmNTU1MGJhZTk4NyBpbiBnX2lkbGVfZGlzcGF0
+Y2ggKHNvdXJjZT0weDU1YmM0NGU1NDc3MCwgCiAgICBjYWxsYmFjaz0weDdmNTUyNDZhYjk4MCA8
+Z3NkX3ByaW50X25vdGlmaWNhdGlvbnNfbWFuYWdlcl9zdGFydF9pZGxlPiwgdXNlcl9kYXRhPTB4
+NTViYzQ0ZTRlOWEwKSBhdCBnbWFpbi5jOjU1NDMKIzEzIDB4MDAwMDdmNTU1MGJiMWYyMiBpbiBn
+X21haW5fZGlzcGF0Y2ggKGNvbnRleHQ9MHg1NWJjNDRhY2YwZjApIGF0IGdtYWluLmM6MzIwMQoj
+MTQgZ19tYWluX2NvbnRleHRfZGlzcGF0Y2ggKGNvbnRleHQ9Y29udGV4dEBlbnRyeT0weDU1YmM0
+NGFjZjBmMCkgYXQgZ21haW4uYzozODU0CiMxNSAweDAwMDA3ZjU1NTBiYjIyYTAgaW4gZ19tYWlu
+X2NvbnRleHRfaXRlcmF0ZSAoY29udGV4dD0weDU1YmM0NGFjZjBmMCwgYmxvY2s9YmxvY2tAZW50
+cnk9MSwgZGlzcGF0Y2g9ZGlzcGF0Y2hAZW50cnk9MSwgCiAgICBzZWxmPTxvcHRpbWl6ZWQgb3V0
+PikgYXQgZ21haW4uYzozOTI3CiMxNiAweDAwMDA3ZjU1NTBiYjI1YzIgaW4gZ19tYWluX2xvb3Bf
+cnVuIChsb29wPTB4NTViYzQ0ZGFmMTgwKSBhdCBnbWFpbi5jOjQxMjMKIzE3IDB4MDAwMDdmNTU1
+Mjc5NmZlNSBpbiBndGtfbWFpbiAoKSBhdCBndGttYWluLmM6MTI5NQojMTggMHgwMDAwNTViYzQz
+MjQ5NjZiIGluIG1haW4gKGFyZ2M9PG9wdGltaXplZCBvdXQ+LCBhcmd2PTxvcHRpbWl6ZWQgb3V0
+PikgYXQgbWFpbi5jOjQzNAoKVGhyZWFkIDQgKFRocmVhZCAweDdmNTUzZjE2MTcwMCAoTFdQIDE0
+MzIxKSk6CiMwICAweDAwMDA3ZjU1NTA2ODAwMGQgaW4gcG9sbCAoKSBhdCAuLi9zeXNkZXBzL3Vu
+aXgvc3lzY2FsbC10ZW1wbGF0ZS5TOjg0Ck5vIGxvY2Fscy4KIzEgIDB4MDAwMDdmNTU1MGJiMjIz
+NiBpbiBnX21haW5fY29udGV4dF9wb2xsIChwcmlvcml0eT08b3B0aW1pemVkIG91dD4sIG5fZmRz
+PTEsIGZkcz0weDdmNTUyYzAwMTBjMCwgdGltZW91dD08b3B0aW1pemVkIG91dD4sIAogICAgY29u
+dGV4dD0weDU1YmM0NGRjNTBmMCkgYXQgZ21haW4uYzo0MjI2CiAgICAgICAgcG9sbF9mdW5jID0g
+MHg3ZjU1NTBiYzFkZDAgPGdfcG9sbD4KIzIgIGdfbWFpbl9jb250ZXh0X2l0ZXJhdGUgKGNvbnRl
+eHQ9Y29udGV4dEBlbnRyeT0weDU1YmM0NGRjNTBmMCwgYmxvY2s9YmxvY2tAZW50cnk9MSwgZGlz
+cGF0Y2g9ZGlzcGF0Y2hAZW50cnk9MSwgCiAgICBzZWxmPTxvcHRpbWl6ZWQgb3V0PikgYXQgZ21h
+aW4uYzozOTIyCiAgICAgICAgbWF4X3ByaW9yaXR5ID0gMjE0NzQ4MzY0NwogICAgICAgIHRpbWVv
+dXQgPSAtMQogICAgICAgIHNvbWVfcmVhZHkgPSA8b3B0aW1pemVkIG91dD4KICAgICAgICBuZmRz
+ID0gMQogICAgICAgIGFsbG9jYXRlZF9uZmRzID0gMQogICAgICAgIGZkcyA9IDB4N2Y1NTJjMDAx
+MGMwCiMzICAweDAwMDA3ZjU1NTBiYjIzNGMgaW4gZ19tYWluX2NvbnRleHRfaXRlcmF0aW9uIChj
+b250ZXh0PTB4NTViYzQ0ZGM1MGYwLCBtYXlfYmxvY2s9MSkgYXQgZ21haW4uYzozOTg4CiAgICAg
+ICAgcmV0dmFsID0gPG9wdGltaXplZCBvdXQ+CiM0ICAweDAwMDA3ZjU1M2YxNjhmYWQgaW4gZGNv
+bmZfZ2RidXNfd29ya2VyX3RocmVhZCAoKSBmcm9tIC91c3IvbGliNjQvZ2lvL21vZHVsZXMvbGli
+ZGNvbmZzZXR0aW5ncy5zbwpObyBzeW1ib2wgdGFibGUgaW5mbyBhdmFpbGFibGUuCiM1ICAweDAw
+MDA3ZjU1NTBiZDlhZTMgaW4gZ190aHJlYWRfcHJveHkgKGRhdGE9MHg1NWJjNDRkYmY0YTApIGF0
+IGd0aHJlYWQuYzo3ODQKICAgICAgICB0aHJlYWQgPSAweDU1YmM0NGRiZjRhMAogICAgICAgIF9f
+ZnVuY19fID0gImdfdGhyZWFkX3Byb3h5IgojNiAgMHgwMDAwN2Y1NTUwOTUxNmNhIGluIHN0YXJ0
+X3RocmVhZCAoYXJnPTB4N2Y1NTNmMTYxNzAwKSBhdCBwdGhyZWFkX2NyZWF0ZS5jOjMzMwogICAg
+ICAgIF9fcmVzID0gPG9wdGltaXplZCBvdXQ+CiAgICAgICAgcGQgPSAweDdmNTUzZjE2MTcwMAog
+ICAgICAgIG5vdyA9IDxvcHRpbWl6ZWQgb3V0PgogICAgICAgIHVud2luZF9idWYgPSB7Y2FuY2Vs
+X2ptcF9idWYgPSB7e2ptcF9idWYgPSB7MTQwMDA0MTA3MzYwMDAwLCA1ODc0NDMyOTczOTE2MDE1
+NjAyLCAwLCAxNDA3MzY4Nzg1ODM4NTUsIDE0MDAwNDEwNzM2MDcwNCwgCiAgICAgICAgICAgICAg
+ICAxNDAwMDQxMDczNjAwMDAsIC01ODI0MTg4MzgxMTcwODI0MjA2LCAtNTgyNDEyNTczNTUzODcx
+NzcxMH0sIG1hc2tfd2FzX3NhdmVkID0gMH19LCBwcml2ID0ge3BhZCA9IHsweDAsIDB4MCwgMHgw
+LCAKICAgICAgICAgICAgICAweDB9LCBkYXRhID0ge3ByZXYgPSAweDAsIGNsZWFudXAgPSAweDAs
+IGNhbmNlbHR5cGUgPSAwfX19CiAgICAgICAgbm90X2ZpcnN0X2NhbGwgPSA8b3B0aW1pemVkIG91
+dD4KICAgICAgICBwYWdlc2l6ZV9tMSA9IDxvcHRpbWl6ZWQgb3V0PgogICAgICAgIHNwID0gPG9w
+dGltaXplZCBvdXQ+CiAgICAgICAgZnJlZXNpemUgPSA8b3B0aW1pemVkIG91dD4KICAgICAgICBf
+X1BSRVRUWV9GVU5DVElPTl9fID0gInN0YXJ0X3RocmVhZCIKIzcgIDB4MDAwMDdmNTU1MDY4YmY2
+ZiBpbiBjbG9uZSAoKSBhdCAuLi9zeXNkZXBzL3VuaXgvc3lzdi9saW51eC94ODZfNjQvY2xvbmUu
+UzoxMDUKTm8gbG9jYWxzLgoKVGhyZWFkIDMgKFRocmVhZCAweDdmNTUzZmI2ZjcwMCAoTFdQIDE0
+MzE3KSk6CiMwICAweDAwMDA3ZjU1NTA2ODAwMGQgaW4gcG9sbCAoKSBhdCAuLi9zeXNkZXBzL3Vu
+aXgvc3lzY2FsbC10ZW1wbGF0ZS5TOjg0Ck5vIGxvY2Fscy4KIzEgIDB4MDAwMDdmNTU1MGJiMjIz
+NiBpbiBnX21haW5fY29udGV4dF9wb2xsIChwcmlvcml0eT08b3B0aW1pemVkIG91dD4sIG5fZmRz
+PTMsIGZkcz0weDdmNTUyODAwMTBjMCwgdGltZW91dD08b3B0aW1pemVkIG91dD4sIAogICAgY29u
+dGV4dD0weDdmNTUzMDAwYjc4MCkgYXQgZ21haW4uYzo0MjI2CiAgICAgICAgcG9sbF9mdW5jID0g
+MHg3ZjU1NTBiYzFkZDAgPGdfcG9sbD4KIzIgIGdfbWFpbl9jb250ZXh0X2l0ZXJhdGUgKGNvbnRl
+eHQ9MHg3ZjU1MzAwMGI3ODAsIGJsb2NrPWJsb2NrQGVudHJ5PTEsIGRpc3BhdGNoPWRpc3BhdGNo
+QGVudHJ5PTEsIHNlbGY9PG9wdGltaXplZCBvdXQ+KQogICAgYXQgZ21haW4uYzozOTIyCiAgICAg
+ICAgbWF4X3ByaW9yaXR5ID0gMjE0NzQ4MzY0NwogICAgICAgIHRpbWVvdXQgPSAtMQogICAgICAg
+IHNvbWVfcmVhZHkgPSA8b3B0aW1pemVkIG91dD4KICAgICAgICBuZmRzID0gMwogICAgICAgIGFs
+bG9jYXRlZF9uZmRzID0gMwogICAgICAgIGZkcyA9IDB4N2Y1NTI4MDAxMGMwCiMzICAweDAwMDA3
+ZjU1NTBiYjI1YzIgaW4gZ19tYWluX2xvb3BfcnVuIChsb29wPTB4N2Y1NTMwMDBiNzEwKSBhdCBn
+bWFpbi5jOjQxMjMKICAgICAgICBfX2Z1bmNfXyA9ICJnX21haW5fbG9vcF9ydW4iCiM0ICAweDAw
+MDA3ZjU1NTExOWQyZjYgaW4gZ2RidXNfc2hhcmVkX3RocmVhZF9mdW5jICh1c2VyX2RhdGE9MHg3
+ZjU1MzAwMGI3NTApIGF0IGdkYnVzcHJpdmF0ZS5jOjI0NwogICAgICAgIGRhdGEgPSAweDdmNTUz
+MDAwYjc1MAojNSAgMHgwMDAwN2Y1NTUwYmQ5YWUzIGluIGdfdGhyZWFkX3Byb3h5IChkYXRhPTB4
+NTViYzQ0YjE2YWQwKSBhdCBndGhyZWFkLmM6Nzg0CiAgICAgICAgdGhyZWFkID0gMHg1NWJjNDRi
+MTZhZDAKICAgICAgICBfX2Z1bmNfXyA9ICJnX3RocmVhZF9wcm94eSIKIzYgIDB4MDAwMDdmNTU1
+MDk1MTZjYSBpbiBzdGFydF90aHJlYWQgKGFyZz0weDdmNTUzZmI2ZjcwMCkgYXQgcHRocmVhZF9j
+cmVhdGUuYzozMzMKICAgICAgICBfX3JlcyA9IDxvcHRpbWl6ZWQgb3V0PgogICAgICAgIHBkID0g
+MHg3ZjU1M2ZiNmY3MDAKICAgICAgICBub3cgPSA8b3B0aW1pemVkIG91dD4KICAgICAgICB1bndp
+bmRfYnVmID0ge2NhbmNlbF9qbXBfYnVmID0ge3tqbXBfYnVmID0gezE0MDAwNDExNzkwMzEwNCwg
+NTg3NDQzMjk3MzkxNjAxNTYwMiwgMCwgMTQwMDAzOTg4NDY2MDc5LCAxNDAwMDQxMTc5MDM4MDgs
+IAogICAgICAgICAgICAgICAgMTQwMDA0MTE3OTAzMTA0LCAtNTgyNDE4OTIwMDQzNTgzNTkxOCwg
+LTU4MjQxMjU3MzU1Mzg3MTc3MTB9LCBtYXNrX3dhc19zYXZlZCA9IDB9fSwgcHJpdiA9IHtwYWQg
+PSB7MHgwLCAweDAsIDB4MCwgCiAgICAgICAgICAgICAgMHgwfSwgZGF0YSA9IHtwcmV2ID0gMHgw
+LCBjbGVhbnVwID0gMHgwLCBjYW5jZWx0eXBlID0gMH19fQogICAgICAgIG5vdF9maXJzdF9jYWxs
+ID0gPG9wdGltaXplZCBvdXQ+CiAgICAgICAgcGFnZXNpemVfbTEgPSA8b3B0aW1pemVkIG91dD4K
+ICAgICAgICBzcCA9IDxvcHRpbWl6ZWQgb3V0PgogICAgICAgIGZyZWVzaXplID0gPG9wdGltaXpl
+ZCBvdXQ+CiAgICAgICAgX19QUkVUVFlfRlVOQ1RJT05fXyA9ICJzdGFydF90aHJlYWQiCiM3ICAw
+eDAwMDA3ZjU1NTA2OGJmNmYgaW4gY2xvbmUgKCkgYXQgLi4vc3lzZGVwcy91bml4L3N5c3YvbGlu
+dXgveDg2XzY0L2Nsb25lLlM6MTA1Ck5vIGxvY2Fscy4KClRocmVhZCAyIChUaHJlYWQgMHg3ZjU1
+NDAzNzA3MDAgKExXUCAxNDMxNCkpOgojMCAgMHgwMDAwN2Y1NTUwNjgwMDBkIGluIHBvbGwgKCkg
+YXQgLi4vc3lzZGVwcy91bml4L3N5c2NhbGwtdGVtcGxhdGUuUzo4NApObyBsb2NhbHMuCiMxICAw
+eDAwMDA3ZjU1NTBiYjIyMzYgaW4gZ19tYWluX2NvbnRleHRfcG9sbCAocHJpb3JpdHk9PG9wdGlt
+aXplZCBvdXQ+LCBuX2Zkcz0yLCBmZHM9MHg3ZjU1MzgwMDA4ZTAsIHRpbWVvdXQ9PG9wdGltaXpl
+ZCBvdXQ+LCAKICAgIGNvbnRleHQ9MHg1NWJjNDRkYWFkZjApIGF0IGdtYWluLmM6NDIyNgogICAg
+ICAgIHBvbGxfZnVuYyA9IDB4N2Y1NTUwYmMxZGQwIDxnX3BvbGw+CiMyICBnX21haW5fY29udGV4
+dF9pdGVyYXRlIChjb250ZXh0PWNvbnRleHRAZW50cnk9MHg1NWJjNDRkYWFkZjAsIGJsb2NrPWJs
+b2NrQGVudHJ5PTEsIGRpc3BhdGNoPWRpc3BhdGNoQGVudHJ5PTEsIAogICAgc2VsZj08b3B0aW1p
+emVkIG91dD4pIGF0IGdtYWluLmM6MzkyMgogICAgICAgIG1heF9wcmlvcml0eSA9IDIxNDc0ODM2
+NDcKICAgICAgICB0aW1lb3V0ID0gMTAwCiAgICAgICAgc29tZV9yZWFkeSA9IDxvcHRpbWl6ZWQg
+b3V0PgogICAgICAgIG5mZHMgPSAyCiAgICAgICAgYWxsb2NhdGVkX25mZHMgPSAyCiAgICAgICAg
+ZmRzID0gMHg3ZjU1MzgwMDA4ZTAKIzMgIDB4MDAwMDdmNTU1MGJiMjM0YyBpbiBnX21haW5fY29u
+dGV4dF9pdGVyYXRpb24gKGNvbnRleHQ9MHg1NWJjNDRkYWFkZjAsIG1heV9ibG9jaz1tYXlfYmxv
+Y2tAZW50cnk9MSkgYXQgZ21haW4uYzozOTg4CiAgICAgICAgcmV0dmFsID0gPG9wdGltaXplZCBv
+dXQ+CiM0ICAweDAwMDA3ZjU1NTBiYjIzOTEgaW4gZ2xpYl93b3JrZXJfbWFpbiAoZGF0YT08b3B0
+aW1pemVkIG91dD4pIGF0IGdtYWluLmM6NTc4MQpObyBsb2NhbHMuCiM1ICAweDAwMDA3ZjU1NTBi
+ZDlhZTMgaW4gZ190aHJlYWRfcHJveHkgKGRhdGE9MHg1NWJjNDRiMTY3MjApIGF0IGd0aHJlYWQu
+Yzo3ODQKICAgICAgICB0aHJlYWQgPSAweDU1YmM0NGIxNjcyMAogICAgICAgIF9fZnVuY19fID0g
+ImdfdGhyZWFkX3Byb3h5IgojNiAgMHgwMDAwN2Y1NTUwOTUxNmNhIGluIHN0YXJ0X3RocmVhZCAo
+YXJnPTB4N2Y1NTQwMzcwNzAwKSBhdCBwdGhyZWFkX2NyZWF0ZS5jOjMzMwogICAgICAgIF9fcmVz
+ID0gPG9wdGltaXplZCBvdXQ+CiAgICAgICAgcGQgPSAweDdmNTU0MDM3MDcwMAogICAgICAgIG5v
+dyA9IDxvcHRpbWl6ZWQgb3V0PgogICAgICAgIHVud2luZF9idWYgPSB7Y2FuY2VsX2ptcF9idWYg
+PSB7e2ptcF9idWYgPSB7MTQwMDA0MTI2Mjk1ODA4LCA1ODc0NDMyOTczOTE2MDE1NjAyLCAwLCAx
+NDA3MzY4Nzg1ODUwODcsIDE0MDAwNDEyNjI5NjUxMiwgCiAgICAgICAgICAgICAgICAxNDAwMDQx
+MjYyOTU4MDgsIC01ODI0MDg5MTQ1NDE0NTc5MjE0LCAtNTgyNDEyNTczNTUzODcxNzcxMH0sIG1h
+c2tfd2FzX3NhdmVkID0gMH19LCBwcml2ID0ge3BhZCA9IHsweDAsIDB4MCwgMHgwLCAKICAgICAg
+ICAgICAgICAweDB9LCBkYXRhID0ge3ByZXYgPSAweDAsIGNsZWFudXAgPSAweDAsIGNhbmNlbHR5
+cGUgPSAwfX19CiAgICAgICAgbm90X2ZpcnN0X2NhbGwgPSA8b3B0aW1pemVkIG91dD4KICAgICAg
+ICBwYWdlc2l6ZV9tMSA9IDxvcHRpbWl6ZWQgb3V0PgogICAgICAgIHNwID0gPG9wdGltaXplZCBv
+dXQ+CiAgICAgICAgZnJlZXNpemUgPSA8b3B0aW1pemVkIG91dD4KICAgICAgICBfX1BSRVRUWV9G
+VU5DVElPTl9fID0gInN0YXJ0X3RocmVhZCIKIzcgIDB4MDAwMDdmNTU1MDY4YmY2ZiBpbiBjbG9u
+ZSAoKSBhdCAuLi9zeXNkZXBzL3VuaXgvc3lzdi9saW51eC94ODZfNjQvY2xvbmUuUzoxMDUKTm8g
+bG9jYWxzLgoKVGhyZWFkIDEgKFRocmVhZCAweDdmNTU1M2M1MGE0MCAoTFdQIDE0Mjc4KSk6CiMw
+ICAweDAwMDA3ZjU1NTA5NWFhYmYgaW4gX19saWJjX3NlbmQgKGZkPTE4LCBidWY9YnVmQGVudHJ5
+PTB4NTViYzQ0ZjUwYTg4LCBuPW5AZW50cnk9MTk0LCBmbGFncz1mbGFnc0BlbnRyeT0wKQogICAg
+YXQgLi4vc3lzZGVwcy91bml4L3N5c3YvbGludXgveDg2XzY0L3NlbmQuYzoyNgogICAgICAgIHJl
+c3VsdHZhciA9IDE4NDQ2NzQ0MDczNzA5NTUxNTg0CiAgICAgICAgc2NfY2FuY2VsX29sZHR5cGUg
+PSAwCiAgICAgICAgc2NfcmV0ID0gPG9wdGltaXplZCBvdXQ+CiAgICAgICAgZmxhZ3MgPSAwCiAg
+ICAgICAgbiA9IDE5NAogICAgICAgIGJ1ZiA9IDB4NTViYzQ0ZjUwYTg4CiAgICAgICAgZmQgPSAx
+OAojMSAgMHgwMDAwN2Y1NTI0NDRjODFmIGluIGh0dHBfd3JpdGUgKGh0dHA9aHR0cEBlbnRyeT0w
+eDU1YmM0NGY0ZTI5MCwgCiAgICBidWZmZXI9YnVmZmVyQGVudHJ5PTB4NTViYzQ0ZjUwYTg4ICJQ
+T1NUIC8gSFRUUC8xLjFcclxuQ29udGVudC1MZW5ndGg6IDcyNFxyXG5Db250ZW50LVR5cGU6IGFw
+cGxpY2F0aW9uL2lwcFxyXG5Ib3N0OiBsb2NhbGhvc3Q6NjMxXHJcblVzZXItQWdlbnQ6IENVUFMv
+Mi4ycmMxIChMaW51eCA0LjguMC0wLnJjNS5naXQxLjEuZmMyNS54ODZfNjQ7IHg4Nl82NCkgSVBQ
+LzIuMFxyXG5FeHBlY3Q6IDEwMC1jb250aW51ZVxyXG5cclxuIiwgbGVuZ3RoPTE5NCkKICAgIGF0
+IGh0dHAuYzo0NzEwCiAgICAgICAgdGJ5dGVzID0gMAogICAgICAgIGJ5dGVzID0gPG9wdGltaXpl
+ZCBvdXQ+CiMyICAweDAwMDA3ZjU1MjQ0NGNkOWYgaW4gaHR0cEZsdXNoV3JpdGUgKGh0dHA9aHR0
+cEBlbnRyeT0weDU1YmM0NGY0ZTI5MCkgYXQgaHR0cC5jOjcwNQogICAgICAgIGJ5dGVzID0gPG9w
+dGltaXplZCBvdXQ+CiMzICAweDAwMDA3ZjU1MjQ0NTBjYjMgaW4gaHR0cF9zZW5kIChodHRwPWh0
+dHBAZW50cnk9MHg1NWJjNDRmNGUyOTAsIHJlcXVlc3Q9cmVxdWVzdEBlbnRyeT1IVFRQX1NUQVRF
+X1BPU1QsIAogICAgdXJpPXVyaUBlbnRyeT0weDdmNTUyNDQ4NjNmNyAiLyIpIGF0IGh0dHAuYzo0
+NDE3CiAgICAgICAgaSA9IDMwCiAgICAgICAgYnVmID0gIi8iLCAnXDAwMCcgPHJlcGVhdHMgMzYg
+dGltZXM+LCAiXDA2NlwwNjNcMDYxXDAwMFwwMDBcMDAwXDAwMFwwMDBcMDAwXDAwMFwwMDBcMjYw
+XGJcMjQ3XDMzM1wzNzdcMTc3XDAwMFwwMDBcMjYwXGJcMjQ3XDMzM1wzNzdcMTc3XDAwMFwwMDBc
+MDIwXHZcMjQ3XDMzM1wzNzdcMTc3XDAwMFwwMDBcblwzNDNIJFVcMTc3XDAwMFwwMDAoXG5cMjQ3
+XDMzM1wzNzdcMTc3XDAwMFwwMDBcMDAxXDAwMFwwMDBcMDAwXDAwMFwwMDBcMDAwXDAwMFwzNzZc
+MDAwXDAwMFwwMDBcMDAwXDAwMFwwMDBcMDAwXDAwNlwyNzBpUFVcMTc3XDAwMFwwMDBcMDAxXDIw
+MFwyNTVcMzczXDAwMFwwMDBcMDAwXDAwMFwwMjBcdlwyNDdcMzMzXDM3N1wxNzdcMDAwXDAwMFww
+MjBcdlwyNDdcMzMzXDM3N1wxNzdcMDAwXDAwMFwwMjBcdlwyNDdcMzMzXDM3N1wxNzdcMDAwXDAw
+MFwwMjZcMDAwXDAwMFwwMDBcMDA1XDAwMFwwMzVcMDAwXDAyM1x2XDI0N1wzMzNcMzc3XDE3N1ww
+MDBcMDAwXDAyMlwwMDBcMDAwXDAwMFwwMDVcMDAwXDAzNVwwMDBcMDIwXHZcMjQ3XDMzM1wzNzdc
+MTc3XDAwMFwwMDBcMDE2XGZcMjQ3XDMzM1wzNzdcMTc3IiwgJ1wwMDAnIDxyZXBlYXRzIDI2IHRp
+bWVzPi4uLgogICAgICAgIHZhbHVlID0gMHgwCiAgICAgICAgY29kZXMgPSB7MHgwLCAweDdmNTUy
+NDQ4NmY2MCAiT1BUSU9OUyIsIDB4N2Y1NTI0NDg2ZjczICJHRVQiLCAweDAsIDB4N2Y1NTI0NDg2
+Zjk2ICJIRUFEIiwgMHg3ZjU1MjQ0ODZmYTYgIlBPU1QiLCAweDAsIDB4MCwgCiAgICAgICAgICAw
+eDdmNTUyNDQ4NmZlMCAiUFVUIiwgMHgwLCAweDdmNTUyNDQ4NzAwMyAiREVMRVRFIiwgMHg3ZjU1
+MjQ0ODcwMTUgIlRSQUNFIiwgMHg3ZjU1MjQ0ODY5NDYgIkNMT1NFIiwgMHgwLCAweDB9CiM0ICAw
+eDAwMDA3ZjU1MjQ0NTE2NTUgaW4gaHR0cFBvc3QgKGh0dHA9aHR0cEBlbnRyeT0weDU1YmM0NGY0
+ZTI5MCwgdXJpPXVyaUBlbnRyeT0weDdmNTUyNDQ4NjNmNyAiLyIpIGF0IGh0dHAuYzoxODc4Ck5v
+IGxvY2Fscy4KIzUgIDB4MDAwMDdmNTUyNDQ3OTE2NSBpbiBjdXBzU2VuZFJlcXVlc3QgKGh0dHA9
+aHR0cEBlbnRyeT0weDU1YmM0NGY0ZTI5MCwgcmVxdWVzdD1yZXF1ZXN0QGVudHJ5PTB4NTViYzQ0
+ZjRiNTcwLCAKICAgIHJlc291cmNlPXJlc291cmNlQGVudHJ5PTB4N2Y1NTI0NDg2M2Y3ICIvIiwg
+bGVuZ3RoPWxlbmd0aEBlbnRyeT03MjQpIGF0IHJlcXVlc3QuYzo3MTIKICAgICAgICBzdGF0dXMg
+PSBIVFRQX1NUQVRVU19OT05FCiAgICAgICAgZ290X3N0YXR1cyA9IDxvcHRpbWl6ZWQgb3V0Pgog
+ICAgICAgIHN0YXRlID0gPG9wdGltaXplZCBvdXQ+CiAgICAgICAgZXhwZWN0ID0gSFRUUF9TVEFU
+VVNfQ09OVElOVUUKIzYgIDB4MDAwMDdmNTUyNDQ3OTZlNCBpbiBjdXBzRG9JT1JlcXVlc3QgKGh0
+dHA9MHg1NWJjNDRmNGUyOTAsIGh0dHBAZW50cnk9MHgwLCByZXF1ZXN0PXJlcXVlc3RAZW50cnk9
+MHg1NWJjNDRmNGI1NzAsIAogICAgcmVzb3VyY2U9cmVzb3VyY2VAZW50cnk9MHg3ZjU1MjQ0ODYz
+ZjcgIi8iLCBpbmZpbGU9aW5maWxlQGVudHJ5PS0xLCBvdXRmaWxlPW91dGZpbGVAZW50cnk9LTEp
+IGF0IHJlcXVlc3QuYzoyMTEKICAgICAgICByZXNwb25zZSA9IDB4MAogICAgICAgIGxlbmd0aCA9
+IDcyNAogICAgICAgIHN0YXR1cyA9IDxvcHRpbWl6ZWQgb3V0PgogICAgICAgIGZpbGVpbmZvID0g
+e3N0X2RldiA9IDAsIHN0X2lubyA9IDAsIHN0X25saW5rID0gMCwgc3RfbW9kZSA9IDAsIHN0X3Vp
+ZCA9IDAsIHN0X2dpZCA9IDAsIF9fcGFkMCA9IDAsIHN0X3JkZXYgPSAwLCBzdF9zaXplID0gMCwg
+CiAgICAgICAgICBzdF9ibGtzaXplID0gMCwgc3RfYmxvY2tzID0gMCwgc3RfYXRpbSA9IHt0dl9z
+ZWMgPSAwLCB0dl9uc2VjID0gMH0sIHN0X210aW0gPSB7dHZfc2VjID0gMCwgdHZfbnNlYyA9IDB9
+LCBzdF9jdGltID0gewogICAgICAgICAgICB0dl9zZWMgPSAwLCB0dl9uc2VjID0gMH0sIF9fZ2xp
+YmNfcmVzZXJ2ZWQgPSB7MCwgMCwgMH19CiAgICAgICAgYnl0ZXMgPSA8b3B0aW1pemVkIG91dD4K
+ICAgICAgICBidWZmZXIgPSAnXDAwMCcgPHJlcGVhdHMgMTI2NDAgdGltZXM+Li4uCiM3ICAweDAw
+MDA3ZjU1MjQ0NzlhYjYgaW4gY3Vwc0RvUmVxdWVzdCAoaHR0cD1odHRwQGVudHJ5PTB4MCwgcmVx
+dWVzdD1yZXF1ZXN0QGVudHJ5PTB4NTViYzQ0ZjRiNTcwLCAKICAgIHJlc291cmNlPXJlc291cmNl
+QGVudHJ5PTB4N2Y1NTI0NDg2M2Y3ICIvIikgYXQgcmVxdWVzdC5jOjMwMQpObyBsb2NhbHMuCiM4
+ICAweDAwMDA3ZjU1MjQ0NDFkM2IgaW4gX2N1cHNHZXREZXN0cyAoaHR0cD1odHRwQGVudHJ5PTB4
+MCwgb3A9b3BAZW50cnk9SVBQX09QX0NVUFNfR0VUX1BSSU5URVJTLCBuYW1lPW5hbWVAZW50cnk9
+MHgwLCAKICAgIGRlc3RzPWRlc3RzQGVudHJ5PTB4NTViYzQ0ZTRlOTUwLCB0eXBlPXR5cGVAZW50
+cnk9MCwgbWFzaz1tYXNrQGVudHJ5PTEzNDIxNzcyOCkgYXQgZGVzdC5jOjE2MzMKICAgICAgICBu
+dW1fZGVzdHMgPSAwCiAgICAgICAgZGVzdCA9IDxvcHRpbWl6ZWQgb3V0PgogICAgICAgIHJlcXVl
+c3QgPSAweDU1YmM0NGY0YjU3MAogICAgICAgIHJlc3BvbnNlID0gPG9wdGltaXplZCBvdXQ+CiAg
+ICAgICAgYXR0ciA9IDxvcHRpbWl6ZWQgb3V0PgogICAgICAgIHByaW50ZXJfbmFtZSA9IDxvcHRp
+bWl6ZWQgb3V0PgogICAgICAgIHVyaSA9ICJbXDAwMFwwMDBcMDAwbiIsICdcMDAwJyA8cmVwZWF0
+cyAxOSB0aW1lcz4sICJ3XDAwMFwwMDBcMDAwfCIsICdcMDAwJyA8cmVwZWF0cyAxMSB0aW1lcz4s
+ICJcMzAwXDAwNVwzNTdEXDI3NFVcMDAwXDAwMFwyNjBcMDY3XDM1NkRcMjc0VVwwMDBcMDAwXDIw
+MFwwMjJcMzU3RFwyNzRVXDAwMFwwMDBAXDAwNlwzNTdEXDI3NFVcMDAwXDAwMFwzMzVcMzcwXDI3
+NFBVXDE3N1wwMDBcMDAwXDAwMlwwMDBcMDAwXDAwMFwwMDBcMDAwXDAwMFwwMDBaXDAwNVwyNzJQ
+VVwxNzdcMDAwXDAwMFwwMDBcMDAwXDAwMFwwMDBcMDAwXDAwMFwwMDBcMDAwXDI0MVwwMDRcMjcy
+UFVcMTc3XDAwMFwwMDBcMzQwXDAzMlwzNTdEXDI3NFVcMDAwXDAwMNm1XDMxN1NVXDE3N1wwMDBc
+MDAw0I5cMjQ3XDMzM1wzNzdcMTc3XDAwMFwwMDBcMzY0XDAyNVwzMjBTVVwxNzdcMDAwXDAwMFwz
+NjBZXDM1NkRcMjc0VVwwMDBcMDAwXDIyMFtcMzU2RFwyNzRVXDAwMFwwMDBcYlwwMDBcMDAwXDAw
+MFwwMDBcMDAwXDAwMFwwMDDQjlwyNDdcMzMzXDM3N1wxNzdcMDAwXDAwMCBcMDAwXDAwMFwwMDBc
+YlwwMDBcMDAwXDAwMFwwMjVcMDAwXDAwMVwwMDBcMzc2XDMxMlwzNTVcMzc2XDAwNlwwMDBcMDAw
+XDAwMFwzNzdcMzc3XDM3N1wzNzcgXDAwMFwwMDBcMDAwIi4uLgogICAgICAgIG51bV9vcHRpb25z
+ID0gPG9wdGltaXplZCBvdXQ+CiAgICAgICAgb3B0aW9ucyA9IDB4MAogICAgICAgIG9wdG5hbWUg
+PSAiXDAwMFwwMDBcMDAwXDAwMFwwMDBcMDAwXDAwMFwwMDBcMDM1O1wyNjJTVVwxNzdcMDAwXDAw
+MFwwMDBcMDAwXDAwMFwwMDBcMDAwXDAwMFwwMDBcMDAwXDM2NMyyU1wwMDIiLCAnXDAwMCcgPHJl
+cGVhdHMgMTEgdGltZXM+LCAid1wzNzYrJlVcMTc3XDAwMFwwMDBcMDAwXDAwMFwwMDBcMDAwXDAw
+MFwwMDBcMDAwXDAwMFwwMzU7XDI2MlNVXDE3N1wwMDBcMDAwXDAwMFwwMDBcMDAwXDAwMFwwMDBc
+MDAwXDAwMFwwMDBcMzY0zLJTXDAwMiIsICdcMDAwJyA8cmVwZWF0cyAxMSB0aW1lcz4sICJsXDM3
+NismVVwxNzdcMDAwXDAwMFwwMDBcMDAwXDAwMFwwMDBcMDAwXDAwMFwwMDBcMDAwXDAzNTtcMjYy
+U1VcMTc3XDAwMFwwMDBcMDAwXDAwMFwwMDBcMDAwXDAwMFwwMDBcMDAwXDAwMHtZXDMzMlwwMzNc
+MDAyIiwgJ1wwMDAnIDxyZXBlYXRzIDExIHRpbWVzPiwgIlwwMzU7XDI2MlNVXDE3N1wwMDBcMDAw
+XDAwMFwwMDBcMDAwXDAwMFwwMDBcMDAwXDAwMFwwMDBcMzY0zLJTXDAwMiIsICdcMDAwJyA8cmVw
+ZWF0cyAxMSB0aW1lcz4sICJwWVwzMzJcMDMzVVwxNzdcMDAwXDAwMFwwMDBcMDAwXDAwMFwwMDBc
+MDAwXDAwMFwwMDBcMDAwXDAzNTtcMjYyU1VcMTc3XDAwMFwwMDBcMDAwXDAwMFwwMDBcMDAwXDAw
+MFwwMDBcMDAwXDAwMFwzNjTMslMiLi4uCiAgICAgICAgdmFsdWUgPSAiXDIzMFwwMDBcMDAwXDAw
+MFwwMDBcMDAwXDAwMFwwMDBcdFwwMDBcMDAwXDAwMFwwMDBcMDAwXDAwMFwwMDBcMjMwXDAzMVwz
+MjRTVVwxNzdcMDAwXDAwMFwzNjBcMjI3XDI0N1wzMzNcMzc3XDE3N1wwMDBcMDAwXDI0NVRcMDI3
+UFVcMTc3XDAwMFwwMDBcMjAzXDIzNVwyNjJTVVwxNzdcMDAwXDAwMFwwMDBcMDAwXDAwMVwwMDBc
+MDAxXDAwMFwwMDFcMDAwXDIzMFwwMzFcMzI0U1VcMTc3XDAwMFwwMDBQXDIzNVwyNDdcMzMzXDM3
+N1wxNzdcMDAwXDAwMFNcMjQwXDI2MlNVXDE3N1wwMDBcMDAwXDAwMVwwMDBcMDAwXDAwMFwwMDBc
+MDAwXDAwMFwwMDBcMjMwXDAzMVwzMjRTVVwxNzdcMDAwXDAwMFwwMDBcMDAwXDAwMFwwMDBcMDAw
+XDAwMFwwMDBcMDAwXDM2Mlx2XDMzMVwwMzPPiixcMjU3YC1cMjY2UFVcMTc3XDAwMFwwMDBOXDIy
+NFwyNjJTVVwxNzdcMDAwXDAwMFwwMDFcMDAwXDAwMFwwMDBcMDAwXDAwMFwwMDBcMDAwXDIxMFwy
+MzdcMzIxU1VcMTc3XDAwMFwwMDBwXDIyNlwyNDdcMzMzXDM3N1wxNzdcMDAwXDAwMFwzNjJcdlwz
+MzFcMDMzz4osXDI1N1wyNzBcMzU1XDM1MiVVXDE3N1wwMDBcMDAwTlwyMjRcMjYyU1VcMTc3XDAw
+MFwwMDBcMDAxXDAwMFwwMDBcMDAwXDAwMFwwMDBcMDAwXDAwMNCUXDMyMVNVXDE3N1wwMDBcMDAw
+XDI0MFwyMjZcMjQ3XDMzM1wzNzdcMTc3XDAwMFwwMDBcMzYyXHZcMzMxIi4uLgogICAgICAgIHB0
+ciA9IDxvcHRpbWl6ZWQgb3V0PgogICAgICAgIHBhdHRycyA9IHsweDdmNTUyNDQ4NTU2MSAiYXV0
+aC1pbmZvLXJlcXVpcmVkIiwgMHg3ZjU1MjQ0ODU1MDIgImRldmljZS11cmkiLCAweDdmNTUyNDQ4
+NGQ0MSAiam9iLXNoZWV0cy1kZWZhdWx0IiwgCiAgICAgICAgICAweDdmNTUyNDQ4NTU3NCAibWFy
+a2VyLWNoYW5nZS10aW1lIiwgMHg3ZjU1MjQ0ODU1ODcgIm1hcmtlci1jb2xvcnMiLCAweDdmNTUy
+NDQ4NTU5NSAibWFya2VyLWhpZ2gtbGV2ZWxzIiwgCiAgICAgICAgICAweDdmNTUyNDQ4NTVhOCAi
+bWFya2VyLWxldmVscyIsIDB4N2Y1NTI0NDg1NWI2ICJtYXJrZXItbG93LWxldmVscyIsIDB4N2Y1
+NTI0NDg1NWM4ICJtYXJrZXItbWVzc2FnZSIsIAogICAgICAgICAgMHg3ZjU1MjQ0ODU1ZDcgIm1h
+cmtlci1uYW1lcyIsIDB4N2Y1NTI0NDg1NWU0ICJtYXJrZXItdHlwZXMiLCAweDdmNTUyNDQ4NTVm
+MSAicHJpbnRlci1jb21tYW5kcyIsIAogICAgICAgICAgMHg3ZjU1MjQ0ODU2ZDggInByaW50ZXIt
+ZGVmYXVsdHMiLCAweDdmNTUyNDQ4NTQ4MSAicHJpbnRlci1pbmZvIiwgMHg3ZjU1MjQ0ODU2MmUg
+InByaW50ZXItaXMtYWNjZXB0aW5nLWpvYnMiLCAKICAgICAgICAgIDB4N2Y1NTI0NDg1NjAyICJw
+cmludGVyLWlzLXNoYXJlZCIsIDB4N2Y1NTI0NDg1M2UyICJwcmludGVyLWxvY2F0aW9uIiwgMHg3
+ZjU1MjQ0ODU0OGUgInByaW50ZXItbWFrZS1hbmQtbW9kZWwiLCAKICAgICAgICAgIDB4N2Y1NTI0
+NDg1NzEwICJwcmludGVyLW1hbmRhdG9yeS1qb2ItYXR0cmlidXRlcyIsIDB4N2Y1NTI0NDg1NGI2
+ICJwcmludGVyLW5hbWUiLCAweDdmNTUyNDQ4NTRlYiAicHJpbnRlci1zdGF0ZSIsIAogICAgICAg
+ICAgMHg3ZjU1MjQ0ODU2MTQgInByaW50ZXItc3RhdGUtY2hhbmdlLXRpbWUiLCAweDdmNTUyNDQ4
+YTc5MCAicHJpbnRlci1zdGF0ZS1yZWFzb25zIiwgMHg3ZjU1MjQ0ODU0MjIgInByaW50ZXItdHlw
+ZSIsIAogICAgICAgICAgMHg3ZjU1MjQ0ODU0ZDUgInByaW50ZXItdXJpLXN1cHBvcnRlZCJ9CiM5
+ICAweDAwMDA3ZjU1MjQ0NDJmYmYgaW4gY3Vwc0dldERlc3RzMiAoaHR0cD1odHRwQGVudHJ5PTB4
+MCwgZGVzdHM9ZGVzdHNAZW50cnk9MHg1NWJjNDRlNGU5NTApIGF0IGRlc3QuYzoxODU1CiAgICAg
+ICAgbnVtX2Rlc3RzID0gPG9wdGltaXplZCBvdXQ+CiAgICAgICAgZGVzdCA9IDxvcHRpbWl6ZWQg
+b3V0PgogICAgICAgIGhvbWUgPSA8b3B0aW1pemVkIG91dD4KICAgICAgICBmaWxlbmFtZSA9ICJo
+XHJcMDAwXDAwMFwwMDBcMDAwXDAwMFwwMDBAXGJgUFVcMTc3XDAwMFwwMDBcMDAwXDAxNlwzNTdE
+XDI3NFVcMDAwXDAwMFwzMDBcMDIzXDIyNFBVXDE3N1wwMDBcMDAwXG4iLCAnXDAwMCcgPHJlcGVh
+dHMgMTEgdGltZXM+LCAiXDAwMVwwMDBcMDAwXDAwMFwzNzdcMDAzXDAwMFwwMDBcMDAwXDAwMFww
+MDBcMDAwXDMwMlwwMzJgUFVcMTc3XDAwMFwwMDBfXDI0NlwyNDdcMzMzXDM3N1wxNzdcMDAwXDAw
+MFwwMDBcMDE2XDM1N0RcMjc0VSIsICdcMDAwJyA8cmVwZWF0cyAxOSB0aW1lcz4sICJcMDA0XDAw
+MFwwMDBcMDAwXDAwMFwwMDBcMDAwXDI0MFwzMjZcMzY0RFwyNzRVXDAwMFwwMDBcMDAwXDAxNlwz
+NTdEXDI3NFVcMDAwXDAwMFwwMzRcMjQzYFBVXDE3N1wwMDBcMDAwXDI2MVwzMjZcMzY0RFwyNzRV
+XDAwMFwwMDBcMjM3XDMzMlwzNjREXDI3NFVcMDAwXDAwMFwwMDBcMDA0XDAwMFwwMDBcMDAwXDAw
+MFwwMDBcMDAwXDAwMFwwMTZcMzU3RFwyNzRVXDAwMFwwMDBcMDAwXDAwMFwwMDBcMDAwXDAwMFww
+MDBcMDAwXDAwMFwzMDBcMDIzXDIyNFBVXDE3N1wwMDBcMDAwXDAwMFwwMDRcMDAwXDAwMFwwMDBc
+MDAwXDAwMFwwMDBcMjQwXDMyNlwzNjREXDI3NFVcMDAwXDAwMFwwMDBcMDE2XDM1N0RcMjc0VVww
+MDBcMDAwIi4uLgogICAgICAgIGRlZnByaW50ZXIgPSA8b3B0aW1pemVkIG91dD4KICAgICAgICBu
+YW1lID0gImZcMDAwXDAwMFwwMDBcMDAwXDAwMFwwMDBcMDAwXDI3M1wyNTVgUFVcMTc3XDAwMFww
+MDBIXDAwMFwwMDBcMDAwXDAwMFwwMDBcMDAwXDAwMCgiLCAnXDAwMCcgPHJlcGVhdHMgMTUgdGlt
+ZXM+LCAiZFwwMDBcMDAwXDAwMFwwMDBcMDAwXDAwMFwwMDBcMzAwXDI2NFwzNjREXDI3NFVcMDAw
+XDAwMFwzNjBcMjY1XDM2NERcMjc0VVwwMDBcMDAwXDM0MEpcMjI0UFVcMTc3XDAwMFwwMDBgXDI2
+NlwzNjREXDI3NFVcMDAwXDAwMFFcMDAwXDAwMFwwMDBcMDAwXDAwMFwwMDBcMDAwXDIyMFwwMDFc
+MDAwXDAwMFwwMDBcMDAwXDAwMFwwMDAhXDAwMFwwMDBcMDAwXDAwMFwwMDBcMDAwXDAwMNqUYFBV
+XDE3N1wwMDBcMDAwXDI0NVwwMDBcMDAwXDAwMFwwMDBcMDAwXDAwMFwwMDBcMDAwZFwzNDNEXDI3
+NFVcMDAwXDAwMFwwMjBkXDM0M0RcMjc0VVwwMDBcMDAwT1wwMDBcMDAwXDAwMFwwMDBcMDAwXDAw
+MFwwMDBPXDAwMFwwMDBcMDAwXDAwMFwwMDBcMDAwXDAwMFwzNDBKXDIyNFBVXDE3N1wwMDBcMDAw
+cFwwMDBcMDAwXDAwMFwwMDBcMDAwXDAwMFwwMDBGXDI0NmBQVVwxNzdcMDAwXDAwMFwwMDBcMjY2
+XDM2NERcMjc0VVwwMDBcMDAwQFwwMDBcMDAwXDAwMFwwMDBcMDAwXDAwMFwwMDBAXDAwMFwwMDBc
+MDAwXDAwMFwwMDBcMDAwXDAwMFwzNDAiLi4uCiAgICAgICAgaW5zdGFuY2UgPSA8b3B0aW1pemVk
+IG91dD4KICAgICAgICB1c2VyX2RlZmF1bHQgPSA8b3B0aW1pemVkIG91dD4KICAgICAgICBudW1f
+cmVhbHMgPSA8b3B0aW1pemVkIG91dD4KICAgICAgICByZWFscyA9IDxvcHRpbWl6ZWQgb3V0Pgog
+ICAgICAgIGNnID0gMHg1NWJjNDRmNGMwMDAKIzEwIDB4MDAwMDdmNTUyNDQ0MzI1MiBpbiBjdXBz
+R2V0RGVzdHMgKGRlc3RzPWRlc3RzQGVudHJ5PTB4NTViYzQ0ZTRlOTUwKSBhdCBkZXN0LmM6MTgw
+MgpObyBsb2NhbHMuCiMxMSAweDAwMDA3ZjU1MjQ2YWJhNTUgaW4gZ3NkX3ByaW50X25vdGlmaWNh
+dGlvbnNfbWFuYWdlcl9zdGFydF9pZGxlIChkYXRhPWRhdGFAZW50cnk9MHg1NWJjNDRlNGU5YTAp
+CiAgICBhdCBnc2QtcHJpbnQtbm90aWZpY2F0aW9ucy1tYW5hZ2VyLmM6MTM2MgogICAgICAgIG1h
+bmFnZXIgPSAweDU1YmM0NGU0ZTlhMAogICAgICAgIF9fZnVuY19fID0gImdzZF9wcmludF9ub3Rp
+ZmljYXRpb25zX21hbmFnZXJfc3RhcnRfaWRsZSIKIzEyIDB4MDAwMDdmNTU1MGJhZTk4NyBpbiBn
+X2lkbGVfZGlzcGF0Y2ggKHNvdXJjZT0weDU1YmM0NGU1NDc3MCwgCiAgICBjYWxsYmFjaz0weDdm
+NTUyNDZhYjk4MCA8Z3NkX3ByaW50X25vdGlmaWNhdGlvbnNfbWFuYWdlcl9zdGFydF9pZGxlPiwg
+dXNlcl9kYXRhPTB4NTViYzQ0ZTRlOWEwKSBhdCBnbWFpbi5jOjU1NDMKICAgICAgICBhZ2FpbiA9
+IDxvcHRpbWl6ZWQgb3V0PgojMTMgMHgwMDAwN2Y1NTUwYmIxZjIyIGluIGdfbWFpbl9kaXNwYXRj
+aCAoY29udGV4dD0weDU1YmM0NGFjZjBmMCkgYXQgZ21haW4uYzozMjAxCiAgICAgICAgZGlzcGF0
+Y2ggPSAweDdmNTU1MGJhZTk3MCA8Z19pZGxlX2Rpc3BhdGNoPgogICAgICAgIHByZXZfc291cmNl
+ID0gMHgwCiAgICAgICAgd2FzX2luX2NhbGwgPSAwCiAgICAgICAgdXNlcl9kYXRhID0gMHg1NWJj
+NDRlNGU5YTAKICAgICAgICBjYWxsYmFjayA9IDB4N2Y1NTI0NmFiOTgwIDxnc2RfcHJpbnRfbm90
+aWZpY2F0aW9uc19tYW5hZ2VyX3N0YXJ0X2lkbGU+CiAgICAgICAgY2JfZnVuY3MgPSAweDdmNTU1
+MGU3ODI4MCA8Z19zb3VyY2VfY2FsbGJhY2tfZnVuY3M+CiAgICAgICAgY2JfZGF0YSA9IDB4NTVi
+YzQ0ZTU0N2UwCiAgICAgICAgbmVlZF9kZXN0cm95ID0gPG9wdGltaXplZCBvdXQ+CiAgICAgICAg
+c291cmNlID0gMHg1NWJjNDRlNTQ3NzAKICAgICAgICBjdXJyZW50ID0gMHg1NWJjNDRhZTQ2MjAK
+ICAgICAgICBpID0gNgojMTQgZ19tYWluX2NvbnRleHRfZGlzcGF0Y2ggKGNvbnRleHQ9Y29udGV4
+dEBlbnRyeT0weDU1YmM0NGFjZjBmMCkgYXQgZ21haW4uYzozODU0Ck5vIGxvY2Fscy4KIzE1IDB4
+MDAwMDdmNTU1MGJiMjJhMCBpbiBnX21haW5fY29udGV4dF9pdGVyYXRlIChjb250ZXh0PTB4NTVi
+YzQ0YWNmMGYwLCBibG9jaz1ibG9ja0BlbnRyeT0xLCBkaXNwYXRjaD1kaXNwYXRjaEBlbnRyeT0x
+LCAKICAgIHNlbGY9PG9wdGltaXplZCBvdXQ+KSBhdCBnbWFpbi5jOjM5MjcKICAgICAgICBtYXhf
+cHJpb3JpdHkgPSAyMDAKICAgICAgICB0aW1lb3V0ID0gMAogICAgICAgIHNvbWVfcmVhZHkgPSAx
+CiAgICAgICAgbmZkcyA9IDYKICAgICAgICBhbGxvY2F0ZWRfbmZkcyA9IDYKICAgICAgICBmZHMg
+PSA8b3B0aW1pemVkIG91dD4KIzE2IDB4MDAwMDdmNTU1MGJiMjVjMiBpbiBnX21haW5fbG9vcF9y
+dW4gKGxvb3A9MHg1NWJjNDRkYWYxODApIGF0IGdtYWluLmM6NDEyMwogICAgICAgIF9fZnVuY19f
+ID0gImdfbWFpbl9sb29wX3J1biIKIzE3IDB4MDAwMDdmNTU1Mjc5NmZlNSBpbiBndGtfbWFpbiAo
+KSBhdCBndGttYWluLmM6MTI5NQogICAgICAgIGxvb3AgPSAweDU1YmM0NGRhZjE4MAojMTggMHgw
+MDAwNTViYzQzMjQ5NjZiIGluIG1haW4gKGFyZ2M9PG9wdGltaXplZCBvdXQ+LCBhcmd2PTxvcHRp
+bWl6ZWQgb3V0PikgYXQgbWFpbi5jOjQzNAogICAgICAgIF9fZnVuY19fID0gIm1haW4iCkRldGFj
+aGluZyBmcm9tIHByb2dyYW06IC91c3IvbGliZXhlYy9nbm9tZS1zZXR0aW5ncy1kYWVtb24sIHBy
+b2Nlc3MgMTQyNzgK
+</data>
+
+          </attachment>
+          <attachment
+              isobsolete="0"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1203772</attachid>
+            <date>2016-09-22 10:02:00 -0400</date>
+            <delta_ts>2016-09-22 10:02:06 -0400</delta_ts>
+            <desc>Proposed patch</desc>
+            <filename>cups-cpu-hammering.patch</filename>
+            <type>text/plain</type>
+            <size>1534</size>
+            <attacher name="Zdenek Dohnal">zdohnal</attacher>
+            
+              <data encoding="base64">ZGlmZiAtdXAgY3Vwcy0yLjIuMC9DSEFOR0VTLnR4dC5jcHUtaGFtbWVyaW5nIGN1cHMtMi4yLjAv
+Q0hBTkdFUy50eHQKZGlmZiAtdXAgY3Vwcy0yLjIuMC9jdXBzL2h0dHAtYWRkcmxpc3QuYy5jcHUt
+aGFtbWVyaW5nIGN1cHMtMi4yLjAvY3Vwcy9odHRwLWFkZHJsaXN0LmMKLS0tIGN1cHMtMi4yLjAv
+Y3Vwcy9odHRwLWFkZHJsaXN0LmMuY3B1LWhhbW1lcmluZwkyMDE2LTA5LTE5IDE5OjU2OjU0LjA3
+NDg2Njk1NyArMDIwMAorKysgY3Vwcy0yLjIuMC9jdXBzL2h0dHAtYWRkcmxpc3QuYwkyMDE2LTA5
+LTIxIDExOjQ1OjIyLjI2NDc3NTQwOSArMDIwMApAQCAtMzA0LDYgKzMwNCw4IEBAIGh0dHBBZGRy
+Q29ubmVjdDIoCiAKICAgICBpZiAocmVzdWx0ID4gMCkKICAgICB7CisgICAgICBodHRwX2FkZHJs
+aXN0X3QgKmNvbm5hZGRyID0gTlVMTDsKKwogICAgICAgZm9yIChpID0gMDsgaSA8IG5mZHM7IGkg
+KyspCiAgICAgICB7CiAjICBpZmRlZiBIQVZFX1BPTEwKQEAgLTMxNCw3ICszMTYsNyBAQCBodHRw
+QWRkckNvbm5lY3QyKAogIyAgZW5kaWYgLyogSEFWRV9QT0xMICovCiAJewogCSAgKnNvY2sgICAg
+PSBmZHNbaV07Ci0JICBhZGRybGlzdCA9IGFkZHJzW2ldOworCSAgY29ubmFkZHIgPSBhZGRyc1tp
+XTsKIAogIyAgaWZkZWYgREVCVUcKIAkgIGxlbiAgID0gc2l6ZW9mKHBlZXIpOwpAQCAtMzIyLDEx
+ICszMjQsMjkgQEAgaHR0cEFkZHJDb25uZWN0MigKIAkgICAgREVCVUdfcHJpbnRmKCgiMWh0dHBB
+ZGRyQ29ubmVjdDI6IENvbm5lY3RlZCB0byAlczolZC4uLiIsIGh0dHBBZGRyU3RyaW5nKCZwZWVy
+LCB0ZW1wLCBzaXplb2YodGVtcCkpLCBodHRwQWRkclBvcnQoJnBlZXIpKSk7CiAjICBlbmRpZiAv
+KiBERUJVRyAqLwogCX0KLQllbHNlCisjIGlmZGVmIEhBVkVfUE9MTAorCWVsc2UgaWYgKHBmZHNb
+aV0ucmV2ZW50cyAmIChQT0xMRVJSIHwgUE9MTEhVUCkpCisjIGVsc2UKKwllbHNlIGlmIChGRF9T
+RVQoZmRzW2ldLCAmZXJyb3IpKQorIyBlbmRpZiAvKiBIQVZFX1BPTEwgKi8KKyAgICAgICAgewor
+ICAgICAgICAgLyoKKyAgICAgICAgICAqIEVycm9yIG9uIHNvY2tldCwgcmVtb3ZlIGZyb20gdGhl
+ICJwb29sIi4uLgorICAgICAgICAgICovCisKIAkgIGh0dHBBZGRyQ2xvc2UoTlVMTCwgZmRzW2ld
+KTsKKyAgICAgICAgICBuZmRzIC0tOworICAgICAgICAgIGlmIChpIDwgbmZkcykKKyAgICAgICAg
+ICB7CisgICAgICAgICAgICBtZW1tb3ZlKGZkcyArIGksIGZkcyArIGkgKyAxLCAoc2l6ZV90KShu
+ZmRzIC0gaSkgKiAoc2l6ZW9mKGZkc1swXSkpKTsKKyAgICAgICAgICAgIG1lbW1vdmUoYWRkcnMg
+KyBpLCBhZGRycyArIGkgKyAxLCAoc2l6ZV90KShuZmRzIC0gaSkgKiAoc2l6ZW9mKGFkZHJzWzBd
+KSkpOworICAgICAgICAgIH0KKyAgICAgICAgICBpIC0tOworICAgICAgICB9CiAgICAgICB9CiAK
+LSAgICAgIHJldHVybiAoYWRkcmxpc3QpOworICAgICAgaWYgKGNvbm5hZGRyKQorICAgICAgICBy
+ZXR1cm4gKGNvbm5hZGRyKTsKICAgICB9CiAjZW5kaWYgLyogT19OT05CTE9DSyAqLwogCg==
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

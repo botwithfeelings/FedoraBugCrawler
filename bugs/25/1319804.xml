@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1319804</bug_id>
+          
+          <creation_ts>2016-03-21 10:53:00 -0400</creation_ts>
+          <short_desc>Trivial programs that include &lt;xfs.h&gt; fail to compile</short_desc>
+          <delta_ts>2017-03-24 16:12:03 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>xfsprogs</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>RAWHIDE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Richard W.M. Jones">rjones</reporter>
+          <assigned_to name="Eric Sandeen">esandeen</assigned_to>
+          <cc>aoliva</cc>
+    
+    
+    <cc>esandeen</cc>
+    
+    
+    <cc>lars.seipel</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-03-24 16:12:03</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9165199</commentid>
+    <comment_count>0</comment_count>
+    <who name="Richard W.M. Jones">rjones</who>
+    <bug_when>2016-03-21 10:53:13 -0400</bug_when>
+    <thetext>Description of problem:
+
+In file included from /usr/include/xfs/xfs.h:37:0,
+                 from conftest.c:86:
+/usr/include/xfs/linux.h:145:9: error: unknown type name &apos;off64_t&apos;
+ typedef off64_t  xfs_off_t;
+         ^~~~~~~
+
+This can be worked around by using -D_GNU_SOURCE, but that
+should not be necessary.
+
+Version-Release number of selected component (if applicable):
+
+xfsprogs-devel-4.5.0-1.fc25.x86_64
+(Also affects upstream xfsprogs from git)
+
+How reproducible:
+
+100%
+
+Steps to Reproduce:
+1. Include &lt;xfs.h&gt; in any program.
+
+Additional info:
+
+Discussed upstream with no resolution:
+https://www.spinics.net/lists/fstests/index.html#02640
+
+This breaks Ceph in Rawhide.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9178525</commentid>
+    <comment_count>1</comment_count>
+    <who name="Alexandre Oliva">aoliva</who>
+    <bug_when>2016-03-24 22:59:54 -0400</bug_when>
+    <thetext>FWIW, this breaks ceph builds in f23 too.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9185818</commentid>
+    <comment_count>2</comment_count>
+    <who name="Eric Sandeen">esandeen</who>
+    <bug_when>2016-03-28 20:19:43 -0400</bug_when>
+    <thetext>cb898f1 linux.h: Use off64_t instead of loff_t
+
+seems to have undone:
+
+f96aff0 xfsprogs: stop using off64_t in platform headers</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9342283</commentid>
+    <comment_count>3</comment_count>
+    <who name="Eric Sandeen">esandeen</who>
+    <bug_when>2016-05-19 13:46:59 -0400</bug_when>
+    <thetext>Sorry, this one kind of fell off my radar.
+
+Should we just #define _LARGEFILE64_SOURCE ?
+
+The original reason for the change back to off64_t was:
+
+commit cb898f157f8410a03cf5f3400baa1df9e5eecd33
+Author: Felix Janda &lt;felix.janda@posteo.de&gt;
+Date:   Fri Feb 5 08:34:06 2016 +1100
+
+    linux.h: Use off64_t instead of loff_t
+    
+    These are equivalent on glibc, while musl does not know loff_t.
+    
+    In the long run, it would be preferable to enable transparent LFS so
+    that off64_t could be replaced by off_t.
+    
+    Signed-off-by: Felix Janda &lt;felix.janda@posteo.de&gt;
+    Reviewed-by: Christoph Hellwig &lt;hch@lst.de&gt;
+    Signed-off-by: Dave Chinner &lt;david@fromorbit.com&gt;
+
+So I&apos;m not really quite sure where to go with this one.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9548951</commentid>
+    <comment_count>4</comment_count>
+    <who name="Jan Kurik">jkurik</who>
+    <bug_when>2016-07-26 00:16:13 -0400</bug_when>
+    <thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 25 development cycle.
+Changing version to &apos;25&apos;.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9691558</commentid>
+    <comment_count>5</comment_count>
+    <who name="Eric Sandeen">esandeen</who>
+    <bug_when>2016-09-08 13:00:57 -0400</bug_when>
+    <thetext>I&apos;m probably going to just revert the type change for now, this seems remarkably complicated to fix in general for all architectures and libc variants.
+
+It may end up that we require a 64-bit LFS compile when including xfs.h in the long run, though.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10276171</commentid>
+    <comment_count>6</comment_count>
+    <who name="Eric Sandeen">esandeen</who>
+    <bug_when>2017-03-24 16:12:03 -0400</bug_when>
+    <thetext>AFAIK this should all be fine now - sorry it took a while.  If not, please re-open...</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

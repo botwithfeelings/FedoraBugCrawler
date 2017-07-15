@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1398171</bug_id>
+          
+          <creation_ts>2016-11-24 04:22:00 -0500</creation_ts>
+          <short_desc>Stylesheet not loading after Fedora 25 upgrade</short_desc>
+          <delta_ts>2016-12-10 19:27:32 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>mediawiki</component>
+          <version>25</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Tuomas Kivijärvi">spacespin</reporter>
+          <assigned_to name="Michael Cronenworth">mike</assigned_to>
+          <cc>mike</cc>
+    
+    
+    <cc>puiterwijk</cc>
+    
+    
+    <cc>wfay</cc>
+    
+    
+    <cc>wiho-bugzilla-redhat</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>mediawiki-1.27.1-2.fc25</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-12-10 19:27:32</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9919085</commentid>
+    <comment_count>0</comment_count>
+    <who name="Tuomas Kivijärvi">spacespin</who>
+    <bug_when>2016-11-24 04:22:05 -0500</bug_when>
+    <thetext>Description of problem:
+After Fedora 24 -&gt; 25 dnf system-upgrade, no stylesheets are loading in mediawiki-1.27.1-1. The wiki has no 3rd party addons installed and the LocalSettings.php was re-generated to verify no legacy settings were left over from past versions.
+
+With $wgShowExceptionDetails = true; in LocalSettings.php, the error message is:
+
+Exception encountered, of type &quot;Error&quot;
+[WDar9kcgRu-hAeDjJSGbQgAAAAQ] /mediawiki/load.php?debug=false&amp;lang=en&amp;modules=mediawiki.legacy.commonPrint%2Cshared%7Cmediawiki.sectionAnchor%7Cmediawiki.skinning.interface%7Cskins.vector.styles&amp;only=styles&amp;skin=vector Error from line 478 of /usr/share/mediawiki/includes/resourceloader/ResourceLoaderModule.php: Call to undefined function RelPath\getRelativePath()
+Backtrace:
+#0 [internal function]: ResourceLoaderModule::{closure}(string)
+#1 /usr/share/mediawiki/includes/resourceloader/ResourceLoaderModule.php(479): array_map(Closure, array)
+#2 /usr/share/mediawiki/includes/resourceloader/ResourceLoaderModule.php(452): ResourceLoaderModule::getRelativePaths(array)
+#3 /usr/share/mediawiki/includes/resourceloader/ResourceLoaderFileModule.php(393): ResourceLoaderModule-&gt;saveFileDependencies(ResourceLoaderContext, array)
+#4 /usr/share/mediawiki/includes/resourceloader/ResourceLoaderModule.php(609): ResourceLoaderFileModule-&gt;getStyles(ResourceLoaderContext)
+#5 /usr/share/mediawiki/includes/resourceloader/ResourceLoaderModule.php(556): ResourceLoaderModule-&gt;buildContent(ResourceLoaderContext)
+#6 /usr/share/mediawiki/includes/resourceloader/ResourceLoader.php(973): ResourceLoaderModule-&gt;getModuleContent(ResourceLoaderContext)
+#7 /usr/share/mediawiki/includes/resourceloader/ResourceLoader.php(702): ResourceLoader-&gt;makeModuleResponse(ResourceLoaderContext, array, array)
+#8 /usr/share/mediawiki/load.php(47): ResourceLoader-&gt;respond(ResourceLoaderContext)
+#9 {main}
+
+
+No SELinux errors are reported.
+
+
+Additional info:
+During the system upgrade, the mediawiki database was not properly updated.
+From the /var/log/mediawiki-updates.log:
+
+PHP Warning:  PHP Startup: bcmath: Unable to initialize module
+Module compiled with module API=20131226
+PHP    compiled with module API=20151012
+These options need to match
+ in Unknown on line 0
+PHP Warning:  PHP Startup: Unable to load dynamic library &apos;/usr/lib64/php/modules/gmp.so&apos; - /usr/lib64/php/modules/gmp.so: undefined symbol: zval_used_for_init in Unknown on line 0
+PHP Warning:  PHP Startup: Unable to load dynamic library &apos;/usr/lib64/php/modules/intl.so&apos; - /usr/lib64/php/modules/intl.so: undefined symbol: zval_used_for_init in Unknown on line 0
+PHP Warning:  PHP Startup: Unable to load dynamic library &apos;/usr/lib64/php/modules/tidy.so&apos; - /usr/lib64/php/modules/tidy.so: undefined symbol: zval_used_for_init in Unknown on line 0
+PHP Warning:  PHP Startup: Unable to load dynamic library &apos;/usr/lib64/php/modules/mysql.so&apos; - /usr/lib64/php/modules/mysql.so: undefined symbol: _zend_list_find in Unknown on line 0
+PHP Warning:  Module &apos;json&apos; already loaded in Unknown on line 0
+
+I did run &apos;dnf reinstall mediawiki&apos; and the MediaWiki 1.27.1 Updater did update the db schema correctly.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9925260</commentid>
+    <comment_count>1</comment_count>
+    <who name="Michael Cronenworth">mike</who>
+    <bug_when>2016-11-24 10:49:38 -0500</bug_when>
+    <thetext>Your log messages indicate that your PHP installation is corrupt. This has nothing to do with mediawiki.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9931988</commentid>
+    <comment_count>2</comment_count>
+    <who name="Jochem Wichers Hoeth">wiho-bugzilla-redhat</who>
+    <bug_when>2016-11-27 06:33:53 -0500</bug_when>
+    <thetext>I&apos;m experiencing the same problem after upgrading from Fedora 24 to 25. Loading the styles results in the error mentioned in the first post (after enabling wgShowExceptionDetails).
+
+The undefined function RelPath\getRelativePath() is defined in /usr/share/mediawiki/vendor/wikimedia/relpath/src/RelPath.php, but apparently this file does not get included. I don&apos;t know enough about the mediawiki module loading process to figure out how this file is supposed to be loaded.
+
+The missing style problem occurs both in two wiki instances that existed before the upgrade, and in a new instance that I&apos;ve created after the upgrade.
+
+I&apos;ve also found the &quot;undefined symbol&quot; errors in my /var/log/mediawiki-updates.log (logged during the 24-&gt;25 upgrade), but I&apos;m not sure that these are related to the first problem. I think the mediawiki-rpm upgrade happens at time during the Fedora upgrade where all php-rpms haven&apos;t all been upgraded yet. When I manually run /usr/sbin/mw-updateallinstances after the 24-&gt;25 upgrade, these errors do not appear anymore.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9932018</commentid>
+    <comment_count>3</comment_count>
+    <who name="Jochem Wichers Hoeth">wiho-bugzilla-redhat</who>
+    <bug_when>2016-11-27 07:14:36 -0500</bug_when>
+    <thetext>I dug a little deeper into the rpm build, and I found out that mediawiki.spec seems to replace the (vendor) autoload mechanism from the upstream mediawiki. I noticed that it adds a few hard-coded includes to vendor/autoload.php for other modules, but not for relpath. As an experiment, I&apos;ve appended the following line to vendor/autoload.php:
+
+require dirname(dirname(__FILE__)) . &apos;/vendor/wikimedia/relpath/src/RelPath.php&apos;;
+
+And my styles are back! :-)
+
+I&apos;m not sure if this is the correct way to have RelPath.php loaded, but it&apos;s a good enough workaround until a fixed rpm comes out. I hope this helps.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9934334</commentid>
+    <comment_count>4</comment_count>
+    <who name="Tuomas Kivijärvi">spacespin</who>
+    <bug_when>2016-11-28 07:18:34 -0500</bug_when>
+    <thetext>That line to vendor/autoload.php fixed my stylesheets too. Thank you.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9935627</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-11-28 11:41:50 -0500</bug_when>
+    <thetext>mediawiki-1.27.1-2.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2016-fe1878a39f</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9936697</commentid>
+    <comment_count>6</comment_count>
+    <who name="">wfay</who>
+    <bug_when>2016-11-28 18:42:27 -0500</bug_when>
+    <thetext>Adding:
+require dirname(dirname(__FILE__)) . &apos;/vendor/wikimedia/relpath/src/RelPath.php&apos;;
+
+to vendor/autoload.php
+fixed the problem for me too.
+I did a fresh install of Fedora 25.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9952232</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-02 13:54:48 -0500</bug_when>
+    <thetext>mediawiki-1.27.1-2.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-fe1878a39f</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9974104</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-10 19:27:32 -0500</bug_when>
+    <thetext>mediawiki-1.27.1-2.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

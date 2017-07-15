@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1436446</bug_id>
+          
+          <creation_ts>2017-03-27 19:43:00 -0400</creation_ts>
+          <short_desc>getpid() in child process created using clone(CLONE_VM) returns parent&apos;s pid</short_desc>
+          <delta_ts>2017-04-03 10:15:17 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>glibc</component>
+          <version>25</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>RAWHIDE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>urgent</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Andrew Vagin">avagin</reporter>
+          <assigned_to name="Carlos O&apos;Donell">codonell</assigned_to>
+          <cc>arjun.is</cc>
+    
+    
+    <cc>codonell</cc>
+    
+    
+    <cc>dj</cc>
+    
+    
+    <cc>fweimer</cc>
+    
+    
+    <cc>law</cc>
+    
+    
+    <cc>mfabian</cc>
+    
+    
+    <cc>pfrankli</cc>
+    
+    
+    <cc>sid</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-04-03 10:15:17</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10281293</commentid>
+    <comment_count>0</comment_count>
+    <who name="Andrew Vagin">avagin</who>
+    <bug_when>2017-03-27 19:43:09 -0400</bug_when>
+    <thetext>Description of problem:
+
+When a child process is created by clone(CLONE_VM), getpid() returns a parent PID. This problem exists in fc25 (glibc-2.24-4.fc25.x86_64) and doesn&apos;t exist in fc24 (glibc-2.23.1-11.fc24.x86_64).
+
+[avagin@laptop ~]$ cat test1.c 
+#define _GNU_SOURCE
+#include &lt;sched.h&gt;
+#include &lt;unistd.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;errno.h&gt;
+#include &lt;sys/syscall.h&gt;
+#include &lt;sys/mman.h&gt;
+#include &lt;signal.h&gt;
+#include &lt;sys/wait.h&gt;
+
+int child(void *a)
+{
+	printf(&quot;1)child: pid=%ld\n&quot;, syscall(__NR_getpid));
+	printf(&quot;2)child: pid=%d\n&quot;, getpid());
+	if (getpid() != syscall(__NR_getpid))
+		printf(&quot;FAIL\n&quot;);
+	return 0;
+}
+
+int main(void)
+{
+	int stack_size = 2 * 1024 * 1024, status;
+	char *stack;
+	pid_t pid;
+
+	stack = mmap(NULL, stack_size, PROT_WRITE | PROT_READ, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	if (stack == MAP_FAILED) {
+		perror(&quot;Can&apos;t allocate stack&quot;);
+		exit(1);
+	}
+
+	setbuf(stdout, NULL);
+
+	printf(&quot;parent: pid=%d\n&quot;, getpid());
+	pid = clone(child, stack + stack_size, CLONE_VM | CLONE_FILES | SIGCHLD, NULL);
+	printf(&quot;parent: fork pid=%d\n&quot;, pid);
+	waitpid(pid, &amp;status, 0);
+}
+
+[avagin@laptop ~]$ rpm -q glibc
+glibc-2.24-4.fc25.x86_64
+glibc-2.24-4.fc25.i686
+[avagin@laptop ~]$ gcc -Wall test1.c 
+[avagin@laptop ~]$ ./a.out 
+parent: pid=8301
+parent: fork pid=8302
+1)child: pid=8302
+2)child: pid=8301
+FAIL
+
+[root@fc24 ~]# rpm -q glibc
+glibc-2.23.1-11.fc24.x86_64
+glibc-2.23.1-11.fc24.i686
+[root@fc24 ~]# gcc -Wall test1.c 
+[root@fc24 ~]# ./a.out 
+parent: pid=10453
+parent: fork pid=10454
+1)child: pid=10454
+2)child: pid=10454
+
+
+Version-Release number of selected component (if applicable):
+glibc-2.24-4.fc25.x86_64
+
+How reproducible:
+100%
+
+
+Steps to Reproduce:
+1. Compile the previous program
+2. Check that getpid() and syscall(__NR_getpid) return the same values for a child process
+
+Actual results:
+getpid() returns a parent PID
+
+Expected results:
+getpid() returns a child PID</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10281298</commentid>
+    <comment_count>1</comment_count>
+    <who name="Andrew Vagin">avagin</who>
+    <bug_when>2017-03-27 19:53:04 -0400</bug_when>
+    <thetext>https://sourceware.org/bugzilla/show_bug.cgi?id=19957</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10281934</commentid>
+    <comment_count>2</comment_count>
+    <who name="Andrew Vagin">avagin</who>
+    <bug_when>2017-03-28 02:01:02 -0400</bug_when>
+    <thetext>Here is the quote from the glibc bugzilla:
+Adhemerval Zanella 2017-03-28 04:24:22 UTC
+As you noted it was fixed by c579f48 (Remove cached PID/TID in clone) on master by removing the Linux getpid implementation altogether (and then use the auto-generation syscall).  I think for 2.24 the straightforward fix is just remove getpid Linux implementation.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10299507</commentid>
+    <comment_count>3</comment_count>
+    <who name="Carlos O&apos;Donell">codonell</who>
+    <bug_when>2017-04-03 10:15:17 -0400</bug_when>
+    <thetext>(In reply to Andrew Vagin from comment #2)
+&gt; Here is the quote from the glibc bugzilla:
+&gt; Adhemerval Zanella 2017-03-28 04:24:22 UTC
+&gt; As you noted it was fixed by c579f48 (Remove cached PID/TID in clone) on
+&gt; master by removing the Linux getpid implementation altogether (and then use
+&gt; the auto-generation syscall).  I think for 2.24 the straightforward fix is
+&gt; just remove getpid Linux implementation.
+
+This is fixed in F26 and onward and will not be backported to Fedora 25 unless a specific application is being impacted by the functionality in question.
+
+The workaround is to use syscall to call getpid directly and bypass the core library cache.
+
+Applications that directly use clone must understand all the coordination aspects involved with the underlying core library that is maintaining the threading model provided by the language constructs e.g. pthread_create etc.
+
+Please reopen this bug is the workaround is unsupportable for you for some reason, or if the fix in F26 is insufficient.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

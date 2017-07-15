@@ -1,0 +1,453 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1329919</bug_id>
+          
+          <creation_ts>2016-04-24 19:45:00 -0400</creation_ts>
+          <short_desc>sendmail-auth.conf filter never matchs on failregex condition</short_desc>
+          <delta_ts>2017-02-14 19:19:49 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>fail2ban</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>medium</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter>dan</reporter>
+          <assigned_to name="Orion Poplawski">orion</assigned_to>
+          <cc>athmanem</cc>
+    
+    
+    <cc>axel.thimm</cc>
+    
+    
+    <cc>dan</cc>
+    
+    
+    <cc>jonathan.underwood</cc>
+    
+    
+    <cc>orion</cc>
+    
+    
+    <cc>vonsch</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>fail2ban-0.9.6-2.fc25 fail2ban-0.9.6-2.fc24 fail2ban-0.9.6-2.el7</cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-01-13 20:27:42</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          <external_bugs name="Github">fail2ban/fail2ban/issues/1632</external_bugs>
+    
+    
+    
+    <external_bugs name="Github">fail2ban/fail2ban/pull/1566</external_bugs>
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9263749</commentid>
+    <comment_count>0</comment_count>
+    <who name="">dan</who>
+    <bug_when>2016-04-24 19:45:47 -0400</bug_when>
+    <thetext>Description of problem:
+
+A number of SMTP auth attacks were noticed in my journal but fail2ban is not triggering the specified action.  _daemon does not include a match for &quot;sendmail&quot; and the failregex seems to not match on the journal entries.
+
+jail.local contents:
+
+[DEFAULT]
+banTime = 86400
+findtime = 14400
+maxRetry = 3
+ignoreip = 127.0.0.0/8 192.168.0.0/24
+banaction = firewallcmd-ipset
+action = %(action_mwl)s
+sender = fail2ban@islenet.com
+destemail = dan@islenet.com
+
+[sshd]
+enabled = true
+
+[sendmail]
+enabled  = true
+filter   = sendmail-auth
+
+Some sample journal entries:
+
+Jan 12 06:03:04 ears.private sendmail[26592]: u0CB32qX026592: [203.92.90.154]: possible SMTP attack: command=AUTH, count=5
+Jan 12 06:03:04 ears.private sendmail[26593]: u0CB32f9026593: [203.92.90.154]: possible SMTP attack: command=AUTH, count=5
+Jan 12 06:03:04 ears.private sendmail[26594]: u0CB32pQ026594: [203.92.90.154]: possible SMTP attack: command=AUTH, count=5
+Jan 12 06:03:04 ears.private sendmail[26596]: u0CB321R026596: [203.92.90.154]: possible SMTP attack: command=AUTH, count=5
+Jan 12 06:03:04 ears.private sendmail[26595]: u0CB32IA026595: [203.92.90.154]: possible SMTP attack: command=AUTH, count=5
+Jan 21 07:06:57 ears.private sendmail[16035]: u0LC6tox016035: [179.43.141.238]: possible SMTP attack: command=AUTH, count=5
+Jan 21 07:06:57 ears.private sendmail[16037]: u0LC6tah016037: [179.43.141.238]: possible SMTP attack: command=AUTH, count=5
+Jan 21 07:06:57 ears.private sendmail[16036]: u0LC6t4s016036: [179.43.141.238]: possible SMTP attack: command=AUTH, count=5
+Jan 21 07:06:57 ears.private sendmail[16039]: u0LC6tl1016039: [179.43.141.238]: possible SMTP attack: command=AUTH, count=5
+Jan 21 07:06:57 ears.private sendmail[16038]: u0LC6tbp016038: [179.43.141.238]: possible SMTP attack: command=AUTH, count=5</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9266557</commentid>
+    <comment_count>1</comment_count>
+    <who name="">dan</who>
+    <bug_when>2016-04-25 14:49:21 -0400</bug_when>
+    <thetext>Results of fail2ban-regex check:
+
+fail2ban-regex &quot;systemd-journal&quot; -m _SYSTEMD_UNIT=sendmail.service /etc/fail2ban/filter.d/sendmail-auth.conf
+
+Running tests
+=============
+
+Use   failregex filter file : sendmail-auth, basedir: /etc/fail2ban
+Use    journal match : _SYSTEMD_UNIT=sendmail.service
+
+
+Results
+=======
+
+Failregex: 298 total
+|-  #) [# of hits] regular expression
+|   1) [298] ^\s*(&lt;[^.]+\.[^.]+&gt;)?\s*(?:\S+ )?(?:kernel: \[ *\d+\.\d+\] )?(?:@vserver_\S+ )?(?:(?:\[\d+\])?:\s+[\[\(]?(?:sm-(mta|acceptingconnections)|sendmail)(?:\(\S+\))?[\]\)]?:?|[\[\(]?(?:sm-(mta|acceptingconnections)|sendmail)(?:\(\S+\))?[\]\)]?:?(?:\[\d+\])?:?)?\s(?:\[ID \d+ \S+\])?\s*\w{14}: (\S+ )?\[&lt;HOST&gt;\]( \(may be forged\))?: possible SMTP attack: command=AUTH, count=\d+$
+`-
+
+Ignoreregex: 0 total
+
+Lines: 232074 lines, 0 ignored, 298 matched, 231776 missed [processed in 33.38 sec]
+Missed line(s): too many to print.  Use --print-all-missed to print all 231776 lines</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9266577</commentid>
+    <comment_count>2</comment_count>
+    <who name="">dan</who>
+    <bug_when>2016-04-25 14:56:29 -0400</bug_when>
+    <thetext>Update: works fine when logpath = /var/log/maillog.
+
+Fails to properly start when logpath is removed to go against journal:
+
+Apr 25 14:54:42 ears.private systemd[1]: Starting Fail2Ban Service...
+-- Subject: Unit fail2ban.service has begun start-up
+-- Defined-By: systemd
+-- Support: http://lists.freedesktop.org/mailman/listinfo/systemd-devel
+--
+-- Unit fail2ban.service has begun starting up.
+Apr 25 14:54:42 ears.private fail2ban-client[12630]: ERROR  Failed during configuration: Bad value substitution:
+Apr 25 14:54:42 ears.private fail2ban-client[12630]: section: [sendmail]
+Apr 25 14:54:42 ears.private fail2ban-client[12630]: option : action
+Apr 25 14:54:42 ears.private fail2ban-client[12630]: key    : logpath
+Apr 25 14:54:42 ears.private fail2ban-client[12630]: rawval : , chain=&quot;%(chain)s&quot;]
+Apr 25 14:54:42 ears.private systemd[1]: fail2ban.service: Control process exited, code=exited status=255
+Apr 25 14:54:42 ears.private systemd[1]: Failed to start Fail2Ban Service.
+-- Subject: Unit fail2ban.service has failed
+-- Defined-By: systemd
+-- Support: http://lists.freedesktop.org/mailman/listinfo/systemd-devel
+--
+-- Unit fail2ban.service has failed.
+--
+-- The result is failed.
+Apr 25 14:54:42 ears.private systemd[1]: fail2ban.service: Unit entered failed state.
+Apr 25 14:54:42 ears.private audit[1]: SERVICE_START pid=1 uid=0 auid=4294967295 ses=4294967295 subj=system_u:system_r:in
+Apr 25 14:54:42 ears.private systemd[1]: fail2ban.service: Failed with result &apos;exit-code&apos;.
+Apr 25 14:54:43 ears.private systemd[1]: fail2ban.service: Service hold-off time over, scheduling restart.
+Apr 25 14:54:43 ears.private systemd[1]: fail2ban.service: Start request repeated too quickly.
+Apr 25 14:54:43 ears.private audit[1]: SERVICE_START pid=1 uid=0 auid=4294967295 ses=4294967295 subj=system_u:system_r:in
+Apr 25 14:54:43 ears.private systemd[1]: Failed to start Fail2Ban Service.
+-- Subject: Unit fail2ban.service has failed
+-- Defined-By: systemd
+-- Support: http://lists.freedesktop.org/mailman/listinfo/systemd-devel
+--
+-- Unit fail2ban.service has failed.
+--
+-- The result is failed.
+Apr 25 14:54:43 ears.private audit[1]: SERVICE_STOP pid=1 uid=0 auid=4294967295 ses=4294967295 subj=system_u:system_r:ini
+Apr 25 14:54:43 ears.private systemd[1]: fail2ban.service: Unit entered failed state.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9266668</commentid>
+    <comment_count>3</comment_count>
+    <who name="">dan</who>
+    <bug_when>2016-04-25 15:38:06 -0400</bug_when>
+    <thetext>sendmail-auth.conf needed a journalmatch line.
+
+However, to get around the failure to start, the jail.local section for [sendmail] needs the logpath variable to be present, even if it is null:
+
+[DEFAULT]
+banTime = 86400
+findtime = 14400
+maxRetry = 3
+ignoreip = 127.0.0.0/8 192.168.0.0/24
+banaction = firewallcmd-ipset
+action = %(action_mwl)s
+sender = fail2ban@islenet.com
+destemail = dan@islenet.com
+
+[sshd]
+enabled = true
+
+[sendmail]
+enabled  = true
+port = 25,465
+filter = sendmail-auth
+logpath =</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9764874</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-10-04 10:22:33 -0400</bug_when>
+    <thetext>fail2ban-0.9.5-3.fc23 has been pushed to the Fedora 23 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-07310f15dc</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9807973</commentid>
+    <comment_count>5</comment_count>
+    <who name="">dan</who>
+    <bug_when>2016-10-20 08:21:23 -0400</bug_when>
+    <thetext>I tested this and there is still an issue with the filter.
+
+As distributed, sendmail-auth.conf contains:
+
+ _daemon = (?:sm-(mta|acceptingconnections))
+
+This does not provide a match against my journal.  Changing the line to read:
+
+ _daemon = sendmail
+
+provides numerous matches.
+
+Here is a sample journal line:
+
+Oct 18 22:14:39 zzzz.private sendmail[15989]: u9J2ER37015989: 108.61.191.82.vultr.com [108.61.191.82] (may be forged): possible SMTP attack: command=AUTH, count=7
+
+As you can see, the distributed &quot;_daemon =&quot; line will never match.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9927383</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora End Of Life">jkurik</who>
+    <bug_when>2016-11-25 02:27:44 -0500</bug_when>
+    <thetext>This message is a reminder that Fedora 23 is nearing its end of life.
+Approximately 4 (four) weeks from now Fedora will stop maintaining
+and issuing updates for Fedora 23. It is Fedora&apos;s policy to close all
+bug reports from releases that are no longer maintained. At that time
+this bug will be closed as EOL if it remains open with a Fedora  &apos;version&apos;
+of &apos;23&apos;.
+
+Package Maintainer: If you wish for this bug to remain open because you
+plan to fix it in a currently maintained version, simply change the &apos;version&apos; 
+to a later Fedora version.
+
+Thank you for reporting this issue and we are sorry that we were not 
+able to fix it before Fedora 23 is end of life. If you would still like 
+to see this bug fixed and are able to reproduce it against a later version 
+of Fedora, you are encouraged  change the &apos;version&apos; to a later Fedora 
+version prior this bug is closed as described in the policy above.
+
+Although we aim to fix as many bugs as possible during every release&apos;s 
+lifetime, sometimes those efforts are overtaken by events. Often a 
+more recent Fedora release includes newer upstream software that fixes 
+bugs or makes them obsolete.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9930544</commentid>
+    <comment_count>7</comment_count>
+    <who name="">dan</who>
+    <bug_when>2016-11-25 12:48:09 -0500</bug_when>
+    <thetext>Also applies to FC24, bumping version.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9952539</commentid>
+    <comment_count>8</comment_count>
+    <who name="Orion Poplawski">orion</who>
+    <bug_when>2016-12-02 16:42:40 -0500</bug_when>
+    <thetext>Filed upstream</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10042166</commentid>
+    <comment_count>9</comment_count>
+    <who name="">dan</who>
+    <bug_when>2017-01-06 19:57:48 -0500</bug_when>
+    <thetext>Bug verified in FC25, bumping version.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10042227</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-06 22:03:25 -0500</bug_when>
+    <thetext>fail2ban-0.9.6-1.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-33e3a599fa</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10042228</commentid>
+    <comment_count>11</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-06 22:03:35 -0500</bug_when>
+    <thetext>fail2ban-0.9.6-1.el7 has been submitted as an update to Fedora EPEL 7. https://bodhi.fedoraproject.org/updates/FEDORA-EPEL-2017-57b616d0bb</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10042229</commentid>
+    <comment_count>12</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-06 22:03:40 -0500</bug_when>
+    <thetext>fail2ban-0.9.6-1.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2017-4cccf70ef9</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10042823</commentid>
+    <comment_count>13</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-07 19:47:19 -0500</bug_when>
+    <thetext>fail2ban-0.9.6-1.el7 has been pushed to the Fedora EPEL 7 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-EPEL-2017-57b616d0bb</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10042833</commentid>
+    <comment_count>14</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-07 20:19:41 -0500</bug_when>
+    <thetext>fail2ban-0.9.6-1.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-4cccf70ef9</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10042845</commentid>
+    <comment_count>15</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-07 21:21:55 -0500</bug_when>
+    <thetext>fail2ban-0.9.6-1.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-33e3a599fa</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10050758</commentid>
+    <comment_count>16</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-10 16:52:12 -0500</bug_when>
+    <thetext>fail2ban-0.9.6-2.el7 has been submitted as an update to Fedora EPEL 7. https://bodhi.fedoraproject.org/updates/FEDORA-EPEL-2017-fc9588cf24</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10050759</commentid>
+    <comment_count>17</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-10 16:52:22 -0500</bug_when>
+    <thetext>fail2ban-0.9.6-2.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-bb1e01ca29</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10050760</commentid>
+    <comment_count>18</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-10 16:52:28 -0500</bug_when>
+    <thetext>fail2ban-0.9.6-2.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2017-fc4bbe2631</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10051320</commentid>
+    <comment_count>19</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-10 22:23:10 -0500</bug_when>
+    <thetext>fail2ban-0.9.6-2.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-bb1e01ca29</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10051367</commentid>
+    <comment_count>20</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-10 22:49:43 -0500</bug_when>
+    <thetext>fail2ban-0.9.6-2.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-fc4bbe2631</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10051737</commentid>
+    <comment_count>21</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-11 02:47:45 -0500</bug_when>
+    <thetext>fail2ban-0.9.6-2.el7 has been pushed to the Fedora EPEL 7 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-EPEL-2017-fc9588cf24</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10063088</commentid>
+    <comment_count>22</comment_count>
+    <who name="">dan</who>
+    <bug_when>2017-01-13 20:27:42 -0500</bug_when>
+    <thetext>This is now working under 0.9.6-2 and may be closed.
+
+fail2ban-regex &quot;systemd-journal&quot; /etc/fail2ban/filter.d/sendmail-auth.conf
+
+Running tests
+=============
+
+Use   failregex filter file : sendmail-auth, basedir: /etc/fail2ban
+Use         systemd journal
+Use         encoding : UTF-8
+Use    journal match : _SYSTEMD_UNIT=sendmail.service
+
+
+Results
+=======
+
+Failregex: 66 total
+|-  #) [# of hits] regular expression
+|   1) [66] ^(?:\[\])?\s*(?:&lt;[^.]+\.[^.]+&gt;\s+)?(?:\S+\s+)?(?:kernel: \[ *\d+\.\d+\]\s+)?(?:@vserver_\S+\s+)?(?:(?:(?:\[\d+\])?:\s+[\[\(]?(?:sendmail|sm-(?:mta|acceptingconnections))(?:\(\S+\))?[\]\)]?:?|[\[\(]?(?:sendmail|sm-(?:mta|acceptingconnections))(?:\(\S+\))?[\]\)]?:?(?:\[\d+\])?:?)\s+)?(?:\[ID \d+ \S+\]\s+)?\w{14}: (\S+ )?\[&lt;HOST&gt;\]( \(may be forged\))?: possible SMTP attack: command=AUTH, count=\d+$
+`-
+
+Ignoreregex: 0 total
+
+Lines: 273223 lines, 0 ignored, 66 matched, 273157 missed
+[processed in 51.81 sec]</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10078748</commentid>
+    <comment_count>23</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-19 00:54:33 -0500</bug_when>
+    <thetext>fail2ban-0.9.6-2.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10093802</commentid>
+    <comment_count>24</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-24 19:20:37 -0500</bug_when>
+    <thetext>fail2ban-0.9.6-2.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10148318</commentid>
+    <comment_count>25</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-14 19:19:49 -0500</bug_when>
+    <thetext>fail2ban-0.9.6-2.el7 has been pushed to the Fedora EPEL 7 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

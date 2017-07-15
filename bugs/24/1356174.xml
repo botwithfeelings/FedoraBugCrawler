@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1356174</bug_id>
+          
+          <creation_ts>2016-07-13 10:58:00 -0400</creation_ts>
+          <short_desc>/etc/logrotate.d/httpd shouldn’t reload httpd, but stop and start it anew</short_desc>
+          <delta_ts>2017-02-10 11:16:49 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>httpd</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>high</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Daniel">code</reporter>
+          <assigned_to name="Luboš Uhliarik">luhliari</assigned_to>
+          <cc>jkaluza</cc>
+    
+    
+    <cc>jorton</cc>
+    
+    
+    <cc>netllama</cc>
+    
+    
+    <cc>pahan</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-02-10 11:16:49</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          <external_bugs name="Apache Bugzilla">53555</external_bugs>
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9505609</commentid>
+    <comment_count>0</comment_count>
+    <who name="Daniel">code</who>
+    <bug_when>2016-07-13 10:58:29 -0400</bug_when>
+    <thetext>Description of problem:
+
+Due to Apache bug #53555, `systemctl reload httpd` will cause problems with some configurations. A full stop and start of the service is required to work around the problem.
+
+`/etc/logrotate.d/httpd` calls `systemctl reload httpd` as past of post-rotate. This can result in thousands upon thousands of errors like the below, and it will lead to the httpd service to become unavailable after a few minutes if the service is configured with TLS.
+
+    AH00485: scoreboard is full, not at MaxRequestWorkers
+
+I’ve tested versions 2.4.18 and 2.4.23. More info in Apache bugzilla #53555.
+
+Because of this problem, `/etc/logrotate.d/httpd` should run `systemctl stop httpd` followed by `systemctl start httpd` instead of reload (or restart).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9505629</commentid>
+    <comment_count>1</comment_count>
+    <who name="Daniel">code</who>
+    <bug_when>2016-07-13 11:04:16 -0400</bug_when>
+    <thetext>MPM is now default in httpd, I thought it still required to be configured. This means this problem should affect everyone using the default configuration.
+https://httpd.apache.org/docs/current/mpm.html#defaults</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9796521</commentid>
+    <comment_count>2</comment_count>
+    <who name="Fedora Admin XMLRPC Client">fedora-admin-xmlrpc</who>
+    <bug_when>2016-10-17 06:42:42 -0400</bug_when>
+    <thetext>This package has changed ownership in the Fedora Package Database.  Reassigning to the new owner of this component.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10138710</commentid>
+    <comment_count>3</comment_count>
+    <who name="Joe Orton">jorton</who>
+    <bug_when>2017-02-10 11:16:49 -0500</bug_when>
+    <thetext>prefork is still the default in Fedora.  PR 53555 should be fixed in 2.4.25, but regardless, this default is sensible (it avoids breaking active connections).
+
+https://bodhi.fedoraproject.org/updates/FEDORA-2016-d22f50d985</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

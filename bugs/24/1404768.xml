@@ -1,0 +1,632 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1404768</bug_id>
+          
+          <creation_ts>2016-12-14 10:29:00 -0500</creation_ts>
+          <short_desc>esmtp still won&apos;t deliver mail to local users</short_desc>
+          <delta_ts>2017-01-16 15:49:04 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>esmtp</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Jonathan Wakely">jwakely</reporter>
+          <assigned_to name="Jaroslav Škarvada">jskarvad</assigned_to>
+          <cc>itamar</cc>
+    
+    
+    <cc>jskarvad</cc>
+    
+    
+    <cc>olysonek</cc>
+    
+    
+    <cc>pertusus</cc>
+    
+    
+    <cc>smparrish</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>esmtp-1.2-5.fc25 esmtp-1.2-5.fc24</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-12-22 11:49:18</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9986030</commentid>
+    <comment_count>0</comment_count>
+    <who name="Jonathan Wakely">jwakely</who>
+    <bug_when>2016-12-14 10:29:34 -0500</bug_when>
+    <thetext>Following the fixes for Bug 1303305 and its many dups, the default setup is still broken in F24.
+
+
+Run:
+echo test | mail -s test $USER
+
+A short time later this is printed to the terminal:
+
+procmail: Insufficient privileges
+MDA returned nonzero status 77
+
+
+The mail goes to ~/.esmpt_queue and is never delivered.
+
+Every day &apos;root&apos; gets an email from anacron with 120+ lines of this, from the cron.daily job:
+
+
+/etc/cron.daily/rkhunter:
+
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+(repeat for 115 lines)
+
+
+$ rpm -qa esmtp* procmail selinux-policy
+esmtp-1.2-4.fc24.x86_64
+esmtp-local-delivery-1.2-4.fc24.x86_64
+procmail-3.22-39.fc24.x86_64
+selinux-policy-3.13.1-191.21.fc24.noarch
+
+$ ls -l /etc/alternatives/mta*
+lrwxrwxrwx. 1 root root 22 Oct 11 19:44 /etc/alternatives/mta -&gt; /usr/bin/esmtp-wrapper
+lrwxrwxrwx. 1 root root 22 Oct 11 19:44 /etc/alternatives/mta-mailq -&gt; /usr/bin/esmtp-wrapper
+lrwxrwxrwx. 1 root root 30 Oct 11 19:44 /etc/alternatives/mta-mailqman -&gt; /usr/share/man/man1/esmtp.1.gz
+lrwxrwxrwx. 1 root root 22 Oct 11 19:44 /etc/alternatives/mta-sendmail -&gt; /usr/bin/esmtp-wrapper
+lrwxrwxrwx. 1 root root 30 Oct 11 19:44 /etc/alternatives/mta-sendmailman -&gt; /usr/share/man/man1/esmtp.1.gz</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9989810</commentid>
+    <comment_count>1</comment_count>
+    <who name="Ondřej Lysoněk">olysonek</who>
+    <bug_when>2016-12-15 08:29:43 -0500</bug_when>
+    <thetext>What exactly do you mean by the $USER in &apos;echo test | mail -s test $USER&apos;? Do you mean the actual environment variable, i.e. you&apos;re trying to send mail to yourself? Or are you sending mail to some other user? Sending mail to yourself should work, and does work for me.
+
+However sending mail to other users does not work, and causes the &apos;procmail: Insufficient privileges&apos; error message and probably also the error report regarding rkhunter.
+
+The thing is that to enable sending mail to other users would require making either esmtp or procmail set-uid root. The set-uid bit was already removed for procmail due to a bug report [1], so there&apos;s little chance for it to return.
+
+Regarding esmtp, I&apos;m very reluctant to enable the set-uid bit there. Upstream of esmtp even expects that the MDA (procmail) will have the set-uid bit, not esmtp. (&quot;To deliver to other users beside yourself, the MDA must be installed with setuid flag&quot; [2]). I will discuss this point with my colleague.
+
+If you want a properly working MTA, please use something sane, such as Postfix.
+
+[1] https://bugzilla.redhat.com/show_bug.cgi?id=23257
+[2] http://esmtp.sourceforge.net/manual.html</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9989854</commentid>
+    <comment_count>2</comment_count>
+    <who name="Jonathan Wakely">jwakely</who>
+    <bug_when>2016-12-15 08:42:36 -0500</bug_when>
+    <thetext>(In reply to Ondřej Lysoněk from comment #1)
+&gt; What exactly do you mean by the $USER in &apos;echo test | mail -s test $USER&apos;?
+&gt; Do you mean the actual environment variable, i.e. you&apos;re trying to send mail
+&gt; to yourself? Or are you sending mail to some other user? Sending mail to
+&gt; yourself should work, and does work for me.
+
+I mean literally the environment variable, that&apos;s the exact command I ran. But it doesn&apos;t matter if I replace $USER with my username, or with &quot;root&quot;, I get the same result.
+
+Sending mail to myself does not work.
+
+On a different F24 system I get a different error:
+
+tmp$ echo test | mail -s test $USER
+tmp$ Failed to parse headers
+
+This time there isn&apos;t even anything in ~/.esmtp_queue
+
+
+&gt; However sending mail to other users does not work, and causes the &apos;procmail:
+&gt; Insufficient privileges&apos; error message and probably also the error report
+&gt; regarding rkhunter.
+
+I get it even for my own user.
+
+And if I run &quot;echo test | mail -s test root&quot; as root I get:
+
+[root@wraith ~]# echo test | mail -s test root
+[root@wraith ~]# SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+SMTP server problem Connection refused
+
+This is what happens for the daily cronjob.
+
+&gt; The thing is that to enable sending mail to other users would require making
+&gt; either esmtp or procmail set-uid root. The set-uid bit was already removed
+&gt; for procmail due to a bug report [1], so there&apos;s little chance for it to
+&gt; return.
+&gt; 
+&gt; Regarding esmtp, I&apos;m very reluctant to enable the set-uid bit there.
+&gt; Upstream of esmtp even expects that the MDA (procmail) will have the set-uid
+&gt; bit, not esmtp. (&quot;To deliver to other users beside yourself, the MDA must be
+&gt; installed with setuid flag&quot; [2]). I will discuss this point with my
+&gt; colleague.
+&gt; 
+&gt; If you want a properly working MTA, please use something sane, such as
+&gt; Postfix.
+
+OK, so esmtp is just broken?
+
+I don&apos;t want security holes added to make this work, but the current settings are useless. We have packages in Fedora such as rkhunter which are configured by default to send emails, which can&apos;t be delivered using the default mail settings, so I just get loads of crap building up in /root/.esmtp_queue/ every day.
+
+If there&apos;s no sane way to enable local mail delivery in the default install then cron jobs should not be sending undeliverable local email.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9989915</commentid>
+    <comment_count>3</comment_count>
+    <who name="Ondřej Lysoněk">olysonek</who>
+    <bug_when>2016-12-15 09:00:08 -0500</bug_when>
+    <thetext>(In reply to Jonathan Wakely from comment #2)
+&gt; I mean literally the environment variable, that&apos;s the exact command I ran.
+&gt; But it doesn&apos;t matter if I replace $USER with my username, or with &quot;root&quot;, I
+&gt; get the same result.
+&gt; 
+&gt; Sending mail to myself does not work.
+
+Well, that is strange. To be sure, can you post your /etc/esmtprc?
+
+&gt; On a different F24 system I get a different error:
+&gt; 
+&gt; tmp$ echo test | mail -s test $USER
+&gt; tmp$ Failed to parse headers
+&gt; 
+&gt; This time there isn&apos;t even anything in ~/.esmtp_queue
+
+I don&apos;t know what could cause that, can you post the output of the following?
+ls -l $(which mail)
+rpm -q --whatprovides $(which mail)
+
+&gt; OK, so esmtp is just broken?
+
+Basically yes, I think so. You could try finding another MDA to replace procmail, which has the set-uid bit.
+
+&gt; If there&apos;s no sane way to enable local mail delivery in the default install
+&gt; then cron jobs should not be sending undeliverable local email.
+
+So you ended up with esmtp as the default MTA after a fresh install of F24? Or is it an older release which you upgraded to F24? If esmtp gets installed by default, then that is something that could be changed in my opinion.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9989924</commentid>
+    <comment_count>4</comment_count>
+    <who name="Ondřej Lysoněk">olysonek</who>
+    <bug_when>2016-12-15 09:02:39 -0500</bug_when>
+    <thetext>Also, post your ~/.esmtprc if you have one.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9989951</commentid>
+    <comment_count>5</comment_count>
+    <who name="Jonathan Wakely">jwakely</who>
+    <bug_when>2016-12-15 09:10:52 -0500</bug_when>
+    <thetext>(In reply to Ondřej Lysoněk from comment #3)
+&gt; (In reply to Jonathan Wakely from comment #2)
+&gt; &gt; I mean literally the environment variable, that&apos;s the exact command I ran.
+&gt; &gt; But it doesn&apos;t matter if I replace $USER with my username, or with &quot;root&quot;, I
+&gt; &gt; get the same result.
+&gt; &gt; 
+&gt; &gt; Sending mail to myself does not work.
+&gt; 
+&gt; Well, that is strange. To be sure, can you post your /etc/esmtprc?
+
+It&apos;s just one line:
+
+mda &quot;procmail -d %T&quot;
+
+(same one both machines)
+
+&gt; I don&apos;t know what could cause that, can you post the output of the following?
+&gt; ls -l $(which mail)
+&gt; rpm -q --whatprovides $(which mail)
+
+wraith:tmp$ ls -l $(which mail)
+lrwxrwxrwx. 1 root root 5 Feb  4  2016 /usr/bin/mail -&gt; mailx
+wraith:tmp$ rpm -q --whatprovides /usr/bin/mail
+mailx-12.5-19.fc24.x86_64
+wraith:tmp$ rpm -q --whatprovides /usr/bin/mailx
+mailx-12.5-19.fc24.x86_64
+
+(same on both machines)
+
+&gt; &gt; If there&apos;s no sane way to enable local mail delivery in the default install
+&gt; &gt; then cron jobs should not be sending undeliverable local email.
+&gt; 
+&gt; So you ended up with esmtp as the default MTA after a fresh install of F24?
+&gt; Or is it an older release which you upgraded to F24? If esmtp gets installed
+&gt; by default, then that is something that could be changed in my opinion.
+
+I think both boxes were upgraded from F23.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9989959</commentid>
+    <comment_count>6</comment_count>
+    <who name="Jonathan Wakely">jwakely</who>
+    <bug_when>2016-12-15 09:11:43 -0500</bug_when>
+    <thetext>Oh, and I have no ~/.esmtprc on either machine, neither as root or my own user.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9992725</commentid>
+    <comment_count>7</comment_count>
+    <who name="Ondřej Lysoněk">olysonek</who>
+    <bug_when>2016-12-16 04:47:31 -0500</bug_when>
+    <thetext>Ok, it seems to me that the mail command puts something like $USER@localhost as recipient or to the From header, instead of just $USER, which confuses esmtp or procmail respectively. I think that causes the &apos;Insufficient privileges&apos; and &apos;SMTP server problem&apos; messages. I don&apos;t know yet what causes the &apos;Failed to parse headers&apos; message.
+
+On both machines, both as your own user and root, can you do the following?
+1. Clear your ~/.esmtp_queue
+2. Run &apos;echo test | mail -s test $USER&apos;
+3. Post the files ~/.esmtp_queue/*/cmd and ~/.esmtp_queue/*/mail</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9992975</commentid>
+    <comment_count>8</comment_count>
+    <who name="Jonathan Wakely">jwakely</who>
+    <bug_when>2016-12-16 06:15:26 -0500</bug_when>
+    <thetext>Machine 1 as normal user:
+
+It worked, mail was delivered! All that changed since I last tried was that I rebooted, and removed one directory under ~/.esmtp_queue
+
+Machine 1 as root:
+
+Also worked! Mail was delivered (but I still for the &quot;SMTP server problem Connection refused&quot; mail from the rkhunter cron job at 3am today). Again, apart from removing 100+ directories under ~/.esmtp_queue and rebooting I didn&apos;t change anything.
+
+Same results on the second machine, which hasn&apos;t even been rebooted. Now I&apos;m confused. Did clearing out the contents of ~/.esmtp_queue make the difference?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9993201</commentid>
+    <comment_count>9</comment_count>
+    <who name="Ondřej Lysoněk">olysonek</who>
+    <bug_when>2016-12-16 07:34:15 -0500</bug_when>
+    <thetext>Well I didn&apos;t expect that, but it&apos;s starting to make sense now.
+
+Whenever you try sending mail with the mail command, esmtp tries to deliver everything it finds piled up in the ~/.esmtp_queue directory. There were probably some emails that esmtp couldn&apos;t handle, so each time you tried sending mail it printed error messages. By clearing the queue you got rid of the bad mail, so no more error messages. Except for those from rkhunter. rkhunter probably is the producent of some of the bad mail, I&apos;ll look into it.
+
+But the strange thing is that you say that when you earlier tried sending mail to yourself, it didn&apos;t work. Are you sure about this? The fact that the error messages were printed doesn&apos;t mean that the mail you were trying to send wasn&apos;t delivered. The error messages could have belonged to some other messages in the queue. Try looking in /var/mail/$USER.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9993212</commentid>
+    <comment_count>10</comment_count>
+    <who name="Jonathan Wakely">jwakely</who>
+    <bug_when>2016-12-16 07:39:49 -0500</bug_when>
+    <thetext>(In reply to Ondřej Lysoněk from comment #9)
+&gt; But the strange thing is that you say that when you earlier tried sending
+&gt; mail to yourself, it didn&apos;t work. Are you sure about this? The fact that the
+&gt; error messages were printed doesn&apos;t mean that the mail you were trying to
+&gt; send wasn&apos;t delivered. The error messages could have belonged to some other
+&gt; messages in the queue. Try looking in /var/mail/$USER.
+
+Yes, I now think it was retrying some of the bad mail in ~/.esmtp_queue and giving errors for those mails instead, as there were more mails in /var/spool/mail than just the test ones I tried today.
+
+So possibly I just had some borked mail still queued up from before the Oct 27 fixes for Bug 1303305 (and the related selinux policy changes). Clearing out the queue has solved that problem.
+
+Shall I close this then, as the errors I was seeing are gone now?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9993220</commentid>
+    <comment_count>11</comment_count>
+    <who name="Ondřej Lysoněk">olysonek</who>
+    <bug_when>2016-12-16 07:43:18 -0500</bug_when>
+    <thetext>Well if I understood you correctly then the &apos;SMTP server problem Connection refused&apos; messages still appear, don&apos;t they? And if it&apos;s rkhunter that generates the bad mail, then the mail will keep piling up. I&apos;ll look for the cause of this.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9993221</commentid>
+    <comment_count>12</comment_count>
+    <who name="Ondřej Lysoněk">olysonek</who>
+    <bug_when>2016-12-16 07:44:27 -0500</bug_when>
+    <thetext>Actually if you&apos;re still seeing the errors, can you post some of the mail you have in /root/.esmtp_queue?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9993224</commentid>
+    <comment_count>13</comment_count>
+    <who name="Jonathan Wakely">jwakely</who>
+    <bug_when>2016-12-16 07:47:08 -0500</bug_when>
+    <thetext>I&apos;ve deleted them now, but should get another one tomorrow morning and will post it tomorrow.
+
+(Thanks for your help so far - I should have tried just deleting all the old queued mail!)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9993246</commentid>
+    <comment_count>14</comment_count>
+    <who name="Ondřej Lysoněk">olysonek</who>
+    <bug_when>2016-12-16 07:58:12 -0500</bug_when>
+    <thetext>No problem.
+
+rkhunter indeed sends mail to root@localhost and esmtp can&apos;t handle that (it expects a running SMTP server on the machine). I&apos;ll file a bug against rkhunter to change the adress to just &apos;root&apos;, that seems like the simplest solution.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9998704</commentid>
+    <comment_count>15</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-19 10:30:23 -0500</bug_when>
+    <thetext>esmtp-1.2-5.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2016-03cd500b0b</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9998754</commentid>
+    <comment_count>16</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-19 10:46:58 -0500</bug_when>
+    <thetext>esmtp-1.2-5.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-d8f70731ae</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9998763</commentid>
+    <comment_count>17</comment_count>
+    <who name="Ondřej Lysoněk">olysonek</who>
+    <bug_when>2016-12-19 10:49:31 -0500</bug_when>
+    <thetext>I changed my mind. I made esmtp deliver the mail to a local mailbox, if the host in the recipient address refers to the local host. Can you test if it&apos;s working for you?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9998849</commentid>
+    <comment_count>18</comment_count>
+    <who name="Jonathan Wakely">jwakely</who>
+    <bug_when>2016-12-19 11:13:58 -0500</bug_when>
+    <thetext>Sounds good - I&apos;ll try it as soon as it hits updates-testing.
+
+Here are the first entries in ~root/.esmtp_queue after clearing the queue:
+
+[root@wraith ~]# cat  ~/.esmtp_queue/VwO9aGdU/cmd
+-i -- root@localhost
+[root@wraith ~]# cat  ~/.esmtp_queue/VwO9aGdU/mail 
+Date: Sat, 17 Dec 2016 03:38:02 +0000
+To: root@localhost
+Subject: rkhunter Daily Run on wraith.home
+User-Agent: Heirloom mailx 12.5 7/5/10
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+
+--------------------- Start Rootkit Hunter Update ---------------------
+[ Rootkit Hunter version 1.4.2 ]
+
+Checking rkhunter data files...
+  Checking file mirrors.dat                                  [ No update ]
+  Checking file programs_bad.dat                             [ No update ]
+  Checking file backdoorports.dat                            [ No update ]
+  Checking file suspscan.dat                                 [ No update ]
+  Checking file i18n/cn                                      [ No update ]
+  Checking file i18n/de                                      [ No update ]
+  Checking file i18n/en                                      [ No update ]
+  Checking file i18n/tr                                      [ No update ]
+  Checking file i18n/tr.utf8                                 [ No update ]
+  Checking file i18n/zh                                      [ No update ]
+  Checking file i18n/zh.utf8                                 [ No update ]
+
+---------------------- Start Rootkit Hunter Scan ----------------------
+Warning: Suspicious file types found in /dev:
+         /dev/shm/jwakely-Shm_34d6b6af: data
+         /dev/shm/jwakely-Shm_2dbb2f51: data
+         /dev/shm/jwakely-Shm_125376fc: data
+         /dev/shm/jwakely-Shm_ab485e4f: data
+         /dev/shm/jwakely-Shm_b225c7b1: data
+         /dev/shm/jwakely-Shm_11b8dc07: data
+         /dev/shm/jwakely-Shm_bd857ed0: data
+         /dev/shm/jwakely-Shm_3d9d4079: data
+         /dev/shm/jwakely-Shm_eec7db1e: data
+         /dev/shm/jwakely-Shm_3c3a3c3d: data
+         /dev/shm/jwakely-Shm_c9edbd50: data
+         /dev/shm/jwakely-Shm_5c344313: data
+         /dev/shm/mono-shared-1000-shared_fileshare-wraith.home-Linux-x86_64-40-12-0: data
+         /dev/shm/mono-shared-1000-shared_data-wraith.home-Linux-x86_64-328-12-0: data
+
+----------------------- End Rootkit Hunter Scan -----------------------
+
+
+
+The first day after clearing the queue I got:
+
+
+From: Anacron &lt;root&gt;
+To: root
+Subject: Anacron job &apos;cron.daily&apos; on wraith.home
+
+/etc/cron.daily/rkhunter:
+
+SMTP server problem Connection refused
+
+
+And each subsequent day there&apos;s one extra &quot;Connection refused&quot; line, as each new entry in the queue gets retried.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10000479</commentid>
+    <comment_count>19</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-19 20:00:03 -0500</bug_when>
+    <thetext>esmtp-1.2-5.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-d8f70731ae</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10001405</commentid>
+    <comment_count>20</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-20 04:23:56 -0500</bug_when>
+    <thetext>esmtp-1.2-5.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-03cd500b0b</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10010552</commentid>
+    <comment_count>21</comment_count>
+    <who name="Jonathan Wakely">jwakely</who>
+    <bug_when>2016-12-21 05:51:50 -0500</bug_when>
+    <thetext>The F24 update works well, thanks very much.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10016600</commentid>
+    <comment_count>22</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-22 11:49:18 -0500</bug_when>
+    <thetext>esmtp-1.2-5.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10067857</commentid>
+    <comment_count>23</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-16 15:49:04 -0500</bug_when>
+    <thetext>esmtp-1.2-5.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

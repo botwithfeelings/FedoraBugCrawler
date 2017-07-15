@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1309754</bug_id>
+          
+          <creation_ts>2016-02-18 10:44:00 -0500</creation_ts>
+          <short_desc>firewall-offline-cmd aborts if a service is already enabled</short_desc>
+          <delta_ts>2016-03-08 14:07:03 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>firewalld</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>RAWHIDE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard>AcceptedBlocker</status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>1230431</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="David Shea">dshea</reporter>
+          <assigned_to name="Thomas Woerner">twoerner</assigned_to>
+          <cc>awilliam</cc>
+    
+    
+    <cc>dshea</cc>
+    
+    
+    <cc>jpopelka</cc>
+    
+    
+    <cc>pschindl</cc>
+    
+    
+    <cc>robatino</cc>
+    
+    
+    <cc>twoerner</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>firewalld-0.4.0-4.fc24</cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-03-08 14:07:03</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9075811</commentid>
+    <comment_count>0</comment_count>
+    <who name="David Shea">dshea</who>
+    <bug_when>2016-02-18 10:44:07 -0500</bug_when>
+    <thetext>Description of problem:
+
+From https://github.com/t-woerner/firewalld/issues/82
+
+If I run this command in anaconda:
+
+08:14:06,197 INFO program: Running... /usr/bin/firewall-offline-cmd --enabled --service=ssh --port=22001:tcp --port=6400:udp --service=tftp --service=smtp
+
+Then firewall-offline-cmd gives me the following:
+
+08:14:06,874 INFO program: Adding service &apos;ssh&apos; to default zone.
+08:14:06,874 INFO program: ALREADY_ENABLED: ssh
+08:14:06,875 DEBUG program: Return code: 2
+
+And doesn&apos;t appear to have done anything about the --port or --service options given. It&apos;d be nicer if the already enabled service didn&apos;t cause the program to abort. I believe this is how it behaved up until the latest version.
+
+This is caused by 14fecd41eb6be610179ff6e1b2534dd6171628be which enables the ALREADY/NOT_ENABLED exceptions which were previously unused in the CLI, and which it makes it impossible to apply firewall settings without adding a lot of logic external to the actual firewall command.
+
+Version-Release number of selected component (if applicable):
+firewalld-0.4.0-3.fc24.noarch</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9075835</commentid>
+    <comment_count>1</comment_count>
+    <who name="Fedora Blocker Bugs Application">blockerbugs</who>
+    <bug_when>2016-02-18 10:45:52 -0500</bug_when>
+    <thetext>Proposed as a Blocker for 24-alpha by Fedora user dshea using the blocker tracking app because:
+
+ Per the firewall configuration criteria (https://fedoraproject.org/wiki/Fedora_24_Alpha_Release_Criteria#Firewall_configuration): &quot;t is possible to include firewall configuration options in a kickstart-driven installation, and the criterion requires that those options work as expected.&quot; Changes in the behavior of firewall-offline-cmd has made those options not work as expected.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9085428</commentid>
+    <comment_count>2</comment_count>
+    <who name="Jiri Popelka">jpopelka</who>
+    <bug_when>2016-02-22 13:14:44 -0500</bug_when>
+    <thetext>(In reply to David Shea from comment #0)
+&gt; This is caused by 14fecd41eb ...
+
+Thanks.
+
+I&apos;m afraid Thomas might appear after 24 alpha freeze, so the easiest for now would be to just revert that commit and wait for him to fix it his own way.
+
+Please check firewalld-0.4.0-4.fc24</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9085609</commentid>
+    <comment_count>3</comment_count>
+    <who name="Petr Schindler">pschindl</who>
+    <bug_when>2016-02-22 14:24:17 -0500</bug_when>
+    <thetext>Discussed at 2016-02-22 blocker review meeting: [1]. 
+
+This bug was accepted as Alpha blocker: clear violation of &quot;...Supported install-time firewall configuration options must work correctly.&quot;, with the footnote that kickstart-specified options are covered
+
+[1] http://meetbot.fedoraproject.org/fedora-blocker-review/2016-02-22/f24-blocker-review.2016-02-22-17.00.html</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9085613</commentid>
+    <comment_count>4</comment_count>
+    <who name="Petr Schindler">pschindl</who>
+    <bug_when>2016-02-22 14:25:16 -0500</bug_when>
+    <thetext>sorry, collision</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9094178</commentid>
+    <comment_count>5</comment_count>
+    <who name="Jan Kurik">jkurik</who>
+    <bug_when>2016-02-24 10:26:02 -0500</bug_when>
+    <thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 24 development cycle.
+Changing version to &apos;24&apos;.
+
+More information and reason for this action is here:
+https://fedoraproject.org/wiki/Fedora_Program_Management/HouseKeeping/Fedora24#Rawhide_Rebase</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9130078</commentid>
+    <comment_count>6</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2016-03-08 14:07:03 -0500</bug_when>
+    <thetext>the upstream issue remains, but this is fixed from a Fedora (and particularly Fedora release blocker) perspective, so closing. A proper upstream fix can be tracked via the github issue.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

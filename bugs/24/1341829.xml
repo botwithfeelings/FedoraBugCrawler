@@ -1,0 +1,1175 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1341829</bug_id>
+          
+          <creation_ts>2016-06-01 15:59:00 -0400</creation_ts>
+          <short_desc>Systemd-coredump doesn&apos;t save any core files</short_desc>
+          <delta_ts>2017-07-04 14:22:29 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>selinux-policy-targeted</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>NEXTRELEASE</resolution>
+          
+          <see_also>https://bugzilla.redhat.com/show_bug.cgi?id=1395389</see_also>
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords>Triaged</keywords>
+          <priority>medium</priority>
+          <bug_severity>medium</bug_severity>
+          <target_milestone>---</target_milestone>
+          <dependson>1365435</dependson>
+          <blocked>1309172</blocked>
+    
+    
+    <blocked>1405995</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Göran Uddeborg">goeran</reporter>
+          <assigned_to name="Lukas Vrabec">lvrabec</assigned_to>
+          <cc>cfergeau</cc>
+    
+    
+    <cc>cschalle</cc>
+    
+    
+    <cc>dwalsh</cc>
+    
+    
+    <cc>fedora</cc>
+    
+    
+    <cc>fedora</cc>
+    
+    
+    <cc>fweimer</cc>
+    
+    
+    <cc>jberan</cc>
+    
+    
+    <cc>jkurik</cc>
+    
+    
+    <cc>johannbg</cc>
+    
+    
+    <cc>knight</cc>
+    
+    
+    <cc>lnykryn</cc>
+    
+    
+    <cc>lvrabec</cc>
+    
+    
+    <cc>matej</cc>
+    
+    
+    <cc>mattdm</cc>
+    
+    
+    <cc>mcatanzaro</cc>
+    
+    
+    <cc>msekleta</cc>
+    
+    
+    <cc>muadda</cc>
+    
+    
+    <cc>riehecky</cc>
+    
+    
+    <cc>ssahani</cc>
+    
+    
+    <cc>s</cc>
+    
+    
+    <cc>stefw</cc>
+    
+    
+    <cc>systemd-maint</cc>
+    
+    
+    <cc>tpopela</cc>
+    
+    
+    <cc>zbyszek</cc>
+          <qa_contact name="Ben Levenson">benl</qa_contact>
+          
+          <cf_fixed_in>selinux-policy-3.13.1-241.fc26.noarch</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-07-04 14:22:29</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9378517</commentid>
+    <comment_count>0</comment_count>
+    <who name="Göran Uddeborg">goeran</who>
+    <bug_when>2016-06-01 15:59:08 -0400</bug_when>
+    <thetext>Description of problem:
+There are no core files saved any more with systemd-coredump for me.  When running it generates an SELinux alert, which I assumed was the reason, see bug 1317927.  But as Christophe Fergeau recently found out, even without SELinux in permissive mode, it doesn&apos;t work.
+
+
+Version-Release number of selected component (if applicable):
+systemd-229-7.fc24.x86_64
+
+
+How reproducible:
+Every time
+
+
+Steps to Reproduce:
+1. sudo setenforce Permissive
+2. sleep 30
+3. # hit ^\ to generate a SIGABRT
+4. coredumpctl
+5. coredumpctl 13842
+
+Actual results:
+The listing in 4 ends with
+
+ons 2016-06-01 21:56:30 CEST  13842  1003  1003   3   /usr/bin/sleep
+
+Number 5 prints
+           PID: 13842 (sleep)
+           UID: 1003 (göran)
+           GID: 1003 (göran)
+        Signal: 3 (QUIT)
+     Timestamp: ons 2016-06-01 21:56:30 CEST (1min 29s ago)
+  Command Line: sleep 30
+    Executable: /usr/bin/sleep
+ Control Group: /user.slice/user-1003.slice/session-1806.scope
+          Unit: session-1806.scope
+         Slice: user-1003.slice
+       Session: 1806
+     Owner UID: 1003 (göran)
+       Boot ID: 6a333211d9d34218a6b92e299146ee7a
+    Machine ID: 606ba17eef1ffa5a76fdb50047756efd
+      Hostname: mimmi
+       Message: Process 13842 (sleep) of user 1003 dumped core.
+
+Cannot retrieve coredump from journal nor disk.
+Failed to retrieve core: No such file or directory
+
+
+
+Expected results:
+Step 5 should start up gdb with a core file attached.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9387113</commentid>
+    <comment_count>1</comment_count>
+    <who name="Michael Catanzaro">mcatanzaro</who>
+    <bug_when>2016-06-04 09:44:41 -0400</bug_when>
+    <thetext>You have to set ulimit now (and disable SELinux, bug #1317927) for systemd-coredump to work in F24. This really sucks; neither was required in F23.
+
+I was hoping that having coredumpctl enabled by default could be a F25 feature thanks to recent integration work by the ABRT team, but looks like that requires either setting ulimit systemwide (probably preferable) or reverting the change to respect ulimit.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9445166</commentid>
+    <comment_count>2</comment_count>
+    <who name="Jakub Filak">jfilak</who>
+    <bug_when>2016-06-23 03:38:15 -0400</bug_when>
+    <thetext>(In reply to Michael Catanzaro from comment #1)
+&gt; requires either setting ulimit systemwide (probably preferable)
+
+Starting with systemd-229, &apos;ulimit -c&apos; (RLIMIT_CORE) is &quot;unlimited&quot; for all process by default [1][2][3] (bug #1309172).
+
+
+1: https://github.com/systemd/systemd/blob/master/src/core/main.c#L1500
+2: https://github.com/systemd/systemd/blob/master/NEWS (CHANGES WITH 229)
+3: https://lists.fedoraproject.org/archives/list/devel@lists.fedoraproject.org/message/HQ4JFTYLPT5GRW6AD4M2MWGMRAPE7ITN/</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9445499</commentid>
+    <comment_count>3</comment_count>
+    <who name="Christophe Fergeau">cfergeau</who>
+    <bug_when>2016-06-23 05:04:41 -0400</bug_when>
+    <thetext>Hmm, this seems not to be the case on my system, not sure why
+/proc/1/limits shows
+Max core file size        unlimited            unlimited            bytes 
+
+but then most other processes have it set to 0
+
+This is a system I&apos;ve been upgrading from f21 or so, so maybe this is related to a change which was not properly done on upgrade? (don&apos;t think I have a clean f24 install around)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9445540</commentid>
+    <comment_count>4</comment_count>
+    <who name="Christophe Fergeau">cfergeau</who>
+    <bug_when>2016-06-23 05:20:20 -0400</bug_when>
+    <thetext>(In reply to Jakub Filak from comment #2)
+&gt; (In reply to Michael Catanzaro from comment #1)
+&gt; &gt; requires either setting ulimit systemwide (probably preferable)
+&gt; 
+&gt; Starting with systemd-229, &apos;ulimit -c&apos; (RLIMIT_CORE) is &quot;unlimited&quot; for all
+&gt; process by default [1][2][3] (bug #1309172).
+&gt; 
+
+On a fresh f24 install:
+
+core file size          (blocks, -c) 0</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9591466</commentid>
+    <comment_count>5</comment_count>
+    <who name="Zbigniew Jędrzejewski-Szmek">zbyszek</who>
+    <bug_when>2016-08-07 18:25:52 -0400</bug_when>
+    <thetext>Indeed, it seems that systemd is screwing up somehow.
+
+On a fresh installation of F24, &quot;Max core file size&quot; is unlimited for PID 1, but for various daemons it&apos;s set to 0.
+
+This doesn&apos;t match what systemd thinks should be set for the service:
+$ systemctl show -p LimitCORE avahi-daemon
+LimitCORE=18446744073709551615
+
+Locally I&apos;m running F24 with systemd from git, and the limits are infinity as expected. But I don&apos;t see any relevant changes in code between v229 and my version.
+
+I&apos;m stumped as to what the cause of this discrepancy is, so I&apos;ve reported the bug upstream.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9591507</commentid>
+    <comment_count>6</comment_count>
+    <who name="Zbigniew Jędrzejewski-Szmek">zbyszek</who>
+    <bug_when>2016-08-07 19:56:14 -0400</bug_when>
+    <thetext>Oh, it seems to be selinux related... With &quot;permissive&quot;, most daemons and my user session has no limit, while with &quot;enforcing&quot;, most daemons and the user session all have 0.
+
+But /var/log/audit/audit.log does not seem to contain any useful data. Maybe some don&apos;t audit rule? I&apos;ll reassign this to selinux.
+
+--
+
+short reproducer:
+$ grep core /proc/$(pidof systemd-journald)/limits
+
+This returns &quot;Max core file size        unlimited            unlimited            bytes&quot; under F24/targeted/permissive, and &quot;Max core file size 0 0 bytes&quot; with F24/targeted/enforcing.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9591596</commentid>
+    <comment_count>7</comment_count>
+    <who name="Michael Catanzaro">mcatanzaro</who>
+    <bug_when>2016-08-07 21:16:42 -0400</bug_when>
+    <thetext>Hi Zbigniew, is this a different bug from bug #1317927?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9591618</commentid>
+    <comment_count>8</comment_count>
+    <who name="Zbigniew Jędrzejewski-Szmek">zbyszek</who>
+    <bug_when>2016-08-07 21:40:21 -0400</bug_when>
+    <thetext>#1317927 is long and messy, but it seems that it&apos;s a separate issue: ProtectSystem=full and denying mounton which is used to implement it (https://bugzilla.redhat.com/show_bug.cgi?id=1317927#c18).
+
+The effect of both is very similar (no core file), but it seems that there are two underlying causes.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9613298</commentid>
+    <comment_count>9</comment_count>
+    <who name="Lennart Poettering">lpoetter</who>
+    <bug_when>2016-08-14 06:38:36 -0400</bug_when>
+    <thetext>Hmm, iirc selinux policy can actually affect rlimit setting. and I think the policy prohibits this for PID1 atm.
+
+Note that PID 1 in systemd will bump RLIMIT_CORE to infinity early on, but it ignores failures on this. All services started during runtime simply inherit this then. If the bumping fails nothing will be inherited.
+
+it would hence good to know if selinux permissive vs. enforcing has an effect on RLIMIT_CORE for PID 1 itself. Thi sis how it should look like:
+
+$ grep core /proc/1/limits 
+Max core file size        unlimited            unlimited            bytes     
+
+This is on a permissive system. Question is, does it look like that on enforcing too? If not, then i figure all that&apos;s missing is an selinux policy change to permit PID 1 to bump RLIMIT_CORE for itself.
+
+(And of course, it might make sense to change systemd to log at debug level if bumping fails, instead of being entirely quiet about it)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9613565</commentid>
+    <comment_count>10</comment_count>
+    <who name="Michael Catanzaro">mcatanzaro</who>
+    <bug_when>2016-08-14 17:50:03 -0400</bug_when>
+    <thetext>(In reply to Lennart Poettering from comment #9)
+&gt; This is on a permissive system. Question is, does it look like that on
+&gt; enforcing too?
+
+Unfortunately that is how it looks on my enforcing system.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9618041</commentid>
+    <comment_count>11</comment_count>
+    <who name="Göran Uddeborg">goeran</who>
+    <bug_when>2016-08-16 05:46:51 -0400</bug_when>
+    <thetext>Indeed.  After a fresh reboot with selinux-policy-targeted-3.13.1-191.10.fc24 (the version supposed to fix bug #1317927?) I get the output below.  Retrying the test case, I still get the crash listed with &quot;coredumpctl list&quot;, but &quot;coredumpctl gdb &lt;pid&gt;&quot; fails the same way as in comment 0.  (I guess everyone realized I meant &quot;coredumpctl gdb &lt;pid&gt;&quot; in step 5.)
+
+mimmi$ sudo grep core /proc/1/limits
+Max core file size        unlimited            unlimited            bytes     
+mimmi$ sudo grep core /proc/`pidof systemd-journald`/limits
+Max core file size        0                    unlimited            bytes</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9619461</commentid>
+    <comment_count>12</comment_count>
+    <who name="Lukas Vrabec">lvrabec</who>
+    <bug_when>2016-08-16 11:25:28 -0400</bug_when>
+    <thetext>Same issue here. 
+
+Goran, 
+Could you set selinux to permissve and also provide:
+# semodule -DB
+
+And then reproduce the issue? 
+Could you see any AVCs then? 
+
+THank you.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9619779</commentid>
+    <comment_count>13</comment_count>
+      <attachid>1191322</attachid>
+    <who name="Göran Uddeborg">goeran</who>
+    <bug_when>2016-08-16 12:44:12 -0400</bug_when>
+    <thetext>Created attachment 1191322
+Audit log with dontaudit disabled
+
+No problem, I attach attach the audit log during the experiment.  There are three AVC:s.  Two of them I recognize as ones I usually see when I turn off dontaudit.  I&apos;m less sure about the socket read/write attempt.  Could that be a clue?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9620504</commentid>
+    <comment_count>14</comment_count>
+    <who name="Göran Uddeborg">goeran</who>
+    <bug_when>2016-08-16 17:03:41 -0400</bug_when>
+    <thetext>Sorry, my bad!  I was redoing my initial experiment with dontaudits disabled.  But that of course got hit by my login session having core size limit set to 0.  I guess you meant I should reboot the machine with dontaudits disabled, and hand you THAT list.  I&apos;ll get back to that, but I&apos;ll have to find a &quot;service window&quot; when I don&apos;t disturb.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9633612</commentid>
+    <comment_count>15</comment_count>
+      <attachid>1192584</attachid>
+    <who name="Göran Uddeborg">goeran</who>
+    <bug_when>2016-08-21 11:23:55 -0400</bug_when>
+    <thetext>Created attachment 1192584
+Audit log from reboot with dontaudit disabled
+
+Ok, so here is a new try.  I attach the audit log file, starting at the boot with dontaudit rules disabled.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9633626</commentid>
+    <comment_count>16</comment_count>
+    <who name="Göran Uddeborg">goeran</who>
+    <bug_when>2016-08-21 11:29:11 -0400</bug_when>
+    <thetext>Looking a bit, I started to think about all those &quot;rlimitinh&quot; denials.  That is something which seems to be dontaudited everywhere.  Wouldn&apos;t that have exactly this effect?  According to http://seedit.sourceforge.net/doc/access_vectors/ &quot;If this is denied, signal state is cleared&quot;.  I&apos;m not sure exactly what &quot;cleared&quot; means in this case.  But it sounds suspicious to me.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9634919</commentid>
+    <comment_count>17</comment_count>
+    <who name="Göran Uddeborg">goeran</who>
+    <bug_when>2016-08-22 04:20:53 -0400</bug_when>
+    <thetext>I make many mistakes in this report. :-(  The quote should be &quot;If this is denied, rlimit is cleared&quot;.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9711593</commentid>
+    <comment_count>19</comment_count>
+    <who name="Lukas Vrabec">lvrabec</who>
+    <bug_when>2016-09-15 11:31:44 -0400</bug_when>
+    <thetext>Hi Göran, 
+
+Could you test it with local policy? 
+
+$ cat local.cil 
+(allow init_t systemd_coredump_t(process (noatsecure rlimitinh)))
+
+# semodule -i local.cil
+
+And reproduce your issue.
+
+
+Thanks.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9721715</commentid>
+    <comment_count>20</comment_count>
+    <who name="Göran Uddeborg">goeran</who>
+    <bug_when>2016-09-19 10:32:17 -0400</bug_when>
+    <thetext>&quot;cil&quot;, that was something new to me!
+
+Anyway, I installed the module and rebooted.  I couldn&apos;t see any change.
+
+I also wonder how it COULD have helped.  If I understand the module correctly, it will only affect the systemd-coredump process itself.  Maybe this report has become a bit confused.  So maybe it&apos;s appropriate to clarify MY understanding of the situation.
+
+The problem is that by default, when a process gets a signal that normally would generate a core, no core is generated and collected by systemd-coredump.
+
+The reason seems to be that the ulimit for core files is set to 0, again by default.
+
+If I explicitly change the ulimit to unlimited in a shell, and retry the experiment, I DO get a core file saved.
+
+According to comment 2, the intention is for the core ulimit to be unlimited.  The fact it isn&apos;t seems to be the problem.
+
+My guess in comment 16 and comment 17 was that this could be because SELinux mostly deny the rlimitinh access.  These denials don&apos;t show up in the log since they are dontaudit:ed.  But they still foil systemd&apos;s attempt to allow core dumps in general.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9789367</commentid>
+    <comment_count>21</comment_count>
+    <who name="Michael Catanzaro">mcatanzaro</who>
+    <bug_when>2016-10-13 12:48:04 -0400</bug_when>
+    <thetext>Since I consider coredumpctl to be a priority feature for Fedora Workstation, I am planning to propose disabling SELinux by default in Workstation until this can be fixed.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9801829</commentid>
+    <comment_count>22</comment_count>
+    <who name="Zbigniew Jędrzejewski-Szmek">zbyszek</who>
+    <bug_when>2016-10-18 13:27:27 -0400</bug_when>
+    <thetext>Tested with a fresh copy of Fedora-Workstation-Live-x86_64-25_Beta-1.1.iso:
+- booting in the default configuration:
+  ulimit -c is 0 in liveuser&apos;s gnome-terminal
+  ulimit -c is 0 in xterm started from alt-f2
+- booting with enforcing=0 on the kernel command line:
+  ulimit -c is unlimited in gnome-terminal
+  ulimit -c is unlimited in xterm started from alt-f2
+
+If I raise ulimit I get a successful core dump:
+[liveuser@localhost ~]$ ulimit -c unlimited
+[liveuser@localhost ~]$ ulimit -c
+unlimited
+[liveuser@localhost ~]$ sudo systemctl stop abrt*
+[liveuser@localhost ~]$ bash -c &apos;kill -SEGV $$&apos;
+Segmentation fault (core dumped)
+[liveuser@localhost ~]$ coredumpctl 
+TIME                            PID   UID   GID SIG PRESENT EXE
+Tue 2016-10-18 13:26:17 EDT    2549  1000  1000  11 * /usr/bin/bash
+[liveuser@localhost ~]$ coredumpctl gdb
+(works)
+
+So it issue seems to boil down to selinux rules.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9803506</commentid>
+    <comment_count>23</comment_count>
+    <who name="Jakub Filak">jfilak</who>
+    <bug_when>2016-10-19 03:50:16 -0400</bug_when>
+    <thetext>(In reply to Zbigniew Jędrzejewski-Szmek from comment #22)
+&gt; Tested with a fresh copy of Fedora-Workstation-Live-x86_64-25_Beta-1.1.iso:
+&gt; - booting in the default configuration:
+&gt;   ulimit -c is 0 in liveuser&apos;s gnome-terminal
+&gt;   ulimit -c is 0 in xterm started from alt-f2
+&gt; - booting with enforcing=0 on the kernel command line:
+&gt;   ulimit -c is unlimited in gnome-terminal
+&gt;   ulimit -c is unlimited in xterm started from alt-f2
+
+That means that SELinux is preventing systemd from updating its RLIMIT_CORE:
+https://github.com/systemd/systemd/blob/master/src/core/main.c#L1516
+  setrlimit(RLIMIT_CORE, &amp;RLIMIT_MAKE_CONST(RLIM_INFINITY))
+
+The issue was introduced in Fedora 24 because when systemd-229 was released and the default RLIMIT_CORE was changed to UNLIMITED (and because ABRT maintainers didn&apos;t know about this major change) ABRT has started laying core files all around file system. That proves that SELinux wasn&apos;t preventing systemd to update RLIMIT_CORE at that time.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9806061</commentid>
+    <comment_count>24</comment_count>
+    <who name="Göran Uddeborg">goeran</who>
+    <bug_when>2016-10-19 17:18:57 -0400</bug_when>
+    <thetext>In reply to Jakub Filak from comment #23)
+&gt; That means that SELinux is preventing systemd from updating its RLIMIT_CORE
+You don&apos;t think, as I suspected in comment #16, that it allows SETTING of the limit, but prevents children from INHERITING the new value?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9806414</commentid>
+    <comment_count>25</comment_count>
+    <who name="Zbigniew Jędrzejewski-Szmek">zbyszek</who>
+    <bug_when>2016-10-19 21:25:02 -0400</bug_when>
+    <thetext>That seems to be happening. PID 1 has core=unlimited rlimit, but various child processes have core=0. The default for PID 1 seems to be core=0, that&apos;s what I see if I boot with init=/bin/bash, and strace reveals no setrlimit calls from bash. So it seems systemd successfully sets rlimit core=unlimited for itself, but this is not inherited as expected.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9867530</commentid>
+    <comment_count>26</comment_count>
+    <who name="Paul W. Frields">pfrields</who>
+    <bug_when>2016-11-07 10:58:49 -0500</bug_when>
+    <thetext>(In reply to Michael Catanzaro from comment #21)
+&gt; Since I consider coredumpctl to be a priority feature for Fedora
+&gt; Workstation, I am planning to propose disabling SELinux by default in
+&gt; Workstation until this can be fixed.
+
+Just noting I recall that SELinux enablement is a Fedora shipping default the Council previously stated was not variable per addition.  Which means we need to figure out how to resolve this issue between SELinux, systemd, and any other required developer teams.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9867532</commentid>
+    <comment_count>27</comment_count>
+    <who name="Paul W. Frields">pfrields</who>
+    <bug_when>2016-11-07 10:59:15 -0500</bug_when>
+    <thetext>Sorry, *edition.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9943810</commentid>
+    <comment_count>28</comment_count>
+    <who name="Jan Kurik">jkurik</who>
+    <bug_when>2016-11-30 11:13:05 -0500</bug_when>
+    <thetext>On the Evaluation meeting for Prioritized bugs we have agreed not to approve this bug for the &quot;Priritized bugs list&quot;.
+It seems likely that this will end up fixed as a dependency of other changes in Fedora Workstation, so we don&apos;t think we need to call it out as requiring special attention.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9959769</commentid>
+    <comment_count>29</comment_count>
+    <who name="Lukas Vrabec">lvrabec</who>
+    <bug_when>2016-12-06 07:09:58 -0500</bug_when>
+    <thetext>Hi, 
+Could somebody test it with the latest selinux-policy rpm package? 
+http://koji.fedoraproject.org/koji/buildinfo?buildID=822892
+
+I added some changes there.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9968314</commentid>
+    <comment_count>30</comment_count>
+    <who name="Michael Catanzaro">mcatanzaro</who>
+    <bug_when>2016-12-08 09:21:33 -0500</bug_when>
+    <thetext>It&apos;s still broken:
+
+Dec 08 08:19:14 victory-road systemd[1]: Created slice system-systemd\x2dcoredump.slice.
+Dec 08 08:19:14 victory-road systemd[1]: Started Process Core Dump (PID 5730/UID 0).
+Dec 08 08:19:14 victory-road audit[1]: SERVICE_START pid=1 uid=0 auid=4294967295 ses=4294967295 subj=system_u:system_r:init_t:s0 msg=&apos;unit=systemd-coredump@0-5730-0 comm=&quot;systemd&quot; exe=&quot;/usr/lib/systemd/systemd&quot; 
+Dec 08 08:19:14 victory-road systemd-coredump[5737]: Core Dumping has been disabled for process 2403 (epiphany).
+Dec 08 08:19:14 victory-road systemd-coredump[5737]: Process 2403 (epiphany) of user 1000 dumped core.
+
+I guess ulimit is still 0.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9968466</commentid>
+    <comment_count>31</comment_count>
+    <who name="Lukas Vrabec">lvrabec</who>
+    <bug_when>2016-12-08 09:55:38 -0500</bug_when>
+    <thetext>Do you see any AVC denials? 
+Please run:
+# semodule -DB
+# reproduce the scenario
+# ausearch -m USER_AVC,AVC -ts recent 
+
+Thanks.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9969118</commentid>
+    <comment_count>32</comment_count>
+    <who name="Michael Catanzaro">mcatanzaro</who>
+    <bug_when>2016-12-08 13:06:43 -0500</bug_when>
+    <thetext>Yeah I see a bunch of denials for systemd, then (ironically?) a couple for setroubleshootd itself, then these two:
+
+time-&gt;Thu Dec  8 11:59:51 2016
+type=AVC msg=audit(1481219991.533:361): avc:  denied  { rlimitinh } for  pid=14725 comm=&quot;systemd-coredum&quot; scontext=system_u:system_r:init_t:s0 tcontext=system_u:system_r:systemd_coredump_t:s0 tclass=process permissive=0
+----
+time-&gt;Thu Dec  8 11:59:51 2016
+type=AVC msg=audit(1481219991.533:362): avc:  denied  { noatsecure } for  pid=14725 comm=&quot;systemd-coredum&quot; scontext=system_u:system_r:init_t:s0 tcontext=system_u:system_r:systemd_coredump_t:s0 tclass=process permissive=0
+
+This is with selinux-policy-3.13.1-225.1.fc25 from updates-testing.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9969120</commentid>
+    <comment_count>33</comment_count>
+      <attachid>1229583</attachid>
+    <who name="Michael Catanzaro">mcatanzaro</who>
+    <bug_when>2016-12-08 13:07:16 -0500</bug_when>
+    <thetext>Created attachment 1229583
+ausearch -m USER_AVC,AVC -ts recent</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10066326</commentid>
+    <comment_count>34</comment_count>
+    <who name="Paul W. Frields">pfrields</who>
+    <bug_when>2017-01-16 09:22:18 -0500</bug_when>
+    <thetext>We were discussing this in the Workstation working group meeting -- the bug is still present.  Lukas, any progress here?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10071943</commentid>
+    <comment_count>35</comment_count>
+    <who name="Lukas Vrabec">lvrabec</who>
+    <bug_when>2017-01-17 09:40:20 -0500</bug_when>
+    <thetext>Paul, 
+
+Working on fix right now. I&apos;ll provide more info ASAP.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10072220</commentid>
+    <comment_count>36</comment_count>
+    <who name="Lukas Vrabec">lvrabec</who>
+    <bug_when>2017-01-17 10:26:52 -0500</bug_when>
+    <thetext>Okay, 
+
+I have fix for this issue.
+
+Quick workaround: 
+1. # cat domain.cil                                                 
+(allow init_t domain (process (rlimitinh)))
+
+2. semodule -i domain.cil
+
+
+Testing: 
+
+# getenforce
+Enforcing
+
+# grep core /proc/`pidof systemd-journald`/limits
+Max core file size        unlimited            unlimited            bytes
+
+# sleep 30
+
+# hit ^\ to generate a SIGABRT
+
+#  coredumpctl
+Tue 2017-01-17 16:25:38 CET    1207     0     0   3 present  /usr/bin/sleep
+
+Build will be available ASAP.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10153938</commentid>
+    <comment_count>37</comment_count>
+    <who name="Michael Catanzaro">mcatanzaro</who>
+    <bug_when>2017-02-16 10:34:16 -0500</bug_when>
+    <thetext>*** Bug 1365435 has been marked as a duplicate of this bug. ***</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10176080</commentid>
+    <comment_count>38</comment_count>
+    <who name="Michael Catanzaro">mcatanzaro</who>
+    <bug_when>2017-02-22 14:56:08 -0500</bug_when>
+    <thetext>Hi Lukas, will an update be available for this soon?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10193849</commentid>
+    <comment_count>39</comment_count>
+    <who name="Michael Catanzaro">mcatanzaro</who>
+    <bug_when>2017-02-28 09:09:29 -0500</bug_when>
+    <thetext>(In reply to Michael Catanzaro from comment #38)
+&gt; Hi Lukas, will an update be available for this soon?
+
+Hi Lukas, the change deadline for this is March 3. It&apos;s been a month and a half since you identified a fix for this issue; can you please release an update?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10193854</commentid>
+    <comment_count>40</comment_count>
+    <who name="Michael Catanzaro">mcatanzaro</who>
+    <bug_when>2017-02-28 09:10:54 -0500</bug_when>
+    <thetext>(In reply to Michael Catanzaro from comment #39)
+&gt; Hi Lukas, the change deadline for this is March 3. It&apos;s been a month and a
+&gt; half since you identified a fix for this issue; can you please release an
+&gt; update?
+
+Er, actually the deadline is today. March 3 is the date of the FESCo review meeting.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10207674</commentid>
+    <comment_count>41</comment_count>
+    <who name="Lukas Vrabec">lvrabec</who>
+    <bug_when>2017-03-03 16:52:11 -0500</bug_when>
+    <thetext>Hi, 
+
+# sesearch -A -s init_t -t domain -c process | grep rlimi
+   allow init_t domain : process { sigchld sigkill sigstop signull signal getpgid getattr setrlimit rlimitinh } ;
+
+# rpm -q selinux-policy 
+selinux-policy-3.13.1-241.fc26.noarch
+
+This issue is already fixed in F26.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10207713</commentid>
+    <comment_count>42</comment_count>
+    <who name="Michael Catanzaro">mcatanzaro</who>
+    <bug_when>2017-03-03 17:11:37 -0500</bug_when>
+    <thetext>So if this is already fixed, surely the bug should be closed...?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10207758</commentid>
+    <comment_count>43</comment_count>
+    <who name="Paul W. Frields">pfrields</who>
+    <bug_when>2017-03-03 17:41:16 -0500</bug_when>
+    <thetext>Here&apos;s how bug workflow happens: https://bugzilla.redhat.com/page.cgi?id=fields.html#bug_status
+
+MODIFIED means there&apos;s a fix available that the developer believes can be tested.  If, in the Fedora case, the reporter or QA tests and verifies the fix, they can report that back (VERIFIED) and then the bug can be closed by the assignee.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10207841</commentid>
+    <comment_count>44</comment_count>
+    <who name="Michael Catanzaro">mcatanzaro</who>
+    <bug_when>2017-03-03 18:20:51 -0500</bug_when>
+    <thetext>If there&apos;s an F25 update available, I&apos;m happy to test that. But I trust that it works, given that I&apos;ve verified that running Lukas&apos;s semodule command in comment #36 fixed the issue for me locally.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10208187</commentid>
+    <comment_count>45</comment_count>
+    <who name="Göran Uddeborg">goeran</who>
+    <bug_when>2017-03-04 03:43:15 -0500</bug_when>
+    <thetext>@Michael, as a reporter I&apos;m also happy to test an F25 update.  Testing the F26 update will have to wait a little, though.
+
+When it comes to trust, I&apos;m more of the kind &quot;I believe it when I see it&quot;. :-)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10335951</commentid>
+    <comment_count>46</comment_count>
+    <who name="Robert Knight">knight</who>
+    <bug_when>2017-04-14 11:39:07 -0400</bug_when>
+    <thetext>Appears to be working on F26 Alpha.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10538241</commentid>
+    <comment_count>47</comment_count>
+    <who name="Göran Uddeborg">goeran</who>
+    <bug_when>2017-06-25 14:49:14 -0400</bug_when>
+    <thetext>Works for me too with F26 packages (3.13.1-251.fc26) right now.  Since I&apos;m the reporter, I take it I can move this bug to VERIFIED.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10564990</commentid>
+    <comment_count>48</comment_count>
+    <who name="Zbigniew Jędrzejewski-Szmek">zbyszek</who>
+    <bug_when>2017-07-04 14:22:29 -0400</bug_when>
+    <thetext>Based on the comments, seems to be fixed. Let&apos;s close this.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="0"
+              ispatch="0"
+              isprivate="0"
+          >
+            <attachid>1191322</attachid>
+            <date>2016-08-16 12:44:00 -0400</date>
+            <delta_ts>2016-08-16 12:44:12 -0400</delta_ts>
+            <desc>Audit log with dontaudit disabled</desc>
+            <filename>#audit.log</filename>
+            <type>text/x-vhdl</type>
+            <size>1380</size>
+            <attacher name="Göran Uddeborg">goeran</attacher>
+            
+              <data encoding="base64">LS0tLQp0aW1lLT5UdWUgQXVnIDE2IDE4OjM3OjAyIDIwMTYKdHlwZT1TRVJWSUNFX1NUQVJUIG1z
+Zz1hdWRpdCgxNDcxMzY1NDIyLjg3MjoxNDE0KTogcGlkPTEgdWlkPTAgYXVpZD00Mjk0OTY3Mjk1
+IHNlcz00Mjk0OTY3Mjk1IHN1Ymo9c3lzdGVtX3U6c3lzdGVtX3I6aW5pdF90OnMwIG1zZz0ndW5p
+dD1zeXN0ZW1kLWNvcmVkdW1wQDEtNDc2Mi0wIGNvbW09InN5c3RlbWQiIGV4ZT0iL3Vzci9saWIv
+c3lzdGVtZC9zeXN0ZW1kIiBob3N0bmFtZT0/IGFkZHI9PyB0ZXJtaW5hbD0/IHJlcz1zdWNjZXNz
+JwotLS0tCnRpbWUtPlR1ZSBBdWcgMTYgMTg6Mzc6MDIgMjAxNgp0eXBlPVNFUlZJQ0VfU1RPUCBt
+c2c9YXVkaXQoMTQ3MTM2NTQyMi45MDU6MTQxOCk6IHBpZD0xIHVpZD0wIGF1aWQ9NDI5NDk2NzI5
+NSBzZXM9NDI5NDk2NzI5NSBzdWJqPXN5c3RlbV91OnN5c3RlbV9yOmluaXRfdDpzMCBtc2c9J3Vu
+aXQ9c3lzdGVtZC1jb3JlZHVtcEAxLTQ3NjItMCBjb21tPSJzeXN0ZW1kIiBleGU9Ii91c3IvbGli
+L3N5c3RlbWQvc3lzdGVtZCIgaG9zdG5hbWU9PyBhZGRyPT8gdGVybWluYWw9PyByZXM9c3VjY2Vz
+cycKLS0tLQp0aW1lLT5UdWUgQXVnIDE2IDE4OjM3OjAyIDIwMTYKdHlwZT1BVkMgbXNnPWF1ZGl0
+KDE0NzEzNjU0MjIuODczOjE0MTUpOiBhdmM6ICBkZW5pZWQgIHsgcmVhZCB3cml0ZSB9IGZvciAg
+cGlkPTEgY29tbT0ic3lzdGVtZCIgcGF0aD0ic29ja2V0OlsyNDg5MjhdIiBkZXY9InNvY2tmcyIg
+aW5vPTI0ODkyOCBzY29udGV4dD1zeXN0ZW1fdTpzeXN0ZW1fcjppbml0X3Q6czAgdGNvbnRleHQ9
+c3lzdGVtX3U6c3lzdGVtX3I6a2VybmVsX3Q6czAgdGNsYXNzPXVuaXhfc3RyZWFtX3NvY2tldCBw
+ZXJtaXNzaXZlPTAKLS0tLQp0aW1lLT5UdWUgQXVnIDE2IDE4OjM3OjAyIDIwMTYKdHlwZT1BVkMg
+bXNnPWF1ZGl0KDE0NzEzNjU0MjIuODgwOjE0MTYpOiBhdmM6ICBkZW5pZWQgIHsgcmxpbWl0aW5o
+IH0gZm9yICBwaWQ9NDc2MyBjb21tPSJzeXN0ZW1kLWNvcmVkdW0iIHNjb250ZXh0PXN5c3RlbV91
+OnN5c3RlbV9yOmluaXRfdDpzMCB0Y29udGV4dD1zeXN0ZW1fdTpzeXN0ZW1fcjpzeXN0ZW1kX2Nv
+cmVkdW1wX3Q6czAgdGNsYXNzPXByb2Nlc3MgcGVybWlzc2l2ZT0wCi0tLS0KdGltZS0+VHVlIEF1
+ZyAxNiAxODozNzowMiAyMDE2CnR5cGU9QVZDIG1zZz1hdWRpdCgxNDcxMzY1NDIyLjg4MDoxNDE3
+KTogYXZjOiAgZGVuaWVkICB7IG5vYXRzZWN1cmUgfSBmb3IgIHBpZD00NzYzIGNvbW09InN5c3Rl
+bWQtY29yZWR1bSIgc2NvbnRleHQ9c3lzdGVtX3U6c3lzdGVtX3I6aW5pdF90OnMwIHRjb250ZXh0
+PXN5c3RlbV91OnN5c3RlbV9yOnN5c3RlbWRfY29yZWR1bXBfdDpzMCB0Y2xhc3M9cHJvY2VzcyBw
+ZXJtaXNzaXZlPTAK
+</data>
+
+          </attachment>
+          <attachment
+              isobsolete="0"
+              ispatch="0"
+              isprivate="0"
+          >
+            <attachid>1192584</attachid>
+            <date>2016-08-21 11:23:00 -0400</date>
+            <delta_ts>2016-08-21 11:23:55 -0400</delta_ts>
+            <desc>Audit log from reboot with dontaudit disabled</desc>
+            <filename>audit.log.xz</filename>
+            <type>application/x-xz</type>
+            <size>10264</size>
+            <attacher name="Göran Uddeborg">goeran</attacher>
+            
+              <data encoding="base64">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
+AARZWg==
+</data>
+
+          </attachment>
+          <attachment
+              isobsolete="0"
+              ispatch="0"
+              isprivate="0"
+          >
+            <attachid>1229583</attachid>
+            <date>2016-12-08 13:07:00 -0500</date>
+            <delta_ts>2016-12-08 13:07:16 -0500</delta_ts>
+            <desc>ausearch -m USER_AVC,AVC -ts recent</desc>
+            <filename>denials</filename>
+            <type>text/plain</type>
+            <size>11402</size>
+            <attacher name="Michael Catanzaro">mcatanzaro</attacher>
+            
+              <data encoding="base64">IyBhdXNlYXJjaCAtbSBVU0VSX0FWQyxBVkMgLXRzIHJlY2VudAotLS0tCnRpbWUtPlRodSBEZWMg
+IDggMTE6NTk6MzUgMjAxNgp0eXBlPVVTRVJfQVZDIG1zZz1hdWRpdCgxNDgxMjE5OTc1LjI5Mzoz
+MjIpOiBwaWQ9MTAyNCB1aWQ9ODEgYXVpZD00Mjk0OTY3Mjk1IHNlcz00Mjk0OTY3Mjk1IHN1Ymo9
+c3lzdGVtX3U6c3lzdGVtX3I6c3lzdGVtX2RidXNkX3Q6czAtczA6YzAuYzEwMjMgbXNnPSdhdmM6
+ICByZWNlaXZlZCBwb2xpY3lsb2FkIG5vdGljZSAoc2Vxbm89MikgIGV4ZT0iL3Vzci9iaW4vZGJ1
+cy1kYWVtb24iIHNhdWlkPTgxIGhvc3RuYW1lPT8gYWRkcj0/IHRlcm1pbmFsPT8nCi0tLS0KdGlt
+ZS0+VGh1IERlYyAgOCAxMTo1OTo0NCAyMDE2CnR5cGU9QVZDIG1zZz1hdWRpdCgxNDgxMjE5OTg0
+Ljg2NzozMjUpOiBhdmM6ICBkZW5pZWQgIHsgcmVhZCB3cml0ZSB9IGZvciAgcGlkPTEgY29tbT0i
+c3lzdGVtZCIgcGF0aD0ic29ja2V0Ols5ODcxNl0iIGRldj0ic29ja2ZzIiBpbm89OTg3MTYgc2Nv
+bnRleHQ9c3lzdGVtX3U6c3lzdGVtX3I6aW5pdF90OnMwIHRjb250ZXh0PXN5c3RlbV91OnN5c3Rl
+bV9yOmtlcm5lbF90OnMwLXMwOmMwLmMxMDIzIHRjbGFzcz11bml4X3N0cmVhbV9zb2NrZXQgcGVy
+bWlzc2l2ZT0wCi0tLS0KdGltZS0+VGh1IERlYyAgOCAxMTo1OTo0NCAyMDE2CnR5cGU9QVZDIG1z
+Zz1hdWRpdCgxNDgxMjE5OTg0Ljg2NjozMjQpOiBhdmM6ICBkZW5pZWQgIHsgcmVhZCB3cml0ZSB9
+IGZvciAgcGlkPTEgY29tbT0ic3lzdGVtZCIgcGF0aD0ic29ja2V0Ols5NzEzM10iIGRldj0ic29j
+a2ZzIiBpbm89OTcxMzMgc2NvbnRleHQ9c3lzdGVtX3U6c3lzdGVtX3I6aW5pdF90OnMwIHRjb250
+ZXh0PXN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90OnMwLXMwOmMwLmMxMDIzIHRjbGFzcz11bml4
+X3N0cmVhbV9zb2NrZXQgcGVybWlzc2l2ZT0wCi0tLS0KdGltZS0+VGh1IERlYyAgOCAxMTo1OTo0
+NCAyMDE2CnR5cGU9QVZDIG1zZz1hdWRpdCgxNDgxMjE5OTg0Ljg2NzozMjYpOiBhdmM6ICBkZW5p
+ZWQgIHsgcmVhZCB3cml0ZSB9IGZvciAgcGlkPTEgY29tbT0ic3lzdGVtZCIgcGF0aD0ic29ja2V0
+OlsxMDE4NDVdIiBkZXY9InNvY2tmcyIgaW5vPTEwMTg0NSBzY29udGV4dD1zeXN0ZW1fdTpzeXN0
+ZW1fcjppbml0X3Q6czAgdGNvbnRleHQ9c3lzdGVtX3U6c3lzdGVtX3I6a2VybmVsX3Q6czAtczA6
+YzAuYzEwMjMgdGNsYXNzPXVuaXhfc3RyZWFtX3NvY2tldCBwZXJtaXNzaXZlPTAKLS0tLQp0aW1l
+LT5UaHUgRGVjICA4IDExOjU5OjQ0IDIwMTYKdHlwZT1BVkMgbXNnPWF1ZGl0KDE0ODEyMTk5ODQu
+ODY3OjMyNyk6IGF2YzogIGRlbmllZCAgeyByZWFkIHdyaXRlIH0gZm9yICBwaWQ9MSBjb21tPSJz
+eXN0ZW1kIiBwYXRoPSJzb2NrZXQ6WzEwMTg0OF0iIGRldj0ic29ja2ZzIiBpbm89MTAxODQ4IHNj
+b250ZXh0PXN5c3RlbV91OnN5c3RlbV9yOmluaXRfdDpzMCB0Y29udGV4dD1zeXN0ZW1fdTpzeXN0
+ZW1fcjprZXJuZWxfdDpzMC1zMDpjMC5jMTAyMyB0Y2xhc3M9dW5peF9zdHJlYW1fc29ja2V0IHBl
+cm1pc3NpdmU9MAotLS0tCnRpbWUtPlRodSBEZWMgIDggMTE6NTk6NDQgMjAxNgp0eXBlPUFWQyBt
+c2c9YXVkaXQoMTQ4MTIxOTk4NC44NzA6MzI4KTogYXZjOiAgZGVuaWVkICB7IHJlYWQgd3JpdGUg
+fSBmb3IgIHBpZD0xIGNvbW09InN5c3RlbWQiIHBhdGg9InNvY2tldDpbMTAxODQ5XSIgZGV2PSJz
+b2NrZnMiIGlubz0xMDE4NDkgc2NvbnRleHQ9c3lzdGVtX3U6c3lzdGVtX3I6aW5pdF90OnMwIHRj
+b250ZXh0PXN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90OnMwLXMwOmMwLmMxMDIzIHRjbGFzcz11
+bml4X3N0cmVhbV9zb2NrZXQgcGVybWlzc2l2ZT0wCi0tLS0KdGltZS0+VGh1IERlYyAgOCAxMTo1
+OTo0NCAyMDE2CnR5cGU9QVZDIG1zZz1hdWRpdCgxNDgxMjE5OTg0Ljg3MDozMjkpOiBhdmM6ICBk
+ZW5pZWQgIHsgcmVhZCB3cml0ZSB9IGZvciAgcGlkPTEgY29tbT0ic3lzdGVtZCIgcGF0aD0ic29j
+a2V0Ols5NzEzNV0iIGRldj0ic29ja2ZzIiBpbm89OTcxMzUgc2NvbnRleHQ9c3lzdGVtX3U6c3lz
+dGVtX3I6aW5pdF90OnMwIHRjb250ZXh0PXN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90OnMwLXMw
+OmMwLmMxMDIzIHRjbGFzcz11bml4X3N0cmVhbV9zb2NrZXQgcGVybWlzc2l2ZT0wCi0tLS0KdGlt
+ZS0+VGh1IERlYyAgOCAxMTo1OTo0NCAyMDE2CnR5cGU9QVZDIG1zZz1hdWRpdCgxNDgxMjE5OTg0
+Ljg3MDozMzApOiBhdmM6ICBkZW5pZWQgIHsgcmVhZCB3cml0ZSB9IGZvciAgcGlkPTEgY29tbT0i
+c3lzdGVtZCIgcGF0aD0ic29ja2V0Ols5NzEzN10iIGRldj0ic29ja2ZzIiBpbm89OTcxMzcgc2Nv
+bnRleHQ9c3lzdGVtX3U6c3lzdGVtX3I6aW5pdF90OnMwIHRjb250ZXh0PXN5c3RlbV91OnN5c3Rl
+bV9yOmtlcm5lbF90OnMwLXMwOmMwLmMxMDIzIHRjbGFzcz11bml4X3N0cmVhbV9zb2NrZXQgcGVy
+bWlzc2l2ZT0wCi0tLS0KdGltZS0+VGh1IERlYyAgOCAxMTo1OTo0NCAyMDE2CnR5cGU9QVZDIG1z
+Zz1hdWRpdCgxNDgxMjE5OTg0Ljg3MDozMzEpOiBhdmM6ICBkZW5pZWQgIHsgcmVhZCB3cml0ZSB9
+IGZvciAgcGlkPTEgY29tbT0ic3lzdGVtZCIgcGF0aD0ic29ja2V0Ols5NzEzOV0iIGRldj0ic29j
+a2ZzIiBpbm89OTcxMzkgc2NvbnRleHQ9c3lzdGVtX3U6c3lzdGVtX3I6aW5pdF90OnMwIHRjb250
+ZXh0PXN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90OnMwLXMwOmMwLmMxMDIzIHRjbGFzcz11bml4
+X3N0cmVhbV9zb2NrZXQgcGVybWlzc2l2ZT0wCi0tLS0KdGltZS0+VGh1IERlYyAgOCAxMTo1OTo0
+NCAyMDE2CnR5cGU9QVZDIG1zZz1hdWRpdCgxNDgxMjE5OTg0Ljg3MDozMzIpOiBhdmM6ICBkZW5p
+ZWQgIHsgcmVhZCB3cml0ZSB9IGZvciAgcGlkPTEgY29tbT0ic3lzdGVtZCIgcGF0aD0ic29ja2V0
+Ols5NzE0MV0iIGRldj0ic29ja2ZzIiBpbm89OTcxNDEgc2NvbnRleHQ9c3lzdGVtX3U6c3lzdGVt
+X3I6aW5pdF90OnMwIHRjb250ZXh0PXN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90OnMwLXMwOmMw
+LmMxMDIzIHRjbGFzcz11bml4X3N0cmVhbV9zb2NrZXQgcGVybWlzc2l2ZT0wCi0tLS0KdGltZS0+
+VGh1IERlYyAgOCAxMTo1OTo0NCAyMDE2CnR5cGU9QVZDIG1zZz1hdWRpdCgxNDgxMjE5OTg0Ljg3
+MzozMzMpOiBhdmM6ICBkZW5pZWQgIHsgcmVhZCB3cml0ZSB9IGZvciAgcGlkPTEgY29tbT0ic3lz
+dGVtZCIgcGF0aD0ic29ja2V0Ols5ODcxOV0iIGRldj0ic29ja2ZzIiBpbm89OTg3MTkgc2NvbnRl
+eHQ9c3lzdGVtX3U6c3lzdGVtX3I6aW5pdF90OnMwIHRjb250ZXh0PXN5c3RlbV91OnN5c3RlbV9y
+Omtlcm5lbF90OnMwLXMwOmMwLmMxMDIzIHRjbGFzcz11bml4X3N0cmVhbV9zb2NrZXQgcGVybWlz
+c2l2ZT0wCi0tLS0KdGltZS0+VGh1IERlYyAgOCAxMTo1OTo0NCAyMDE2CnR5cGU9QVZDIG1zZz1h
+dWRpdCgxNDgxMjE5OTg0Ljg3MzozMzQpOiBhdmM6ICBkZW5pZWQgIHsgcmVhZCB3cml0ZSB9IGZv
+ciAgcGlkPTEgY29tbT0ic3lzdGVtZCIgcGF0aD0ic29ja2V0Ols5ODcyMV0iIGRldj0ic29ja2Zz
+IiBpbm89OTg3MjEgc2NvbnRleHQ9c3lzdGVtX3U6c3lzdGVtX3I6aW5pdF90OnMwIHRjb250ZXh0
+PXN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90OnMwLXMwOmMwLmMxMDIzIHRjbGFzcz11bml4X3N0
+cmVhbV9zb2NrZXQgcGVybWlzc2l2ZT0wCi0tLS0KdGltZS0+VGh1IERlYyAgOCAxMTo1OTo0NCAy
+MDE2CnR5cGU9QVZDIG1zZz1hdWRpdCgxNDgxMjE5OTg0Ljg3MzozMzUpOiBhdmM6ICBkZW5pZWQg
+IHsgcmVhZCB3cml0ZSB9IGZvciAgcGlkPTEgY29tbT0ic3lzdGVtZCIgcGF0aD0ic29ja2V0Ols5
+ODcyM10iIGRldj0ic29ja2ZzIiBpbm89OTg3MjMgc2NvbnRleHQ9c3lzdGVtX3U6c3lzdGVtX3I6
+aW5pdF90OnMwIHRjb250ZXh0PXN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90OnMwLXMwOmMwLmMx
+MDIzIHRjbGFzcz11bml4X3N0cmVhbV9zb2NrZXQgcGVybWlzc2l2ZT0wCi0tLS0KdGltZS0+VGh1
+IERlYyAgOCAxMTo1OTo0NCAyMDE2CnR5cGU9QVZDIG1zZz1hdWRpdCgxNDgxMjE5OTg0Ljg3Mzoz
+MzYpOiBhdmM6ICBkZW5pZWQgIHsgcmVhZCB3cml0ZSB9IGZvciAgcGlkPTEgY29tbT0ic3lzdGVt
+ZCIgcGF0aD0ic29ja2V0Ols5ODcyNF0iIGRldj0ic29ja2ZzIiBpbm89OTg3MjQgc2NvbnRleHQ9
+c3lzdGVtX3U6c3lzdGVtX3I6aW5pdF90OnMwIHRjb250ZXh0PXN5c3RlbV91OnN5c3RlbV9yOmtl
+cm5lbF90OnMwLXMwOmMwLmMxMDIzIHRjbGFzcz11bml4X3N0cmVhbV9zb2NrZXQgcGVybWlzc2l2
+ZT0wCi0tLS0KdGltZS0+VGh1IERlYyAgOCAxMTo1OTo0NCAyMDE2CnR5cGU9QVZDIG1zZz1hdWRp
+dCgxNDgxMjE5OTg0Ljg3MzozMzcpOiBhdmM6ICBkZW5pZWQgIHsgcmVhZCB3cml0ZSB9IGZvciAg
+cGlkPTEgY29tbT0ic3lzdGVtZCIgcGF0aD0ic29ja2V0Ols5ODcyN10iIGRldj0ic29ja2ZzIiBp
+bm89OTg3Mjcgc2NvbnRleHQ9c3lzdGVtX3U6c3lzdGVtX3I6aW5pdF90OnMwIHRjb250ZXh0PXN5
+c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90OnMwLXMwOmMwLmMxMDIzIHRjbGFzcz11bml4X3N0cmVh
+bV9zb2NrZXQgcGVybWlzc2l2ZT0wCi0tLS0KdGltZS0+VGh1IERlYyAgOCAxMTo1OTo0NCAyMDE2
+CnR5cGU9QVZDIG1zZz1hdWRpdCgxNDgxMjE5OTg0Ljg3MzozMzgpOiBhdmM6ICBkZW5pZWQgIHsg
+cmVhZCB3cml0ZSB9IGZvciAgcGlkPTEgY29tbT0ic3lzdGVtZCIgcGF0aD0ic29ja2V0Ols5ODcy
+OF0iIGRldj0ic29ja2ZzIiBpbm89OTg3Mjggc2NvbnRleHQ9c3lzdGVtX3U6c3lzdGVtX3I6aW5p
+dF90OnMwIHRjb250ZXh0PXN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90OnMwLXMwOmMwLmMxMDIz
+IHRjbGFzcz11bml4X3N0cmVhbV9zb2NrZXQgcGVybWlzc2l2ZT0wCi0tLS0KdGltZS0+VGh1IERl
+YyAgOCAxMTo1OTo0NCAyMDE2CnR5cGU9QVZDIG1zZz1hdWRpdCgxNDgxMjE5OTg0Ljg3MzozMzkp
+OiBhdmM6ICBkZW5pZWQgIHsgcmVhZCB3cml0ZSB9IGZvciAgcGlkPTEgY29tbT0ic3lzdGVtZCIg
+cGF0aD0ic29ja2V0Ols5ODczMV0iIGRldj0ic29ja2ZzIiBpbm89OTg3MzEgc2NvbnRleHQ9c3lz
+dGVtX3U6c3lzdGVtX3I6aW5pdF90OnMwIHRjb250ZXh0PXN5c3RlbV91OnN5c3RlbV9yOmtlcm5l
+bF90OnMwLXMwOmMwLmMxMDIzIHRjbGFzcz11bml4X3N0cmVhbV9zb2NrZXQgcGVybWlzc2l2ZT0w
+Ci0tLS0KdGltZS0+VGh1IERlYyAgOCAxMTo1OTo0NCAyMDE2CnR5cGU9QVZDIG1zZz1hdWRpdCgx
+NDgxMjE5OTg0Ljg3MzozNDApOiBhdmM6ICBkZW5pZWQgIHsgcmVhZCB3cml0ZSB9IGZvciAgcGlk
+PTEgY29tbT0ic3lzdGVtZCIgcGF0aD0ic29ja2V0Ols5ODczMl0iIGRldj0ic29ja2ZzIiBpbm89
+OTg3MzIgc2NvbnRleHQ9c3lzdGVtX3U6c3lzdGVtX3I6aW5pdF90OnMwIHRjb250ZXh0PXN5c3Rl
+bV91OnN5c3RlbV9yOmtlcm5lbF90OnMwLXMwOmMwLmMxMDIzIHRjbGFzcz11bml4X3N0cmVhbV9z
+b2NrZXQgcGVybWlzc2l2ZT0wCi0tLS0KdGltZS0+VGh1IERlYyAgOCAxMTo1OTo0NCAyMDE2CnR5
+cGU9QVZDIG1zZz1hdWRpdCgxNDgxMjE5OTg0Ljg3MzozNDEpOiBhdmM6ICBkZW5pZWQgIHsgcmVh
+ZCB3cml0ZSB9IGZvciAgcGlkPTEgY29tbT0ic3lzdGVtZCIgcGF0aD0ic29ja2V0Ols5ODczNV0i
+IGRldj0ic29ja2ZzIiBpbm89OTg3MzUgc2NvbnRleHQ9c3lzdGVtX3U6c3lzdGVtX3I6aW5pdF90
+OnMwIHRjb250ZXh0PXN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90OnMwLXMwOmMwLmMxMDIzIHRj
+bGFzcz11bml4X3N0cmVhbV9zb2NrZXQgcGVybWlzc2l2ZT0wCi0tLS0KdGltZS0+VGh1IERlYyAg
+OCAxMTo1OTo0NCAyMDE2CnR5cGU9QVZDIG1zZz1hdWRpdCgxNDgxMjE5OTg0Ljg3MzozNDIpOiBh
+dmM6ICBkZW5pZWQgIHsgcmVhZCB3cml0ZSB9IGZvciAgcGlkPTEgY29tbT0ic3lzdGVtZCIgcGF0
+aD0ic29ja2V0Ols5ODczNl0iIGRldj0ic29ja2ZzIiBpbm89OTg3MzYgc2NvbnRleHQ9c3lzdGVt
+X3U6c3lzdGVtX3I6aW5pdF90OnMwIHRjb250ZXh0PXN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90
+OnMwLXMwOmMwLmMxMDIzIHRjbGFzcz11bml4X3N0cmVhbV9zb2NrZXQgcGVybWlzc2l2ZT0wCi0t
+LS0KdGltZS0+VGh1IERlYyAgOCAxMTo1OTo0NCAyMDE2CnR5cGU9QVZDIG1zZz1hdWRpdCgxNDgx
+MjE5OTg0Ljg3MzozNDMpOiBhdmM6ICBkZW5pZWQgIHsgcmVhZCB3cml0ZSB9IGZvciAgcGlkPTEg
+Y29tbT0ic3lzdGVtZCIgcGF0aD0ic29ja2V0Ols5ODczOV0iIGRldj0ic29ja2ZzIiBpbm89OTg3
+Mzkgc2NvbnRleHQ9c3lzdGVtX3U6c3lzdGVtX3I6aW5pdF90OnMwIHRjb250ZXh0PXN5c3RlbV91
+OnN5c3RlbV9yOmtlcm5lbF90OnMwLXMwOmMwLmMxMDIzIHRjbGFzcz11bml4X3N0cmVhbV9zb2Nr
+ZXQgcGVybWlzc2l2ZT0wCi0tLS0KdGltZS0+VGh1IERlYyAgOCAxMTo1OTo0NCAyMDE2CnR5cGU9
+QVZDIG1zZz1hdWRpdCgxNDgxMjE5OTg0Ljg3MzozNDQpOiBhdmM6ICBkZW5pZWQgIHsgcmVhZCB3
+cml0ZSB9IGZvciAgcGlkPTEgY29tbT0ic3lzdGVtZCIgcGF0aD0ic29ja2V0Ols5ODc0MF0iIGRl
+dj0ic29ja2ZzIiBpbm89OTg3NDAgc2NvbnRleHQ9c3lzdGVtX3U6c3lzdGVtX3I6aW5pdF90OnMw
+IHRjb250ZXh0PXN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90OnMwLXMwOmMwLmMxMDIzIHRjbGFz
+cz11bml4X3N0cmVhbV9zb2NrZXQgcGVybWlzc2l2ZT0wCi0tLS0KdGltZS0+VGh1IERlYyAgOCAx
+MTo1OTo0NCAyMDE2CnR5cGU9QVZDIG1zZz1hdWRpdCgxNDgxMjE5OTg0Ljg3NTozNDUpOiBhdmM6
+ICBkZW5pZWQgIHsgcmVhZCB3cml0ZSB9IGZvciAgcGlkPTEgY29tbT0ic3lzdGVtZCIgcGF0aD0i
+c29ja2V0Ols5ODc0M10iIGRldj0ic29ja2ZzIiBpbm89OTg3NDMgc2NvbnRleHQ9c3lzdGVtX3U6
+c3lzdGVtX3I6aW5pdF90OnMwIHRjb250ZXh0PXN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90OnMw
+LXMwOmMwLmMxMDIzIHRjbGFzcz11bml4X3N0cmVhbV9zb2NrZXQgcGVybWlzc2l2ZT0wCi0tLS0K
+dGltZS0+VGh1IERlYyAgOCAxMTo1OTo0NCAyMDE2CnR5cGU9QVZDIG1zZz1hdWRpdCgxNDgxMjE5
+OTg0Ljg3NTozNDYpOiBhdmM6ICBkZW5pZWQgIHsgcmVhZCB3cml0ZSB9IGZvciAgcGlkPTEgY29t
+bT0ic3lzdGVtZCIgcGF0aD0ic29ja2V0Ols5ODc0NF0iIGRldj0ic29ja2ZzIiBpbm89OTg3NDQg
+c2NvbnRleHQ9c3lzdGVtX3U6c3lzdGVtX3I6aW5pdF90OnMwIHRjb250ZXh0PXN5c3RlbV91OnN5
+c3RlbV9yOmtlcm5lbF90OnMwLXMwOmMwLmMxMDIzIHRjbGFzcz11bml4X3N0cmVhbV9zb2NrZXQg
+cGVybWlzc2l2ZT0wCi0tLS0KdGltZS0+VGh1IERlYyAgOCAxMTo1OTo0NCAyMDE2CnR5cGU9QVZD
+IG1zZz1hdWRpdCgxNDgxMjE5OTg0Ljg3NTozNDcpOiBhdmM6ICBkZW5pZWQgIHsgcmVhZCB3cml0
+ZSB9IGZvciAgcGlkPTEgY29tbT0ic3lzdGVtZCIgcGF0aD0ic29ja2V0Ols5ODc0N10iIGRldj0i
+c29ja2ZzIiBpbm89OTg3NDcgc2NvbnRleHQ9c3lzdGVtX3U6c3lzdGVtX3I6aW5pdF90OnMwIHRj
+b250ZXh0PXN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90OnMwLXMwOmMwLmMxMDIzIHRjbGFzcz11
+bml4X3N0cmVhbV9zb2NrZXQgcGVybWlzc2l2ZT0wCi0tLS0KdGltZS0+VGh1IERlYyAgOCAxMTo1
+OTo0NCAyMDE2CnR5cGU9QVZDIG1zZz1hdWRpdCgxNDgxMjE5OTg0Ljg3NTozNDgpOiBhdmM6ICBk
+ZW5pZWQgIHsgcmVhZCB3cml0ZSB9IGZvciAgcGlkPTEgY29tbT0ic3lzdGVtZCIgcGF0aD0ic29j
+a2V0Ols5ODc0OF0iIGRldj0ic29ja2ZzIiBpbm89OTg3NDggc2NvbnRleHQ9c3lzdGVtX3U6c3lz
+dGVtX3I6aW5pdF90OnMwIHRjb250ZXh0PXN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90OnMwLXMw
+OmMwLmMxMDIzIHRjbGFzcz11bml4X3N0cmVhbV9zb2NrZXQgcGVybWlzc2l2ZT0wCi0tLS0KdGlt
+ZS0+VGh1IERlYyAgOCAxMTo1OTo0NCAyMDE2CnR5cGU9QVZDIG1zZz1hdWRpdCgxNDgxMjE5OTg0
+Ljg3NTozNDkpOiBhdmM6ICBkZW5pZWQgIHsgcmVhZCB3cml0ZSB9IGZvciAgcGlkPTEgY29tbT0i
+c3lzdGVtZCIgcGF0aD0ic29ja2V0Ols5ODc1MV0iIGRldj0ic29ja2ZzIiBpbm89OTg3NTEgc2Nv
+bnRleHQ9c3lzdGVtX3U6c3lzdGVtX3I6aW5pdF90OnMwIHRjb250ZXh0PXN5c3RlbV91OnN5c3Rl
+bV9yOmtlcm5lbF90OnMwLXMwOmMwLmMxMDIzIHRjbGFzcz11bml4X3N0cmVhbV9zb2NrZXQgcGVy
+bWlzc2l2ZT0wCi0tLS0KdGltZS0+VGh1IERlYyAgOCAxMTo1OTo0NSAyMDE2CnR5cGU9QVZDIG1z
+Zz1hdWRpdCgxNDgxMjE5OTg1LjQzNjozNTApOiBhdmM6ICBkZW5pZWQgIHsgcmVhZCB3cml0ZSB9
+IGZvciAgcGlkPTEgY29tbT0ic3lzdGVtZCIgcGF0aD0ic29ja2V0Ols5ODc5M10iIGRldj0ic29j
+a2ZzIiBpbm89OTg3OTMgc2NvbnRleHQ9c3lzdGVtX3U6c3lzdGVtX3I6aW5pdF90OnMwIHRjb250
+ZXh0PXN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90OnMwLXMwOmMwLmMxMDIzIHRjbGFzcz11bml4
+X3N0cmVhbV9zb2NrZXQgcGVybWlzc2l2ZT0wCi0tLS0KdGltZS0+VGh1IERlYyAgOCAxMTo1OTo0
+NSAyMDE2CnR5cGU9QVZDIG1zZz1hdWRpdCgxNDgxMjE5OTg1LjYxMjozNTEpOiBhdmM6ICBkZW5p
+ZWQgIHsgcmVhZCB3cml0ZSB9IGZvciAgcGlkPTEgY29tbT0ic3lzdGVtZCIgcGF0aD0ic29ja2V0
+Ols5ODc5NV0iIGRldj0ic29ja2ZzIiBpbm89OTg3OTUgc2NvbnRleHQ9c3lzdGVtX3U6c3lzdGVt
+X3I6aW5pdF90OnMwIHRjb250ZXh0PXN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90OnMwLXMwOmMw
+LmMxMDIzIHRjbGFzcz11bml4X3N0cmVhbV9zb2NrZXQgcGVybWlzc2l2ZT0wCi0tLS0KdGltZS0+
+VGh1IERlYyAgOCAxMTo1OTo0NSAyMDE2CnR5cGU9QVZDIG1zZz1hdWRpdCgxNDgxMjE5OTg1LjYx
+MjozNTIpOiBhdmM6ICBkZW5pZWQgIHsgcmVhZCB3cml0ZSB9IGZvciAgcGlkPTEgY29tbT0ic3lz
+dGVtZCIgcGF0aD0ic29ja2V0Ols5ODc5Nl0iIGRldj0ic29ja2ZzIiBpbm89OTg3OTYgc2NvbnRl
+eHQ9c3lzdGVtX3U6c3lzdGVtX3I6aW5pdF90OnMwIHRjb250ZXh0PXN5c3RlbV91OnN5c3RlbV9y
+Omtlcm5lbF90OnMwLXMwOmMwLmMxMDIzIHRjbGFzcz11bml4X3N0cmVhbV9zb2NrZXQgcGVybWlz
+c2l2ZT0wCi0tLS0KdGltZS0+VGh1IERlYyAgOCAxMTo1OTo0OCAyMDE2CnR5cGU9QVZDIG1zZz1h
+dWRpdCgxNDgxMjE5OTg4LjYyMDozNTQpOiBhdmM6ICBkZW5pZWQgIHsgc2lnaW5oIH0gZm9yICBw
+aWQ9MTQ2MzYgY29tbT0ic2V0cm91Ymxlc2hvb3RkIiBzY29udGV4dD1zeXN0ZW1fdTpzeXN0ZW1f
+cjpzeXN0ZW1fZGJ1c2RfdDpzMC1zMDpjMC5jMTAyMyB0Y29udGV4dD1zeXN0ZW1fdTpzeXN0ZW1f
+cjpzZXRyb3VibGVzaG9vdGRfdDpzMC1zMDpjMC5jMTAyMyB0Y2xhc3M9cHJvY2VzcyBwZXJtaXNz
+aXZlPTAKLS0tLQp0aW1lLT5UaHUgRGVjICA4IDExOjU5OjQ4IDIwMTYKdHlwZT1BVkMgbXNnPWF1
+ZGl0KDE0ODEyMTk5ODguNjIxOjM1NSk6IGF2YzogIGRlbmllZCAgeyBub2F0c2VjdXJlIH0gZm9y
+ICBwaWQ9MTQ2MzYgY29tbT0ic2V0cm91Ymxlc2hvb3RkIiBzY29udGV4dD1zeXN0ZW1fdTpzeXN0
+ZW1fcjpzeXN0ZW1fZGJ1c2RfdDpzMC1zMDpjMC5jMTAyMyB0Y29udGV4dD1zeXN0ZW1fdTpzeXN0
+ZW1fcjpzZXRyb3VibGVzaG9vdGRfdDpzMC1zMDpjMC5jMTAyMyB0Y2xhc3M9cHJvY2VzcyBwZXJt
+aXNzaXZlPTAKLS0tLQp0aW1lLT5UaHUgRGVjICA4IDExOjU5OjQ4IDIwMTYKdHlwZT1BVkMgbXNn
+PWF1ZGl0KDE0ODEyMTk5ODguNjIzOjM1Nik6IGF2YzogIGRlbmllZCAgeyByZWFkIHdyaXRlIH0g
+Zm9yICBwaWQ9MSBjb21tPSJzeXN0ZW1kIiBwYXRoPSJzb2NrZXQ6WzEwMTk3OV0iIGRldj0ic29j
+a2ZzIiBpbm89MTAxOTc5IHNjb250ZXh0PXN5c3RlbV91OnN5c3RlbV9yOmluaXRfdDpzMCB0Y29u
+dGV4dD1zeXN0ZW1fdTpzeXN0ZW1fcjprZXJuZWxfdDpzMC1zMDpjMC5jMTAyMyB0Y2xhc3M9dW5p
+eF9zdHJlYW1fc29ja2V0IHBlcm1pc3NpdmU9MAotLS0tCnRpbWUtPlRodSBEZWMgIDggMTE6NTk6
+NDggMjAxNgp0eXBlPUFWQyBtc2c9YXVkaXQoMTQ4MTIxOTk4OC42MjM6MzU3KTogYXZjOiAgZGVu
+aWVkICB7IHJlYWQgd3JpdGUgfSBmb3IgIHBpZD0xIGNvbW09InN5c3RlbWQiIHBhdGg9InNvY2tl
+dDpbMTAxOTgwXSIgZGV2PSJzb2NrZnMiIGlubz0xMDE5ODAgc2NvbnRleHQ9c3lzdGVtX3U6c3lz
+dGVtX3I6aW5pdF90OnMwIHRjb250ZXh0PXN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90OnMwLXMw
+OmMwLmMxMDIzIHRjbGFzcz11bml4X3N0cmVhbV9zb2NrZXQgcGVybWlzc2l2ZT0wCi0tLS0KdGlt
+ZS0+VGh1IERlYyAgOCAxMTo1OTo0OCAyMDE2CnR5cGU9QVZDIG1zZz1hdWRpdCgxNDgxMjE5OTg4
+LjYyMDozNTMpOiBhdmM6ICBkZW5pZWQgIHsgcmxpbWl0aW5oIH0gZm9yICBwaWQ9MTQ2MzYgY29t
+bT0ic2V0cm91Ymxlc2hvb3RkIiBzY29udGV4dD1zeXN0ZW1fdTpzeXN0ZW1fcjpzeXN0ZW1fZGJ1
+c2RfdDpzMC1zMDpjMC5jMTAyMyB0Y29udGV4dD1zeXN0ZW1fdTpzeXN0ZW1fcjpzZXRyb3VibGVz
+aG9vdGRfdDpzMC1zMDpjMC5jMTAyMyB0Y2xhc3M9cHJvY2VzcyBwZXJtaXNzaXZlPTAKLS0tLQp0
+aW1lLT5UaHUgRGVjICA4IDExOjU5OjUxIDIwMTYKdHlwZT1BVkMgbXNnPWF1ZGl0KDE0ODEyMTk5
+OTEuNTMxOjM2MCk6IGF2YzogIGRlbmllZCAgeyByZWFkIHdyaXRlIH0gZm9yICBwaWQ9MSBjb21t
+PSJzeXN0ZW1kIiBwYXRoPSJzb2NrZXQ6WzEwNDUxOV0iIGRldj0ic29ja2ZzIiBpbm89MTA0NTE5
+IHNjb250ZXh0PXN5c3RlbV91OnN5c3RlbV9yOmluaXRfdDpzMCB0Y29udGV4dD1zeXN0ZW1fdTpz
+eXN0ZW1fcjprZXJuZWxfdDpzMCB0Y2xhc3M9dW5peF9zdHJlYW1fc29ja2V0IHBlcm1pc3NpdmU9
+MAotLS0tCnRpbWUtPlRodSBEZWMgIDggMTE6NTk6NTEgMjAxNgp0eXBlPUFWQyBtc2c9YXVkaXQo
+MTQ4MTIxOTk5MS41MzM6MzYxKTogYXZjOiAgZGVuaWVkICB7IHJsaW1pdGluaCB9IGZvciAgcGlk
+PTE0NzI1IGNvbW09InN5c3RlbWQtY29yZWR1bSIgc2NvbnRleHQ9c3lzdGVtX3U6c3lzdGVtX3I6
+aW5pdF90OnMwIHRjb250ZXh0PXN5c3RlbV91OnN5c3RlbV9yOnN5c3RlbWRfY29yZWR1bXBfdDpz
+MCB0Y2xhc3M9cHJvY2VzcyBwZXJtaXNzaXZlPTAKLS0tLQp0aW1lLT5UaHUgRGVjICA4IDExOjU5
+OjUxIDIwMTYKdHlwZT1BVkMgbXNnPWF1ZGl0KDE0ODEyMTk5OTEuNTMzOjM2Mik6IGF2YzogIGRl
+bmllZCAgeyBub2F0c2VjdXJlIH0gZm9yICBwaWQ9MTQ3MjUgY29tbT0ic3lzdGVtZC1jb3JlZHVt
+IiBzY29udGV4dD1zeXN0ZW1fdTpzeXN0ZW1fcjppbml0X3Q6czAgdGNvbnRleHQ9c3lzdGVtX3U6
+c3lzdGVtX3I6c3lzdGVtZF9jb3JlZHVtcF90OnMwIHRjbGFzcz1wcm9jZXNzIHBlcm1pc3NpdmU9
+MAo=
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

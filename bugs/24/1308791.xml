@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1308791</bug_id>
+          
+          <creation_ts>2016-02-16 00:40:00 -0500</creation_ts>
+          <short_desc>curl with libpsl</short_desc>
+          <delta_ts>2016-03-08 09:53:06 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>curl</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>CURRENTRELEASE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Remi Collet">fedora</reporter>
+          <assigned_to name="Kamil Dudka">kdudka</assigned_to>
+          <cc>fedora</cc>
+    
+    
+    <cc>i</cc>
+    
+    
+    <cc>kdudka</cc>
+    
+    
+    <cc>paul</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>curl-7.47.1-4.fc25 curl-7.47.1-4.fc24</cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-03-03 04:22:06</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9066677</commentid>
+    <comment_count>0</comment_count>
+    <who name="Remi Collet">fedora</who>
+    <bug_when>2016-02-16 00:40:14 -0500</bug_when>
+    <thetext>Since curl is built with libpsl, pecl_http test suite fails.
+
+This a tracker bug to not loose this.
+
+Upstream report (with curl upstream involved)
+
+libpsl: https://github.com/rockdaboot/libpsl/issues/48
+pecl_http: https://github.com/m6w6/ext-http/issues/26
+
+
+Perhaps we should revert this option for F24, waiting for a upstream fix.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9066679</commentid>
+    <comment_count>1</comment_count>
+    <who name="Remi Collet">fedora</who>
+    <bug_when>2016-02-16 00:42:35 -0500</bug_when>
+    <thetext>To summarize, all non qualified domain (ex: &quot;localhost&quot;) are considered by libpsl as &quot;public suffix&quot;, and thus curl ignore the cookie.
+
+Add cicku, libpsl maintainer in CC.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9066807</commentid>
+    <comment_count>2</comment_count>
+    <who name="Kamil Dudka">kdudka</who>
+    <bug_when>2016-02-16 01:57:27 -0500</bug_when>
+    <thetext>(In reply to Remi Collet from comment #0)
+&gt; Perhaps we should revert this option for F24, waiting for a upstream fix.
+
+Given the fact that we have not received any bug report except the php-pecl-http one, I do not think this is a major regression requiring an immediate revert.  I would prefer to wait few more days to see whether the actual fix will go to libcurl or libpsl.
+
+Paul, what is your opinion on this?  Should we revert the libpsl support now?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9066855</commentid>
+    <comment_count>3</comment_count>
+    <who name="Remi Collet">fedora</who>
+    <bug_when>2016-02-16 02:17:03 -0500</bug_when>
+    <thetext>After digging a little in other applications using the libpsl, I think the usage in libcurl is not correct (so the bug is &quot;in&quot; curl, not in libpsl)
+
+The check should probably use psl_is_cookie_domain_acceptable instead of psl_is_public_suffix.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9066859</commentid>
+    <comment_count>4</comment_count>
+    <who name="Remi Collet">fedora</who>
+    <bug_when>2016-02-16 02:19:59 -0500</bug_when>
+    <thetext>See http://git.savannah.gnu.org/cgit/wget.git/tree/src/cookies.c#n527</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9066871</commentid>
+    <comment_count>5</comment_count>
+    <who name="Kamil Dudka">kdudka</who>
+    <bug_when>2016-02-16 02:23:51 -0500</bug_when>
+    <thetext>Thanks for digging!  This is kind of surprising because the libcurl code your refer to is contributed by the libpsl maintainer:
+
+https://github.com/curl/curl/commit/e77b5b74</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9066872</commentid>
+    <comment_count>6</comment_count>
+    <who name="Remi Collet">fedora</who>
+    <bug_when>2016-02-16 02:24:11 -0500</bug_when>
+    <thetext>Also https://github.com/curl/curl/issues/658</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9067209</commentid>
+    <comment_count>7</comment_count>
+    <who name="Paul Howarth">paul</who>
+    <bug_when>2016-02-16 04:29:15 -0500</bug_when>
+    <thetext>(In reply to Kamil Dudka from comment #2)
+&gt; (In reply to Remi Collet from comment #0)
+&gt; &gt; Perhaps we should revert this option for F24, waiting for a upstream fix.
+&gt; 
+&gt; Given the fact that we have not received any bug report except the
+&gt; php-pecl-http one, I do not think this is a major regression requiring an
+&gt; immediate revert.  I would prefer to wait few more days to see whether the
+&gt; actual fix will go to libcurl or libpsl.
+&gt; 
+&gt; Paul, what is your opinion on this?  Should we revert the libpsl support now?
+
+I&apos;m in favour of &quot;wait and see&quot; for the moment. The psl_is_cookie_domain_acceptable approach looks promising, as would allowing cookies for the same hostname as the HTTP host. I think it&apos;s likely that there will be a change in curl to address this anyway.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9094098</commentid>
+    <comment_count>8</comment_count>
+    <who name="Jan Kurik">jkurik</who>
+    <bug_when>2016-02-24 10:22:14 -0500</bug_when>
+    <thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 24 development cycle.
+Changing version to &apos;24&apos;.
+
+More information and reason for this action is here:
+https://fedoraproject.org/wiki/Fedora_Program_Management/HouseKeeping/Fedora24#Rawhide_Rebase</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9116780</commentid>
+    <comment_count>9</comment_count>
+    <who name="Kamil Dudka">kdudka</who>
+    <bug_when>2016-03-03 02:12:43 -0500</bug_when>
+    <thetext>Could you please check whether curl-7.47.1-4.fc25 works good enough for you?
+
+http://koji.fedoraproject.org/koji/buildinfo?buildID=741218</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9116858</commentid>
+    <comment_count>10</comment_count>
+    <who name="Remi Collet">fedora</who>
+    <bug_when>2016-03-03 02:48:31 -0500</bug_when>
+    <thetext>See https://apps.fedoraproject.org/koschei/package/php-pecl-http
+
+Yes, curl-7.47.1-4.fc25 fix this issue.
+Thanks.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9117175</commentid>
+    <comment_count>11</comment_count>
+    <who name="Kamil Dudka">kdudka</who>
+    <bug_when>2016-03-03 04:22:06 -0500</bug_when>
+    <thetext>Thanks for confirmation!  Fixed in curl-7.47.1-4.fc24.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9129274</commentid>
+    <comment_count>12</comment_count>
+    <who name="Kamil Dudka">kdudka</who>
+    <bug_when>2016-03-08 09:53:06 -0500</bug_when>
+    <thetext>upstream commit:
+
+https://github.com/curl/curl/commit/c140bd78</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

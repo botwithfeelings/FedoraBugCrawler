@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1399683</bug_id>
+          
+          <creation_ts>2016-11-29 09:51:00 -0500</creation_ts>
+          <short_desc>Change logic of file version checking</short_desc>
+          <delta_ts>2017-03-01 19:49:38 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>rpmlint</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>medium</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="David Kaspar [Dee&apos;Kej]">dkaspar</reporter>
+          <assigned_to name="Tom &quot;spot&quot; Callaway">tcallawa</assigned_to>
+          <cc>kevin</cc>
+    
+    
+    <cc>tcallawa</cc>
+    
+    
+    <cc>tibbs</cc>
+    
+    
+    <cc>tmz</cc>
+    
+    
+    <cc>twoerner</cc>
+    
+    
+    <cc>ville.skytta</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>rpmlint-1.9-7.fc25 rpmlint-1.9-7.fc24</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-02-10 09:23:00</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9939387</commentid>
+    <comment_count>0</comment_count>
+    <who name="David Kaspar [Dee&apos;Kej]">dkaspar</who>
+    <bug_when>2016-11-29 09:51:45 -0500</bug_when>
+    <thetext>Description of problem:
+At the moment, rpmlint will complain (display warning) about &apos;unversioned-explicit-provides&apos; for a file with absolute path. If you try to fix this by adding the %{version}, then checking again with rpmlint will lead to an error:
+&gt; specfile-error error: line 11: Versioned file name not permitted
+
+The logic of this does not make any sense, and it should be changed, either in the code, or preferably in some default configuration of rpmlint.
+
+rpmlint shouldnt warn that something is wrong when fix would cause an error instead...
+
+And before we get to the discussion that specfile should not contain the &apos;Provides&apos; with absolute path, I need to tell you that for some packages this is necessary (and most likely always will be). I&apos;m taking care of tcsh, which as a shell, was always placed as /bin/tcsh. This is no longer true because of UsrMove, but we need to keep that &apos;Provides&apos; in the specfile because of backwards compatibility.
+
+As a result, I always see an unnecessary warning in Bodhi after dist.rpmlint check.
+
+Version-Release number of selected component (if applicable):
+rpmlint-1.9-3.fc24.noarch
+
+How reproducible:
+Always
+
+Steps to Reproduce:
+1. Create a specfile containing &apos;Provides: /bin/tcsh = %{version}&apos;
+2. Run rplint on the specfile.
+
+Actual results:
+Misleading warning about &apos;unversioned-explicit-provides /bin/tcsh&apos;
+
+Expected results:
+No warning about &apos;unversioned-explicit-provides /bin/tcsh&apos;.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9940467</commentid>
+    <comment_count>1</comment_count>
+    <who name="Ville Skyttä">ville.skytta</who>
+    <bug_when>2016-11-29 15:29:01 -0500</bug_when>
+    <thetext>(In reply to David Kaspar [Dee&apos;Kej] from comment #0)
+&gt; [...] then checking again with rpmlint will
+&gt; lead to an error:
+&gt; &gt; specfile-error error: line 11: Versioned file name not permitted
+
+FWIW this error comes from rpm.
+
+&gt; rpmlint shouldnt warn that something is wrong when fix would cause an error
+&gt; instead...
+
+Agreed, it&apos;s probably best to stop complaining about versioned absolute-path Provides in rpmlint. Would you mind filing an upstream issue about this?
+https://github.com/rpm-software-management/rpmlint</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10080431</commentid>
+    <comment_count>2</comment_count>
+    <who name="David Kaspar [Dee&apos;Kej]">dkaspar</who>
+    <bug_when>2017-01-19 09:38:34 -0500</bug_when>
+    <thetext>(In reply to Ville Skyttä from comment #1)
+&gt; Agreed, it&apos;s probably best to stop complaining about versioned absolute-path
+&gt; Provides in rpmlint. Would you mind filing an upstream issue about this?
+&gt; https://github.com/rpm-software-management/rpmlint
+
+Done! :)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10108409</commentid>
+    <comment_count>3</comment_count>
+    <who name="David Kaspar [Dee&apos;Kej]">dkaspar</who>
+    <bug_when>2017-01-31 05:57:23 -0500</bug_when>
+    <thetext>Upstream has fixed this issue:
+https://github.com/rpm-software-management/rpmlint/issues/90
+
+They also mention that there&apos;s an option to add our own filters into the default Fedora config - &apos;addFilter&apos; to filter which we do not want to see.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10134714</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-09 09:37:30 -0500</bug_when>
+    <thetext>rpmlint-1.9-7.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2017-f341bddc4e</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10134715</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-09 09:37:42 -0500</bug_when>
+    <thetext>rpmlint-1.9-7.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-11eb2e80ae</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10136167</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-09 16:52:47 -0500</bug_when>
+    <thetext>rpmlint-1.9-7.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-f341bddc4e</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10136258</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-09 17:22:22 -0500</bug_when>
+    <thetext>rpmlint-1.9-7.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-11eb2e80ae</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10138238</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-10 09:23:00 -0500</bug_when>
+    <thetext>rpmlint-1.9-7.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10199938</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-01 19:49:38 -0500</bug_when>
+    <thetext>rpmlint-1.9-7.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

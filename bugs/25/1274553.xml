@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1274553</bug_id>
+          
+          <creation_ts>2015-10-22 21:34:00 -0400</creation_ts>
+          <short_desc>FUNCNEST is ignored if passed by environment</short_desc>
+          <delta_ts>2017-02-20 14:07:39 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>bash</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>RAWHIDE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords>Reopened</keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Alois Mahdal">amahdal</reporter>
+          <assigned_to name="Siteshwar Vashisht">svashisht</assigned_to>
+          <cc>admiller</cc>
+    
+    
+    <cc>jpesco</cc>
+    
+    
+    <cc>ovasik</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-02-11 02:40:47</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>8747863</commentid>
+    <comment_count>0</comment_count>
+    <who name="Alois Mahdal">amahdal</who>
+    <bug_when>2015-10-22 21:34:37 -0400</bug_when>
+    <thetext>Description of problem
+======================
+
+If a script like this:
+
+    #!/bin/bash
+    # infinity.sh
+
+    fn() {
+        fn
+    }
+    fn
+
+is called, it will infinitely recurse, eventually hitting some limit and
+causing SIGSEGV AKA segfault.  This is OK, as explained in bug 1118978
+comment 14.
+
+FUNCNEST variable (unset by default, allowing infinite recursion), can
+be used to limit this and exit in a somewhat graceful way; following
+script will not segfault:
+
+    #!/bin/bash
+    # noinfinity.sh
+
+    FUNCNEST=10
+
+    fn() {
+        fn
+    }
+    fn
+
+The problem is that calling the first version with FUNCNEST passed as
+environment variable:
+
+    $ FUNCNEST=10 ./infinity.sh
+
+or
+
+    $ export FUNCNEST=10
+    $ ./infinity.sh
+
+still leads to infinite recursion; IOW the FUNCNEST is set (you can
+echo it anywhere in the script and see `10`) but does not really affect
+the nesting.   Eventually the script will segfault just as if FUNCNEST
+was unset.
+
+
+Version-Release number of selected component
+============================================
+
+ foo-2.2.7-22.el6.noarch
+
+
+How reproducible
+================
+
+Always
+
+
+Steps to Reproduce
+==================
+
+As described above
+
+
+Actual results
+==============
+
+FUNCNEST given via environment is ignored; unless the value is set in
+script body itself it seems to be ignored.
+
+
+Expected results
+================
+
+Running with FUNCNEST=10 or from environment where FUNCNEST is set to 10
+(and marked for export where applicable), recursion should stop after
+reaching the limit
+
+
+Additional info
+===============
+
+The current behavior does make sense, thoiugh:  Function nesting and
+recursion is concept closely related to actual implementation within
+the script, so indeed it does not seem very useful to pass that from
+environment.
+
+However, the variable scope should be clarified; current behavior is
+confusing at least.  IOW, this may be just a documentation bug.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8747869</commentid>
+    <comment_count>1</comment_count>
+    <who name="Alois Mahdal">amahdal</who>
+    <bug_when>2015-10-22 21:36:09 -0400</bug_when>
+    <thetext>(In reply to Alois Mahdal from comment #0)
+[...]
+&gt; Version-Release number of selected component
+&gt; ============================================
+&gt; 
+&gt;  foo-2.2.7-22.el6.noarch
+
+bash-4.3.42-1.fc22.x86_64
+
+(sorry, forgot to replace version info in my template)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8747870</commentid>
+    <comment_count>2</comment_count>
+      <attachid>1085685</attachid>
+    <who name="Alois Mahdal">amahdal</who>
+    <bug_when>2015-10-22 21:37:01 -0400</bug_when>
+    <thetext>Created attachment 1085685
+infinitely recursing script</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8753384</commentid>
+    <comment_count>3</comment_count>
+    <who name="Ondrej Oprala">ooprala</who>
+    <bug_when>2015-10-26 03:39:58 -0400</bug_when>
+    <thetext>Hi Alois,
+hmm you seem to be right, the variable is inherited, but the corresponding internal variable in the code is not set and I don&apos;t see any reason in the man page for that to happen. I&apos;ll ask upstream.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8790021</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora End Of Life">jkurik</who>
+    <bug_when>2015-11-04 10:18:50 -0500</bug_when>
+    <thetext>This message is a reminder that Fedora 21 is nearing its end of life.
+Approximately 4 (four) weeks from now Fedora will stop maintaining
+and issuing updates for Fedora 21. It is Fedora&apos;s policy to close all
+bug reports from releases that are no longer maintained. At that time
+this bug will be closed as EOL if it remains open with a Fedora  &apos;version&apos;
+of &apos;21&apos;.
+
+Package Maintainer: If you wish for this bug to remain open because you
+plan to fix it in a currently maintained version, simply change the &apos;version&apos; 
+to a later Fedora version.
+
+Thank you for reporting this issue and we are sorry that we were not 
+able to fix it before Fedora 21 is end of life. If you would still like 
+to see this bug fixed and are able to reproduce it against a later version 
+of Fedora, you are encouraged  change the &apos;version&apos; to a later Fedora 
+version prior this bug is closed as described in the policy above.
+
+Although we aim to fix as many bugs as possible during every release&apos;s 
+lifetime, sometimes those efforts are overtaken by events. Often a 
+more recent Fedora release includes newer upstream software that fixes 
+bugs or makes them obsolete.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9527324</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora End Of Life">jkurik</who>
+    <bug_when>2016-07-19 14:18:51 -0400</bug_when>
+    <thetext>Fedora 22 changed to end-of-life (EOL) status on 2016-07-19. Fedora 22 is
+no longer maintained, which means that it will not receive any further
+security or bug fix updates. As a result we are closing this bug.
+
+If you can reproduce this bug against a currently maintained version of
+Fedora please feel free to reopen this bug against that version. If you
+are unable to reopen this bug, please file a new report against the
+current release. If you experience problems, please add a comment to this
+bug.
+
+Thank you for reporting this bug and we are sorry it could not be fixed.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9529747</commentid>
+    <comment_count>7</comment_count>
+    <who name="Alois Mahdal">amahdal</who>
+    <bug_when>2016-07-19 18:33:32 -0400</bug_when>
+    <thetext>Still in F23.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9549965</commentid>
+    <comment_count>8</comment_count>
+    <who name="Jan Kurik">jkurik</who>
+    <bug_when>2016-07-26 01:05:55 -0400</bug_when>
+    <thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 25 development cycle.
+Changing version to &apos;25&apos;.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10141094</commentid>
+    <comment_count>9</comment_count>
+    <who name="Alois Mahdal">amahdal</who>
+    <bug_when>2017-02-12 10:08:42 -0500</bug_when>
+    <thetext>So &quot;Fedora vs. users&quot; shows its ugly head again.  Bugs closed without even commenting about why, let alone getting them fixed.  Go on Fedora, frustrate away all your bug reporters!  Maybe one day, you&apos;ll be able to proudly claim &quot;no bugs reported&quot;!
+
+I&apos;m aware that Fedora is for free. I never complained that bugs don&apos;t get fixed *fast*.  But no, closing bugs without any explanation (bot or c/p texts with no relation to bugs themselves don&apos;t count as explanations) is just disrespectful, if not outright rude.
+
+It&apos;s been 3 years since I started using Fedora and this has been constant source of frustration for me.  While I do know some Fedora maintainers and know that they do care about users, I feel like via Bugzilla, Fedora wants me to think otherwise.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10141361</commentid>
+    <comment_count>10</comment_count>
+    <who name="Siteshwar Vashisht">svashisht</who>
+    <bug_when>2017-02-12 15:47:06 -0500</bug_when>
+    <thetext>bash was recently rebased to version 4.4 in rawhide and this bug is not reproducible with bash-4.4, hence I marked it as closed in rawhide. I believe the resolution makes it clear it was fixed in rawhide. Please reopen if you are still able to reproduce it on rawhide.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10168304</commentid>
+    <comment_count>11</comment_count>
+    <who name="Alois Mahdal">amahdal</who>
+    <bug_when>2017-02-20 14:07:39 -0500</bug_when>
+    <thetext>I feel really silly now.  Siteshwar, please accept my apology for such heated (and very hasty and, as it is obvious now, so much incorrect) reaction.  I wish my previous comment just disappeared entirely.
+
+Thank you for your patience.
+
+(If Fedora ever frustrates me with closing bugs EOL, it has nothing to do with this bug!)</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="0"
+              ispatch="0"
+              isprivate="0"
+          >
+            <attachid>1085685</attachid>
+            <date>2015-10-22 21:37:00 -0400</date>
+            <delta_ts>2015-10-22 21:37:01 -0400</delta_ts>
+            <desc>infinitely recursing script</desc>
+            <filename>infinity.sh</filename>
+            <type>application/x-shellscript</type>
+            <size>32</size>
+            <attacher name="Alois Mahdal">amahdal</attacher>
+            
+              <data encoding="base64">IyEvYmluL2Jhc2gKCmZuKCkgewogICAgZm4KfQpmbgo=
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

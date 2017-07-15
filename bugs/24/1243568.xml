@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1243568</bug_id>
+          
+          <creation_ts>2015-07-15 15:32:00 -0400</creation_ts>
+          <short_desc>Apache suEXEC and SELinux</short_desc>
+          <delta_ts>2016-03-23 12:55:52 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>selinux-policy</component>
+          <version>24</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>medium</priority>
+          <bug_severity>medium</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>1243569</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Simon Sekidde">ssekidde</reporter>
+          <assigned_to name="Miroslav Grepl">mgrepl</assigned_to>
+          <cc>dominick.grift</cc>
+    
+    
+    <cc>dwalsh</cc>
+    
+    
+    <cc>jorton</cc>
+    
+    
+    <cc>lvrabec</cc>
+    
+    
+    <cc>mgrepl</cc>
+    
+    
+    <cc>plautrba</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>selinux-policy-3.13.1-138.fc24 selinux-policy-3.13.1-179.fc24</cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-03-23 12:55:52</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>8446198</commentid>
+    <comment_count>0</comment_count>
+    <who name="Simon Sekidde">ssekidde</who>
+    <bug_when>2015-07-15 15:32:30 -0400</bug_when>
+    <thetext>Description of problem:
+
+We need to run Apache in a suEXEC (https://httpd.apache.org/docs/2.4/suexec.html) setup, because the plan is to have a webhosting environment for different customers. Thus it is very important, that each customer (virtual host in Apache) is running with its own user and group, so that one user is not able to read and manipulate data and/or login data of another user via filesystem access, this also applies to hacked FTP accounts or broken PHP scripts etc. And this forces us to the suEXEC binary for CGI scripts - which exactly was made for that situation (at least this is what I get from the Apache documentation). But somehow the SELinux policy doesn&apos;t cover Apache suEXEC so far?
+
+Actual results:
+
+type=AVC msg=audit(1436256907.611:1032): avc:  denied  { signull } for  pid=5677 comm=&quot;httpd&quot; scontext=system_u:system_r:httpd_t:s0 tcontext=system_u:system_r:httpd_suexec_t:s0 tclass=process
+type=SYSCALL msg=audit(1436256907.611:1032): arch=x86_64 syscall=kill success=no exit=EACCES a0=1ddd a1=0 a2=0 a3=7f6c4c03b3d0 items=0 ppid=1282 pid=5677 auid=4294967295 uid=48 gid=48 euid=48 suid=48 fsuid=48 egid=48 sgid=48 fsgid=48 tty=(none) ses=4294967295 comm=httpd exe=/usr/sbin/httpd subj=system_u:system_r:httpd_t:s0 key=(null)
+
+type=AVC msg=audit(1436256907.611:1031): avc:  denied  { signal } for  pid=5677 comm=&quot;httpd&quot; scontext=system_u:system_r:httpd_t:s0 tcontext=system_u:system_r:httpd_suexec_t:s0 tclass=process
+type=SYSCALL msg=audit(1436256907.611:1031): arch=x86_64 syscall=kill success=no exit=EACCES a0=1ddd a1=f a2=0 a3=7f6c4c03b3d0 items=0 ppid=1282 pid=5677 auid=4294967295 uid=48 gid=48 euid=48 suid=48 fsuid=48 egid=48 sgid=48 fsgid=48 tty=(none) ses=4294967295 comm=httpd exe=/usr/sbin/httpd subj=system_u:system_r:httpd_t:s0 key=(null)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8456249</commentid>
+    <comment_count>2</comment_count>
+    <who name="Lukas Vrabec">lvrabec</who>
+    <bug_when>2015-07-20 04:27:50 -0400</bug_when>
+    <thetext>commit b46c3e88859fba623e89818bb081fd1c7effd3f9
+Author: Lukas Vrabec &lt;lvrabec@redhat.com&gt;
+Date:   Sat Jul 18 20:15:48 2015 +0200
+
+     httpd should be able to send signal/signull to httpd_suexec_t, instead of httpd_suexec_exec_t.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9094582</commentid>
+    <comment_count>3</comment_count>
+    <who name="Jan Kurik">jkurik</who>
+    <bug_when>2016-02-24 10:50:01 -0500</bug_when>
+    <thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 24 development cycle.
+Changing version to &apos;24&apos;.
+
+More information and reason for this action is here:
+https://fedoraproject.org/wiki/Fedora_Program_Management/HouseKeeping/Fedora24#Rawhide_Rebase</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9140889</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-03-11 04:55:52 -0500</bug_when>
+    <thetext>selinux-policy-3.13.1-178.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-1350c96015</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9142532</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-03-11 14:25:37 -0500</bug_when>
+    <thetext>selinux-policy-3.13.1-178.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-1350c96015</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9153074</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-03-16 09:41:38 -0400</bug_when>
+    <thetext>selinux-policy-3.13.1-179.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-8f142bb969</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9159878</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-03-18 10:58:28 -0400</bug_when>
+    <thetext>selinux-policy-3.13.1-179.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-8f142bb969</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9173656</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-03-23 12:54:32 -0400</bug_when>
+    <thetext>selinux-policy-3.13.1-179.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

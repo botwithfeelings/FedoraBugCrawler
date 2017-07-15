@@ -1,0 +1,831 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1378974</bug_id>
+          
+          <creation_ts>2016-09-23 14:03:00 -0400</creation_ts>
+          <short_desc>Restart of systemd-udev-trigger.service in systemd-udev %postun causes &apos;replug&apos; of graphics adapter, can cause X to crash</short_desc>
+          <delta_ts>2016-11-04 19:01:05 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>systemd</component>
+          <version>24</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          <see_also>https://bugzilla.redhat.com/show_bug.cgi?id=1341327</see_also>
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard>AcceptedFreezeException</status_whiteboard>
+          <keywords>Reopened</keywords>
+          <priority>unspecified</priority>
+          <bug_severity>high</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>1277288</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Tomas Sieger">tomas.sieger</reporter>
+          <assigned_to>systemd-maint</assigned_to>
+          <cc>awilliam</cc>
+    
+    
+    <cc>btanastasov</cc>
+    
+    
+    <cc>dkopecek</cc>
+    
+    
+    <cc>eblake</cc>
+    
+    
+    <cc>htl10</cc>
+    
+    
+    <cc>jmracek</cc>
+    
+    
+    <cc>johannbg</cc>
+    
+    
+    <cc>jsilhan</cc>
+    
+    
+    <cc>kamikazow</cc>
+    
+    
+    <cc>kevin</cc>
+    
+    
+    <cc>kparal</cc>
+    
+    
+    <cc>lnykryn</cc>
+    
+    
+    <cc>mboddu</cc>
+    
+    
+    <cc>mluscon</cc>
+    
+    
+    <cc>msekleta</cc>
+    
+    
+    <cc>muadda</cc>
+    
+    
+    <cc>oliveriandrea</cc>
+    
+    
+    <cc>packaging-team-maint</cc>
+    
+    
+    <cc>pnemade</cc>
+    
+    
+    <cc>rayholme</cc>
+    
+    
+    <cc>rpm-software-management</cc>
+    
+    
+    <cc>samuel-rhbugs</cc>
+    
+    
+    <cc>sanjay.ankur</cc>
+    
+    
+    <cc>sgraf</cc>
+    
+    
+    <cc>ssahani</cc>
+    
+    
+    <cc>s</cc>
+    
+    
+    <cc>systemd-maint</cc>
+    
+    
+    <cc>thunderbirdtr</cc>
+    
+    
+    <cc>vmukhame</cc>
+    
+    
+    <cc>zbyszek</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>systemd-229-16.fc24 systemd-231-10.fc25</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-10-14 01:00:04</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9738563</commentid>
+    <comment_count>0</comment_count>
+    <who name="Tomas Sieger">tomas.sieger</who>
+    <bug_when>2016-09-23 14:03:13 -0400</bug_when>
+    <thetext>Description of problem:
+
+Running &quot;dnf upgrade&quot; on a fresh FC 24 install results in upgrading also systemd-udev (updated version .x86_64, 229-13.fc24). Upgrading systemd-udev involves restarting the running X session (the user has to log in again) and breaking the dnf transaction: the state of the install is invalid, as many packages are marked as installed in both the old and new versions (as found by running &quot;dnf repoquery --duplicated&quot; , but in fact the new version is not installed (e.g. kernel).
+
+
+Steps to Reproduce:
+1. install FC 24 (incl. setting up wifi networking)
+2. &quot;dnf upgrade&quot;
+3. packages not updated, but marked as duplicated
+
+Actual results:
+Install broken, packages marked as installed (and duplicated), but in fact got not updated.
+
+Expected results:
+&quot;dnf update&quot; updates packages (ossibly without restarting the X session, or with restart, but with all packages updated)
+
+Additional info:</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9742307</commentid>
+    <comment_count>1</comment_count>
+    <who name="Igor Gnatenko">ignatenko</who>
+    <bug_when>2016-09-26 07:12:04 -0400</bug_when>
+    <thetext>Unfortunately DNF can&apos;t do much about this. I guess something in packaging is wrong, though I&apos;m not sure what exactly.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9743526</commentid>
+    <comment_count>2</comment_count>
+    <who name="Zbigniew Jędrzejewski-Szmek">zbyszek</who>
+    <bug_when>2016-09-26 13:57:48 -0400</bug_when>
+    <thetext>It sounds a lot like #1367766, but that bug was only present in F25+. I&apos;m not aware of anything which would cause this in F24. Can you attach the logs from around the upgrade?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9743610</commentid>
+    <comment_count>3</comment_count>
+    <who name="Tomas Sieger">tomas.sieger</who>
+    <bug_when>2016-09-26 14:22:26 -0400</bug_when>
+    <thetext>Sorry, the logs are gone - I reinstalled the system. 
+However, after reinstall, I updated systemd-udev alone (before updating all the rest), and issues similar to those described in #1367766 are now present in the newly installed system. So if some log related to this scenario would be helpful, let me know which one to attach.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9766129</commentid>
+    <comment_count>4</comment_count>
+    <who name="Zbigniew Jędrzejewski-Szmek">zbyszek</who>
+    <bug_when>2016-10-04 16:50:24 -0400</bug_when>
+    <thetext>*** Bug 1341327 has been marked as a duplicate of this bug. ***</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9766151</commentid>
+    <comment_count>5</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2016-10-04 16:58:06 -0400</bug_when>
+    <thetext>There&apos;s some more info in 1341327 , which we&apos;re leaving open to be for the X end of this problem.
+
+Basically, restarting systemd-udev-trigger.service causes (we think) systemd-logind to pull the graphics adapter out from under X and immediately give it back again. This service is (currently) restarted in %postun of systemd-udev . From reports we&apos;ve received so far, it seems that on systems with hybrid graphics, this causes X to crash. On systems with dedicated graphics, it doesn&apos;t.
+
+This bug is for the systemd end of the problem: the spurious graphics adapter &apos;replug&apos; probably just shouldn&apos;t happen at all. The other bug is for making X not crash if it *does* happen, if X folks want to do that.
+
+I&apos;m proposing this bug as a Beta freeze exception. Since the restart is in %postun , if we ship F25 Beta with the current systemd package, then the first update to systemd-udev will trigger this bug - even if it&apos;s updating to a systemd-udev which takes the restart out of %postun. To ensure F25 Beta users don&apos;t encounter this bug, we have to include a systemd-udev build with the systemd-udev-trigger restart taken out of %postun in the frozen images.
+
+http://koji.fedoraproject.org/koji/buildinfo?buildID=807101 is the build that should fix this, I&apos;ll submit an update once it&apos;s complete.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9766286</commentid>
+    <comment_count>6</comment_count>
+    <who name="Lennart Poettering">lpoetter</who>
+    <bug_when>2016-10-04 18:15:46 -0400</bug_when>
+    <thetext>Nah, &quot;udevadm trigger&quot; is an operation that should always be safe. Software (be it apps or drivers) that cannot deal with such a replug is broken, and needs to be fixed. 
+
+We have been retriggering udevadm either fully or only specific subsystems since about always. If X11 is broken now with that it needs to be fixed really.
+
+I don&apos;t see anything to change in systemd here. Sorry.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9766300</commentid>
+    <comment_count>7</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2016-10-04 18:24:41 -0400</bug_when>
+    <thetext>Lennart: the thing zbyszek thinks may be wrong is not the udevadm trigger operation itself, but the fact that it results in this &apos;hardware replug&apos; happening. He says he&apos;s not sure that&apos;s actually intended or wanted.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9766313</commentid>
+    <comment_count>8</comment_count>
+      <attachid>1207377</attachid>
+    <who name="Zbigniew Jędrzejewski-Szmek">zbyszek</who>
+    <bug_when>2016-10-04 18:33:44 -0400</bug_when>
+    <thetext>Created attachment 1207377
+journalctl -f logs from udevadm trigger --type=devices --action=add
+
+The issue is not caused by udevadm trigger --type=devices --action=add directly, but through systemd-logind. If systemd-logind is SIGSTOPed, nothing happens. If systemd-logind is running normally there is a bunch of remove/add events logged by Xorg (see) attachment. systemd-logind doesn&apos;t log anything, even at debug level unfortunately. I think it should at least log when it adds/removes devices.
+I also don&apos;t think it should remove the devices from clients, even temporarily. I would expect this to cause glitches at least.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9766378</commentid>
+    <comment_count>9</comment_count>
+    <who name="Kevin Fenzi">kevin</who>
+    <bug_when>2016-10-04 18:58:05 -0400</bug_when>
+    <thetext>+1 FE</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9766387</commentid>
+    <comment_count>10</comment_count>
+    <who name="Mohan Boddu">mboddu</who>
+    <bug_when>2016-10-04 19:16:03 -0400</bug_when>
+    <thetext>+1 FE</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9766395</commentid>
+    <comment_count>11</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2016-10-04 19:21:24 -0400</bug_when>
+    <thetext>For the record, I checked release day F23 and F24 lives in a VM, and restarting systemd-udev-trigger.service appears to trigger the hardware &apos;replug&apos; in both; I see:
+
+Oct 04 19:13:40 localhost /usr/libexec/gdm-x-session[1542]: (II) config/udev: removing GPU device /sys/devices/pci0000:00/0000:00:02.0/drm/card0 /dev/dri/card0
+Oct 04 19:13:40 localhost /usr/libexec/gdm-x-session[1542]: xf86: remove device 0 /sys/devices/pci0000:00/0000:00:02.0/drm/card0
+Oct 04 19:13:40 localhost /usr/libexec/gdm-x-session[1542]: failed to find screen to remove
+
+even on F23. However, it seems like there was a change between F23 and F24: the introduction of the systemd-udev subpackage, which did not exist in F23. This commit created it:
+
+http://pkgs.fedoraproject.org/cgit/rpms/systemd.git/commit/?id=c16b573717a4fc657d8bac8e12f734f574b8ec42
+
+and added the postun scriptlet:
+
++%postun udev
++%systemd_postun_with_restart systemd-udev-{settle,trigger}.service systemd-udevd-{control,kernel}.socket systemd-udevd.service
+
+at least just looking at that commit diff, this wasn&apos;t simply moved from somewhere else - we actually weren&apos;t doing that before, though the systemd-udev-trigger service did exist. So I think that&apos;s why this showed up in F24.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9766397</commentid>
+    <comment_count>12</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2016-10-04 19:22:29 -0400</bug_when>
+    <thetext>That&apos;s +3 FE (counting myself too), setting accepted.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9767015</commentid>
+    <comment_count>13</comment_count>
+    <who name="Andrea Oliveri">oliveriandrea</who>
+    <bug_when>2016-10-05 04:10:54 -0400</bug_when>
+    <thetext>I think that this bug strikes also F25 because yesterday i have updated my Thinkpad T430 (Intel + Nvidia) with F25 during a Gnome Session and X has crashed..</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9767585</commentid>
+    <comment_count>14</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-10-05 07:21:04 -0400</bug_when>
+    <thetext>systemd-229-16.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-faf2598d0c</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9769300</commentid>
+    <comment_count>15</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-10-05 16:28:16 -0400</bug_when>
+    <thetext>systemd-231-8.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-d458ee281a</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9769844</commentid>
+    <comment_count>16</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-10-05 20:50:19 -0400</bug_when>
+    <thetext>systemd-229-16.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9770058</commentid>
+    <comment_count>17</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2016-10-06 00:06:27 -0400</bug_when>
+    <thetext>I did have a thought about how we could further mitigate this to prevent people updating a fresh Fedora 24 install from encountering it.
+
+Basically, have systemd-udev do something like this (psuedocode):
+
+%pre
+%if (current systemd package is older than systemd-229-16.fc24)
+systemctl mask systemd-udev-trigger.service
+%endif
+
+%posttrans
+systemctl unmask systemd-udev-trigger.service
+
+the %pre will run before the old systemd-udev package&apos;s %postun and effectively negate its restart of the service, I think, then the %posttrans would restore it to normal.
+
+We might need a few more hedges - perhaps only do this on update(?), and definitely check if systemd-udev-trigger.service was *already* masked and don&apos;t unmask it in %posttrans in that case (systemctl is-enabled can tell us if it&apos;s already masked) - but what do people think of the general idea? Too hacky?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9770755</commentid>
+    <comment_count>18</comment_count>
+    <who name="Zbigniew Jędrzejewski-Szmek">zbyszek</who>
+    <bug_when>2016-10-06 07:05:05 -0400</bug_when>
+    <thetext>That&apos;s way to hacky and error prone. Instead, we could a drop in with &apos;[Unit] RefuseManualStop=true&apos; to the service and do &apos;systemctl daemon-reload&apos; in %post. This is enough to prevent the subsequent &apos;systemctl try-restart systemd-udev-trigger.sevice&apos; from doing anything.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9772404</commentid>
+    <comment_count>19</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-10-06 23:33:56 -0400</bug_when>
+    <thetext>systemd-231-8.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9773920</commentid>
+    <comment_count>20</comment_count>
+    <who name="Zbigniew Jędrzejewski-Szmek">zbyszek</who>
+    <bug_when>2016-10-07 12:49:47 -0400</bug_when>
+    <thetext>*** Bug 1382749 has been marked as a duplicate of this bug. ***</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9781978</commentid>
+    <comment_count>21</comment_count>
+    <who name="Zbigniew Jędrzejewski-Szmek">zbyszek</who>
+    <bug_when>2016-10-11 12:58:53 -0400</bug_when>
+    <thetext>*** Bug 1383410 has been marked as a duplicate of this bug. ***</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9782535</commentid>
+    <comment_count>22</comment_count>
+    <who name="Zbigniew Jędrzejewski-Szmek">zbyszek</who>
+    <bug_when>2016-10-11 16:13:13 -0400</bug_when>
+    <thetext>systemd-231-10.fc25 now adds RefuseManualStop=true to the unit. This should fix the issues during upgrade.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9784793</commentid>
+    <comment_count>23</comment_count>
+    <who name="Kevin Kofler">kevin</who>
+    <bug_when>2016-10-12 09:48:05 -0400</bug_when>
+    <thetext>Are you also going to push the RefuseManualStop workaround to F24?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9784919</commentid>
+    <comment_count>24</comment_count>
+    <who name="Zbigniew Jędrzejewski-Szmek">zbyszek</who>
+    <bug_when>2016-10-12 10:19:19 -0400</bug_when>
+    <thetext>It&apos;s not necessary. The scriptlets which caused the issue were added in F25, and the F24→F25 upgrade should now be fixed. F24 itself is not affected.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9785155</commentid>
+    <comment_count>25</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2016-10-12 11:12:46 -0400</bug_when>
+    <thetext>Huh? No, that&apos;s wrong. The scriptlets are already in F24. You can reproduce this bug simply by installing a clean F24 and updating systemd-udev from the update repositories.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9785160</commentid>
+    <comment_count>26</comment_count>
+    <who name="Zbigniew Jędrzejewski-Szmek">zbyszek</who>
+    <bug_when>2016-10-12 11:13:50 -0400</bug_when>
+    <thetext>Hm, OK. I&apos;ll check F24 then too.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9787086</commentid>
+    <comment_count>27</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-10-13 01:53:05 -0400</bug_when>
+    <thetext>systemd-231-10.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-005ad5dcb1</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9790516</commentid>
+    <comment_count>28</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-10-14 01:00:04 -0400</bug_when>
+    <thetext>systemd-231-10.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9792321</commentid>
+    <comment_count>29</comment_count>
+    <who name="Ray Holme">rayholme</who>
+    <bug_when>2016-10-14 10:13:11 -0400</bug_when>
+    <thetext>So the Fedora 24 solution to this is to upgrade to 25. :=[[[</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9792790</commentid>
+    <comment_count>30</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2016-10-14 11:18:49 -0400</bug_when>
+    <thetext>No, it&apos;s already fixed in F24, just not the extra-fix that prevents it happening on the first update yet, but Zbigniew is still planning to do that, I think. Bugzilla / Bodhi integration has limitations in dealing with bugs that affect multiple releases.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9793808</commentid>
+    <comment_count>31</comment_count>
+    <who name="Ray Holme">rayholme</who>
+    <bug_when>2016-10-14 16:58:23 -0400</bug_when>
+    <thetext>OK, thanks, it did happen last time I did an update
+when I can get a systemd update without failure, I will know.
+I now separate systemd out from &quot;all&quot; and will continue till it does not fail.
+
+:=]</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9793820</commentid>
+    <comment_count>32</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2016-10-14 17:08:55 -0400</bug_when>
+    <thetext>Ray: it happened when you did the update because of the details of how the bug is triggered.
+
+The bug is triggered by a command in system-udev&apos;s `%postun` script. When you do a package update from, say, foo-1.0 to foo-2.0, the `%postun` script from foo-1.0 is run as part of that transaction.
+
+So here&apos;s how it went down: the *existing* systemd-udev package on your system had a `%postun` script that would trigger the update. Up until systemd-229-16.fc24 , all F24 systemd packages had that script.
+
+We released systemd-229-16.fc24 as an update which *removed* that script. However, because it&apos;s the %postun of the *old* package that is run on update - not the %postun from the *new* package - when you install systemd-udev-229-16.fc24 , the bug will happen one last time, because the old systemd-udev package still has the bad %postun.
+
+What the update ensures is that any time you update the package *after* the update to 229-16, you won&apos;t hit the bug.
+
+We&apos;ve since come up with a trick which allows the new package to suppress the old package&apos;s %postun , so that the bug will no longer happen when you first update to the &apos;fixed&apos; package. But that trick hasn&apos;t been built for F24 yet, I hope Zbigniew will build it, though. Still, now you&apos;ve got 229-16 installed, you should be safe from this bug in future in any case.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9794259</commentid>
+    <comment_count>33</comment_count>
+    <who name="Ray Holme">rayholme</who>
+    <bug_when>2016-10-15 08:35:59 -0400</bug_when>
+    <thetext>Many thanks for your thorough explanation. I knew it was some command in the &quot;clean&quot; phase. I will expect the next one to succeed and remove the need for the separated&quot;dnf update systemd&quot; --- :=]]]</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9860766</commentid>
+    <comment_count>34</comment_count>
+    <who name="Boyan Anastasov">btanastasov</who>
+    <bug_when>2016-11-04 04:38:00 -0400</bug_when>
+    <thetext>Just for the record: I had the same problem upgrading from F23-&gt;F24 - X was terminated. Now it happened again with upgrade from F24-&gt;F25, and the systemd-udev package was updated long ago before upgrade from F24-&gt;F25 on Oct 04 2016:
+
+/var/log/dnf.rpm.log:Nov 03 14:26:34 INFO Upgraded: systemd-udev-231-10.fc25.x86_64
+/var/log/dnf.rpm.log-20161009:Oct 04 18:20:24 INFO Upgraded: systemd-udev-229-15.fc24.x86_64
+/var/log/dnf.rpm.log-20161009:Oct 04 18:20:30 INFO Cleanup: systemd-udev-229-13.fc24.x86_64
+/var/log/dnf.rpm.log-20161009:Oct 07 10:51:11 INFO Upgraded: systemd-udev-229-16.fc24.x86_64
+/var/log/dnf.rpm.log-20161009:Oct 07 10:51:20 INFO Cleanup: systemd-udev-229-15.fc24.x86_64
+
+It&apos;s not a big deal, but with dnf is a bit difficult to clean the mess after the crash. I use this:
+
+dnf remove $(dnf repoquery --duplicated --latest-limit -1 -q)
+
+which complains for removal of systemd* and dnf packages and I need to do that manually with rpm. This time the new problem was the missing /usr/lib/locale/locale-archive, which leads to:
+
+
+-bash: warning: setlocale: LC_CTYPE: cannot change locale (en_US.UTF-8): No such file or directory
+-bash: warning: setlocale: LC_COLLATE: cannot change locale (en_US.UTF-8): No such file or directory
+-bash: warning: setlocale: LC_MESSAGES: cannot change locale (en_US.UTF-8): No such file or directory
+-bash: warning: setlocale: LC_NUMERIC: cannot change locale (en_US.UTF-8): No such file or directory
+-bash: warning: setlocale: LC_TIME: cannot change locale (en_US.UTF-8): No such file or directory
+
+Executing build-locale-archive fixed it.
+
+I have another one system to test the upgrade, if there is a fix for F24&apos;s systemd-udev package. I did not have a problem upgrading systemd* in F23 or F24, only when upgrading to the next FNN.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9861668</commentid>
+    <comment_count>35</comment_count>
+    <who name="Ray Holme">rayholme</who>
+    <bug_when>2016-11-04 08:16:06 -0400</bug_when>
+    <thetext>I think this is fixed now but FTR
+
+I do updates in two steps till I am sure
+
+  dnf update systemd
+  dnf update all
+
+If and when the first fails, I do this before the next one
+
+  dnf clean all</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9863565</commentid>
+    <comment_count>36</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2016-11-04 19:01:05 -0400</bug_when>
+    <thetext>that&apos;s not a great defence. the best defences are the ones we documented: use offline updates, update from a VT, or update from a tmux/screen session.
+
+this specific bug should now be basically fixed, yes.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="0"
+              ispatch="0"
+              isprivate="0"
+          >
+            <attachid>1207377</attachid>
+            <date>2016-10-04 18:33:00 -0400</date>
+            <delta_ts>2016-10-04 18:33:44 -0400</delta_ts>
+            <desc>journalctl -f logs from udevadm trigger --type=devices --action=add</desc>
+            <filename>file_1378974.txt</filename>
+            <type>text/plain</type>
+            <size>17305</size>
+            <attacher name="Zbigniew Jędrzejewski-Szmek">zbyszek</attacher>
+            
+              <data encoding="base64">T2N0IDA0IDE4OjI3OjAwIGxvY2FsaG9zdC5sb2NhbGRvbWFpbiAvdXNyL2xpYmV4ZWMvZ2RtLXgt
+c2Vzc2lvblsxMTA3XTogKElJKSBjb25maWcvdWRldjogcmVtb3ZpbmcgZGV2aWNlIFBvd2VyIEJ1
+dHRvbg0KT2N0IDA0IDE4OjI3OjAwIGxvY2FsaG9zdC5sb2NhbGRvbWFpbiAvdXNyL2xpYmV4ZWMv
+Z2RtLXgtc2Vzc2lvblsxMTA3XTogKCoqKSBPcHRpb24gImZkIiAiMjciDQpPY3QgMDQgMTg6Mjc6
+MDAgbG9jYWxob3N0LmxvY2FsZG9tYWluIC91c3IvbGliZXhlYy9nZG0teC1zZXNzaW9uWzExMDdd
+OiAoSUkpIFVubG9hZE1vZHVsZTogImxpYmlucHV0Ig0KT2N0IDA0IDE4OjI3OjAwIGxvY2FsaG9z
+dC5sb2NhbGRvbWFpbiAvdXNyL2xpYmV4ZWMvZ2RtLXgtc2Vzc2lvblsxMTA3XTogKElJKSBzeXN0
+ZW1kLWxvZ2luZDogcmVsZWFzaW5nIGZkIGZvciAxMzo2NA0KT2N0IDA0IDE4OjI3OjAwIGxvY2Fs
+aG9zdC5sb2NhbGRvbWFpbiAvdXNyL2xpYmV4ZWMvZ2RtLXgtc2Vzc2lvblsxMTA3XTogKElJKSBj
+b25maWcvdWRldjogQWRkaW5nIGlucHV0IGRldmljZSBQb3dlciBCdXR0b24gKC9kZXYvaW5wdXQv
+ZXZlbnQwKQ0KT2N0IDA0IDE4OjI3OjAwIGxvY2FsaG9zdC5sb2NhbGRvbWFpbiAvdXNyL2xpYmV4
+ZWMvZ2RtLXgtc2Vzc2lvblsxMTA3XTogKCoqKSBQb3dlciBCdXR0b246IEFwcGx5aW5nIElucHV0
+Q2xhc3MgImV2ZGV2IGtleWJvYXJkIGNhdGNoYWxsIg0KT2N0IDA0IDE4OjI3OjAwIGxvY2FsaG9z
+dC5sb2NhbGRvbWFpbiAvdXNyL2xpYmV4ZWMvZ2RtLXgtc2Vzc2lvblsxMTA3XTogKCoqKSBQb3dl
+ciBCdXR0b246IEFwcGx5aW5nIElucHV0Q2xhc3MgImxpYmlucHV0IGtleWJvYXJkIGNhdGNoYWxs
+Ig0KT2N0IDA0IDE4OjI3OjAwIGxvY2FsaG9zdC5sb2NhbGRvbWFpbiAvdXNyL2xpYmV4ZWMvZ2Rt
+LXgtc2Vzc2lvblsxMTA3XTogKCoqKSBQb3dlciBCdXR0b246IEFwcGx5aW5nIElucHV0Q2xhc3Mg
+InN5c3RlbS1rZXlib2FyZCINCk9jdCAwNCAxODoyNzowMCBsb2NhbGhvc3QubG9jYWxkb21haW4g
+c3lzdGVtZC1sb2dpbmRbNjYwXTogV2F0Y2hpbmcgc3lzdGVtIGJ1dHRvbnMgb24gL2Rldi9pbnB1
+dC9ldmVudDAgKFBvd2VyIEJ1dHRvbikNCk9jdCAwNCAxODoyNzowMCBsb2NhbGhvc3QubG9jYWxk
+b21haW4gL3Vzci9saWJleGVjL2dkbS14LXNlc3Npb25bMTEwN106IChJSSkgc3lzdGVtZC1sb2dp
+bmQ6IGdvdCBmZCBmb3IgL2Rldi9pbnB1dC9ldmVudDAgMTM6NjQgZmQgMjcgcGF1c2VkIDANCk9j
+dCAwNCAxODoyNzowMCBsb2NhbGhvc3QubG9jYWxkb21haW4gL3Vzci9saWJleGVjL2dkbS14LXNl
+c3Npb25bMTEwN106IChJSSkgVXNpbmcgaW5wdXQgZHJpdmVyICdsaWJpbnB1dCcgZm9yICdQb3dl
+ciBCdXR0b24nDQpPY3QgMDQgMTg6Mjc6MDAgbG9jYWxob3N0LmxvY2FsZG9tYWluIC91c3IvbGli
+ZXhlYy9nZG0teC1zZXNzaW9uWzExMDddOiAoKiopIFBvd2VyIEJ1dHRvbjogYWx3YXlzIHJlcG9y
+dHMgY29yZSBldmVudHMNCk9jdCAwNCAxODoyNzowMCBsb2NhbGhvc3QubG9jYWxkb21haW4gL3Vz
+ci9saWJleGVjL2dkbS14LXNlc3Npb25bMTEwN106ICgqKikgT3B0aW9uICJEZXZpY2UiICIvZGV2
+L2lucHV0L2V2ZW50MCINCk9jdCAwNCAxODoyNzowMCBsb2NhbGhvc3QubG9jYWxkb21haW4gL3Vz
+ci9saWJleGVjL2dkbS14LXNlc3Npb25bMTEwN106ICgqKikgT3B0aW9uICJfc291cmNlIiAic2Vy
+dmVyL3VkZXYiDQpPY3QgMDQgMTg6Mjc6MDAgbG9jYWxob3N0LmxvY2FsZG9tYWluIC91c3IvbGli
+ZXhlYy9nZG0teC1zZXNzaW9uWzExMDddOiAoSUkpIGlucHV0IGRldmljZSAnUG93ZXIgQnV0dG9u
+JywgL2Rldi9pbnB1dC9ldmVudDAgaXMgdGFnZ2VkIGJ5IHVkZXYgYXM6IEtleWJvYXJkDQpPY3Qg
+MDQgMTg6Mjc6MDAgbG9jYWxob3N0LmxvY2FsZG9tYWluIC91c3IvbGliZXhlYy9nZG0teC1zZXNz
+aW9uWzExMDddOiAoSUkpIGlucHV0IGRldmljZSAnUG93ZXIgQnV0dG9uJywgL2Rldi9pbnB1dC9l
+dmVudDAgaXMgYSBrZXlib2FyZA0KT2N0IDA0IDE4OjI3OjAwIGxvY2FsaG9zdC5sb2NhbGRvbWFp
+biAvdXNyL2xpYmV4ZWMvZ2RtLXgtc2Vzc2lvblsxMTA3XTogKCoqKSBPcHRpb24gImNvbmZpZ19p
+bmZvIiAidWRldjovc3lzL2RldmljZXMvTE5YU1lTVE06MDAvTE5YUFdSQk46MDAvaW5wdXQvaW5w
+dXQwL2V2ZW50MCINCk9jdCAwNCAxODoyNzowMCBsb2NhbGhvc3QubG9jYWxkb21haW4gL3Vzci9s
+aWJleGVjL2dkbS14LXNlc3Npb25bMTEwN106IChJSSkgWElOUFVUOiBBZGRpbmcgZXh0ZW5kZWQg
+aW5wdXQgZGV2aWNlICJQb3dlciBCdXR0b24iICh0eXBlOiBLRVlCT0FSRCwgaWQgNikNCk9jdCAw
+NCAxODoyNzowMCBsb2NhbGhvc3QubG9jYWxkb21haW4gL3Vzci9saWJleGVjL2dkbS14LXNlc3Np
+b25bMTEwN106ICgqKikgT3B0aW9uICJ4a2JfbGF5b3V0IiAidXMiDQpPY3QgMDQgMTg6Mjc6MDAg
+bG9jYWxob3N0LmxvY2FsZG9tYWluIC91c3IvbGliZXhlYy9nZG0teC1zZXNzaW9uWzExMDddOiAo
+SUkpIGlucHV0IGRldmljZSAnUG93ZXIgQnV0dG9uJywgL2Rldi9pbnB1dC9ldmVudDAgaXMgdGFn
+Z2VkIGJ5IHVkZXYgYXM6IEtleWJvYXJkDQpPY3QgMDQgMTg6Mjc6MDAgbG9jYWxob3N0LmxvY2Fs
+ZG9tYWluIC91c3IvbGliZXhlYy9nZG0teC1zZXNzaW9uWzExMDddOiAoSUkpIGlucHV0IGRldmlj
+ZSAnUG93ZXIgQnV0dG9uJywgL2Rldi9pbnB1dC9ldmVudDAgaXMgYSBrZXlib2FyZA0KT2N0IDA0
+IDE4OjI3OjAwIGxvY2FsaG9zdC5sb2NhbGRvbWFpbiAvdXNyL2xpYmV4ZWMvZ2RtLXgtc2Vzc2lv
+blsxMTA3XTogKElJKSBjb25maWcvdWRldjogcmVtb3ZpbmcgR1BVIGRldmljZSAvc3lzL2Rldmlj
+ZXMvcGNpMDAwMDowMC8wMDAwOjAwOjAyLjAvZHJtL2NhcmQwIC9kZXYvZHJpL2NhcmQwDQpPY3Qg
+MDQgMTg6Mjc6MDAgbG9jYWxob3N0LmxvY2FsZG9tYWluIC91c3IvbGliZXhlYy9nZG0teC1zZXNz
+aW9uWzExMDddOiB4Zjg2OiByZW1vdmUgZGV2aWNlIDAgL3N5cy9kZXZpY2VzL3BjaTAwMDA6MDAv
+MDAwMDowMDowMi4wL2RybS9jYXJkMA0KT2N0IDA0IDE4OjI3OjAwIGxvY2FsaG9zdC5sb2NhbGRv
+bWFpbiAvdXNyL2xpYmV4ZWMvZ2RtLXgtc2Vzc2lvblsxMTA3XTogZmFpbGVkIHRvIGZpbmQgc2Ny
+ZWVuIHRvIHJlbW92ZQ0KT2N0IDA0IDE4OjI3OjAwIGxvY2FsaG9zdC5sb2NhbGRvbWFpbiBtdHAt
+cHJvYmVbMjU4M106IGNoZWNraW5nIGJ1cyAxLCBkZXZpY2UgMjogIi9zeXMvZGV2aWNlcy9wY2kw
+MDAwOjAwLzAwMDA6MDA6MDYuNy91c2IxLzEtMSINCk9jdCAwNCAxODoyNzowMCBsb2NhbGhvc3Qu
+bG9jYWxkb21haW4gL3Vzci9saWJleGVjL2dkbS14LXNlc3Npb25bMTEwN106IChJSSkgY29uZmln
+L3VkZXY6IEFkZGluZyBpbnB1dCBkZXZpY2UgSW1FeFBTLzIgQllEIFRvdWNoUGFkICgvZGV2L2lu
+cHV0L21vdXNlMSkNCk9jdCAwNCAxODoyNzowMCBsb2NhbGhvc3QubG9jYWxkb21haW4gL3Vzci9s
+aWJleGVjL2dkbS14LXNlc3Npb25bMTEwN106IChJSSkgTm8gaW5wdXQgZHJpdmVyIHNwZWNpZmll
+ZCwgaWdub3JpbmcgdGhpcyBkZXZpY2UuDQpPY3QgMDQgMTg6Mjc6MDAgbG9jYWxob3N0LmxvY2Fs
+ZG9tYWluIC91c3IvbGliZXhlYy9nZG0teC1zZXNzaW9uWzExMDddOiAoSUkpIFRoaXMgZGV2aWNl
+IG1heSBoYXZlIGJlZW4gYWRkZWQgd2l0aCBhbm90aGVyIGRldmljZSBmaWxlLg0KT2N0IDA0IDE4
+OjI3OjAwIGxvY2FsaG9zdC5sb2NhbGRvbWFpbiBtdHAtcHJvYmVbMjU4M106IGJ1czogMSwgZGV2
+aWNlOiAyIHdhcyBub3QgYW4gTVRQIGRldmljZQ0KT2N0IDA0IDE4OjI3OjAwIGxvY2FsaG9zdC5s
+b2NhbGRvbWFpbiAvdXNyL2xpYmV4ZWMvZ2RtLXgtc2Vzc2lvblsxMTA3XTogKElJKSBjb25maWcv
+dWRldjogcmVtb3ZpbmcgZGV2aWNlIEFUIFRyYW5zbGF0ZWQgU2V0IDIga2V5Ym9hcmQNCk9jdCAw
+NCAxODoyNzowMCBsb2NhbGhvc3QubG9jYWxkb21haW4gL3Vzci9saWJleGVjL2dkbS14LXNlc3Np
+b25bMTEwN106ICgqKikgT3B0aW9uICJmZCIgIjE2Ig0KT2N0IDA0IDE4OjI3OjAwIGxvY2FsaG9z
+dC5sb2NhbGRvbWFpbiAvdXNyL2xpYmV4ZWMvZ2RtLXgtc2Vzc2lvblsxMTA3XTogKElJKSBVbmxv
+YWRNb2R1bGU6ICJsaWJpbnB1dCINCk9jdCAwNCAxODoyNzowMCBsb2NhbGhvc3QubG9jYWxkb21h
+aW4gL3Vzci9saWJleGVjL2dkbS14LXNlc3Npb25bMTEwN106IChJSSkgc3lzdGVtZC1sb2dpbmQ6
+IHJlbGVhc2luZyBmZCBmb3IgMTM6NjUNCk9jdCAwNCAxODoyNzowMCBsb2NhbGhvc3QubG9jYWxk
+b21haW4gL3Vzci9saWJleGVjL2dkbS14LXNlc3Npb25bMTEwN106IChJSSkgY29uZmlnL3VkZXY6
+IEFkZGluZyBpbnB1dCBkZXZpY2UgQVQgVHJhbnNsYXRlZCBTZXQgMiBrZXlib2FyZCAoL2Rldi9p
+bnB1dC9ldmVudDEpDQpPY3QgMDQgMTg6Mjc6MDAgbG9jYWxob3N0LmxvY2FsZG9tYWluIC91c3Iv
+bGliZXhlYy9nZG0teC1zZXNzaW9uWzExMDddOiAoKiopIEFUIFRyYW5zbGF0ZWQgU2V0IDIga2V5
+Ym9hcmQ6IEFwcGx5aW5nIElucHV0Q2xhc3MgImV2ZGV2IGtleWJvYXJkIGNhdGNoYWxsIg0KT2N0
+IDA0IDE4OjI3OjAwIGxvY2FsaG9zdC5sb2NhbGRvbWFpbiAvdXNyL2xpYmV4ZWMvZ2RtLXgtc2Vz
+c2lvblsxMTA3XTogKCoqKSBBVCBUcmFuc2xhdGVkIFNldCAyIGtleWJvYXJkOiBBcHBseWluZyBJ
+bnB1dENsYXNzICJsaWJpbnB1dCBrZXlib2FyZCBjYXRjaGFsbCINCk9jdCAwNCAxODoyNzowMCBs
+b2NhbGhvc3QubG9jYWxkb21haW4gL3Vzci9saWJleGVjL2dkbS14LXNlc3Npb25bMTEwN106ICgq
+KikgQVQgVHJhbnNsYXRlZCBTZXQgMiBrZXlib2FyZDogQXBwbHlpbmcgSW5wdXRDbGFzcyAic3lz
+dGVtLWtleWJvYXJkIg0KT2N0IDA0IDE4OjI3OjAwIGxvY2FsaG9zdC5sb2NhbGRvbWFpbiAvdXNy
+L2xpYmV4ZWMvZ2RtLXgtc2Vzc2lvblsxMTA3XTogKElJKSBzeXN0ZW1kLWxvZ2luZDogZ290IGZk
+IGZvciAvZGV2L2lucHV0L2V2ZW50MSAxMzo2NSBmZCAxNiBwYXVzZWQgMA0KT2N0IDA0IDE4OjI3
+OjAwIGxvY2FsaG9zdC5sb2NhbGRvbWFpbiAvdXNyL2xpYmV4ZWMvZ2RtLXgtc2Vzc2lvblsxMTA3
+XTogKElJKSBVc2luZyBpbnB1dCBkcml2ZXIgJ2xpYmlucHV0JyBmb3IgJ0FUIFRyYW5zbGF0ZWQg
+U2V0IDIga2V5Ym9hcmQnDQpPY3QgMDQgMTg6Mjc6MDAgbG9jYWxob3N0LmxvY2FsZG9tYWluIC91
+c3IvbGliZXhlYy9nZG0teC1zZXNzaW9uWzExMDddOiAoKiopIEFUIFRyYW5zbGF0ZWQgU2V0IDIg
+a2V5Ym9hcmQ6IGFsd2F5cyByZXBvcnRzIGNvcmUgZXZlbnRzDQpPY3QgMDQgMTg6Mjc6MDAgbG9j
+YWxob3N0LmxvY2FsZG9tYWluIC91c3IvbGliZXhlYy9nZG0teC1zZXNzaW9uWzExMDddOiAoKiop
+IE9wdGlvbiAiRGV2aWNlIiAiL2Rldi9pbnB1dC9ldmVudDEiDQpPY3QgMDQgMTg6Mjc6MDAgbG9j
+YWxob3N0LmxvY2FsZG9tYWluIC91c3IvbGliZXhlYy9nZG0teC1zZXNzaW9uWzExMDddOiAoKiop
+IE9wdGlvbiAiX3NvdXJjZSIgInNlcnZlci91ZGV2Ig0KT2N0IDA0IDE4OjI3OjAwIGxvY2FsaG9z
+dC5sb2NhbGRvbWFpbiAvdXNyL2xpYmV4ZWMvZ2RtLXgtc2Vzc2lvblsxMTA3XTogKElJKSBpbnB1
+dCBkZXZpY2UgJ0FUIFRyYW5zbGF0ZWQgU2V0IDIga2V5Ym9hcmQnLCAvZGV2L2lucHV0L2V2ZW50
+MSBpcyB0YWdnZWQgYnkgdWRldiBhczogS2V5Ym9hcmQNCk9jdCAwNCAxODoyNzowMCBsb2NhbGhv
+c3QubG9jYWxkb21haW4gL3Vzci9saWJleGVjL2dkbS14LXNlc3Npb25bMTEwN106IChJSSkgaW5w
+dXQgZGV2aWNlICdBVCBUcmFuc2xhdGVkIFNldCAyIGtleWJvYXJkJywgL2Rldi9pbnB1dC9ldmVu
+dDEgaXMgYSBrZXlib2FyZA0KT2N0IDA0IDE4OjI3OjAwIGxvY2FsaG9zdC5sb2NhbGRvbWFpbiAv
+dXNyL2xpYmV4ZWMvZ2RtLXgtc2Vzc2lvblsxMTA3XTogKCoqKSBPcHRpb24gImNvbmZpZ19pbmZv
+IiAidWRldjovc3lzL2RldmljZXMvcGxhdGZvcm0vaTgwNDIvc2VyaW8wL2lucHV0L2lucHV0MS9l
+dmVudDEiDQpPY3QgMDQgMTg6Mjc6MDAgbG9jYWxob3N0LmxvY2FsZG9tYWluIC91c3IvbGliZXhl
+Yy9nZG0teC1zZXNzaW9uWzExMDddOiAoSUkpIFhJTlBVVDogQWRkaW5nIGV4dGVuZGVkIGlucHV0
+IGRldmljZSAiQVQgVHJhbnNsYXRlZCBTZXQgMiBrZXlib2FyZCIgKHR5cGU6IEtFWUJPQVJELCBp
+ZCA4KQ0KT2N0IDA0IDE4OjI3OjAwIGxvY2FsaG9zdC5sb2NhbGRvbWFpbiAvdXNyL2xpYmV4ZWMv
+Z2RtLXgtc2Vzc2lvblsxMTA3XTogKCoqKSBPcHRpb24gInhrYl9sYXlvdXQiICJ1cyINCk9jdCAw
+NCAxODoyNzowMCBsb2NhbGhvc3QubG9jYWxkb21haW4gL3Vzci9saWJleGVjL2dkbS14LXNlc3Np
+b25bMTEwN106IChJSSkgaW5wdXQgZGV2aWNlICdBVCBUcmFuc2xhdGVkIFNldCAyIGtleWJvYXJk
+JywgL2Rldi9pbnB1dC9ldmVudDEgaXMgdGFnZ2VkIGJ5IHVkZXYgYXM6IEtleWJvYXJkDQpPY3Qg
+MDQgMTg6Mjc6MDAgbG9jYWxob3N0LmxvY2FsZG9tYWluIC91c3IvbGliZXhlYy9nZG0teC1zZXNz
+aW9uWzExMDddOiAoSUkpIGlucHV0IGRldmljZSAnQVQgVHJhbnNsYXRlZCBTZXQgMiBrZXlib2Fy
+ZCcsIC9kZXYvaW5wdXQvZXZlbnQxIGlzIGEga2V5Ym9hcmQNCk9jdCAwNCAxODoyNzowMCBsb2Nh
+bGhvc3QubG9jYWxkb21haW4gL3Vzci9saWJleGVjL2dkbS14LXNlc3Npb25bMTEwN106IChJSSkg
+Y29uZmlnL3VkZXY6IEFkZGluZyBpbnB1dCBkZXZpY2UgUUVNVSBRRU1VIFVTQiBUYWJsZXQgKC9k
+ZXYvaW5wdXQvbW91c2UwKQ0KT2N0IDA0IDE4OjI3OjAwIGxvY2FsaG9zdC5sb2NhbGRvbWFpbiAv
+dXNyL2xpYmV4ZWMvZ2RtLXgtc2Vzc2lvblsxMTA3XTogKElJKSBObyBpbnB1dCBkcml2ZXIgc3Bl
+Y2lmaWVkLCBpZ25vcmluZyB0aGlzIGRldmljZS4NCk9jdCAwNCAxODoyNzowMCBsb2NhbGhvc3Qu
+bG9jYWxkb21haW4gL3Vzci9saWJleGVjL2dkbS14LXNlc3Npb25bMTEwN106IChJSSkgVGhpcyBk
+ZXZpY2UgbWF5IGhhdmUgYmVlbiBhZGRlZCB3aXRoIGFub3RoZXIgZGV2aWNlIGZpbGUuDQpPY3Qg
+MDQgMTg6Mjc6MDAgbG9jYWxob3N0LmxvY2FsZG9tYWluIC91c3IvbGliZXhlYy9nZG0teC1zZXNz
+aW9uWzExMDddOiAoSUkpIGNvbmZpZy91ZGV2OiBBZGRpbmcgaW5wdXQgZGV2aWNlIFFFTVUgUUVN
+VSBVU0IgVGFibGV0ICgvZGV2L2lucHV0L2pzMCkNCk9jdCAwNCAxODoyNzowMCBsb2NhbGhvc3Qu
+bG9jYWxkb21haW4gL3Vzci9saWJleGVjL2dkbS14LXNlc3Npb25bMTEwN106IChJSSkgTm8gaW5w
+dXQgZHJpdmVyIHNwZWNpZmllZCwgaWdub3JpbmcgdGhpcyBkZXZpY2UuDQpPY3QgMDQgMTg6Mjc6
+MDAgbG9jYWxob3N0LmxvY2FsZG9tYWluIC91c3IvbGliZXhlYy9nZG0teC1zZXNzaW9uWzExMDdd
+OiAoSUkpIFRoaXMgZGV2aWNlIG1heSBoYXZlIGJlZW4gYWRkZWQgd2l0aCBhbm90aGVyIGRldmlj
+ZSBmaWxlLg0KT2N0IDA0IDE4OjI3OjAwIGxvY2FsaG9zdC5sb2NhbGRvbWFpbiAvdXNyL2xpYmV4
+ZWMvZ2RtLXgtc2Vzc2lvblsxMTA3XTogKElJKSBjb25maWcvdWRldjogcmVtb3ZpbmcgZGV2aWNl
+IEltRXhQUy8yIEJZRCBUb3VjaFBhZA0KT2N0IDA0IDE4OjI3OjAwIGxvY2FsaG9zdC5sb2NhbGRv
+bWFpbiAvdXNyL2xpYmV4ZWMvZ2RtLXgtc2Vzc2lvblsxMTA3XTogKCoqKSBPcHRpb24gImZkIiAi
+MTciDQpPY3QgMDQgMTg6Mjc6MDAgbG9jYWxob3N0LmxvY2FsZG9tYWluIC91c3IvbGliZXhlYy9n
+ZG0teC1zZXNzaW9uWzExMDddOiAoSUkpIFVubG9hZE1vZHVsZTogImxpYmlucHV0Ig0KT2N0IDA0
+IDE4OjI3OjAwIGxvY2FsaG9zdC5sb2NhbGRvbWFpbiBrZXJuZWw6IGludGVsX3JhcGw6IG5vIHZh
+bGlkIHJhcGwgZG9tYWlucyBmb3VuZCBpbiBwYWNrYWdlIDANCk9jdCAwNCAxODoyNzowMCBsb2Nh
+bGhvc3QubG9jYWxkb21haW4gL3Vzci9saWJleGVjL2dkbS14LXNlc3Npb25bMTEwN106IChJSSkg
+c3lzdGVtZC1sb2dpbmQ6IHJlbGVhc2luZyBmZCBmb3IgMTM6NjcNCk9jdCAwNCAxODoyNzowMCBs
+b2NhbGhvc3QubG9jYWxkb21haW4gL3Vzci9saWJleGVjL2dkbS14LXNlc3Npb25bMTEwN106IChJ
+SSkgY29uZmlnL3VkZXY6IEFkZGluZyBpbnB1dCBkZXZpY2UgSW1FeFBTLzIgQllEIFRvdWNoUGFk
+ICgvZGV2L2lucHV0L2V2ZW50MykNCk9jdCAwNCAxODoyNzowMCBsb2NhbGhvc3QubG9jYWxkb21h
+aW4gL3Vzci9saWJleGVjL2dkbS14LXNlc3Npb25bMTEwN106ICgqKikgSW1FeFBTLzIgQllEIFRv
+dWNoUGFkOiBBcHBseWluZyBJbnB1dENsYXNzICJldmRldiBwb2ludGVyIGNhdGNoYWxsIg0KT2N0
+IDA0IDE4OjI3OjAwIGxvY2FsaG9zdC5sb2NhbGRvbWFpbiAvdXNyL2xpYmV4ZWMvZ2RtLXgtc2Vz
+c2lvblsxMTA3XTogKCoqKSBJbUV4UFMvMiBCWUQgVG91Y2hQYWQ6IEFwcGx5aW5nIElucHV0Q2xh
+c3MgImxpYmlucHV0IHBvaW50ZXIgY2F0Y2hhbGwiDQpPY3QgMDQgMTg6Mjc6MDAgbG9jYWxob3N0
+LmxvY2FsZG9tYWluIC91c3IvbGliZXhlYy9nZG0teC1zZXNzaW9uWzExMDddOiAoSUkpIHN5c3Rl
+bWQtbG9naW5kOiBnb3QgZmQgZm9yIC9kZXYvaW5wdXQvZXZlbnQzIDEzOjY3IGZkIDE3IHBhdXNl
+ZCAwDQpPY3QgMDQgMTg6Mjc6MDAgbG9jYWxob3N0LmxvY2FsZG9tYWluIC91c3IvbGliZXhlYy9n
+ZG0teC1zZXNzaW9uWzExMDddOiAoSUkpIFVzaW5nIGlucHV0IGRyaXZlciAnbGliaW5wdXQnIGZv
+ciAnSW1FeFBTLzIgQllEIFRvdWNoUGFkJw0KT2N0IDA0IDE4OjI3OjAwIGxvY2FsaG9zdC5sb2Nh
+bGRvbWFpbiAvdXNyL2xpYmV4ZWMvZ2RtLXgtc2Vzc2lvblsxMTA3XTogKCoqKSBJbUV4UFMvMiBC
+WUQgVG91Y2hQYWQ6IGFsd2F5cyByZXBvcnRzIGNvcmUgZXZlbnRzDQpPY3QgMDQgMTg6Mjc6MDAg
+bG9jYWxob3N0LmxvY2FsZG9tYWluIC91c3IvbGliZXhlYy9nZG0teC1zZXNzaW9uWzExMDddOiAo
+KiopIE9wdGlvbiAiRGV2aWNlIiAiL2Rldi9pbnB1dC9ldmVudDMiDQpPY3QgMDQgMTg6Mjc6MDAg
+bG9jYWxob3N0LmxvY2FsZG9tYWluIC91c3IvbGliZXhlYy9nZG0teC1zZXNzaW9uWzExMDddOiAo
+KiopIE9wdGlvbiAiX3NvdXJjZSIgInNlcnZlci91ZGV2Ig0KT2N0IDA0IDE4OjI3OjAwIGxvY2Fs
+aG9zdC5sb2NhbGRvbWFpbiAvdXNyL2xpYmV4ZWMvZ2RtLXgtc2Vzc2lvblsxMTA3XTogKElJKSBp
+bnB1dCBkZXZpY2UgJ0ltRXhQUy8yIEJZRCBUb3VjaFBhZCcsIC9kZXYvaW5wdXQvZXZlbnQzIGlz
+IHRhZ2dlZCBieSB1ZGV2IGFzOiBNb3VzZQ0KT2N0IDA0IDE4OjI3OjAwIGxvY2FsaG9zdC5sb2Nh
+bGRvbWFpbiAvdXNyL2xpYmV4ZWMvZ2RtLXgtc2Vzc2lvblsxMTA3XTogKElJKSBpbnB1dCBkZXZp
+Y2UgJ0ltRXhQUy8yIEJZRCBUb3VjaFBhZCcsIC9kZXYvaW5wdXQvZXZlbnQzIGlzIGEgcG9pbnRl
+ciBjYXBzDQpPY3QgMDQgMTg6Mjc6MDAgbG9jYWxob3N0LmxvY2FsZG9tYWluIC91c3IvbGliZXhl
+Yy9nZG0teC1zZXNzaW9uWzExMDddOiAoKiopIE9wdGlvbiAiY29uZmlnX2luZm8iICJ1ZGV2Oi9z
+eXMvZGV2aWNlcy9wbGF0Zm9ybS9pODA0Mi9zZXJpbzEvaW5wdXQvaW5wdXQzL2V2ZW50MyINCk9j
+dCAwNCAxODoyNzowMCBsb2NhbGhvc3QubG9jYWxkb21haW4gL3Vzci9saWJleGVjL2dkbS14LXNl
+c3Npb25bMTEwN106IChJSSkgWElOUFVUOiBBZGRpbmcgZXh0ZW5kZWQgaW5wdXQgZGV2aWNlICJJ
+bUV4UFMvMiBCWUQgVG91Y2hQYWQiICh0eXBlOiBNT1VTRSwgaWQgOSkNCk9jdCAwNCAxODoyNzow
+MCBsb2NhbGhvc3QubG9jYWxkb21haW4gL3Vzci9saWJleGVjL2dkbS14LXNlc3Npb25bMTEwN106
+ICgqKikgT3B0aW9uICJBY2NlbGVyYXRpb25TY2hlbWUiICJub25lIg0KT2N0IDA0IDE4OjI3OjAw
+IGxvY2FsaG9zdC5sb2NhbGRvbWFpbiAvdXNyL2xpYmV4ZWMvZ2RtLXgtc2Vzc2lvblsxMTA3XTog
+KCoqKSBJbUV4UFMvMiBCWUQgVG91Y2hQYWQ6IChhY2NlbCkgc2VsZWN0ZWQgc2NoZW1lIG5vbmUv
+MA0KT2N0IDA0IDE4OjI3OjAwIGxvY2FsaG9zdC5sb2NhbGRvbWFpbiAvdXNyL2xpYmV4ZWMvZ2Rt
+LXgtc2Vzc2lvblsxMTA3XTogKCoqKSBJbUV4UFMvMiBCWUQgVG91Y2hQYWQ6IChhY2NlbCkgYWNj
+ZWxlcmF0aW9uIGZhY3RvcjogMi4wMDANCk9jdCAwNCAxODoyNzowMCBsb2NhbGhvc3QubG9jYWxk
+b21haW4gL3Vzci9saWJleGVjL2dkbS14LXNlc3Npb25bMTEwN106ICgqKikgSW1FeFBTLzIgQllE
+IFRvdWNoUGFkOiAoYWNjZWwpIGFjY2VsZXJhdGlvbiB0aHJlc2hvbGQ6IDQNCk9jdCAwNCAxODoy
+NzowMCBsb2NhbGhvc3QubG9jYWxkb21haW4gL3Vzci9saWJleGVjL2dkbS14LXNlc3Npb25bMTEw
+N106IChJSSkgaW5wdXQgZGV2aWNlICdJbUV4UFMvMiBCWUQgVG91Y2hQYWQnLCAvZGV2L2lucHV0
+L2V2ZW50MyBpcyB0YWdnZWQgYnkgdWRldiBhczogTW91c2UNCk9jdCAwNCAxODoyNzowMCBsb2Nh
+bGhvc3QubG9jYWxkb21haW4gL3Vzci9saWJleGVjL2dkbS14LXNlc3Npb25bMTEwN106IChJSSkg
+aW5wdXQgZGV2aWNlICdJbUV4UFMvMiBCWUQgVG91Y2hQYWQnLCAvZGV2L2lucHV0L2V2ZW50MyBp
+cyBhIHBvaW50ZXIgY2Fwcw0KT2N0IDA0IDE4OjI3OjAwIGxvY2FsaG9zdC5sb2NhbGRvbWFpbiAv
+dXNyL2xpYmV4ZWMvZ2RtLXgtc2Vzc2lvblsxMTA3XTogKElJKSBjb25maWcvdWRldjogcmVtb3Zp
+bmcgZGV2aWNlIFFFTVUgUUVNVSBVU0IgVGFibGV0DQpPY3QgMDQgMTg6Mjc6MDAgbG9jYWxob3N0
+LmxvY2FsZG9tYWluIC91c3IvbGliZXhlYy9nZG0teC1zZXNzaW9uWzExMDddOiAoKiopIE9wdGlv
+biAiZmQiICIxNSINCk9jdCAwNCAxODoyNzowMCBsb2NhbGhvc3QubG9jYWxkb21haW4gL3Vzci9s
+aWJleGVjL2dkbS14LXNlc3Npb25bMTEwN106IChJSSkgVW5sb2FkTW9kdWxlOiAibGliaW5wdXQi
+DQpPY3QgMDQgMTg6Mjc6MDAgbG9jYWxob3N0LmxvY2FsZG9tYWluIC91c3IvbGliZXhlYy9nZG0t
+eC1zZXNzaW9uWzExMDddOiAoSUkpIHN5c3RlbWQtbG9naW5kOiByZWxlYXNpbmcgZmQgZm9yIDEz
+OjY2DQpPY3QgMDQgMTg6Mjc6MDAgbG9jYWxob3N0LmxvY2FsZG9tYWluIC91c3IvbGliZXhlYy9n
+ZG0teC1zZXNzaW9uWzExMDddOiAoSUkpIGNvbmZpZy91ZGV2OiBBZGRpbmcgaW5wdXQgZGV2aWNl
+IFFFTVUgUUVNVSBVU0IgVGFibGV0ICgvZGV2L2lucHV0L2V2ZW50MikNCk9jdCAwNCAxODoyNzow
+MCBsb2NhbGhvc3QubG9jYWxkb21haW4gL3Vzci9saWJleGVjL2dkbS14LXNlc3Npb25bMTEwN106
+ICgqKikgUUVNVSBRRU1VIFVTQiBUYWJsZXQ6IEFwcGx5aW5nIElucHV0Q2xhc3MgImV2ZGV2IHBv
+aW50ZXIgY2F0Y2hhbGwiDQpPY3QgMDQgMTg6Mjc6MDAgbG9jYWxob3N0LmxvY2FsZG9tYWluIC91
+c3IvbGliZXhlYy9nZG0teC1zZXNzaW9uWzExMDddOiAoKiopIFFFTVUgUUVNVSBVU0IgVGFibGV0
+OiBBcHBseWluZyBJbnB1dENsYXNzICJsaWJpbnB1dCBwb2ludGVyIGNhdGNoYWxsIg0KT2N0IDA0
+IDE4OjI3OjAwIGxvY2FsaG9zdC5sb2NhbGRvbWFpbiAvdXNyL2xpYmV4ZWMvZ2RtLXgtc2Vzc2lv
+blsxMTA3XTogKElJKSBzeXN0ZW1kLWxvZ2luZDogZ290IGZkIGZvciAvZGV2L2lucHV0L2V2ZW50
+MiAxMzo2NiBmZCAxNSBwYXVzZWQgMA0KT2N0IDA0IDE4OjI3OjAwIGxvY2FsaG9zdC5sb2NhbGRv
+bWFpbiAvdXNyL2xpYmV4ZWMvZ2RtLXgtc2Vzc2lvblsxMTA3XTogKElJKSBVc2luZyBpbnB1dCBk
+cml2ZXIgJ2xpYmlucHV0JyBmb3IgJ1FFTVUgUUVNVSBVU0IgVGFibGV0Jw0KT2N0IDA0IDE4OjI3
+OjAwIGxvY2FsaG9zdC5sb2NhbGRvbWFpbiAvdXNyL2xpYmV4ZWMvZ2RtLXgtc2Vzc2lvblsxMTA3
+XTogKCoqKSBRRU1VIFFFTVUgVVNCIFRhYmxldDogYWx3YXlzIHJlcG9ydHMgY29yZSBldmVudHMN
+Ck9jdCAwNCAxODoyNzowMCBsb2NhbGhvc3QubG9jYWxkb21haW4gL3Vzci9saWJleGVjL2dkbS14
+LXNlc3Npb25bMTEwN106ICgqKikgT3B0aW9uICJEZXZpY2UiICIvZGV2L2lucHV0L2V2ZW50MiIN
+Ck9jdCAwNCAxODoyNzowMCBsb2NhbGhvc3QubG9jYWxkb21haW4gL3Vzci9saWJleGVjL2dkbS14
+LXNlc3Npb25bMTEwN106ICgqKikgT3B0aW9uICJfc291cmNlIiAic2VydmVyL3VkZXYiDQpPY3Qg
+MDQgMTg6Mjc6MDAgbG9jYWxob3N0LmxvY2FsZG9tYWluIC91c3IvbGliZXhlYy9nZG0teC1zZXNz
+aW9uWzExMDddOiAoSUkpIGlucHV0IGRldmljZSAnUUVNVSBRRU1VIFVTQiBUYWJsZXQnLCAvZGV2
+L2lucHV0L2V2ZW50MiBpcyB0YWdnZWQgYnkgdWRldiBhczogTW91c2UNCk9jdCAwNCAxODoyNzow
+MCBsb2NhbGhvc3QubG9jYWxkb21haW4gL3Vzci9saWJleGVjL2dkbS14LXNlc3Npb25bMTEwN106
+IChJSSkgaW5wdXQgZGV2aWNlICdRRU1VIFFFTVUgVVNCIFRhYmxldCcsIC9kZXYvaW5wdXQvZXZl
+bnQyIGlzIGEgcG9pbnRlciBjYXBzDQpPY3QgMDQgMTg6Mjc6MDAgbG9jYWxob3N0LmxvY2FsZG9t
+YWluIC91c3IvbGliZXhlYy9nZG0teC1zZXNzaW9uWzExMDddOiAoKiopIE9wdGlvbiAiY29uZmln
+X2luZm8iICJ1ZGV2Oi9zeXMvZGV2aWNlcy9wY2kwMDAwOjAwLzAwMDA6MDA6MDYuNy91c2IxLzEt
+MS8xLTE6MS4wLzAwMDM6MDYyNzowMDAxLjAwMDEvaW5wdXQvaW5wdXQ0L2V2ZW50MiINCk9jdCAw
+NCAxODoyNzowMCBsb2NhbGhvc3QubG9jYWxkb21haW4gL3Vzci9saWJleGVjL2dkbS14LXNlc3Np
+b25bMTEwN106IChJSSkgWElOUFVUOiBBZGRpbmcgZXh0ZW5kZWQgaW5wdXQgZGV2aWNlICJRRU1V
+IFFFTVUgVVNCIFRhYmxldCIgKHR5cGU6IE1PVVNFLCBpZCA3KQ0KT2N0IDA0IDE4OjI3OjAwIGxv
+Y2FsaG9zdC5sb2NhbGRvbWFpbiAvdXNyL2xpYmV4ZWMvZ2RtLXgtc2Vzc2lvblsxMTA3XTogKCoq
+KSBPcHRpb24gIkFjY2VsZXJhdGlvblNjaGVtZSIgIm5vbmUiDQpPY3QgMDQgMTg6Mjc6MDAgbG9j
+YWxob3N0LmxvY2FsZG9tYWluIC91c3IvbGliZXhlYy9nZG0teC1zZXNzaW9uWzExMDddOiAoKiop
+IFFFTVUgUUVNVSBVU0IgVGFibGV0OiAoYWNjZWwpIHNlbGVjdGVkIHNjaGVtZSBub25lLzANCk9j
+dCAwNCAxODoyNzowMCBsb2NhbGhvc3QubG9jYWxkb21haW4gL3Vzci9saWJleGVjL2dkbS14LXNl
+c3Npb25bMTEwN106ICgqKikgUUVNVSBRRU1VIFVTQiBUYWJsZXQ6IChhY2NlbCkgYWNjZWxlcmF0
+aW9uIGZhY3RvcjogMi4wMDANCk9jdCAwNCAxODoyNzowMCBsb2NhbGhvc3QubG9jYWxkb21haW4g
+L3Vzci9saWJleGVjL2dkbS14LXNlc3Npb25bMTEwN106ICgqKikgUUVNVSBRRU1VIFVTQiBUYWJs
+ZXQ6IChhY2NlbCkgYWNjZWxlcmF0aW9uIHRocmVzaG9sZDogNA0KT2N0IDA0IDE4OjI3OjAwIGxv
+Y2FsaG9zdC5sb2NhbGRvbWFpbiAvdXNyL2xpYmV4ZWMvZ2RtLXgtc2Vzc2lvblsxMTA3XTogKElJ
+KSBpbnB1dCBkZXZpY2UgJ1FFTVUgUUVNVSBVU0IgVGFibGV0JywgL2Rldi9pbnB1dC9ldmVudDIg
+aXMgdGFnZ2VkIGJ5IHVkZXYgYXM6IE1vdXNlDQpPY3QgMDQgMTg6Mjc6MDAgbG9jYWxob3N0Lmxv
+Y2FsZG9tYWluIC91c3IvbGliZXhlYy9nZG0teC1zZXNzaW9uWzExMDddOiAoSUkpIGlucHV0IGRl
+dmljZSAnUUVNVSBRRU1VIFVTQiBUYWJsZXQnLCAvZGV2L2lucHV0L2V2ZW50MiBpcyBhIHBvaW50
+ZXIgY2Fwcw0KT2N0IDA0IDE4OjI3OjAwIGxvY2FsaG9zdC5sb2NhbGRvbWFpbiAvdXNyL2xpYmV4
+ZWMvZ2RtLXgtc2Vzc2lvblsxMTA3XTogKElJKSBjb25maWcvdWRldjogQWRkaW5nIGlucHV0IGRl
+dmljZSBzcGljZSB2ZGFnZW50IHRhYmxldCAoL2Rldi9pbnB1dC9qczEpDQpPY3QgMDQgMTg6Mjc6
+MDAgbG9jYWxob3N0LmxvY2FsZG9tYWluIC91c3IvbGliZXhlYy9nZG0teC1zZXNzaW9uWzExMDdd
+OiAoSUkpIE5vIGlucHV0IGRyaXZlciBzcGVjaWZpZWQsIGlnbm9yaW5nIHRoaXMgZGV2aWNlLg0K
+T2N0IDA0IDE4OjI3OjAwIGxvY2FsaG9zdC5sb2NhbGRvbWFpbiAvdXNyL2xpYmV4ZWMvZ2RtLXgt
+c2Vzc2lvblsxMTA3XTogKElJKSBUaGlzIGRldmljZSBtYXkgaGF2ZSBiZWVuIGFkZGVkIHdpdGgg
+YW5vdGhlciBkZXZpY2UgZmlsZS4NCk9jdCAwNCAxODoyNzowMCBsb2NhbGhvc3QubG9jYWxkb21h
+aW4gL3Vzci9saWJleGVjL2dkbS14LXNlc3Npb25bMTEwN106IChJSSkgY29uZmlnL3VkZXY6IEFk
+ZGluZyBpbnB1dCBkZXZpY2Ugc3BpY2UgdmRhZ2VudCB0YWJsZXQgKC9kZXYvaW5wdXQvbW91c2Uy
+KQ0KT2N0IDA0IDE4OjI3OjAwIGxvY2FsaG9zdC5sb2NhbGRvbWFpbiAvdXNyL2xpYmV4ZWMvZ2Rt
+LXgtc2Vzc2lvblsxMTA3XTogKElJKSBObyBpbnB1dCBkcml2ZXIgc3BlY2lmaWVkLCBpZ25vcmlu
+ZyB0aGlzIGRldmljZS4NCk9jdCAwNCAxODoyNzowMCBsb2NhbGhvc3QubG9jYWxkb21haW4gL3Vz
+ci9saWJleGVjL2dkbS14LXNlc3Npb25bMTEwN106IChJSSkgVGhpcyBkZXZpY2UgbWF5IGhhdmUg
+YmVlbiBhZGRlZCB3aXRoIGFub3RoZXIgZGV2aWNlIGZpbGUuDQpPY3QgMDQgMTg6Mjc6MDAgbG9j
+YWxob3N0LmxvY2FsZG9tYWluIC91c3IvbGliZXhlYy9nZG0teC1zZXNzaW9uWzExMDddOiAoSUkp
+IGNvbmZpZy91ZGV2OiByZW1vdmluZyBkZXZpY2Ugc3BpY2UgdmRhZ2VudCB0YWJsZXQNCk9jdCAw
+NCAxODoyNzowMCBsb2NhbGhvc3QubG9jYWxkb21haW4gL3Vzci9saWJleGVjL2dkbS14LXNlc3Np
+b25bMTEwN106ICgqKikgT3B0aW9uICJmZCIgIjIxIg0KT2N0IDA0IDE4OjI3OjAwIGxvY2FsaG9z
+dC5sb2NhbGRvbWFpbiAvdXNyL2xpYmV4ZWMvZ2RtLXgtc2Vzc2lvblsxMTA3XTogKElJKSBVbmxv
+YWRNb2R1bGU6ICJsaWJpbnB1dCINCk9jdCAwNCAxODoyNzowMCBsb2NhbGhvc3QubG9jYWxkb21h
+aW4gL3Vzci9saWJleGVjL2dkbS14LXNlc3Npb25bMTEwN106IChJSSkgc3lzdGVtZC1sb2dpbmQ6
+IHJlbGVhc2luZyBmZCBmb3IgMTM6NjgNCk9jdCAwNCAxODoyNzowMCBsb2NhbGhvc3QubG9jYWxk
+b21haW4gL3Vzci9saWJleGVjL2dkbS14LXNlc3Npb25bMTEwN106IChJSSkgY29uZmlnL3VkZXY6
+IEFkZGluZyBpbnB1dCBkZXZpY2Ugc3BpY2UgdmRhZ2VudCB0YWJsZXQgKC9kZXYvaW5wdXQvZXZl
+bnQ0KQ0KT2N0IDA0IDE4OjI3OjAwIGxvY2FsaG9zdC5sb2NhbGRvbWFpbiAvdXNyL2xpYmV4ZWMv
+Z2RtLXgtc2Vzc2lvblsxMTA3XTogKCoqKSBzcGljZSB2ZGFnZW50IHRhYmxldDogQXBwbHlpbmcg
+SW5wdXRDbGFzcyAiZXZkZXYgcG9pbnRlciBjYXRjaGFsbCINCk9jdCAwNCAxODoyNzowMCBsb2Nh
+bGhvc3QubG9jYWxkb21haW4gL3Vzci9saWJleGVjL2dkbS14LXNlc3Npb25bMTEwN106ICgqKikg
+c3BpY2UgdmRhZ2VudCB0YWJsZXQ6IEFwcGx5aW5nIElucHV0Q2xhc3MgImxpYmlucHV0IHBvaW50
+ZXIgY2F0Y2hhbGwiDQpPY3QgMDQgMTg6Mjc6MDAgbG9jYWxob3N0LmxvY2FsZG9tYWluIC91c3Iv
+bGliZXhlYy9nZG0teC1zZXNzaW9uWzExMDddOiAoSUkpIHN5c3RlbWQtbG9naW5kOiBnb3QgZmQg
+Zm9yIC9kZXYvaW5wdXQvZXZlbnQ0IDEzOjY4IGZkIDIxIHBhdXNlZCAwDQpPY3QgMDQgMTg6Mjc6
+MDAgbG9jYWxob3N0LmxvY2FsZG9tYWluIC91c3IvbGliZXhlYy9nZG0teC1zZXNzaW9uWzExMDdd
+OiAoSUkpIFVzaW5nIGlucHV0IGRyaXZlciAnbGliaW5wdXQnIGZvciAnc3BpY2UgdmRhZ2VudCB0
+YWJsZXQnDQpPY3QgMDQgMTg6Mjc6MDAgbG9jYWxob3N0LmxvY2FsZG9tYWluIC91c3IvbGliZXhl
+Yy9nZG0teC1zZXNzaW9uWzExMDddOiAoKiopIHNwaWNlIHZkYWdlbnQgdGFibGV0OiBhbHdheXMg
+cmVwb3J0cyBjb3JlIGV2ZW50cw0KT2N0IDA0IDE4OjI3OjAwIGxvY2FsaG9zdC5sb2NhbGRvbWFp
+biAvdXNyL2xpYmV4ZWMvZ2RtLXgtc2Vzc2lvblsxMTA3XTogKCoqKSBPcHRpb24gIkRldmljZSIg
+Ii9kZXYvaW5wdXQvZXZlbnQ0Ig0KT2N0IDA0IDE4OjI3OjAwIGxvY2FsaG9zdC5sb2NhbGRvbWFp
+biAvdXNyL2xpYmV4ZWMvZ2RtLXgtc2Vzc2lvblsxMTA3XTogKCoqKSBPcHRpb24gIl9zb3VyY2Ui
+ICJzZXJ2ZXIvdWRldiINCk9jdCAwNCAxODoyNzowMCBsb2NhbGhvc3QubG9jYWxkb21haW4gL3Vz
+ci9saWJleGVjL2dkbS14LXNlc3Npb25bMTEwN106IChJSSkgaW5wdXQgZGV2aWNlICdzcGljZSB2
+ZGFnZW50IHRhYmxldCcsIC9kZXYvaW5wdXQvZXZlbnQ0IGlzIHRhZ2dlZCBieSB1ZGV2IGFzOiBN
+b3VzZQ0KT2N0IDA0IDE4OjI3OjAwIGxvY2FsaG9zdC5sb2NhbGRvbWFpbiAvdXNyL2xpYmV4ZWMv
+Z2RtLXgtc2Vzc2lvblsxMTA3XTogKElJKSBpbnB1dCBkZXZpY2UgJ3NwaWNlIHZkYWdlbnQgdGFi
+bGV0JywgL2Rldi9pbnB1dC9ldmVudDQgaXMgYSBwb2ludGVyIGNhcHMNCk9jdCAwNCAxODoyNzow
+MCBsb2NhbGhvc3QubG9jYWxkb21haW4gL3Vzci9saWJleGVjL2dkbS14LXNlc3Npb25bMTEwN106
+ICgqKikgT3B0aW9uICJjb25maWdfaW5mbyIgInVkZXY6L3N5cy9kZXZpY2VzL3ZpcnR1YWwvaW5w
+dXQvaW5wdXQ2L2V2ZW50NCINCk9jdCAwNCAxODoyNzowMCBsb2NhbGhvc3QubG9jYWxkb21haW4g
+L3Vzci9saWJleGVjL2dkbS14LXNlc3Npb25bMTEwN106IChJSSkgWElOUFVUOiBBZGRpbmcgZXh0
+ZW5kZWQgaW5wdXQgZGV2aWNlICJzcGljZSB2ZGFnZW50IHRhYmxldCIgKHR5cGU6IE1PVVNFLCBp
+ZCAxMCkNCk9jdCAwNCAxODoyNzowMCBsb2NhbGhvc3QubG9jYWxkb21haW4gL3Vzci9saWJleGVj
+L2dkbS14LXNlc3Npb25bMTEwN106ICgqKikgT3B0aW9uICJBY2NlbGVyYXRpb25TY2hlbWUiICJu
+b25lIg0KT2N0IDA0IDE4OjI3OjAwIGxvY2FsaG9zdC5sb2NhbGRvbWFpbiAvdXNyL2xpYmV4ZWMv
+Z2RtLXgtc2Vzc2lvblsxMTA3XTogKCoqKSBzcGljZSB2ZGFnZW50IHRhYmxldDogKGFjY2VsKSBz
+ZWxlY3RlZCBzY2hlbWUgbm9uZS8wDQpPY3QgMDQgMTg6Mjc6MDAgbG9jYWxob3N0LmxvY2FsZG9t
+YWluIC91c3IvbGliZXhlYy9nZG0teC1zZXNzaW9uWzExMDddOiAoKiopIHNwaWNlIHZkYWdlbnQg
+dGFibGV0OiAoYWNjZWwpIGFjY2VsZXJhdGlvbiBmYWN0b3I6IDIuMDAwDQpPY3QgMDQgMTg6Mjc6
+MDAgbG9jYWxob3N0LmxvY2FsZG9tYWluIC91c3IvbGliZXhlYy9nZG0teC1zZXNzaW9uWzExMDdd
+OiAoKiopIHNwaWNlIHZkYWdlbnQgdGFibGV0OiAoYWNjZWwpIGFjY2VsZXJhdGlvbiB0aHJlc2hv
+bGQ6IDQNCk9jdCAwNCAxODoyNzowMCBsb2NhbGhvc3QubG9jYWxkb21haW4gL3Vzci9saWJleGVj
+L2dkbS14LXNlc3Npb25bMTEwN106IChJSSkgaW5wdXQgZGV2aWNlICdzcGljZSB2ZGFnZW50IHRh
+YmxldCcsIC9kZXYvaW5wdXQvZXZlbnQ0IGlzIHRhZ2dlZCBieSB1ZGV2IGFzOiBNb3VzZQ0KT2N0
+IDA0IDE4OjI3OjAwIGxvY2FsaG9zdC5sb2NhbGRvbWFpbiAvdXNyL2xpYmV4ZWMvZ2RtLXgtc2Vz
+c2lvblsxMTA3XTogKElJKSBpbnB1dCBkZXZpY2UgJ3NwaWNlIHZkYWdlbnQgdGFibGV0JywgL2Rl
+di9pbnB1dC9ldmVudDQgaXMgYSBwb2ludGVyIGNhcHMNCg==
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

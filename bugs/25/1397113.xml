@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1397113</bug_id>
+          
+          <creation_ts>2016-11-21 11:17:00 -0500</creation_ts>
+          <short_desc>objdump high CPU Usage in libbfd:comp_unit_contains_address.part.13</short_desc>
+          <delta_ts>2017-01-12 13:30:03 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>binutils</component>
+          <version>25</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>RAWHIDE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Parag Warudkar">parag.lkml</reporter>
+          <assigned_to name="Nick Clifton">nickc</assigned_to>
+          <cc>jakub</cc>
+    
+    
+    <cc>nickc</cc>
+    
+    
+    <cc>parag.lkml</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-01-12 13:30:03</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9909084</commentid>
+    <comment_count>0</comment_count>
+    <who name="Parag Warudkar">parag.lkml</who>
+    <bug_when>2016-11-21 11:17:39 -0500</bug_when>
+    <thetext>Description of problem:
+Trying to profile firefox CPU usage using perf record/report. Debuginfo for firefox and all the dependencies it comes with is installed. After recording for a short time (30-45s) and using perf report, if I navigate to Annotate the symbol with highest % overhead (doesn&apos;t matter but it happens to be in libxul for this case) the perf UI will freeze for a really long time. 
+
+top tells me objdump is using 100% CPU for several minutes. Profiling that reveals the below annotated perf output for libbfd:comp_unit_contains_address.part.13 which is listed in perf report as having &gt;95% overhead.
+
+      │      arange = &amp;unit-&gt;arange;
+       │      add    $0x18,%rdi
+       │      nop
+       │      do
+       │        {
+       │          if (addr &gt;= arange-&gt;low &amp;&amp; addr &lt; arange-&gt;high)
+ 96.18 │      cmp    %rsi,0x8(%rdi)
+  0.01 │    ↓ ja     b34
+  2.16 │      cmp    0x10(%rdi),%rsi
+       │    ↓ jb     b40
+       │            return TRUE;
+       │          arange = arange-&gt;next;
+  1.37 │      mov    (%rdi),%rdi
+
+Version-Release number of selected component (if applicable):
+libbfd-2.26.1-1.fc25
+
+How reproducible:
+Always
+
+Steps to Reproduce:
+1. Install perf, firefox-debuginfo, run firefox with 2-3 tabs loaded 
+2. Profile using perf record -p &lt;FF_PID&gt; for 30s or more. Run the report with perf report. 
+3. Click on the highest overhead listing and then click Annotate 
+
+Actual results:
+Perf UI freezes
+objdump run as root then takes 100% CPU for a real long time
+
+Expected results:
+1) objdump should be faster or 2) at least the results should be cached so going back and forth in perf ui doesn&apos;t make it freeze every time.
+
+Additional info:</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9909195</commentid>
+    <comment_count>1</comment_count>
+    <who name="Nick Clifton">nickc</who>
+    <bug_when>2016-11-21 11:56:45 -0500</bug_when>
+    <thetext>Hi Parag,
+
+  Have you tried the latest development binutils sources ?  A patch was recently contributed to significantly improve objdump&apos;s performance and this might be what you are looking for:
+
+  https://sourceware.org/ml/binutils/2016-11/msg00050.html
+
+Cheers
+  Nick</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9909526</commentid>
+    <comment_count>2</comment_count>
+    <who name="Parag Warudkar">parag.lkml</who>
+    <bug_when>2016-11-21 13:27:28 -0500</bug_when>
+    <thetext>Hi Nick - thanks for the pointer, it looks promising. I need to find out if rawhide version of binutils has that patch integrated - not sure I want to rebuild from patched sources right now.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9913175</commentid>
+    <comment_count>3</comment_count>
+    <who name="Nick Clifton">nickc</who>
+    <bug_when>2016-11-22 12:25:21 -0500</bug_when>
+    <thetext>(In reply to Parag Warudkar from comment #2)
+
+&gt; I need to find out if rawhide version of binutils has that patch integrated
+
+It doesn&apos;t, yet ...  I will ping you when it is in.
+
+Cheers
+  Nick</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9913228</commentid>
+    <comment_count>4</comment_count>
+    <who name="Nick Clifton">nickc</who>
+    <bug_when>2016-11-22 12:50:05 -0500</bug_when>
+    <thetext>The patch is now in.  Please give binutils-2.27-12.fc26 a try...</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9931564</commentid>
+    <comment_count>5</comment_count>
+    <who name="Parag Warudkar">parag.lkml</who>
+    <bug_when>2016-11-26 19:01:41 -0500</bug_when>
+    <thetext>No change with binutils-2.27-12.fc26 -
+
+objdump -v
+GNU objdump version 2.27-12.fc26
+
+      │      arange = &amp;unit-&gt;arange;
+       │      add    $0x18,%rdi
+       │      nop
+       │      do
+       │        {
+       │          if (addr &gt;= arange-&gt;low &amp;&amp; addr &lt; arange-&gt;high)
+ 96.15 │      cmp    %rsi,0x8(%rdi)
+  0.01 │    ↓ ja     b64
+  2.20 │      cmp    0x10(%rdi),%rsi
+  0.00 │    ↓ jb     b70
+       │            return TRUE;
+       │          arange = arange-&gt;next;
+  1.34 │      mov    (%rdi),%rdi
+       │        }
+
+So looks like yet another big linked list traversal that needs to be looked at?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10046069</commentid>
+    <comment_count>6</comment_count>
+    <who name="Nick Clifton">nickc</who>
+    <bug_when>2017-01-09 11:16:58 -0500</bug_when>
+    <thetext>Hi Parag,
+
+  Please could you try out: binutils-2.27-13.fc26 
+
+  I have added a second patch which should reduce the amount of time objdump spends parsing and dumping the firefox binary.  In my local tests the time went from 5-mins,56-sec to 0-mins,33-sec, which is better but still not great.   Getting it any faster would mean some serious reworking of the internals of the BFD library however, which is something that I am loathe to do unless really necessary.
+
+Cheers
+  Nick</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10051092</commentid>
+    <comment_count>7</comment_count>
+    <who name="Parag Warudkar">parag.lkml</who>
+    <bug_when>2017-01-10 19:43:36 -0500</bug_when>
+    <thetext>(In reply to Nick Clifton from comment #6)
+&gt; Hi Parag,
+&gt; 
+&gt;   Please could you try out: binutils-2.27-13.fc26 
+&gt; 
+&gt;   I have added a second patch which should reduce the amount of time objdump
+&gt; spends parsing and dumping the firefox binary.  In my local tests the time
+&gt; went from 5-mins,56-sec to 0-mins,33-sec, which is better but still not
+&gt; great.   Getting it any faster would mean some serious reworking of the
+&gt; internals of the BFD library however, which is something that I am loathe to
+&gt; do unless really necessary.
+&gt; 
+&gt; Cheers
+&gt;   Nick
+
+Yep, 2.27-13.fc26 does make the same test case run an order of magnitude faster. There&apos;s still a ~1 min UI freeze and objdump still eats ~20+GiB of RAM but I guess we can close this as acceptable improvement for now and I will follow up with a separate bug if there is place for further improvement? Let me know if you agree and I will close this bug.
+
+Thanks for looking into this.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10053186</commentid>
+    <comment_count>8</comment_count>
+    <who name="Nick Clifton">nickc</who>
+    <bug_when>2017-01-11 10:14:43 -0500</bug_when>
+    <thetext>Hi Parag,
+
+(In reply to Parag Warudkar from comment #7)
+
+&gt; There&apos;s still a ~1 min UI freeze and objdump still eats ~20+GiB of
+&gt; RAM
+
+I think that this is inevitable.  There is an awful lot of debug information
+to be read in and converted into useful data structures, and this just takes
+time and memory.  Of course if perf was not trying to annotate the disassembly
+with source code information, things would go a lot faster...
+
+&gt; but I guess we can close this as acceptable improvement for now and I
+&gt; will follow up with a separate bug if there is place for further
+&gt; improvement? 
+
+OK.
+
+&gt; Let me know if you agree and I will close this bug.
+
+Yes, please do close it.
+
+Cheers
+  Nick</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

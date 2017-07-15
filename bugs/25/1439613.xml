@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1439613</bug_id>
+          
+          <creation_ts>2017-04-06 06:22:00 -0400</creation_ts>
+          <short_desc>dvb_usb_cxusb fails on kernel 4.10 due to CONFIG_VMAP_STACK</short_desc>
+          <delta_ts>2017-04-17 16:52:28 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>kernel</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Michael Chapman">redhat-bugzilla</reporter>
+          <assigned_to name="Kernel Maintainer List">kernel-maint</assigned_to>
+          <cc>gansalmon</cc>
+    
+    
+    <cc>ichavero</cc>
+    
+    
+    <cc>itamar</cc>
+    
+    
+    <cc>jonathan</cc>
+    
+    
+    <cc>kernel-maint</cc>
+    
+    
+    <cc>labbott</cc>
+    
+    
+    <cc>madhu.chinakonda</cc>
+    
+    
+    <cc>mchehab</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>kernel-4.10.10-100.fc24 kernel-4.10.10-200.fc25</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-04-17 16:52:00</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10310099</commentid>
+    <comment_count>0</comment_count>
+    <who name="Michael Chapman">redhat-bugzilla</who>
+    <bug_when>2017-04-06 06:22:45 -0400</bug_when>
+    <thetext>On kernel-4.10.8-200.fc25.x86_64 I get:
+
+  dvb-usb: found a &apos;DViCO FusionHDTV DVB-T USB (TH7579)&apos; in warm state.
+  dvb-usb: will pass the complete MPEG2 transport stream to the software demuxer.
+  dvbdev: DVB: registering new adapter (DViCO FusionHDTV DVB-T USB (TH7579))
+  cx88xx: subsystem: 18ac:db10, board: DViCO FusionHDTV DVB-T Plus [card=21,autodetected], frontend(s): 1
+  ------------[ cut here ]------------
+  WARNING: CPU: 0 PID: 788 at drivers/usb/core/hcd.c:1584 usb_hcd_map_urb_for_dma+0x37f/0x570
+  transfer buffer not dma capable
+  Modules linked in: mt352 snd_hda_intel snd_hda_codec snd_hda_core snd_hwdep cx8800(+) cx8802(+) videobuf2_dma_sg cx88xx videobuf2_memops videobuf2_v4l2 tveeprom videobuf2_core dvb_usb_cxusb(+) snd_seq v4l2_common snd_seq_device dib0070 videodev media i2c_algo_bit x86_pkg_temp_thermal intel_powerclamp coretemp kvm_intel i2c_i801 kvm irqbypass tpm_infineon tpm_tis crct10dif_pclmul crc32_pclmul ghash_clmulni_intel tpm_tis_core intel_cstate intel_uncore snd_pcm intel_rapl_perf snd_timer snd soundcore dvb_usb dvb_core rc_core lpc_ich shpchp tpm mei_me mei wmi binfmt_misc nfsd auth_rpcgss nfs_acl lockd grace sunrpc raid1 crc32c_intel uas serio_raw r8169 usb_storage mii fjes
+  CPU: 0 PID: 788 Comm: systemd-udevd Not tainted 4.10.8-200.fc25.x86_64 #1
+  Hardware name: Gigabyte Technology Co., Ltd. Z68XP-UD3/Z68XP-UD3, BIOS F10 03/20/2012
+  Call Trace:
+   dump_stack+0x63/0x86
+   __warn+0xcb/0xf0
+   warn_slowpath_fmt+0x5f/0x80
+   usb_hcd_map_urb_for_dma+0x37f/0x570
+   ? lock_timer_base+0x81/0xa0
+   usb_hcd_submit_urb+0x33e/0xb40
+   ? del_timer_sync+0x48/0x50
+   ? schedule_timeout+0x180/0x300
+   ? del_timer_sync+0x50/0x50
+   usb_submit_urb+0x2f6/0x570
+   ? wake_up_q+0x80/0x80
+   usb_start_wait_urb+0x6e/0x170
+   usb_bulk_msg+0xbd/0x160
+   dvb_usb_generic_rw+0x15f/0x1e0 [dvb_usb]
+   cxusb_ctrl_msg+0x9e/0xe0 [dvb_usb_cxusb]
+   cxusb_i2c_xfer+0x2bb/0x350 [dvb_usb_cxusb]
+   ? find_symbol_in_section+0x3d/0xf0
+   ? each_symbol_section.part.12+0x183/0x1e0
+   __i2c_transfer+0x115/0x3f0
+   ? dvb_usb_fe_sleep+0x60/0x60 [dvb_usb]
+   i2c_transfer+0x5c/0xc0
+   mt352_read_register+0x8c/0xe0 [mt352]
+   mt352_attach+0x65/0x580 [mt352]
+   cxusb_mt352_frontend_attach+0x63/0xe0 [dvb_usb_cxusb]
+   dvb_usb_adapter_frontend_init+0xdf/0x190 [dvb_usb]
+   dvb_usb_device_init+0x4ca/0x630 [dvb_usb]
+   cxusb_probe+0xba/0x210 [dvb_usb_cxusb]
+   usb_probe_interface+0x159/0x2d0
+   driver_probe_device+0x2bb/0x460
+   __driver_attach+0xdf/0xf0
+   ? driver_probe_device+0x460/0x460
+   bus_for_each_dev+0x6c/0xc0
+   driver_attach+0x1e/0x20
+   bus_add_driver+0x170/0x270
+   driver_register+0x60/0xe0
+   usb_register_driver+0x81/0x140
+   ? 0xffffffffc0649000
+   cxusb_driver_init+0x1e/0x1000 [dvb_usb_cxusb]
+   do_one_initcall+0x52/0x1a0
+   ? kmem_cache_alloc_trace+0x159/0x1b0
+   ? do_init_module+0x27/0x1f8
+   do_init_module+0x5f/0x1f8
+   load_module+0x2618/0x29e0
+   ? __symbol_put+0x60/0x60
+   SYSC_init_module+0x173/0x190
+   SyS_init_module+0xe/0x10
+   do_syscall_64+0x67/0x180
+   entry_SYSCALL64_slow_path+0x25/0x25
+  RIP: 0033:0x7f70cf8145da
+  RSP: 002b:00007fff944d84b8 EFLAGS: 00000246 ORIG_RAX: 00000000000000af
+  RAX: ffffffffffffffda RBX: 00005648fbbfe9c0 RCX: 00007f70cf8145da
+  RDX: 00007f70d0346995 RSI: 0000000000017753 RDI: 00005648fbc46470
+  RBP: 00007f70d0346995 R08: 00005648fbbf88f0 R09: 0000000000000000
+  R10: 0000000000000000 R11: 0000000000000246 R12: 00005648fbc46470
+  R13: 00005648fbbf8820 R14: 0000000000020000 R15: 00005648fbbfe9c0
+  ---[ end trace c5e2334c1b83c056 ]---
+  dvb-usb: recv bulk message failed: -11
+  mt352_read_register: readreg error (reg=127, ret==-121)
+  dvb-usb: no frontend was attached by &apos;DViCO FusionHDTV DVB-T USB (TH7579)&apos;
+
+This appears to be a regression for the fix applied in bug 1417829.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10316183</commentid>
+    <comment_count>1</comment_count>
+    <who name="Michael Chapman">redhat-bugzilla</who>
+    <bug_when>2017-04-08 04:04:48 -0400</bug_when>
+    <thetext>Everything works correctly if I apply the first patch from bug 1417829:
+
+  1-2-media-cxusb-Use-a-dma-capable-buffeo-for-reading.patch
+
+The second patch appears to already be in kernel 4.10.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10321478</commentid>
+    <comment_count>2</comment_count>
+    <who name="Laura Abbott">labbott</who>
+    <bug_when>2017-04-10 14:00:28 -0400</bug_when>
+    <thetext>Looks like the patch accidentally got dropped in the 4.10 rebase. I&apos;ve re-added it to the f24/f25 branches.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10333572</commentid>
+    <comment_count>3</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-13 11:32:23 -0400</bug_when>
+    <thetext>kernel-4.10.10-200.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-26c9ecd7a4</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10333581</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-13 11:33:35 -0400</bug_when>
+    <thetext>kernel-4.10.10-100.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2017-8e7549fb91</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10336308</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-14 19:52:43 -0400</bug_when>
+    <thetext>kernel-4.10.10-100.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-8e7549fb91</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10336360</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-14 20:28:05 -0400</bug_when>
+    <thetext>kernel-4.10.10-200.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-26c9ecd7a4</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10339271</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-17 16:52:00 -0400</bug_when>
+    <thetext>kernel-4.10.10-100.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10339285</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-17 16:52:28 -0400</bug_when>
+    <thetext>kernel-4.10.10-200.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

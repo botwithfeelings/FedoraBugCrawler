@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1413676</bug_id>
+          
+          <creation_ts>2017-01-16 11:25:00 -0500</creation_ts>
+          <short_desc>Bash leaks heredoc fd to child processes</short_desc>
+          <delta_ts>2017-04-27 16:55:12 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>bash</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>low</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Edgar Hoch">edgar.hoch</reporter>
+          <assigned_to name="Siteshwar Vashisht">svashisht</assigned_to>
+          <cc>admiller</cc>
+    
+    
+    <cc>agk</cc>
+    
+    
+    <cc>anprice</cc>
+    
+    
+    <cc>bmarzins</cc>
+    
+    
+    <cc>bmr</cc>
+    
+    
+    <cc>heinzm</cc>
+    
+    
+    <cc>jonathan</cc>
+    
+    
+    <cc>kdudka</cc>
+    
+    
+    <cc>lvm-team</cc>
+    
+    
+    <cc>msnitzer</cc>
+    
+    
+    <cc>prajnoha</cc>
+    
+    
+    <cc>prockai</cc>
+    
+    
+    <cc>svashisht</cc>
+    
+    
+    <cc>zkabelac</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>bash-4.4.12-4.fc26</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-04-27 16:55:12</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10067077</commentid>
+    <comment_count>0</comment_count>
+    <who name="Edgar Hoch">edgar.hoch</who>
+    <bug_when>2017-01-16 11:25:22 -0500</bug_when>
+    <thetext>Description of problem:
+
+When I call pvs, vgs or lvs from scripts in a bash command substitution, then I get an error of the following form for each invocation of these commands:
+
+File descriptor 3 (/tmp/sh-thd-871826097) leaked on pvs invocation. Parent PID 1769: /bin/bash
+
+For example, I call these commands in a command substitution to include the result in the body of an e-mail. See Steps to Reproduce.
+
+
+Version-Release number of selected component (if applicable):
+lvm2-2.02.167-3.fc25.x86_64
+
+How reproducible:
+Always
+
+Steps to Reproduce:
+1. Create a shell script &quot;mailtestscript&quot; with following content:
+
+#!/bin/bash
+
+    Mail -s &quot;mail test with pvs vgs lvs&quot; myname@example.com &lt;&lt;EOF
+
+LVM physical volumes:
+`pvs`
+
+LVM volume groups:
+`vgs`
+
+LVM logical volumes:
+`lvs`
+
+EOF
+
+
+2. Substitute &quot;myname@example.com&quot; by a valid e-mail address of your own (to receive the e-mail which the script will send).
+
+3. Make the script executable:
+   chmod u+x mailtestscript
+
+4. Run the script:
+   ./mailtestscript
+
+Actual results:
+
+Output of the script are messages like this:
+
+File descriptor 3 (/tmp/sh-thd-871866956) leaked on pvs invocation. Parent PID 6142: /bin/bash
+File descriptor 3 (/tmp/sh-thd-871866956) leaked on vgs invocation. Parent PID 6142: /bin/bash
+File descriptor 3 (/tmp/sh-thd-871866956) leaked on lvs invocation. Parent PID 6142: /bin/bash
+
+It sends an e-mail (as expected).
+
+
+Expected results:
+
+The script should print nothing to standard out and standard error.
+It should send only an e-mail.
+
+Additional info:
+
+This happens at least since a longer time, at least since Fedora 24, maybe even on previous version. I have not reported is until now because the commands have been working as expected, besides of these error message.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10067147</commentid>
+    <comment_count>1</comment_count>
+    <who name="Zdenek Kabelac">zkabelac</who>
+    <bug_when>2017-01-16 11:40:18 -0500</bug_when>
+    <thetext>I&apos;d say it&apos;s rather a misuse of lvm2 commands.
+You should prepare resulting text output ahead of Mail command.
+Otherwise you have no idea what has &apos;failed&apos; during creation.
+
+But if there is a bug  - it&apos;s bug in bash which should not be exposing FD for its  &lt;&lt;EOF magic to executed command.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10071584</commentid>
+    <comment_count>2</comment_count>
+      <attachid>1241774</attachid>
+    <who name="Siteshwar Vashisht">svashisht</who>
+    <bug_when>2017-01-17 08:30:58 -0500</bug_when>
+    <thetext>Created attachment 1241774
+Do not leak heredoc fd to child processes</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10071613</commentid>
+    <comment_count>3</comment_count>
+    <who name="Siteshwar Vashisht">svashisht</who>
+    <bug_when>2017-01-17 08:37:32 -0500</bug_when>
+    <thetext>I posted my patch upstream http://lists.gnu.org/archive/html/bug-bash/2017-01/msg00026.html</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10364565</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-26 09:02:22 -0400</bug_when>
+    <thetext>bash-4.4.12-4.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-075ed3aef8</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10366437</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-26 17:53:19 -0400</bug_when>
+    <thetext>bash-4.4.12-4.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-075ed3aef8</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10370248</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-27 16:55:12 -0400</bug_when>
+    <thetext>bash-4.4.12-4.fc26 has been pushed to the Fedora 26 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="0"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1241774</attachid>
+            <date>2017-01-17 08:30:00 -0500</date>
+            <delta_ts>2017-01-17 08:30:58 -0500</delta_ts>
+            <desc>Do not leak heredoc fd to child processes</desc>
+            <filename>0001-Do-not-leak-heredoc-fd-to-child-processes.patch</filename>
+            <type>text/plain</type>
+            <size>981</size>
+            <attacher name="Siteshwar Vashisht">svashisht</attacher>
+            
+              <data encoding="base64">RnJvbSA2Yjc5NzBlZTc4N2NmMDQyMTgyZjhmOTNiZjI1YzZlNjQ1M2E4YWVmIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBTaXRlc2h3YXIgVmFzaGlzaHQgPHN2YXNoaXNodEByZWRoYXQu
+Y29tPgpEYXRlOiBUdWUsIDE3IEphbiAyMDE3IDEwOjI4OjM0ICswMTAwClN1YmplY3Q6IFtQQVRD
+SF0gRG8gbm90IGxlYWsgaGVyZWRvYyBmZCB0byBjaGlsZCBwcm9jZXNzZXMKCi0tLQogbGliL3No
+L3RtcGZpbGUuYyB8IDQgKystLQogMSBmaWxlIGNoYW5nZWQsIDIgaW5zZXJ0aW9ucygrKSwgMiBk
+ZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9saWIvc2gvdG1wZmlsZS5jIGIvbGliL3NoL3RtcGZp
+bGUuYwppbmRleCBlNDFlNDViLi4xNWZjYjVjIDEwMDY0NAotLS0gYS9saWIvc2gvdG1wZmlsZS5j
+CisrKyBiL2xpYi9zaC90bXBmaWxlLmMKQEAgLTQyLDcgKzQyLDcgQEAKIGV4dGVybiBpbnQgZXJy
+bm87CiAjZW5kaWYKIAotI2RlZmluZSBCQVNFT1BFTkZMQUdTCShPX0NSRUFUIHwgT19UUlVOQyB8
+IE9fRVhDTCB8IE9fQklOQVJZKQorI2RlZmluZSBCQVNFT1BFTkZMQUdTCShPX0NSRUFUIHwgT19U
+UlVOQyB8IE9fRVhDTCB8IE9fQklOQVJZIHwgT19DTE9FWEVDKQogCiAjZGVmaW5lIERFRkFVTFRf
+VE1QRElSCQkiLiIJLyogYm9ndXMgZGVmYXVsdCwgc2hvdWxkIGJlIGNoYW5nZWQgKi8KICNkZWZp
+bmUgREVGQVVMVF9OQU1FUk9PVAkic2h0bXAiCkBAIC0xOTUsNyArMTk1LDcgQEAgc2hfbWt0bXBm
+ZCAobmFtZXJvb3QsIGZsYWdzLCBuYW1lcCkKIAogI2lmZGVmIFVTRV9NS1NURU1QCiAgIHNwcmlu
+dGYgKGZpbGVuYW1lLCAiJXMvJXMuWFhYWFhYIiwgdGRpciwgbHJvb3QpOwotICBmZCA9IG1rc3Rl
+bXAgKGZpbGVuYW1lKTsKKyAgZmQgPSBta29zdGVtcCAoZmlsZW5hbWUsIE9fQ0xPRVhFQyk7CiAg
+IGlmIChmZCA8IDAgfHwgbmFtZXAgPT0gMCkKICAgICB7CiAgICAgICBmcmVlIChmaWxlbmFtZSk7
+Ci0tIAoyLjkuMwoK
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

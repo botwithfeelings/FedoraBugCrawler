@@ -1,0 +1,611 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1309172</bug_id>
+          
+          <creation_ts>2016-02-16 23:40:00 -0500</creation_ts>
+          <short_desc>&apos;ulimit -c&apos; is unlimited by default</short_desc>
+          <delta_ts>2016-08-11 17:54:05 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>systemd</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>high</priority>
+          <bug_severity>high</bug_severity>
+          <target_milestone>---</target_milestone>
+          <dependson>1341829</dependson>
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Sebastian Keller">sebastian-keller</reporter>
+          <assigned_to>systemd-maint</assigned_to>
+          <cc>abrt-devel-list</cc>
+    
+    
+    <cc>cfergeau</cc>
+    
+    
+    <cc>gansalmon</cc>
+    
+    
+    <cc>horsley1953</cc>
+    
+    
+    <cc>iprikryl</cc>
+    
+    
+    <cc>itamar</cc>
+    
+    
+    <cc>jfilak</cc>
+    
+    
+    <cc>johannbg</cc>
+    
+    
+    <cc>jonathan</cc>
+    
+    
+    <cc>jsynacek</cc>
+    
+    
+    <cc>kernel-maint</cc>
+    
+    
+    <cc>lnykryn</cc>
+    
+    
+    <cc>madhu.chinakonda</cc>
+    
+    
+    <cc>mcatanzaro</cc>
+    
+    
+    <cc>mchehab</cc>
+    
+    
+    <cc>mhabrnal</cc>
+    
+    
+    <cc>michal.toman</cc>
+    
+    
+    <cc>mmilata</cc>
+    
+    
+    <cc>msekleta</cc>
+    
+    
+    <cc>muadda</cc>
+    
+    
+    <cc>phelia</cc>
+    
+    
+    <cc>sebastian-keller</cc>
+    
+    
+    <cc>ssahani</cc>
+    
+    
+    <cc>s</cc>
+    
+    
+    <cc>systemd-maint</cc>
+    
+    
+    <cc>zbyszek</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>systemd-229-12.fc24</cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-08-11 17:54:05</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9070459</commentid>
+    <comment_count>0</comment_count>
+    <who name="Sebastian Keller">sebastian-keller</who>
+    <bug_when>2016-02-16 23:40:43 -0500</bug_when>
+    <thetext>I&apos;m on rawhide with abrt 2.8.0-2 and every time when a program crashes a file called core.PID (where PID is the pid of the crashed program) is created in the PWD of the crashed program. This usually means the home directory but it is also affecting system daemons such as gdm. This machine for example has several core.PID files in /var/lib/gdm.
+
+I&apos;ve checked if it is abrt that is handling those crashes using this command:
+$ cat /proc/sys/kernel/core_pattern
+|/usr/libexec/abrt-hook-ccpp %s %c %p %u %g %t %P %I
+
+Here are the journal entries from one such crash:
+Feb 16 12:23:54 t420 audit[770]: ANOM_ABEND auid=4294967295 uid=1000 gid=1000 ses=4294967295 subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 pid=770 comm=&quot;nautilus&quot; exe=&quot;/usr/bin/nautilus&quot; sig=11
+Feb 16 12:23:54 t420 kernel: traps: nautilus[770] general protection ip:7fd286898355 sp:7fd2637fd9f8 error:0 in libglib-2.0.so.0.4705.0[7fd28680a000+10d000]
+Feb 16 12:23:55 t420 abrt-hook-ccpp[1463]: Process 739 (nautilus) of user 1000 killed by SIGSEGV - dumping core
+Feb 16 12:23:57 t420 abrt-hook-ccpp[1463]: Failed to create core_backtrace: waitpid failed: No child processes
+Feb 16 12:24:13 t420 abrt-server[1464]: Deleting problem directory ccpp-2016-02-16-12:23:55-739 (dup of ccpp-2016-02-15-08:09:19-15481)
+Feb 16 12:24:14 t420 dbus[687]: [system] Activating service name=&apos;org.freedesktop.problems&apos; (using servicehelper)
+Feb 16 12:24:14 t420 dbus[687]: [system] Successfully activated service &apos;org.freedesktop.problems&apos;</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9070596</commentid>
+    <comment_count>1</comment_count>
+    <who name="Jakub Filak">jfilak</who>
+    <bug_when>2016-02-17 01:05:35 -0500</bug_when>
+    <thetext>Thank you for the report. I cannot reproduce the problem you have. I double checked abrt source code to make sure that the core.PID is produced only if &apos;ulimit -c&apos; is not 0 and MakeCompatCore=yes in the /etc/abrt/plugins/CCpp.conf file [1]. If I set MakeCompatCore=no or &apos;ulimit -c 0&apos;, then no core.PID file is produced. My &apos;ulimit -c&apos; is 0 by default and MakeCompatCore=yes by default.
+
+Do you have &apos;ulimit -c&apos; = 0?
+
+1: https://github.com/abrt/abrt/blob/master/src/hooks/abrt-hook-ccpp.c#L762</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9070842</commentid>
+    <comment_count>2</comment_count>
+    <who name="Jakub Filak">jfilak</who>
+    <bug_when>2016-02-17 02:12:56 -0500</bug_when>
+    <thetext>$ uname -r; ulimit -c                                                            
+4.5.0-0.rc3.git1.2.fc24.x86_64                                                   
+0                                                                                
+                                                                                 
+$ uname -r; ulimit -c
+4.5.0-0.rc4.git0.1.fc24.x86_64
+unlimited
+
+I set Priority and Severity to High because this issue causes creation of core files all around user file systems.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9070861</commentid>
+    <comment_count>3</comment_count>
+    <who name="Sebastian Keller">sebastian-keller</who>
+    <bug_when>2016-02-17 02:22:02 -0500</bug_when>
+    <thetext>I&apos;m running the 4.3.5-300.fc23.x86_64 kernel on rawhide, and I&apos;m seeing &quot;unlimited&quot; here too. So I would assume the stable release might be affected as well.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9071075</commentid>
+    <comment_count>4</comment_count>
+    <who name="Sebastian Keller">sebastian-keller</who>
+    <bug_when>2016-02-17 03:36:18 -0500</bug_when>
+    <thetext>The more I look at it, the more it seems like something systemd related. I&apos;ve installed kernel 4.5.0-0.rc3.git1.1.fc24.x86_64 now which is older than the one you were still getting 0 for and I&apos;m getting &quot;unlimited&quot;.
+
+Then I&apos;ve tried to downgrade systemd from 229-1 to 228-10. Reboot, still &quot;unlimited&quot;.
+
+Then I ran &quot;dracut -f&quot; to regenerate the initramfs with the downgraded systemd, rebooted and then &quot;ulimit -c&quot; finally was back to 0.
+
+I&apos;ve also tried the same kernel with systemd 228-10 in the initramfs and 229-1 installed on the system which resulted in another &quot;unlimited&quot;. Seems like both have to be 228-10.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9071197</commentid>
+    <comment_count>5</comment_count>
+    <who name="Jakub Filak">jfilak</who>
+    <bug_when>2016-02-17 04:10:18 -0500</bug_when>
+    <thetext>Indeed, I found this in systemd NEWS [1]:
+
+* The RLIMIT_CORE resource limit now defaults to &quot;unlimited&quot; for PID 1
+  and all forked processes by default. ...
+
+1: https://github.com/systemd/systemd/blob/2c45295e47642812ea417efba7f2f3339c6e2912/NEWS
+
+Systemd maintainers, can you please disable this feature for Fedora? It confuses ABRT which creates a core file as it could be done if ABRT would not be installed.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9071380</commentid>
+    <comment_count>6</comment_count>
+    <who name="Jan Synacek">jsynacek</who>
+    <bug_when>2016-02-17 05:10:31 -0500</bug_when>
+    <thetext>https://github.com/systemd/systemd/commit/15a900327aba7dc4dc886affe1ae22d3b759b193
+
+According to the log message, it sounds like ABRT logic was taken into account.
+
+https://github.com/systemd/systemd/issues/2643</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9071509</commentid>
+    <comment_count>7</comment_count>
+    <who name="Jóhann B. Guðmundsson">johannbg</who>
+    <bug_when>2016-02-17 05:46:46 -0500</bug_when>
+    <thetext>(In reply to Jakub Filak from comment #5)
+&gt; Indeed, I found this in systemd NEWS [1]:
+&gt; 
+&gt; * The RLIMIT_CORE resource limit now defaults to &quot;unlimited&quot; for PID 1
+&gt;   and all forked processes by default. ...
+&gt; 
+&gt; 1:
+&gt; https://github.com/systemd/systemd/blob/
+&gt; 2c45295e47642812ea417efba7f2f3339c6e2912/NEWS
+&gt; 
+&gt; Systemd maintainers, can you please disable this feature for Fedora? It
+&gt; confuses ABRT which creates a core file as it could be done if ABRT would
+&gt; not be installed.
+
+Not everybody want or need abrt installed on their system or have it as part of their products so upstream systemd should be the default in the distribution and ABRT should make whatever changes it needs if installed ( and revert those if uninstalled ). 
+
+And Jan whats the point of that upstream report when it&apos;s clear the systemd-coredump is not being used in the kernel core patter but some abrt hook  ( |/usr/libexec/abrt-hook-ccpp ) instead?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9071570</commentid>
+    <comment_count>8</comment_count>
+    <who name="Jakub Filak">jfilak</who>
+    <bug_when>2016-02-17 06:18:19 -0500</bug_when>
+    <thetext>(In reply to Jóhann B. Guðmundsson from comment #7)
+&gt; (In reply to Jakub Filak from comment #5)
+&gt; &gt; Indeed, I found this in systemd NEWS [1]:
+&gt; &gt; 
+&gt; &gt; * The RLIMIT_CORE resource limit now defaults to &quot;unlimited&quot; for PID 1
+&gt; &gt;   and all forked processes by default. ...
+&gt; &gt; 
+&gt; &gt; 1:
+&gt; &gt; https://github.com/systemd/systemd/blob/
+&gt; &gt; 2c45295e47642812ea417efba7f2f3339c6e2912/NEWS
+&gt; &gt; 
+&gt; &gt; Systemd maintainers, can you please disable this feature for Fedora? It
+&gt; &gt; confuses ABRT which creates a core file as it could be done if ABRT would
+&gt; &gt; not be installed.
+&gt; 
+&gt; Not everybody want or need abrt installed on their system or have it as part
+&gt; of their products so upstream systemd should be the default in the
+&gt; distribution and ABRT should make whatever changes it needs if installed (
+&gt; and revert those if uninstalled ). 
+&gt; 
+
+Agreed, I didn&apos;t want systemd to drop it, just to disable it for Fedora. However, it looks like that we can reset RTLIMIT_CORE to 0 via system.conf  (comment #6) and that is what I was asking for. I just need to figure out how to do that from the abrt services.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9071602</commentid>
+    <comment_count>9</comment_count>
+    <who name="Lennart Poettering">lpoetter</who>
+    <bug_when>2016-02-17 06:29:28 -0500</bug_when>
+    <thetext>Ahum, it appears as if abrt writes those coredumps ignoring RLIMIT_CORE.
+
+I am pretty sure systemd should not be changed, but abrt should honour RLIMIT_CORE and not write coredumps everywhere.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9071611</commentid>
+    <comment_count>10</comment_count>
+    <who name="Lennart Poettering">lpoetter</who>
+    <bug_when>2016-02-17 06:32:19 -0500</bug_when>
+    <thetext>Also, if core_pattern is used to turn off coredumping in working directories, then abrt really shouldn&apos;t do that anyway. The coredumping in working directories is just wrong in pretty much all cases.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9071621</commentid>
+    <comment_count>11</comment_count>
+    <who name="Lennart Poettering">lpoetter</who>
+    <bug_when>2016-02-17 06:35:38 -0500</bug_when>
+    <thetext>And no, turning this off in systemd is really wrong, as not everybody uses abrt, and it&apos;s really only abrt that causes this. People who do no crash dumper at all, or use systemd-coredumper won&apos;t get any coredumps littered anywhere.
+
+Please, make sure abrt honours RLIMIT_CORE. The kernel explicitly has provisions for core pattern hooks to handle RLIMIT_CORE via &quot;%c&quot;.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9072173</commentid>
+    <comment_count>12</comment_count>
+    <who name="Jakub Filak">jfilak</who>
+    <bug_when>2016-02-17 09:24:42 -0500</bug_when>
+    <thetext>(In reply to Lennart Poettering from comment #9)
+&gt; Ahum, it appears as if abrt writes those coredumps ignoring RLIMIT_CORE.
+
+I thought that RLIMIT_CORE is passed by kernel to a core_pattern helper through %c argument. If this argument is non-zero, the ABRT core_pattern helper writes a core file as it could be done if ABRT would not be installed. Requested by our users - bug #541707.
+
+&gt; 
+&gt; I am pretty sure systemd should not be changed, but abrt should honour
+&gt; RLIMIT_CORE and not write coredumps everywhere.
+
+Of course, I do not want to change upstream systemd, I just want to restore the old behavior if ABRT is employed.
+
+I believe ABRT honor RLIMIT_CORE.
+
+&gt; Also, if core_pattern is used to turn off coredumping in working directories,
+&gt; then abrt really shouldn&apos;t do that anyway.
+
+I have never thought of core_pattern as a tool to turn off coredumping. I was always turning coredumping on/off by changing &apos;ulimit -c&apos; and &quot;man 5 core&quot; does not say that one should use core_pattern to disable coredumping.
+
+&gt; The coredumping in working directories is just wrong in pretty much all cases.
+
+I can understand this but I have different opinion. ABRT writes a core file if and only if &apos;%c&apos; argument passed by kernel is non zero. Prior systemd 229, the most common use case was that user issued &apos;ulimit -c unlimited&apos;.
+
+&gt; And no, turning this off in systemd is really wrong
+
+I wanted to turn this off only in Fedora systemd, but it was too demanding. We just need to turn it off only if ABRT is employed.
+
+&gt; , as not everybody uses abrt
+
+Sure, I know, so it would be the best to find a way how to make the default RTLIMIT_CORE=0 only if ABRT is employed.
+
+&gt; , and it&apos;s really only abrt that causes this.
+
+I think there is no need to blame anybody.
+
+&gt; People who do no crash dumper at all, or use systemd-coredumper won&apos;t get any
+&gt; coredumps littered anywhere.
+
+People with systemd &gt;= 229 and without systemd-coredumps will have &quot;core&quot; in kernel.core_pattern and &quot;ulimit -c&quot;=unlimited, so core files will be crated in working directories.
+
+&gt; Please, make sure abrt honours RLIMIT_CORE. The kernel explicitly has provisions for core pattern hooks to handle RLIMIT_CORE via &quot;%c&quot;.
+
+ABRT honours RLIMIT_CORE. 
+
+# cat /proc/sys/kernel/core_pattern 
+|/usr/libexec/abrt-hook-ccpp %s %c %p %u %g %t %P %I
+
+$ grep argv\\[2\\] src/hooks/abrt-hook-ccpp.c 
+     * argv[2] = &quot;CORE_SIZE_LIMIT PID ...&quot;
+    off_t ulimit_c = strtoull(argv[2], NULL, 10);
+
+
+Is there a way how to restore RLIMIT_CORE=0 only if ABRT is employed?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9094539</commentid>
+    <comment_count>13</comment_count>
+    <who name="Jan Kurik">jkurik</who>
+    <bug_when>2016-02-24 10:47:20 -0500</bug_when>
+    <thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 24 development cycle.
+Changing version to &apos;24&apos;.
+
+More information and reason for this action is here:
+https://fedoraproject.org/wiki/Fedora_Program_Management/HouseKeeping/Fedora24#Rawhide_Rebase</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9578200</commentid>
+    <comment_count>14</comment_count>
+    <who name="Tom Horsley">horsley1953</who>
+    <bug_when>2016-08-02 15:12:33 -0400</bug_when>
+    <thetext>I go to a lot of trouble to disable all the abrt and core pattern nonsense on my system, but now, on fedora 24, I&apos;m getting core files spewing all over the place.
+
+It was previously the default to have the &quot;soft&quot; limit for core files set to zero so users could get a core file if they wanted one by setting &quot;ulimit -c unlimited&quot;.
+
+I want it to work that way again.
+
+What can I do to make the default soft limit be zero?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9578301</commentid>
+    <comment_count>15</comment_count>
+    <who name="Tom Horsley">horsley1953</who>
+    <bug_when>2016-08-02 15:55:20 -0400</bug_when>
+    <thetext>(In reply to Tom Horsley from comment #14)
+
+&gt; What can I do to make the default soft limit be zero?
+
+OK, I poked around quite a lot and finally found DefaultLimitCORE=
+in /etc/systemd/system.conf. Setting it to
+
+DefaultLimitCORE=0:infinity
+
+seems to restore the default behavior linux has had for the last several millenium (after a reboot).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9591498</commentid>
+    <comment_count>16</comment_count>
+    <who name="Michael Catanzaro">mcatanzaro</who>
+    <bug_when>2016-08-07 19:38:51 -0400</bug_when>
+    <thetext>(In reply to Jakub Filak from comment #12)
+&gt; Is there a way how to restore RLIMIT_CORE=0 only if ABRT is employed?
+
+The abrt-addon-ccpp package could drop a config file into /usr/lib/systemd/system.conf.d to set the limit to 0.
+
+(It should go in the subpackage so that we can drop it from comps to get the unlimited limit without removing the rest of ABRT if we decide to get coredumpctl can work as expected out-of-the-box in the future.)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9591510</commentid>
+    <comment_count>17</comment_count>
+    <who name="Zbigniew Jędrzejewski-Szmek">zbyszek</who>
+    <bug_when>2016-08-07 20:12:07 -0400</bug_when>
+    <thetext>(In reply to Michael Catanzaro from comment #16)
+&gt; (In reply to Jakub Filak from comment #12)
+&gt; &gt; Is there a way how to restore RLIMIT_CORE=0 only if ABRT is employed?
+&gt; 
+&gt; The abrt-addon-ccpp package could drop a config file into
+&gt; /usr/lib/systemd/system.conf.d to set the limit to 0.
+
+No, please don&apos;t. This would change the default for everyone who has abrt package installed, even if they disable abrt.
+
+&gt; it would be the best to find a way how to make the default RTLIMIT_CORE=0 only if ABRT is employed.
+
+This similarly is impossible / inadvisable. Processes get started during boot with various RLIMIT_CORE values, and abrt starts later during the boot process, and we cannot go back and change the limits on those processes. Also it&apos;s perfectly legal to change kernel.core_pattern at runtime, e.g. by stopping abrt, and with this proposal, RLIMIT_CORE would somehow have to be reverted to previous values.
+
+Instead, abrt should take %c value into account and not create the coredump in that case, comment #c11.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9591625</commentid>
+    <comment_count>18</comment_count>
+    <who name="Michael Catanzaro">mcatanzaro</who>
+    <bug_when>2016-08-07 21:49:12 -0400</bug_when>
+    <thetext>(In reply to Zbigniew Jędrzejewski-Szmek from comment #17)
+&gt; Instead, abrt should take %c value into account and not create the coredump
+&gt; in that case, comment #c11.
+
+So to be clear: per comment #12, it already does. That&apos;s the reason we have an issue here. Positive %c tells ABRT that the user wants a core dump file left in the cwd (exactly how traditional coredump creation works, same problem exists if you uninstall ABRT as Tom from comment #14 has done!), and with this systemd change that causes ABRT to dump core files to be dumped all over the disk, unless MakeCompatCore is set to no in /etc/abrt/plugins/CCpp.conf. The ABRT developers changed MakeCompatCore to default to no just to work around this bug.
+
+(In reply to Zbigniew Jędrzejewski-Szmek from comment #17)
+&gt; This similarly is impossible / inadvisable. Processes get started during
+&gt; boot with various RLIMIT_CORE values, and abrt starts later during the boot
+&gt; process, and we cannot go back and change the limits on those processes.
+&gt; Also it&apos;s perfectly legal to change kernel.core_pattern at runtime, e.g. by
+&gt; stopping abrt, and with this proposal, RLIMIT_CORE would somehow have to be
+&gt; reverted to previous values.
+
+Good point.
+
+I can think of two ways out of this: (a) coredumpctl could go back to ignoring ulimit, and we turn MakeCompatCore back on, and systemd developers are sad; or (b) do nothing, close this bug WONTFIX, and give up on ever having ABRT&apos;s MakeCompatCore feature on by default again.
+
+I prefer (b) as a long term solution. MakeCompatCore requires ABRT&apos;s CCpp plugin, which conflicts with having coredumpctl functional, functional coredumpctl would be a much better default, and users who want the old-style cwd cores and choose to manually turn on MakeCompatCore (or disable ABRT) can simply adjust RLIMIT_CORE at the same time.
+
+However, in the short term, coredumpctl is not enabled by default, the CCpp plugin is. coredumpctl is totally borked in F24 anyway, so we couldn&apos;t enable it even if we wanted to (bug #1341829, bug #1317927). And with MakeCompatCore off, users have no way to get core dumps asides from learning how to use Fedora-specific abrt-cli or messing with system services, which is a serious problem. (I&apos;m really confused why we haven&apos;t had more complaints about this, beyond this bug?) Until we can get coredumpctl functioning out-of-the-box (that means disabling abrt-ccpp.service!), we seem to be stuck with option (a).
+
+Did I miss any options...?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9591807</commentid>
+    <comment_count>19</comment_count>
+    <who name="Jakub Filak">jfilak</who>
+    <bug_when>2016-08-08 00:44:50 -0400</bug_when>
+    <thetext>&gt; Instead, abrt should take %c value into account and not create the coredump in that case, comment #c11.
+
+As explained in comment #12, ABRT takes %c value into account but interprets it in a different way than systemd-coredump.
+ 
+
+If the reason why systemd has changed the default RLIMIT_CORE to &apos;unliminted&apos; is to allow users to be able to turn off coredumping by setting the option to &apos;0&apos;, I propose to revert the systemd change and tell those users to set ulimit to 1. The 1 value tells kernel to abort coredumping in case of the &quot;|/&quot; string in core_pattern [1] and the value cannot meet the minimal coreddump size limit of any binary format [2]. I believe that 90% of users do not need something more than to be able to turn coredumping on or off.
+
+1: https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/fs/coredump.c#n602
+2: https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/fs/coredump.c#n660</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9596374</commentid>
+    <comment_count>20</comment_count>
+    <who name="Zbigniew Jędrzejewski-Szmek">zbyszek</who>
+    <bug_when>2016-08-09 00:28:54 -0400</bug_when>
+    <thetext>(In reply to Michael Catanzaro from comment #18)
+&gt; (In reply to Zbigniew Jędrzejewski-Szmek from comment #17)
+&gt; &gt; Instead, abrt should take %c value into account and not create the coredump
+&gt; &gt; in that case, comment #c11.
+&gt; 
+&gt; So to be clear: per comment #12, it already does. That&apos;s the reason we have
+&gt; an issue here. Positive %c tells ABRT that the user wants a core dump file
+&gt; left in the cwd (exactly how traditional coredump creation works, same
+&gt; problem exists if you uninstall ABRT as Tom from comment #14 has done!), and
+&gt; with this systemd change that causes ABRT to dump core files to be dumped
+&gt; all over the disk, unless MakeCompatCore is set to no in
+&gt; /etc/abrt/plugins/CCpp.conf. The ABRT developers changed MakeCompatCore to
+&gt; default to no just to work around this bug.
+&gt; 
+&gt; (In reply to Zbigniew Jędrzejewski-Szmek from comment #17)
+&gt; &gt; This similarly is impossible / inadvisable. Processes get started during
+&gt; &gt; boot with various RLIMIT_CORE values, and abrt starts later during the boot
+&gt; &gt; process, and we cannot go back and change the limits on those processes.
+&gt; &gt; Also it&apos;s perfectly legal to change kernel.core_pattern at runtime, e.g. by
+&gt; &gt; stopping abrt, and with this proposal, RLIMIT_CORE would somehow have to be
+&gt; &gt; reverted to previous values.
+&gt; 
+&gt; Good point.
+&gt; 
+&gt; I can think of two ways out of this: (a) coredumpctl could go back to
+&gt; ignoring ulimit, and we turn MakeCompatCore back on, and systemd developers
+&gt; are sad; or (b) do nothing, close this bug WONTFIX, and give up on ever
+&gt; having ABRT&apos;s MakeCompatCore feature on by default again.
+&gt; 
+&gt; I prefer (b) as a long term solution. MakeCompatCore requires ABRT&apos;s CCpp
+&gt; plugin, which conflicts with having coredumpctl functional, functional
+&gt; coredumpctl would be a much better default, and users who want the old-style
+&gt; cwd cores and choose to manually turn on MakeCompatCore (or disable ABRT)
+&gt; can simply adjust RLIMIT_CORE at the same time.
+
+For 24, let&apos;s see if we can fix the selinux issue. If this doesn&apos;t happen quickly.
+I&apos;ll do a) for F24, i.e. patch systemd to ignore RLIMIT_CORE. Long term,
+I vote for b) too.
+
+&gt; (I&apos;m really confused why we haven&apos;t had more complaints about this, beyond this bug?)
+
+Things work with selinux permissive or off. This is especially common on development
+systems where you needs coredumps the most.
+
+(In reply to Jakub Filak from comment #19)
+&gt; &gt; Instead, abrt should take %c value into account and not create the coredump in that case, comment #c11.
+&gt; 
+&gt; As explained in comment #12, ABRT takes %c value into account but interprets
+&gt; it in a different way than systemd-coredump.
+&gt;  
+&gt; 
+&gt; If the reason why systemd has changed the default RLIMIT_CORE to
+&gt; &apos;unliminted&apos; is to allow users to be able to turn off coredumping by setting
+&gt; the option to &apos;0&apos;, I propose to revert the systemd change and tell those
+&gt; users to set ulimit to 1. The 1 value tells kernel to abort coredumping in
+&gt; case of the &quot;|/&quot; string in core_pattern [1] and the value cannot meet the
+&gt; minimal coreddump size limit of any binary format [2]. I believe that 90% of
+&gt; users do not need something more than to be able to turn coredumping on or
+&gt; off.
+
+MakeCompatCore was added to solve the issue of coredumps for unpackaged programs
+being lost (#541707 that you linked). But systemd-coredump + coredumpctl is a
+much nicer solution to this problem: we get corefiles, we get nice logs
+including a traceback, users have access only to their core files, we don&apos;t
+get corefiles in random directories, coredumps are subject to automatic cleanup.
+I don&apos;t think there&apos;s much point in trying to &quot;rescue&quot; MakeCompatCore.
+
+Letting &apos;1&apos; mean disable, and &apos;0&apos; mean enable (with some potentially disruptive
+behaviour) is bad user UI.
+
+Thank you for the links to the kernel source code. Current systemd behaviour of
+trying to dump the core with RLIMIT=1 does not make much sense, since we fail anyway.
+I filed [1] to raise the limit.
+
+[1] https://github.com/systemd/systemd/pull/3932
+
+
+OK, to summarize, currently I think 1341829 needs to be solved. If this happens,
+this can be closed as NOTABUG, otherwise, I&apos;ll patch out the RLIMIT_CORE check for F24.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9598333</commentid>
+    <comment_count>21</comment_count>
+    <who name="Michael Catanzaro">mcatanzaro</who>
+    <bug_when>2016-08-09 09:47:04 -0400</bug_when>
+    <thetext>(In reply to Zbigniew Jędrzejewski-Szmek from comment #20)
+&gt; For 24, let&apos;s see if we can fix the selinux issue. If this doesn&apos;t happen
+&gt; quickly.
+&gt; I&apos;ll do a) for F24, i.e. patch systemd to ignore RLIMIT_CORE. Long term,
+&gt; I vote for b) too.
+
+I think we should do (a) in F24 regardless. What&apos;s important to me is that users have some way to get core dumps WITHOUT mucking with system services. The only way that will ever be possible in F24 is to reenable ABRT&apos;s MakeCompatCore setting. We&apos;re definitely not going to change our vendor presets in F24, so abrt-ccpp will remain enabled by default and coredumpctl will not work, regardless of whether bug #1341829 is resolved, unless the user knows which Fedora-specific ABRT service to disable.
+
+Arguably it&apos;s too late to try squeezing a preset change into F25 as well, as the deadline for F25 features has come and gone, so coredumpctl by default should be an F26 feature IMO. I really do want to make this happen for all the reasons you mention (once those SELinux bugs get fixed), but for future Fedoras. Let&apos;s do it properly, advertise the change as a nice feature, and restore the historic behavior in the meantime.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9599183</commentid>
+    <comment_count>22</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-09 13:03:18 -0400</bug_when>
+    <thetext>systemd-229-11.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-10e709e870</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9602506</commentid>
+    <comment_count>23</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-10 08:25:04 -0400</bug_when>
+    <thetext>systemd-229-11.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-10e709e870</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9603346</commentid>
+    <comment_count>24</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-10 11:21:09 -0400</bug_when>
+    <thetext>systemd-229-12.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-10e709e870</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9605396</commentid>
+    <comment_count>25</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-10 23:24:49 -0400</bug_when>
+    <thetext>systemd-229-12.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-10e709e870</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9608857</commentid>
+    <comment_count>26</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-11 17:53:45 -0400</bug_when>
+    <thetext>systemd-229-12.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

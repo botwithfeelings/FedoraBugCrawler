@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1429118</bug_id>
+          
+          <creation_ts>2017-03-04 11:33:00 -0500</creation_ts>
+          <short_desc>grubenv not updated by grubby on EFI</short_desc>
+          <delta_ts>2017-03-09 17:42:33 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>grubby</component>
+          <version>25</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>CURRENTRELEASE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Don Swaner">dswaner</reporter>
+          <assigned_to name="Peter Jones">pjones</assigned_to>
+          <cc>pjones</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-03-09 17:42:33</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10208413</commentid>
+    <comment_count>0</comment_count>
+    <who name="Don Swaner">dswaner</who>
+    <bug_when>2017-03-04 11:33:56 -0500</bug_when>
+    <thetext>Description of problem:
+After a kernel upgrade on an EFI system, the grubenv block is not being updated.  This is on a PC for which the /boot/grub2/grubenv symbolic link has been corrected to point to &quot;/efi/EFI/fedora/grubenv&quot; instead of &quot;/boot/efi/EFI/fedora/grubenv&quot; so that it is found at boot time, and boots to the default saved in grubenv.  grubby places a grubenv.new in /boot/grub2 instead of in /boot/efi/EFI/fedora, and the active grubenv block in /boot/efi/EFI/fedora is not updated for the new kernel.
+
+Version-Release number of selected component (if applicable):
+grubby-8.40-3.fc24.x86_64
+grub2-tools-2.02-0.38.fc25.x86_64
+
+How reproducible:
+Always
+
+Steps to Reproduce:
+1. Set up a properly functioning grubenv block for EFI PC which points to current kernel.
+2. Wait for kernel upgrade
+
+Actual results:
+After kernel upgrade, grubenv is not updated and still points to previous kernel.  There are dnf error messages showing the mismatch between the old /boot/grub2 location and the new /boot/efi/EFI/fedora location.
+
+Expected results:
+grubenv is updated to point to new kernel.
+
+Additional info:
+grubby updates grub.cfg OK for the new kernel (except perhaps for the grub menuentry id, which points to the previous kernel)
+
+grub2-mkconfig also appears to have the same problem.  It tries to update grubenv, but fails because of new EFI directory vs old /boot/grub2 directory.
+
+grub2-set-default also fails because of old/new directory mismatch.
+
+grub2-editenv can be used to manually update grubenv.
+
+/etc/default/grub:
+
+GRUB_TIMEOUT=15
+GRUB_DISTRIBUTOR=&quot;$(sed &apos;s, release .*$,,g&apos; /etc/system-release)&quot;
+GRUB_DEFAULT=&quot;saved&quot;
+GRUB_DISABLE_SUBMENU=&quot;y&quot;
+GRUB_TERMINAL_OUTPUT=&quot;console&quot;
+GRUB_CMDLINE_LINUX=&quot;quiet&quot;
+GRUB_DISABLE_RECOVERY=&quot;true&quot;
+GRUB_SAVEDEFAULT=&quot;true&quot;
+GRUB_DISABLE_OS_PROBER=&quot;true&quot;</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10209088</commentid>
+    <comment_count>1</comment_count>
+    <who name="Don Swaner">dswaner</who>
+    <bug_when>2017-03-05 12:33:22 -0500</bug_when>
+    <thetext>I would guess that this bug report is not telling the developers anything that they didn&apos;t already know (for years).
+
+It appears that even though the grubenv update by grubby fails, it &quot;works anyway&quot; because the menuentry-id for the new kernel is the same as that for the next most recent kernel, and presumably grub finds the first occurrence, which is the newest kernel, which is what you want 99% of the time.
+
+grub2-mkconfig does update the menuentry-id in grub.cfg, and tries and fails to update grubenv.  So it would seem that the first reboot after running grub2-mkconfig after a kernel upgrade would have a default of the old kernel (saved in grubenv), but would be corrected on subsequent boots, assuming the user notices the condition and selects the most recent kernel on the grub menu.  If the user did not notice this condition, they could continue running with an old kernel for some time.
+
+So these failures to update grubenv would seem to mostly have minimal impact on the user.  The error messages (failure to update grubenv) are cause for some concern.  Only users that use &quot;save default&quot; are affected.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10226636</commentid>
+    <comment_count>2</comment_count>
+    <who name="Don Swaner">dswaner</who>
+    <bug_when>2017-03-09 17:42:33 -0500</bug_when>
+    <thetext>The last upgrade of grub appears to have corrected this problem (and others).  The originally supplied link to grubenv in /boot/grub2 now works for &quot;save default&quot;.  grub2-mkconfig does not complain about finding grubenv if the fully qualified name is specified.  Assuming grubby works also (i.e. it finds grubenv).  Perhaps I caused this problem by changing the symbolic link to grubenv, in order to get save default to work - changing the link after the problem was already corrected by a new grub release.  Perhaps not.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

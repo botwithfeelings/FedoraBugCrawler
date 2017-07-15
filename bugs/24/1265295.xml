@@ -1,0 +1,458 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1265295</bug_id>
+          
+          <creation_ts>2015-09-22 11:10:00 -0400</creation_ts>
+          <short_desc>f23 beta atomic - journal from first boot is lost</short_desc>
+          <delta_ts>2016-10-24 12:21:25 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>ostree</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords>Reopened</keywords>
+          <priority>high</priority>
+          <bug_severity>high</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Dusty Mabe">dustymabe</reporter>
+          <assigned_to name="Colin Walters">walters</assigned_to>
+          <cc>admiller</cc>
+    
+    
+    <cc>jbrooks</cc>
+    
+    
+    <cc>jkurik</cc>
+    
+    
+    <cc>jlebon</cc>
+    
+    
+    <cc>lpoetter</cc>
+    
+    
+    <cc>mail</cc>
+    
+    
+    <cc>mattdm</cc>
+    
+    
+    <cc>mbarnes</cc>
+    
+    
+    <cc>stefw</cc>
+    
+    
+    <cc>trishnaguha17</cc>
+    
+    
+    <cc>walters</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>ostree-2016.10-4.fc24 ostree-2016.10-8.fc24</cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-09-22 20:23:24</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      <flag name="needinfo"
+          id="2800938"
+          type_id="16"
+          status="?"
+          setter="jlebon"
+          requestee="lpoetter"
+    />
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>8657849</commentid>
+    <comment_count>0</comment_count>
+    <who name="Dusty Mabe">dustymabe</who>
+    <bug_when>2015-09-22 11:10:19 -0400</bug_when>
+    <thetext>Description of problem:
+
+The journal on first boot of the Atomic cloud image is lost because it is logged to /run vs /var. Filing against rpm-ostree as I don&apos;t really know a better component to use. Please move to correct component when that is determined.
+
+##### FIRST BOOT ######
+
+-bash-4.3# ls -l /proc/$(pgrep journal)/fd/ | grep journal
+lrwx------. 1 root root 64 Sep 22 13:21 13 -&gt; /run/log/journal/bd336ade3c5a47d9b59d7cd2fe01fa0a/system.journal
+
+###### 1st REBOOT #########
+
+-bash-4.3# journalctl --list-boots
+ 0 e5976df3fb6645edb10b9ca5a5269cb0 Tue 2015-09-22 13:57:31 UTC—Tue 2015-09-22 13:58:20 UTC
+-bash-4.3# 
+-bash-4.3# ls -l /proc/$(pgrep journal)/fd/ | grep journal
+lrwx------. 1 root root 64 Sep 22 13:57 18 -&gt; /var/log/journal/bd336ade3c5a47d9b59d7cd2fe01fa0a/system.journal
+lrwx------. 1 root root 64 Sep 22 13:57 28 -&gt; /var/log/journal/bd336ade3c5a47d9b59d7cd2fe01fa0a/user-1000.journal
+
+###### 2nd REBOOT #########
+
+-bash-4.3# journalctl --list-boots
+-1 e5976df3fb6645edb10b9ca5a5269cb0 Tue 2015-09-22 13:57:31 UTC—Tue 2015-09-22 14:00:02 UTC
+ 0 ba533750e5534b9e860b457c8677dead Tue 2015-09-22 14:00:08 UTC—Tue 2015-09-22 14:03:13 UTC
+-bash-4.3# 
+-bash-4.3# ls -l /proc/$(pgrep journal)/fd/ | grep journal
+lrwx------. 1 root root 64 Sep 22 14:00 14 -&gt; /var/log/journal/bd336ade3c5a47d9b59d7cd2fe01fa0a/system.journal
+lrwx------. 1 root root 64 Sep 22 14:03 26 -&gt; /var/log/journal/bd336ade3c5a47d9b59d7cd2fe01fa0a/user-1000.journal
+
+###########################
+
+Version-Release number of selected component (if applicable):
+-bash-4.3# rpm -q rpm-ostree ostree kernel systemd
+rpm-ostree-2015.9-2.fc23.x86_64
+ostree-2015.8-1.fc23.x86_64
+kernel-4.2.0-300.fc23.x86_64
+systemd-222-5.fc23.x86_64
+
+
+How reproducible:
+Always
+
+
+Steps to Reproduce:
+See description</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8658648</commentid>
+    <comment_count>1</comment_count>
+    <who name="Colin Walters">walters</who>
+    <bug_when>2015-09-22 15:03:44 -0400</bug_when>
+    <thetext>Well, what&apos;s in /etc/systemd/journald.conf ?  storage=auto?
+
+This might be due to a change with respect to journald in the initramfs.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8658658</commentid>
+    <comment_count>2</comment_count>
+    <who name="Dusty Mabe">dustymabe</who>
+    <bug_when>2015-09-22 15:10:44 -0400</bug_when>
+    <thetext>Everything in journald.conf is commented out which is the same as it is in the cloud base image. The cloud base image does not have this problem.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8715538</commentid>
+    <comment_count>3</comment_count>
+    <who name="Dusty Mabe">dustymabe</who>
+    <bug_when>2015-10-13 09:44:11 -0400</bug_when>
+    <thetext>This is still a problem as of &apos;Fedora-Cloud-Atomic-23-20151005.x86_64.qcow2&apos;. I haven&apos;t tried a newer image but I assume it hasn&apos;t been fixed.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8908096</commentid>
+    <comment_count>4</comment_count>
+    <who name="Stef Walter">stefw</who>
+    <bug_when>2015-12-10 08:11:25 -0500</bug_when>
+    <thetext>*** Bug 1289902 has been marked as a duplicate of this bug. ***</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8923136</commentid>
+    <comment_count>5</comment_count>
+    <who name="Colin Walters">walters</who>
+    <bug_when>2015-12-16 09:34:17 -0500</bug_when>
+    <thetext>I&apos;m thinking this is likely because we&apos;re pruning /var in rpm-ostree composes, likely need to do what we do in RHELAH to set storage=persistent.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8967953</commentid>
+    <comment_count>6</comment_count>
+    <who name="Colin Walters">walters</who>
+    <bug_when>2016-01-10 17:06:48 -0500</bug_when>
+    <thetext>Another alternative is to patch systemd to default to persistent.  I lean a bit towards this - the &quot;auto&quot; value is a bit weird - configuration-by-directory-presence.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8967963</commentid>
+    <comment_count>7</comment_count>
+      <attachid>1113405</attachid>
+    <who name="Matthew Barnes">mbarnes</who>
+    <bug_when>2016-01-10 17:44:06 -0500</bug_when>
+    <thetext>Created attachment 1113405
+Kickstart patch
+
+I think this should do for now.  Based on RHELAH&apos;s treecompose-post.sh.
+
+Still trying to (learn how to) get an image built so I can test this.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8967989</commentid>
+    <comment_count>8</comment_count>
+    <who name="Matthew Barnes">mbarnes</who>
+    <bug_when>2016-01-10 18:28:22 -0500</bug_when>
+    <thetext>FTR, I&apos;m doing:
+
+# imagefactory --debug base_image --file-parameter install_script fedora-cloud-atomic.ks ../f23/fedora-atomic-f23.tdl
+
+But that eventually aborts with:
+
+Traceback (most recent call last):
+  File &quot;/usr/lib/python2.7/site-packages/imgfac/Builder.py&quot;, line 132, in _build_image_from_template
+    self.os_plugin.create_base_image(self, template, parameters)
+  File &quot;/usr/lib/python2.7/site-packages/imagefactory_plugins/TinMan/TinMan.py&quot;, line 365, in create_base_image
+    builder.base_image.icicle = self.guest.customize_and_generate_icicle(libvirt_xml)
+  File &quot;/usr/lib/python2.7/site-packages/oz/Linux.py&quot;, line 353, in customize_and_generate_icicle
+    return self._internal_customize(libvirt_xml, &quot;gen_and_mod&quot;)
+  File &quot;/usr/lib/python2.7/site-packages/oz/Linux.py&quot;, line 303, in _internal_customize
+    self._collect_setup(modified_xml)
+  File &quot;/usr/lib/python2.7/site-packages/oz/RedHat.py&quot;, line 421, in _collect_setup
+    g_handle = self._guestfs_handle_setup(libvirt_xml)
+  File &quot;/usr/lib/python2.7/site-packages/oz/Guest.py&quot;, line 1061, in _guestfs_handle_setup
+    raise oz.OzException.OzException(&quot;No operating systems found on the disk&quot;)
+OzException: No operating systems found on the disk
+
+Image build FAILED with error: No operating systems found on the disk
+
+
+Not sure if the ksflatten step is necessary.  I get the same error either way.  Hints appreciated.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8970114</commentid>
+    <comment_count>9</comment_count>
+    <who name="Colin Walters">walters</who>
+    <bug_when>2016-01-11 10:12:32 -0500</bug_when>
+    <thetext>The problem with doing this in that kickstart is it doesn&apos;t apply to bare metal.  There&apos;s a different kickstart for that that we *could* do things in, but it&apos;s probably simplest to do it in the treecompose post (where the locale bits are) so it applies everywhere.
+
+I lean a bit towards at least pinging the systemd guys and flipping the default.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9672091</commentid>
+    <comment_count>10</comment_count>
+    <who name="Colin Walters">walters</who>
+    <bug_when>2016-09-01 11:06:29 -0400</bug_when>
+    <thetext>https://pagure.io/fedora-atomic/c/9c4b3cb0e437de9af14d7134a58c5caf04eaa308?branch=f24</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9708117</commentid>
+    <comment_count>11</comment_count>
+    <who name="Colin Walters">walters</who>
+    <bug_when>2016-09-14 12:57:45 -0400</bug_when>
+    <thetext>https://github.com/ostreedev/ostree/pull/511</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9708136</commentid>
+    <comment_count>12</comment_count>
+    <who name="Colin Walters">walters</who>
+    <bug_when>2016-09-14 13:06:07 -0400</bug_when>
+    <thetext>*** Bug 1353688 has been marked as a duplicate of this bug. ***</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9714079</commentid>
+    <comment_count>13</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-16 07:39:04 -0400</bug_when>
+    <thetext>ostree-2016.10-4.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-702fb80598</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9715903</commentid>
+    <comment_count>14</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-16 20:53:22 -0400</bug_when>
+    <thetext>ostree-2016.10-4.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-702fb80598</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9722518</commentid>
+    <comment_count>15</comment_count>
+    <who name="Jason Brooks">jbrooks</who>
+    <bug_when>2016-09-19 14:25:14 -0400</bug_when>
+    <thetext>I left feedback in bodhi, but I&apos;m getting the same behavior w/ ostree-2016.10-4.fc24.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9726847</commentid>
+    <comment_count>16</comment_count>
+    <who name="Jonathan Lebon">jlebon</who>
+    <bug_when>2016-09-20 11:50:08 -0400</bug_when>
+    <thetext>&gt; I left feedback in bodhi, but I&apos;m getting the same behavior w/ ostree-2016.10-4.fc24.
+
+I can confirm this as well. This is due to an SELinux violation:
+
+Sep 20 03:08:47 localhost.localdomain audit[625]: AVC avc:  denied  { write } for  pid=625 comm=&quot;systemd-journal&quot; name=&quot;log&quot; dev=&quot;dm-0&quot; ino=4756389 scontext=system_u:system_r:syslogd_t:s0 tcontext=system_u:object_r:var_t:s0 tclass=dir permissive=0
+
+What happens is that the journal tries to write to /var/log, but it&apos;s labeled as var_t instead of the expected var_log_t, so it gets blocked by SELinux. Now, /var/log *does* get relabeled later on by systemd-tmpfiles. And in fact, a following `systemctl restart systemd-journald.service` would do the trick.
+
+The issue is that during installation, the dir $ANA_INSTALL_PATH/var is labeled as var_t by ostree when anaconda creates the deployment, but then anaconda copies log files into $ANA_INSTALL_PATH/var/log/anaconda, creating log in the process with an inherited var_t label (since they don&apos;t match the final paths SELinux expects). So a workaround here is to simply do:
+
+https://github.com/ostreedev/ostree/pull/513
+
+Or we can transfer this to anaconda so that they ensure that /var/log is properly labeled during installation.
+
+Or we can pass inst.nosave=logs to anaconda so that it doesn&apos;t even create those log files.
+
+I&apos;m gonna let Colin chime in here.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9727242</commentid>
+    <comment_count>17</comment_count>
+    <who name="Colin Walters">walters</who>
+    <bug_when>2016-09-20 14:02:45 -0400</bug_when>
+    <thetext>Ah, so there were two bugs here.  I did test the ordering fix, but I tested it by nuking /var/log/journal, not /var/log.
+
+Hmm.  I don&apos;t quite understand how your ostree PR helps - oh wait, I see, it&apos;s that ostree does a relabeling on the first deployment for an osname.
+
+Eh.  Something is bugging me here - why can&apos;t we just have systemd-tmpfiles handle this, basically ensure that systemd-journal-flush is ordered after it?
+
+A quick annotate leads to:
+
+https://github.com/systemd/systemd/commit/74055aa76278232ff05574fc47c4e6b3560554a7
+
+Which I&apos;ve read three times and am still confused by.  Don&apos;t we want to order *before*?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9727301</commentid>
+    <comment_count>18</comment_count>
+    <who name="Jonathan Lebon">jlebon</who>
+    <bug_when>2016-09-20 14:27:07 -0400</bug_when>
+    <thetext>(In reply to Colin Walters from comment #17)
+&gt; Eh.  Something is bugging me here - why can&apos;t we just have systemd-tmpfiles
+&gt; handle this, basically ensure that systemd-journal-flush is ordered after it?
+&gt; 
+&gt; A quick annotate leads to:
+&gt; 
+&gt; https://github.com/systemd/systemd/commit/
+&gt; 74055aa76278232ff05574fc47c4e6b3560554a7
+&gt; 
+&gt; Which I&apos;ve read three times and am still confused by.  Don&apos;t we want to
+&gt; order *before*?
+
+Yeah, that&apos;s confusing indeed. I had tested this before by adding systemd-journal-flush.service as an After= in systemd-tmpfiles-setup.service and didn&apos;t investigate further when I saw the circular dependency error without realizing it came from right there in the systemd-journal-flush.service definition.
+
+But I tried just now to simply move systemd-tmpfiles-setup.service from a Before= to an After= in systemd-journal-flush.service and everything went smooth, so I&apos;m wondering if that isn&apos;t what was intended upstream.
+
+Lennart, could you have a quick look? Is this ordered the other way around?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9727919</commentid>
+    <comment_count>19</comment_count>
+    <who name="Colin Walters">walters</who>
+    <bug_when>2016-09-20 18:08:06 -0400</bug_when>
+    <thetext>https://bodhi.fedoraproject.org/updates/ostree-2016.10-8.fc24</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9728258</commentid>
+    <comment_count>20</comment_count>
+    <who name="Jason Brooks">jbrooks</who>
+    <bug_when>2016-09-20 21:44:56 -0400</bug_when>
+    <thetext>Seems the same? https://paste.fedoraproject.org/431727/47442219/</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9730128</commentid>
+    <comment_count>21</comment_count>
+    <who name="Jonathan Lebon">jlebon</who>
+    <bug_when>2016-09-21 09:33:19 -0400</bug_when>
+    <thetext>(In reply to Jason Brooks from comment #20)
+&gt; Seems the same? https://paste.fedoraproject.org/431727/47442219/
+
+Works for me here. Are you using an installer that has this ostree build?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9732039</commentid>
+    <comment_count>22</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-21 20:22:17 -0400</bug_when>
+    <thetext>ostree-2016.10-4.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9732237</commentid>
+    <comment_count>23</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-21 21:24:51 -0400</bug_when>
+    <thetext>ostree-2016.10-8.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-eea2281eff</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9735910</commentid>
+    <comment_count>24</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-22 20:23:24 -0400</bug_when>
+    <thetext>ostree-2016.10-8.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9737911</commentid>
+    <comment_count>25</comment_count>
+    <who name="Jonathan Lebon">jlebon</who>
+    <bug_when>2016-09-23 09:55:50 -0400</bug_when>
+    <thetext>We&apos;ll need the Koji createImage tasks to use newer boot media than what is currently in https://kojipkgs.fedoraproject.org/pub/alt/releases/24/Cloud/x86_64/os/ for this fix to take effect in the F24 cloud images.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9748029</commentid>
+    <comment_count>26</comment_count>
+    <who name="Dusty Mabe">dustymabe</who>
+    <bug_when>2016-09-27 15:01:29 -0400</bug_when>
+    <thetext>Any update on this happening?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9748322</commentid>
+    <comment_count>27</comment_count>
+    <who name="Colin Walters">walters</who>
+    <bug_when>2016-09-27 17:05:35 -0400</bug_when>
+    <thetext>I moved that part to https://pagure.io/releng/issue/114</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9815788</commentid>
+    <comment_count>28</comment_count>
+    <who name="Dusty Mabe">dustymabe</who>
+    <bug_when>2016-10-24 12:21:25 -0400</bug_when>
+    <thetext>For the record it seems journal is getting written to /var/log/ just fine on F25 atomic host:
+
+-bash-4.3# rpm-ostree status
+State: idle
+Deployments:
+● fedora-atomic:fedora-atomic/25/x86_64/docker-host
+       Version: 25.33 (2016-10-23 10:17:49)
+        Commit: 049beb1175ad5763df5ba345c9f062fc56f5fd70c8f1d6a4f4c3cd2882192ae8
+        OSName: fedora-atomic
+-bash-4.3# ls -l /proc/659/fd | grep journal
+lrwx------. 1 root root 64 Oct 24 16:15 23 -&gt; /var/log/journal/9c797dc6c9a24adcbc1d88cf0cf932a9/system.journal
+lrwx------. 1 root root 64 Oct 24 16:15 29 -&gt; /var/log/journal/9c797dc6c9a24adcbc1d88cf0cf932a9/user-1000.journal</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="0"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1113405</attachid>
+            <date>2016-01-10 17:44:00 -0500</date>
+            <delta_ts>2016-01-10 17:44:06 -0500</delta_ts>
+            <desc>Kickstart patch</desc>
+            <filename>fedora-cloud-atomic.ks.patch</filename>
+            <type>text/plain</type>
+            <size>588</size>
+            <attacher name="Matthew Barnes">mbarnes</attacher>
+            
+              <data encoding="base64">ZGlmZiAtLWdpdCBhL2ZlZG9yYS1jbG91ZC1hdG9taWMua3MgYi9mZWRvcmEtY2xvdWQtYXRvbWlj
+LmtzCmluZGV4IGQzM2YzMTYuLjEyNmE4YjEgMTAwNjQ0Ci0tLSBhL2ZlZG9yYS1jbG91ZC1hdG9t
+aWMua3MKKysrIGIvZmVkb3JhLWNsb3VkLWF0b21pYy5rcwpAQCAtNTIsNiArNTIsOSBAQCB1c2Vy
+ZGVsIC1yIG5vbmUKICMgaHR0cHM6Ly9naXRodWIuY29tL3Byb2plY3RhdG9taWMvZG9ja2VyLXN0
+b3JhZ2Utc2V0dXAvcHVsbC8yNQogZWNobyAnR1JPV1BBUlQ9dHJ1ZScgPiAvZXRjL3N5c2NvbmZp
+Zy9kb2NrZXItc3RvcmFnZS1zZXR1cAogCisjIFBlcnNpc3RlbnQgam91cm5hbCBieSBkZWZhdWx0
+LCBiZWNhdXNlIEF0b21pYyBkb2Vzbid0IGhhdmUgc3lzbG9nCitlY2hvICdTdG9yYWdlPXBlcnNp
+c3RlbnQnID4+IC9ldGMvc3lzdGVtZC9qb3VybmFsZC5jb25mCisKIGVjaG8gLW4gIkdldHR5IGZp
+eGVzIgogIyBhbHRob3VnaCB3ZSB3YW50IGNvbnNvbGUgb3V0cHV0IGdvaW5nIHRvIHRoZSBzZXJp
+YWwgY29uc29sZSwgd2UgZG9uJ3QKICMgYWN0dWFsbHkgaGF2ZSB0aGUgb3Bwb3J0dW5pdHkgdG8g
+bG9naW4gdGhlcmUuIEZJWC4K
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

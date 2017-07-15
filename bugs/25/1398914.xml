@@ -1,0 +1,347 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1398914</bug_id>
+          
+          <creation_ts>2016-11-27 04:48:00 -0500</creation_ts>
+          <short_desc>SOCK_DGRAM socket option IP_RECVORIGDSTADDR doesn&apos;t work</short_desc>
+          <delta_ts>2017-02-28 17:20:55 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>kernel</component>
+          <version>25</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>CURRENTRELEASE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>medium</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Iybego">iybego</reporter>
+          <assigned_to name="Neil Horman">nhorman</assigned_to>
+          <cc>gansalmon</cc>
+    
+    
+    <cc>ichavero</cc>
+    
+    
+    <cc>itamar</cc>
+    
+    
+    <cc>iybego</cc>
+    
+    
+    <cc>jkastner</cc>
+    
+    
+    <cc>jonathan</cc>
+    
+    
+    <cc>kernel-maint</cc>
+    
+    
+    <cc>labbott</cc>
+    
+    
+    <cc>madhu.chinakonda</cc>
+    
+    
+    <cc>mchehab</cc>
+    
+    
+    <cc>nhorman</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-02-28 17:20:55</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9931772</commentid>
+    <comment_count>0</comment_count>
+      <attachid>1224772</attachid>
+    <who name="Iybego">iybego</who>
+    <bug_when>2016-11-27 04:48:45 -0500</bug_when>
+    <thetext>Created attachment 1224772
+small autotest for IP_RECVORIGDSTADDR
+
+Description of problem:
+Even if i set IP_RECVORIGDSTADDR on SOCK_DGRAM, i doesn&apos;t receive IP_ORIGDSTADDR in CMSG
+
+Version-Release number of selected component (if applicable):
+kernel 4.8.8-300.fc25.x86_64
+
+How reproducible:
+Attached small autotest. Just do say &quot;make&quot; and test will be compiled and started.
+
+Steps to Reproduce:
+1. Enable IP_RECVORIGDSTADDR on SOCK_DGRAM socket
+2. Use recvmsg with CMSG buffer specified
+3. Scan CMSG buffer against IP_ORIGDSTADDR
+
+Actual results:
+
+==== testing [IP_RECVORIGDSTADDR]
+binded to port 38886
+failure: [SOL_IP, IP_ORIGDSTADDR] doesn&apos;t exists in CMSG!
+==== testing [FAILED]
+
+
+Expected results:
+
+On kernel 3.10.49 its works and returns:
+
+==== testing [IP_RECVORIGDSTADDR]
+binded to port 43699
+cmsg received [level: 0, type: 20]
+IP_ORIGDSTADDR received
+ ^ looks like all ok! grats!
+==== testing [OK]</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9936263</commentid>
+    <comment_count>1</comment_count>
+    <who name="Neil Horman">nhorman</who>
+    <bug_when>2016-11-28 15:11:16 -0500</bug_when>
+    <thetext>hmm, I&apos;m not sure why there is a length validation in the cmsg add routine int he kernel, but thats where it seems to be failing.  Let me look into the why behind that.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9944483</commentid>
+    <comment_count>2</comment_count>
+    <who name="Neil Horman">nhorman</who>
+    <bug_when>2016-11-30 14:10:22 -0500</bug_when>
+    <thetext>hmm, odder still, printed out the skb_transport_offset and length fields, and the transport offset was -8, which implies that the transport pointer points to a space lower in memory than the data pointer, which is definitely odd.  Continuing to look into this</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9972587</commentid>
+    <comment_count>3</comment_count>
+    <who name="Neil Horman">nhorman</who>
+    <bug_when>2016-12-09 13:25:17 -0500</bug_when>
+    <thetext>note to self: problem may exist in udp_v4_early_demux</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10068645</commentid>
+    <comment_count>4</comment_count>
+    <who name="Laura Abbott">labbott</who>
+    <bug_when>2017-01-16 20:12:05 -0500</bug_when>
+    <thetext>*********** MASS BUG UPDATE **************
+We apologize for the inconvenience.  There is a large number of bugs to go through and several of them have gone stale.  Due to this, we are doing a mass bug update across all of the Fedora 25 kernel bugs.
+ 
+Fedora 25 has now been rebased to 4.9.3-200.fc25.  Please test this kernel update (or newer) and let us know if you issue has been resolved or if it is still present with the newer kernel.
+ 
+If you have moved on to Fedora 26, and are still experiencing this issue, please change the version to Fedora 26.
+ 
+If you experience different issues, please open a new bug report for those.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10074755</commentid>
+    <comment_count>5</comment_count>
+    <who name="Iybego">iybego</who>
+    <bug_when>2017-01-18 00:51:59 -0500</bug_when>
+    <thetext>Problem still exists with:
+4.9.3-200.fc25.x86_64 #1 SMP Fri Jan 13 01:01:13 UTC 2017 x86_64 x86_64 x86_64 GNU/Linux</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10139108</commentid>
+    <comment_count>6</comment_count>
+    <who name="Neil Horman">nhorman</who>
+    <bug_when>2017-02-10 13:42:49 -0500</bug_when>
+    <thetext>Think I found the problem.  Can you apply this patch and see if the problem abates?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10139112</commentid>
+    <comment_count>7</comment_count>
+      <attachid>1249106</attachid>
+    <who name="Neil Horman">nhorman</who>
+    <bug_when>2017-02-10 13:43:26 -0500</bug_when>
+    <thetext>Created attachment 1249106
+patchto fix IP_RECVORIGDTADDR</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10184338</commentid>
+    <comment_count>8</comment_count>
+    <who name="Iybego">iybego</who>
+    <bug_when>2017-02-26 03:48:01 -0500</bug_when>
+    <thetext>Thanks! Looks like its works well!
+
+==== testing [IP_RECVORIGDSTADDR]
+binded to port 43123
+cmsg received [level: 0, type: 20]
+IP_ORIGDSTADDR received
+ ^ looks like all ok! grats!
+==== testing [OK]</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10195374</commentid>
+    <comment_count>9</comment_count>
+    <who name="Laura Abbott">labbott</who>
+    <bug_when>2017-02-28 17:20:55 -0500</bug_when>
+    <thetext>That fix is now in the 4.9.x stable tree. Thanks for reporting the bug and thank you Neil for pointing out the fix.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="0"
+              ispatch="0"
+              isprivate="0"
+          >
+            <attachid>1224772</attachid>
+            <date>2016-11-27 04:48:00 -0500</date>
+            <delta_ts>2016-11-27 04:48:45 -0500</delta_ts>
+            <desc>small autotest for IP_RECVORIGDSTADDR</desc>
+            <filename>IP_RECVORIGDSTADDR.tar.gz</filename>
+            <type>application/x-gzip</type>
+            <size>3302</size>
+            <attacher name="Iybego">iybego</attacher>
+            
+              <data encoding="base64">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
+</data>
+
+          </attachment>
+          <attachment
+              isobsolete="0"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1249106</attachid>
+            <date>2017-02-10 13:43:00 -0500</date>
+            <delta_ts>2017-02-10 13:43:26 -0500</delta_ts>
+            <desc>patchto fix IP_RECVORIGDTADDR</desc>
+            <filename>test.patch</filename>
+            <type>text/plain</type>
+            <size>1796</size>
+            <attacher name="Neil Horman">nhorman</attacher>
+            
+              <data encoding="base64">Y29tbWl0IDM5YjJkZDc2NWUwNzExZTFlZmQxZDFkZjA4OTQ3M2E4ZGQ5M2FkNDgKQXV0aG9yOiBX
+aWxsZW0gZGUgQnJ1aWpuIDx3aWxsZW1iQGdvb2dsZS5jb20+CkRhdGU6ICAgVGh1IERlYyAyMiAx
+ODoxOToxNiAyMDE2IC0wNTAwCgogICAgaW5ldDogZml4IElQKFY2KV9SRUNWT1JJR0RTVEFERFIg
+Zm9yIHVkcCBzb2NrZXRzCiAgICAKICAgIFNvY2tldCBjbXNnIElQKFY2KV9SRUNWT1JJR0RTVEFE
+RFIgY2hlY2tzIHRoYXQgcG9ydCByYW5nZSBsaWVzIHdpdGhpbgogICAgdGhlIHBhY2tldC4gRm9y
+IHNvY2tldHMgdGhhdCBoYXZlIHRyYW5zcG9ydCBoZWFkZXJzIHB1bGxlZCwgdHJhbnNwb3J0CiAg
+ICBvZmZzZXQgY2FuIGJlIG5lZ2F0aXZlLiBVc2Ugc2lnbmVkIGNvbXBhcmlzb24gdG8gYXZvaWQg
+b3ZlcmZsb3cuCiAgICAKICAgIEZpeGVzOiBlNmFmYzhhY2U2ZGQgKCJ1ZHA6IHJlbW92ZSBoZWFk
+ZXJzIGZyb20gVURQIHBhY2tldHMgYmVmb3JlIHF1ZXVlaW5nIikKICAgIFJlcG9ydGVkLWJ5OiBO
+aXNhciBKYWdhYmFyIDxuamFnYWJhckBjbG91ZG1hcmsuY29tPgogICAgU2lnbmVkLW9mZi1ieTog
+V2lsbGVtIGRlIEJydWlqbiA8d2lsbGVtYkBnb29nbGUuY29tPgogICAgU2lnbmVkLW9mZi1ieTog
+RGF2aWQgUy4gTWlsbGVyIDxkYXZlbUBkYXZlbWxvZnQubmV0PgoKZGlmZiAtLWdpdCBhL25ldC9p
+cHY0L2lwX3NvY2tnbHVlLmMgYi9uZXQvaXB2NC9pcF9zb2NrZ2x1ZS5jCmluZGV4IDhiMTM4ODEu
+Ljk3NjA3MzQgMTAwNjQ0Ci0tLSBhL25ldC9pcHY0L2lwX3NvY2tnbHVlLmMKKysrIGIvbmV0L2lw
+djQvaXBfc29ja2dsdWUuYwpAQCAtMTQ4LDcgKzE0OCw3IEBAIHN0YXRpYyB2b2lkIGlwX2Ntc2df
+cmVjdl9kc3RhZGRyKHN0cnVjdCBtc2doZHIgKm1zZywgc3RydWN0IHNrX2J1ZmYgKnNrYikKIAlj
+b25zdCBzdHJ1Y3QgaXBoZHIgKmlwaCA9IGlwX2hkcihza2IpOwogCV9fYmUxNiAqcG9ydHMgPSAo
+X19iZTE2ICopc2tiX3RyYW5zcG9ydF9oZWFkZXIoc2tiKTsKIAotCWlmIChza2JfdHJhbnNwb3J0
+X29mZnNldChza2IpICsgNCA+IHNrYi0+bGVuKQorCWlmIChza2JfdHJhbnNwb3J0X29mZnNldChz
+a2IpICsgNCA+IChpbnQpc2tiLT5sZW4pCiAJCXJldHVybjsKIAogCS8qIEFsbCBjdXJyZW50IHRy
+YW5zcG9ydCBwcm90b2NvbHMgaGF2ZSB0aGUgcG9ydCBudW1iZXJzIGluIHRoZQpkaWZmIC0tZ2l0
+IGEvbmV0L2lwdjYvZGF0YWdyYW0uYyBiL25ldC9pcHY2L2RhdGFncmFtLmMKaW5kZXggMDQ4OWUx
+OS4uMTQwNzQyNiAxMDA2NDQKLS0tIGEvbmV0L2lwdjYvZGF0YWdyYW0uYworKysgYi9uZXQvaXB2
+Ni9kYXRhZ3JhbS5jCkBAIC03MDEsNyArNzAxLDcgQEAgdm9pZCBpcDZfZGF0YWdyYW1fcmVjdl9z
+cGVjaWZpY19jdGwoc3RydWN0IHNvY2sgKnNrLCBzdHJ1Y3QgbXNnaGRyICptc2csCiAJCXN0cnVj
+dCBzb2NrYWRkcl9pbjYgc2luNjsKIAkJX19iZTE2ICpwb3J0cyA9IChfX2JlMTYgKikgc2tiX3Ry
+YW5zcG9ydF9oZWFkZXIoc2tiKTsKIAotCQlpZiAoc2tiX3RyYW5zcG9ydF9vZmZzZXQoc2tiKSAr
+IDQgPD0gc2tiLT5sZW4pIHsKKwkJaWYgKHNrYl90cmFuc3BvcnRfb2Zmc2V0KHNrYikgKyA0IDw9
+IChpbnQpc2tiLT5sZW4pIHsKIAkJCS8qIEFsbCBjdXJyZW50IHRyYW5zcG9ydCBwcm90b2NvbHMg
+aGF2ZSB0aGUgcG9ydCBudW1iZXJzIGluIHRoZQogCQkJICogZmlyc3QgZm91ciBieXRlcyBvZiB0
+aGUgdHJhbnNwb3J0IGhlYWRlciBhbmQgdGhpcyBmdW5jdGlvbiBpcwogCQkJICogd3JpdHRlbiB3
+aXRoIHRoaXMgYXNzdW1wdGlvbiBpbiBtaW5kLgo=
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

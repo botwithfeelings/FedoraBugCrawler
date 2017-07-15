@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1366920</bug_id>
+          
+          <creation_ts>2016-08-14 21:24:00 -0400</creation_ts>
+          <short_desc>inconsistent paramkiko requirements for rpm  and egg</short_desc>
+          <delta_ts>2016-08-27 06:30:24 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>fabric</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Viorel Tabara">viorel.tabara</reporter>
+          <assigned_to name="Athmane Madjoudj">athmanem</assigned_to>
+          <cc>athmanem</cc>
+    
+    
+    <cc>silas</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>fabric-1.12.0-2.fc25</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-08-27 06:30:24</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9613644</commentid>
+    <comment_count>0</comment_count>
+    <who name="Viorel Tabara">viorel.tabara</who>
+    <bug_when>2016-08-14 21:24:27 -0400</bug_when>
+    <thetext>Description of problem:
+
+Attempting to serve a Pelican site with:
+
+    fab preview
+
+fails with:
+
+   pkg_resources.DistributionNotFound: The &apos;paramiko&lt;2.0,&gt;=1.10&apos; distribution 
+   was not found and is required by Fabric
+
+Package rpm and egg-info:
+
+   omiday ~ $ rpm -qR fabric | grep paramiko
+   python-paramiko &gt;= 1.10.0
+
+   omiday ~ $ cat /usr/lib/python2.7/site-packages/Fabric-1.11.1-py2.7.egg-info/requires.txt
+   paramiko&gt;=1.10,&lt;2.0
+ 
+
+
+Version-Release number of selected component (if applicable):
+
+fabric-1.11.1-1.fc25.noarch
+python2-paramiko-2.0.0-2.fc25.noarch
+
+
+How reproducible:
+
+Always.
+
+
+Steps to Reproduce:
+
+1. Create a &quot;fabfile&quot; that uses Paramiko:
+
+      from fabric.api import local
+
+      def host_type():
+         local(&apos;uname -s&apos;)
+
+2. Run it:
+
+      fab -H localhost host_type
+
+
+Actual results:
+
+Traceback (most recent call last):
+File &quot;/usr/bin/fab&quot;, line 5, in &lt;module&gt;
+   from pkg_resources import load_entry_point
+File &quot;/usr/lib/python2.7/site-packages/pkg_resources/__init__.py&quot;, line 2958, in &lt;module&gt;
+   @_call_aside
+File &quot;/usr/lib/python2.7/site-packages/pkg_resources/__init__.py&quot;, line 2944, in _call_aside
+   f(*args, **kwargs)
+File &quot;/usr/lib/python2.7/site-packages/pkg_resources/__init__.py&quot;, line 2971, in _initialize_master_working_set
+   working_set = WorkingSet._build_master()
+File &quot;/usr/lib/python2.7/site-packages/pkg_resources/__init__.py&quot;, line 637, in _build_master
+   return cls._build_from_requirements(__requires__)
+File &quot;/usr/lib/python2.7/site-packages/pkg_resources/__init__.py&quot;, line 650, in _build_from_requirements
+   dists = ws.resolve(reqs, Environment())
+File &quot;/usr/lib/python2.7/site-packages/pkg_resources/__init__.py&quot;, line 829, in resolve
+   raise DistributionNotFound(req, requirers)
+pkg_resources.DistributionNotFound: The &apos;paramiko&lt;2.0,&gt;=1.10&apos; distribution was not found and is required by Fabric
+
+
+Expected results:
+
+[localhost] Executing task &apos;host_type&apos;
+[localhost] local: uname -s
+Linux
+
+Done.
+ 
+
+Additional info:
+
+Removing the &apos;&lt;2.0&apos; condition from &apos;requires.txt&apos; to match the RPM appears to 
+get rid of error without any side effects.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9616636</commentid>
+    <comment_count>1</comment_count>
+    <who name="Athmane Madjoudj">athmanem</who>
+    <bug_when>2016-08-15 18:04:49 -0400</bug_when>
+    <thetext>Fixing right away. 
+
+paramiko 2.0 (f25+) also does not depend on pycrypto, so I&apos;ll need to fix that too.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9616648</commentid>
+    <comment_count>2</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-15 18:23:56 -0400</bug_when>
+    <thetext>fabric-1.12.0-2.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2016-d6c42eee69</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9619713</commentid>
+    <comment_count>3</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-16 12:25:59 -0400</bug_when>
+    <thetext>fabric-1.12.0-2.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-d6c42eee69</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9655551</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-27 06:30:22 -0400</bug_when>
+    <thetext>fabric-1.12.0-2.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

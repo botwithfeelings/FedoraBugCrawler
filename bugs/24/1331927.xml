@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1331927</bug_id>
+          
+          <creation_ts>2016-04-30 00:44:00 -0400</creation_ts>
+          <short_desc>AVC denied systemd getattr unix_stream_socket</short_desc>
+          <delta_ts>2016-05-14 19:28:07 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>selinux-policy</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>medium</priority>
+          <bug_severity>medium</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Chris Murphy">bugzilla</reporter>
+          <assigned_to name="Lukas Vrabec">lvrabec</assigned_to>
+          <cc>dominick.grift</cc>
+    
+    
+    <cc>dwalsh</cc>
+    
+    
+    <cc>lvrabec</cc>
+    
+    
+    <cc>mgrepl</cc>
+    
+    
+    <cc>plautrba</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>selinux-policy-3.13.1-187.fc24 selinux-policy-3.13.1-185.fc24</cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-05-14 19:28:07</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9281642</commentid>
+    <comment_count>0</comment_count>
+    <who name="Chris Murphy">bugzilla</who>
+    <bug_when>2016-04-30 00:44:51 -0400</bug_when>
+    <thetext>Description of problem:
+
+First seen with Fedora-Xfce-Live-i386-24_Beta-1.3.iso after launching Anaconda.
+
+
+Version-Release number of selected component (if applicable):
+selinux-policy-3.13.1-182.fc24.noarch
+
+How reproducible:
+
+
+Steps to Reproduce:
+1.
+2.
+3.
+
+Actual results:
+SELinux is preventing systemd from getattr access on the unix_stream_socket unix_stream_socket.
+
+*****  Plugin catchall (100. confidence) suggests   **************************
+
+If you believe that systemd should be allowed getattr access on the unix_stream_socket unix_stream_socket by default.
+Then you should report this as a bug.
+You can generate a local policy module to allow this access.
+Do
+allow this access for now by executing:
+# ausearch -c systemd --raw | audit2allow -M mypol
+# semodule -i mypol.pp
+
+Additional Information:
+Source Context                system_u:system_r:init_t:s0
+Target Context                system_u:system_r:kernel_t:s0
+Target Objects                unix_stream_socket [ unix_stream_socket ]
+Source                        systemd
+Source Path                   systemd
+Port                          &lt;Unknown&gt;
+Host                          localhost
+Source RPM Packages           
+Target RPM Packages           
+Policy RPM                    selinux-policy-3.13.1-182.fc24.noarch
+Selinux Enabled               True
+Policy Type                   targeted
+Enforcing Mode                Permissive
+Host Name                     localhost.localdomain
+Platform                      Linux localhost.localdomain 4.5.2-302.fc24.i686 #1
+                              SMP Wed Apr 27 14:54:19 UTC 2016 i686 i686
+Alert Count                   2
+First Seen                    2016-04-29 20:12:15 EDT
+Last Seen                     2016-04-29 20:12:34 EDT
+Local ID                      aacaaefc-2b2b-4f78-bc02-43122c662ab4
+
+Raw Audit Messages
+type=AVC msg=audit(1461975154.714:405): avc:  denied  { getattr } for  pid=1 comm=&quot;systemd&quot; path=&quot;socket:[152002]&quot; dev=&quot;sockfs&quot; ino=152002 scontext=system_u:system_r:init_t:s0 tcontext=system_u:system_r:kernel_t:s0 tclass=unix_stream_socket permissive=1
+
+
+Hash: systemd,init_t,kernel_t,unix_stream_socket,getattr
+
+
+Expected results:
+
+
+Additional info:
+
+There are actually five AVC&apos;s found by ausearch -m AVC which happen in the course of running the installer.
+
+time-&gt;Fri Apr 29 20:12:15 2016
+type=AVC msg=audit(1461975135.303:398): avc:  denied  { getattr } for  pid=1 comm=&quot;systemd&quot; path=&quot;socket:[151656]&quot; dev=&quot;sockfs&quot; ino=151656 scontext=system_u:system_r:init_t:s0 tcontext=system_u:system_r:kernel_t:s0 tclass=unix_stream_socket permissive=1
+----
+time-&gt;Fri Apr 29 20:12:20 2016
+type=AVC msg=audit(1461975140.047:403): avc:  denied  { getattr } for  pid=1 comm=&quot;systemd&quot; path=&quot;socket:[152463]&quot; dev=&quot;sockfs&quot; ino=152463 scontext=system_u:system_r:init_t:s0 tcontext=system_u:system_r:kernel_t:s0-s0:c0.c1023 tclass=unix_stream_socket permissive=1
+----
+time-&gt;Fri Apr 29 20:12:34 2016
+type=AVC msg=audit(1461975154.714:405): avc:  denied  { getattr } for  pid=1 comm=&quot;systemd&quot; path=&quot;socket:[152002]&quot; dev=&quot;sockfs&quot; ino=152002 scontext=system_u:system_r:init_t:s0 tcontext=system_u:system_r:kernel_t:s0 tclass=unix_stream_socket permissive=1
+----
+time-&gt;Fri Apr 29 20:15:08 2016
+type=AVC msg=audit(1461975308.152:408): avc:  denied  { getattr } for  pid=1 comm=&quot;systemd&quot; path=&quot;socket:[152608]&quot; dev=&quot;sockfs&quot; ino=152608 scontext=system_u:system_r:init_t:s0 tcontext=system_u:system_r:kernel_t:s0-s0:c0.c1023 tclass=unix_stream_socket permissive=1
+----
+time-&gt;Fri Apr 29 20:23:06 2016
+type=AVC msg=audit(1461975786.117:433): avc:  denied  { getattr } for  pid=1 comm=&quot;systemd&quot; path=&quot;socket:[184254]&quot; dev=&quot;sockfs&quot; ino=184254 scontext=system_u:system_r:init_t:s0 tcontext=system_u:system_r:kernel_t:s0-s0:c0.c1023 tclass=unix_stream_socket permissive=1</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9281643</commentid>
+    <comment_count>1</comment_count>
+    <who name="Chris Murphy">bugzilla</who>
+    <bug_when>2016-04-30 00:45:18 -0400</bug_when>
+    <thetext>systemd-229-7.fc24.i686</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9320412</commentid>
+    <comment_count>2</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-05-12 05:43:07 -0400</bug_when>
+    <thetext>selinux-policy-3.13.1-185.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-0f4619cd21</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9326677</commentid>
+    <comment_count>3</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-05-14 19:27:45 -0400</bug_when>
+    <thetext>selinux-policy-3.13.1-185.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

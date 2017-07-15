@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1402327</bug_id>
+          
+          <creation_ts>2016-12-07 04:18:00 -0500</creation_ts>
+          <short_desc>SELinux is preventing pptpcm from &apos;read&apos; accesses on the chr_file random.</short_desc>
+          <delta_ts>2017-01-04 07:53:50 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>selinux-policy</component>
+          <version>25</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard>abrt_hash:1155a531edb31bcaba1e9a8b992934a7cd95e1ca023fdb56a9726c4c0317fe89;VARIANT_ID=workstation;</status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Paweł">pawel.wierzbicki.pl</reporter>
+          <assigned_to name="Lukas Vrabec">lvrabec</assigned_to>
+          <cc>dominick.grift</cc>
+    
+    
+    <cc>dwalsh</cc>
+    
+    
+    <cc>jadecristal</cc>
+    
+    
+    <cc>lvrabec</cc>
+    
+    
+    <cc>mgrepl</cc>
+    
+    
+    <cc>plautrba</cc>
+    
+    
+    <cc>pmoore</cc>
+    
+    
+    <cc>ssekidde</cc>
+    
+    
+    <cc>twostageturbo</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>selinux-policy-3.13.1-225.3.fc25</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-12-12 18:59:13</cf_last_closed>
+          <cf_type>---</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9963753</commentid>
+    <comment_count>0</comment_count>
+    <who name="Paweł">pawel.wierzbicki.pl</who>
+    <bug_when>2016-12-07 04:18:45 -0500</bug_when>
+    <thetext>Description of problem:
+Before todays pptp upgrade, I couldn&apos;t use PPTP - it just didn&apos;t work, because nf_conntrack_pptp module was not loaded (it was not found/loaded on kernel 4.8.10, this bug =&gt; https://bugzilla.redhat.com/show_bug.cgi?id=1254340), but I didn&apos;t have the time to properly diagnose it.
+
+Then I upgraded to the 4.8.11 kernel, and it still didn&apos;t work.
+
+Then after todays pptp upgrade (1.9.0-1), this SELinux alert happens everytime i try to start pptp vpn. So basically I just can&apos;t use PPTP VPN on Fedora 25.
+SELinux is preventing pptpcm from &apos;read&apos; accesses on the chr_file random.
+
+*****  Plugin catchall_boolean (89.3 confidence) suggests   ******************
+
+If aby allow authlogin to nsswitch use ldap
+Then należy powiadomić o tym SELinuksa włączając zmienną logiczną „authlogin_nsswitch_use_ldap”.
+Na stronie podręcznika „None” znajduje się więcej informacji.
+Do
+setsebool -P authlogin_nsswitch_use_ldap 1
+
+*****  Plugin catchall (11.6 confidence) suggests   **************************
+
+If aby pptpcm powinno mieć domyślnie read dostęp do random chr_file.
+Then proszę to zgłosić jako błąd.
+Można utworzyć lokalny moduł polityki, aby umożliwić ten dostęp.
+Do
+allow this access for now by executing:
+# ausearch -c &apos;pptpcm&apos; --raw | audit2allow -M my-pptpcm
+# semodule -X 300 -i my-pptpcm.pp
+
+Additional Information:
+Source Context                system_u:system_r:pptp_t:s0
+Target Context                system_u:object_r:random_device_t:s0
+Target Objects                random [ chr_file ]
+Source                        pptpcm
+Source Path                   pptpcm
+Port                          &lt;Unknown&gt;
+Host                          (removed)
+Source RPM Packages           
+Target RPM Packages           
+Policy RPM                    selinux-policy-3.13.1-224.fc25.noarch
+Selinux Enabled               True
+Policy Type                   targeted
+Enforcing Mode                Enforcing
+Host Name                     (removed)
+Platform                      Linux (removed) 4.8.11-300.fc25.x86_64 #1 SMP Mon
+                              Nov 28 18:24:51 UTC 2016 x86_64 x86_64
+Alert Count                   1
+First Seen                    2016-12-07 09:55:34 CET
+Last Seen                     2016-12-07 09:55:34 CET
+Local ID                      d775628f-78d5-47c5-b852-b72eb8bd37a3
+
+Raw Audit Messages
+type=AVC msg=audit(1481100934.400:281): avc:  denied  { read } for  pid=2453 comm=&quot;pptpcm&quot; name=&quot;random&quot; dev=&quot;devtmpfs&quot; ino=1032 scontext=system_u:system_r:pptp_t:s0 tcontext=system_u:object_r:random_device_t:s0 tclass=chr_file permissive=0
+
+
+Hash: pptpcm,pptp_t,random_device_t,chr_file,read
+
+Version-Release number of selected component:
+selinux-policy-3.13.1-224.fc25.noarch
+
+Additional info:
+reporter:       libreport-2.8.0
+hashmarkername: setroubleshoot
+kernel:         4.8.11-300.fc25.x86_64
+type:           libreport</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9969504</commentid>
+    <comment_count>1</comment_count>
+    <who name="Doktorn">twostageturbo</who>
+    <bug_when>2016-12-08 15:33:30 -0500</bug_when>
+    <thetext>Description of problem:
+Connected to a VPN (PPTP) through network manager. PPTP provider require username and log in. I set that all users on the computer should share the password in Network manager.
+SELINUX did not fully appreciate this feature.
+
+Version-Release number of selected component:
+selinux-policy-3.13.1-224.fc25.noarch
+
+Additional info:
+reporter:       libreport-2.8.0
+hashmarkername: setroubleshoot
+kernel:         4.8.11-300.fc25.x86_64
+type:           libreport</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9971611</commentid>
+    <comment_count>2</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-09 08:47:59 -0500</bug_when>
+    <thetext>selinux-policy-3.13.1-225.3.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2016-f24b3ddc6a</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9973331</commentid>
+    <comment_count>3</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-09 22:58:39 -0500</bug_when>
+    <thetext>selinux-policy-3.13.1-225.3.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-f24b3ddc6a</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9978830</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-12 18:59:13 -0500</bug_when>
+    <thetext>selinux-policy-3.13.1-225.3.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9982470</commentid>
+    <comment_count>5</comment_count>
+      <attachid>1231340</attachid>
+    <who name="Paweł">pawel.wierzbicki.pl</who>
+    <bug_when>2016-12-13 16:57:32 -0500</bug_when>
+    <thetext>Created attachment 1231340
+SELinux detailed report, after dnf upgrade (5 mins ago)
+
+I upgraded 5 mins ago, and it still happens. Attached details of the report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10033692</commentid>
+    <comment_count>6</comment_count>
+    <who name="">jadecristal</who>
+    <bug_when>2017-01-04 07:53:50 -0500</bug_when>
+    <thetext>Description of problem:
+Adding a PPTP connection to a vpn provider and setting options using solely the NetworkManager dialog boxes (disabling, from default, all by MSCHAPv2, and setting the Use Point-to-Point Encryption option) causes the error when attempting to bring the link up.
+
+Version-Release number of selected component:
+selinux-policy-3.13.1-225.3.fc25.noarch
+
+Additional info:
+reporter:       libreport-2.8.0
+hashmarkername: setroubleshoot
+kernel:         4.8.14-300.fc25.x86_64
+type:           libreport</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="0"
+              ispatch="0"
+              isprivate="0"
+          >
+            <attachid>1231340</attachid>
+            <date>2016-12-13 16:57:00 -0500</date>
+            <delta_ts>2016-12-13 16:57:32 -0500</delta_ts>
+            <desc>SELinux detailed report, after dnf upgrade (5 mins ago)</desc>
+            <filename>file_1402327.txt</filename>
+            <type>text/plain</type>
+            <size>2160</size>
+            <attacher name="Paweł">pawel.wierzbicki.pl</attacher>
+            
+              <data encoding="base64">U0VMaW51eCBpcyBwcmV2ZW50aW5nIHBwdHBjbSBmcm9tIHJlYWQgYWNjZXNzIG9uIHRoZSBjaHJf
+ZmlsZSByYW5kb20uDQoNCioqKioqICBQbHVnaW4gY2F0Y2hhbGxfYm9vbGVhbiAoODkuMyBjb25m
+aWRlbmNlKSBzdWdnZXN0cyAgICoqKioqKioqKioqKioqKioqKg0KDQpJZiBhYnkgYWxsb3cgYXV0
+aGxvZ2luIHRvIG5zc3dpdGNoIHVzZSBsZGFwDQpUaGVuIG5hbGXFvHkgcG93aWFkb21pxIcgbyB0
+eW0gU0VMaW51a3NhIHfFgsSFY3phasSFYyB6bWllbm7EhSBsb2dpY3puxIUg4oCeYXV0aGxvZ2lu
+X25zc3dpdGNoX3VzZV9sZGFw4oCdLg0KTmEgc3Ryb25pZSBwb2RyxJljem5pa2Eg4oCeTm9uZeKA
+nSB6bmFqZHVqZSBzacSZIHdpxJljZWogaW5mb3JtYWNqaS4NCkRvDQpzZXRzZWJvb2wgLVAgYXV0
+aGxvZ2luX25zc3dpdGNoX3VzZV9sZGFwIDENCg0KKioqKiogIFBsdWdpbiBjYXRjaGFsbCAoMTEu
+NiBjb25maWRlbmNlKSBzdWdnZXN0cyAgICoqKioqKioqKioqKioqKioqKioqKioqKioqDQoNCklm
+IGFieSBwcHRwY20gcG93aW5ubyBtaWXEhyBkb215xZtsbmllIHJlYWQgZG9zdMSZcCBkbyByYW5k
+b20gY2hyX2ZpbGUuDQpUaGVuIHByb3N6xJkgdG8gemfFgm9zacSHIGpha28gYsWCxIVkLg0KTW/F
+vG5hIHV0d29yennEhyBsb2thbG55IG1vZHXFgiBwb2xpdHlraSwgYWJ5IHVtb8W8bGl3acSHIHRl
+biBkb3N0xJlwLg0KRG8NCmFsbG93IHRoaXMgYWNjZXNzIGZvciBub3cgYnkgZXhlY3V0aW5nOg0K
+IyBhdXNlYXJjaCAtYyAncHB0cGNtJyAtLXJhdyB8IGF1ZGl0MmFsbG93IC1NIG15LXBwdHBjbQ0K
+IyBzZW1vZHVsZSAtWCAzMDAgLWkgbXktcHB0cGNtLnBwDQoNCkFkZGl0aW9uYWwgSW5mb3JtYXRp
+b246DQpTb3VyY2UgQ29udGV4dCAgICAgICAgICAgICAgICBzeXN0ZW1fdTpzeXN0ZW1fcjpwcHRw
+X3Q6czANClRhcmdldCBDb250ZXh0ICAgICAgICAgICAgICAgIHN5c3RlbV91Om9iamVjdF9yOnJh
+bmRvbV9kZXZpY2VfdDpzMA0KVGFyZ2V0IE9iamVjdHMgICAgICAgICAgICAgICAgcmFuZG9tIFsg
+Y2hyX2ZpbGUgXQ0KU291cmNlICAgICAgICAgICAgICAgICAgICAgICAgcHB0cGNtDQpTb3VyY2Ug
+UGF0aCAgICAgICAgICAgICAgICAgICBwcHRwY20NClBvcnQgICAgICAgICAgICAgICAgICAgICAg
+ICAgIDxVbmtub3duPg0KSG9zdCAgICAgICAgICAgICAgICAgICAgICAgICAgZTMyMHB3DQpTb3Vy
+Y2UgUlBNIFBhY2thZ2VzICAgICAgICAgICANClRhcmdldCBSUE0gUGFja2FnZXMgICAgICAgICAg
+IA0KUG9saWN5IFJQTSAgICAgICAgICAgICAgICAgICAgc2VsaW51eC1wb2xpY3ktMy4xMy4xLTIy
+NS4zLmZjMjUubm9hcmNoDQpTZWxpbnV4IEVuYWJsZWQgICAgICAgICAgICAgICBUcnVlDQpQb2xp
+Y3kgVHlwZSAgICAgICAgICAgICAgICAgICB0YXJnZXRlZA0KRW5mb3JjaW5nIE1vZGUgICAgICAg
+ICAgICAgICAgRW5mb3JjaW5nDQpIb3N0IE5hbWUgICAgICAgICAgICAgICAgICAgICBlMzIwcHcN
+ClBsYXRmb3JtICAgICAgICAgICAgICAgICAgICAgIExpbnV4IGUzMjBwdyA0LjguMTMtMzAwLmZj
+MjUueDg2XzY0ICMxIFNNUCBGcmkgRGVjDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICA5
+IDE0OjUyOjAwIFVUQyAyMDE2IHg4Nl82NCB4ODZfNjQNCkFsZXJ0IENvdW50ICAgICAgICAgICAg
+ICAgICAgIDENCkZpcnN0IFNlZW4gICAgICAgICAgICAgICAgICAgIDIwMTYtMTItMTMgMjI6NTI6
+MjkgQ0VUDQpMYXN0IFNlZW4gICAgICAgICAgICAgICAgICAgICAyMDE2LTEyLTEzIDIyOjUyOjI5
+IENFVA0KTG9jYWwgSUQgICAgICAgICAgICAgICAgICAgICAgNTAxYmY2NDMtMzkyYS00OTdmLThk
+NjUtODNlOWY2ODIwZmE4DQoNClJhdyBBdWRpdCBNZXNzYWdlcw0KdHlwZT1BVkMgbXNnPWF1ZGl0
+KDE0ODE2NjU5NDkuODcwOjIzMyk6IGF2YzogIGRlbmllZCAgeyByZWFkIH0gZm9yICBwaWQ9MjA5
+MSBjb21tPSJwcHRwY20iIG5hbWU9InJhbmRvbSIgZGV2PSJkZXZ0bXBmcyIgaW5vPTEwMzIgc2Nv
+bnRleHQ9c3lzdGVtX3U6c3lzdGVtX3I6cHB0cF90OnMwIHRjb250ZXh0PXN5c3RlbV91Om9iamVj
+dF9yOnJhbmRvbV9kZXZpY2VfdDpzMCB0Y2xhc3M9Y2hyX2ZpbGUgcGVybWlzc2l2ZT0wDQoNCg0K
+SGFzaDogcHB0cGNtLHBwdHBfdCxyYW5kb21fZGV2aWNlX3QsY2hyX2ZpbGUscmVhZA0K
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

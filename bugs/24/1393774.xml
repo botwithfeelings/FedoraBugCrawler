@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1393774</bug_id>
+          
+          <creation_ts>2016-11-10 05:22:00 -0500</creation_ts>
+          <short_desc>systemd can&apos;t create dev-log socket</short_desc>
+          <delta_ts>2017-01-10 03:18:45 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>selinux-policy</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Jakub Jelen">jjelen</reporter>
+          <assigned_to name="Lukas Vrabec">lvrabec</assigned_to>
+          <cc>dominick.grift</cc>
+    
+    
+    <cc>dwalsh</cc>
+    
+    
+    <cc>lvrabec</cc>
+    
+    
+    <cc>mgrepl</cc>
+    
+    
+    <cc>plautrba</cc>
+    
+    
+    <cc>pmoore</cc>
+    
+    
+    <cc>ssekidde</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>selinux-policy-3.13.1-191.23.fc24</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-01-10 03:18:45</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9879216</commentid>
+    <comment_count>0</comment_count>
+    <who name="Jakub Jelen">jjelen</who>
+    <bug_when>2016-11-10 05:22:39 -0500</bug_when>
+    <thetext>Description of problem:
+
+
+Version-Release number of selected component (if applicable):
+selinux-policy-3.13.1-191.19.fc24.noarch
+
+How reproducible:
+always
+
+Steps to Reproduce:
+1. Remove the /run/systemd/journal/dev-log
+2. Restart system-journald
+3. Or play with the systemd-journald-dev-log.socket (turn off and on)
+
+Actual results:
+Socket is not created and logging does not work.
+
+Expected results:
+The socket should be created and logging working
+
+Additional info:
+# ausearch -m AVC
+# audit2allow 
+----
+time-&gt;Wed Nov  9 08:46:21 2016
+type=AVC msg=audit(1478699181.421:76704): avc:  denied  { create } for  pid=1 comm=&quot;systemd&quot; name=&quot;dev-log&quot; scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:devlog_t:s0 tclass=sock_file permissive=0
+----
+time-&gt;Wed Nov  9 08:46:22 2016
+type=AVC msg=audit(1478699182.100:76708): avc:  denied  { create } for  pid=1 comm=&quot;systemd&quot; name=&quot;dev-log&quot; scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:devlog_t:s0 tclass=sock_file permissive=0
+
+
+#============= init_t ==============
+allow init_t devlog_t:sock_file create;
+
+
+---------
+The logging socket dev-log can be created by systemd in socket activation (in the ListenDatagram option in the socket above), so this systemd should be able to create it.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9879233</commentid>
+    <comment_count>1</comment_count>
+    <who name="Jakub Jelen">jjelen</who>
+    <bug_when>2016-11-10 05:28:27 -0500</bug_when>
+    <thetext>This is a problem in all other Fedoras and most probably in RHEL7 too (needs investigation)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9879800</commentid>
+    <comment_count>2</comment_count>
+    <who name="Jakub Jelen">jjelen</who>
+    <bug_when>2016-11-10 08:07:48 -0500</bug_when>
+    <thetext>Probably related to the other issue I can see in the logs about the unlink when calling
+
+# systemctl restart systemd-journald systemd-journald-dev-log.socket
+
+results in 
+
+# audit2allow 
+----
+time-&gt;Wed Nov  9 06:46:09 2016
+type=AVC msg=audit(1478691969.589:23727): avc:  denied  { unlink } for  pid=1 comm=&quot;systemd&quot; name=&quot;dev-log&quot; dev=&quot;tmpfs&quot; ino=10903 scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:devlog_t:s0 tclass=sock_file permissive=0
+
+
+#============= init_t ==============
+allow init_t devlog_t:sock_file unlink;
+
+
+Please, add also this one.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9942537</commentid>
+    <comment_count>3</comment_count>
+    <who name="Lukas Vrabec">lvrabec</who>
+    <bug_when>2016-11-30 07:05:23 -0500</bug_when>
+    <thetext>commit 30029d61dd8fec49ecdea8374b719ec4de709612
+Author: Lukas Vrabec &lt;lvrabec@redhat.com&gt;
+Date:   Wed Nov 30 13:04:26 2016 +0100
+
+    Update logging_create_devlog_dev() interface to allow calling domain create also sock_file dev-log. BZ(1393774)
+
+diff --git a/policy/modules/system/logging.if b/policy/modules/system/logging.if
+index 31be8ac..0690edf 100644
+--- a/policy/modules/system/logging.if
++++ b/policy/modules/system/logging.if
+@@ -614,6 +614,7 @@ interface(`logging_create_devlog_dev&apos;,`
+        &apos;)
+ 
+        allow $1 devlog_t:lnk_file manage_lnk_file_perms;
++    allow $1 devlog_t:sock_file manage_sock_file_perms;
+        dev_filetrans($1, devlog_t, lnk_file, &quot;log&quot;)
+        init_pid_filetrans($1, devlog_t, sock_file, &quot;syslog&quot;)
+     logging_syslogd_pid_filetrans($1, devlog_t, sock_file, &quot;dev-log&quot;)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9957022</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-05 12:04:17 -0500</bug_when>
+    <thetext>selinux-policy-3.13.1-191.23.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-90bd4d7d33</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9962720</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-06 21:57:15 -0500</bug_when>
+    <thetext>selinux-policy-3.13.1-191.23.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-90bd4d7d33</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10048157</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-10 03:18:45 -0500</bug_when>
+    <thetext>selinux-policy-3.13.1-191.23.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

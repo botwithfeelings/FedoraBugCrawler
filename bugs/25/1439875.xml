@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1439875</bug_id>
+          
+          <creation_ts>2017-04-06 13:59:00 -0400</creation_ts>
+          <short_desc>Setting booleans causes duplicate ports in semanage listings</short_desc>
+          <delta_ts>2017-04-19 13:01:01 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>libsemanage</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>low</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Carlos Rodrigues">cefrodrigues</reporter>
+          <assigned_to name="Petr Lautrbach">plautrba</assigned_to>
+          <cc>dwalsh</cc>
+    
+    
+    <cc>jzarsky</cc>
+    
+    
+    <cc>mgrepl</cc>
+    
+    
+    <cc>plautrba</cc>
+    
+    
+    <cc>pmoore</cc>
+    
+    
+    <cc>sds</cc>
+    
+    
+    <cc>vmojzis</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>libsemanage-2.5-9.fc25</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-04-19 05:26:33</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10311901</commentid>
+    <comment_count>0</comment_count>
+    <who name="Carlos Rodrigues">cefrodrigues</who>
+    <bug_when>2017-04-06 13:59:08 -0400</bug_when>
+    <thetext>Description of problem:
+
+I&apos;ve noticed a strange interaction with custom ports and booleans. After setting a boolean, the list of ports for a particular type (which has been customized) shows duplicate entries.
+
+Example:
+
+  $ semanage port -a -t http_port_t -p tcp 12345
+  $ semanage port -l | grep http_port_t
+  http_port_t                    tcp      12345, 80, 81, ...
+  $ setsebool -P zebra_write_config false
+  $ semanage port -l | grep http_port_t
+  http_port_t                    tcp      12345, 12345, 80, 81, ...
+  $ setsebool -P zebra_write_config false
+  $ semanage port -l | grep http_port_t
+  http_port_t                    tcp      12345, 12345, 12345, 80, 81, ...
+
+As can be seen, each time a boolean is set persistently (it doesn&apos;t matter which boolean or which state), the custom port 12345 is duplicated. Running &quot;semodule -B&quot; clears the duplicates.
+
+However, if only the local customizations are listed, the port is always listed only once:
+
+  $ semanage port -l -C
+  SELinux Port Type              Proto    Port Number
+  http_port_t                    tcp      12345
+
+Version-Release number of selected component (if applicable):
+libselinux-2.5-13.fc25.x86_64
+(Originally found this on CentOS 7.3&apos;s &quot;libselinux-2.5-6.el7.x86_64&quot;).
+
+How reproducible:
+Always
+
+I&apos;ve submitted this upstream here: https://github.com/SELinuxProject/selinux/issues/50</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10323126</commentid>
+    <comment_count>1</comment_count>
+    <who name="Petr Lautrbach">plautrba</who>
+    <bug_when>2017-04-11 04:06:46 -0400</bug_when>
+    <thetext>Thanks for the report!
+
+A fix is available at upstream mailing list now - https://marc.info/?l=selinux&amp;m=149183707331194&amp;w=2</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10334230</commentid>
+    <comment_count>2</comment_count>
+    <who name="Stephen Smalley">sds</who>
+    <bug_when>2017-04-13 14:59:06 -0400</bug_when>
+    <thetext>You&apos;ll also want 8702a865e08b5660561e194a83e4a363061edc03 if you want to avoid a regression in setsebool -P runtime and memory overhead.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10340625</commentid>
+    <comment_count>3</comment_count>
+    <who name="Petr Lautrbach">plautrba</who>
+    <bug_when>2017-04-18 04:49:12 -0400</bug_when>
+    <thetext>Added b61922f727d5643265e27654a2d626bcae5d894c and 8702a865e08b5660561e194a83e4a363061edc03
+
+Thanks!</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10340663</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-18 05:00:07 -0400</bug_when>
+    <thetext>libsemanage-2.6-3.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-165322f06a</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10340871</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-18 06:06:44 -0400</bug_when>
+    <thetext>libsemanage-2.5-9.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-ea82d19050</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10341695</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-18 09:23:01 -0400</bug_when>
+    <thetext>libsemanage-2.5-9.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-ea82d19050</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10343067</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-18 15:54:15 -0400</bug_when>
+    <thetext>libsemanage-2.6-3.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-165322f06a</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10344933</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-19 05:26:33 -0400</bug_when>
+    <thetext>libsemanage-2.5-9.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10346713</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-19 13:01:01 -0400</bug_when>
+    <thetext>libsemanage-2.6-3.fc26 has been pushed to the Fedora 26 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

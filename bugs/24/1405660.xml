@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1405660</bug_id>
+          
+          <creation_ts>2016-12-16 19:18:00 -0500</creation_ts>
+          <short_desc>&quot;but none of the providers can be installed&quot; error isn&apos;t for the right package</short_desc>
+          <delta_ts>2016-12-16 19:32:21 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>dnf</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>RAWHIDE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Jonathan Wakely">jwakely</reporter>
+          <assigned_to>rpm-software-management</assigned_to>
+          <cc>mluscon</cc>
+    
+    
+    <cc>packaging-team-maint</cc>
+    
+    
+    <cc>rpm-software-management</cc>
+    
+    
+    <cc>vmukhame</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-12-16 19:25:23</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9995179</commentid>
+    <comment_count>0</comment_count>
+    <who name="Jonathan Wakely">jwakely</who>
+    <bug_when>2016-12-16 19:18:28 -0500</bug_when>
+    <thetext>I tried to install a package from the &apos;updates&apos; repo, which couldn&apos;t be installed because I already had newer versions of its dependencies from updates-testing. The error I got told me that an older version (from the base fedora repo) couldn&apos;t be installed, but it shouldn&apos;t have even been trying that one, it should have tried the version in updates-testing.
+
+Steps to reproduce:
+
+dnf --enablerepo=updates-testing update boost
+dnf install boost-static
+
+This fails with this error:
+
+Last metadata expiration check: 1:44:26 ago on Fri Dec 16 22:19:47 2016.
+Error: package boost-static-1.60.0-5.fc24.x86_64 requires boost-devel(x86-64) = 1.60.0-5.fc24, but none of the providers can be installed
+(try to add &apos;--allowerasing&apos; to command line to replace conflicting packages)
+
+It says it can&apos;t install boost-static-1.60.0-5.fc24.x86_64 but there is a newer package, boost-static-1.60.0-7.fc24.i686.rpm , in &apos;updates&apos;.
+
+I guess maybe it tries all the versions it can find, starting with the newest, then tries the next newest, then the next newest, and when there are no more to try it prints the last error. That&apos;s not very helpful. If all of them fail for the same reason then printing the error for the newest version makes more sense. I don&apos;t care a jot about the 1.60.0-5.fc24 package, that&apos;s ancient.
+
+
+Full log:
+
+
+$ sudo dnf --enablerepo=updates-testing update boost
+Fedora 24 - x86_64 - Test Updates                                                                                                                                                                            5.9 MB/s | 3.2 MB     00:00    
+Last metadata expiration check: 0:00:01 ago on Sat Dec 17 00:03:05 2016.
+Dependencies resolved.
+=============================================================================================================================================================================================================================================
+ Package                                                         Arch                                             Version                                                    Repository                                                 Size
+=============================================================================================================================================================================================================================================
+Upgrading:
+ boost                                                           x86_64                                           1.60.0-8.fc24                                              updates-testing                                            45 k
+ boost-atomic                                                    x86_64                                           1.60.0-8.fc24                                              updates-testing                                            47 k
+ boost-chrono                                                    x86_64                                           1.60.0-8.fc24                                              updates-testing                                            53 k
+ boost-context                                                   x86_64                                           1.60.0-8.fc24                                              updates-testing                                            61 k
+ boost-coroutine                                                 x86_64                                           1.60.0-8.fc24                                              updates-testing                                            61 k
+ boost-date-time                                                 x86_64                                           1.60.0-8.fc24                                              updates-testing                                            60 k
+ boost-devel                                                     x86_64                                           1.60.0-8.fc24                                              updates-testing                                           8.4 M
+ boost-filesystem                                                x86_64                                           1.60.0-8.fc24                                              updates-testing                                            76 k
+ boost-graph                                                     x86_64                                           1.60.0-8.fc24                                              updates-testing                                           138 k
+ boost-iostreams                                                 x86_64                                           1.60.0-8.fc24                                              updates-testing                                            69 k
+ boost-locale                                                    x86_64                                           1.60.0-8.fc24                                              updates-testing                                           278 k
+ boost-log                                                       x86_64                                           1.60.0-8.fc24                                              updates-testing                                           434 k
+ boost-math                                                      x86_64                                           1.60.0-8.fc24                                              updates-testing                                           310 k
+ boost-program-options                                           x86_64                                           1.60.0-8.fc24                                              updates-testing                                           165 k
+ boost-python                                                    x86_64                                           1.60.0-8.fc24                                              updates-testing                                           128 k
+ boost-random                                                    x86_64                                           1.60.0-8.fc24                                              updates-testing                                            52 k
+ boost-regex                                                     x86_64                                           1.60.0-8.fc24                                              updates-testing                                           298 k
+ boost-serialization                                             x86_64                                           1.60.0-8.fc24                                              updates-testing                                           149 k
+ boost-signals                                                   x86_64                                           1.60.0-8.fc24                                              updates-testing                                            71 k
+ boost-system                                                    x86_64                                           1.60.0-8.fc24                                              updates-testing                                            50 k
+ boost-test                                                      x86_64                                           1.60.0-8.fc24                                              updates-testing                                           238 k
+ boost-thread                                                    x86_64                                           1.60.0-8.fc24                                              updates-testing                                            91 k
+ boost-timer                                                     x86_64                                           1.60.0-8.fc24                                              updates-testing                                            52 k
+ boost-type_erasure                                              x86_64                                           1.60.0-8.fc24                                              updates-testing                                            60 k
+ boost-wave                                                      x86_64                                           1.60.0-8.fc24                                              updates-testing                                           221 k
+
+Transaction Summary
+=============================================================================================================================================================================================================================================
+Upgrade  25 Packages
+
+Total download size: 11 M
+Is this ok [y/N]: y
+Downloading Packages:
+(1/25): boost-locale-1.60.0-7.fc24_1.60.0-8.fc24.x86_64.drpm                                                                                                                                                 481 kB/s |  92 kB     00:00    
+(2/25): boost-math-1.60.0-7.fc24_1.60.0-8.fc24.x86_64.drpm                                                                                                                                                   587 kB/s | 118 kB     00:00    
+(3/25): boost-log-1.60.0-7.fc24_1.60.0-8.fc24.x86_64.drpm                                                                                                                                                    836 kB/s | 186 kB     00:00    
+(4/25): boost-python-1.60.0-7.fc24_1.60.0-8.fc24.x86_64.drpm                                                                                                                                                 1.8 MB/s |  62 kB     00:00    
+(5/25): boost-regex-1.60.0-7.fc24_1.60.0-8.fc24.x86_64.drpm                                                                                                                                                  2.2 MB/s |  99 kB     00:00    
+(6/25): boost-test-1.60.0-7.fc24_1.60.0-8.fc24.x86_64.drpm                                                                                                                                                   2.6 MB/s |  70 kB     00:00    
+(7/25): boost-serialization-1.60.0-7.fc24_1.60.0-8.fc24.x86_64.drpm                                                                                                                                          970 kB/s |  56 kB     00:00    
+(8/25): boost-wave-1.60.0-7.fc24_1.60.0-8.fc24.x86_64.drpm                                                                                                                                                   1.8 MB/s | 101 kB     00:00    
+[DRPM] boost-python-1.60.0-7.fc24_1.60.0-8.fc24.x86_64.drpm: done                                                                                                                                                                           
+(9/25): boost-1.60.0-8.fc24.x86_64.rpm                                                                                                                                                                       1.3 MB/s |  45 kB     00:00    
+(10/25): boost-atomic-1.60.0-8.fc24.x86_64.rpm                                                                                                                                                               1.5 MB/s |  47 kB     00:00    
+(11/25): boost-chrono-1.60.0-8.fc24.x86_64.rpm                                                                                                                                                               1.2 MB/s |  53 kB     00:00    
+(12/25): boost-context-1.60.0-8.fc24.x86_64.rpm                                                                                                                                                              1.8 MB/s |  61 kB     00:00    
+(13/25): boost-date-time-1.60.0-8.fc24.x86_64.rpm                                                                                                                                                            1.7 MB/s |  60 kB     00:00    
+(14/25): boost-coroutine-1.60.0-8.fc24.x86_64.rpm                                                                                                                                                            1.1 MB/s |  61 kB     00:00    
+(15/25): boost-filesystem-1.60.0-8.fc24.x86_64.rpm                                                                                                                                                           1.9 MB/s |  76 kB     00:00    
+(16/25): boost-iostreams-1.60.0-8.fc24.x86_64.rpm                                                                                                                                                            2.3 MB/s |  69 kB     00:00    
+(17/25): boost-graph-1.60.0-8.fc24.x86_64.rpm                                                                                                                                                                1.5 MB/s | 138 kB     00:00    
+(18/25): boost-random-1.60.0-8.fc24.x86_64.rpm                                                                                                                                                               1.4 MB/s |  52 kB     00:00    
+(19/25): boost-program-options-1.60.0-8.fc24.x86_64.rpm                                                                                                                                                      1.9 MB/s | 165 kB     00:00    
+(20/25): boost-devel-1.60.0-7.fc24_1.60.0-8.fc24.x86_64.drpm                                                                                                                                                 5.3 MB/s | 1.7 MB     00:00    
+[DRPM] boost-locale-1.60.0-7.fc24_1.60.0-8.fc24.x86_64.drpm: done                                                                                                                                                                           
+[DRPM] boost-math-1.60.0-7.fc24_1.60.0-8.fc24.x86_64.drpm: done                                                                                                                                                                             
+[DRPM] boost-log-1.60.0-7.fc24_1.60.0-8.fc24.x86_64.drpm: done                                                                                                                                                                              
+[DRPM] boost-regex-1.60.0-7.fc24_1.60.0-8.fc24.x86_64.drpm: done                                                                                                                                                                            
+[DRPM] boost-test-1.60.0-7.fc24_1.60.0-8.fc24.x86_64.drpm: done                                                                                                                                                                             
+[DRPM] boost-serialization-1.60.0-7.fc24_1.60.0-8.fc24.x86_64.drpm: done                                                                                                                                                                    
+[DRPM] boost-wave-1.60.0-7.fc24_1.60.0-8.fc24.x86_64.drpm: done                                                                                                                                                                             
+(21/25): boost-system-1.60.0-8.fc24.x86_64.rpm                                                                                                                                                               1.7 MB/s |  50 kB     00:00    
+(22/25): boost-signals-1.60.0-8.fc24.x86_64.rpm                                                                                                                                                              1.2 MB/s |  71 kB     00:00    
+(23/25): boost-timer-1.60.0-8.fc24.x86_64.rpm                                                                                                                                                                3.6 MB/s |  52 kB     00:00    
+(24/25): boost-thread-1.60.0-8.fc24.x86_64.rpm                                                                                                                                                               3.4 MB/s |  91 kB     00:00    
+(25/25): boost-type_erasure-1.60.0-8.fc24.x86_64.rpm                                                                                                                                                         2.6 MB/s |  60 kB     00:00    
+[DRPM] boost-devel-1.60.0-7.fc24_1.60.0-8.fc24.x86_64.drpm: done                                                                                                                                                                            
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Total                                                                                                                                                                                                        605 kB/s | 3.6 MB     00:06     
+Delta RPMs reduced 11.5 MB of updates to 3.6 MB (68.1% saved)
+Running transaction check
+Transaction check succeeded.
+Running transaction test
+Transaction test succeeded.
+Running transaction
+  Upgrading   : boost-system-1.60.0-8.fc24.x86_64                                                                                                                                                                                       1/50 
+  Upgrading   : boost-chrono-1.60.0-8.fc24.x86_64                                                                                                                                                                                       2/50 
+  Upgrading   : boost-thread-1.60.0-8.fc24.x86_64                                                                                                                                                                                       3/50 
+  Upgrading   : boost-filesystem-1.60.0-8.fc24.x86_64                                                                                                                                                                                   4/50 
+  Upgrading   : boost-regex-1.60.0-8.fc24.x86_64                                                                                                                                                                                        5/50 
+  Upgrading   : boost-date-time-1.60.0-8.fc24.x86_64                                                                                                                                                                                    6/50 
+  Upgrading   : boost-context-1.60.0-8.fc24.x86_64                                                                                                                                                                                      7/50 
+  Upgrading   : boost-timer-1.60.0-8.fc24.x86_64                                                                                                                                                                                        8/50 
+  Upgrading   : boost-atomic-1.60.0-8.fc24.x86_64                                                                                                                                                                                       9/50 
+  Upgrading   : boost-log-1.60.0-8.fc24.x86_64                                                                                                                                                                                         10/50 
+  Upgrading   : boost-test-1.60.0-8.fc24.x86_64                                                                                                                                                                                        11/50 
+  Upgrading   : boost-coroutine-1.60.0-8.fc24.x86_64                                                                                                                                                                                   12/50 
+  Upgrading   : boost-wave-1.60.0-8.fc24.x86_64                                                                                                                                                                                        13/50 
+  Upgrading   : boost-graph-1.60.0-8.fc24.x86_64                                                                                                                                                                                       14/50 
+  Upgrading   : boost-locale-1.60.0-8.fc24.x86_64                                                                                                                                                                                      15/50 
+  Upgrading   : boost-type_erasure-1.60.0-8.fc24.x86_64                                                                                                                                                                                16/50 
+  Upgrading   : boost-random-1.60.0-8.fc24.x86_64                                                                                                                                                                                      17/50 
+  Upgrading   : boost-signals-1.60.0-8.fc24.x86_64                                                                                                                                                                                     18/50 
+  Upgrading   : boost-serialization-1.60.0-8.fc24.x86_64                                                                                                                                                                               19/50 
+  Upgrading   : boost-python-1.60.0-8.fc24.x86_64                                                                                                                                                                                      20/50 
+  Upgrading   : boost-program-options-1.60.0-8.fc24.x86_64                                                                                                                                                                             21/50 
+  Upgrading   : boost-math-1.60.0-8.fc24.x86_64                                                                                                                                                                                        22/50 
+  Upgrading   : boost-iostreams-1.60.0-8.fc24.x86_64                                                                                                                                                                                   23/50 
+  Upgrading   : boost-1.60.0-8.fc24.x86_64                                                                                                                                                                                             24/50 
+  Upgrading   : boost-devel-1.60.0-8.fc24.x86_64                                                                                                                                                                                       25/50 
+  Cleanup     : boost-devel-1.60.0-7.fc24.x86_64                                                                                                                                                                                       26/50 
+  Cleanup     : boost-1.60.0-7.fc24.x86_64                                                                                                                                                                                             27/50 
+  Cleanup     : boost-wave-1.60.0-7.fc24.x86_64                                                                                                                                                                                        28/50 
+  Cleanup     : boost-log-1.60.0-7.fc24.x86_64                                                                                                                                                                                         29/50 
+  Cleanup     : boost-locale-1.60.0-7.fc24.x86_64                                                                                                                                                                                      30/50 
+  Cleanup     : boost-type_erasure-1.60.0-7.fc24.x86_64                                                                                                                                                                                31/50 
+  Cleanup     : boost-coroutine-1.60.0-7.fc24.x86_64                                                                                                                                                                                   32/50 
+  Cleanup     : boost-context-1.60.0-7.fc24.x86_64                                                                                                                                                                                     33/50 
+  Cleanup     : boost-test-1.60.0-7.fc24.x86_64                                                                                                                                                                                        34/50 
+  Cleanup     : boost-timer-1.60.0-7.fc24.x86_64                                                                                                                                                                                       35/50 
+  Cleanup     : boost-chrono-1.60.0-7.fc24.x86_64                                                                                                                                                                                      36/50 
+  Cleanup     : boost-thread-1.60.0-7.fc24.x86_64                                                                                                                                                                                      37/50 
+  Cleanup     : boost-filesystem-1.60.0-7.fc24.x86_64                                                                                                                                                                                  38/50 
+  Cleanup     : boost-graph-1.60.0-7.fc24.x86_64                                                                                                                                                                                       39/50 
+  Cleanup     : boost-random-1.60.0-7.fc24.x86_64                                                                                                                                                                                      40/50 
+  Cleanup     : boost-system-1.60.0-7.fc24.x86_64                                                                                                                                                                                      41/50 
+  Cleanup     : boost-regex-1.60.0-7.fc24.x86_64                                                                                                                                                                                       42/50 
+  Cleanup     : boost-atomic-1.60.0-7.fc24.x86_64                                                                                                                                                                                      43/50 
+  Cleanup     : boost-date-time-1.60.0-7.fc24.x86_64                                                                                                                                                                                   44/50 
+  Cleanup     : boost-iostreams-1.60.0-7.fc24.x86_64                                                                                                                                                                                   45/50 
+  Cleanup     : boost-math-1.60.0-7.fc24.x86_64                                                                                                                                                                                        46/50 
+  Cleanup     : boost-program-options-1.60.0-7.fc24.x86_64                                                                                                                                                                             47/50 
+  Cleanup     : boost-python-1.60.0-7.fc24.x86_64                                                                                                                                                                                      48/50 
+  Cleanup     : boost-serialization-1.60.0-7.fc24.x86_64                                                                                                                                                                               49/50 
+  Cleanup     : boost-signals-1.60.0-7.fc24.x86_64                                                                                                                                                                                     50/50 
+  Verifying   : boost-1.60.0-8.fc24.x86_64                                                                                                                                                                                              1/50 
+  Verifying   : boost-atomic-1.60.0-8.fc24.x86_64                                                                                                                                                                                       2/50 
+  Verifying   : boost-chrono-1.60.0-8.fc24.x86_64                                                                                                                                                                                       3/50 
+  Verifying   : boost-context-1.60.0-8.fc24.x86_64                                                                                                                                                                                      4/50 
+  Verifying   : boost-coroutine-1.60.0-8.fc24.x86_64                                                                                                                                                                                    5/50 
+  Verifying   : boost-date-time-1.60.0-8.fc24.x86_64                                                                                                                                                                                    6/50 
+  Verifying   : boost-filesystem-1.60.0-8.fc24.x86_64                                                                                                                                                                                   7/50 
+  Verifying   : boost-graph-1.60.0-8.fc24.x86_64                                                                                                                                                                                        8/50 
+  Verifying   : boost-iostreams-1.60.0-8.fc24.x86_64                                                                                                                                                                                    9/50 
+  Verifying   : boost-locale-1.60.0-8.fc24.x86_64                                                                                                                                                                                      10/50 
+  Verifying   : boost-log-1.60.0-8.fc24.x86_64                                                                                                                                                                                         11/50 
+  Verifying   : boost-math-1.60.0-8.fc24.x86_64                                                                                                                                                                                        12/50 
+  Verifying   : boost-program-options-1.60.0-8.fc24.x86_64                                                                                                                                                                             13/50 
+  Verifying   : boost-python-1.60.0-8.fc24.x86_64                                                                                                                                                                                      14/50 
+  Verifying   : boost-random-1.60.0-8.fc24.x86_64                                                                                                                                                                                      15/50 
+  Verifying   : boost-regex-1.60.0-8.fc24.x86_64                                                                                                                                                                                       16/50 
+  Verifying   : boost-serialization-1.60.0-8.fc24.x86_64                                                                                                                                                                               17/50 
+  Verifying   : boost-signals-1.60.0-8.fc24.x86_64                                                                                                                                                                                     18/50 
+  Verifying   : boost-system-1.60.0-8.fc24.x86_64                                                                                                                                                                                      19/50 
+  Verifying   : boost-test-1.60.0-8.fc24.x86_64                                                                                                                                                                                        20/50 
+  Verifying   : boost-thread-1.60.0-8.fc24.x86_64                                                                                                                                                                                      21/50 
+  Verifying   : boost-timer-1.60.0-8.fc24.x86_64                                                                                                                                                                                       22/50 
+  Verifying   : boost-type_erasure-1.60.0-8.fc24.x86_64                                                                                                                                                                                23/50 
+  Verifying   : boost-wave-1.60.0-8.fc24.x86_64                                                                                                                                                                                        24/50 
+  Verifying   : boost-devel-1.60.0-8.fc24.x86_64                                                                                                                                                                                       25/50 
+  Verifying   : boost-1.60.0-7.fc24.x86_64                                                                                                                                                                                             26/50 
+  Verifying   : boost-atomic-1.60.0-7.fc24.x86_64                                                                                                                                                                                      27/50 
+  Verifying   : boost-chrono-1.60.0-7.fc24.x86_64                                                                                                                                                                                      28/50 
+  Verifying   : boost-context-1.60.0-7.fc24.x86_64                                                                                                                                                                                     29/50 
+  Verifying   : boost-coroutine-1.60.0-7.fc24.x86_64                                                                                                                                                                                   30/50 
+  Verifying   : boost-date-time-1.60.0-7.fc24.x86_64                                                                                                                                                                                   31/50 
+  Verifying   : boost-devel-1.60.0-7.fc24.x86_64                                                                                                                                                                                       32/50 
+  Verifying   : boost-filesystem-1.60.0-7.fc24.x86_64                                                                                                                                                                                  33/50 
+  Verifying   : boost-graph-1.60.0-7.fc24.x86_64                                                                                                                                                                                       34/50 
+  Verifying   : boost-iostreams-1.60.0-7.fc24.x86_64                                                                                                                                                                                   35/50 
+  Verifying   : boost-locale-1.60.0-7.fc24.x86_64                                                                                                                                                                                      36/50 
+  Verifying   : boost-log-1.60.0-7.fc24.x86_64                                                                                                                                                                                         37/50 
+  Verifying   : boost-math-1.60.0-7.fc24.x86_64                                                                                                                                                                                        38/50 
+  Verifying   : boost-program-options-1.60.0-7.fc24.x86_64                                                                                                                                                                             39/50 
+  Verifying   : boost-python-1.60.0-7.fc24.x86_64                                                                                                                                                                                      40/50 
+  Verifying   : boost-random-1.60.0-7.fc24.x86_64                                                                                                                                                                                      41/50 
+  Verifying   : boost-regex-1.60.0-7.fc24.x86_64                                                                                                                                                                                       42/50 
+  Verifying   : boost-serialization-1.60.0-7.fc24.x86_64                                                                                                                                                                               43/50 
+  Verifying   : boost-signals-1.60.0-7.fc24.x86_64                                                                                                                                                                                     44/50 
+  Verifying   : boost-system-1.60.0-7.fc24.x86_64                                                                                                                                                                                      45/50 
+  Verifying   : boost-test-1.60.0-7.fc24.x86_64                                                                                                                                                                                        46/50 
+  Verifying   : boost-thread-1.60.0-7.fc24.x86_64                                                                                                                                                                                      47/50 
+  Verifying   : boost-timer-1.60.0-7.fc24.x86_64                                                                                                                                                                                       48/50 
+  Verifying   : boost-type_erasure-1.60.0-7.fc24.x86_64                                                                                                                                                                                49/50 
+  Verifying   : boost-wave-1.60.0-7.fc24.x86_64                                                                                                                                                                                        50/50 
+
+Upgraded:
+  boost.x86_64 1.60.0-8.fc24          boost-atomic.x86_64 1.60.0-8.fc24           boost-chrono.x86_64 1.60.0-8.fc24  boost-context.x86_64 1.60.0-8.fc24    boost-coroutine.x86_64 1.60.0-8.fc24  boost-date-time.x86_64 1.60.0-8.fc24     
+  boost-devel.x86_64 1.60.0-8.fc24    boost-filesystem.x86_64 1.60.0-8.fc24       boost-graph.x86_64 1.60.0-8.fc24   boost-iostreams.x86_64 1.60.0-8.fc24  boost-locale.x86_64 1.60.0-8.fc24     boost-log.x86_64 1.60.0-8.fc24           
+  boost-math.x86_64 1.60.0-8.fc24     boost-program-options.x86_64 1.60.0-8.fc24  boost-python.x86_64 1.60.0-8.fc24  boost-random.x86_64 1.60.0-8.fc24     boost-regex.x86_64 1.60.0-8.fc24      boost-serialization.x86_64 1.60.0-8.fc24 
+  boost-signals.x86_64 1.60.0-8.fc24  boost-system.x86_64 1.60.0-8.fc24           boost-test.x86_64 1.60.0-8.fc24    boost-thread.x86_64 1.60.0-8.fc24     boost-timer.x86_64 1.60.0-8.fc24      boost-type_erasure.x86_64 1.60.0-8.fc24  
+  boost-wave.x86_64 1.60.0-8.fc24    
+
+Complete!
+$ sudo dnf install boost-static
+Last metadata expiration check: 1:44:26 ago on Fri Dec 16 22:19:47 2016.
+Error: package boost-static-1.60.0-5.fc24.x86_64 requires boost-devel(x86-64) = 1.60.0-5.fc24, but none of the providers can be installed
+(try to add &apos;--allowerasing&apos; to command line to replace conflicting packages)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9995216</commentid>
+    <comment_count>1</comment_count>
+    <who name="Igor Gnatenko">ignatenko</who>
+    <bug_when>2016-12-16 19:25:23 -0500</bug_when>
+    <thetext>This has been fixed in DNF 2.0 which is in rawhide. Unfortunately it&apos;s impossible to backport =(</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9995246</commentid>
+    <comment_count>2</comment_count>
+    <who name="Jonathan Wakely">jwakely</who>
+    <bug_when>2016-12-16 19:32:21 -0500</bug_when>
+    <thetext>Good enough for me - thanks!</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

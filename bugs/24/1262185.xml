@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1262185</bug_id>
+          
+          <creation_ts>2015-09-11 01:03:00 -0400</creation_ts>
+          <short_desc>ownCloud bundles all kinds of crap (patchwork, punic, forks of smb4php and phpzipstreamer)</short_desc>
+          <delta_ts>2016-05-01 19:31:42 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>owncloud</component>
+          <version>24</version>
+          <rep_platform>All</rep_platform>
+          <op_sys>All</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>NEXTRELEASE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>urgent</bug_severity>
+          <target_milestone>---</target_milestone>
+          <dependson>1262468</dependson>
+    
+    
+    <dependson>1262469</dependson>
+    
+    
+    <dependson>1296901</dependson>
+    
+    
+    <dependson>1296939</dependson>
+    
+    
+    <dependson>1298475</dependson>
+    
+    
+    <dependson>1298649</dependson>
+          <blocked>504493</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Adam Williamson">awilliam</reporter>
+          <assigned_to name="James Hogarth">james.hogarth</assigned_to>
+          <cc>awilliam</cc>
+    
+    
+    <cc>d-bugzilla</cc>
+    
+    
+    <cc>fedora</cc>
+    
+    
+    <cc>helio</cc>
+    
+    
+    <cc>ignatenko</cc>
+    
+    
+    <cc>james.hogarth</cc>
+    
+    
+    <cc>samuel-rhbugs</cc>
+    
+    
+    <cc>shawn</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-05-01 19:31:42</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>8626649</commentid>
+    <comment_count>0</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2015-09-11 01:03:21 -0400</bug_when>
+    <thetext>OK, I feel bad about this as half of it is my fault, but after I looked harder at the packaging guidelines in re bundling today, I think it&apos;s fair to say owncloud is clearly violating the hell out of them.
+
+I and before me Gregor had been proceeding, I think, on the belief that unpackaged things could be bundled, but that really doesn&apos;t seem to be the case:
+
+https://fedoraproject.org/wiki/Packaging:Treatment_Of_Bundled_Libraries , &quot;bundled libraries being defined as libraries which exist and are mantained independently, whether or not they are packaged separately for Fedora&quot; and https://fedoraproject.org/wiki/Packaging:Guidelines#Duplication_of_system_libraries , &quot;In this RPM packaging context, the definition of the term &apos;library&apos; includes: compiled third party source code resulting in shared or static linkable files, interpreted third party source code such as Python, PHP and others.&quot;
+
+It really wasn&apos;t compliant all the way back to review, in my opinion. The originally imported spec:
+
+http://pkgs.fedoraproject.org/cgit/owncloud.git/tree/owncloud.spec?id=9ee05fbe8604bcba580b82acc6704d3c281fd8fe
+
+has a &apos;bundling notes&apos; section:
+
+# bundling notes:
+## smb4php - forked php class from http://www.phpclasses.org/package/4129-PHP-Stream-wrapper-to-access-Windows-shared-files.html
+## openid/phpMyID - forked from http://siege.org/projects/phpMyID and adjusted to oC needs
+## openid/SimpleOpenID - adjusted class from http://roosenmaallen.com/2008/03/20/simpleopenid-for-php/
+## Google - copy of a google playground project https://code.google.com/p/gdata-samples/source/browse/trunk/oauth_playground/
+# containing random OAuth.php lib from http://oauth.googlecode.com/svn/code/php/ - I don&apos;t know what to say
+## mediawiki contains two files picked from the mediawiki distribution
+# Fedora packages mediawiki but not in a way that it&apos;s files would be reusable
+# (i.e. the package doesn&apos;t contain the files itself but the tarball + deployment
+# script)
+
+you could argue that some or all of those might have been worth an FPC exception, but according to the policy they clearly *needed* an FPC exception, not just packager and reviewer judgement calls, which seems to have been what was used.
+
+Since then, well, the details have changed, but things have overall gotten worse. Here are the current &apos;bundling notes&apos; for 8.0.7:
+
+## 3rdparty/patchwork - https://github.com/nicolas-grekas/Patchwork-UTF8
+# &quot;patchwork/utf8&quot;: &quot;~1.1&quot;
+#
+# Used to set a UTF-8 locale (function isSetLocaleWorking does not
+# just test whether setlocale works, it actually asks Patchwork to
+# set a locale) and for its pure PHP implementation of the Normalizer
+# class otherwise found in php-intl. See lib/private/util.php
+# Patch from adamw to use php-intl&apos;s if available:
+# https://github.com/owncloud/core/pull/6620
+# We&apos;d also have to set a UTF-8 locale some other way to entirely
+# replace OC&apos;s use of Patchwork.
+
+## 3rdparty/mcnetic/phpzipstreamer - https://github.com/McNetic/PHPZipStreamer
+# &quot;mcnetic/phpzipstreamer&quot;: &quot;dev-master&quot;
+#
+# OC&apos;s copy is somewhat behind upstream, and slightly forked: they imported
+# it on 2014-02-20, and added a downstream patch to make it work with
+# PHP 5.3 on 2014-03-17:
+# https://github.com/owncloud/3rdparty/commit/da3c9f651a26cf076249ebf25c477e3791e69ca3
+# Upstream implemented a different fix against PHP 5.3 on 2014-03-14:
+# https://github.com/McNetic/PHPZipStreamer/commit/0af57cc0d113b27e44455be4be690908c4909d78
+# but OC has never synced with that fix. See:
+# https://github.com/owncloud/core/pull/3439
+
+## apps/files_external/3rdparty/smb4php - forked php class from
+# http://www.phpclasses.org/package/4129-PHP-Stream-wrapper-to-access-Windows-shared-files.html
+# Replaced by https://github.com/icewind1991/SMB post-8.0
+
+## 3rdparty/punic - https://github.com/punic/punic
+# &quot;punic/punic&quot;: &quot;1.1.0&quot;
+#
+# Used in date localization: lib/private/l10n.php
+# Should be straightforward to unbundle
+
+If someone wants to take the trouble to make OC compliant, I&apos;d suggest they need to package and unbundle punic and patchwork, and probably request an exception for the phpzipstreamer fork (that whole situation is kind of a mess) and the smb4php fork.
+
+8.1 gets rid of the smb4php fork (though the replacements need to be packaged - I believe Remi is on that), but adds a major wrinkle in that OC now needs sabredav 2.1, but we also have Horde depending on sabredav, and that still needs 1.8. So we&apos;d need to split that package up somehow. This has already been discussed between me and Remi and Shawn to some extent. There are various other new unpackaged deps in 8.1 too.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8629363</commentid>
+    <comment_count>1</comment_count>
+    <who name="Shawn Iwinski">shawn</who>
+    <bug_when>2015-09-11 16:05:12 -0400</bug_when>
+    <thetext>I just submitted review requests for php-punic (bug #1262468) and php-patchwork-utf8 (bug #1262469)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8646224</commentid>
+    <comment_count>2</comment_count>
+    <who name="Fedora Admin XMLRPC Client">fedora-admin-xmlrpc</who>
+    <bug_when>2015-09-17 14:03:25 -0400</bug_when>
+    <thetext>This package has changed ownership in the Fedora Package Database.  Reassigning to the new owner of this component.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8960126</commentid>
+    <comment_count>3</comment_count>
+    <who name="James Hogarth">james.hogarth</who>
+    <bug_when>2016-01-06 19:50:59 -0500</bug_when>
+    <thetext>As a quick update to this...
+
+The 8.2.2 work has brought the bundling down to:
+
+Provides: bundled(deepdiver1975/tarstreamer)
+Provides: bundled(interfasys/lognormalizer)
+Provides: bundled(league/flysystem)
+Provides: bundled(pear/console_getopt)
+Provides: bundled(pear/pear-core-minimal)
+Provides: bundled(swiftmailer)
+Provides: bundled(mcnetic/phpzipstreamer)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8961670</commentid>
+    <comment_count>4</comment_count>
+    <who name="Remi Collet">fedora</who>
+    <bug_when>2016-01-07 08:35:13 -0500</bug_when>
+    <thetext>why pear/console_getopt and pear/pear-core-minimal, both are available ?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8962194</commentid>
+    <comment_count>5</comment_count>
+    <who name="James Hogarth">james.hogarth</who>
+    <bug_when>2016-01-07 10:54:42 -0500</bug_when>
+    <thetext>Because I managed to miss them whilst working through the others....
+
+Guess there will be a 8.2.2-2 in due course with more hacking to unbundle done on it ;)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8964949</commentid>
+    <comment_count>6</comment_count>
+    <who name="Remi Collet">fedora</who>
+    <bug_when>2016-01-08 06:28:01 -0500</bug_when>
+    <thetext>mcnetic/phpzipstreamer =&gt; review #1296901</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8965251</commentid>
+    <comment_count>7</comment_count>
+    <who name="Remi Collet">fedora</who>
+    <bug_when>2016-01-08 08:49:41 -0500</bug_when>
+    <thetext>deepdiver1975/tarstreamer =&gt; owncould/tarstreamer =&gt; review #1296939</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8965771</commentid>
+    <comment_count>8</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2016-01-08 11:38:19 -0500</bug_when>
+    <thetext>As I recall, the phpzipstreamer in ownCloud is forked from upstream&apos;s, there are more detailed notes in the spec file; so just packaging upstream may not be enough to unbundle OC&apos;s usage.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8965785</commentid>
+    <comment_count>9</comment_count>
+    <who name="Remi Collet">fedora</who>
+    <bug_when>2016-01-08 11:45:42 -0500</bug_when>
+    <thetext>@Admn, thanks for the notice, but I think this is ok now.
+
+From 8.2.2   3rdparty/composer.lock
+
+            &quot;name&quot;: &quot;mcnetic/zipstreamer&quot;,
+            &quot;version&quot;: &quot;v0.7&quot;,
+            &quot;source&quot;: {
+                &quot;type&quot;: &quot;git&quot;,
+                &quot;url&quot;: &quot;https://github.com/McNetic/PHPZipStreamer.git&quot;,
+                &quot;reference&quot;: &quot;44c99c659abf4dac92882437c1da68de824ca9d0&quot;
+            },
+
+Which is the exact revision in https://github.com/remicollet/remirepo/blob/94ad2fa705b18be2d1fd223c6b9a44289f0ab032/php/php-mcnetic-zipstreamer/php-mcnetic-zipstreamer.spec#L9
+
+Diffing the sources is also ok (the only diff is my patch to fix the test suite)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8965841</commentid>
+    <comment_count>10</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2016-01-08 12:10:14 -0500</bug_when>
+    <thetext>ah, cool, I guess they finally reconciled with upstream then.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8979245</commentid>
+    <comment_count>11</comment_count>
+    <who name="Remi Collet">fedora</who>
+    <bug_when>2016-01-14 03:49:01 -0500</bug_when>
+    <thetext>league/flysystem =&gt; review request #1298475</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8980896</commentid>
+    <comment_count>12</comment_count>
+    <who name="Remi Collet">fedora</who>
+    <bug_when>2016-01-14 11:21:58 -0500</bug_when>
+    <thetext>interfasys/lognormalizer =&gt; review #1298649</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9094226</commentid>
+    <comment_count>13</comment_count>
+    <who name="Jan Kurik">jkurik</who>
+    <bug_when>2016-02-24 10:29:06 -0500</bug_when>
+    <thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 24 development cycle.
+Changing version to &apos;24&apos;.
+
+More information and reason for this action is here:
+https://fedoraproject.org/wiki/Fedora_Program_Management/HouseKeeping/Fedora24#Rawhide_Rebase</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9141248</commentid>
+    <comment_count>14</comment_count>
+    <who name="James Hogarth">james.hogarth</who>
+    <bug_when>2016-03-11 07:31:35 -0500</bug_when>
+    <thetext>So the 8.2 which is in progress of going out will be completely unbundled of php libraries thanks to Remi&apos;s hard work.
+
+The expectation is that 9.0 will be the same.
+
+The question remaining is that this was focused on the php side of things - how about the javascript side? The included jquery should be simple enough to unbundle to js-jquery1 but there&apos;s a few other things too such as bootstrap, underscore, handlebars, jcrop etc 
+
+Should these also be unbundled similar to the php side of things or are we considering these acceptable bundling given the lack of composer.lock style information in the javascript world to lock down versions?
+
+Perhaps just test unbundling jquery to js-jquery1 ?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9162793</commentid>
+    <comment_count>15</comment_count>
+    <who name="Fedora Admin XMLRPC Client">fedora-admin-xmlrpc</who>
+    <bug_when>2016-03-20 13:13:55 -0400</bug_when>
+    <thetext>This package has changed ownership in the Fedora Package Database.  Reassigning to the new owner of this component.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9283242</commentid>
+    <comment_count>16</comment_count>
+    <who name="James Hogarth">james.hogarth</who>
+    <bug_when>2016-05-01 19:31:42 -0400</bug_when>
+    <thetext>Well thanks to the sterling work of many there are no bundled PHP libraries in owncloud in our repos at this point.
+
+1) EPEL6 - about to be retired so can be ignored
+2) EPEL7 - the 8.2.3 update which strips all the php bundling and the autoloader about to hit testing
+3) F22/23/24/rawhide - the initial 8.2.3 update has already gone out with the unbundling, in testing is an additional bundling we caught in testing and the autoloader based build
+
+As a result of the above I&apos;m going to close this with NEXTRELEASE finishing the clean up.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

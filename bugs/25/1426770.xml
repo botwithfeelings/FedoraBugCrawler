@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1426770</bug_id>
+          
+          <creation_ts>2017-02-24 14:43:00 -0500</creation_ts>
+          <short_desc>[perf] Big performance regression between 0.6.3-6 and 0.6.4-6.2</short_desc>
+          <delta_ts>2017-04-03 08:05:18 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>hawkey</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>RAWHIDE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords>Performance, Triaged</keywords>
+          <priority>high</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Michael Simacek">msimacek</reporter>
+          <assigned_to name="Jaroslav Mracek">jmracek</assigned_to>
+          <cc>jmracek</cc>
+    
+    
+    <cc>jsilhan</cc>
+    
+    
+    <cc>mizdebsk</cc>
+    
+    
+    <cc>msimacek</cc>
+    
+    
+    <cc>packaging-team-maint</cc>
+    
+    
+    <cc>rpm-software-management</cc>
+    
+    
+    <cc>vmukhame</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-04-03 08:05:18</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10182878</commentid>
+    <comment_count>0</comment_count>
+    <who name="Michael Simacek">msimacek</who>
+    <bug_when>2017-02-24 14:43:36 -0500</bug_when>
+    <thetext>Description of problem:
+In koschei we observe big performance regression in resolution using hawkey after upgrading the machine from f24 to f25. Our resolution task suddenly started to take half an hour. We run hawkey goal with installations, one goal per-package. I reproduced the problem locally with reduced package set (so reduced number of iterations, in order to not wait half an hour).
+hawkey-0.6.3-6.fc25.x86_64: 32s
+hawkey-0.6.3-6.2.fc25.x86_64: 2 minutes
+
+Suspected upstream commit (thanks mizdebsk for pointing to it): https://github.com/rpm-software-management/hawkey/commit/9b90fa2335edf74775184c88c5423b5f5a6ab204</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10183005</commentid>
+    <comment_count>1</comment_count>
+    <who name="Michael Simacek">msimacek</who>
+    <bug_when>2017-02-24 15:33:13 -0500</bug_when>
+    <thetext>Reproducer:
+sack = get a sack for fedora 26 repo somehow
+
+brs=[&apos;perl&apos;, &apos;perl(AnyEvent)&apos;, &apos;perl(AnyEvent::Handle)&apos;, &apos;perl(AnyEvent::Socket)&apos;, &apos;perl(Authen::SASL)&apos;, &apos;perl(Data::Dumper)&apos;, &apos;perl(Digest::SHA)&apos;, &apos;perl(Encode)&apos;, &apos;perl(Exporter)&apos;, &apos;perl(ExtUtils::MakeMaker)&apos;, &apos;perl(IO::Handle)&apos;, &apos;perl(MIME::Base64)&apos;, &apos;perl(Net::LibIDN)&apos;, &apos;perl(Object::Event)&apos;, &apos;perl(Scalar::Util)&apos;, &apos;perl(Test::More)&apos;, &apos;perl(Time::Local)&apos;, &apos;perl(XML::Parser::Expat)&apos;, &apos;perl(XML::Twig)&apos;, &apos;perl(XML::Writer)&apos;, &apos;perl(base)&apos;, &apos;perl(constant)&apos;, &apos;perl(overload)&apos;, &apos;perl(strict)&apos;, &apos;perl(warnings)&apos;, &apos;perl-generators&apos;]
+
+for i in range(100):
+    goal = hawkey.Goal(sack)
+    for br in brs:
+        goal.install(provides=br)
+    goal.run()
+    goal.list_installs()
+
+
+This finishes under 1 second with -6, but needs ~10 seconds with -6.2</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10187104</commentid>
+    <comment_count>2</comment_count>
+    <who name="Honza Silhan">jsilhan</who>
+    <bug_when>2017-02-27 10:06:26 -0500</bug_when>
+    <thetext>Now it considers the obsoletes too, but could be made faster (by adding API for setting multiple provides?)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10194706</commentid>
+    <comment_count>3</comment_count>
+    <who name="Michael Simacek">msimacek</who>
+    <bug_when>2017-02-28 12:24:20 -0500</bug_when>
+    <thetext>Could this be given more priority? I understand it&apos;s not important for regular users, but it causes production problems for koschei. Our repo and build processing now lags behind what happens in koji, resulting in poor user experience for our users (when they get a notification about a broken build they need to wait for the dependency difference report).
+And I can imagine that releng/qa tools that bulk process packages might be affected too.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10207082</commentid>
+    <comment_count>4</comment_count>
+    <who name="Honza Silhan">jsilhan</who>
+    <bug_when>2017-03-03 13:12:14 -0500</bug_when>
+    <thetext>can you please include code snippet or link what are you doing in Koshei with Selector.set(provides=...)?
+
+Do you need the selector to find the package obsoleting provide name or just any package providing given Provide?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10217156</commentid>
+    <comment_count>5</comment_count>
+    <who name="Michael Simacek">msimacek</who>
+    <bug_when>2017-03-07 10:30:11 -0500</bug_when>
+    <thetext>(In reply to Honza Silhan from comment #4)
+&gt; can you please include code snippet or link what are you doing in Koshei
+&gt; with Selector.set(provides=...)?
+&gt;
+
+Our code for handling selectors consist of helper functions which were taken directly from dnf code [1] (the reason for bundling the code is that koschei backend used to be deployed on RHEL, where dnf wasn&apos;t available at that time)
+
+&gt; Do you need the selector to find the package obsoleting provide name or just
+&gt; any package providing given Provide?
+
+We need to simulate installation of package BuildRequires the same way as it happens in koji (mock). We need to do the same thing as dnf builddep would do. So the answer to your question depends on whether dnf builddep needs it (I don&apos;t know that at the moment).
+
+[1] https://github.com/msimacek/koschei/blob/master/koschei/backend/depsolve.py#L28</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10217227</commentid>
+    <comment_count>6</comment_count>
+    <who name="Honza Silhan">jsilhan</who>
+    <bug_when>2017-03-07 10:46:51 -0500</bug_when>
+    <thetext>Hmm, so you are basically duplicating DNF code which has significantly changed recently in DNF.
+
+If you get dependencies just from spec file then it is still unnecessary complex (_nevra_to_selector, etc.). Can you please try:
+```
+q = hawkey.Query(sack).filter(provides=dep)
+s = sltr.set(one_of=q)
+```
+instead of:
+`s = sltr.set(provides=dep)`
+
+
+and report whether this approach is faster?
+(this is current approach in DNF BTW)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10217786</commentid>
+    <comment_count>7</comment_count>
+    <who name="Michael Simacek">msimacek</who>
+    <bug_when>2017-03-07 12:56:28 -0500</bug_when>
+    <thetext>(In reply to Honza Silhan from comment #6)
+&gt; Hmm, so you are basically duplicating DNF code which has significantly
+&gt; changed recently in DNF.
+&gt; 
+&gt; If you get dependencies just from spec file then it is still unnecessary
+&gt; complex (_nevra_to_selector, etc.). Can you please try:
+&gt; ```
+&gt; q = hawkey.Query(sack).filter(provides=dep)
+&gt; s = sltr.set(one_of=q)
+&gt; ```
+&gt; instead of:
+&gt; `s = sltr.set(provides=dep)`
+&gt; 
+&gt; 
+&gt; and report whether this approach is faster?
+&gt; (this is current approach in DNF BTW)
+
+There&apos;s no one_of argument in f25&apos;s hawkey. I tried doing goal.install(q.run()[0]), which takes ~4 seconds in my test. Which is an improvement from 10 s, but still regression from mere miliseconds.
+
+I also tried using dnf&apos;s Subject.get_best_selector in rawhide and got the same ~ 4s.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10228296</commentid>
+    <comment_count>8</comment_count>
+    <who name="Jaroslav Mracek">jmracek</who>
+    <bug_when>2017-03-10 08:46:48 -0500</bug_when>
+    <thetext>We try to fix the problem by reverting patch that introduce handling obsoletes for provide transactions (https://github.com/rpm-software-management/libdnf/pull/275), but we cannot back port it to fedora25, because it will reintroduce bug about obsoletes.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10298934</commentid>
+    <comment_count>9</comment_count>
+    <who name="Jaroslav Mracek">jmracek</who>
+    <bug_when>2017-04-03 08:05:18 -0400</bug_when>
+    <thetext>The patch was released into rawhide in libdnf-0.8.1-1</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

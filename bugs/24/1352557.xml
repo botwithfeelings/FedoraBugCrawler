@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1352557</bug_id>
+          
+          <creation_ts>2016-07-04 06:20:00 -0400</creation_ts>
+          <short_desc>flobopuyo segfaults</short_desc>
+          <delta_ts>2016-07-27 16:53:07 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>flobopuyo</component>
+          <version>24</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>medium</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Sebastian Ott">seb_ott</reporter>
+          <assigned_to name="Andrea Musuruane">musuruan</assigned_to>
+          <cc>musuruan</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>flobopuyo-0.20-18.fc24 flobopuyo-0.20-18.fc23</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-07-27 14:55:03</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9477977</commentid>
+    <comment_count>0</comment_count>
+    <who name="Sebastian Ott">seb_ott</who>
+    <bug_when>2016-07-04 06:20:50 -0400</bug_when>
+    <thetext>Description of problem:
+Segmentation fault when running flobopuyo.
+
+Version-Release number of selected component (if applicable):
+rpm -qi flobopuyo
+Name        : flobopuyo
+Version     : 0.20
+Release     : 17.fc24
+Architecture: x86_64
+Install Date: Sun 03 Jul 2016 08:03:53 PM CEST
+Group       : Amusements/Games
+Size        : 4331653
+License     : GPLv2+
+Signature   : RSA/SHA256, Sat 06 Feb 2016 10:44:24 AM CET, Key ID 73bde98381b46521
+Source RPM  : flobopuyo-0.20-17.fc24.src.rpm
+Build Date  : Wed 03 Feb 2016 11:26:16 PM CET
+Build Host  : buildhw-09-nfs.phx2.fedoraproject.org
+Relocations : (not relocatable)
+Packager    : Fedora Project
+Vendor      : Fedora Project
+URL         : http://www.ios-software.com/?page=projet&amp;quoi=29
+Summary     : 2-player falling bubbles game
+Description :
+A two-player falling bubbles game.  The goal is to make groups of four or more
+Puyos (colored bubbles) to make them explode and send bad ghost Puyos to your
+opponent.  You win the game if your opponent reaches the top of the board. You
+can play against computer or another human.
+
+
+Additional info:
+(gdb) run
+Starting program: /usr/bin/flobopuyo 
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library &quot;/lib64/libthread_db.so.1&quot;.
+[New Thread 0x7fffe5ece700 (LWP 1683)]
+[New Thread 0x7fffe5ece700 (LWP 1684)]
+[Thread 0x7fffe5ece700 (LWP 1683) exited]
+
+Thread 1 &quot;flobopuyo&quot; received signal SIGSEGV, Segmentation fault.
+PuyoPuyo::getPuyoState (this=0x0) at PuyoGame.cpp:63
+63      {
+(gdb) bt
+#0  PuyoPuyo::getPuyoState (this=0x0) at PuyoGame.cpp:63
+#1  0x0000000000415c70 in PosEvaluator::update (myRand=25, IAHeightFactor=0, IAHeightAgressivity=65535, 
+    IAConstructorLevel=&lt;optimized out&gt;, IASecondLevelPuyoValue=0, IAPuyoValue=50, c_color=PUYO_RED, 
+    f_color=PUYO_BLUE, game=0x9db640, this=0x9dc400) at PuyoIA.cpp:150
+#2  PuyoIA::cycle (this=0x9d6a90) at PuyoIA.cpp:303
+#3  0x0000000000422166 in PuyoStarter::run (this=this@entry=0x7fffffffd9d0, _score1=_score1@entry=0, 
+    _score2=_score2@entry=0, lives=lives@entry=3, point1=point1@entry=0, point2=point2@entry=0)
+    at PuyoStarter.cpp:500
+#4  0x0000000000410868 in PuyoCommander::startSingleGameLoop (this=this@entry=0x7fffffffdcf0)
+    at PuyoCommander.cpp:1314
+#5  0x0000000000410c78 in PuyoCommander::run (this=this@entry=0x7fffffffdcf0) at PuyoCommander.cpp:721
+#6  0x0000000000402eca in main (argc=&lt;optimized out&gt;, argv=&lt;optimized out&gt;) at main.cpp:96
+(gdb)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9484717</commentid>
+    <comment_count>1</comment_count>
+    <who name="Sebastian Ott">seb_ott</who>
+    <bug_when>2016-07-06 12:25:45 -0400</bug_when>
+    <thetext>Hm...this game contains code like this:
+
+PuyoState PuyoPuyo::getPuyoState()
+{
+    if (this != NULL)
+        return state;
+    return PUYO_EMPTY;
+}
+
+Calling this with a NULL pointer results in undefined behaviour.
+
+A lot of the callers look like this:
+game-&gt;getPuyoAt(f_x-1,f_y)-&gt;getPuyoState()</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9484718</commentid>
+    <comment_count>2</comment_count>
+    <who name="Sebastian Ott">seb_ott</who>
+    <bug_when>2016-07-06 12:27:43 -0400</bug_when>
+    <thetext>This could be fixed by using:
+
+PuyoState PuyoGame::getPuyoCellAt(int X, int Y) const
+{
+    PuyoPuyo *thePuyo = getPuyoAt(X, Y);
+    if (thePuyo)
+        return thePuyo-&gt;getPuyoState();
+    return PUYO_EMPTY;
+}</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9484746</commentid>
+    <comment_count>3</comment_count>
+    <who name="Sebastian Ott">seb_ott</who>
+    <bug_when>2016-07-06 12:33:10 -0400</bug_when>
+    <thetext>Does somebody know if there is a mailing list or if upstream would take patches?
+Is this even maintained upstream?
+
+If not, would the fedora package maintainer take patches?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9492029</commentid>
+    <comment_count>4</comment_count>
+    <who name="Andrea Musuruane">musuruan</who>
+    <bug_when>2016-07-08 16:14:37 -0400</bug_when>
+    <thetext>(In reply to Sebastian Ott from comment #3)
+&gt; Does somebody know if there is a mailing list or if upstream would take
+&gt; patches?
+&gt; Is this even maintained upstream?
+
+I&apos;ve not seen an upstream release in years.
+
+&gt; If not, would the fedora package maintainer take patches?
+
+Yes :)
+
+Please be patient. I&apos;ve also have to include other patches and clean up the package a bit.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9492872</commentid>
+    <comment_count>5</comment_count>
+      <attachid>1177775</attachid>
+    <who name="Sebastian Ott">seb_ott</who>
+    <bug_when>2016-07-08 17:27:16 -0400</bug_when>
+    <thetext>Created attachment 1177775
+proposed fix</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9492894</commentid>
+    <comment_count>6</comment_count>
+    <who name="Sebastian Ott">seb_ott</who>
+    <bug_when>2016-07-08 17:29:10 -0400</bug_when>
+    <thetext>(In reply to Andrea Musuruane from comment #4)
+&gt; (In reply to Sebastian Ott from comment #3)
+&gt; &gt; If not, would the fedora package maintainer take patches?
+&gt; 
+&gt; Yes :)
+&gt; 
+&gt; Please be patient. I&apos;ve also have to include other patches and clean up the
+&gt; package a bit.
+
+OK, Thanks. I&apos;ve attached the proposed fix.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9515290</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-17 06:33:26 -0400</bug_when>
+    <thetext>flobopuyo-0.20-18.fc23 has been submitted as an update to Fedora 23. https://bodhi.fedoraproject.org/updates/FEDORA-2016-f2949b4b96</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9515291</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-17 06:33:32 -0400</bug_when>
+    <thetext>flobopuyo-0.20-18.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-d92e960299</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9515368</commentid>
+    <comment_count>9</comment_count>
+    <who name="Sebastian Ott">seb_ott</who>
+    <bug_when>2016-07-17 08:28:04 -0400</bug_when>
+    <thetext>Thanks for providing that update! I can confirm that flobopuyo-0.20-18.fc24 works again and no longer segfaults.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9515369</commentid>
+    <comment_count>10</comment_count>
+    <who name="Sebastian Ott">seb_ott</who>
+    <bug_when>2016-07-17 08:28:57 -0400</bug_when>
+    <thetext>..giving feedback on bodhi doesn&apos;t work - after clicking &quot;Add comment&quot; nothing happens.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9519288</commentid>
+    <comment_count>11</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-18 18:24:30 -0400</bug_when>
+    <thetext>flobopuyo-0.20-18.fc23 has been pushed to the Fedora 23 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-f2949b4b96</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9519309</commentid>
+    <comment_count>12</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-18 18:26:00 -0400</bug_when>
+    <thetext>flobopuyo-0.20-18.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-d92e960299</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9560220</commentid>
+    <comment_count>13</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-27 14:55:01 -0400</bug_when>
+    <thetext>flobopuyo-0.20-18.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9560647</commentid>
+    <comment_count>14</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-27 16:53:06 -0400</bug_when>
+    <thetext>flobopuyo-0.20-18.fc23 has been pushed to the Fedora 23 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="0"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1177775</attachid>
+            <date>2016-07-08 17:27:00 -0400</date>
+            <delta_ts>2016-07-08 17:27:16 -0400</delta_ts>
+            <desc>proposed fix</desc>
+            <filename>fix_segfault.patch</filename>
+            <type>text/plain</type>
+            <size>3943</size>
+            <attacher name="Sebastian Ott">seb_ott</attacher>
+            
+              <data encoding="base64">LS0tIC4uL2Zsb2JvcHV5by0wLjIwLm9yaWcvUHV5b0lBLmNwcAkyMDA0LTEwLTA5IDAwOjQxOjEz
+LjAwMDAwMDAwMCArMDIwMAorKysgUHV5b0lBLmNwcAkyMDE2LTA3LTA3IDE4OjMyOjU0LjQ0NjU3
+MzQ0NyArMDIwMApAQCAtMTA5LDE5ICsxMDksMTkgQEAKICAgICAvKiBQdXlvIGNvbXBhbmlvbiAq
+LwogICAgIGlmIChjX3kgPCBQVVlPRElNWS0xKSAvKiBTaSBvbiBlc3QgcGFzIGNvbXBsZXRlbWVu
+dCBlbiBiYXMgKi8KICAgICB7Ci0gICAgICBpZiAoKGNfeDwoUFVZT0RJTVggLSAxKSkgJiYgKGNf
+Y29sb3IgPT0gKGdhbWUtPmdldFB1eW9BdChjX3grMSxjX3kpKS0+Z2V0UHV5b1N0YXRlKCkpKSAv
+KiBUZXN0IGR1IHBhdHRlcm4gYSBkcm9pdGUgKi8KKyAgICAgIGlmICgoY194PChQVVlPRElNWCAt
+IDEpKSAmJiAoY19jb2xvciA9PSAoZ2FtZS0+Z2V0UHV5b0NlbGxBdChjX3grMSxjX3kpKSkpIC8q
+IFRlc3QgZHUgcGF0dGVybiBhIGRyb2l0ZSAqLwogICAgICAgewotICAgICAgICBQdXlvU3RhdGUg
+Y0NvbG9yQSA9IChnYW1lLT5nZXRQdXlvQXQoY194KzEsY195KzEpKS0+Z2V0UHV5b1N0YXRlKCk7
+Ci0gICAgICAgIGlmICgoY19jb2xvciE9Y0NvbG9yQSkgJiYgKGNDb2xvckE+NSkgJiYgKGNDb2xv
+ckE8MTEpICYmIChjQ29sb3JBID09IChnYW1lLT5nZXRQdXlvQXQoY194KzEsY195LTEpKS0+Z2V0
+UHV5b1N0YXRlKCkpKQorICAgICAgICBQdXlvU3RhdGUgY0NvbG9yQSA9IChnYW1lLT5nZXRQdXlv
+Q2VsbEF0KGNfeCsxLGNfeSsxKSk7CisgICAgICAgIGlmICgoY19jb2xvciE9Y0NvbG9yQSkgJiYg
+KGNDb2xvckE+NSkgJiYgKGNDb2xvckE8MTEpICYmIChjQ29sb3JBID09IChnYW1lLT5nZXRQdXlv
+Q2VsbEF0KGNfeCsxLGNfeS0xKSkpKQogICAgICAgICB7CiAgICAgICAgICAgc2NvcmUgKz0gZ2Ft
+ZS0+Z2V0U2FtZVB1eW9Bcm91bmQoY194KzEsIGNfeSwgY0NvbG9yQSkqSUFTZWNvbmRMZXZlbFB1
+eW9WYWx1ZTsKICAgICAgICAgfQogICAgICAgfQogICAgICAgICAgICAgICAgICAgICAKLSAgICAg
+IGlmICgoY194PjApICYmIChjX2NvbG9yID09IChnYW1lLT5nZXRQdXlvQXQoY194LTEsY195KSkt
+PmdldFB1eW9TdGF0ZSgpKSkgLyogVGVzdCBkdSBwYXR0ZXJuIGEgZ2F1Y2hlICovCisgICAgICBp
+ZiAoKGNfeD4wKSAmJiAoY19jb2xvciA9PSAoZ2FtZS0+Z2V0UHV5b0NlbGxBdChjX3gtMSxjX3kp
+KSkpIC8qIFRlc3QgZHUgcGF0dGVybiBhIGdhdWNoZSAqLwogICAgICAgewotICAgICAgICBQdXlv
+U3RhdGUgY0NvbG9yQiA9IChnYW1lLT5nZXRQdXlvQXQoY194LTEsY195KzEpKS0+Z2V0UHV5b1N0
+YXRlKCk7Ci0gICAgICAgIGlmICgoY19jb2xvciE9Y0NvbG9yQikgJiYgKGNDb2xvckI+NSkgJiYg
+KGNDb2xvckI8MTEpICYmIChjQ29sb3JCID09IChnYW1lLT5nZXRQdXlvQXQoY194LTEsY195LTEp
+KS0+Z2V0UHV5b1N0YXRlKCkpKQorICAgICAgICBQdXlvU3RhdGUgY0NvbG9yQiA9IChnYW1lLT5n
+ZXRQdXlvQ2VsbEF0KGNfeC0xLGNfeSsxKSk7CisgICAgICAgIGlmICgoY19jb2xvciE9Y0NvbG9y
+QikgJiYgKGNDb2xvckI+NSkgJiYgKGNDb2xvckI8MTEpICYmIChjQ29sb3JCID09IChnYW1lLT5n
+ZXRQdXlvQ2VsbEF0KGNfeC0xLGNfeS0xKSkpKQogICAgICAgICB7CiAgICAgICAgICAgc2NvcmUg
+Kz0gZ2FtZS0+Z2V0U2FtZVB1eW9Bcm91bmQoY194LTEsIGNfeSwgY0NvbG9yQikqSUFTZWNvbmRM
+ZXZlbFB1eW9WYWx1ZTsKICAgICAgICAgfQpAQCAtMTI5LDcgKzEyOSw3IEBACiAgICAgfQogICAg
+IGlmIChjX3kgPCBQVVlPRElNWS0yKSAvKiBTaSBvbiBlc3QgcGFzIHRyb3AgZW4gYmFzICovCiAg
+ICAgewotICAgICAgaWYgKGNfY29sb3IgPT0gKGdhbWUtPmdldFB1eW9BdChjX3gsY195KzIpKS0+
+Z2V0UHV5b1N0YXRlKCkpCisgICAgICBpZiAoY19jb2xvciA9PSAoZ2FtZS0+Z2V0UHV5b0NlbGxB
+dChjX3gsY195KzIpKSkKICAgICAgIHsKICAgICAgICAgc2NvcmUgKz0gZ2FtZS0+Z2V0U2FtZVB1
+eW9Bcm91bmQoY194LCBjX3krMiwgY19jb2xvcikqSUFTZWNvbmRMZXZlbFB1eW9WYWx1ZTsKICAg
+ICAgIH0KQEAgLTEzOCwxOSArMTM4LDE5IEBACiAgICAgLyogUHV5byBwcmluY2lwYWwgKi8KICAg
+ICBpZiAoZl95IDwgUFVZT0RJTVktMSkgIC8qIFNpIG9uIGVzdCBwYXMgY29tcGxldGVtZW50IGVu
+IGJhcyAqLwogICAgIHsKLSAgICAgIGlmICgoZl94PChQVVlPRElNWCAtIDEpKSAmJiAoZl9jb2xv
+ciA9PSAoZ2FtZS0+Z2V0UHV5b0F0KGZfeCsxLGZfeSkpLT5nZXRQdXlvU3RhdGUoKSkpIC8qIFRl
+c3QgZHUgcGF0dGVybiBhIGRyb2l0ZSAqLworICAgICAgaWYgKChmX3g8KFBVWU9ESU1YIC0gMSkp
+ICYmIChmX2NvbG9yID09IChnYW1lLT5nZXRQdXlvQ2VsbEF0KGZfeCsxLGZfeSkpKSkgLyogVGVz
+dCBkdSBwYXR0ZXJuIGEgZHJvaXRlICovCiAgICAgICB7Ci0gICAgICAgIFB1eW9TdGF0ZSBmQ29s
+b3JBID0gKGdhbWUtPmdldFB1eW9BdChmX3grMSxmX3krMSkpLT5nZXRQdXlvU3RhdGUoKTsKLSAg
+ICAgICAgaWYgKChmX2NvbG9yIT1mQ29sb3JBKSAmJiAoZkNvbG9yQT41KSAmJiAoZkNvbG9yQTwx
+MSkgJiYgKGZDb2xvckEgPT0gKGdhbWUtPmdldFB1eW9BdChmX3grMSxmX3ktMSkpLT5nZXRQdXlv
+U3RhdGUoKSkpCisgICAgICAgIFB1eW9TdGF0ZSBmQ29sb3JBID0gKGdhbWUtPmdldFB1eW9DZWxs
+QXQoZl94KzEsZl95KzEpKTsKKyAgICAgICAgaWYgKChmX2NvbG9yIT1mQ29sb3JBKSAmJiAoZkNv
+bG9yQT41KSAmJiAoZkNvbG9yQTwxMSkgJiYgKGZDb2xvckEgPT0gKGdhbWUtPmdldFB1eW9DZWxs
+QXQoZl94KzEsZl95LTEpKSkpCiAgICAgICAgIHsKICAgICAgICAgICBzY29yZSArPSBnYW1lLT5n
+ZXRTYW1lUHV5b0Fyb3VuZChmX3grMSwgZl95LCBmQ29sb3JBKSpJQVNlY29uZExldmVsUHV5b1Zh
+bHVlOwogICAgICAgICB9CiAgICAgICB9Ci0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgCi0gICAgICBpZiAoKGZfeD4wKSAmJiAoZl9jb2xvciA9PSAoZ2FtZS0+Z2V0UHV5b0F0KGZf
+eC0xLGZfeSkpLT5nZXRQdXlvU3RhdGUoKSkpIC8qIFRlc3QgZHUgcGF0dGVybiBhIGdhdWNoZSAq
+LworCisgICAgICBpZiAoKGZfeD4wKSAmJiAoZl9jb2xvciA9PSAoZ2FtZS0+Z2V0UHV5b0NlbGxB
+dChmX3gtMSxmX3kpKSkpIC8qIFRlc3QgZHUgcGF0dGVybiBhIGdhdWNoZSAqLwogICAgICAgewog
+ICAgICAgICBQdXlvU3RhdGUgZkNvbG9yQiA9IChnYW1lLT5nZXRQdXlvQXQoZl94LTEsZl95KzEp
+KS0+Z2V0UHV5b1N0YXRlKCk7Ci0gICAgICAgIGlmICgoZl9jb2xvciE9ZkNvbG9yQikgJiYgKGZD
+b2xvckI+NSkgJiYgKGZDb2xvckI8MTEpICYmIChmQ29sb3JCID09IChnYW1lLT5nZXRQdXlvQXQo
+Zl94LTEsZl95LTEpKS0+Z2V0UHV5b1N0YXRlKCkpKQorICAgICAgICBpZiAoKGZfY29sb3IhPWZD
+b2xvckIpICYmIChmQ29sb3JCPjUpICYmIChmQ29sb3JCPDExKSAmJiAoZkNvbG9yQiA9PSAoZ2Ft
+ZS0+Z2V0UHV5b0NlbGxBdChmX3gtMSxmX3ktMSkpKSkKICAgICAgICAgewogICAgICAgICAgIHNj
+b3JlICs9IGdhbWUtPmdldFNhbWVQdXlvQXJvdW5kKGZfeC0xLCBmX3ksIGZDb2xvckIpKklBU2Vj
+b25kTGV2ZWxQdXlvVmFsdWU7CiAgICAgICAgIH0KQEAgLTE1OCw3ICsxNTgsNyBAQAogICAgIH0K
+ICAgICBpZiAoZl95IDwgUFVZT0RJTVktMikgLyogU2kgb24gZXN0IHBhcyB0cm9wIGVuIGJhcyAq
+LwogICAgIHsKLSAgICAgIGlmIChmX2NvbG9yID09IChnYW1lLT5nZXRQdXlvQXQoZl94LGZfeSsy
+KSktPmdldFB1eW9TdGF0ZSgpKQorICAgICAgaWYgKGZfY29sb3IgPT0gKGdhbWUtPmdldFB1eW9D
+ZWxsQXQoZl94LGZfeSsyKSkpCiAgICAgICB7CiAgICAgICAgIHNjb3JlICs9IGdhbWUtPmdldFNh
+bWVQdXlvQXJvdW5kKGZfeCwgZl95KzIsIGZfY29sb3IpKklBU2Vjb25kTGV2ZWxQdXlvVmFsdWU7
+CiAgICAgICB9Cg==
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

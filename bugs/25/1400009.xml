@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1400009</bug_id>
+          
+          <creation_ts>2016-11-30 04:38:00 -0500</creation_ts>
+          <short_desc>Bad boolean declaration</short_desc>
+          <delta_ts>2016-12-01 11:49:45 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>docker</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>high</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Paolo Antinori">pantinor</reporter>
+          <assigned_to name="Daniel Walsh">dwalsh</assigned_to>
+          <cc>adimania</cc>
+    
+    
+    <cc>admiller</cc>
+    
+    
+    <cc>amurdaca</cc>
+    
+    
+    <cc>dwalsh</cc>
+    
+    
+    <cc>ichavero</cc>
+    
+    
+    <cc>jcajka</cc>
+    
+    
+    <cc>jchaloup</cc>
+    
+    
+    <cc>lsm5</cc>
+    
+    
+    <cc>lvrabec</cc>
+    
+    
+    <cc>marianne</cc>
+    
+    
+    <cc>mgrepl</cc>
+    
+    
+    <cc>miminar</cc>
+    
+    
+    <cc>nalin</cc>
+    
+    
+    <cc>plautrba</cc>
+    
+    
+    <cc>pmoore</cc>
+    
+    
+    <cc>riek</cc>
+    
+    
+    <cc>vbatts</cc>
+    
+    
+    <cc>vmojzis</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-12-01 10:01:15</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9942096</commentid>
+    <comment_count>0</comment_count>
+    <who name="Paolo Antinori">pantinor</who>
+    <bug_when>2016-11-30 04:38:11 -0500</bug_when>
+    <thetext>Description of problem:
+
+While following the suggestions form &quot;SElinux Alert Browser&quot; I get an error at `semodule` invocation step.
+
+
+Version-Release number of selected component (if applicable):
+```
+rpm -qa | ag policycoreutils
+policycoreutils-python-utils-2.5-17.fc25.x86_64
+policycoreutils-devel-2.5-17.fc25.x86_64
+policycoreutils-python3-2.5-17.fc25.x86_64
+policycoreutils-2.5-17.fc25.x86_64
+policycoreutils-python-2.5-17.fc25.x86_64
+policycoreutils-gui-2.5-17.fc25.x86_64
+```
+
+
+How reproducible:
+
+
+Steps to Reproduce:
+1. SELinux is preventing gnome-shell from read access on the lnk_file /data/software/ext/idea.
+
+2. 
+
+```
+sudo ausearch -c &apos;gnome-shell&apos; --raw | audit2allow -M my-gnomeshell
+[sudo] password for pantinor: 
+******************** IMPORTANT ***********************
+To make this policy package active, execute:
+
+semodule -i my-gnomeshell.pp
+
+```
+3.
+```
+sudo semodule -X 300 -i my-gnomeshell.pp
+Re-declaration of boolean virt_sandbox_use_fusefs
+Failed to create node
+Bad boolean declaration at /var/lib/selinux/targeted/tmp/modules/100/virt/cil:152
+semodule:  Failed!
+```
+
+Actual results:
+
+
+Expected results:
+
+
+Additional info:
+
+I can&apos;t find `/var/lib/selinux/targeted/tmp/modules/100/virt/cil` that I was hoping to attach. Is there a way to keep this temporary file to be inspected?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9942362</commentid>
+    <comment_count>1</comment_count>
+    <who name="Petr Lautrbach">plautrba</who>
+    <bug_when>2016-11-30 05:52:22 -0500</bug_when>
+    <thetext>The temporary file itself probably can&apos;t be inspected but you can inspect an active module in /var/lib/selinux/targeted/active/modules/ directory - /var/lib/selinux/targeted/tmp/modules/100/virt/cil
+
+For the better understanding the problem, please provide the output of &apos;sudo ausearch -c &apos;gnome-shell&apos; --raw&apos;
+
+These kind of problems are usually seen with combination of not update container-selinux, former docker-selinux package.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9943093</commentid>
+    <comment_count>2</comment_count>
+    <who name="Paolo Antinori">pantinor</who>
+    <bug_when>2016-11-30 08:55:35 -0500</bug_when>
+    <thetext>Hi, thanks for helping. 
+
+```
+sudo ausearch -c &apos;gnome-shell&apos; --raw | tail
+type=AVC msg=audit(1480496220.412:373): avc:  denied  { read } for  pid=1598 comm=&quot;gnome-shell&quot; name=&quot;idea&quot; dev=&quot;dm-2&quot; ino=1629014 scontext=system_u:system_r:xdm_t:s0-s0:c0.c1023 tcontext=unconfined_u:object_r:default_t:s0 tclass=lnk_file permissive=0
+type=AVC msg=audit(1480496220.339:372): avc:  denied  { read } for  pid=1598 comm=&quot;gnome-shell&quot; name=&quot;idea&quot; dev=&quot;dm-2&quot; ino=1629014 scontext=system_u:system_r:xdm_t:s0-s0:c0.c1023 tcontext=unconfined_u:object_r:default_t:s0 tclass=lnk_file permissive=0
+type=AVC msg=audit(1480496397.723:222): avc:  denied  { read } for  pid=6461 comm=&quot;gnome-shell&quot; name=&quot;idea&quot; dev=&quot;dm-2&quot; ino=1629014 scontext=system_u:system_r:xdm_t:s0-s0:c0.c1023 tcontext=unconfined_u:object_r:default_t:s0 tclass=lnk_file permissive=0
+type=AVC msg=audit(1480496759.331:318): avc:  denied  { read } for  pid=6461 comm=&quot;gnome-shell&quot; name=&quot;idea&quot; dev=&quot;dm-2&quot; ino=1629014 scontext=system_u:system_r:xdm_t:s0-s0:c0.c1023 tcontext=unconfined_u:object_r:default_t:s0 tclass=lnk_file permissive=0
+type=AVC msg=audit(1480496759.368:319): avc:  denied  { read } for  pid=6461 comm=&quot;gnome-shell&quot; name=&quot;idea&quot; dev=&quot;dm-2&quot; ino=1629014 scontext=system_u:system_r:xdm_t:s0-s0:c0.c1023 tcontext=unconfined_u:object_r:default_t:s0 tclass=lnk_file permissive=0
+type=AVC msg=audit(1480496759.468:320): avc:  denied  { read } for  pid=6461 comm=&quot;gnome-shell&quot; name=&quot;idea&quot; dev=&quot;dm-2&quot; ino=1629014 scontext=system_u:system_r:xdm_t:s0-s0:c0.c1023 tcontext=unconfined_u:object_r:default_t:s0 tclass=lnk_file permissive=0
+type=AVC msg=audit(1480496759.491:321): avc:  denied  { read } for  pid=6461 comm=&quot;gnome-shell&quot; name=&quot;idea&quot; dev=&quot;dm-2&quot; ino=1629014 scontext=system_u:system_r:xdm_t:s0-s0:c0.c1023 tcontext=unconfined_u:object_r:default_t:s0 tclass=lnk_file permissive=0
+type=AVC msg=audit(1480496773.968:326): avc:  denied  { read } for  pid=6461 comm=&quot;gnome-shell&quot; name=&quot;idea&quot; dev=&quot;dm-2&quot; ino=1629014 scontext=system_u:system_r:xdm_t:s0-s0:c0.c1023 tcontext=unconfined_u:object_r:default_t:s0 tclass=lnk_file permissive=0
+type=AVC msg=audit(1480496773.933:325): avc:  denied  { read } for  pid=6461 comm=&quot;gnome-shell&quot; name=&quot;idea&quot; dev=&quot;dm-2&quot; ino=1629014 scontext=system_u:system_r:xdm_t:s0-s0:c0.c1023 tcontext=unconfined_u:object_r:default_t:s0 tclass=lnk_file permissive=0
+type=AVC msg=audit(1480496923.028:183): avc:  denied  { read } for  pid=1722 comm=&quot;gnome-shell&quot; name=&quot;idea&quot; dev=&quot;dm-2&quot; ino=1629014 scontext=system_u:system_r:xdm_t:s0-s0:c0.c1023 tcontext=unconfined_u:object_r:default_t:s0 tclass=lnk_file permissive=0
+```
+
+Regarding package update, I have currently no update available listed in `dnf` and I have performed a full filesystem relabelling just after upgrading to F25</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9947581</commentid>
+    <comment_count>3</comment_count>
+    <who name="Lukas Vrabec">lvrabec</who>
+    <bug_when>2016-12-01 09:33:37 -0500</bug_when>
+    <thetext>We faced similar issue before. It was fixed by removing duplicate boolean declaration in docker policy. Docker policy is shipped by docker. 
+
+Guys, 
+Could you check if you declare virt_sandbox_use_fusefs in docker policy? 
+
+Thanks,
+Lukas.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9947621</commentid>
+    <comment_count>4</comment_count>
+    <who name="Daniel Walsh">dwalsh</who>
+    <bug_when>2016-12-01 09:45:36 -0500</bug_when>
+    <thetext>yum update docker-selinux or container-selinux.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9947696</commentid>
+    <comment_count>5</comment_count>
+    <who name="Paolo Antinori">pantinor</who>
+    <bug_when>2016-12-01 10:00:29 -0500</bug_when>
+    <thetext>Thank you Dan, that worked.
+
+Apparently I was on
+
+docker-engine-selinux from VirtualBox repo (http://public-yum.oracle.com/repo/OracleLinux/OL7/addons/$basearch/)
+
+This fixed the issue:
+
+```
+sudo dnf install container-selinux --allowerasing
+
+
+...
+Installing:
+ container-selinux                                             x86_64                                         2:1.12.3-10.git7b5044b.fc25                                           updates                                              81 k
+Removing:
+ docker-engine-selinux                                         noarch                                         1.12.2-1.0.1.el7                                                      @VirtualBox                                          48 k
+
+
+...
+```</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9948336</commentid>
+    <comment_count>6</comment_count>
+    <who name="Daniel Walsh">dwalsh</who>
+    <bug_when>2016-12-01 11:49:45 -0500</bug_when>
+    <thetext>Yes please use the distros version of docker and docker/container-selinux packages.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

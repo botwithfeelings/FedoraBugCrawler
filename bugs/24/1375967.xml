@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1375967</bug_id>
+          
+          <creation_ts>2016-09-14 07:16:00 -0400</creation_ts>
+          <short_desc>[RFE] API to query whether a plugin is available or not</short_desc>
+          <delta_ts>2016-09-23 10:12:14 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>NetworkManager</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>RAWHIDE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Marius Vollmer">mvollmer</reporter>
+          <assigned_to name="Lubomir Rintel">lkundrak</assigned_to>
+          <cc>dcbw</cc>
+    
+    
+    <cc>fgiudici</cc>
+    
+    
+    <cc>lkundrak</cc>
+    
+    
+    <cc>psimerda</cc>
+    
+    
+    <cc>stefw</cc>
+    
+    
+    <cc>thaller</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-09-23 10:12:14</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9706790</commentid>
+    <comment_count>0</comment_count>
+    <who name="Marius Vollmer">mvollmer</who>
+    <bug_when>2016-09-14 07:16:27 -0400</bug_when>
+    <thetext>Cockpit would like to support teams, but we can&apos;t unfortunately force the NetworkManager-team package to be installed.
+
+The next best thing is to detect at run-time whether it is installed, via the NetworkManager D-Bus API.
+
+I am happy to do the work, with a little initial help.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9706831</commentid>
+    <comment_count>1</comment_count>
+    <who name="Stef Walter">stefw</who>
+    <bug_when>2016-09-14 07:32:22 -0400</bug_when>
+    <thetext>We&apos;re incorporating a hack to work around this, but it&apos;s very ugly and we would like to remove the hack once the real solution is in place:
+
+https://github.com/cockpit-project/cockpit/pull/5045</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9706934</commentid>
+    <comment_count>2</comment_count>
+    <who name="Thomas Haller">thaller</who>
+    <bug_when>2016-09-14 08:02:04 -0400</bug_when>
+    <thetext>Better then thinking only about &quot;plugins&quot;, these should be more general &quot;capabilities&quot;,  &quot;abilities&quot;, or &quot;behaviors&quot;.
+
+Like
+  [ ] This NM instance is capable to managed Team
+
+
+I think we could make use of this extensively and thus it should be easy to extend and support a large number of capabilities.
+
+
+
+Capabilities could be either a bitmask, a set of string values, or a set of guint32. I would tend to a set of guint32, as then the actual numbers are more flexible but it&apos;s still more lightweight then a list of strings.
+
+
+Can capabilities change during a NetworkManager run? Team-support can currently not change because device-plugins are only loaded at the beginning. If they can change (maybe in the future), it might need a way to notify about the change.
+
+
+
+ - capabilities are a set of guint32 values.
+   Upstream NM only uses the range 0x001 to 0x6FFF.
+   For downstream, we reserve 0x7000 to 0x7FFF.
+ - either
+   (1) add a method GetCapabilities() -&gt; &quot;au&quot; which returns a list of all
+     supported capabilities.
+   (2) add a property Capabilities &quot;au&quot; which also returns all capabilities.
+   (3) add a method &quot;CheckCapability(&quot;u&quot;)-&gt;&quot;b&quot; to query one particular 
+       capability.
+   (4) add a method &quot;CheckCapabilities(&quot;au&quot;)-&gt;&quot;ab&quot; to query multiple 
+       capabilities.
+   I think (1) is best
+ - If we we later need to notify about mutable capabilities, I would add
+   a signal CapabilityChanged to notify which capabilities changed. So, that 
+   wouldn&apos;t be a problem.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9710994</commentid>
+    <comment_count>3</comment_count>
+    <who name="Marius Vollmer">mvollmer</who>
+    <bug_when>2016-09-15 09:15:54 -0400</bug_when>
+    <thetext>(In reply to Thomas Haller from comment #2)
+&gt; Better then thinking only about &quot;plugins&quot;, these should be more general
+&gt; &quot;capabilities&quot;,  &quot;abilities&quot;, or &quot;behaviors&quot;.
+
+Yes, that makes sense.  What about the pretty neutral term &quot;Flags&quot;? 
+ 
+&gt; I think we could make use of this extensively and thus it should be easy to
+&gt; extend and support a large number of capabilities.
+
+And a plugin would then set a specific capability flag during its initialization after it has been loaded?
+
+Would you want to change all plugins, or only those that people are actually expressing interest in, like the &quot;team&quot; plugin here?
+
+&gt;  - capabilities are a set of guint32 values.
+&gt;    Upstream NM only uses the range 0x001 to 0x6FFF.
+&gt;    For downstream, we reserve 0x7000 to 0x7FFF.
+
+Right.
+
+&gt;  - either
+&gt;    (1) add a method GetCapabilities() -&gt; &quot;au&quot; which returns a list of all
+&gt;      supported capabilities.
+&gt;    (2) add a property Capabilities &quot;au&quot; which also returns all capabilities.
+&gt;    (3) add a method &quot;CheckCapability(&quot;u&quot;)-&gt;&quot;b&quot; to query one particular 
+&gt;        capability.
+&gt;    (4) add a method &quot;CheckCapabilities(&quot;au&quot;)-&gt;&quot;ab&quot; to query multiple 
+&gt;        capabilities.
+&gt;    I think (1) is best
+
+I vote for (2), because it _is_ a property, no?  You would just be duplicating the Property API for no good reason.
+
+&gt;  - If we we later need to notify about mutable capabilities, I would add
+&gt;    a signal CapabilityChanged to notify which capabilities changed. So, that 
+&gt;    wouldn&apos;t be a problem.
+
+It would raise the question why this isn&apos;t a property.
+
+
+Would you like me to work a bit on this?  A pull request at https://github.com/NetworkManager/NetworkManager would be easiest for me, I guess.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9711150</commentid>
+    <comment_count>4</comment_count>
+    <who name="Thomas Haller">thaller</who>
+    <bug_when>2016-09-15 09:54:31 -0400</bug_when>
+    <thetext>(In reply to Marius Vollmer from comment #3)
+&gt; (In reply to Thomas Haller from comment #2)
+&gt; &gt; Better then thinking only about &quot;plugins&quot;, these should be more general
+&gt; &gt; &quot;capabilities&quot;,  &quot;abilities&quot;, or &quot;behaviors&quot;.
+&gt; 
+&gt; Yes, that makes sense.  What about the pretty neutral term &quot;Flags&quot;?
+
+hm. &quot;Flags&quot;seems too generic as a name, but what do others think?
+
+
+&gt; &gt; I think we could make use of this extensively and thus it should be easy to
+&gt; &gt; extend and support a large number of capabilities.
+&gt; 
+&gt; And a plugin would then set a specific capability flag during its
+&gt; initialization after it has been loaded?
+
+Yes.
+
+&gt; Would you want to change all plugins, or only those that people are actually
+&gt; expressing interest in, like the &quot;team&quot; plugin here?
+
+The latter. I think those &quot;flags&quot; are anyway well-known to NetworkManager-core and the D-Bus API users who care about them. It doesn&apos;t have to be generic.
+Also, device-plugins are entirely in-tree. There is no stable API/ABI for such plugins, as such every capability is known at compile-time.
+
+
+Maybe now, capabilities should be immutable. Thus, there is a phase where device-plugins are loaded (and the team-capability-flag is set), but once the capabilities are accessed the first time, there value should be frozen. Preferably, there is an assertion if somebody tries to change a capability after it&apos;s frozen..
+
+Maybe like:
+
+static struct {
+    bool initalized;
+    ...
+} _capabilities;
+void
+nm_manager_capability_init (NMCapability capability, gboolean has)
+{
+    if (_capabilities.initialized)
+         g_return_if_reached ();
+    if (!NM_IN_SET (capability, NM_CAPABILITY_TEAM))
+         g_return_if_reached ();
+    ...
+}
+
+
+&gt; 
+&gt; &gt;  - capabilities are a set of guint32 values.
+&gt; &gt;    Upstream NM only uses the range 0x001 to 0x6FFF.
+&gt; &gt;    For downstream, we reserve 0x7000 to 0x7FFF.
+&gt; 
+&gt; Right.
+&gt; 
+&gt; &gt;  - either
+&gt; &gt;    (1) add a method GetCapabilities() -&gt; &quot;au&quot; which returns a list of all
+&gt; &gt;      supported capabilities.
+&gt; &gt;    (2) add a property Capabilities &quot;au&quot; which also returns all capabilities.
+&gt; &gt;    (3) add a method &quot;CheckCapability(&quot;u&quot;)-&gt;&quot;b&quot; to query one particular 
+&gt; &gt;        capability.
+&gt; &gt;    (4) add a method &quot;CheckCapabilities(&quot;au&quot;)-&gt;&quot;ab&quot; to query multiple 
+&gt; &gt;        capabilities.
+&gt; &gt;    I think (1) is best
+&gt; 
+&gt; I vote for (2), because it _is_ a property, no?  You would just be
+&gt; duplicating the Property API for no good reason.
+
+I dislike properties, because ObjectManager and libnm always read them all. I think most users don&apos;t actually care, so this adds overhead for every user.
+Arguably, it&apos;s just one single property... ok, fine with me.
+
+&gt; &gt;  - If we we later need to notify about mutable capabilities, I would add
+&gt; &gt;    a signal CapabilityChanged to notify which capabilities changed. So, that 
+&gt; &gt;    wouldn&apos;t be a problem.
+&gt; 
+&gt; It would raise the question why this isn&apos;t a property.
+&gt; 
+&gt; 
+&gt; Would you like me to work a bit on this?  A pull request at
+&gt; https://github.com/NetworkManager/NetworkManager would be easiest for me, I
+&gt; guess.
+
+that would be great.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9711282</commentid>
+    <comment_count>5</comment_count>
+    <who name="Marius Vollmer">mvollmer</who>
+    <bug_when>2016-09-15 10:34:08 -0400</bug_when>
+    <thetext>(In reply to Thomas Haller from comment #4)
+&gt; Maybe like:
+&gt; [...]
+
+Thanks, I&apos;ll work from that.
+ 
+&gt; I dislike properties, because ObjectManager and libnm always read them all.
+&gt; I think most users don&apos;t actually care, so this adds overhead for every user.
+
+Yeah, that&apos;s the only reason against properties that I can think of.  Really expensive properties need some special handling, but Capabilities should be fine.
+
+&gt; Arguably, it&apos;s just one single property... ok, fine with me.
+
+Cool.
+
+&gt; &gt; Would you like me to work a bit on this?  A pull request at
+&gt; &gt; https://github.com/NetworkManager/NetworkManager would be easiest for me, I
+&gt; &gt; guess.
+&gt; 
+&gt; that would be great.
+
+I got it to compile so the rest should be easy. :-)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9711910</commentid>
+    <comment_count>6</comment_count>
+    <who name="Thomas Haller">thaller</who>
+    <bug_when>2016-09-15 12:42:50 -0400</bug_when>
+    <thetext>probably, the _capabilities shouldn&apos;t be a static variable, but a member in the NMManagerPrivate. The static variable was just a quick idea, solve it as you think it&apos;s best.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9713908</commentid>
+    <comment_count>7</comment_count>
+    <who name="Marius Vollmer">mvollmer</who>
+    <bug_when>2016-09-16 06:28:02 -0400</bug_when>
+    <thetext>https://github.com/NetworkManager/NetworkManager/pull/9</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9737978</commentid>
+    <comment_count>8</comment_count>
+    <who name="Thomas Haller">thaller</who>
+    <bug_when>2016-09-23 10:12:14 -0400</bug_when>
+    <thetext>merged upstream and will be in NM-1.6.0:
+
+master: https://cgit.freedesktop.org/NetworkManager/NetworkManager/commit/?id=0b48ad4e48c22ca4d392d5d64701df268ad5ed8e.
+
+
+I am closing this as RESOLVED|RAWHIDE, as we usually don&apos;t backport new API to old-stable branches.
+And usually we don&apos;t upgrade the NetworkManager version in already released Fedora versions.
+
+If this should be actually backported to F24/F25, please reopen... but better don&apos;t ;-)</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

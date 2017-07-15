@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1351937</bug_id>
+          
+          <creation_ts>2016-07-01 04:15:00 -0400</creation_ts>
+          <short_desc>fix conditional support for grub2 in RPM post scriplets</short_desc>
+          <delta_ts>2016-08-01 14:53:34 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>tuned</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter>dac.override</reporter>
+          <assigned_to name="Jaroslav Škarvada">jskarvad</assigned_to>
+          <cc>jskarvad</cc>
+    
+    
+    <cc>jv+fedora</cc>
+    
+    
+    <cc>pknirsch</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>tuned-2.7.0-2.fc24 tuned-2.7.0-2.fc23</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-07-27 14:51:50</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9471422</commentid>
+    <comment_count>0</comment_count>
+    <who name="">dac.override</who>
+    <bug_when>2016-07-01 04:15:49 -0400</bug_when>
+    <thetext>Description of problem:
+
+cp -a /usr/share/tuned/grub2/00_tuned /etc/grub.d/00_tuned
+
+This will copy that file and leaves its selinux label as it was. This causes issues since &quot;data&quot; is not executable. Thus grub2-mkconfig (anything that is targeted by selinux for that matter) will not be able to execute this script
+
+A solution would be to run restorecon on the target afterwards.
+
+example:
+
+if [ -d /etc/grub.d ]; then
+  cp -a /usr/share/tuned/grub2/00_tuned /etc/grub.d/00_tuned
+  restorecon /etc/grub.d/00_tuned
+fi
+
+That will make sure that the labeling is consistent with the policy
+
+Version-Release number of selected component (if applicable):
+
+any</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9471480</commentid>
+    <comment_count>1</comment_count>
+    <who name="">dac.override</who>
+    <bug_when>2016-07-01 04:40:55 -0400</bug_when>
+    <thetext>This might be a little better:
+
+selinuxenabled &amp;&amp; restorecon /etc/grub.d/00_tuned
+
+That will only try to reset labels if selinux is actually enabled.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9472969</commentid>
+    <comment_count>2</comment_count>
+    <who name="Jaroslav Škarvada">jskarvad</who>
+    <bug_when>2016-07-01 13:03:59 -0400</bug_when>
+    <thetext>Thanks for the report, upstream commit fixing the problem:
+https://git.fedorahosted.org/cgit/tuned.git/commit/?id=ddeadd34eb126d77fc9977eb64b56398fda3ee72
+
+I will rebase the package in fedora soon.
+
+I fixed it optionally:
+  selinuxenabled &amp;&amp; restorecon %{_sysconfdir}/grub.d/00_tuned || :
+to handle cases where no selinux support utilities are installed.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9524294</commentid>
+    <comment_count>3</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-19 10:10:49 -0400</bug_when>
+    <thetext>tuned-2.7.0-1.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-327cccfbae</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9524349</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-19 10:13:30 -0400</bug_when>
+    <thetext>tuned-2.7.0-1.fc23 has been submitted as an update to Fedora 23. https://bodhi.fedoraproject.org/updates/FEDORA-2016-122381bf6f</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9530311</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-19 21:49:07 -0400</bug_when>
+    <thetext>tuned-2.7.0-1.fc23 has been pushed to the Fedora 23 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-122381bf6f</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9530326</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-19 21:53:10 -0400</bug_when>
+    <thetext>tuned-2.7.0-1.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-327cccfbae</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9537599</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-21 11:54:33 -0400</bug_when>
+    <thetext>tuned-2.7.0-2.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-f2b0ad383e</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9537605</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-21 11:55:14 -0400</bug_when>
+    <thetext>tuned-2.7.0-2.fc23 has been submitted as an update to Fedora 23. https://bodhi.fedoraproject.org/updates/FEDORA-2016-3acc8e3722</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9542410</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-22 15:21:57 -0400</bug_when>
+    <thetext>tuned-2.7.0-2.fc23 has been pushed to the Fedora 23 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-3acc8e3722</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9542413</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-22 15:22:01 -0400</bug_when>
+    <thetext>tuned-2.7.0-2.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-f2b0ad383e</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9549272</commentid>
+    <comment_count>11</comment_count>
+    <who name="Jan Kurik">jkurik</who>
+    <bug_when>2016-07-26 00:28:24 -0400</bug_when>
+    <thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 25 development cycle.
+Changing version to &apos;25&apos;.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9560195</commentid>
+    <comment_count>12</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-27 14:51:32 -0400</bug_when>
+    <thetext>tuned-2.7.0-2.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9574163</commentid>
+    <comment_count>13</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-01 14:53:20 -0400</bug_when>
+    <thetext>tuned-2.7.0-2.fc23 has been pushed to the Fedora 23 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

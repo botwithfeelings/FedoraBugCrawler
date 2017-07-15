@@ -1,0 +1,482 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1381127</bug_id>
+          
+          <creation_ts>2016-10-03 03:33:00 -0400</creation_ts>
+          <short_desc>PCP SELinux issues</short_desc>
+          <delta_ts>2017-04-11 00:51:36 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>selinux-policy</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords>Reopened</keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Marko Myllynen">myllynen</reporter>
+          <assigned_to name="Lukas Vrabec">lvrabec</assigned_to>
+          <cc>brolley</cc>
+    
+    
+    <cc>dominick.grift</cc>
+    
+    
+    <cc>dwalsh</cc>
+    
+    
+    <cc>fche</cc>
+    
+    
+    <cc>lberk</cc>
+    
+    
+    <cc>lvrabec</cc>
+    
+    
+    <cc>mgoodwin</cc>
+    
+    
+    <cc>mgrepl</cc>
+    
+    
+    <cc>nathans</cc>
+    
+    
+    <cc>pcp</cc>
+    
+    
+    <cc>plautrba</cc>
+    
+    
+    <cc>pmoore</cc>
+    
+    
+    <cc>scox</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-04-11 00:51:36</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9760328</commentid>
+    <comment_count>0</comment_count>
+      <attachid>1206766</attachid>
+    <who name="Marko Myllynen">myllynen</who>
+    <bug_when>2016-10-03 03:33:26 -0400</bug_when>
+    <thetext>Created attachment 1206766
+PCP AVCs
+
+Description of problem:
+Fedora 24 + updates + pcp-3.11.5-1.fc24 + SELinux in Permissive + pmcd/pmlogger/pmie services enabled gives the attached AVCs on boot.
+
+This is probably due to SELinux policies but filing initially against the pcp component to give PCP developers a heads-up, at this rate PCP appears as a second class citizen, it&apos;s the only component at least on my systems having severe issues with SELinux.
+
+$ wc -l pcp-avcs.txt
+54 pcp-avcs.txt
+
+Also see https://bugzilla.redhat.com/show_bug.cgi?id=1337968 which haven&apos;t seen any activity in months. But note that this BZ has new AVCs, e.g., the ldconfig one which originates from ctypes/util.py which gets called when a Python PMDA is installed.
+
+grep SYSCALL audit.log gave no hits so if you need more information I&apos;d suggest you to reproduce locally as that should be trivial.
+
+Thanks.
+
+Version-Release number of selected component (if applicable):
+pcp-3.11.5-1.fc24.x86_64
+selinux-policy-targeted-3.13.1-191.17.fc24.noarch</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9763641</commentid>
+    <comment_count>1</comment_count>
+    <who name="Nathan Scott">nathans</who>
+    <bug_when>2016-10-04 01:45:19 -0400</bug_when>
+    <thetext>Auditing Marko&apos;s attached log shows there&apos;s a few categories of failures.
+
+The first lot are wierd things like PCP commands or shell scripts not being able to run system utilities like chown, kill, hostname, which, etc.  I&apos;m unsure what to do with those, will leave for SELinux folk to advise.
+
+Then there&apos;s a bunch of new ones, due to things we&apos;ve changed in PCP I think.  We added a libvirt PMDA to PCP, and there&apos;s a few attempted accesses to libvirt config files that are failing.  We&apos;ve changed some internal PCP shell functions, and one of them is accessing tmp files incorrectly (this one I&apos;ve fixed now &amp; will merged into upstream PCP shortly).
+
+Then there&apos;s some persistent issues - things link /var/log/pcp/pmcd/pmcd.log not being accessible when it should be, likewise the /var/lib/pcp/pmns/root file.  These look like selinux-policy issues once more, so will leave for SElinux folk to advise us further there too.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10163990</commentid>
+    <comment_count>2</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-18 10:37:02 -0500</bug_when>
+    <thetext>pcp-3.11.8-1.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-201a3e0969</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10163995</commentid>
+    <comment_count>3</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-18 10:38:28 -0500</bug_when>
+    <thetext>pcp-3.11.8-1.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2017-6b8f1de90c</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10165181</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-19 19:49:13 -0500</bug_when>
+    <thetext>pcp-3.11.8-1.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-201a3e0969</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10165591</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-20 00:21:43 -0500</bug_when>
+    <thetext>pcp-3.11.8-1.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-6b8f1de90c</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10184089</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-25 20:36:49 -0500</bug_when>
+    <thetext>pcp-3.11.8-1.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10187773</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-27 13:25:37 -0500</bug_when>
+    <thetext>pcp-3.11.8-2.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2017-3b25af744f</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10195840</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-28 21:51:01 -0500</bug_when>
+    <thetext>pcp-3.11.8-2.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-3b25af744f</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10297212</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-02 01:17:40 -0400</bug_when>
+    <thetext>pcp-3.11.9-1.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2017-c6c3616693</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10297893</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-02 22:22:36 -0400</bug_when>
+    <thetext>pcp-3.11.9-1.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-c6c3616693</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10322722</commentid>
+    <comment_count>11</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-11 00:51:36 -0400</bug_when>
+    <thetext>pcp-3.11.9-1.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="0"
+              ispatch="0"
+              isprivate="0"
+          >
+            <attachid>1206766</attachid>
+            <date>2016-10-03 03:33:00 -0400</date>
+            <delta_ts>2016-10-03 03:33:26 -0400</delta_ts>
+            <desc>PCP AVCs</desc>
+            <filename>pcp-avcs.txt</filename>
+            <type>text/plain</type>
+            <size>13556</size>
+            <attacher name="Marko Myllynen">myllynen</attacher>
+            
+              <data encoding="base64">dHlwZT1BVkMgbXNnPWF1ZGl0KDE0NzU0Nzg3OTUuMTI3OjMxNCk6IGF2YzogIGRlbmllZCAgeyBn
+ZXRhdHRyIH0gZm9yICBwaWQ9MTEwNzkgY29tbT0icG1pZV9jaGVjayIgcGF0aD0iL3Vzci9iaW4v
+aG9zdG5hbWUiIGRldj0iZG0tMCIgaW5vPTg0NzE4MzEgc2NvbnRleHQ9c3lzdGVtX3U6c3lzdGVt
+X3I6cGNwX3BtaWVfdDpzMCB0Y29udGV4dD1zeXN0ZW1fdTpvYmplY3Rfcjpob3N0bmFtZV9leGVj
+X3Q6czAgdGNsYXNzPWZpbGUgcGVybWlzc2l2ZT0xCnR5cGU9QVZDIG1zZz1hdWRpdCgxNDc1NDc4
+Nzk1LjEyNzozMTUpOiBhdmM6ICBkZW5pZWQgIHsgZXhlY3V0ZSB9IGZvciAgcGlkPTExMDc5IGNv
+bW09InBtaWVfY2hlY2siIG5hbWU9Imhvc3RuYW1lIiBkZXY9ImRtLTAiIGlubz04NDcxODMxIHNj
+b250ZXh0PXN5c3RlbV91OnN5c3RlbV9yOnBjcF9wbWllX3Q6czAgdGNvbnRleHQ9c3lzdGVtX3U6
+b2JqZWN0X3I6aG9zdG5hbWVfZXhlY190OnMwIHRjbGFzcz1maWxlIHBlcm1pc3NpdmU9MQp0eXBl
+PUFWQyBtc2c9YXVkaXQoMTQ3NTQ3ODc5NS4xMjc6MzE2KTogYXZjOiAgZGVuaWVkICB7IHJlYWQg
+fSBmb3IgIHBpZD0xMTA3OSBjb21tPSJwbWllX2NoZWNrIiBuYW1lPSJob3N0bmFtZSIgZGV2PSJk
+bS0wIiBpbm89ODQ3MTgzMSBzY29udGV4dD1zeXN0ZW1fdTpzeXN0ZW1fcjpwY3BfcG1pZV90OnMw
+IHRjb250ZXh0PXN5c3RlbV91Om9iamVjdF9yOmhvc3RuYW1lX2V4ZWNfdDpzMCB0Y2xhc3M9Zmls
+ZSBwZXJtaXNzaXZlPTEKdHlwZT1BVkMgbXNnPWF1ZGl0KDE0NzU0Nzg3OTUuMTI3OjMxNyk6IGF2
+YzogIGRlbmllZCAgeyBvcGVuIH0gZm9yICBwaWQ9MTEwODAgY29tbT0icG1pZV9jaGVjayIgcGF0
+aD0iL3Vzci9iaW4vaG9zdG5hbWUiIGRldj0iZG0tMCIgaW5vPTg0NzE4MzEgc2NvbnRleHQ9c3lz
+dGVtX3U6c3lzdGVtX3I6cGNwX3BtaWVfdDpzMCB0Y29udGV4dD1zeXN0ZW1fdTpvYmplY3Rfcjpo
+b3N0bmFtZV9leGVjX3Q6czAgdGNsYXNzPWZpbGUgcGVybWlzc2l2ZT0xCnR5cGU9QVZDIG1zZz1h
+dWRpdCgxNDc1NDc4Nzk1LjEyNzozMTgpOiBhdmM6ICBkZW5pZWQgIHsgZXhlY3V0ZV9ub190cmFu
+cyB9IGZvciAgcGlkPTExMDgwIGNvbW09InBtaWVfY2hlY2siIHBhdGg9Ii91c3IvYmluL2hvc3Ru
+YW1lIiBkZXY9ImRtLTAiIGlubz04NDcxODMxIHNjb250ZXh0PXN5c3RlbV91OnN5c3RlbV9yOnBj
+cF9wbWllX3Q6czAgdGNvbnRleHQ9c3lzdGVtX3U6b2JqZWN0X3I6aG9zdG5hbWVfZXhlY190OnMw
+IHRjbGFzcz1maWxlIHBlcm1pc3NpdmU9MQp0eXBlPUFWQyBtc2c9YXVkaXQoMTQ3NTQ3ODc5NS4x
+MzM6MzE5KTogYXZjOiAgZGVuaWVkICB7IGNob3duIH0gZm9yICBwaWQ9MTEwOTIgY29tbT0iY2hv
+d24iIGNhcGFiaWxpdHk9MCAgc2NvbnRleHQ9c3lzdGVtX3U6c3lzdGVtX3I6cGNwX3BtaWVfdDpz
+MCB0Y29udGV4dD1zeXN0ZW1fdTpzeXN0ZW1fcjpwY3BfcG1pZV90OnMwIHRjbGFzcz1jYXBhYmls
+aXR5IHBlcm1pc3NpdmU9MQp0eXBlPVNFUlZJQ0VfU1RPUCBtc2c9YXVkaXQoMTQ3NTQ3ODc5NS4x
+NjM6MzIxKTogcGlkPTEgdWlkPTAgYXVpZD00Mjk0OTY3Mjk1IHNlcz00Mjk0OTY3Mjk1IHN1Ymo9
+c3lzdGVtX3U6c3lzdGVtX3I6aW5pdF90OnMwIG1zZz0ndW5pdD1wbWxvZ2dlciBjb21tPSJzeXN0
+ZW1kIiBleGU9Ii91c3IvbGliL3N5c3RlbWQvc3lzdGVtZCIgaG9zdG5hbWU9PyBhZGRyPT8gdGVy
+bWluYWw9PyByZXM9c3VjY2VzcycKdHlwZT1BVkMgbXNnPWF1ZGl0KDE0NzU0Nzg3OTUuMTg1OjMy
+Mik6IGF2YzogIGRlbmllZCAgeyBraWxsIH0gZm9yICBwaWQ9MTExMzQgY29tbT0icG1zaWduYWwi
+IGNhcGFiaWxpdHk9NSAgc2NvbnRleHQ9c3lzdGVtX3U6c3lzdGVtX3I6cGNwX3BtaWVfdDpzMCB0
+Y29udGV4dD1zeXN0ZW1fdTpzeXN0ZW1fcjpwY3BfcG1pZV90OnMwIHRjbGFzcz1jYXBhYmlsaXR5
+IHBlcm1pc3NpdmU9MQp0eXBlPVNFUlZJQ0VfU1RPUCBtc2c9YXVkaXQoMTQ3NTQ3ODc5NS4zNDE6
+MzIzKTogcGlkPTEgdWlkPTAgYXVpZD00Mjk0OTY3Mjk1IHNlcz00Mjk0OTY3Mjk1IHN1Ymo9c3lz
+dGVtX3U6c3lzdGVtX3I6aW5pdF90OnMwIG1zZz0ndW5pdD1wbWllIGNvbW09InN5c3RlbWQiIGV4
+ZT0iL3Vzci9saWIvc3lzdGVtZC9zeXN0ZW1kIiBob3N0bmFtZT0/IGFkZHI9PyB0ZXJtaW5hbD0/
+IHJlcz1zdWNjZXNzJwp0eXBlPUFWQyBtc2c9YXVkaXQoMTQ3NTQ3ODc5NS40MjA6MzI3KTogYXZj
+OiAgZGVuaWVkICB7IG9wZW4gfSBmb3IgIHBpZD0xMTE2MSBjb21tPSJwbWNkIiBwYXRoPSIvdG1w
+LzExMTYxLnBjcC5lbnYucGF0aCIgZGV2PSJ0bXBmcyIgaW5vPTM1Mjk1IHNjb250ZXh0PXN5c3Rl
+bV91OnN5c3RlbV9yOmluaXRfdDpzMCB0Y29udGV4dD1zeXN0ZW1fdTpvYmplY3Rfcjp0bXBfdDpz
+MCB0Y2xhc3M9ZmlsZSBwZXJtaXNzaXZlPTEKdHlwZT1BVkMgbXNnPWF1ZGl0KDE0NzU0Nzg3OTUu
+NDQ0OjMyOCk6IGF2YzogIGRlbmllZCAgeyBnZXRhdHRyIH0gZm9yICBwaWQ9MTExNjEgY29tbT0i
+cG1jZCIgcGF0aD0iL3Zhci9sb2cvcGNwL3BtY2QvcG1jZC5sb2ciIGRldj0iZG0tMCIgaW5vPTI1
+MjA1MzE0IHNjb250ZXh0PXN5c3RlbV91OnN5c3RlbV9yOmluaXRfdDpzMCB0Y29udGV4dD1zeXN0
+ZW1fdTpvYmplY3RfcjpwY3BfbG9nX3Q6czAgdGNsYXNzPWZpbGUgcGVybWlzc2l2ZT0xCnR5cGU9
+QVZDIG1zZz1hdWRpdCgxNDc1NDc4Nzk1LjQ3MzozMjkpOiBhdmM6ICBkZW5pZWQgIHsgb3BlbiB9
+IGZvciAgcGlkPTExMTYxIGNvbW09InBtY2QiIHBhdGg9Ii90bXAvMTExNjEucGNwLmVudi5wYXRo
+IiBkZXY9InRtcGZzIiBpbm89MzUzNzMgc2NvbnRleHQ9c3lzdGVtX3U6c3lzdGVtX3I6aW5pdF90
+OnMwIHRjb250ZXh0PXN5c3RlbV91Om9iamVjdF9yOnRtcF90OnMwIHRjbGFzcz1maWxlIHBlcm1p
+c3NpdmU9MQp0eXBlPVNFUlZJQ0VfU1RPUCBtc2c9YXVkaXQoMTQ3NTQ3ODc5NS44NDM6MzMxKTog
+cGlkPTEgdWlkPTAgYXVpZD00Mjk0OTY3Mjk1IHNlcz00Mjk0OTY3Mjk1IHN1Ymo9c3lzdGVtX3U6
+c3lzdGVtX3I6aW5pdF90OnMwIG1zZz0ndW5pdD1wbWNkIGNvbW09InN5c3RlbWQiIGV4ZT0iL3Vz
+ci9saWIvc3lzdGVtZC9zeXN0ZW1kIiBob3N0bmFtZT0/IGFkZHI9PyB0ZXJtaW5hbD0/IHJlcz1z
+dWNjZXNzJwp0eXBlPUFWQyBtc2c9YXVkaXQoMTQ3NTQ3ODg1NC43MzU6OTMpOiBhdmM6ICBkZW5p
+ZWQgIHsgb3BlbiB9IGZvciAgcGlkPTY0NiBjb21tPSJwbWNkIiBwYXRoPSIvdG1wLzY0Ni5wY3Au
+ZW52LnBhdGgiIGRldj0idG1wZnMiIGlubz0xNzI1OCBzY29udGV4dD1zeXN0ZW1fdTpzeXN0ZW1f
+cjppbml0X3Q6czAgdGNvbnRleHQ9c3lzdGVtX3U6b2JqZWN0X3I6dG1wX3Q6czAgdGNsYXNzPWZp
+bGUgcGVybWlzc2l2ZT0xCnR5cGU9QVZDIG1zZz1hdWRpdCgxNDc1NDc4ODU0LjgyNzo5Nyk6IGF2
+YzogIGRlbmllZCAgeyBvcGVuIH0gZm9yICBwaWQ9NzYxIGNvbW09InBtY2QiIHBhdGg9Ii90bXAv
+NjQ2LnBjcC5lbnYucGF0aCIgZGV2PSJ0bXBmcyIgaW5vPTE3OTg1IHNjb250ZXh0PXN5c3RlbV91
+OnN5c3RlbV9yOmluaXRfdDpzMCB0Y29udGV4dD1zeXN0ZW1fdTpvYmplY3Rfcjp0bXBfdDpzMCB0
+Y2xhc3M9ZmlsZSBwZXJtaXNzaXZlPTEKdHlwZT1BVkMgbXNnPWF1ZGl0KDE0NzU0Nzg4NTQuODU3
+Ojk5KTogYXZjOiAgZGVuaWVkICB7IHJlYWQgfSBmb3IgIHBpZD03ODQgY29tbT0icG1jZCIgbmFt
+ZT0icG1sb2dnZXIiIGRldj0iZG0tMCIgaW5vPTg3NjY2MTIgc2NvbnRleHQ9c3lzdGVtX3U6c3lz
+dGVtX3I6aW5pdF90OnMwIHRjb250ZXh0PXN5c3RlbV91Om9iamVjdF9yOnBjcF92YXJfbGliX3Q6
+czAgdGNsYXNzPWRpciBwZXJtaXNzaXZlPTEKdHlwZT1BVkMgbXNnPWF1ZGl0KDE0NzU0Nzg4NTQu
+ODY1OjEwMCk6IGF2YzogIGRlbmllZCAgeyBnZXRhdHRyIH0gZm9yICBwaWQ9NjQ2IGNvbW09InBt
+Y2QiIHBhdGg9Ii92YXIvbGliL3BjcC9wbW5zL3Jvb3QiIGRldj0iZG0tMCIgaW5vPTg4ODE4Nzkg
+c2NvbnRleHQ9c3lzdGVtX3U6c3lzdGVtX3I6aW5pdF90OnMwIHRjb250ZXh0PXVuY29uZmluZWRf
+dTpvYmplY3RfcjpwY3BfdmFyX2xpYl90OnMwIHRjbGFzcz1maWxlIHBlcm1pc3NpdmU9MQp0eXBl
+PUFWQyBtc2c9YXVkaXQoMTQ3NTQ3ODg1NC44Nzg6MTAxKTogYXZjOiAgZGVuaWVkICB7IHJlYWQg
+fSBmb3IgIHBpZD02NDYgY29tbT0icG1jZCIgbmFtZT0icG1jZCIgZGV2PSJkbS0wIiBpbm89MjUy
+MDUzMTYgc2NvbnRleHQ9c3lzdGVtX3U6c3lzdGVtX3I6aW5pdF90OnMwIHRjb250ZXh0PXN5c3Rl
+bV91Om9iamVjdF9yOnBjcF9sb2dfdDpzMCB0Y2xhc3M9ZGlyIHBlcm1pc3NpdmU9MQp0eXBlPUFW
+QyBtc2c9YXVkaXQoMTQ3NTQ3ODg1NC44Nzg6MTAyKTogYXZjOiAgZGVuaWVkICB7IGdldGF0dHIg
+fSBmb3IgIHBpZD02NDYgY29tbT0icG1jZCIgcGF0aD0iL3Zhci9sb2cvcGNwL3BtY2QvcG1jZC5s
+b2ciIGRldj0iZG0tMCIgaW5vPTI1MjA1MzE0IHNjb250ZXh0PXN5c3RlbV91OnN5c3RlbV9yOmlu
+aXRfdDpzMCB0Y29udGV4dD1zeXN0ZW1fdTpvYmplY3RfcjpwY3BfbG9nX3Q6czAgdGNsYXNzPWZp
+bGUgcGVybWlzc2l2ZT0xCnR5cGU9QVZDIG1zZz1hdWRpdCgxNDc1NDc4ODU0LjkyNDoxMDMpOiBh
+dmM6ICBkZW5pZWQgIHsgc2VhcmNoIH0gZm9yICBwaWQ9ODE3IGNvbW09InBtY2QiIG5hbWU9Im5l
+dCIgZGV2PSJwcm9jIiBpbm89MTIyOSBzY29udGV4dD1zeXN0ZW1fdTpzeXN0ZW1fcjpwY3BfcG1j
+ZF90OnMwIHRjb250ZXh0PXN5c3RlbV91Om9iamVjdF9yOnN5c2N0bF9uZXRfdDpzMCB0Y2xhc3M9
+ZGlyIHBlcm1pc3NpdmU9MQp0eXBlPUFWQyBtc2c9YXVkaXQoMTQ3NTQ3ODg1NC45MjQ6MTA0KTog
+YXZjOiAgZGVuaWVkICB7IHJlYWQgfSBmb3IgIHBpZD04MTcgY29tbT0icG1jZCIgbmFtZT0iZGlz
+YWJsZV9pcHY2IiBkZXY9InByb2MiIGlubz0xNzk5MyBzY29udGV4dD1zeXN0ZW1fdTpzeXN0ZW1f
+cjpwY3BfcG1jZF90OnMwIHRjb250ZXh0PXN5c3RlbV91Om9iamVjdF9yOnN5c2N0bF9uZXRfdDpz
+MCB0Y2xhc3M9ZmlsZSBwZXJtaXNzaXZlPTEKdHlwZT1BVkMgbXNnPWF1ZGl0KDE0NzU0Nzg4NTQu
+OTI0OjEwNSk6IGF2YzogIGRlbmllZCAgeyBvcGVuIH0gZm9yICBwaWQ9ODE3IGNvbW09InBtY2Qi
+IHBhdGg9Ii9wcm9jL3N5cy9uZXQvaXB2Ni9jb25mL2FsbC9kaXNhYmxlX2lwdjYiIGRldj0icHJv
+YyIgaW5vPTE3OTkzIHNjb250ZXh0PXN5c3RlbV91OnN5c3RlbV9yOnBjcF9wbWNkX3Q6czAgdGNv
+bnRleHQ9c3lzdGVtX3U6b2JqZWN0X3I6c3lzY3RsX25ldF90OnMwIHRjbGFzcz1maWxlIHBlcm1p
+c3NpdmU9MQp0eXBlPUFWQyBtc2c9YXVkaXQoMTQ3NTQ3ODg1NC45MjQ6MTA2KTogYXZjOiAgZGVu
+aWVkICB7IGdldGF0dHIgfSBmb3IgIHBpZD04MTcgY29tbT0icG1jZCIgcGF0aD0iL3Byb2Mvc3lz
+L25ldC9pcHY2L2NvbmYvYWxsL2Rpc2FibGVfaXB2NiIgZGV2PSJwcm9jIiBpbm89MTc5OTMgc2Nv
+bnRleHQ9c3lzdGVtX3U6c3lzdGVtX3I6cGNwX3BtY2RfdDpzMCB0Y29udGV4dD1zeXN0ZW1fdTpv
+YmplY3RfcjpzeXNjdGxfbmV0X3Q6czAgdGNsYXNzPWZpbGUgcGVybWlzc2l2ZT0xCnR5cGU9QVZD
+IG1zZz1hdWRpdCgxNDc1NDc4ODU1LjE5MjoxMzgpOiBhdmM6ICBkZW5pZWQgIHsgZXhlY3V0ZSB9
+IGZvciAgcGlkPTg2MyBjb21tPSJweXRob24zIiBuYW1lPSJsZGNvbmZpZyIgZGV2PSJkbS0wIiBp
+bm89MTY4OTE5MTEgc2NvbnRleHQ9c3lzdGVtX3U6c3lzdGVtX3I6cGNwX3BtY2RfdDpzMCB0Y29u
+dGV4dD1zeXN0ZW1fdTpvYmplY3RfcjpsZGNvbmZpZ19leGVjX3Q6czAgdGNsYXNzPWZpbGUgcGVy
+bWlzc2l2ZT0xCnR5cGU9QVZDIG1zZz1hdWRpdCgxNDc1NDc4ODU1LjE5MjoxMzkpOiBhdmM6ICBk
+ZW5pZWQgIHsgcmVhZCBvcGVuIH0gZm9yICBwaWQ9ODYzIGNvbW09InB5dGhvbjMiIHBhdGg9Ii91
+c3Ivc2Jpbi9sZGNvbmZpZyIgZGV2PSJkbS0wIiBpbm89MTY4OTE5MTEgc2NvbnRleHQ9c3lzdGVt
+X3U6c3lzdGVtX3I6cGNwX3BtY2RfdDpzMCB0Y29udGV4dD1zeXN0ZW1fdTpvYmplY3RfcjpsZGNv
+bmZpZ19leGVjX3Q6czAgdGNsYXNzPWZpbGUgcGVybWlzc2l2ZT0xCnR5cGU9QVZDIG1zZz1hdWRp
+dCgxNDc1NDc4ODU1LjE5MjoxNDApOiBhdmM6ICBkZW5pZWQgIHsgZXhlY3V0ZV9ub190cmFucyB9
+IGZvciAgcGlkPTg2MyBjb21tPSJweXRob24zIiBwYXRoPSIvdXNyL3NiaW4vbGRjb25maWciIGRl
+dj0iZG0tMCIgaW5vPTE2ODkxOTExIHNjb250ZXh0PXN5c3RlbV91OnN5c3RlbV9yOnBjcF9wbWNk
+X3Q6czAgdGNvbnRleHQ9c3lzdGVtX3U6b2JqZWN0X3I6bGRjb25maWdfZXhlY190OnMwIHRjbGFz
+cz1maWxlIHBlcm1pc3NpdmU9MQp0eXBlPUFWQyBtc2c9YXVkaXQoMTQ3NTQ3ODg1NS4yMjY6MTQx
+KTogYXZjOiAgZGVuaWVkICB7IHJlYWQgfSBmb3IgIHBpZD04MzQgY29tbT0icHl0aG9uMyIgbmFt
+ZT0ibGlidmlydC5jb25mIiBkZXY9ImRtLTAiIGlubz0xNDgzMDMgc2NvbnRleHQ9c3lzdGVtX3U6
+c3lzdGVtX3I6cGNwX3BtY2RfdDpzMCB0Y29udGV4dD1zeXN0ZW1fdTpvYmplY3Rfcjp2aXJ0X2V0
+Y190OnMwIHRjbGFzcz1maWxlIHBlcm1pc3NpdmU9MQp0eXBlPUFWQyBtc2c9YXVkaXQoMTQ3NTQ3
+ODg1NS4yMjY6MTQyKTogYXZjOiAgZGVuaWVkICB7IG9wZW4gfSBmb3IgIHBpZD04MzQgY29tbT0i
+cHl0aG9uMyIgcGF0aD0iL2V0Yy9saWJ2aXJ0L2xpYnZpcnQuY29uZiIgZGV2PSJkbS0wIiBpbm89
+MTQ4MzAzIHNjb250ZXh0PXN5c3RlbV91OnN5c3RlbV9yOnBjcF9wbWNkX3Q6czAgdGNvbnRleHQ9
+c3lzdGVtX3U6b2JqZWN0X3I6dmlydF9ldGNfdDpzMCB0Y2xhc3M9ZmlsZSBwZXJtaXNzaXZlPTEK
+dHlwZT1BVkMgbXNnPWF1ZGl0KDE0NzU0Nzg4NTUuMjMwOjE0Myk6IGF2YzogIGRlbmllZCAgeyB3
+cml0ZSB9IGZvciAgcGlkPTgzNCBjb21tPSJweXRob24zIiBuYW1lPSJsaWJ2aXJ0LXNvY2stcm8i
+IGRldj0idG1wZnMiIGlubz0xODAzNiBzY29udGV4dD1zeXN0ZW1fdTpzeXN0ZW1fcjpwY3BfcG1j
+ZF90OnMwIHRjb250ZXh0PXN5c3RlbV91Om9iamVjdF9yOnZpcnRfdmFyX3J1bl90OnMwIHRjbGFz
+cz1zb2NrX2ZpbGUgcGVybWlzc2l2ZT0xCnR5cGU9QVZDIG1zZz1hdWRpdCgxNDc1NDc4ODU1LjIz
+MDoxNDQpOiBhdmM6ICBkZW5pZWQgIHsgY29ubmVjdHRvIH0gZm9yICBwaWQ9ODM0IGNvbW09InB5
+dGhvbjMiIHBhdGg9Ii9ydW4vbGlidmlydC9saWJ2aXJ0LXNvY2stcm8iIHNjb250ZXh0PXN5c3Rl
+bV91OnN5c3RlbV9yOnBjcF9wbWNkX3Q6czAgdGNvbnRleHQ9c3lzdGVtX3U6c3lzdGVtX3I6dmly
+dGRfdDpzMC1zMDpjMC5jMTAyMyB0Y2xhc3M9dW5peF9zdHJlYW1fc29ja2V0IHBlcm1pc3NpdmU9
+MQp0eXBlPVNFUlZJQ0VfU1RBUlQgbXNnPWF1ZGl0KDE0NzU0Nzg4NTUuMjQ2OjE0NSk6IHBpZD0x
+IHVpZD0wIGF1aWQ9NDI5NDk2NzI5NSBzZXM9NDI5NDk2NzI5NSBzdWJqPXN5c3RlbV91OnN5c3Rl
+bV9yOmluaXRfdDpzMCBtc2c9J3VuaXQ9cG1jZCBjb21tPSJzeXN0ZW1kIiBleGU9Ii91c3IvbGli
+L3N5c3RlbWQvc3lzdGVtZCIgaG9zdG5hbWU9PyBhZGRyPT8gdGVybWluYWw9PyByZXM9c3VjY2Vz
+cycKdHlwZT1BVkMgbXNnPWF1ZGl0KDE0NzU0Nzg4NTUuMjQ4OjE0Nik6IGF2YzogIGRlbmllZCAg
+eyByZWFkIH0gZm9yICBwaWQ9ODkzIGNvbW09InBtY2QiIG5hbWU9InBtZGFzIiBkZXY9ImRtLTAi
+IGlubz0yNTIwNTI5OCBzY29udGV4dD1zeXN0ZW1fdTpzeXN0ZW1fcjppbml0X3Q6czAgdGNvbnRl
+eHQ9c3lzdGVtX3U6b2JqZWN0X3I6cGNwX3Zhcl9saWJfdDpzMCB0Y2xhc3M9ZGlyIHBlcm1pc3Np
+dmU9MQp0eXBlPUFWQyBtc2c9YXVkaXQoMTQ3NTQ3ODg1NS4zNDk6MTQ3KTogYXZjOiAgZGVuaWVk
+ICB7IGdldGF0dHIgfSBmb3IgIHBpZD0xMDE3IGNvbW09IndoaWNoIiBwYXRoPSIvdXNyL2Jpbi9z
+eXN0ZW1jdGwiIGRldj0iZG0tMCIgaW5vPTg1NjM5MTIgc2NvbnRleHQ9c3lzdGVtX3U6c3lzdGVt
+X3I6cGNwX3BtaWVfdDpzMCB0Y29udGV4dD1zeXN0ZW1fdTpvYmplY3RfcjpzeXN0ZW1kX3N5c3Rl
+bWN0bF9leGVjX3Q6czAgdGNsYXNzPWZpbGUgcGVybWlzc2l2ZT0xCnR5cGU9VVNFUl9BVkMgbXNn
+PWF1ZGl0KDE0NzU0Nzg4NTUuMzUyOjE0OCk6IHBpZD0xIHVpZD0wIGF1aWQ9NDI5NDk2NzI5NSBz
+ZXM9NDI5NDk2NzI5NSBzdWJqPXN5c3RlbV91OnN5c3RlbV9yOmluaXRfdDpzMCBtc2c9J2F2Yzog
+IGRlbmllZCAgeyBzdGF0dXMgfSBmb3IgYXVpZD1uL2EgdWlkPTAgZ2lkPTAgY21kbGluZT0ic3lz
+dGVtY3RsIGlzLWVuYWJsZWQgcG1sb2dnZXIuc2VydmljZSIgc2NvbnRleHQ9c3lzdGVtX3U6c3lz
+dGVtX3I6cGNwX3BtbG9nZ2VyX3Q6czAgdGNvbnRleHQ9c3lzdGVtX3U6c3lzdGVtX3I6aW5pdF90
+OnMwIHRjbGFzcz1zeXN0ZW0gIGV4ZT0iL3Vzci9saWIvc3lzdGVtZC9zeXN0ZW1kIiBzYXVpZD0w
+IGhvc3RuYW1lPT8gYWRkcj0/IHRlcm1pbmFsPT8nCnR5cGU9QVZDIG1zZz1hdWRpdCgxNDc1NDc4
+ODU1LjM1MzoxNDkpOiBhdmM6ICBkZW5pZWQgIHsgZXhlY3V0ZSB9IGZvciAgcGlkPTEwMjQgY29t
+bT0icG1pZSIgbmFtZT0ic3lzdGVtY3RsIiBkZXY9ImRtLTAiIGlubz04NTYzOTEyIHNjb250ZXh0
+PXN5c3RlbV91OnN5c3RlbV9yOnBjcF9wbWllX3Q6czAgdGNvbnRleHQ9c3lzdGVtX3U6b2JqZWN0
+X3I6c3lzdGVtZF9zeXN0ZW1jdGxfZXhlY190OnMwIHRjbGFzcz1maWxlIHBlcm1pc3NpdmU9MQp0
+eXBlPUFWQyBtc2c9YXVkaXQoMTQ3NTQ3ODg1NS4zNTM6MTUwKTogYXZjOiAgZGVuaWVkICB7IHJl
+YWQgfSBmb3IgIHBpZD0xMDI0IGNvbW09InBtaWUiIG5hbWU9InN5c3RlbWN0bCIgZGV2PSJkbS0w
+IiBpbm89ODU2MzkxMiBzY29udGV4dD1zeXN0ZW1fdTpzeXN0ZW1fcjpwY3BfcG1pZV90OnMwIHRj
+b250ZXh0PXN5c3RlbV91Om9iamVjdF9yOnN5c3RlbWRfc3lzdGVtY3RsX2V4ZWNfdDpzMCB0Y2xh
+c3M9ZmlsZSBwZXJtaXNzaXZlPTEKdHlwZT1BVkMgbXNnPWF1ZGl0KDE0NzU0Nzg4NTUuMzU0OjE1
+MSk6IGF2YzogIGRlbmllZCAgeyBvcGVuIH0gZm9yICBwaWQ9MTAyNCBjb21tPSJwbWllIiBwYXRo
+PSIvdXNyL2Jpbi9zeXN0ZW1jdGwiIGRldj0iZG0tMCIgaW5vPTg1NjM5MTIgc2NvbnRleHQ9c3lz
+dGVtX3U6c3lzdGVtX3I6cGNwX3BtaWVfdDpzMCB0Y29udGV4dD1zeXN0ZW1fdTpvYmplY3Rfcjpz
+eXN0ZW1kX3N5c3RlbWN0bF9leGVjX3Q6czAgdGNsYXNzPWZpbGUgcGVybWlzc2l2ZT0xCnR5cGU9
+QVZDIG1zZz1hdWRpdCgxNDc1NDc4ODU1LjM1NDoxNTIpOiBhdmM6ICBkZW5pZWQgIHsgZXhlY3V0
+ZV9ub190cmFucyB9IGZvciAgcGlkPTEwMjQgY29tbT0icG1pZSIgcGF0aD0iL3Vzci9iaW4vc3lz
+dGVtY3RsIiBkZXY9ImRtLTAiIGlubz04NTYzOTEyIHNjb250ZXh0PXN5c3RlbV91OnN5c3RlbV9y
+OnBjcF9wbWllX3Q6czAgdGNvbnRleHQ9c3lzdGVtX3U6b2JqZWN0X3I6c3lzdGVtZF9zeXN0ZW1j
+dGxfZXhlY190OnMwIHRjbGFzcz1maWxlIHBlcm1pc3NpdmU9MQp0eXBlPUFWQyBtc2c9YXVkaXQo
+MTQ3NTQ3ODg1NS4zNTU6MTUzKTogYXZjOiAgZGVuaWVkICB7IHJlYWQgfSBmb3IgIHBpZD0xMDI0
+IGNvbW09InJ1bmxldmVsIiBuYW1lPSJ1dG1wIiBkZXY9InRtcGZzIiBpbm89MTQ5OTEgc2NvbnRl
+eHQ9c3lzdGVtX3U6c3lzdGVtX3I6cGNwX3BtaWVfdDpzMCB0Y29udGV4dD1zeXN0ZW1fdTpvYmpl
+Y3Rfcjppbml0cmNfdmFyX3J1bl90OnMwIHRjbGFzcz1maWxlIHBlcm1pc3NpdmU9MQp0eXBlPUFW
+QyBtc2c9YXVkaXQoMTQ3NTQ3ODg1NS4zNTU6MTU0KTogYXZjOiAgZGVuaWVkICB7IG9wZW4gfSBm
+b3IgIHBpZD0xMDI0IGNvbW09InJ1bmxldmVsIiBwYXRoPSIvcnVuL3V0bXAiIGRldj0idG1wZnMi
+IGlubz0xNDk5MSBzY29udGV4dD1zeXN0ZW1fdTpzeXN0ZW1fcjpwY3BfcG1pZV90OnMwIHRjb250
+ZXh0PXN5c3RlbV91Om9iamVjdF9yOmluaXRyY192YXJfcnVuX3Q6czAgdGNsYXNzPWZpbGUgcGVy
+bWlzc2l2ZT0xCnR5cGU9QVZDIG1zZz1hdWRpdCgxNDc1NDc4ODU1LjM1NToxNTUpOiBhdmM6ICBk
+ZW5pZWQgIHsgbG9jayB9IGZvciAgcGlkPTEwMjQgY29tbT0icnVubGV2ZWwiIHBhdGg9Ii9ydW4v
+dXRtcCIgZGV2PSJ0bXBmcyIgaW5vPTE0OTkxIHNjb250ZXh0PXN5c3RlbV91OnN5c3RlbV9yOnBj
+cF9wbWllX3Q6czAgdGNvbnRleHQ9c3lzdGVtX3U6b2JqZWN0X3I6aW5pdHJjX3Zhcl9ydW5fdDpz
+MCB0Y2xhc3M9ZmlsZSBwZXJtaXNzaXZlPTEKdHlwZT1BVkMgbXNnPWF1ZGl0KDE0NzU0Nzg4NTUu
+MzU2OjE1Nik6IGF2YzogIGRlbmllZCAgeyBzZWFyY2ggfSBmb3IgIHBpZD05MDMgY29tbT0icG1p
+ZSIgbmFtZT0ic3lzdGVtIiBkZXY9ImRtLTAiIGlubz0xNjk3OTUzNyBzY29udGV4dD1zeXN0ZW1f
+dTpzeXN0ZW1fcjpwY3BfcG1pZV90OnMwIHRjb250ZXh0PXN5c3RlbV91Om9iamVjdF9yOnN5c3Rl
+bWRfdW5pdF9maWxlX3Q6czAgdGNsYXNzPWRpciBwZXJtaXNzaXZlPTEKdHlwZT1BVkMgbXNnPWF1
+ZGl0KDE0NzU0Nzg4NTUuMzU2OjE1Nyk6IGF2YzogIGRlbmllZCAgeyBnZXRhdHRyIH0gZm9yICBw
+aWQ9OTAzIGNvbW09InBtaWUiIHBhdGg9Ii91c3IvbGliL3N5c3RlbWQvc3lzdGVtL3BtaWUuc2Vy
+dmljZSIgZGV2PSJkbS0wIiBpbm89MTY5Nzg1ODkgc2NvbnRleHQ9c3lzdGVtX3U6c3lzdGVtX3I6
+cGNwX3BtaWVfdDpzMCB0Y29udGV4dD1zeXN0ZW1fdTpvYmplY3RfcjpzeXN0ZW1kX3VuaXRfZmls
+ZV90OnMwIHRjbGFzcz1maWxlIHBlcm1pc3NpdmU9MQp0eXBlPUFWQyBtc2c9YXVkaXQoMTQ3NTQ3
+ODg1NS4zNTg6MTU4KTogYXZjOiAgZGVuaWVkICB7IG5ldF9hZG1pbiB9IGZvciAgcGlkPTEwMjcg
+Y29tbT0ic3lzdGVtY3RsIiBjYXBhYmlsaXR5PTEyICBzY29udGV4dD1zeXN0ZW1fdTpzeXN0ZW1f
+cjpwY3BfcG1pZV90OnMwIHRjb250ZXh0PXN5c3RlbV91OnN5c3RlbV9yOnBjcF9wbWllX3Q6czAg
+dGNsYXNzPWNhcGFiaWxpdHkgcGVybWlzc2l2ZT0xCnR5cGU9QVZDIG1zZz1hdWRpdCgxNDc1NDc4
+ODU1LjM1OToxNTkpOiBhdmM6ICBkZW5pZWQgIHsgY29ubmVjdHRvIH0gZm9yICBwaWQ9MTAyNyBj
+b21tPSJzeXN0ZW1jdGwiIHBhdGg9Ii9ydW4vc3lzdGVtZC9wcml2YXRlIiBzY29udGV4dD1zeXN0
+ZW1fdTpzeXN0ZW1fcjpwY3BfcG1pZV90OnMwIHRjb250ZXh0PXN5c3RlbV91OnN5c3RlbV9yOmlu
+aXRfdDpzMCB0Y2xhc3M9dW5peF9zdHJlYW1fc29ja2V0IHBlcm1pc3NpdmU9MQp0eXBlPVNFUlZJ
+Q0VfU1RBUlQgbXNnPWF1ZGl0KDE0NzU0Nzg4NTUuMzYyOjE2MCk6IHBpZD0xIHVpZD0wIGF1aWQ9
+NDI5NDk2NzI5NSBzZXM9NDI5NDk2NzI5NSBzdWJqPXN5c3RlbV91OnN5c3RlbV9yOmluaXRfdDpz
+MCBtc2c9J3VuaXQ9cG1sb2dnZXIgY29tbT0ic3lzdGVtZCIgZXhlPSIvdXNyL2xpYi9zeXN0ZW1k
+L3N5c3RlbWQiIGhvc3RuYW1lPT8gYWRkcj0/IHRlcm1pbmFsPT8gcmVzPXN1Y2Nlc3MnCnR5cGU9
+VVNFUl9BVkMgbXNnPWF1ZGl0KDE0NzU0Nzg4NTUuMzYzOjE2MSk6IHBpZD0xIHVpZD0wIGF1aWQ9
+NDI5NDk2NzI5NSBzZXM9NDI5NDk2NzI5NSBzdWJqPXN5c3RlbV91OnN5c3RlbV9yOmluaXRfdDpz
+MCBtc2c9J2F2YzogIGRlbmllZCAgeyBzdGF0dXMgfSBmb3IgYXVpZD1uL2EgdWlkPTAgZ2lkPTAg
+Y21kbGluZT0ic3lzdGVtY3RsIGlzLWVuYWJsZWQgcG1pZS5zZXJ2aWNlIiBzY29udGV4dD1zeXN0
+ZW1fdTpzeXN0ZW1fcjpwY3BfcG1pZV90OnMwIHRjb250ZXh0PXN5c3RlbV91OnN5c3RlbV9yOmlu
+aXRfdDpzMCB0Y2xhc3M9c3lzdGVtICBleGU9Ii91c3IvbGliL3N5c3RlbWQvc3lzdGVtZCIgc2F1
+aWQ9MCBob3N0bmFtZT0/IGFkZHI9PyB0ZXJtaW5hbD0/Jwp0eXBlPVNFUlZJQ0VfU1RBUlQgbXNn
+PWF1ZGl0KDE0NzU0Nzg4NTUuMzczOjE2Mik6IHBpZD0xIHVpZD0wIGF1aWQ9NDI5NDk2NzI5NSBz
+ZXM9NDI5NDk2NzI5NSBzdWJqPXN5c3RlbV91OnN5c3RlbV9yOmluaXRfdDpzMCBtc2c9J3VuaXQ9
+cG1pZSBjb21tPSJzeXN0ZW1kIiBleGU9Ii91c3IvbGliL3N5c3RlbWQvc3lzdGVtZCIgaG9zdG5h
+bWU9PyBhZGRyPT8gdGVybWluYWw9PyByZXM9c3VjY2VzcycKdHlwZT1BVkMgbXNnPWF1ZGl0KDE0
+NzU0Nzg4NTUuNTE3OjE3Nyk6IGF2YzogIGRlbmllZCAgeyBnZXRhdHRyIH0gZm9yICBwaWQ9MTI2
+MiBjb21tPSJwbWllX2NoZWNrIiBwYXRoPSIvdXNyL2Jpbi9ob3N0bmFtZSIgZGV2PSJkbS0wIiBp
+bm89ODQ3MTgzMSBzY29udGV4dD1zeXN0ZW1fdTpzeXN0ZW1fcjpwY3BfcG1pZV90OnMwIHRjb250
+ZXh0PXN5c3RlbV91Om9iamVjdF9yOmhvc3RuYW1lX2V4ZWNfdDpzMCB0Y2xhc3M9ZmlsZSBwZXJt
+aXNzaXZlPTEKdHlwZT1BVkMgbXNnPWF1ZGl0KDE0NzU0Nzg4NTUuNTE3OjE3OCk6IGF2YzogIGRl
+bmllZCAgeyBleGVjdXRlIH0gZm9yICBwaWQ9MTI2MiBjb21tPSJwbWllX2NoZWNrIiBuYW1lPSJo
+b3N0bmFtZSIgZGV2PSJkbS0wIiBpbm89ODQ3MTgzMSBzY29udGV4dD1zeXN0ZW1fdTpzeXN0ZW1f
+cjpwY3BfcG1pZV90OnMwIHRjb250ZXh0PXN5c3RlbV91Om9iamVjdF9yOmhvc3RuYW1lX2V4ZWNf
+dDpzMCB0Y2xhc3M9ZmlsZSBwZXJtaXNzaXZlPTEKdHlwZT1BVkMgbXNnPWF1ZGl0KDE0NzU0Nzg4
+NTUuNTE3OjE3OSk6IGF2YzogIGRlbmllZCAgeyByZWFkIH0gZm9yICBwaWQ9MTI2MiBjb21tPSJw
+bWllX2NoZWNrIiBuYW1lPSJob3N0bmFtZSIgZGV2PSJkbS0wIiBpbm89ODQ3MTgzMSBzY29udGV4
+dD1zeXN0ZW1fdTpzeXN0ZW1fcjpwY3BfcG1pZV90OnMwIHRjb250ZXh0PXN5c3RlbV91Om9iamVj
+dF9yOmhvc3RuYW1lX2V4ZWNfdDpzMCB0Y2xhc3M9ZmlsZSBwZXJtaXNzaXZlPTEKdHlwZT1BVkMg
+bXNnPWF1ZGl0KDE0NzU0Nzg4NTUuNTE4OjE4MCk6IGF2YzogIGRlbmllZCAgeyBvcGVuIH0gZm9y
+ICBwaWQ9MTI2MyBjb21tPSJwbWllX2NoZWNrIiBwYXRoPSIvdXNyL2Jpbi9ob3N0bmFtZSIgZGV2
+PSJkbS0wIiBpbm89ODQ3MTgzMSBzY29udGV4dD1zeXN0ZW1fdTpzeXN0ZW1fcjpwY3BfcG1pZV90
+OnMwIHRjb250ZXh0PXN5c3RlbV91Om9iamVjdF9yOmhvc3RuYW1lX2V4ZWNfdDpzMCB0Y2xhc3M9
+ZmlsZSBwZXJtaXNzaXZlPTEKdHlwZT1BVkMgbXNnPWF1ZGl0KDE0NzU0Nzg4NTUuNTE4OjE4MSk6
+IGF2YzogIGRlbmllZCAgeyBleGVjdXRlX25vX3RyYW5zIH0gZm9yICBwaWQ9MTI2MyBjb21tPSJw
+bWllX2NoZWNrIiBwYXRoPSIvdXNyL2Jpbi9ob3N0bmFtZSIgZGV2PSJkbS0wIiBpbm89ODQ3MTgz
+MSBzY29udGV4dD1zeXN0ZW1fdTpzeXN0ZW1fcjpwY3BfcG1pZV90OnMwIHRjb250ZXh0PXN5c3Rl
+bV91Om9iamVjdF9yOmhvc3RuYW1lX2V4ZWNfdDpzMCB0Y2xhc3M9ZmlsZSBwZXJtaXNzaXZlPTEK
+dHlwZT1BVkMgbXNnPWF1ZGl0KDE0NzU0Nzg4NTUuNTI3OjE4Mik6IGF2YzogIGRlbmllZCAgeyBj
+aG93biB9IGZvciAgcGlkPTEyODIgY29tbT0iY2hvd24iIGNhcGFiaWxpdHk9MCAgc2NvbnRleHQ9
+c3lzdGVtX3U6c3lzdGVtX3I6cGNwX3BtaWVfdDpzMCB0Y29udGV4dD1zeXN0ZW1fdTpzeXN0ZW1f
+cjpwY3BfcG1pZV90OnMwIHRjbGFzcz1jYXBhYmlsaXR5IHBlcm1pc3NpdmU9MQo=
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

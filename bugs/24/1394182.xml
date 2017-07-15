@@ -1,0 +1,713 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1394182</bug_id>
+          
+          <creation_ts>2016-11-11 06:00:00 -0500</creation_ts>
+          <short_desc>Evolution crashes all the time (daily or more often), abrt doesn&apos;t report it</short_desc>
+          <delta_ts>2016-12-08 04:08:06 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>evolution</component>
+          <version>24</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>NEXTRELEASE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>urgent</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Jonas Thiem">jonas</reporter>
+          <assigned_to name="Milan Crha">mcrha</assigned_to>
+          <cc>canyon</cc>
+    
+    
+    <cc>lucilanga</cc>
+    
+    
+    <cc>mbarnes</cc>
+    
+    
+    <cc>mcrha</cc>
+    
+    
+    <cc>red</cc>
+    
+    
+    <cc>tpopela</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>evolution-3.22.3</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-12-08 04:08:06</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9882894</commentid>
+    <comment_count>0</comment_count>
+    <who name="Jonas Thiem">jonas</who>
+    <bug_when>2016-11-11 06:00:13 -0500</bug_when>
+    <thetext>Description of problem:
+Evolution crashes all the time (daily or more often). However, abrt refuses to report any of this because some memory areas are locked. You should really change abrt to properly report this issues, or investigate in some other ways because Evolution is super unstable.
+(I have also heard from other people reporting the same on other linux distributions, so this is probably an upstream problem. However, without collected crash reports &amp; backtraces, this will be super hard to fix)
+
+Version-Release number of selected component (if applicable):
+3.20.5
+
+How reproducible:
+Just run it for a few days and use it, it will crash.
+
+Steps to Reproduce:
+1. Use evolution
+
+Actual results:
+crashes regularly
+
+Expected results:
+doesn&apos;t crash
+
+
+Additional info:</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9908638</commentid>
+    <comment_count>1</comment_count>
+    <who name="Milan Crha">mcrha</who>
+    <bug_when>2016-11-21 09:34:54 -0500</bug_when>
+    <thetext>Thanks for a bug report. You are right that without a backtrace it&apos;s pretty hard to fix the problem, because it&apos;s basically unknown. I didn&apos;t see crash evolution myself recently, but I also do not keep it running for too long. Anyway, could you install debuginfo packages for the evolution-data-server and evolution [1], then run evolution under gdb [2] and let it try to catch the backtrace, please?
+
+[1] A command to install only those two is below. Make sure the installed binary package versions exactly match those for the debuginfo, otherwise it&apos;ll not work. Run this as a root:
+   # dnf install evolution-data-server-debuginfo evolution-debuginfo \
+      --enablerepo=updates-debuginfo
+
+[2] Run evolution from a command line as a regular user like this:
+
+  $ gdb evolution --ex r --ex bt
+
+Once the UI freezes check the terminal with gdb, maybe it&apos;ll show a prompt there. The command as such just runs the evolution and once it&apos;ll stop it prints the backtrace, then waits for further commands. One such command can be &quot;t a a bt&quot;, which prints a backtrace for all running threads. Another is &quot;continue&quot; to continue the run. Finally the &quot;quit&quot; quits gdb and closes the evolution.
+
+Please make sure you&apos;ll not expose any private data in the backtrace, like passwords, email address, server addresses,... I usually search for &quot;pass&quot; at least (quotes for clarity only).
+
+It would be also good to know the circumstances under which the crash happened. Could you also paste a result of the below command here, please?
+
+   $ rpm -q evolution-data-server evolution webkitgtk3</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9951494</commentid>
+    <comment_count>2</comment_count>
+      <attachid>1227350</attachid>
+    <who name="Canyon Bliss">canyon</who>
+    <bug_when>2016-12-02 09:37:55 -0500</bug_when>
+    <thetext>Created attachment 1227350
+evolution backtrace of freeze
+
+Attaching backtrace. Assuming &quot;crash&quot; is the same issue I&apos;m seeing: evolution freezes and is not responsive. You can recover by killing it and restarting, which sometimes loses what you were working on. It seems like the pop-up for &quot;not responding&quot; doesn&apos;t always appear but that could be my impatience.
+
+$ rpm -q evolution-data-server evolution webkitgtk3
+evolution-data-server-3.22.2-1.fc25.x86_64
+evolution-3.22.2-1.fc25.x86_64
+webkitgtk3-2.4.11-3.fc25.x86_64</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9955603</commentid>
+    <comment_count>3</comment_count>
+    <who name="Milan Crha">mcrha</who>
+    <bug_when>2016-12-05 06:27:02 -0500</bug_when>
+    <thetext>Thanks for the update. The bakctrace shows a gdb prompt stopping on a SIGPIPE, which not always result in a crash. Could you re-try and simply repeat these gdb command until the gdb tells you that the process does not run any more, please?
+
+   (gdb) bt
+   (gdb) c
+
+The commands print a backtrace and then let the execution continue. Thanks in advance.
+
+Could you also try whether anything changes when you&apos;ll run evolution as:
+
+   $ export WEBKIT_DISABLE_COMPOSITING_MODE=1
+   $ evolution
+
+to test whether it&apos;ll have any influence on the run as such, please?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9964027</commentid>
+    <comment_count>4</comment_count>
+    <who name="Davide Repetto">red</who>
+    <bug_when>2016-12-07 05:42:30 -0500</bug_when>
+    <thetext>Hi Milan,
+
+While With the default compositing mode you cannot browse more than a few messages without getting a freeze of the preview window, with WEBKIT_DISABLE_COMPOSITING_MODE=1 the freeze goes away entirely.
+
+Though while testing &quot;heavily&quot; I still experienced a couple of occasional lockups-without-crash during shutdown that I will try to reproduce.
+
+BTW, I am experiencing the same freeze with a few other programs; namely Opera, VLC and MPV.
+
+In Opera the &quot;freeze&quot; goes away if Graphic acceleration is disabled and in VLC it goes away by setting the video output mode to OpenGL in the preferences.
+
+It might be worth mentioning that my computer has an &quot;r600&quot; AMD video card (RS780L [Radeon 3000]) whit mesa drivers.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9964831</commentid>
+    <comment_count>5</comment_count>
+    <who name="Milan Crha">mcrha</who>
+    <bug_when>2016-12-07 09:40:32 -0500</bug_when>
+    <thetext>(In reply to Davide Repetto from comment #4)
+&gt; Though while testing &quot;heavily&quot; I still experienced a couple of occasional
+&gt; lockups-without-crash during shutdown that I will try to reproduce.
+
+That would need a backtrace, as mentioned above, to see what the evolution, eventually WebKitWebProcess-es do.
+
+&gt; BTW, I am experiencing the same freeze with a few other programs; namely
+&gt; Opera, VLC and MPV.
+
+Right, it looks like something related to video drivers (I&apos;m not the expert here, though). The upstream WebKit developers [1] sometimes look for the output of:
+
+   $ glxinfo
+
+to see what the drivers advertise and so on. If you could provide it, then it may help them.
+
+[1] https://bugs.webkit.org/show_bug.cgi?id=165246#c4</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9965084</commentid>
+    <comment_count>6</comment_count>
+      <attachid>1229092</attachid>
+    <who name="Canyon Bliss">canyon</who>
+    <bug_when>2016-12-07 10:35:37 -0500</bug_when>
+    <thetext>Created attachment 1229092
+evolution backtrace of freeze continued
+
+(In reply to Milan Crha from comment #3)
+&gt; Thanks for the update. The bakctrace shows a gdb prompt stopping on a
+&gt; SIGPIPE, which not always result in a crash. Could you re-try and simply
+&gt; repeat these gdb command until the gdb tells you that the process does not
+&gt; run any more, please?
+&gt; 
+&gt;    (gdb) bt
+&gt;    (gdb) c
+&gt; 
+&gt; The commands print a backtrace and then let the execution continue. Thanks
+&gt; in advance.
+&gt; 
+&gt; Could you also try whether anything changes when you&apos;ll run evolution as:
+&gt; 
+&gt;    $ export WEBKIT_DISABLE_COMPOSITING_MODE=1
+&gt;    $ evolution
+&gt; 
+&gt; to test whether it&apos;ll have any influence on the run as such, please?
+
+I have attached a backtrace where I continued and kept running. Consequently, evolution does reach an end; the process keeps going and going until you receive the &quot;... Stopped Responding pop-up&quot;. However, evolution is completely useless in this loop. Therefore, the only option is to kill evolution and restart.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9965582</commentid>
+    <comment_count>7</comment_count>
+    <who name="Milan Crha">mcrha</who>
+    <bug_when>2016-12-07 12:55:35 -0500</bug_when>
+    <thetext>Thanks for the update. I cannot tell whether Jonas&apos; issue is the same or different, I need a backtrace from his crashes to know it, but that yours reads as:
+
+&gt; Gdk-WARNING **: Error writing selection data: Error writing to file descriptor: Broken pipe&quot;
+
+and that SIGPIPE I thought is not related is just for this issue. The Wayland in gtk+ (and its gdk subpart) failed badly for some reason. A similar issue is already filled as bug #1339331. It&apos;s not exactly the same, though I think it&apos;s close enough.
+
+Due to that I think we can continue with this SIGPIPE error there and keep this bug report for the original issue, for which I&apos;d need information from Jonas.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9966256</commentid>
+    <comment_count>8</comment_count>
+    <who name="Jonas Thiem">jonas</who>
+    <bug_when>2016-12-07 18:57:23 -0500</bug_when>
+    <thetext>Because evolution has been a quite buggy experience for me (not just crashes but even mails not showing up when I really needed them) I was forced to switch the client for now because it started to impact my work, so I didn&apos;t have a good chance to look at this bug further.
+
+However, it&apos;s definitely crashes and not freezes - and because I wasn&apos;t sure whether evolution has updated from the outdated insecure webkit1 I have HTML mails disabled unless I explicitly view them, so a webkit crash seems a bit unlikely.
+
+If I recall correctly, one time it happened when interacting with the search/filter box at one point, and another crash was me clicking something in the UI I can&apos;t remember which I think was in the composer window. (I was about to send an email, I forgot whether it was the actual send button or something else)
+
+ABRT has a fix in the pipeline that allows reporting crashes even with locked memory if you override the warning - so I hope in the future it will be easier for users to report this. I can only add that I know others who tried evolution around the same time who also told me about common crashes, so I don&apos;t think I&apos;m the only one.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9967308</commentid>
+    <comment_count>9</comment_count>
+    <who name="Milan Crha">mcrha</who>
+    <bug_when>2016-12-08 04:08:06 -0500</bug_when>
+    <thetext>Evolution 3.22.0+ does use WebKit2 (through webkitgtk4 package). It doesn&apos;t matter whether you&apos;ve HTML messages or plain text messages, they are always rendered by the WebKitGTK+.
+
+Many users experience issues with the webkit&apos;s compositor mode, I wouldn&apos;t be surprised if you (and the others you mentioned) are also affected by it. There&apos;s a workaround in the evolution for 3.22.3+, which will be released the next Monday and shortly after will reach updates-testing for Fedora 25.
+
+I&apos;m closing this bug report in the favour of 3.22.3. As you are going to eventually file new bugs through ABRT, then it&apos;ll be easier to track it separately, also because ABRT cannot pair them with this bug report.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="0"
+              ispatch="0"
+              isprivate="0"
+          >
+            <attachid>1227350</attachid>
+            <date>2016-12-02 09:37:00 -0500</date>
+            <delta_ts>2016-12-02 09:37:55 -0500</delta_ts>
+            <desc>evolution backtrace of freeze</desc>
+            <filename>evolution-bug_1394182.backtrace</filename>
+            <type>text/plain</type>
+            <size>4042</size>
+            <attacher name="Canyon Bliss">canyon</attacher>
+            
+              <data encoding="base64">VGhyZWFkIDEgImV2b2x1dGlvbiIgcmVjZWl2ZWQgc2lnbmFsIFNJR1BJUEUsIEJyb2tlbiBwaXBl
+LgoweDAwMDA3ZmZmZjM1NjY1ZGQgaW4gd3JpdGUgKCkgYXQgLi4vc3lzZGVwcy91bml4L3N5c2Nh
+bGwtdGVtcGxhdGUuUzo4NAo4NAlUX1BTRVVETyAoU1lTQ0FMTF9TWU1CT0wsIFNZU0NBTExfTkFN
+RSwgU1lTQ0FMTF9OQVJHUykKIzAgIDB4MDAwMDdmZmZmMzU2NjVkZCBpbiB3cml0ZSAoKSBhdCAu
+Li9zeXNkZXBzL3VuaXgvc3lzY2FsbC10ZW1wbGF0ZS5TOjg0CiMxICAweDAwMDA3ZmZmZWMzNWRl
+NzYgaW4gZ191bml4X291dHB1dF9zdHJlYW1fd3JpdGUgKHN0cmVhbT0weDdmZmYzNDAwMmNjMCBb
+R1VuaXhPdXRwdXRTdHJlYW1dLCBidWZmZXI9MHg1NTU1NTdjYWNmYjAsIGNvdW50PTQsIGNhbmNl
+bGxhYmxlPTB4MCwgZXJyb3I9MHg3ZmZmZmZmZmQyNzApIGF0IGd1bml4b3V0cHV0c3RyZWFtLmM6
+MzY2CiMyICAweDAwMDA3ZmZmZWMyZDU0MDMgaW4gd3JpdGVfYXN5bmNfcG9sbGFibGUgKHN0cmVh
+bT1zdHJlYW1AZW50cnk9MHg3ZmZmMzQwMDJjYzAsIHRhc2s9dGFza0BlbnRyeT0weDU1NTU1ODQy
+ZTJhMCBbR1Rhc2tdKQogICAgYXQgZ291dHB1dHN0cmVhbS5jOjE3OTUKIzMgIDB4MDAwMDdmZmZl
+YzJkN2QyYiBpbiBnX291dHB1dF9zdHJlYW1fcmVhbF93cml0ZV9hc3luYyAoc3RyZWFtPTB4N2Zm
+ZjM0MDAyY2MwIFtHVW5peE91dHB1dFN0cmVhbV0sIGJ1ZmZlcj0weDU1NTU1N2NhY2ZiMCwgY291
+bnQ9NCwgaW9fcHJpb3JpdHk9PG9wdGltaXplZCBvdXQ+LCBjYW5jZWxsYWJsZT08b3B0aW1pemVk
+IG91dD4sIGNhbGxiYWNrPTB4N2ZmZmVjMmQ3ODYwIDxhc3luY19yZWFkeV93cml0ZV9jYWxsYmFj
+a193cmFwcGVyPiwgdXNlcl9kYXRhPTB4NTU1NTU4NTk3ZDEwKSBhdCBnb3V0cHV0c3RyZWFtLmM6
+MTgzOAojNCAgMHgwMDAwN2ZmZmVjMmQ2NzE1IGluIGdfb3V0cHV0X3N0cmVhbV93cml0ZV9hc3lu
+YyAoc3RyZWFtPTB4N2ZmZjM0MDAyY2MwIFtHVW5peE91dHB1dFN0cmVhbV0sIGJ1ZmZlcj0weDU1
+NTU1N2NhY2ZiMCwgY291bnQ9NCwgaW9fcHJpb3JpdHk9aW9fcHJpb3JpdHlAZW50cnk9MCwgY2Fu
+Y2VsbGFibGU9MHg1NTU1NTg3Y2E1MTAgW0dDYW5jZWxsYWJsZV0sIGNhbGxiYWNrPWNhbGxiYWNr
+QGVudHJ5PTB4N2ZmZmVkNDY3M2IwIDxhc3luY193cml0ZV9kYXRhX2NiPiwgdXNlcl9kYXRhPTB4
+NTU1NTU1OTY2ZWUwKSBhdCBnb3V0cHV0c3RyZWFtLmM6ODQ5CiM1ICAweDAwMDA3ZmZmZWQ0Njcz
+MWQgaW4gYXN5bmNfd3JpdGVfZGF0YV93cml0ZSAod3JpdGVfZGF0YT13cml0ZV9kYXRhQGVudHJ5
+PTB4NTU1NTU1OTY2ZWUwKSBhdCBnZGtzZWxlY3Rpb24td2F5bGFuZC5jOjY3OQojNiAgMHgwMDAw
+N2ZmZmVkNDY3MzkxIGluIGdka193YXlsYW5kX3NlbGVjdGlvbl9jaGVja193cml0ZSAoc2VsZWN0
+aW9uPTB4NTU1NTU1N2Q3MjkwKSBhdCBnZGtzZWxlY3Rpb24td2F5bGFuZC5jOjcwNgojNyAgMHgw
+MDAwN2ZmZmVkOTgxODhmIGluIF9ndGtfc2VsZWN0aW9uX3JlcXVlc3QgKHdpZGdldD0weDU1NTU1
+NTg3YWUyMCBbR3RrSW52aXNpYmxlXSwgZXZlbnQ9MHg1NTU1NTdjMTFkMTApIGF0IGd0a3NlbGVj
+dGlvbi5jOjI0OTEKIzggIDB4MDAwMDdmZmZlZDhmMTQ1MSBpbiBfZ3RrX21hcnNoYWxfQk9PTEVB
+Tl9fQk9YRUR2IChjbG9zdXJlPTB4NTU1NTU1N2U0MjcwLCByZXR1cm5fdmFsdWU9MHg3ZmZmZmZm
+ZmQ2MjAsIGluc3RhbmNlPTB4NTU1NTU1ODdhZTIwLCBhcmdzPTxvcHRpbWl6ZWQgb3V0PiwgbWFy
+c2hhbF9kYXRhPTxvcHRpbWl6ZWQgb3V0Piwgbl9wYXJhbXM9PG9wdGltaXplZCBvdXQ+LCBwYXJh
+bV90eXBlcz0weDU1NTU1NTdlMDJkMCkgYXQgZ3RrbWFyc2hhbGVycy5jOjEzMQojOSAgMHgwMDAw
+N2ZmZmVjMDI2NjE0IGluIF9nX2Nsb3N1cmVfaW52b2tlX3ZhIChjbG9zdXJlPWNsb3N1cmVAZW50
+cnk9MHg1NTU1NTU3ZTQyNzAsIHJldHVybl92YWx1ZT1yZXR1cm5fdmFsdWVAZW50cnk9MHg3ZmZm
+ZmZmZmQ2MjAsIGluc3RhbmNlPWluc3RhbmNlQGVudHJ5PTB4NTU1NTU1ODdhZTIwLCBhcmdzPWFy
+Z3NAZW50cnk9MHg3ZmZmZmZmZmQ2ZjAsIG5fcGFyYW1zPTxvcHRpbWl6ZWQgb3V0PiwgcGFyYW1f
+dHlwZXM9MHg1NTU1NTU3ZTAyZDApCiAgICBhdCBnY2xvc3VyZS5jOjg2NwojMTAgMHgwMDAwN2Zm
+ZmVjMDQwOGIzIGluIGdfc2lnbmFsX2VtaXRfdmFsaXN0IChpbnN0YW5jZT0weDU1NTU1NTg3YWUy
+MCwgc2lnbmFsX2lkPTxvcHRpbWl6ZWQgb3V0PiwgZGV0YWlsPTAsIHZhcl9hcmdzPXZhcl9hcmdz
+QGVudHJ5PTB4N2ZmZmZmZmZkNmYwKSBhdCBnc2lnbmFsLmM6MzMwMAojMTEgMHgwMDAwN2ZmZmVj
+MDQxNDNmIGluIGdfc2lnbmFsX2VtaXQgKGluc3RhbmNlPWluc3RhbmNlQGVudHJ5PTB4NTU1NTU1
+ODdhZTIwLCBzaWduYWxfaWQ9PG9wdGltaXplZCBvdXQ+LCBkZXRhaWw9ZGV0YWlsQGVudHJ5PTAp
+CiAgICBhdCBnc2lnbmFsLmM6MzQ0NwojMTIgMHgwMDAwN2ZmZmVkYTNkZDFjIGluIGd0a193aWRn
+ZXRfZXZlbnRfaW50ZXJuYWwgKHdpZGdldD0weDU1NTU1NTg3YWUyMCBbR3RrSW52aXNpYmxlXSwg
+ZXZlbnQ9MHg1NTU1NTdjMTFkMTApIGF0IGd0a3dpZGdldC5jOjc3MjMKIzEzIDB4MDAwMDdmZmZl
+ZDhmMDM4NCBpbiBndGtfbWFpbl9kb19ldmVudCAoZXZlbnQ9MHg1NTU1NTdjMTFkMTApIGF0IGd0
+a21haW4uYzoxODMwCiMxNCAweDAwMDA3ZmZmZWQ0MDc0ODUgaW4gX2dka19ldmVudF9lbWl0IChl
+dmVudD1ldmVudEBlbnRyeT0weDU1NTU1N2MxMWQxMCkgYXQgZ2RrZXZlbnRzLmM6NzMKIzE1IDB4
+MDAwMDdmZmZlZDQ2MmU1MiBpbiBnZGtfZXZlbnRfc291cmNlX2Rpc3BhdGNoIChiYXNlPTxvcHRp
+bWl6ZWQgb3V0PiwgY2FsbGJhY2s9PG9wdGltaXplZCBvdXQ+LCBkYXRhPTxvcHRpbWl6ZWQgb3V0
+PikKICAgIGF0IGdka2V2ZW50c291cmNlLmM6MTE4CiMxNiAweDAwMDA3ZmZmZWJkNGRlNDIgaW4g
+Z19tYWluX2Rpc3BhdGNoIChjb250ZXh0PTB4NTU1NTU1NzllOGUwKSBhdCBnbWFpbi5jOjMyMDMK
+IzE3IDB4MDAwMDdmZmZlYmQ0ZGU0MiBpbiBnX21haW5fY29udGV4dF9kaXNwYXRjaCAoY29udGV4
+dD1jb250ZXh0QGVudHJ5PTB4NTU1NTU1NzllOGUwKSBhdCBnbWFpbi5jOjM4NTYKIzE4IDB4MDAw
+MDdmZmZlYmQ0ZTFjMCBpbiBnX21haW5fY29udGV4dF9pdGVyYXRlIChjb250ZXh0PTB4NTU1NTU1
+NzllOGUwLCBibG9jaz1ibG9ja0BlbnRyeT0xLCBkaXNwYXRjaD1kaXNwYXRjaEBlbnRyeT0xLCBz
+ZWxmPTxvcHRpbWl6ZWQgb3V0PikgYXQgZ21haW4uYzozOTI5CiMxOSAweDAwMDA3ZmZmZWJkNGU0
+ZTIgaW4gZ19tYWluX2xvb3BfcnVuIChsb29wPTB4NTU1NTU2MGJlYjUwKSBhdCBnbWFpbi5jOjQx
+MjUKIzIwIDB4MDAwMDdmZmZlZDhlZjY1NSBpbiBndGtfbWFpbiAoKSBhdCBndGttYWluLmM6MTMw
+MQojMjEgMHgwMDAwNTU1NTU1NTU3ZGFkIGluIG1haW4gKGFyZ2M9PG9wdGltaXplZCBvdXQ+LCBh
+cmd2PTxvcHRpbWl6ZWQgb3V0PikgYXQgbWFpbi5jOjY1OQpNaXNzaW5nIHNlcGFyYXRlIGRlYnVn
+aW5mb3MsIHVzZTogZG5mIGRlYnVnaW5mby1pbnN0YWxsIEdDb25mMi0zLjIuNi0xNi5mYzI0Lng4
+Nl82NCBjb29sa2V5LTEuMS4wLTMwLmZjMjQueDg2XzY0IGRjb25mLTAuMjYuMC0xLmZjMjUueDg2
+XzY0IGVsZnV0aWxzLWxpYmVsZi0wLjE2Ny0yLmZjMjUueDg2XzY0IGV2b2x1dGlvbi1ld3MtMy4y
+Mi4yLTEuZmMyNS54ODZfNjQgZ2xpYi1uZXR3b3JraW5nLTIuNTAuMC0xLmZjMjUueDg2XzY0IGd2
+ZnMtY2xpZW50LTEuMzAuMi0xLmZjMjUueDg2XzY0IGxpYmNyb2NvLTAuNi4xMS0yLmZjMjQueDg2
+XzY0IGxpYm1vZG1hbi0yLjAuMS0xMi5mYzI0Lng4Nl82NCBsaWJwcm94eS0wLjQuMTItNC5mYzI1
+Lng4Nl82NCBsaWJyc3ZnMi0yLjQwLjE2LTIuZmMyNS54ODZfNjQgbGx2bS1kZXZlbC0zLjguMC0x
+LmZjMjUueDg2XzY0IGxsdm0tbGlicy0zLjguMC0xLmZjMjUueDg2XzY0IG5zcy1tZG5zLTAuMTAt
+MTcuZmMyNC54ODZfNjQgcGNzYy1saXRlLWxpYnMtMS44LjE3LTIuZmMyNS54ODZfNjQKCg==
+</data>
+
+          </attachment>
+          <attachment
+              isobsolete="0"
+              ispatch="0"
+              isprivate="0"
+          >
+            <attachid>1229092</attachid>
+            <date>2016-12-07 10:35:00 -0500</date>
+            <delta_ts>2016-12-07 10:35:37 -0500</delta_ts>
+            <desc>evolution backtrace of freeze continued</desc>
+            <filename>evolution-bug_1394182.backtrace_continued</filename>
+            <type>text/plain</type>
+            <size>18867</size>
+            <attacher name="Canyon Bliss">canyon</attacher>
+            
+              <data encoding="base64">VGhyZWFkIDEgImV2b2x1dGlvbiIgcmVjZWl2ZWQgc2lnbmFsIFNJR1BJUEUsIEJyb2tlbiBwaXBl
+LgoweDAwMDA3ZmZmZjM1NjY1ZGQgaW4gd3JpdGUgKCkgYXQgLi4vc3lzZGVwcy91bml4L3N5c2Nh
+bGwtdGVtcGxhdGUuUzo4NAo4NAlUX1BTRVVETyAoU1lTQ0FMTF9TWU1CT0wsIFNZU0NBTExfTkFN
+RSwgU1lTQ0FMTF9OQVJHUykKIzAgIDB4MDAwMDdmZmZmMzU2NjVkZCBpbiB3cml0ZSAoKSBhdCAu
+Li9zeXNkZXBzL3VuaXgvc3lzY2FsbC10ZW1wbGF0ZS5TOjg0CiMxICAweDAwMDA3ZmZmZWMzNWRl
+NzYgaW4gZ191bml4X291dHB1dF9zdHJlYW1fd3JpdGUgKHN0cmVhbT0weDdmZmZhYzAwMWI0MCBb
+R1VuaXhPdXRwdXRTdHJlYW1dLCBidWZmZXI9MHg1NTU1NTc1Y2JlOTAsIGNvdW50PTQsIGNhbmNl
+bGxhYmxlPTB4MCwgZXJyb3I9MHg3ZmZmZmZmZmQyNzApIGF0IGd1bml4b3V0cHV0c3RyZWFtLmM6
+MzY2CiMyICAweDAwMDA3ZmZmZWMyZDU0MDMgaW4gd3JpdGVfYXN5bmNfcG9sbGFibGUgKHN0cmVh
+bT1zdHJlYW1AZW50cnk9MHg3ZmZmYWMwMDFiNDAsIHRhc2s9dGFza0BlbnRyeT0weDU1NTU1NjZj
+N2M2MCBbR1Rhc2tdKQogICAgYXQgZ291dHB1dHN0cmVhbS5jOjE3OTUKIzMgIDB4MDAwMDdmZmZl
+YzJkN2QyYiBpbiBnX291dHB1dF9zdHJlYW1fcmVhbF93cml0ZV9hc3luYyAoc3RyZWFtPTB4N2Zm
+ZmFjMDAxYjQwIFtHVW5peE91dHB1dFN0cmVhbV0sIGJ1ZmZlcj0weDU1NTU1NzVjYmU5MCwgY291
+bnQ9NCwgaW9fcHJpb3JpdHk9PG9wdGltaXplZCBvdXQ+LCBjYW5jZWxsYWJsZT08b3B0aW1pemVk
+IG91dD4sIGNhbGxiYWNrPTB4N2ZmZmVjMmQ3ODYwIDxhc3luY19yZWFkeV93cml0ZV9jYWxsYmFj
+a193cmFwcGVyPiwgdXNlcl9kYXRhPTB4NTU1NTU3NTg5ZDQwKSBhdCBnb3V0cHV0c3RyZWFtLmM6
+MTgzOAojNCAgMHgwMDAwN2ZmZmVjMmQ2NzE1IGluIGdfb3V0cHV0X3N0cmVhbV93cml0ZV9hc3lu
+YyAoc3RyZWFtPTB4N2ZmZmFjMDAxYjQwIFtHVW5peE91dHB1dFN0cmVhbV0sIGJ1ZmZlcj0weDU1
+NTU1NzVjYmU5MCwgY291bnQ9NCwgaW9fcHJpb3JpdHk9aW9fcHJpb3JpdHlAZW50cnk9MCwgY2Fu
+Y2VsbGFibGU9MHg1NTU1NTY3MzZjNzAgW0dDYW5jZWxsYWJsZV0sIGNhbGxiYWNrPWNhbGxiYWNr
+QGVudHJ5PTB4N2ZmZmVkNDY3M2IwIDxhc3luY193cml0ZV9kYXRhX2NiPiwgdXNlcl9kYXRhPTB4
+NTU1NTU3ODk2NzIwKSBhdCBnb3V0cHV0c3RyZWFtLmM6ODQ5CiM1ICAweDAwMDA3ZmZmZWQ0Njcz
+MWQgaW4gYXN5bmNfd3JpdGVfZGF0YV93cml0ZSAod3JpdGVfZGF0YT13cml0ZV9kYXRhQGVudHJ5
+PTB4NTU1NTU3ODk2NzIwKSBhdCBnZGtzZWxlY3Rpb24td2F5bGFuZC5jOjY3OQojNiAgMHgwMDAw
+N2ZmZmVkNDY3MzkxIGluIGdka193YXlsYW5kX3NlbGVjdGlvbl9jaGVja193cml0ZSAoc2VsZWN0
+aW9uPTB4NTU1NTU1N2NkMWQwKSBhdCBnZGtzZWxlY3Rpb24td2F5bGFuZC5jOjcwNgojNyAgMHgw
+MDAwN2ZmZmVkOTgxODhmIGluIF9ndGtfc2VsZWN0aW9uX3JlcXVlc3QgKHdpZGdldD0weDU1NTU1
+NTg3YWUyMCBbR3RrSW52aXNpYmxlXSwgZXZlbnQ9MHg1NTU1NTcwNjE5ZjApIGF0IGd0a3NlbGVj
+dGlvbi5jOjI0OTEKIzggIDB4MDAwMDdmZmZlZDhmMTQ1MSBpbiBfZ3RrX21hcnNoYWxfQk9PTEVB
+Tl9fQk9YRUR2IChjbG9zdXJlPTB4NTU1NTU1N2RkMzcwLCByZXR1cm5fdmFsdWU9MHg3ZmZmZmZm
+ZmQ2MjAsIGluc3RhbmNlPTB4NTU1NTU1ODdhZTIwLCBhcmdzPTxvcHRpbWl6ZWQgb3V0PiwgbWFy
+c2hhbF9kYXRhPTxvcHRpbWl6ZWQgb3V0Piwgbl9wYXJhbXM9PG9wdGltaXplZCBvdXQ+LCBwYXJh
+bV90eXBlcz0weDU1NTU1NTdkZjVjMCkgYXQgZ3RrbWFyc2hhbGVycy5jOjEzMQojOSAgMHgwMDAw
+N2ZmZmVjMDI2NjE0IGluIF9nX2Nsb3N1cmVfaW52b2tlX3ZhIChjbG9zdXJlPWNsb3N1cmVAZW50
+cnk9MHg1NTU1NTU3ZGQzNzAsIHJldHVybl92YWx1ZT1yZXR1cm5fdmFsdWVAZW50cnk9MHg3ZmZm
+ZmZmZmQ2MjAsIGluc3RhbmNlPWluc3RhbmNlQGVudHJ5PTB4NTU1NTU1ODdhZTIwLCBhcmdzPWFy
+Z3NAZW50cnk9MHg3ZmZmZmZmZmQ2ZjAsIG5fcGFyYW1zPTxvcHRpbWl6ZWQgb3V0PiwgcGFyYW1f
+dHlwZXM9MHg1NTU1NTU3ZGY1YzApCiAgICBhdCBnY2xvc3VyZS5jOjg2NwojMTAgMHgwMDAwN2Zm
+ZmVjMDQwOGIzIGluIGdfc2lnbmFsX2VtaXRfdmFsaXN0IChpbnN0YW5jZT0weDU1NTU1NTg3YWUy
+MCwgc2lnbmFsX2lkPTxvcHRpbWl6ZWQgb3V0PiwgZGV0YWlsPTAsIHZhcl9hcmdzPXZhcl9hcmdz
+QGVudHJ5PTB4N2ZmZmZmZmZkNmYwKSBhdCBnc2lnbmFsLmM6MzMwMAojMTEgMHgwMDAwN2ZmZmVj
+MDQxNDNmIGluIGdfc2lnbmFsX2VtaXQgKGluc3RhbmNlPWluc3RhbmNlQGVudHJ5PTB4NTU1NTU1
+ODdhZTIwLCBzaWduYWxfaWQ9PG9wdGltaXplZCBvdXQ+LCBkZXRhaWw9ZGV0YWlsQGVudHJ5PTAp
+CiAgICBhdCBnc2lnbmFsLmM6MzQ0NwojMTIgMHgwMDAwN2ZmZmVkYTNkZDFjIGluIGd0a193aWRn
+ZXRfZXZlbnRfaW50ZXJuYWwgKHdpZGdldD0weDU1NTU1NTg3YWUyMCBbR3RrSW52aXNpYmxlXSwg
+ZXZlbnQ9MHg1NTU1NTcwNjE5ZjApIGF0IGd0a3dpZGdldC5jOjc3MjMKIzEzIDB4MDAwMDdmZmZl
+ZDhmMDM4NCBpbiBndGtfbWFpbl9kb19ldmVudCAoZXZlbnQ9MHg1NTU1NTcwNjE5ZjApIGF0IGd0
+a21haW4uYzoxODMwCiMxNCAweDAwMDA3ZmZmZWQ0MDc0ODUgaW4gX2dka19ldmVudF9lbWl0IChl
+dmVudD1ldmVudEBlbnRyeT0weDU1NTU1NzA2MTlmMCkgYXQgZ2RrZXZlbnRzLmM6NzMKIzE1IDB4
+MDAwMDdmZmZlZDQ2MmU1MiBpbiBnZGtfZXZlbnRfc291cmNlX2Rpc3BhdGNoIChiYXNlPTxvcHRp
+bWl6ZWQgb3V0PiwgY2FsbGJhY2s9PG9wdGltaXplZCBvdXQ+LCBkYXRhPTxvcHRpbWl6ZWQgb3V0
+PikKICAgIGF0IGdka2V2ZW50c291cmNlLmM6MTE4CiMxNiAweDAwMDA3ZmZmZWJkNGRlNDIgaW4g
+Z19tYWluX2Rpc3BhdGNoIChjb250ZXh0PTB4NTU1NTU1NzllOGUwKSBhdCBnbWFpbi5jOjMyMDMK
+IzE3IDB4MDAwMDdmZmZlYmQ0ZGU0MiBpbiBnX21haW5fY29udGV4dF9kaXNwYXRjaCAoY29udGV4
+dD1jb250ZXh0QGVudHJ5PTB4NTU1NTU1NzllOGUwKSBhdCBnbWFpbi5jOjM4NTYKIzE4IDB4MDAw
+MDdmZmZlYmQ0ZTFjMCBpbiBnX21haW5fY29udGV4dF9pdGVyYXRlIChjb250ZXh0PTB4NTU1NTU1
+NzllOGUwLCBibG9jaz1ibG9ja0BlbnRyeT0xLCBkaXNwYXRjaD1kaXNwYXRjaEBlbnRyeT0xLCBz
+ZWxmPTxvcHRpbWl6ZWQgb3V0PikgYXQgZ21haW4uYzozOTI5CiMxOSAweDAwMDA3ZmZmZWJkNGU0
+ZTIgaW4gZ19tYWluX2xvb3BfcnVuIChsb29wPTB4NTU1NTU1ZGEwZWMwKSBhdCBnbWFpbi5jOjQx
+MjUKIzIwIDB4MDAwMDdmZmZlZDhlZjY1NSBpbiBndGtfbWFpbiAoKSBhdCBndGttYWluLmM6MTMw
+MQojMjEgMHgwMDAwNTU1NTU1NTU3ZGFkIGluIG1haW4gKGFyZ2M9PG9wdGltaXplZCBvdXQ+LCBh
+cmd2PTxvcHRpbWl6ZWQgb3V0PikgYXQgbWFpbi5jOjY1OQpNaXNzaW5nIHNlcGFyYXRlIGRlYnVn
+aW5mb3MsIHVzZTogZG5mIGRlYnVnaW5mby1pbnN0YWxsIEdDb25mMi0zLjIuNi0xNi5mYzI0Lng4
+Nl82NCBjb29sa2V5LTEuMS4wLTMwLmZjMjQueDg2XzY0IGRidXMtbGlicy0xLjExLjgtMS5mYzI1
+Lng4Nl82NCBkY29uZi0wLjI2LjAtMS5mYzI1Lng4Nl82NCBldm9sdXRpb24tZXdzLTMuMjIuMi0x
+LmZjMjUueDg2XzY0IGdzdHJlYW1lcjEtMS4xMC4xLTEuZmMyNS54ODZfNjQgZ3N0cmVhbWVyMS1w
+bHVnaW5zLWJhc2UtMS4xMC4xLTEuZmMyNS54ODZfNjQgbGliY29tX2Vyci0xLjQzLjMtMS5mYzI1
+Lng4Nl82NCBsaWJjcm9jby0wLjYuMTEtMi5mYzI0Lng4Nl82NCBsaWJkcm0tMi40Ljc0LTEuZmMy
+NS54ODZfNjQgbGlicnN2ZzItMi40MC4xNi0yLmZjMjUueDg2XzY0IGxsdm0tZGV2ZWwtMy44LjAt
+MS5mYzI1Lng4Nl82NCBsbHZtLWxpYnMtMy44LjAtMS5mYzI1Lng4Nl82NCBtZXNhLWRyaS1kcml2
+ZXJzLTEyLjAuNC0yLmZjMjUueDg2XzY0IG1lc2EtbGliRUdMLTEyLjAuNC0yLmZjMjUueDg2XzY0
+IG1lc2EtbGliR0wtMTIuMC40LTIuZmMyNS54ODZfNjQgbWVzYS1saWJnYm0tMTIuMC40LTIuZmMy
+NS54ODZfNjQgbWVzYS1saWJnbGFwaS0xMi4wLjQtMi5mYzI1Lng4Nl82NCBtZXNhLWxpYndheWxh
+bmQtZWdsLTEyLjAuNC0yLmZjMjUueDg2XzY0IG5zcy1tZG5zLTAuMTAtMTcuZmMyNC54ODZfNjQg
+cGNzYy1saXRlLWxpYnMtMS44LjE3LTIuZmMyNS54ODZfNjQKKGdkYikgYnQKIzAgIDB4MDAwMDdm
+ZmZmMzU2NjVkZCBpbiB3cml0ZSAoKSBhdCAuLi9zeXNkZXBzL3VuaXgvc3lzY2FsbC10ZW1wbGF0
+ZS5TOjg0CiMxICAweDAwMDA3ZmZmZWMzNWRlNzYgaW4gZ191bml4X291dHB1dF9zdHJlYW1fd3Jp
+dGUgKHN0cmVhbT0weDdmZmZhYzAwMWI0MCBbR1VuaXhPdXRwdXRTdHJlYW1dLCBidWZmZXI9MHg1
+NTU1NTc1Y2JlOTAsIGNvdW50PTQsIGNhbmNlbGxhYmxlPTB4MCwgZXJyb3I9MHg3ZmZmZmZmZmQy
+NzApIGF0IGd1bml4b3V0cHV0c3RyZWFtLmM6MzY2CiMyICAweDAwMDA3ZmZmZWMyZDU0MDMgaW4g
+d3JpdGVfYXN5bmNfcG9sbGFibGUgKHN0cmVhbT1zdHJlYW1AZW50cnk9MHg3ZmZmYWMwMDFiNDAs
+IHRhc2s9dGFza0BlbnRyeT0weDU1NTU1NjZjN2M2MCBbR1Rhc2tdKQogICAgYXQgZ291dHB1dHN0
+cmVhbS5jOjE3OTUKIzMgIDB4MDAwMDdmZmZlYzJkN2QyYiBpbiBnX291dHB1dF9zdHJlYW1fcmVh
+bF93cml0ZV9hc3luYyAoc3RyZWFtPTB4N2ZmZmFjMDAxYjQwIFtHVW5peE91dHB1dFN0cmVhbV0s
+IGJ1ZmZlcj0weDU1NTU1NzVjYmU5MCwgY291bnQ9NCwgaW9fcHJpb3JpdHk9PG9wdGltaXplZCBv
+dXQ+LCBjYW5jZWxsYWJsZT08b3B0aW1pemVkIG91dD4sIGNhbGxiYWNrPTB4N2ZmZmVjMmQ3ODYw
+IDxhc3luY19yZWFkeV93cml0ZV9jYWxsYmFja193cmFwcGVyPiwgdXNlcl9kYXRhPTB4NTU1NTU3
+NTg5ZDQwKSBhdCBnb3V0cHV0c3RyZWFtLmM6MTgzOAojNCAgMHgwMDAwN2ZmZmVjMmQ2NzE1IGlu
+IGdfb3V0cHV0X3N0cmVhbV93cml0ZV9hc3luYyAoc3RyZWFtPTB4N2ZmZmFjMDAxYjQwIFtHVW5p
+eE91dHB1dFN0cmVhbV0sIGJ1ZmZlcj0weDU1NTU1NzVjYmU5MCwgY291bnQ9NCwgaW9fcHJpb3Jp
+dHk9aW9fcHJpb3JpdHlAZW50cnk9MCwgY2FuY2VsbGFibGU9MHg1NTU1NTY3MzZjNzAgW0dDYW5j
+ZWxsYWJsZV0sIGNhbGxiYWNrPWNhbGxiYWNrQGVudHJ5PTB4N2ZmZmVkNDY3M2IwIDxhc3luY193
+cml0ZV9kYXRhX2NiPiwgdXNlcl9kYXRhPTB4NTU1NTU3ODk2NzIwKSBhdCBnb3V0cHV0c3RyZWFt
+LmM6ODQ5CiM1ICAweDAwMDA3ZmZmZWQ0NjczMWQgaW4gYXN5bmNfd3JpdGVfZGF0YV93cml0ZSAo
+d3JpdGVfZGF0YT13cml0ZV9kYXRhQGVudHJ5PTB4NTU1NTU3ODk2NzIwKSBhdCBnZGtzZWxlY3Rp
+b24td2F5bGFuZC5jOjY3OQojNiAgMHgwMDAwN2ZmZmVkNDY3MzkxIGluIGdka193YXlsYW5kX3Nl
+bGVjdGlvbl9jaGVja193cml0ZSAoc2VsZWN0aW9uPTB4NTU1NTU1N2NkMWQwKSBhdCBnZGtzZWxl
+Y3Rpb24td2F5bGFuZC5jOjcwNgojNyAgMHgwMDAwN2ZmZmVkOTgxODhmIGluIF9ndGtfc2VsZWN0
+aW9uX3JlcXVlc3QgKHdpZGdldD0weDU1NTU1NTg3YWUyMCBbR3RrSW52aXNpYmxlXSwgZXZlbnQ9
+MHg1NTU1NTcwNjE5ZjApIGF0IGd0a3NlbGVjdGlvbi5jOjI0OTEKIzggIDB4MDAwMDdmZmZlZDhm
+MTQ1MSBpbiBfZ3RrX21hcnNoYWxfQk9PTEVBTl9fQk9YRUR2IChjbG9zdXJlPTB4NTU1NTU1N2Rk
+MzcwLCByZXR1cm5fdmFsdWU9MHg3ZmZmZmZmZmQ2MjAsIGluc3RhbmNlPTB4NTU1NTU1ODdhZTIw
+LCBhcmdzPTxvcHRpbWl6ZWQgb3V0PiwgbWFyc2hhbF9kYXRhPTxvcHRpbWl6ZWQgb3V0Piwgbl9w
+YXJhbXM9PG9wdGltaXplZCBvdXQ+LCBwYXJhbV90eXBlcz0weDU1NTU1NTdkZjVjMCkgYXQgZ3Rr
+bWFyc2hhbGVycy5jOjEzMQojOSAgMHgwMDAwN2ZmZmVjMDI2NjE0IGluIF9nX2Nsb3N1cmVfaW52
+b2tlX3ZhIChjbG9zdXJlPWNsb3N1cmVAZW50cnk9MHg1NTU1NTU3ZGQzNzAsIHJldHVybl92YWx1
+ZT1yZXR1cm5fdmFsdWVAZW50cnk9MHg3ZmZmZmZmZmQ2MjAsIGluc3RhbmNlPWluc3RhbmNlQGVu
+dHJ5PTB4NTU1NTU1ODdhZTIwLCBhcmdzPWFyZ3NAZW50cnk9MHg3ZmZmZmZmZmQ2ZjAsIG5fcGFy
+YW1zPTxvcHRpbWl6ZWQgb3V0PiwgcGFyYW1fdHlwZXM9MHg1NTU1NTU3ZGY1YzApCiAgICBhdCBn
+Y2xvc3VyZS5jOjg2NwojMTAgMHgwMDAwN2ZmZmVjMDQwOGIzIGluIGdfc2lnbmFsX2VtaXRfdmFs
+aXN0IChpbnN0YW5jZT0weDU1NTU1NTg3YWUyMCwgc2lnbmFsX2lkPTxvcHRpbWl6ZWQgb3V0Piwg
+ZGV0YWlsPTAsIHZhcl9hcmdzPXZhcl9hcmdzQGVudHJ5PTB4N2ZmZmZmZmZkNmYwKSBhdCBnc2ln
+bmFsLmM6MzMwMAojMTEgMHgwMDAwN2ZmZmVjMDQxNDNmIGluIGdfc2lnbmFsX2VtaXQgKGluc3Rh
+bmNlPWluc3RhbmNlQGVudHJ5PTB4NTU1NTU1ODdhZTIwLCBzaWduYWxfaWQ9PG9wdGltaXplZCBv
+dXQ+LCBkZXRhaWw9ZGV0YWlsQGVudHJ5PTApCiAgICBhdCBnc2lnbmFsLmM6MzQ0NwojMTIgMHgw
+MDAwN2ZmZmVkYTNkZDFjIGluIGd0a193aWRnZXRfZXZlbnRfaW50ZXJuYWwgKHdpZGdldD0weDU1
+NTU1NTg3YWUyMCBbR3RrSW52aXNpYmxlXSwgZXZlbnQ9MHg1NTU1NTcwNjE5ZjApIGF0IGd0a3dp
+ZGdldC5jOjc3MjMKIzEzIDB4MDAwMDdmZmZlZDhmMDM4NCBpbiBndGtfbWFpbl9kb19ldmVudCAo
+ZXZlbnQ9MHg1NTU1NTcwNjE5ZjApIGF0IGd0a21haW4uYzoxODMwCiMxNCAweDAwMDA3ZmZmZWQ0
+MDc0ODUgaW4gX2dka19ldmVudF9lbWl0IChldmVudD1ldmVudEBlbnRyeT0weDU1NTU1NzA2MTlm
+MCkgYXQgZ2RrZXZlbnRzLmM6NzMKIzE1IDB4MDAwMDdmZmZlZDQ2MmU1MiBpbiBnZGtfZXZlbnRf
+c291cmNlX2Rpc3BhdGNoIChiYXNlPTxvcHRpbWl6ZWQgb3V0PiwgY2FsbGJhY2s9PG9wdGltaXpl
+ZCBvdXQ+LCBkYXRhPTxvcHRpbWl6ZWQgb3V0PikKICAgIGF0IGdka2V2ZW50c291cmNlLmM6MTE4
+CiMxNiAweDAwMDA3ZmZmZWJkNGRlNDIgaW4gZ19tYWluX2Rpc3BhdGNoIChjb250ZXh0PTB4NTU1
+NTU1NzllOGUwKSBhdCBnbWFpbi5jOjMyMDMKIzE3IDB4MDAwMDdmZmZlYmQ0ZGU0MiBpbiBnX21h
+aW5fY29udGV4dF9kaXNwYXRjaCAoY29udGV4dD1jb250ZXh0QGVudHJ5PTB4NTU1NTU1NzllOGUw
+KSBhdCBnbWFpbi5jOjM4NTYKIzE4IDB4MDAwMDdmZmZlYmQ0ZTFjMCBpbiBnX21haW5fY29udGV4
+dF9pdGVyYXRlIChjb250ZXh0PTB4NTU1NTU1NzllOGUwLCBibG9jaz1ibG9ja0BlbnRyeT0xLCBk
+aXNwYXRjaD1kaXNwYXRjaEBlbnRyeT0xLCBzZWxmPTxvcHRpbWl6ZWQgb3V0PikgYXQgZ21haW4u
+YzozOTI5CiMxOSAweDAwMDA3ZmZmZWJkNGU0ZTIgaW4gZ19tYWluX2xvb3BfcnVuIChsb29wPTB4
+NTU1NTU1ZGEwZWMwKSBhdCBnbWFpbi5jOjQxMjUKIzIwIDB4MDAwMDdmZmZlZDhlZjY1NSBpbiBn
+dGtfbWFpbiAoKSBhdCBndGttYWluLmM6MTMwMQojMjEgMHgwMDAwNTU1NTU1NTU3ZGFkIGluIG1h
+aW4gKGFyZ2M9PG9wdGltaXplZCBvdXQ+LCBhcmd2PTxvcHRpbWl6ZWQgb3V0PikgYXQgbWFpbi5j
+OjY1OQooZ2RiKSBjCkNvbnRpbnVpbmcuCgooZXZvbHV0aW9uOjU2MjgpOiBHZGstV0FSTklORyAq
+KjogRXJyb3Igd3JpdGluZyBzZWxlY3Rpb24gZGF0YTogRXJyb3Igd3JpdGluZyB0byBmaWxlIGRl
+c2NyaXB0b3I6IEJyb2tlbiBwaXBlCgpUaHJlYWQgMSAiZXZvbHV0aW9uIiByZWNlaXZlZCBzaWdu
+YWwgU0lHUElQRSwgQnJva2VuIHBpcGUuCjB4MDAwMDdmZmZmMzU2NjVkZCBpbiB3cml0ZSAoKSBh
+dCAuLi9zeXNkZXBzL3VuaXgvc3lzY2FsbC10ZW1wbGF0ZS5TOjg0Cjg0CVRfUFNFVURPIChTWVND
+QUxMX1NZTUJPTCwgU1lTQ0FMTF9OQU1FLCBTWVNDQUxMX05BUkdTKQooZ2RiKSBidAojMCAgMHgw
+MDAwN2ZmZmYzNTY2NWRkIGluIHdyaXRlICgpIGF0IC4uL3N5c2RlcHMvdW5peC9zeXNjYWxsLXRl
+bXBsYXRlLlM6ODQKIzEgIDB4MDAwMDdmZmZlYzM1ZGU3NiBpbiBnX3VuaXhfb3V0cHV0X3N0cmVh
+bV93cml0ZSAoc3RyZWFtPTB4N2ZmZjhjNzQ5MTEwIFtHVW5peE91dHB1dFN0cmVhbV0sIGJ1ZmZl
+cj0weDU1NTU1Nzc5MmE3MCwgY291bnQ9NCwgY2FuY2VsbGFibGU9MHgwLCBlcnJvcj0weDdmZmZm
+ZmZmZDI3MCkgYXQgZ3VuaXhvdXRwdXRzdHJlYW0uYzozNjYKIzIgIDB4MDAwMDdmZmZlYzJkNTQw
+MyBpbiB3cml0ZV9hc3luY19wb2xsYWJsZSAoc3RyZWFtPXN0cmVhbUBlbnRyeT0weDdmZmY4Yzc0
+OTExMCwgdGFzaz10YXNrQGVudHJ5PTB4NTU1NTU2NmM3YzYwIFtHVGFza10pCiAgICBhdCBnb3V0
+cHV0c3RyZWFtLmM6MTc5NQojMyAgMHgwMDAwN2ZmZmVjMmQ3ZDJiIGluIGdfb3V0cHV0X3N0cmVh
+bV9yZWFsX3dyaXRlX2FzeW5jIChzdHJlYW09MHg3ZmZmOGM3NDkxMTAgW0dVbml4T3V0cHV0U3Ry
+ZWFtXSwgYnVmZmVyPTB4NTU1NTU3NzkyYTcwLCBjb3VudD00LCBpb19wcmlvcml0eT08b3B0aW1p
+emVkIG91dD4sIGNhbmNlbGxhYmxlPTxvcHRpbWl6ZWQgb3V0PiwgY2FsbGJhY2s9MHg3ZmZmZWMy
+ZDc4NjAgPGFzeW5jX3JlYWR5X3dyaXRlX2NhbGxiYWNrX3dyYXBwZXI+LCB1c2VyX2RhdGE9MHg1
+NTU1NTZhODM1MTApIGF0IGdvdXRwdXRzdHJlYW0uYzoxODM4CiM0ICAweDAwMDA3ZmZmZWMyZDY3
+MTUgaW4gZ19vdXRwdXRfc3RyZWFtX3dyaXRlX2FzeW5jIChzdHJlYW09MHg3ZmZmOGM3NDkxMTAg
+W0dVbml4T3V0cHV0U3RyZWFtXSwgYnVmZmVyPTB4NTU1NTU3NzkyYTcwLCBjb3VudD00LCBpb19w
+cmlvcml0eT1pb19wcmlvcml0eUBlbnRyeT0wLCBjYW5jZWxsYWJsZT0weDU1NTU1NjcwZDA3MCBb
+R0NhbmNlbGxhYmxlXSwgY2FsbGJhY2s9Y2FsbGJhY2tAZW50cnk9MHg3ZmZmZWQ0NjczYjAgPGFz
+eW5jX3dyaXRlX2RhdGFfY2I+LCB1c2VyX2RhdGE9MHg1NTU1NTc3OTFhYzApIGF0IGdvdXRwdXRz
+dHJlYW0uYzo4NDkKIzUgIDB4MDAwMDdmZmZlZDQ2NzMxZCBpbiBhc3luY193cml0ZV9kYXRhX3dy
+aXRlICh3cml0ZV9kYXRhPXdyaXRlX2RhdGFAZW50cnk9MHg1NTU1NTc3OTFhYzApIGF0IGdka3Nl
+bGVjdGlvbi13YXlsYW5kLmM6Njc5CiM2ICAweDAwMDA3ZmZmZWQ0NjczOTEgaW4gZ2RrX3dheWxh
+bmRfc2VsZWN0aW9uX2NoZWNrX3dyaXRlIChzZWxlY3Rpb249MHg1NTU1NTU3Y2QxZDApIGF0IGdk
+a3NlbGVjdGlvbi13YXlsYW5kLmM6NzA2CiM3ICAweDAwMDA3ZmZmZWQ5ODE4OGYgaW4gX2d0a19z
+ZWxlY3Rpb25fcmVxdWVzdCAod2lkZ2V0PTB4NTU1NTU1ODdhZTIwIFtHdGtJbnZpc2libGVdLCBl
+dmVudD0weDU1NTU1NmVlNGIyMCkgYXQgZ3Rrc2VsZWN0aW9uLmM6MjQ5MQojOCAgMHgwMDAwN2Zm
+ZmVkOGYxNDUxIGluIF9ndGtfbWFyc2hhbF9CT09MRUFOX19CT1hFRHYgKGNsb3N1cmU9MHg1NTU1
+NTU3ZGQzNzAsIHJldHVybl92YWx1ZT0weDdmZmZmZmZmZDYyMCwgaW5zdGFuY2U9MHg1NTU1NTU4
+N2FlMjAsIGFyZ3M9PG9wdGltaXplZCBvdXQ+LCBtYXJzaGFsX2RhdGE9PG9wdGltaXplZCBvdXQ+
+LCBuX3BhcmFtcz08b3B0aW1pemVkIG91dD4sIHBhcmFtX3R5cGVzPTB4NTU1NTU1N2RmNWMwKSBh
+dCBndGttYXJzaGFsZXJzLmM6MTMxCiM5ICAweDAwMDA3ZmZmZWMwMjY2MTQgaW4gX2dfY2xvc3Vy
+ZV9pbnZva2VfdmEgKGNsb3N1cmU9Y2xvc3VyZUBlbnRyeT0weDU1NTU1NTdkZDM3MCwgcmV0dXJu
+X3ZhbHVlPXJldHVybl92YWx1ZUBlbnRyeT0weDdmZmZmZmZmZDYyMCwgaW5zdGFuY2U9aW5zdGFu
+Y2VAZW50cnk9MHg1NTU1NTU4N2FlMjAsIGFyZ3M9YXJnc0BlbnRyeT0weDdmZmZmZmZmZDZmMCwg
+bl9wYXJhbXM9PG9wdGltaXplZCBvdXQ+LCBwYXJhbV90eXBlcz0weDU1NTU1NTdkZjVjMCkKICAg
+IGF0IGdjbG9zdXJlLmM6ODY3CiMxMCAweDAwMDA3ZmZmZWMwNDA4YjMgaW4gZ19zaWduYWxfZW1p
+dF92YWxpc3QgKGluc3RhbmNlPTB4NTU1NTU1ODdhZTIwLCBzaWduYWxfaWQ9PG9wdGltaXplZCBv
+dXQ+LCBkZXRhaWw9MCwgdmFyX2FyZ3M9dmFyX2FyZ3NAZW50cnk9MHg3ZmZmZmZmZmQ2ZjApIGF0
+IGdzaWduYWwuYzozMzAwCiMxMSAweDAwMDA3ZmZmZWMwNDE0M2YgaW4gZ19zaWduYWxfZW1pdCAo
+aW5zdGFuY2U9aW5zdGFuY2VAZW50cnk9MHg1NTU1NTU4N2FlMjAsIHNpZ25hbF9pZD08b3B0aW1p
+emVkIG91dD4sIGRldGFpbD1kZXRhaWxAZW50cnk9MCkKICAgIGF0IGdzaWduYWwuYzozNDQ3CiMx
+MiAweDAwMDA3ZmZmZWRhM2RkMWMgaW4gZ3RrX3dpZGdldF9ldmVudF9pbnRlcm5hbCAod2lkZ2V0
+PTB4NTU1NTU1ODdhZTIwIFtHdGtJbnZpc2libGVdLCBldmVudD0weDU1NTU1NmVlNGIyMCkgYXQg
+Z3Rrd2lkZ2V0LmM6NzcyMwojMTMgMHgwMDAwN2ZmZmVkOGYwMzg0IGluIGd0a19tYWluX2RvX2V2
+ZW50IChldmVudD0weDU1NTU1NmVlNGIyMCkgYXQgZ3RrbWFpbi5jOjE4MzAKIzE0IDB4MDAwMDdm
+ZmZlZDQwNzQ4NSBpbiBfZ2RrX2V2ZW50X2VtaXQgKGV2ZW50PWV2ZW50QGVudHJ5PTB4NTU1NTU2
+ZWU0YjIwKSBhdCBnZGtldmVudHMuYzo3MwojMTUgMHgwMDAwN2ZmZmVkNDYyZTUyIGluIGdka19l
+dmVudF9zb3VyY2VfZGlzcGF0Y2ggKGJhc2U9PG9wdGltaXplZCBvdXQ+LCBjYWxsYmFjaz08b3B0
+aW1pemVkIG91dD4sIGRhdGE9PG9wdGltaXplZCBvdXQ+KQogICAgYXQgZ2RrZXZlbnRzb3VyY2Uu
+YzoxMTgKIzE2IDB4MDAwMDdmZmZlYmQ0ZGU0MiBpbiBnX21haW5fZGlzcGF0Y2ggKGNvbnRleHQ9
+MHg1NTU1NTU3OWU4ZTApIGF0IGdtYWluLmM6MzIwMwojMTcgMHgwMDAwN2ZmZmViZDRkZTQyIGlu
+IGdfbWFpbl9jb250ZXh0X2Rpc3BhdGNoIChjb250ZXh0PWNvbnRleHRAZW50cnk9MHg1NTU1NTU3
+OWU4ZTApIGF0IGdtYWluLmM6Mzg1NgojMTggMHgwMDAwN2ZmZmViZDRlMWMwIGluIGdfbWFpbl9j
+b250ZXh0X2l0ZXJhdGUgKGNvbnRleHQ9MHg1NTU1NTU3OWU4ZTAsIGJsb2NrPWJsb2NrQGVudHJ5
+PTEsIGRpc3BhdGNoPWRpc3BhdGNoQGVudHJ5PTEsIHNlbGY9PG9wdGltaXplZCBvdXQ+KSBhdCBn
+bWFpbi5jOjM5MjkKIzE5IDB4MDAwMDdmZmZlYmQ0ZTRlMiBpbiBnX21haW5fbG9vcF9ydW4gKGxv
+b3A9MHg1NTU1NTVkYTBlYzApIGF0IGdtYWluLmM6NDEyNQojMjAgMHgwMDAwN2ZmZmVkOGVmNjU1
+IGluIGd0a19tYWluICgpIGF0IGd0a21haW4uYzoxMzAxCiMyMSAweDAwMDA1NTU1NTU1NTdkYWQg
+aW4gbWFpbiAoYXJnYz08b3B0aW1pemVkIG91dD4sIGFyZ3Y9PG9wdGltaXplZCBvdXQ+KSBhdCBt
+YWluLmM6NjU5CihnZGIpIGMKQ29udGludWluZy4KCihldm9sdXRpb246NTYyOCk6IEdkay1XQVJO
+SU5HICoqOiBFcnJvciB3cml0aW5nIHNlbGVjdGlvbiBkYXRhOiBFcnJvciB3cml0aW5nIHRvIGZp
+bGUgZGVzY3JpcHRvcjogQnJva2VuIHBpcGUKClRocmVhZCAxICJldm9sdXRpb24iIHJlY2VpdmVk
+IHNpZ25hbCBTSUdQSVBFLCBCcm9rZW4gcGlwZS4KMHgwMDAwN2ZmZmYzNTY2NWRkIGluIHdyaXRl
+ICgpIGF0IC4uL3N5c2RlcHMvdW5peC9zeXNjYWxsLXRlbXBsYXRlLlM6ODQKODQJVF9QU0VVRE8g
+KFNZU0NBTExfU1lNQk9MLCBTWVNDQUxMX05BTUUsIFNZU0NBTExfTkFSR1MpCihnZGIpIGJ0CiMw
+ICAweDAwMDA3ZmZmZjM1NjY1ZGQgaW4gd3JpdGUgKCkgYXQgLi4vc3lzZGVwcy91bml4L3N5c2Nh
+bGwtdGVtcGxhdGUuUzo4NAojMSAgMHgwMDAwN2ZmZmVjMzVkZTc2IGluIGdfdW5peF9vdXRwdXRf
+c3RyZWFtX3dyaXRlIChzdHJlYW09MHg3ZmZmYTAwMDMyYTAgW0dVbml4T3V0cHV0U3RyZWFtXSwg
+YnVmZmVyPTB4NTU1NTU2OWJmZjEwLCBjb3VudD0xLCBjYW5jZWxsYWJsZT0weDAsIGVycm9yPTB4
+N2ZmZmZmZmZkMjcwKSBhdCBndW5peG91dHB1dHN0cmVhbS5jOjM2NgojMiAgMHgwMDAwN2ZmZmVj
+MmQ1NDAzIGluIHdyaXRlX2FzeW5jX3BvbGxhYmxlIChzdHJlYW09c3RyZWFtQGVudHJ5PTB4N2Zm
+ZmEwMDAzMmEwLCB0YXNrPXRhc2tAZW50cnk9MHg1NTU1NTc1OGExNDAgW0dUYXNrXSkKICAgIGF0
+IGdvdXRwdXRzdHJlYW0uYzoxNzk1CiMzICAweDAwMDA3ZmZmZWMyZDdkMmIgaW4gZ19vdXRwdXRf
+c3RyZWFtX3JlYWxfd3JpdGVfYXN5bmMgKHN0cmVhbT0weDdmZmZhMDAwMzJhMCBbR1VuaXhPdXRw
+dXRTdHJlYW1dLCBidWZmZXI9MHg1NTU1NTY5YmZmMTAsIGNvdW50PTEsIGlvX3ByaW9yaXR5PTxv
+cHRpbWl6ZWQgb3V0PiwgY2FuY2VsbGFibGU9PG9wdGltaXplZCBvdXQ+LCBjYWxsYmFjaz0weDdm
+ZmZlYzJkNzg2MCA8YXN5bmNfcmVhZHlfd3JpdGVfY2FsbGJhY2tfd3JhcHBlcj4sIHVzZXJfZGF0
+YT0weDU1NTU1NzU4OWUxMCkgYXQgZ291dHB1dHN0cmVhbS5jOjE4MzgKIzQgIDB4MDAwMDdmZmZl
+YzJkNjcxNSBpbiBnX291dHB1dF9zdHJlYW1fd3JpdGVfYXN5bmMgKHN0cmVhbT0weDdmZmZhMDAw
+MzJhMCBbR1VuaXhPdXRwdXRTdHJlYW1dLCBidWZmZXI9MHg1NTU1NTY5YmZmMTAsIGNvdW50PTEs
+IGlvX3ByaW9yaXR5PWlvX3ByaW9yaXR5QGVudHJ5PTAsIGNhbmNlbGxhYmxlPTB4NTU1NTU3NWMx
+NWEwIFtHQ2FuY2VsbGFibGVdLCBjYWxsYmFjaz1jYWxsYmFja0BlbnRyeT0weDdmZmZlZDQ2NzNi
+MCA8YXN5bmNfd3JpdGVfZGF0YV9jYj4sIHVzZXJfZGF0YT0weDU1NTU1NmYwZGMyMCkgYXQgZ291
+dHB1dHN0cmVhbS5jOjg0OQojNSAgMHgwMDAwN2ZmZmVkNDY3MzFkIGluIGFzeW5jX3dyaXRlX2Rh
+dGFfd3JpdGUgKHdyaXRlX2RhdGE9d3JpdGVfZGF0YUBlbnRyeT0weDU1NTU1NmYwZGMyMCkgYXQg
+Z2Rrc2VsZWN0aW9uLXdheWxhbmQuYzo2NzkKIzYgIDB4MDAwMDdmZmZlZDQ2NzM5MSBpbiBnZGtf
+d2F5bGFuZF9zZWxlY3Rpb25fY2hlY2tfd3JpdGUgKHNlbGVjdGlvbj0weDU1NTU1NTdjZDFkMCkg
+YXQgZ2Rrc2VsZWN0aW9uLXdheWxhbmQuYzo3MDYKIzcgIDB4MDAwMDdmZmZlZDk4MTg4ZiBpbiBf
+Z3RrX3NlbGVjdGlvbl9yZXF1ZXN0ICh3aWRnZXQ9MHg1NTU1NTU4N2FlMjAgW0d0a0ludmlzaWJs
+ZV0sIGV2ZW50PTB4NTU1NTU3MDYxZTUwKSBhdCBndGtzZWxlY3Rpb24uYzoyNDkxCiM4ICAweDAw
+MDA3ZmZmZWQ4ZjE0NTEgaW4gX2d0a19tYXJzaGFsX0JPT0xFQU5fX0JPWEVEdiAoY2xvc3VyZT0w
+eDU1NTU1NTdkZDM3MCwgcmV0dXJuX3ZhbHVlPTB4N2ZmZmZmZmZkNjIwLCBpbnN0YW5jZT0weDU1
+NTU1NTg3YWUyMCwgYXJncz08b3B0aW1pemVkIG91dD4sIG1hcnNoYWxfZGF0YT08b3B0aW1pemVk
+IG91dD4sIG5fcGFyYW1zPTxvcHRpbWl6ZWQgb3V0PiwgcGFyYW1fdHlwZXM9MHg1NTU1NTU3ZGY1
+YzApIGF0IGd0a21hcnNoYWxlcnMuYzoxMzEKIzkgIDB4MDAwMDdmZmZlYzAyNjYxNCBpbiBfZ19j
+bG9zdXJlX2ludm9rZV92YSAoY2xvc3VyZT1jbG9zdXJlQGVudHJ5PTB4NTU1NTU1N2RkMzcwLCBy
+ZXR1cm5fdmFsdWU9cmV0dXJuX3ZhbHVlQGVudHJ5PTB4N2ZmZmZmZmZkNjIwLCBpbnN0YW5jZT1p
+bnN0YW5jZUBlbnRyeT0weDU1NTU1NTg3YWUyMCwgYXJncz1hcmdzQGVudHJ5PTB4N2ZmZmZmZmZk
+NmYwLCBuX3BhcmFtcz08b3B0aW1pemVkIG91dD4sIHBhcmFtX3R5cGVzPTB4NTU1NTU1N2RmNWMw
+KQogICAgYXQgZ2Nsb3N1cmUuYzo4NjcKIzEwIDB4MDAwMDdmZmZlYzA0MDhiMyBpbiBnX3NpZ25h
+bF9lbWl0X3ZhbGlzdCAoaW5zdGFuY2U9MHg1NTU1NTU4N2FlMjAsIHNpZ25hbF9pZD08b3B0aW1p
+emVkIG91dD4sIGRldGFpbD0wLCB2YXJfYXJncz12YXJfYXJnc0BlbnRyeT0weDdmZmZmZmZmZDZm
+MCkgYXQgZ3NpZ25hbC5jOjMzMDAKIzExIDB4MDAwMDdmZmZlYzA0MTQzZiBpbiBnX3NpZ25hbF9l
+bWl0IChpbnN0YW5jZT1pbnN0YW5jZUBlbnRyeT0weDU1NTU1NTg3YWUyMCwgc2lnbmFsX2lkPTxv
+cHRpbWl6ZWQgb3V0PiwgZGV0YWlsPWRldGFpbEBlbnRyeT0wKQogICAgYXQgZ3NpZ25hbC5jOjM0
+NDcKIzEyIDB4MDAwMDdmZmZlZGEzZGQxYyBpbiBndGtfd2lkZ2V0X2V2ZW50X2ludGVybmFsICh3
+aWRnZXQ9MHg1NTU1NTU4N2FlMjAgW0d0a0ludmlzaWJsZV0sIGV2ZW50PTB4NTU1NTU3MDYxZTUw
+KSBhdCBndGt3aWRnZXQuYzo3NzIzCiMxMyAweDAwMDA3ZmZmZWQ4ZjAzODQgaW4gZ3RrX21haW5f
+ZG9fZXZlbnQgKGV2ZW50PTB4NTU1NTU3MDYxZTUwKSBhdCBndGttYWluLmM6MTgzMAojMTQgMHgw
+MDAwN2ZmZmVkNDA3NDg1IGluIF9nZGtfZXZlbnRfZW1pdCAoZXZlbnQ9ZXZlbnRAZW50cnk9MHg1
+NTU1NTcwNjFlNTApIGF0IGdka2V2ZW50cy5jOjczCiMxNSAweDAwMDA3ZmZmZWQ0NjJlNTIgaW4g
+Z2RrX2V2ZW50X3NvdXJjZV9kaXNwYXRjaCAoYmFzZT08b3B0aW1pemVkIG91dD4sIGNhbGxiYWNr
+PTxvcHRpbWl6ZWQgb3V0PiwgZGF0YT08b3B0aW1pemVkIG91dD4pCiAgICBhdCBnZGtldmVudHNv
+dXJjZS5jOjExOAojMTYgMHgwMDAwN2ZmZmViZDRkZTQyIGluIGdfbWFpbl9kaXNwYXRjaCAoY29u
+dGV4dD0weDU1NTU1NTc5ZThlMCkgYXQgZ21haW4uYzozMjAzCiMxNyAweDAwMDA3ZmZmZWJkNGRl
+NDIgaW4gZ19tYWluX2NvbnRleHRfZGlzcGF0Y2ggKGNvbnRleHQ9Y29udGV4dEBlbnRyeT0weDU1
+NTU1NTc5ZThlMCkgYXQgZ21haW4uYzozODU2CiMxOCAweDAwMDA3ZmZmZWJkNGUxYzAgaW4gZ19t
+YWluX2NvbnRleHRfaXRlcmF0ZSAoY29udGV4dD0weDU1NTU1NTc5ZThlMCwgYmxvY2s9YmxvY2tA
+ZW50cnk9MSwgZGlzcGF0Y2g9ZGlzcGF0Y2hAZW50cnk9MSwgc2VsZj08b3B0aW1pemVkIG91dD4p
+IGF0IGdtYWluLmM6MzkyOQojMTkgMHgwMDAwN2ZmZmViZDRlNGUyIGluIGdfbWFpbl9sb29wX3J1
+biAobG9vcD0weDU1NTU1NWRhMGVjMCkgYXQgZ21haW4uYzo0MTI1CiMyMCAweDAwMDA3ZmZmZWQ4
+ZWY2NTUgaW4gZ3RrX21haW4gKCkgYXQgZ3RrbWFpbi5jOjEzMDEKIzIxIDB4MDAwMDU1NTU1NTU1
+N2RhZCBpbiBtYWluIChhcmdjPTxvcHRpbWl6ZWQgb3V0PiwgYXJndj08b3B0aW1pemVkIG91dD4p
+IGF0IG1haW4uYzo2NTkKKGdkYikgYwpDb250aW51aW5nLgoKKGV2b2x1dGlvbjo1NjI4KTogR2Rr
+LVdBUk5JTkcgKio6IEVycm9yIHdyaXRpbmcgc2VsZWN0aW9uIGRhdGE6IEVycm9yIHdyaXRpbmcg
+dG8gZmlsZSBkZXNjcmlwdG9yOiBCcm9rZW4gcGlwZQoKVGhyZWFkIDEgImV2b2x1dGlvbiIgcmVj
+ZWl2ZWQgc2lnbmFsIFNJR1BJUEUsIEJyb2tlbiBwaXBlLgoweDAwMDA3ZmZmZjM1NjY1ZGQgaW4g
+d3JpdGUgKCkgYXQgLi4vc3lzZGVwcy91bml4L3N5c2NhbGwtdGVtcGxhdGUuUzo4NAo4NAlUX1BT
+RVVETyAoU1lTQ0FMTF9TWU1CT0wsIFNZU0NBTExfTkFNRSwgU1lTQ0FMTF9OQVJHUykKKGdkYikg
+YnQKIzAgIDB4MDAwMDdmZmZmMzU2NjVkZCBpbiB3cml0ZSAoKSBhdCAuLi9zeXNkZXBzL3VuaXgv
+c3lzY2FsbC10ZW1wbGF0ZS5TOjg0CiMxICAweDAwMDA3ZmZmZWMzNWRlNzYgaW4gZ191bml4X291
+dHB1dF9zdHJlYW1fd3JpdGUgKHN0cmVhbT0weDdmZmZhYzAwMWI0MCBbR1VuaXhPdXRwdXRTdHJl
+YW1dLCBidWZmZXI9MHg1NTU1NTZmOGU3MDAsIGNvdW50PTEsIGNhbmNlbGxhYmxlPTB4MCwgZXJy
+b3I9MHg3ZmZmZmZmZmQyNzApIGF0IGd1bml4b3V0cHV0c3RyZWFtLmM6MzY2CiMyICAweDAwMDA3
+ZmZmZWMyZDU0MDMgaW4gd3JpdGVfYXN5bmNfcG9sbGFibGUgKHN0cmVhbT1zdHJlYW1AZW50cnk9
+MHg3ZmZmYWMwMDFiNDAsIHRhc2s9dGFza0BlbnRyeT0weDU1NTU1NzU4OTA1MCBbR1Rhc2tdKQog
+ICAgYXQgZ291dHB1dHN0cmVhbS5jOjE3OTUKIzMgIDB4MDAwMDdmZmZlYzJkN2QyYiBpbiBnX291
+dHB1dF9zdHJlYW1fcmVhbF93cml0ZV9hc3luYyAoc3RyZWFtPTB4N2ZmZmFjMDAxYjQwIFtHVW5p
+eE91dHB1dFN0cmVhbV0sIGJ1ZmZlcj0weDU1NTU1NmY4ZTcwMCwgY291bnQ9MSwgaW9fcHJpb3Jp
+dHk9PG9wdGltaXplZCBvdXQ+LCBjYW5jZWxsYWJsZT08b3B0aW1pemVkIG91dD4sIGNhbGxiYWNr
+PTB4N2ZmZmVjMmQ3ODYwIDxhc3luY19yZWFkeV93cml0ZV9jYWxsYmFja193cmFwcGVyPiwgdXNl
+cl9kYXRhPTB4NTU1NTU3NTg5NjAwKSBhdCBnb3V0cHV0c3RyZWFtLmM6MTgzOAojNCAgMHgwMDAw
+N2ZmZmVjMmQ2NzE1IGluIGdfb3V0cHV0X3N0cmVhbV93cml0ZV9hc3luYyAoc3RyZWFtPTB4N2Zm
+ZmFjMDAxYjQwIFtHVW5peE91dHB1dFN0cmVhbV0sIGJ1ZmZlcj0weDU1NTU1NmY4ZTcwMCwgY291
+bnQ9MSwgaW9fcHJpb3JpdHk9aW9fcHJpb3JpdHlAZW50cnk9MCwgY2FuY2VsbGFibGU9MHg1NTU1
+NTcxNjliNzAgW0dDYW5jZWxsYWJsZV0sIGNhbGxiYWNrPWNhbGxiYWNrQGVudHJ5PTB4N2ZmZmVk
+NDY3M2IwIDxhc3luY193cml0ZV9kYXRhX2NiPiwgdXNlcl9kYXRhPTB4NTU1NTU2ZjIzODQwKSBh
+dCBnb3V0cHV0c3RyZWFtLmM6ODQ5CiM1ICAweDAwMDA3ZmZmZWQ0NjczMWQgaW4gYXN5bmNfd3Jp
+dGVfZGF0YV93cml0ZSAod3JpdGVfZGF0YT13cml0ZV9kYXRhQGVudHJ5PTB4NTU1NTU2ZjIzODQw
+KSBhdCBnZGtzZWxlY3Rpb24td2F5bGFuZC5jOjY3OQojNiAgMHgwMDAwN2ZmZmVkNDY3MzkxIGlu
+IGdka193YXlsYW5kX3NlbGVjdGlvbl9jaGVja193cml0ZSAoc2VsZWN0aW9uPTB4NTU1NTU1N2Nk
+MWQwKSBhdCBnZGtzZWxlY3Rpb24td2F5bGFuZC5jOjcwNgojNyAgMHgwMDAwN2ZmZmVkOTgxODhm
+IGluIF9ndGtfc2VsZWN0aW9uX3JlcXVlc3QgKHdpZGdldD0weDU1NTU1NTg3YWUyMCBbR3RrSW52
+aXNpYmxlXSwgZXZlbnQ9MHg1NTU1NTZmMzQ4YjApIGF0IGd0a3NlbGVjdGlvbi5jOjI0OTEKIzgg
+IDB4MDAwMDdmZmZlZDhmMTQ1MSBpbiBfZ3RrX21hcnNoYWxfQk9PTEVBTl9fQk9YRUR2IChjbG9z
+dXJlPTB4NTU1NTU1N2RkMzcwLCByZXR1cm5fdmFsdWU9MHg3ZmZmZmZmZmQ2MjAsIGluc3RhbmNl
+PTB4NTU1NTU1ODdhZTIwLCBhcmdzPTxvcHRpbWl6ZWQgb3V0PiwgbWFyc2hhbF9kYXRhPTxvcHRp
+bWl6ZWQgb3V0Piwgbl9wYXJhbXM9PG9wdGltaXplZCBvdXQ+LCBwYXJhbV90eXBlcz0weDU1NTU1
+NTdkZjVjMCkgYXQgZ3RrbWFyc2hhbGVycy5jOjEzMQojOSAgMHgwMDAwN2ZmZmVjMDI2NjE0IGlu
+IF9nX2Nsb3N1cmVfaW52b2tlX3ZhIChjbG9zdXJlPWNsb3N1cmVAZW50cnk9MHg1NTU1NTU3ZGQz
+NzAsIHJldHVybl92YWx1ZT1yZXR1cm5fdmFsdWVAZW50cnk9MHg3ZmZmZmZmZmQ2MjAsIGluc3Rh
+bmNlPWluc3RhbmNlQGVudHJ5PTB4NTU1NTU1ODdhZTIwLCBhcmdzPWFyZ3NAZW50cnk9MHg3ZmZm
+ZmZmZmQ2ZjAsIG5fcGFyYW1zPTxvcHRpbWl6ZWQgb3V0PiwgcGFyYW1fdHlwZXM9MHg1NTU1NTU3
+ZGY1YzApCiAgICBhdCBnY2xvc3VyZS5jOjg2NwojMTAgMHgwMDAwN2ZmZmVjMDQwOGIzIGluIGdf
+c2lnbmFsX2VtaXRfdmFsaXN0IChpbnN0YW5jZT0weDU1NTU1NTg3YWUyMCwgc2lnbmFsX2lkPTxv
+cHRpbWl6ZWQgb3V0PiwgZGV0YWlsPTAsIHZhcl9hcmdzPXZhcl9hcmdzQGVudHJ5PTB4N2ZmZmZm
+ZmZkNmYwKSBhdCBnc2lnbmFsLmM6MzMwMAojMTEgMHgwMDAwN2ZmZmVjMDQxNDNmIGluIGdfc2ln
+bmFsX2VtaXQgKGluc3RhbmNlPWluc3RhbmNlQGVudHJ5PTB4NTU1NTU1ODdhZTIwLCBzaWduYWxf
+aWQ9PG9wdGltaXplZCBvdXQ+LCBkZXRhaWw9ZGV0YWlsQGVudHJ5PTApCiAgICBhdCBnc2lnbmFs
+LmM6MzQ0NwojMTIgMHgwMDAwN2ZmZmVkYTNkZDFjIGluIGd0a193aWRnZXRfZXZlbnRfaW50ZXJu
+YWwgKHdpZGdldD0weDU1NTU1NTg3YWUyMCBbR3RrSW52aXNpYmxlXSwgZXZlbnQ9MHg1NTU1NTZm
+MzQ4YjApIGF0IGd0a3dpZGdldC5jOjc3MjMKIzEzIDB4MDAwMDdmZmZlZDhmMDM4NCBpbiBndGtf
+bWFpbl9kb19ldmVudCAoZXZlbnQ9MHg1NTU1NTZmMzQ4YjApIGF0IGd0a21haW4uYzoxODMwCiMx
+NCAweDAwMDA3ZmZmZWQ0MDc0ODUgaW4gX2dka19ldmVudF9lbWl0IChldmVudD1ldmVudEBlbnRy
+eT0weDU1NTU1NmYzNDhiMCkgYXQgZ2RrZXZlbnRzLmM6NzMKIzE1IDB4MDAwMDdmZmZlZDQ2MmU1
+MiBpbiBnZGtfZXZlbnRfc291cmNlX2Rpc3BhdGNoIChiYXNlPTxvcHRpbWl6ZWQgb3V0PiwgY2Fs
+bGJhY2s9PG9wdGltaXplZCBvdXQ+LCBkYXRhPTxvcHRpbWl6ZWQgb3V0PikKICAgIGF0IGdka2V2
+ZW50c291cmNlLmM6MTE4CiMxNiAweDAwMDA3ZmZmZWJkNGRlNDIgaW4gZ19tYWluX2Rpc3BhdGNo
+IChjb250ZXh0PTB4NTU1NTU1NzllOGUwKSBhdCBnbWFpbi5jOjMyMDMKIzE3IDB4MDAwMDdmZmZl
+YmQ0ZGU0MiBpbiBnX21haW5fY29udGV4dF9kaXNwYXRjaCAoY29udGV4dD1jb250ZXh0QGVudHJ5
+PTB4NTU1NTU1NzllOGUwKSBhdCBnbWFpbi5jOjM4NTYKIzE4IDB4MDAwMDdmZmZlYmQ0ZTFjMCBp
+biBnX21haW5fY29udGV4dF9pdGVyYXRlIChjb250ZXh0PTB4NTU1NTU1NzllOGUwLCBibG9jaz1i
+bG9ja0BlbnRyeT0xLCBkaXNwYXRjaD1kaXNwYXRjaEBlbnRyeT0xLCBzZWxmPTxvcHRpbWl6ZWQg
+b3V0PikgYXQgZ21haW4uYzozOTI5CiMxOSAweDAwMDA3ZmZmZWJkNGU0ZTIgaW4gZ19tYWluX2xv
+b3BfcnVuIChsb29wPTB4NTU1NTU1ZGEwZWMwKSBhdCBnbWFpbi5jOjQxMjUKIzIwIDB4MDAwMDdm
+ZmZlZDhlZjY1NSBpbiBndGtfbWFpbiAoKSBhdCBndGttYWluLmM6MTMwMQojMjEgMHgwMDAwNTU1
+NTU1NTU3ZGFkIGluIG1haW4gKGFyZ2M9PG9wdGltaXplZCBvdXQ+LCBhcmd2PTxvcHRpbWl6ZWQg
+b3V0PikgYXQgbWFpbi5jOjY1OQooZ2RiKSBjCkNvbnRpbnVpbmcuCgooZXZvbHV0aW9uOjU2Mjgp
+OiBHZGstV0FSTklORyAqKjogRXJyb3Igd3JpdGluZyBzZWxlY3Rpb24gZGF0YTogRXJyb3Igd3Jp
+dGluZyB0byBmaWxlIGRlc2NyaXB0b3I6IEJyb2tlbiBwaXBlCgpUaHJlYWQgMSAiZXZvbHV0aW9u
+IiByZWNlaXZlZCBzaWduYWwgU0lHUElQRSwgQnJva2VuIHBpcGUuCjB4MDAwMDdmZmZmMzU2NjVk
+ZCBpbiB3cml0ZSAoKSBhdCAuLi9zeXNkZXBzL3VuaXgvc3lzY2FsbC10ZW1wbGF0ZS5TOjg0Cjg0
+CVRfUFNFVURPIChTWVNDQUxMX1NZTUJPTCwgU1lTQ0FMTF9OQU1FLCBTWVNDQUxMX05BUkdTKQoK
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

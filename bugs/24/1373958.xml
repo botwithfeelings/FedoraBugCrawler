@@ -1,0 +1,600 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1373958</bug_id>
+          
+          <creation_ts>2016-09-07 10:23:00 -0400</creation_ts>
+          <short_desc>kexec-tools/kdumpctl: Does not work without initrd on Fedora 24</short_desc>
+          <delta_ts>2016-11-30 10:31:01 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>kexec-tools</component>
+          <version>24</version>
+          <rep_platform>s390x</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords>Patch</keywords>
+          <priority>unspecified</priority>
+          <bug_severity>medium</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>467765</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="IBM Bug Proxy">bugproxy</reporter>
+          <assigned_to name="Pratyush Anand">panand</assigned_to>
+          <cc>bhe</cc>
+    
+    
+    <cc>bugproxy</cc>
+    
+    
+    <cc>dan</cc>
+    
+    
+    <cc>dhorak</cc>
+    
+    
+    <cc>hannsj_uhl</cc>
+    
+    
+    <cc>jkachuck</cc>
+    
+    
+    <cc>kdump-team-bugs</cc>
+    
+    
+    <cc>panand</cc>
+    
+    
+    <cc>ruyang</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>kexec-tools-2.0.13-5.fc25</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-09-26 20:39:24</cf_last_closed>
+          <cf_type>---</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          <external_bugs name="IBM Linux Technology Center">145940</external_bugs>
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9686982</commentid>
+    <comment_count>0</comment_count>
+    <who name="IBM Bug Proxy">bugproxy</who>
+    <bug_when>2016-09-07 10:23:06 -0400</bug_when>
+    <thetext></thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9686983</commentid>
+    <comment_count>1</comment_count>
+    <who name="IBM Bug Proxy">bugproxy</who>
+    <bug_when>2016-09-07 10:23:10 -0400</bug_when>
+    <thetext>For our kernel development on s390x we use Linux systems with kernels that have everything built-in and we don&apos;t use initrds.
+
+The script /bin/kdumpctl has changed from Fedora23 to Fedora24 and does now the following:
+
+1) /bin/kdumpctl:check_dump_fs_modified(): &quot;df -T /var/crash&quot; is called.
+2) This command reads &quot;/proc/self/mountinfo&quot; which returns &quot;/dev/root&quot; if no initrd has been used. I have no idea why.
+3) /lib/kdump/kdump-lib.sh:kdump_get_persistent_dev() &quot;/dev/root&quot; is called.
+4) This function returns &quot;device node not found&quot; because &quot;/dev/root&quot; does not exist.
+
+This results in the following error:
+
+Sep 02 14:00:20 s35lp54 systemd[1]: Starting Crash recovery kernel arming...
+Sep 02 14:00:23 s35lp54 kdumpctl[20275]: Kernel dev name of /dev/root is not found.
+Sep 02 14:00:23 s35lp54 kdumpctl[20275]: Dump target /dev/root is probably not mounted.
+Sep 02 14:00:23 s35lp54 kdumpctl[20275]: Starting kdump: [FAILED]
+
+Interestingly when I boot with intird &quot;df -T /var/crash&quot; returns &quot;/dev/dasda1&quot; and *not* &quot;/dev/root&quot;.
+
+# cat /proc/self/mountinfo | grep dasda
+55 0 94:1 / / rw,relatime shared:1 - ext4 /dev/dasda1 rw,data=ordered
+
+kdumpctl: Support also systems without initrd
+
+The script /bin/kdumpctl has changed from Fedora 23 to 24 and does now the
+following on systems without initrd where the kernel has everything built-in:
+
+ 1) /bin/kdumpctl:check_dump_fs_modified(): &quot;df -T /var/crash&quot; is called.
+ 2) This command reads &quot;/proc/self/mountinfo&quot; which returns &quot;/dev/root&quot;
+    if no initrd has been used. I have no idea why.
+ 3) /lib/kdump/kdump-lib.sh:kdump_get_persistent_dev() &quot;/dev/root&quot; is called.
+ 4) This function returns &quot;device node not found&quot; because &quot;/dev/root&quot; does not
+    exist.
+
+This results in the following error:
+
+ systemd[1]     : Starting Crash recovery kernel arming...
+ kdumpctl[20275]: Kernel dev name of /dev/root is not found.
+ kdumpctl[20275]: Dump target /dev/root is probably not mounted.
+ kdumpctl[20275]: Starting kdump: [FAILED]
+
+When we boot with intird, &quot;df -T /var/crash&quot; returns &quot;/dev/dasda1&quot; and *not*
+&quot;/dev/root&quot;:
+
+ # cat /proc/self/mountinfo | grep dasda
+ 55 0 94:1 / / rw,relatime shared:1 - ext4 /dev/dasda1 rw,data=ordered
+
+In this case the kdumpctl script works fine.
+
+So fix also the non-initrd case and get the real block device from the mount
+command in case we get /dev/root and the symlink does not exist.
+
+Signed-off-by: Michael Holzheu &lt;holzheu@linux.vnet.ibm.com&gt;</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9686984</commentid>
+    <comment_count>2</comment_count>
+      <attachid>1198751</attachid>
+    <who name="IBM Bug Proxy">bugproxy</who>
+    <bug_when>2016-09-07 10:23:16 -0400</bug_when>
+    <thetext>Created attachment 1198751
+kdumpctl-f24-fix-dev-root.patch</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9688970</commentid>
+    <comment_count>3</comment_count>
+    <who name="Dave Young">ruyang</who>
+    <bug_when>2016-09-07 23:11:22 -0400</bug_when>
+    <thetext>Hi, Michael
+
+df get /dev/root from /proc/self/mountinfo, kernel set /dev/root from user provided root= cmdline. In case with initrd, kernel mount &quot;rootfs&quot; to / instead but later dracut mount real root and switch to it thus /proc/mounts show right device name.
+
+It is reasonable to fix it, mount|grep in your patch should be right, but we have a function in kdump-lib.sh get_root_fs_device() which can be used in this case.
+
+It will be better to convert /dev/root to real device by get_root_fs_device, also there is another place call df, it is in kdump-lib.sh get_target_from_path() function, it should also be updated with a check of this.
+
+I&apos;m not sure if the &quot;df&quot; check_dump_fs_modified can be replaced by the lib function get_target_from_path, if it is doable we can change it and only check /dev/root one time.
+
+Pratyush should know this better, needinfo him.
+
+Thanks
+Dave</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9689789</commentid>
+    <comment_count>4</comment_count>
+    <who name="IBM Bug Proxy">bugproxy</who>
+    <bug_when>2016-09-08 05:20:28 -0400</bug_when>
+    <thetext>------- Comment From michael.holzheu@de.ibm.com 2016-09-08 05:14 EDT-------
+(In reply to comment #6)
+&gt; Hi, Michael
+&gt;
+
+[snip]
+
+&gt; It will be better to convert /dev/root to real device by get_root_fs_device,
+&gt; also there is another place call df, it is in kdump-lib.sh
+&gt; get_target_from_path() function, it should also be updated with a check of
+&gt; this.
+&gt;
+&gt; I&apos;m not sure if the &quot;df&quot; check_dump_fs_modified can be replaced by the lib
+&gt; function get_target_from_path, if it is doable we can change it and only
+&gt; check /dev/root one time.
+&gt;
+&gt; Pratyush should know this better, needinfo him.
+
+Could you post a patch that meets your expectations?  I will gladly test it in my environment.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9691672</commentid>
+    <comment_count>5</comment_count>
+    <who name="Pratyush Anand">panand</who>
+    <bug_when>2016-09-08 13:44:28 -0400</bug_when>
+    <thetext>(In reply to Dave Young from comment #3)
+&gt; I&apos;m not sure if the &quot;df&quot; check_dump_fs_modified can be replaced by the lib
+&gt; function get_target_from_path, if it is doable we can change it and only
+&gt; check /dev/root one time.
+
+I think, we can replace that. I have not tested, but following should be able to achieve it. 
+
+diff --git a/kdump-lib.sh b/kdump-lib.sh
+index e59449673b94..849712e3c009 100755
+--- a/kdump-lib.sh
++++ b/kdump-lib.sh
+@@ -176,7 +176,11 @@ get_mntpoint_from_path()
+ 
+ get_target_from_path()
+ {
+-    echo $(df $1 | tail -1 |  awk &apos;{print $1}&apos;)
++    local _target
++
++    _target=$(df $1 2&gt;/dev/null | tail -1 |  awk &apos;{print $1}&apos;)
++    [[ &quot;$_target&quot; == &quot;/dev/root&quot; ]] &amp;&amp; [[ ! -e /dev/root ]] &amp;&amp; _target=$(get_root_fs_device())
++    echo $_target
+ }
+ 
+ get_fs_type_from_target() 
+diff --git a/kdumpctl b/kdumpctl
+index 8d0ab81b983b..d0785f6100ca 100755
+--- a/kdumpctl
++++ b/kdumpctl
+@@ -389,9 +389,9 @@ check_dump_fs_modified()
+ 		_new_fstype=$(blkid $_target | awk -F&quot;TYPE=&quot; &apos;{print $2}&apos; | cut -d &apos;&quot;&apos; -f 2)
+ 	else
+ 		_path=$(get_save_path)
+-		set -- $(df -T $_path 2&gt;/dev/null | tail -1 | awk &apos;{ print $1, $2}&apos;)
+-		_target=$(to_dev_name $1)
+-		_new_fstype=$2
++		_target=$(get_target_from_path $_path)
++		_target=$(to_dev_name $_target)
++		_new_fstype=$(get_fs_type_from_target $_target)
+ 		if [[ -z &quot;$_target&quot; || -z &quot;$_new_fstype&quot; ]];then
+ 			echo &quot;Dump path $_path does not exist&quot;
+ 			return 2</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9691854</commentid>
+    <comment_count>6</comment_count>
+    <who name="IBM Bug Proxy">bugproxy</who>
+    <bug_when>2016-09-08 14:50:57 -0400</bug_when>
+    <thetext>------- Comment From michael.holzheu@de.ibm.com 2016-09-08 14:42 EDT-------
+(In reply to comment #8)
+&gt; (In reply to Dave Young from comment #3)
+
+[snip]
+
+&gt; get_target_from_path()
+&gt; {
+&gt; -    echo $(df $1 | tail -1 |  awk &apos;{print $1}&apos;)
+&gt; +    local _target
+&gt; +
+&gt; +    _target=$(df $1 2&gt;/dev/null | tail -1 |  awk &apos;{print $1}&apos;)
+&gt; +    [[ &quot;$_target&quot; == &quot;/dev/root&quot; ]] &amp;&amp; [[ ! -e /dev/root ]] &amp;&amp; _target=)
+
+This looks wrong :=)
+
+I assume you meant:
+
+_target=$(df $1 2&gt;/dev/null | tail -1 |  awk &apos;{print $1}&apos;)
+if [[ &quot;$_target&quot; == &quot;/dev/root&quot; ]] &amp;&amp; [[ ! -e /dev/root ]]; then
+_target=$(mount | grep &quot; / &quot; | awk &apos;{print $1}&apos;)
+fi</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9691855</commentid>
+    <comment_count>7</comment_count>
+      <attachid>1199186</attachid>
+    <who name="IBM Bug Proxy">bugproxy</who>
+    <bug_when>2016-09-08 14:51:01 -0400</bug_when>
+    <thetext>Created attachment 1199186
+kdumpctl-kdump-lib-fix-dev-root.patch
+
+
+------- Comment on attachment From michael.holzheu@de.ibm.com 2016-09-08 14:47 EDT-------
+
+
+This patch worked for me as well.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9694606</commentid>
+    <comment_count>8</comment_count>
+    <who name="IBM Bug Proxy">bugproxy</who>
+    <bug_when>2016-09-09 11:30:49 -0400</bug_when>
+    <thetext>------- Comment From michael.holzheu@de.ibm.com 2016-09-09 11:28 EDT-------
+(In reply to comment #10)
+&gt; Created attachment 112065 [details]
+&gt; kdumpctl-kdump-lib-fix-dev-root.patch
+&gt;
+&gt; This patch worked for me as well.
+
+Is the attached patch also good for you?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9694797</commentid>
+    <comment_count>9</comment_count>
+      <attachid>1199531</attachid>
+    <who name="Pratyush Anand">panand</who>
+    <bug_when>2016-09-09 12:46:38 -0400</bug_when>
+    <thetext>Created attachment 1199531
+Patch to fix target identification for systems without initrd
+
+(In reply to IBM Bug Proxy from comment #6)
+&gt; ------- Comment From michael.holzheu@de.ibm.com 2016-09-08 14:42 EDT-------
+
+&gt; &gt; +    [[ &quot;$_target&quot; == &quot;/dev/root&quot; ]] &amp;&amp; [[ ! -e /dev/root ]] &amp;&amp; _target=)
+&gt; 
+&gt; This looks wrong :=)
+
+oops..just remove the extra () from get_root_fs_device() and it should work.
+
+[[ &quot;$_target&quot; == &quot;/dev/root&quot; ]] &amp;&amp; [[ ! -e /dev/root ]] &amp;&amp; _target=$(get_root_fs_device)
+
+Please try attached patch and let me know if that works with your system.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9695133</commentid>
+    <comment_count>10</comment_count>
+    <who name="IBM Bug Proxy">bugproxy</who>
+    <bug_when>2016-09-09 14:20:43 -0400</bug_when>
+    <thetext>------- Comment From michael.holzheu@de.ibm.com 2016-09-09 14:10 EDT-------
+(In reply to comment #12)
+
+[snip]
+
+&gt; &gt; This looks wrong :=)
+&gt;
+&gt; oops..just remove the extra () from get_root_fs_device() and it should work.
+&gt;
+&gt; [[ &quot;$_target&quot; == &quot;/dev/root&quot; ]] &amp;&amp; [[ ! -e /dev/root ]] &amp;&amp;
+&gt; _target=
+
+Ok got it.
+
+&gt;
+&gt; Please try attached patch and let me know if that works with your system.
+
+The (for my Fedora24 version of kdumpctl refreshed) patch worked fine.
+
+Reported-and-tested-by: Michael Holzheu &lt;holzheu@linux.vnet.ibm.com&gt;
+
+Two more questions:
+
+- In which version will we see the fixes?
+- Do you have an upstream repository for the files?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9698169</commentid>
+    <comment_count>11</comment_count>
+    <who name="Dave Young">ruyang</who>
+    <bug_when>2016-09-12 05:01:48 -0400</bug_when>
+    <thetext>Hi, Michael
+
+It is in F25 devel phase so I would like to merge it in rawhide and f25. If you explictly need it in F24 please let me know.
+
+It need about one week to wait for comments from other people, so hopefully we can merge it at the end of this week or in next week.
+
+Thanks
+Dave</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9703609</commentid>
+    <comment_count>12</comment_count>
+    <who name="IBM Bug Proxy">bugproxy</who>
+    <bug_when>2016-09-13 11:12:03 -0400</bug_when>
+    <thetext>------- Comment From michael.holzheu@de.ibm.com 2016-09-13 11:07 EDT-------
+(In reply to comment #14)
+&gt; Hi, Michael
+&gt;
+&gt; It is in F25 devel phase so I would like to merge it in rawhide and f25. If
+&gt; you explictly need it in F24 please let me know.
+
+IMHO it&apos;s fine for F25.
+
+Thanks!
+Michael</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9713585</commentid>
+    <comment_count>13</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-16 04:17:47 -0400</bug_when>
+    <thetext>kexec-tools-2.0.13-5.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2016-16e88f591d</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9713746</commentid>
+    <comment_count>14</comment_count>
+    <who name="IBM Bug Proxy">bugproxy</who>
+    <bug_when>2016-09-16 05:20:38 -0400</bug_when>
+    <thetext>------- Comment From michael.holzheu@de.ibm.com 2016-09-16 05:12 EDT-------
+(In reply to comment #16)
+&gt; kexec-tools-2.0.13-5.fc25 has been submitted as an update to Fedora 25.
+&gt; https://bodhi.fedoraproject.org/updates/FEDORA-2016-16e88f591d
+
+Thanks!</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9718174</commentid>
+    <comment_count>15</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-17 16:56:20 -0400</bug_when>
+    <thetext>kexec-tools-2.0.13-5.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-16e88f591d</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9744520</commentid>
+    <comment_count>16</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-26 20:39:24 -0400</bug_when>
+    <thetext>kexec-tools-2.0.13-5.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9943579</commentid>
+    <comment_count>17</comment_count>
+    <who name="IBM Bug Proxy">bugproxy</who>
+    <bug_when>2016-11-30 10:31:01 -0500</bug_when>
+    <thetext>&gt; _target=$(get_root_fs_device)</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="1"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1198751</attachid>
+            <date>2016-09-07 10:23:00 -0400</date>
+            <delta_ts>2016-09-09 04:34:29 -0400</delta_ts>
+            <desc>kdumpctl-f24-fix-dev-root.patch</desc>
+            <filename>kdumpctl-f24-fix-dev-root.patch</filename>
+            <type>text/plain</type>
+            <size>1954</size>
+            <attacher name="IBM Bug Proxy">bugproxy</attacher>
+            
+              <data encoding="base64">a2R1bXBjdGw6IFN1cHBvcnQgYWxzbyBzeXN0ZW1zIHdpdGhvdXQgaW5pdHJkCgpUaGUgc2NyaXB0
+IC9iaW4va2R1bXBjdGwgaGFzIGNoYW5nZWQgZnJvbSBGZWRvcmEgMjMgdG8gMjQgYW5kIGRvZXMg
+bm93IHRoZQpmb2xsb3dpbmcgb24gc3lzdGVtcyB3aXRob3V0IGluaXRyZCB3aGVyZSB0aGUga2Vy
+bmVsIGhhcyBldmVyeXRoaW5nIGJ1aWx0LWluOgoKIDEpIC9iaW4va2R1bXBjdGw6Y2hlY2tfZHVt
+cF9mc19tb2RpZmllZCgpOiAiZGYgLVQgL3Zhci9jcmFzaCIgaXMgY2FsbGVkLgogMikgVGhpcyBj
+b21tYW5kIHJlYWRzICIvcHJvYy9zZWxmL21vdW50aW5mbyIgd2hpY2ggcmV0dXJucyAiL2Rldi9y
+b290IgogICAgaWYgbm8gaW5pdHJkIGhhcyBiZWVuIHVzZWQuIEkgaGF2ZSBubyBpZGVhIHdoeS4K
+IDMpIC9saWIva2R1bXAva2R1bXAtbGliLnNoOmtkdW1wX2dldF9wZXJzaXN0ZW50X2RldigpICIv
+ZGV2L3Jvb3QiIGlzIGNhbGxlZC4KIDQpIFRoaXMgZnVuY3Rpb24gcmV0dXJucyAiZGV2aWNlIG5v
+ZGUgbm90IGZvdW5kIiBiZWNhdXNlICIvZGV2L3Jvb3QiIGRvZXMgbm90CiAgICBleGlzdC4KClRo
+aXMgcmVzdWx0cyBpbiB0aGUgZm9sbG93aW5nIGVycm9yOgoKIHN5c3RlbWRbMV0gICAgIDogU3Rh
+cnRpbmcgQ3Jhc2ggcmVjb3Zlcnkga2VybmVsIGFybWluZy4uLgoga2R1bXBjdGxbMjAyNzVdOiBL
+ZXJuZWwgZGV2IG5hbWUgb2YgL2Rldi9yb290IGlzIG5vdCBmb3VuZC4KIGtkdW1wY3RsWzIwMjc1
+XTogRHVtcCB0YXJnZXQgL2Rldi9yb290IGlzIHByb2JhYmx5IG5vdCBtb3VudGVkLgoga2R1bXBj
+dGxbMjAyNzVdOiBTdGFydGluZyBrZHVtcDogW0ZBSUxFRF0KCldoZW4gd2UgYm9vdCB3aXRoIGlu
+dGlyZCwgImRmIC1UIC92YXIvY3Jhc2giIHJldHVybnMgIi9kZXYvZGFzZGExIiBhbmQgKm5vdCoK
+Ii9kZXYvcm9vdCI6CgogIyBjYXQgL3Byb2Mvc2VsZi9tb3VudGluZm8gfCBncmVwIGRhc2RhCiA1
+NSAwIDk0OjEgLyAvIHJ3LHJlbGF0aW1lIHNoYXJlZDoxIC0gZXh0NCAvZGV2L2Rhc2RhMSBydyxk
+YXRhPW9yZGVyZWQKCkluIHRoaXMgY2FzZSB0aGUga2R1bXBjdGwgc2NyaXB0IHdvcmtzIGZpbmUu
+CgpTbyBmaXggYWxzbyB0aGUgbm9uLWluaXRyZCBjYXNlIGFuZCBnZXQgdGhlIHJlYWwgYmxvY2sg
+ZGV2aWNlIGZyb20gdGhlIG1vdW50CmNvbW1hbmQgaW4gY2FzZSB3ZSBnZXQgL2Rldi9yb290IGFu
+ZCB0aGUgc3ltbGluayBkb2VzIG5vdCBleGlzdC4KClNpZ25lZC1vZmYtYnk6IE1pY2hhZWwgSG9s
+emhldSA8aG9semhldUBsaW51eC52bmV0LmlibS5jb20+Ci0tLQoga2R1bXBjdGwgfCAgICA2ICsr
+KysrKwogMSBmaWxlIGNoYW5nZWQsIDYgaW5zZXJ0aW9ucygrKQoKLS0tIGEva2R1bXBjdGwKKysr
+IGIva2R1bXBjdGwKQEAgLTM4MCw2ICszODAsMTIgQEAgY2hlY2tfZHVtcF9mc19tb2RpZmllZCgp
+CiAJCV9wYXRoPSQoZ2V0X3NhdmVfcGF0aCkKIAkJc2V0IC0tICQoZGYgLVQgJF9wYXRoIDI+L2Rl
+di9udWxsIHwgdGFpbCAtMSB8IGF3ayAneyBwcmludCAkMSwgJDJ9JykKIAkJX3RhcmdldD0kKHRv
+X2Rldl9uYW1lICQxKQorCQkjIE9uIHN5c3RlbXMgd2l0aG91dCByYW1kaXNrIHdlIGdldCBfdGFy
+Z2V0PS9kZXYvcm9vdCwKKwkJIyBpZiAvdmFyL2NyYXNoIGlzIG9uIHRoZSByb290IGRpc2suIElu
+IHRoaXMgY2FzZSBnZXQgdGhlCisJCSMgcmVhbCBibG9jayBkZXZpY2UgdmlhIHRoZSBtb3VudCBj
+b21tYW5kOgorCQlpZiBbICIkX3RhcmdldCIgPT0gIi9kZXYvcm9vdCIgXSAmJiBbICEgLWUgL2Rl
+di9yb290IF07IHRoZW4KKwkJCV90YXJnZXQ9JChtb3VudCB8IGdyZXAgIiAvICIgfCBhd2sgJ3tw
+cmludCAkMX0nKQorCQlmaQogCQlfbmV3X2ZzdHlwZT0kMgogCQlpZiBbWyAteiAiJF90YXJnZXQi
+IHx8IC16ICIkX25ld19mc3R5cGUiIF1dO3RoZW4KIAkJCWVjaG8gIkR1bXAgcGF0aCAkX3BhdGgg
+ZG9lcyBub3QgZXhpc3QiCg==
+</data>
+
+          </attachment>
+          <attachment
+              isobsolete="0"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1199186</attachid>
+            <date>2016-09-08 14:51:00 -0400</date>
+            <delta_ts>2016-09-09 04:34:05 -0400</delta_ts>
+            <desc>kdumpctl-kdump-lib-fix-dev-root.patch</desc>
+            <filename>kdumpctl-kdump-lib-fix-dev-root.patch</filename>
+            <type>text/plain</type>
+            <size>2379</size>
+            <attacher name="IBM Bug Proxy">bugproxy</attacher>
+            
+              <data encoding="base64">a2R1bXBjdGw6IFN1cHBvcnQgYWxzbyBzeXN0ZW1zIHdpdGhvdXQgaW5pdHJkCgpUaGUgc2NyaXB0
+IC9iaW4va2R1bXBjdGwgaGFzIGNoYW5nZWQgZnJvbSBGZWRvcmEgMjMgdG8gMjQgYW5kIGRvZXMg
+bm93IHRoZQpmb2xsb3dpbmcgb24gc3lzdGVtcyB3aXRob3V0IGluaXRyZCB3aGVyZSB0aGUga2Vy
+bmVsIGhhcyBldmVyeXRoaW5nIGJ1aWx0LWluOgoKIDEpIC9iaW4va2R1bXBjdGw6Y2hlY2tfZHVt
+cF9mc19tb2RpZmllZCgpOiAiZGYgLVQgL3Zhci9jcmFzaCIgaXMgY2FsbGVkLgogMikgVGhpcyBj
+b21tYW5kIHJlYWRzICIvcHJvYy9zZWxmL21vdW50aW5mbyIgd2hpY2ggcmV0dXJucyAiL2Rldi9y
+b290IgogICAgaWYgbm8gaW5pdHJkIGhhcyBiZWVuIHVzZWQuIEkgaGF2ZSBubyBpZGVhIHdoeS4K
+IDMpIC9saWIva2R1bXAva2R1bXAtbGliLnNoOmtkdW1wX2dldF9wZXJzaXN0ZW50X2RldigpICIv
+ZGV2L3Jvb3QiIGlzIGNhbGxlZC4KIDQpIFRoaXMgZnVuY3Rpb24gcmV0dXJucyAiZGV2aWNlIG5v
+ZGUgbm90IGZvdW5kIiBiZWNhdXNlICIvZGV2L3Jvb3QiIGRvZXMgbm90CiAgICBleGlzdC4KClRo
+aXMgcmVzdWx0cyBpbiB0aGUgZm9sbG93aW5nIGVycm9yOgoKIHN5c3RlbWRbMV0gICAgIDogU3Rh
+cnRpbmcgQ3Jhc2ggcmVjb3Zlcnkga2VybmVsIGFybWluZy4uLgoga2R1bXBjdGxbMjAyNzVdOiBL
+ZXJuZWwgZGV2IG5hbWUgb2YgL2Rldi9yb290IGlzIG5vdCBmb3VuZC4KIGtkdW1wY3RsWzIwMjc1
+XTogRHVtcCB0YXJnZXQgL2Rldi9yb290IGlzIHByb2JhYmx5IG5vdCBtb3VudGVkLgoga2R1bXBj
+dGxbMjAyNzVdOiBTdGFydGluZyBrZHVtcDogW0ZBSUxFRF0KCldoZW4gd2UgYm9vdCB3aXRoIGlu
+dGlyZCwgImRmIC1UIC92YXIvY3Jhc2giIHJldHVybnMgIi9kZXYvZGFzZGExIiBhbmQgKm5vdCoK
+Ii9kZXYvcm9vdCI6CgogIyBjYXQgL3Byb2Mvc2VsZi9tb3VudGluZm8gfCBncmVwIGRhc2RhCiA1
+NSAwIDk0OjEgLyAvIHJ3LHJlbGF0aW1lIHNoYXJlZDoxIC0gZXh0NCAvZGV2L2Rhc2RhMSBydyxk
+YXRhPW9yZGVyZWQKCkluIHRoaXMgY2FzZSB0aGUga2R1bXBjdGwgc2NyaXB0IHdvcmtzIGZpbmUu
+CgpTbyBmaXggYWxzbyB0aGUgbm9uLWluaXRyZCBjYXNlIGFuZCBnZXQgdGhlIHJlYWwgYmxvY2sg
+ZGV2aWNlIGZyb20gdGhlIG1vdW50CmNvbW1hbmQgaW4gY2FzZSB3ZSBnZXQgL2Rldi9yb290IGFu
+ZCB0aGUgc3ltbGluayBkb2VzIG5vdCBleGlzdC4KClN1Z2dlc3RlZC1ieTogTWljaGFlbCBIb2x6
+aGV1IDxob2x6aGV1QGxpbnV4LnZuZXQuaWJtLmNvbT4KLS0tCiBrZHVtcC1saWIuc2ggfCAgICA4
+ICsrKysrKystCiBrZHVtcGN0bCAgICAgfCAgICA2ICsrKy0tLQogMiBmaWxlcyBjaGFuZ2VkLCAx
+MCBpbnNlcnRpb25zKCspLCA0IGRlbGV0aW9ucygtKQoKLS0tIGEva2R1bXAtbGliLnNoCisrKyBi
+L2tkdW1wLWxpYi5zaApAQCAtMTc0LDcgKzE3NCwxMyBAQCBnZXRfbW50cG9pbnRfZnJvbV9wYXRo
+KCkKIAogZ2V0X3RhcmdldF9mcm9tX3BhdGgoKQogewotICAgIGVjaG8gJChkZiAkMSB8IHRhaWwg
+LTEgfCAgYXdrICd7cHJpbnQgJDF9JykKKyAgICBsb2NhbCBfdGFyZ2V0CisKKyAgICBfdGFyZ2V0
+PSQoZGYgJDEgMj4vZGV2L251bGwgfCB0YWlsIC0xIHwgIGF3ayAne3ByaW50ICQxfScpCisgICAg
+aWYgW1sgIiRfdGFyZ2V0IiA9PSAiL2Rldi9yb290IiBdXSAmJiBbWyAhIC1lIC9kZXYvcm9vdCBd
+XTsgdGhlbgorICAgICAgICBfdGFyZ2V0PSQobW91bnQgfCBncmVwICIgLyAiIHwgYXdrICd7cHJp
+bnQgJDF9JykKKyAgICBmaQorICAgIGVjaG8gJF90YXJnZXQKIH0KIAogZ2V0X2ZzX3R5cGVfZnJv
+bV90YXJnZXQoKSAKLS0tIGEva2R1bXBjdGwKKysrIGIva2R1bXBjdGwKQEAgLTM3OCw5ICszNzgs
+OSBAQCBjaGVja19kdW1wX2ZzX21vZGlmaWVkKCkKIAkJX25ld19mc3R5cGU9JChibGtpZCAkX3Rh
+cmdldCB8IGF3ayAtRiJUWVBFPSIgJ3twcmludCAkMn0nIHwgY3V0IC1kICciJyAtZiAyKQogCWVs
+c2UKIAkJX3BhdGg9JChnZXRfc2F2ZV9wYXRoKQotCQlzZXQgLS0gJChkZiAtVCAkX3BhdGggMj4v
+ZGV2L251bGwgfCB0YWlsIC0xIHwgYXdrICd7IHByaW50ICQxLCAkMn0nKQotCQlfdGFyZ2V0PSQo
+dG9fZGV2X25hbWUgJDEpCi0JCV9uZXdfZnN0eXBlPSQyCisJCV90YXJnZXQ9JChnZXRfdGFyZ2V0
+X2Zyb21fcGF0aCAkX3BhdGgpCisJCV90YXJnZXQ9JCh0b19kZXZfbmFtZSAkX3RhcmdldCkKKwkJ
+X25ld19mc3R5cGU9JChnZXRfZnNfdHlwZV9mcm9tX3RhcmdldCAkX3RhcmdldCkKIAkJaWYgW1sg
+LXogIiRfdGFyZ2V0IiB8fCAteiAiJF9uZXdfZnN0eXBlIiBdXTt0aGVuCiAJCQllY2hvICJEdW1w
+IHBhdGggJF9wYXRoIGRvZXMgbm90IGV4aXN0IgogCQkJcmV0dXJuIDIK
+</data>
+
+          </attachment>
+          <attachment
+              isobsolete="0"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1199531</attachid>
+            <date>2016-09-09 12:46:00 -0400</date>
+            <delta_ts>2016-09-09 12:46:38 -0400</delta_ts>
+            <desc>Patch to fix target identification for systems without initrd</desc>
+            <filename>0001-kdumpctl-fix-target-identification-for-systems-witho.patch</filename>
+            <type>text/plain</type>
+            <size>1984</size>
+            <attacher name="Pratyush Anand">panand</attacher>
+            
+              <data encoding="base64">RnJvbSA5YzRkOWMyMzc1OWMwYjc5MWU3ODQ2NGQ4Mjc5M2IyNTMyYzhkNmMzIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpNZXNzYWdlLUlkOiA8OWM0ZDljMjM3NTljMGI3OTFlNzg0NjRkODI3OTNi
+MjUzMmM4ZDZjMy4xNDczNDM5NDM0LmdpdC5wYW5hbmRAcmVkaGF0LmNvbT4KRnJvbTogUHJhdHl1
+c2ggQW5hbmQgPHBhbmFuZEByZWRoYXQuY29tPgpEYXRlOiBGcmksIDkgU2VwIDIwMTYgMDg6MzI6
+NTAgKzA1MzAKU3ViamVjdDogW1BBVENIXSBrZHVtcGN0bDogZml4IHRhcmdldCBpZGVudGlmaWNh
+dGlvbiBmb3Igc3lzdGVtcyB3aXRob3V0CiBpbml0cmQKCldlIGdldCBmb2xsb3dpbmcgZXJyb3Ig
+b24gdGhlIHN5c3RlbXMgdGhhdCBoYXZlIGV2ZXJ5dGhpbmcgYnVpbHQtaW4gYW5kIG5vCmluaXRy
+ZCBpcyB1c2VkLgoKCUtlcm5lbCBkZXYgbmFtZSBvZiAvZGV2L3Jvb3QgaXMgbm90IGZvdW5kLgoJ
+RHVtcCB0YXJnZXQgL2Rldi9yb290IGlzIHByb2JhYmx5IG5vdCBtb3VudGVkLgoKSXQgaGFwcGVu
+cyBiZWNhdXNlIGBkZiAkcGF0aGAgZ2V0cyAvZGV2L3Jvb3QgZnJvbSAvcHJvYy9zZWxmL21vdW50
+aW5mby4KCkZpeCB0aGlzIGJ5IGlkZW50aWZ5aW5nIHJlYWwgdGFyZ2V0IGRldmljZSB3aGVuIGBk
+ZiAkcGF0aGAgcmV0dXJucwpGaWxlc3lzdGVtIGFzIC9kZXYvcm9vdC4KClJlcG9ydGVkLWJ5OiBN
+aWNoYWVsIEhvbHpoZXUgPGhvbHpoZXVAbGludXgudm5ldC5pYm0uY29tPgpTaWduZWQtb2ZmLWJ5
+OiBQcmF0eXVzaCBBbmFuZCA8cGFuYW5kQHJlZGhhdC5jb20+Ci0tLQoga2R1bXAtbGliLnNoIHwg
+NiArKysrKy0KIGtkdW1wY3RsICAgICB8IDYgKysrLS0tCiAyIGZpbGVzIGNoYW5nZWQsIDggaW5z
+ZXJ0aW9ucygrKSwgNCBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9rZHVtcC1saWIuc2ggYi9r
+ZHVtcC1saWIuc2gKaW5kZXggZTU5NDQ5NjczYjk0Li40MDZiYmM3MTRiM2UgMTAwNzU1Ci0tLSBh
+L2tkdW1wLWxpYi5zaAorKysgYi9rZHVtcC1saWIuc2gKQEAgLTE3Niw3ICsxNzYsMTEgQEAgZ2V0
+X21udHBvaW50X2Zyb21fcGF0aCgpCiAKIGdldF90YXJnZXRfZnJvbV9wYXRoKCkKIHsKLSAgICBl
+Y2hvICQoZGYgJDEgfCB0YWlsIC0xIHwgIGF3ayAne3ByaW50ICQxfScpCisgICAgbG9jYWwgX3Rh
+cmdldAorCisgICAgX3RhcmdldD0kKGRmICQxIDI+L2Rldi9udWxsIHwgdGFpbCAtMSB8ICBhd2sg
+J3twcmludCAkMX0nKQorICAgIFtbICIkX3RhcmdldCIgPT0gIi9kZXYvcm9vdCIgXV0gJiYgW1sg
+ISAtZSAvZGV2L3Jvb3QgXV0gJiYgX3RhcmdldD0kKGdldF9yb290X2ZzX2RldmljZSkKKyAgICBl
+Y2hvICRfdGFyZ2V0CiB9CiAKIGdldF9mc190eXBlX2Zyb21fdGFyZ2V0KCkgCmRpZmYgLS1naXQg
+YS9rZHVtcGN0bCBiL2tkdW1wY3RsCmluZGV4IDA0YmJlOGQ2NmY5YS4uY2NiMWUxZTRkNGE2IDEw
+MDc1NQotLS0gYS9rZHVtcGN0bAorKysgYi9rZHVtcGN0bApAQCAtMzg5LDkgKzM4OSw5IEBAIGNo
+ZWNrX2R1bXBfZnNfbW9kaWZpZWQoKQogCQlfbmV3X2ZzdHlwZT0kKGJsa2lkICRfdGFyZ2V0IHwg
+YXdrIC1GIlRZUEU9IiAne3ByaW50ICQyfScgfCBjdXQgLWQgJyInIC1mIDIpCiAJZWxzZQogCQlf
+cGF0aD0kKGdldF9zYXZlX3BhdGgpCi0JCXNldCAtLSAkKGRmIC1UICRfcGF0aCAyPi9kZXYvbnVs
+bCB8IHRhaWwgLTEgfCBhd2sgJ3sgcHJpbnQgJDEsICQyfScpCi0JCV90YXJnZXQ9JCh0b19kZXZf
+bmFtZSAkMSkKLQkJX25ld19mc3R5cGU9JDIKKwkJX3RhcmdldD0kKGdldF90YXJnZXRfZnJvbV9w
+YXRoICRfcGF0aCkKKwkJX3RhcmdldD0kKHRvX2Rldl9uYW1lICRfdGFyZ2V0KQorCQlfbmV3X2Zz
+dHlwZT0kKGdldF9mc190eXBlX2Zyb21fdGFyZ2V0ICRfdGFyZ2V0KQogCQlpZiBbWyAteiAiJF90
+YXJnZXQiIHx8IC16ICIkX25ld19mc3R5cGUiIF1dO3RoZW4KIAkJCWVjaG8gIkR1bXAgcGF0aCAk
+X3BhdGggZG9lcyBub3QgZXhpc3QiCiAJCQlyZXR1cm4gMgotLSAKMi43LjQKCg==
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

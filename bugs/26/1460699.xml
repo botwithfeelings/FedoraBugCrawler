@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1460699</bug_id>
+          
+          <creation_ts>2017-06-12 08:26:00 -0400</creation_ts>
+          <short_desc>add ability for svirt_t to read files labelled with sssd_public_t</short_desc>
+          <delta_ts>2017-06-26 15:13:13 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>selinux-policy</component>
+          <version>26</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Alexander Bokovoy">abokovoy</reporter>
+          <assigned_to name="Lukas Vrabec">lvrabec</assigned_to>
+          <cc>dominick.grift</cc>
+    
+    
+    <cc>dwalsh</cc>
+    
+    
+    <cc>lvrabec</cc>
+    
+    
+    <cc>mgrepl</cc>
+    
+    
+    <cc>plautrba</cc>
+    
+    
+    <cc>pmoore</cc>
+    
+    
+    <cc>ssekidde</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>selinux-policy-3.13.1-259.fc26</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-06-26 15:13:13</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10497664</commentid>
+    <comment_count>0</comment_count>
+    <who name="Alexander Bokovoy">abokovoy</who>
+    <bug_when>2017-06-12 08:26:36 -0400</bug_when>
+    <thetext>In order to allow qemu to authenticate SPICE connections with SASL GSSAPI when SSSD is in use, one needs to make sure svirt_t processes are allowed to read files in /var/lib/sss/pubconf/krb5.conf.d/.
+
+Right now only ability to read the directory in question is allowed:
+[pid  4018] open(&quot;/var/lib/sss/pubconf/krb5.include.d/&quot;, O_RDONLY|O_NONBLOCK|O_DIRECTORY|O_CLOEXEC) = 32
+[pid  4018] open(&quot;/var/lib/sss/pubconf/krb5.include.d//domain_realm_example_com&quot;, O_RDONLY) = -1 EACCES (Permission denied)
+
+# sesearch -A -s svirt_t|grep sssd
+allow svirt_t sssd_public_t:dir read;
+
+We need also rules to allow reading files:
+
+# echo &quot;(allow svirt_t sssd_public_t (file (read getattr open)))&quot; &gt; my-local-rule.cil &amp;&amp; semodule -i my-local-rule.cil
+
+After adding this temporary rule svirt_t process can complete initializing libkrb5 and offer SASL GSSAPI to its clients.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10497971</commentid>
+    <comment_count>1</comment_count>
+    <who name="Lukas Vrabec">lvrabec</who>
+    <bug_when>2017-06-12 09:47:13 -0400</bug_when>
+    <thetext>Alexander, 
+
+I added changes into Rawhide, F26 and F25</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10498105</commentid>
+    <comment_count>2</comment_count>
+    <who name="Alexander Bokovoy">abokovoy</who>
+    <bug_when>2017-06-12 10:19:54 -0400</bug_when>
+    <thetext>Thank you, Lukas.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10536280</commentid>
+    <comment_count>3</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-23 14:12:15 -0400</bug_when>
+    <thetext>selinux-policy-3.13.1-259.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-7b51a015cb</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10537674</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-24 21:19:59 -0400</bug_when>
+    <thetext>selinux-policy-3.13.1-259.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-7b51a015cb</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10541395</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-26 15:13:13 -0400</bug_when>
+    <thetext>selinux-policy-3.13.1-259.fc26 has been pushed to the Fedora 26 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

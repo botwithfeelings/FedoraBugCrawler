@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1457918</bug_id>
+          
+          <creation_ts>2017-06-01 10:15:00 -0400</creation_ts>
+          <short_desc>SELinux error while trying to create a new user</short_desc>
+          <delta_ts>2017-06-12 09:05:21 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>selinux-policy</component>
+          <version>26</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>medium</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Shakhar Dasgupta">shakhardasgupta</reporter>
+          <assigned_to name="Lukas Vrabec">lvrabec</assigned_to>
+          <cc>dominick.grift</cc>
+    
+    
+    <cc>dwalsh</cc>
+    
+    
+    <cc>lvrabec</cc>
+    
+    
+    <cc>mgrepl</cc>
+    
+    
+    <cc>plautrba</cc>
+    
+    
+    <cc>pmoore</cc>
+    
+    
+    <cc>ssekidde</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>selinux-policy-3.13.1-257.fc26</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-06-12 09:05:21</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10468956</commentid>
+    <comment_count>0</comment_count>
+    <who name="Shakhar Dasgupta">shakhardasgupta</who>
+    <bug_when>2017-06-01 10:15:14 -0400</bug_when>
+    <thetext>Description of problem:
+
+
+Fedora 26 Beta 1.4 Workstation
+
+
+How reproducible:
+
+
+Steps to Reproduce:
+1. Go to Settings -&gt; Users
+2. Unlock using root password
+3. Create new user
+
+Actual results:
+SELinux notifies &quot;SELinux is preventing useradd from using the net_admin capability&quot;. However, the new user account seems to work fine (not really sure when the net_admin capability is required).
+
+Expected results:
+No notification from SELinux.
+
+Error Log:
+--------------------------------------------------------------------------------
+SELinux is preventing useradd from using the net_admin capability.
+
+*****  Plugin catchall (100. confidence) suggests   **************************
+
+If you believe that useradd should have the net_admin capability by default.
+Then you should report this as a bug.
+You can generate a local policy module to allow this access.
+Do
+allow this access for now by executing:
+# ausearch -c &apos;useradd&apos; --raw | audit2allow -M my-useradd
+# semodule -X 300 -i my-useradd.pp
+
+Additional Information:
+Source Context                system_u:system_r:useradd_t:s0
+Target Context                system_u:system_r:useradd_t:s0
+Target Objects                Unknown [ capability ]
+Source                        useradd
+Source Path                   useradd
+Port                          &lt;Unknown&gt;
+Host                          localhost.localdomain
+Source RPM Packages          
+Target RPM Packages          
+Policy RPM                    selinux-policy-3.13.1-251.fc26.noarch
+Selinux Enabled               True
+Policy Type                   targeted
+Enforcing Mode                Enforcing
+Host Name                     localhost-live
+Platform                      Linux localhost-live 4.11.0-2.fc26.x86_64 #1 SMP
+                              Tue May 9 15:24:49 UTC 2017 x86_64 x86_64
+Alert Count                   14
+First Seen                    2017-06-01 04:13:56 EDT
+Last Seen                     2017-06-01 04:13:56 EDT
+Local ID                      24e05744-a44a-4e10-86f8-5e915802562a
+
+Raw Audit Messages
+type=AVC msg=audit(1496304836.749:254): avc:  denied  { net_admin } for  pid=2300 comm=&quot;useradd&quot; capability=12  scontext=system_u:system_r:useradd_t:s0 tcontext=system_u:system_r:useradd_t:s0 tclass=capability permissive=0
+
+
+Hash: useradd,useradd_t,useradd_t,capability,net_admin
+--------------------------------------------------------------------------------</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10469943</commentid>
+    <comment_count>1</comment_count>
+    <who name="Daniel Walsh">dwalsh</who>
+    <bug_when>2017-06-01 14:25:36 -0400</bug_when>
+    <thetext>It is definitely not required.  This should be dontaudited, but most likely a slight kernel issue.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10489024</commentid>
+    <comment_count>2</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-08 07:09:24 -0400</bug_when>
+    <thetext>selinux-policy-3.13.1-257.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-6a43388229</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10494899</commentid>
+    <comment_count>3</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-09 21:09:25 -0400</bug_when>
+    <thetext>selinux-policy-3.13.1-257.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-6a43388229</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10497803</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-12 09:05:21 -0400</bug_when>
+    <thetext>selinux-policy-3.13.1-257.fc26 has been pushed to the Fedora 26 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

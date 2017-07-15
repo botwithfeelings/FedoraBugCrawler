@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1365658</bug_id>
+          
+          <creation_ts>2016-08-09 14:54:00 -0400</creation_ts>
+          <short_desc>Several pcp daemons could benefit from auto-restart</short_desc>
+          <delta_ts>2016-10-25 20:58:01 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>pcp</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Frank Ch. Eigler">fche</reporter>
+          <assigned_to name="Nathan Scott">nathans</assigned_to>
+          <cc>brolley</cc>
+    
+    
+    <cc>fche</cc>
+    
+    
+    <cc>lberk</cc>
+    
+    
+    <cc>mbenitez</cc>
+    
+    
+    <cc>mgoodwin</cc>
+    
+    
+    <cc>nathans</cc>
+    
+    
+    <cc>patrickm</cc>
+    
+    
+    <cc>pcp</cc>
+    
+    
+    <cc>scox</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>pcp-3.11.5-1.el5 pcp-3.11.5-1.fc24 pcp-3.11.5-1.fc23 pcp-3.11.5-1.fc25</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-10-25 12:16:44</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9600207</commentid>
+    <comment_count>0</comment_count>
+      <attachid>1189379</attachid>
+    <who name="Frank Ch. Eigler">fche</who>
+    <bug_when>2016-08-09 14:54:41 -0400</bug_when>
+    <thetext>Created attachment 1189379
+implementation for systemd
+
+It has been reported that pmwebd sometimes crashes.  While the cause(s) are under investigation, this reminds one of other cases where bugs in libpcp or the tools themselves have caused OOM or crashes for pmwebd and pmmgr.  In order to protect the user from unnecessary outage of these services, they should be auto-restarted.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9600742</commentid>
+    <comment_count>1</comment_count>
+    <who name="Nathan Scott">nathans</who>
+    <bug_when>2016-08-09 19:33:40 -0400</bug_when>
+    <thetext>+1  - and the same potential benefits exist for pmcd and pmproxy, of course.
+
+As discussed here ...
+
+    http://www.pcp.io/pipermail/pcp/2016-May/010464.html
+    http://www.pcp.io/pipermail/pcp/2016-May/010519.html
+
+... the attached patch is incomplete and needs a little more work.
+
+Thanks for opening the BZ though - let&apos;s use it as a reminder that a patch like this one, and some QA testing work, is still needed.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9603717</commentid>
+    <comment_count>2</comment_count>
+    <who name="Frank Ch. Eigler">fche</who>
+    <bug_when>2016-08-10 13:07:48 -0400</bug_when>
+    <thetext>(In reply to Nathan Scott from comment #1)
+&gt; +1  - and the same potential benefits exist for pmcd and pmproxy, of course.
+
+Not &quot;of course&quot;.  Compared to pmwebd &amp; pmmgr, those daemons pose a much smaller load on libpcp and the system, and have been apprx. unaffected by crashes.
+
+
+&gt; As discussed here ...
+&gt; [...]
+&gt; ... the attached patch is incomplete and needs a little more work.
+
+The patches are complete for pmmgr &amp; pmwebd, the affected daemons.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9605502</commentid>
+    <comment_count>3</comment_count>
+    <who name="Nathan Scott">nathans</who>
+    <bug_when>2016-08-11 00:59:47 -0400</bug_when>
+    <thetext>(In reply to Frank Ch. Eigler from comment #2)
+&gt; 
+&gt; [...]  Compared to pmwebd &amp; pmmgr, those daemons pose a much
+&gt; smaller load on libpcp and the system,  [...]
+&gt; 
+
+pmcd and pmproxy can also potentially fail and so could benefit from this treatment, that&apos;s all I&apos;m saying.  In fact, you said it too...
+
+&gt; 
+&gt; The patches are complete for pmmgr &amp; pmwebd, the affected daemons.
+&gt; 
+
+Your own attached patch explicitly states that pmcd could benefit, and you are right there.  No doubt that was why you attempted to make it work earlier (i.e. before reverting your own changes in that area).
+
+
+Anyway, in the interests of moving things along I have completed this work and it&apos;s all been merged upstream (commit b0b6ab0746 for reference).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9748198</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-27 16:21:51 -0400</bug_when>
+    <thetext>pcp-3.11.5-1.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-8d14b648a5</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9749142</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-28 01:56:50 -0400</bug_when>
+    <thetext>pcp-3.11.5-1.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-ca5c041e73</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9749212</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-28 02:25:18 -0400</bug_when>
+    <thetext>pcp-3.11.5-1.fc23 has been pushed to the Fedora 23 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-b32e6fdc78</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9751865</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-28 21:15:59 -0400</bug_when>
+    <thetext>pcp-3.11.5-1.el5 has been pushed to the Fedora EPEL 5 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-EPEL-2016-63742f1d5b</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9820323</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-10-25 12:16:44 -0400</bug_when>
+    <thetext>pcp-3.11.5-1.el5 has been pushed to the Fedora EPEL 5 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9820928</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-10-25 16:21:31 -0400</bug_when>
+    <thetext>pcp-3.11.5-1.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9821262</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-10-25 19:50:40 -0400</bug_when>
+    <thetext>pcp-3.11.5-1.fc23 has been pushed to the Fedora 23 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9821377</commentid>
+    <comment_count>11</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-10-25 20:58:01 -0400</bug_when>
+    <thetext>pcp-3.11.5-1.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="0"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1189379</attachid>
+            <date>2016-08-09 14:54:00 -0400</date>
+            <delta_ts>2016-08-09 14:54:41 -0400</delta_ts>
+            <desc>implementation for systemd</desc>
+            <filename>k</filename>
+            <type>text/plain</type>
+            <size>2579</size>
+            <attacher name="Frank Ch. Eigler">fche</attacher>
+            
+              <data encoding="base64">Y29tbWl0IDE2NWQyOWVlOGNlNDkxYTA0MjI2Yzg3MWVkNDcxZGZmZDdkMDUwODYgKG9yaWdpbi9m
+Y2hlL3BtZnVudG9vbHMsIGZjaGUvcG1mdW50b29scykKQXV0aG9yOiBGcmFuayBDaC4gRWlnbGVy
+IDxmY2hlQHJlZGhhdC5jb20+CkRhdGU6ICAgU3VuIE1heSA4IDEwOjUwOjA2IDIwMTYgLTA0MDAK
+CiAgICBjcmFzaC1yZXNpbGllbmNlIGZvciBzeXN0ZW1kIHBtbWdyL3Btd2ViZAogICAgCiAgICBT
+d2l0Y2ggdG8gdXNpbmcgVW5pdD1mb3JraW5nIFJlc3RhcnQ9YWx3YXlzIGZvciB0aGVzZSBzZXJ2
+aWNlcy4KICAgIFRoZXkgbm93IGdldCBhdXRvLXJlc3RhcnRlZCBieSBzeXN0ZW1kIGlmIHRoZXkg
+Y3Jhc2ggb3IgYXJlIGtpbGwtOSdkLgogICAgVGhlIHNhbWUgdHJlYXRtZW50IGlzIHByb2JhYmx5
+IGFwcHJvcHJpYXRlIGZvciBwbWNkLgoKZGlmZiAtLWdpdCBhL3NyYy9wbW1nci9HTlVtYWtlZmls
+ZSBiL3NyYy9wbW1nci9HTlVtYWtlZmlsZQppbmRleCAyNmZjOGZmMTI5NTIuLmQxYTJkNDhhMWVm
+NSAxMDA2NDQKLS0tIGEvc3JjL3BtbWdyL0dOVW1ha2VmaWxlCisrKyBiL3NyYy9wbW1nci9HTlVt
+YWtlZmlsZQpAQCAtMzEsNyArMzEsOCBAQCBidWlsZC1tZTogJChTVUJESVJTKSAkKENYWE1EVEFS
+R0VUKSBwbW1nci5zZXJ2aWNlCiAJJChTVUJESVJTX01BS0VSVUxFKQogCiBwbW1nci5zZXJ2aWNl
+OiBwbW1nci5zZXJ2aWNlLmluCi0JJChTRUQpIC1lICdzO0BwYXRoQDsnJChQQ1BfUkNfRElSKSc7
+JyAkPCA+ICRACisJJChTRUQpIC1lICdzO0BQQ1BfUkNfRElSQDsnJChQQ1BfUkNfRElSKSc7JyBc
+CisJICAgICAgIC1lICdzO0BQQ1BfUlVOX0RJUkA7JyQoUENQX1JVTl9ESVIpJzsnICQ8ID4gJEAK
+IAogaW5zdGFsbDogJChTVUJESVJTKSAkKENYWE1EVEFSR0VUKQogCSQoU1VCRElSU19NQUtFUlVM
+RSkKZGlmZiAtLWdpdCBhL3NyYy9wbW1nci9wbW1nci5zZXJ2aWNlLmluIGIvc3JjL3BtbWdyL3Bt
+bWdyLnNlcnZpY2UuaW4KaW5kZXggY2NkYThiZmEyNWMzLi4yYjVkNGZmMGQwMWEgMTAwNjQ0Ci0t
+LSBhL3NyYy9wbW1nci9wbW1nci5zZXJ2aWNlLmluCisrKyBiL3NyYy9wbW1nci9wbW1nci5zZXJ2
+aWNlLmluCkBAIC01LDEwICs1LDExIEBAIFdhbnRzPWF2YWhpLWRhZW1vbi5zZXJ2aWNlCiBBZnRl
+cj1uZXR3b3JrLnRhcmdldCBhdmFoaS1kYWVtb24uc2VydmljZSBwbWNkLnNlcnZpY2UKIAogW1Nl
+cnZpY2VdCi1UeXBlPW9uZXNob3QKLUV4ZWNTdGFydD1AcGF0aEAvcG1tZ3Igc3RhcnQKLUV4ZWNT
+dG9wPUBwYXRoQC9wbW1nciBzdG9wCi1SZW1haW5BZnRlckV4aXQ9eWVzIAorVHlwZT1mb3JraW5n
+CitFeGVjU3RhcnQ9QFBDUF9SQ19ESVJAL3BtbWdyIHN0YXJ0CitFeGVjU3RvcD1AUENQX1JDX0RJ
+UkAvcG1tZ3Igc3RvcAorUmVzdGFydD1hbHdheXMKK1BJREZpbGU9QFBDUF9SVU5fRElSQC9wbW1n
+ci5waWQKIAogW0luc3RhbGxdCiBXYW50ZWRCeT1tdWx0aS11c2VyLnRhcmdldApkaWZmIC0tZ2l0
+IGEvc3JjL3Btd2ViYXBpL0dOVW1ha2VmaWxlIGIvc3JjL3Btd2ViYXBpL0dOVW1ha2VmaWxlCmlu
+ZGV4IDYyZDgxMmJiMTgzZi4uNDllYmNkOTM3NjdkIDEwMDY0NAotLS0gYS9zcmMvcG13ZWJhcGkv
+R05VbWFrZWZpbGUKKysrIGIvc3JjL3Btd2ViYXBpL0dOVW1ha2VmaWxlCkBAIC01Miw3ICs1Miw4
+IEBAIGlmZXEgIiQoRU5BQkxFX1dFQkFQSSkiICJ0cnVlIgogYnVpbGQtbWU6CSQoQ1hYTURUQVJH
+RVQpIHBtd2ViZC5zZXJ2aWNlCiAKIHBtd2ViZC5zZXJ2aWNlOglwbXdlYmQuc2VydmljZS5pbgot
+CSQoU0VEKSAtZSAncztAcGF0aEA7JyQoUENQX1JDX0RJUiknOycgJDwgPiAkQAorCSQoU0VEKSAt
+ZSAncztAUENQX1JDX0RJUkA7JyQoUENQX1JDX0RJUiknOycgXAorCSAgICAgICAtZSAncztAUENQ
+X1JVTl9ESVJAOyckKFBDUF9SVU5fRElSKSc7JyAkPCA+ICRACiAKIGluc3RhbGw6CWRlZmF1bHQK
+IAkkKElOU1RBTEwpIC1tIDc1NSAtZCBgZGlybmFtZSAkKFBDUF9QTVdFQkRPUFRJT05TX1BBVEgp
+YApkaWZmIC0tZ2l0IGEvc3JjL3Btd2ViYXBpL3Btd2ViZC5zZXJ2aWNlLmluIGIvc3JjL3Btd2Vi
+YXBpL3Btd2ViZC5zZXJ2aWNlLmluCmluZGV4IDE0ZmNkNjU3MWZiMy4uMmE3MTJhMzM0OTI3IDEw
+MDY0NAotLS0gYS9zcmMvcG13ZWJhcGkvcG13ZWJkLnNlcnZpY2UuaW4KKysrIGIvc3JjL3Btd2Vi
+YXBpL3Btd2ViZC5zZXJ2aWNlLmluCkBAIC01LDEwICs1LDExIEBAIFdhbnRzPWF2YWhpLWRhZW1v
+bi5zZXJ2aWNlCiBBZnRlcj1uZXR3b3JrLnRhcmdldCBhdmFoaS1kYWVtb24uc2VydmljZSBwbWNk
+LnNlcnZpY2UKICAKIFtTZXJ2aWNlXQotVHlwZT1vbmVzaG90Ci1FeGVjU3RhcnQ9QHBhdGhAL3Bt
+d2ViZCBzdGFydAotRXhlY1N0b3A9QHBhdGhAL3Btd2ViZCBzdG9wCi1SZW1haW5BZnRlckV4aXQ9
+eWVzIAotIAorVHlwZT1mb3JraW5nCitFeGVjU3RhcnQ9QFBDUF9SQ19ESVJAL3Btd2ViZCBzdGFy
+dAorRXhlY1N0b3A9QFBDUF9SQ19ESVJAL3Btd2ViZCBzdG9wCitSZXN0YXJ0PWFsd2F5cworUElE
+RmlsZT1AUENQX1JVTl9ESVJAL3Btd2ViZC5waWQKKwogW0luc3RhbGxdCiBXYW50ZWRCeT1tdWx0
+aS11c2VyLnRhcmdldAo=
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

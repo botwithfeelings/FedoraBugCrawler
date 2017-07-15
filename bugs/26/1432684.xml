@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1432684</bug_id>
+          
+          <creation_ts>2017-03-15 19:59:00 -0400</creation_ts>
+          <short_desc>Automatic SPICE server port assignment doesn&apos;t seem to work (second VM fails to start due to collision)</short_desc>
+          <delta_ts>2017-04-20 20:51:58 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>libvirt</component>
+          <version>26</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>medium</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Adam Williamson">awilliam</reporter>
+          <assigned_to name="Libvirt Maintainers">libvirt-maint</assigned_to>
+          <cc>agedosier</cc>
+    
+    
+    <cc>berrange</cc>
+    
+    
+    <cc>bugzilla-redhat</cc>
+    
+    
+    <cc>clalancette</cc>
+    
+    
+    <cc>crobinso</cc>
+    
+    
+    <cc>itamar</cc>
+    
+    
+    <cc>laine</cc>
+    
+    
+    <cc>libvirt-maint</cc>
+    
+    
+    <cc>veillard</cc>
+    
+    
+    <cc>virt-maint</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-03-16 18:25:15</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10243949</commentid>
+    <comment_count>0</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2017-03-15 19:59:03 -0400</bug_when>
+    <thetext>I have two VMs configured in virt-manager on my F26 box with a spice server. I set both up identically: Type &quot;Spice server&quot;, Address &quot;Hypervisor default&quot;, Port &quot;Auto&quot;, TLS port &quot;Auto&quot;. But if I start one then try to start the other, I get an error:
+
+Error starting domain: internal error: qemu unexpectedly closed the monitor: 
+(process:7985): Spice-WARNING **: reds.c:2577:reds_init_socket: listen: Address already in use
+2017-03-15T23:57:46.288270Z qemu-system-x86_64: failed to initialize spice server
+
+Traceback (most recent call last):
+  File &quot;/usr/share/virt-manager/virtManager/asyncjob.py&quot;, line 88, in cb_wrapper
+    callback(asyncjob, *args, **kwargs)
+  File &quot;/usr/share/virt-manager/virtManager/asyncjob.py&quot;, line 124, in tmpcb
+    callback(*args, **kwargs)
+  File &quot;/usr/share/virt-manager/virtManager/libvirtobject.py&quot;, line 83, in newfn
+    ret = fn(self, *args, **kwargs)
+  File &quot;/usr/share/virt-manager/virtManager/domain.py&quot;, line 1404, in startup
+    self._backend.create()
+  File &quot;/usr/lib64/python2.7/site-packages/libvirt.py&quot;, line 1035, in create
+    if ret == -1: raise libvirtError (&apos;virDomainCreate() failed&apos;, dom=self)
+libvirtError: internal error: qemu unexpectedly closed the monitor: 
+(process:7985): Spice-WARNING **: reds.c:2577:reds_init_socket: listen: Address already in use
+2017-03-15T23:57:46.288270Z qemu-system-x86_64: failed to initialize spice server
+
+It seems like it tries to use the same port for the SPICE server for both. If I set one to &apos;manual&apos; and give it port 5901 or something, I can start both successfully.
+
+[root@adam openqa (master %)]# rpm -q virt-manager libvirt
+virt-manager-1.4.0-6.fc26.noarch
+libvirt-3.0.0-2.fc26.x86_64</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10247622</commentid>
+    <comment_count>1</comment_count>
+    <who name="Cole Robinson">crobinso</who>
+    <bug_when>2017-03-16 18:17:34 -0400</bug_when>
+    <thetext>I just tried with libvirt-daemon-3.1.0-1.fc26.x86_64 and couldn&apos;t reproduce, both VMs received unique ports. Can you try that version, restart libvirtd, and test again?
+
+If you still hit the issue, please provide   sudo virsh dumpxml $vmname   for each VM</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10247669</commentid>
+    <comment_count>2</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2017-03-16 18:25:15 -0400</bug_when>
+    <thetext>Yeah, after a reboot with 3.1.0 it seems OK. Will re-open if it shows up again.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10351864</commentid>
+    <comment_count>3</comment_count>
+    <who name="Brian">bugzilla-redhat</who>
+    <bug_when>2017-04-20 20:51:58 -0400</bug_when>
+    <thetext>Confirmed in libvirt-daemon-3.2.0-1.fc26.x86_64
+
+Deleting all of the serial ports seemed to help, but it was kinda screwy.  I apologize for my lack of proper debugging, but had to get vm&apos;s back up.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

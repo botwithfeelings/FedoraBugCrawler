@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1373199</bug_id>
+          
+          <creation_ts>2016-09-05 09:14:00 -0400</creation_ts>
+          <short_desc>sudo fails to report error correctly when exec fails</short_desc>
+          <delta_ts>2017-04-20 07:07:35 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>sudo</component>
+          <version>26</version>
+          <rep_platform>All</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>CURRENTRELEASE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords>Triaged</keywords>
+          <priority>unspecified</priority>
+          <bug_severity>medium</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Jakub Jelen">jjelen</reporter>
+          <assigned_to name="Daniel Kopeček">dkopecek</assigned_to>
+          <cc>dkopecek</cc>
+    
+    
+    <cc>kzak</cc>
+    
+    
+    <cc>rsroka</cc>
+    
+    
+    <cc>tosykora</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>sudo-1.8.20-0.1.b1.fc26</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          <cf_clone_of>828782</cf_clone_of>
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-04-20 04:40:46</cf_last_closed>
+          <cf_type>---</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9679654</commentid>
+    <comment_count>0</comment_count>
+    <who name="Jakub Jelen">jjelen</who>
+    <bug_when>2016-09-05 09:14:15 -0400</bug_when>
+    <thetext>+++ This bug was initially created as a clone of Bug #828782 (slightly updated) +++
+
+sudo fails to report the error correctly when the execv(3) library call fails. 
+
+Version-Release number of selected component (if applicable): sudo-1.8.17p1-1.fc24.x86_64
+sudo-1.8.18b2-1.fc26.x86_64
+
+How reproducible: Always
+
+Steps to Reproduce:
+
+Perform the following steps:
+cat &lt;&lt;EOF &gt;script
+#!/bin/some_nonexistent_shell
+wibble wobble
+EOF
+
+chmod +x foo
+
+# An attempt to exec foo will give an error due to a missing interpreter
+# ./script; echo $?
+-bash: ./script: /bin/some_nonexistent_shell: bad interpreter: No such file or directory
+126
+
+# An attempt by sudo to exec foo will give wrong exit code
+# sudo ./script; echo $?
+sudo: unable to execute ./script: No such file or directory
+0
+
+Actual results:
+exit code 0
+
+Expected results:
+exit code 126 or similar
+
+
+Additional info:
+If I understand the debug messages, I see two (debug) return codes in the end of exectution, but only the second is obviously real return/exit:
+
+Sep  5 14:15:52 sudo[17953] &lt;- main @ ./sudo.c:330 := 129
+Sep  5 14:15:52 sudo[17953] &lt;- main @ ./sudo.c:334 := 0
+
+If I see right, the intention was something like this:
+
+diff --git a/src/sudo.c b/src/sudo.c
+index 58085e9..c7e771e 100644
+--- a/src/sudo.c
++++ b/src/sudo.c
+@@ -329,6 +329,7 @@ main(int argc, char *argv[], char *envp[])
+ 	sudo_debug_exit_int(__func__, __FILE__, __LINE__, sudo_debug_subsys,
+ 	    WTERMSIG(status) | 128);                
+ 	kill(getpid(), WTERMSIG(status));
++	exit(WTERMSIG(status) | 128);
+     }
+     sudo_debug_exit_int(__func__, __FILE__, __LINE__, sudo_debug_subsys,
+ 	WEXITSTATUS(status));
+
+Testing this specific use case gives me the expected results. Though not sure if it behaves correctly for all the other cases.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10191156</commentid>
+    <comment_count>1</comment_count>
+    <who name="Fedora End Of Life">jkurik</who>
+    <bug_when>2017-02-28 05:12:24 -0500</bug_when>
+    <thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 26 development cycle.
+Changing version to &apos;26&apos;.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10348729</commentid>
+    <comment_count>2</comment_count>
+    <who name="Daniel Kopeček">dkopecek</who>
+    <bug_when>2017-04-20 04:39:11 -0400</bug_when>
+    <thetext>Seems to work with the current version
+
+$ sudo ./script; echo $?
+sudo: unable to execute ./script: No such file or directory
+1</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10349126</commentid>
+    <comment_count>3</comment_count>
+    <who name="Jakub Jelen">jjelen</who>
+    <bug_when>2017-04-20 06:44:25 -0400</bug_when>
+    <thetext>Exit code 1 does not seem to equal to 126 as we can see from the script running without sudo.
+
+$ ./script; echo $?
+bash: ./script: /bin/some_nonexistent_shell: bad interpreter: No such file or directory
+126
+
+$ sudo ./script; echo $?
+sesh: unable to execute ./script: No such file or directory
+1
+
+And at Fedora 25 I am still getting `sesh` instead of `sudo`. That is also intentional?
+
+sudo-1.8.19p2-1.fc25.x86_64</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10349193</commentid>
+    <comment_count>4</comment_count>
+    <who name="Daniel Kopeček">dkopecek</who>
+    <bug_when>2017-04-20 07:07:35 -0400</bug_when>
+    <thetext>(In reply to Jakub Jelen from comment #3)
+&gt; Exit code 1 does not seem to equal to 126 as we can see from the script
+&gt; running without sudo.
+
+This is documented behaviour. Please read the &quot;EXIT VALUE&quot; section in the sudo man page.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

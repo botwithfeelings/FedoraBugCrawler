@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1374089</bug_id>
+          
+          <creation_ts>2016-09-07 19:35:00 -0400</creation_ts>
+          <short_desc>Trivial tap script won&apos;t compile</short_desc>
+          <delta_ts>2016-09-27 10:52:17 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>systemtap</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>high</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="David Gibson">dgibson</reporter>
+          <assigned_to name="Frank Ch. Eigler">fche</assigned_to>
+          <cc>brolley</cc>
+    
+    
+    <cc>dsmith</cc>
+    
+    
+    <cc>fche</cc>
+    
+    
+    <cc>jistone</cc>
+    
+    
+    <cc>lberk</cc>
+    
+    
+    <cc>mjw</cc>
+    
+    
+    <cc>scox</cc>
+    
+    
+    <cc>wcohen</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>systemtap-3.0-4.fc24 systemtap-3.0-4.fc23</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-09-13 18:23:22</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9688539</commentid>
+    <comment_count>0</comment_count>
+    <who name="David Gibson">dgibson</who>
+    <bug_when>2016-09-07 19:35:56 -0400</bug_when>
+    <thetext>Description of problem:
+
+Running an systemtap script - even a trivial one - seems to just generate compile errors building the prove module.
+
+Version-Release number of selected component (if applicable):
+
+systemtap-3.0-3.fc24.x86_64
+kernel-debuginfo-4.7.2-201.fc24.x86_64
+
+How reproducible:
+
+100%
+
+Steps to Reproduce:
+1.  Create trivial.stp with this contents:
+
+    probe begin {
+      printf(&quot;Trace begin...\n&quot;);
+    }
+
+2. Run stap trivial.stp
+
+Actual results:
+
+$ stap trivial.stp 
+In file included from /usr/share/systemtap/runtime/linux/print.c:17:0,
+                 from /usr/share/systemtap/runtime/print.c:17,
+                 from /usr/share/systemtap/runtime/runtime_context.h:22,
+                 from /tmp/stapMWkzhS/stap_4b9ee4e0e9a367524bd62b81d8ea8a46_823_src.c:50:
+/usr/share/systemtap/runtime/transport/transport.c: In function ‘_stp_lock_inode’:
+/usr/share/systemtap/runtime/transport/transport.c:494:19: error: ‘struct inode’ has no member named ‘i_mutex’; did you mean ‘i_mode’?
+  mutex_lock(&amp;inode-&gt;i_mutex);
+                   ^~
+/usr/share/systemtap/runtime/transport/transport.c: In function ‘_stp_unlock_inode’:
+/usr/share/systemtap/runtime/transport/transport.c:503:21: error: ‘struct inode’ has no member named ‘i_mutex’; did you mean ‘i_mode’?
+  mutex_unlock(&amp;inode-&gt;i_mutex);
+                     ^~
+scripts/Makefile.build:289: recipe for target &apos;/tmp/stapMWkzhS/stap_4b9ee4e0e9a367524bd62b81d8ea8a46_823_src.o&apos; failed
+make[1]: *** [/tmp/stapMWkzhS/stap_4b9ee4e0e9a367524bd62b81d8ea8a46_823_src.o] Error 1
+Makefile:1461: recipe for target &apos;_module_/tmp/stapMWkzhS&apos; failed
+make: *** [_module_/tmp/stapMWkzhS] Error 2
+WARNING: kbuild exited with status: 2
+Pass 4: compilation failed.  [man error::pass4]
+
+
+Expected results:
+
+Script runs and prints the begin message.
+
+Additional info:</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9688546</commentid>
+    <comment_count>1</comment_count>
+    <who name="Frank Ch. Eigler">fche</who>
+    <bug_when>2016-09-07 19:39:36 -0400</bug_when>
+    <thetext>Yeah, kernel 4.7 mandates a newer snapshot of git stap, or else https://sourceware.org/bugzilla/show_bug.cgi?id=20132 .</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9688577</commentid>
+    <comment_count>2</comment_count>
+    <who name="Frank Ch. Eigler">fche</who>
+    <bug_when>2016-09-07 20:03:34 -0400</bug_when>
+    <thetext>Would you be able to test the builds for the backport option on your box?
+
+https://koji.fedoraproject.org/koji/buildinfo?buildID=798612</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9689134</commentid>
+    <comment_count>3</comment_count>
+    <who name="David Gibson">dgibson</who>
+    <bug_when>2016-09-08 01:23:12 -0400</bug_when>
+    <thetext>Thanks for the link.  I&apos;ve tried the koji build and so far it&apos;s looking good.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9690491</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-08 08:25:51 -0400</bug_when>
+    <thetext>systemtap-3.0-4.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-32ee377ff2</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9690659</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-08 09:06:22 -0400</bug_when>
+    <thetext>systemtap-3.0-4.fc23 has been submitted as an update to Fedora 23. https://bodhi.fedoraproject.org/updates/FEDORA-2016-0ab60daf6d</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9695058</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-09 13:57:05 -0400</bug_when>
+    <thetext>systemtap-3.0-4.fc23 has been pushed to the Fedora 23 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-0ab60daf6d</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9699663</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-12 11:27:48 -0400</bug_when>
+    <thetext>systemtap-3.0-4.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-32ee377ff2</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9704890</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-13 18:23:17 -0400</bug_when>
+    <thetext>systemtap-3.0-4.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9746978</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-27 10:52:17 -0400</bug_when>
+    <thetext>systemtap-3.0-4.fc23 has been pushed to the Fedora 23 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

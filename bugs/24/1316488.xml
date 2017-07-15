@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1316488</bug_id>
+          
+          <creation_ts>2016-03-10 06:04:00 -0500</creation_ts>
+          <short_desc>Existing connection settings are not associated with new hot plugged interfaces</short_desc>
+          <delta_ts>2016-03-26 14:01:55 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>NetworkManager</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords>Reopened</keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Marius Vollmer">mvollmer</reporter>
+          <assigned_to name="Beniamino Galvani">bgalvani</assigned_to>
+          <cc>bgalvani</cc>
+    
+    
+    <cc>dcbw</cc>
+    
+    
+    <cc>lkundrak</cc>
+    
+    
+    <cc>psimerda</cc>
+    
+    
+    <cc>thaller</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>NetworkManager-1.2.0-0.7.beta2.fc24</cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-03-26 14:01:55</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9137549</commentid>
+    <comment_count>0</comment_count>
+    <who name="Marius Vollmer">mvollmer</who>
+    <bug_when>2016-03-10 06:04:29 -0500</bug_when>
+    <thetext>Description of problem:
+
+When hot plugging a new network interface while connection settings exist that match the new interface, NetworkManager fails to add those matching connections to the AvailableConnections D-Bus property. This used to happen on Fedora 23.
+
+Version-Release number of selected component (if applicable):
+NetworkManager-1.2.0-0.6.beta2.fc24.x86_64
+
+How reproducible:
+Always
+
+Steps to Reproduce:
+1. Create a Fedora 24 VM.  We use this image:
+   https://fedorapeople.org/groups/cockpit/images/fedora-24-9e30160225aa97bca1caf24c035ac61925da570e.qcow2.xz
+
+2. nmcli connection add type ethernet ifname &apos;*&apos; con-name TEST mac 3.52:54:00:9e:00:F2
+   nmcli connection modify TEST ipv4.method link-local
+
+3. Add a new network interface to the VM with that mac.
+
+4. nmcli device connect ensN
+   where ensN is the name of the new interface
+
+Actual results:
+ensN is brought up with new, default connection settings and gets a address via DHCP.
+
+Expected results:
+ensN is brought up according to TEST, with a link-local address
+
+Additional info:
+I haven&apos;t actually verified the steps above... This happens in our integration tests and we can work around it by first adding the interface and then creating the connection.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9137685</commentid>
+    <comment_count>1</comment_count>
+    <who name="Marius Vollmer">mvollmer</who>
+    <bug_when>2016-03-10 06:34:13 -0500</bug_when>
+    <thetext>Update for reproduction steps
+
+I have tested this with the linked image, and the behavior is essentially as described, with a little twist:
+
+1. Create a Fedora 24 VM.  We use this image:
+   https://fedorapeople.org/groups/cockpit/images/fedora-24-9e30160225aa97bca1caf24c035ac61925da570e.qcow2.xz
+
+2. nmcli connection add type ethernet ifname &apos;*&apos; con-name TEST mac 3.52:54:00:9e:00:F2
+   nmcli connection modify TEST ipv4.method link-local
+
+3. Add a new network interface to the VM with that mac.
+
+   NetworkManager will connect the new device, using TEST according to nmcli:
+
+# nmcli device
+DEVICE  TYPE      STATE      CONNECTION         
+ens3    ethernet  connected  Wired connection 1 
+ens9    ethernet  connected  TEST               
+lo      loopback  unmanaged  --           
+
+5. gdbus introspect -y -d org.freedesktop.NetworkManager -o /org/freedesktop/NetworkManager/Devices/M
+   where M is the index for the new interface, most likely 2.
+
+   AvailableConnections is empty, while I expect it to contain TEST.
+
+6. nmcli device disconnect ensN
+   where ensN is the name of the new interface
+
+7. nmcli device connect ensN
+
+   NetworkManager will create a new connection, called &quot;ensN&quot;.
+
+# nmcli c s
+NAME                UUID                                  TYPE            DEVICE 
+Wired connection 1  23201619-b2e0-4910-9d4d-9b9f2699a618  802-3-ethernet  ens3   
+ens9                2057a599-f0af-4a0f-8089-3e8a7cbe5c7b  802-3-ethernet  ens9   
+TEST                d1576574-ff36-4d0f-9554-5f0d061c71ae  802-3-ethernet  --     
+ens2                07b98957-ba27-4cff-9a9d-ecac726ccb42  802-3-ethernet  --  
+
+8. gdbus introspect -y -d org.freedesktop.NetworkManager -o /org/freedesktop/NetworkManager/Devices/M
+
+   AvailableConnections now has one connection in it, ensN.
+
+9. Reboot
+
+10. gdbus introspect -y -d org.freedesktop.NetworkManager -o /org/freedesktop/NetworkManager/Devices/K
+    where K is the index of the hotplugged interface, which is probably different now
+
+    AvailableConnections is empty.  Thus NM didn&apos;t recognize its own &quot;ensN&quot; connection either after a reboot.
+
+11. nmcli device disconnect ensN
+
+12. nmcli device connect ensN
+
+    NetworkManager again makes a new connection:
+
+# nmcli c s
+NAME                UUID                                  TYPE            DEVICE 
+Wired connection 1  a8a43ea4-08e7-478c-9d22-0487acf9821d  802-3-ethernet  ens3   
+ens9                40bfd174-738e-415d-b08a-a83b944075f7  802-3-ethernet  ens9   
+TEST                d1576574-ff36-4d0f-9554-5f0d061c71ae  802-3-ethernet  --     
+ens2                07b98957-ba27-4cff-9a9d-ecac726ccb42  802-3-ethernet  --     
+ens9                2057a599-f0af-4a0f-8089-3e8a7cbe5c7b  802-3-ethernet  --</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9138500</commentid>
+    <comment_count>2</comment_count>
+    <who name="Marius Vollmer">mvollmer</who>
+    <bug_when>2016-03-10 09:48:18 -0500</bug_when>
+    <thetext>Please also see bug 1316592, which might be a different symptom of the same bug.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9140713</commentid>
+    <comment_count>3</comment_count>
+    <who name="Marius Vollmer">mvollmer</who>
+    <bug_when>2016-03-11 03:48:51 -0500</bug_when>
+    <thetext>Here is another pattern that doesn&apos;t involve hotplug.
+
+In a VM with a single network interface, the AvailableConnections property of that device is empty right after boot, but gets the correct value after &quot;systemctl restart NetworkManager&quot;.
+
+The single network interface is called &quot;ens3&quot; in my case, and it probably gets renamed from eth0 to ens3 during boot.  So maybe NM has trouble tracking interface renaming.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9141750</commentid>
+    <comment_count>4</comment_count>
+      <attachid>1135262</attachid>
+    <who name="Beniamino Galvani">bgalvani</who>
+    <bug_when>2016-03-11 09:50:15 -0500</bug_when>
+    <thetext>Created attachment 1135262
+[PATCH] device: fix handling of available connections</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9149682</commentid>
+    <comment_count>5</comment_count>
+    <who name="Thomas Haller">thaller</who>
+    <bug_when>2016-03-15 10:40:42 -0400</bug_when>
+    <thetext>(In reply to Beniamino Galvani from comment #4)
+&gt; Created attachment 1135262 [details]
+&gt; [PATCH] device: fix handling of available connections
+
+LGTM</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9150111</commentid>
+    <comment_count>6</comment_count>
+    <who name="Beniamino Galvani">bgalvani</who>
+    <bug_when>2016-03-15 12:51:46 -0400</bug_when>
+    <thetext>Patch applied to master, it will be included in the final release of NM 1.2:
+
+https://cgit.freedesktop.org/NetworkManager/NetworkManager/commit/?id=ca5da5d80f3a21847bb807021e2e40d25bca50d0
+
+Thanks for reporting this!</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9150136</commentid>
+    <comment_count>7</comment_count>
+    <who name="Beniamino Galvani">bgalvani</who>
+    <bug_when>2016-03-15 13:02:59 -0400</bug_when>
+    <thetext>*** Bug 1316592 has been marked as a duplicate of this bug. ***</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9157910</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-03-17 18:10:52 -0400</bug_when>
+    <thetext>NetworkManager-1.2.0-0.6.beta2.1.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-e4d2697a0b</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9159830</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-03-18 10:56:23 -0400</bug_when>
+    <thetext>NetworkManager-1.2.0-0.6.beta2.1.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-e4d2697a0b</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9168280</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-03-22 06:32:45 -0400</bug_when>
+    <thetext>NetworkManager-1.2.0-0.7.beta2.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-e4d2697a0b</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9169963</commentid>
+    <comment_count>11</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-03-22 12:56:09 -0400</bug_when>
+    <thetext>NetworkManager-1.2.0-0.7.beta2.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-e4d2697a0b</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9180194</commentid>
+    <comment_count>12</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-03-26 14:01:49 -0400</bug_when>
+    <thetext>NetworkManager-1.2.0-0.7.beta2.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="0"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1135262</attachid>
+            <date>2016-03-11 09:50:00 -0500</date>
+            <delta_ts>2016-03-11 09:50:15 -0500</delta_ts>
+            <desc>[PATCH] device: fix handling of available connections</desc>
+            <filename>0001-device-fix-handling-of-available-connections.patch</filename>
+            <type>text/plain</type>
+            <size>2029</size>
+            <attacher name="Beniamino Galvani">bgalvani</attacher>
+            
+              <data encoding="base64">RnJvbSAwZGVkYjM4NjZlOGI0ZDVhNjEwZWQ5ZWNkMmZhNGE1NDdkMDI5M2U0IE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBCZW5pYW1pbm8gR2FsdmFuaSA8YmdhbHZhbmlAcmVkaGF0LmNv
+bT4KRGF0ZTogRnJpLCAxMSBNYXIgMjAxNiAxNTozNjozNSArMDEwMApTdWJqZWN0OiBbUEFUQ0hd
+IGRldmljZTogZml4IGhhbmRsaW5nIG9mIGF2YWlsYWJsZSBjb25uZWN0aW9ucwoKVGhlIHBydW5l
+IGxpc3QgaXMgZm9yIGVsZW1lbnRzIHRoYXQgbXVzdCBiZSBkZWxldGVkIGZyb20gdGhlIGxpc3Qg
+b2YKYXZhaWxhYmxlIGNvbm5lY3Rpb25zLiBTbywgd2hlbiBwcm9jZXNzaW5nIGFsbCB0aGUgZXhp
+c3RpbmcKY29ubmVjdGlvbnMgYW4gZWxlbWVudCBtdXN0IGJlIGRlbGV0ZWQgZnJvbSB0aGUgcHJ1
+bmUgbGlzdCBpZmYgaXQncwphdmFpbGFibGUuCgpGaXhlczogOGIyYWJlMGUyYzhmMTYyNTQ0YTI1
+NjJmYzE4YTdiZWNiYzU1ZDIzMwoKaHR0cHM6Ly9idWd6aWxsYS5yZWRoYXQuY29tL3Nob3dfYnVn
+LmNnaT9pZD0xMzE2NDg4Ci0tLQogc3JjL2RldmljZXMvbm0tZGV2aWNlLmMgfCAxMSArKysrKy0t
+LS0tLQogMSBmaWxlIGNoYW5nZWQsIDUgaW5zZXJ0aW9ucygrKSwgNiBkZWxldGlvbnMoLSkKCmRp
+ZmYgLS1naXQgYS9zcmMvZGV2aWNlcy9ubS1kZXZpY2UuYyBiL3NyYy9kZXZpY2VzL25tLWRldmlj
+ZS5jCmluZGV4IGVjNjMxNDcuLjY0YmI3ZGMgMTAwNjQ0Ci0tLSBhL3NyYy9kZXZpY2VzL25tLWRl
+dmljZS5jCisrKyBiL3NyYy9kZXZpY2VzL25tLWRldmljZS5jCkBAIC05NjU4LDI0ICs5NjU4LDIz
+IEBAIG5tX2RldmljZV9yZWNoZWNrX2F2YWlsYWJsZV9jb25uZWN0aW9ucyAoTk1EZXZpY2UgKnNl
+bGYpCiAJCQkJZ19oYXNoX3RhYmxlX2FkZCAocHJ1bmVfbGlzdCwgY29ubmVjdGlvbik7CiAJCX0K
+IAogCQljb25uZWN0aW9ucyA9IG5tX2Nvbm5lY3Rpb25fcHJvdmlkZXJfZ2V0X2Nvbm5lY3Rpb25z
+IChwcml2LT5jb25fcHJvdmlkZXIpOwogCQlmb3IgKGl0ZXIgPSBjb25uZWN0aW9uczsgaXRlcjsg
+aXRlciA9IGdfc2xpc3RfbmV4dCAoaXRlcikpIHsKIAkJCWNvbm5lY3Rpb24gPSBOTV9DT05ORUNU
+SU9OIChpdGVyLT5kYXRhKTsKIAogCQkJaWYgKG5tX2RldmljZV9jaGVja19jb25uZWN0aW9uX2F2
+YWlsYWJsZSAoc2VsZiwKLQkJCQkgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgY29u
+bmVjdGlvbiwKLQkJCQkgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgTk1fREVWSUNF
+X0NIRUNLX0NPTl9BVkFJTEFCTEVfTk9ORSwKLQkJCQkgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgTlVMTCkpIHsKKwkJCSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgIGNvbm5lY3Rpb24sCisJCQkgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICBOTV9ERVZJQ0VfQ0hFQ0tfQ09OX0FWQUlMQUJMRV9OT05FLAorCQkJICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgTlVMTCkpIHsKIAkJCQlpZiAoYXZhaWxh
+YmxlX2Nvbm5lY3Rpb25zX2FkZCAoc2VsZiwgY29ubmVjdGlvbikpCiAJCQkJCWNoYW5nZWQgPSBU
+UlVFOwotCQkJfSBlbHNlIHsKLQkJCQlpZiAocHJ1bmVfbGlzdCAmJiBnX2hhc2hfdGFibGVfcmVt
+b3ZlIChwcnVuZV9saXN0LCBjb25uZWN0aW9uKSkKLQkJCQkJY2hhbmdlZCA9IFRSVUU7CisJCQkJ
+aWYgKHBydW5lX2xpc3QpCisJCQkJCWdfaGFzaF90YWJsZV9yZW1vdmUgKHBydW5lX2xpc3QsIGNv
+bm5lY3Rpb24pOwogCQkJfQogCQl9CiAKIAkJaWYgKHBydW5lX2xpc3QpIHsKIAkJCWdfaGFzaF90
+YWJsZV9pdGVyX2luaXQgKCZoX2l0ZXIsIHBydW5lX2xpc3QpOwogCQkJd2hpbGUgKGdfaGFzaF90
+YWJsZV9pdGVyX25leHQgKCZoX2l0ZXIsIChncG9pbnRlciAqKSAmY29ubmVjdGlvbiwgTlVMTCkp
+IHsKIAkJCQlpZiAoYXZhaWxhYmxlX2Nvbm5lY3Rpb25zX2RlbCAoc2VsZiwgY29ubmVjdGlvbikp
+CiAJCQkJCWNoYW5nZWQgPSBUUlVFOwotLSAKMi41LjAKCg==
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

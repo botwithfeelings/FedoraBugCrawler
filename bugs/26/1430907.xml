@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1430907</bug_id>
+          
+          <creation_ts>2017-03-09 15:33:00 -0500</creation_ts>
+          <short_desc>Workstation live compose failed due to /dev umount error</short_desc>
+          <delta_ts>2017-03-10 18:59:03 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>distribution</component>
+          <version>26</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>CURRENTRELEASE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>urgent</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Adam Williamson">awilliam</reporter>
+          <assigned_to name="Václav Pavlín">vpavlin</assigned_to>
+          <cc>dennis</cc>
+    
+    
+    <cc>dgilmore</cc>
+    
+    
+    <cc>kevin</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-03-10 18:59:03</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10226351</commentid>
+    <comment_count>0</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2017-03-09 15:33:28 -0500</bug_when>
+    <thetext>This is similar to our old friend https://bugzilla.redhat.com/show_bug.cgi?id=1315541 , but doesn&apos;t look to have the same cause.
+
+The Fedora-26-20170309.n.0 Workstation live image compose failed:
+
+https://koji.fedoraproject.org/koji/taskinfo?taskID=18278005
+
+The problem is failure to umount /dev , again. anaconda&apos;s log - https://kojipkgs.fedoraproject.org//work/tasks/8005/18278005/anaconda-program.log - shows this:
+
+12:53:24,606 INFO program: Running... umount /mnt/sysimage/dev
+12:53:24,620 INFO program: stderr:
+12:53:24,620 INFO program: b&apos;umount: /mnt/sysimage/dev: target is busy&apos;
+12:53:24,621 INFO program: b&apos;        (In some cases useful info about processes that&apos;
+12:53:24,621 INFO program: b&apos;         use the device is found by lsof(8) or fuser(1).)&apos;
+12:53:24,622 DEBUG program: Return code: 32
+12:53:24,622 INFO program: Running... lsof /mnt/sysimage/dev
+12:53:24,796 INFO program: stdout:
+
+then the lsof output lists just about every running process, starting with systemd, indicating that possibly systemd is the culprit. Then, as usual, livemedia-creator tries to clean up the mount that anaconda left in place, and fails, and this is counted as a fatal error. See https://kojipkgs.fedoraproject.org//work/tasks/8005/18278005/root.log :
+
+DEBUG util.py:435:  2017-03-09 12:53:25,067: Error in atexit._run_exitfuncs:
+DEBUG util.py:435:  2017-03-09 12:53:25,068: Traceback (most recent call last):
+DEBUG util.py:435:  2017-03-09 12:53:25,068: File &quot;/usr/lib/python3.6/site-packages/blivet/threads.py&quot;, line 45, in run_with_lock
+DEBUG util.py:435:  2017-03-09 12:53:25,068: return m(*args, **kwargs)
+DEBUG util.py:435:  2017-03-09 12:53:25,068: File &quot;/usr/lib/python3.6/site-packages/blivet/blivet.py&quot;, line 1470, in umount_filesystems
+DEBUG util.py:435:  2017-03-09 12:53:25,068: self.fsset.umount_filesystems(swapoff=swapoff)
+DEBUG util.py:435:  2017-03-09 12:53:25,069: File &quot;/usr/lib/python3.6/site-packages/blivet/osinstall.py&quot;, line 664, in umount_filesystems
+DEBUG util.py:435:  2017-03-09 12:53:25,069: device.format.teardown()
+DEBUG util.py:435:  2017-03-09 12:53:25,069: File &quot;/usr/lib/python3.6/site-packages/blivet/threads.py&quot;, line 45, in run_with_lock
+DEBUG util.py:435:  2017-03-09 12:53:25,069: return m(*args, **kwargs)
+DEBUG util.py:435:  2017-03-09 12:53:25,069: File &quot;/usr/lib/python3.6/site-packages/blivet/formats/__init__.py&quot;, line 645, in teardown
+DEBUG util.py:435:  2017-03-09 12:53:25,070: self._teardown(**kwargs)
+DEBUG util.py:435:  2017-03-09 12:53:25,070: File &quot;/usr/lib/python3.6/site-packages/blivet/threads.py&quot;, line 45, in run_with_lock
+DEBUG util.py:435:  2017-03-09 12:53:25,070: return m(*args, **kwargs)
+DEBUG util.py:435:  2017-03-09 12:53:25,070: File &quot;/usr/lib/python3.6/site-packages/blivet/formats/fs.py&quot;, line 560, in _teardown
+DEBUG util.py:435:  2017-03-09 12:53:25,071: raise FSError(&quot;umount of %s failed (%d)&quot; % (mountpoint, rc))
+DEBUG util.py:435:  2017-03-09 12:53:25,071: blivet.errors.FSError: umount of /mnt/sysimage/dev failed (32)
+DEBUG util.py:435:  2017-03-09 12:53:59,498: Shutting down log processing
+DEBUG util.py:435:  2017-03-09 12:53:59,522: failed to unmount /mnt/sysimage/dev. retrying (1/3)...
+DEBUG util.py:435:  2017-03-09 12:54:00,606: failed to unmount /mnt/sysimage/dev. retrying (2/3)...
+DEBUG util.py:435:  2017-03-09 12:54:01,676: Cleanup of /mnt/sysimage/dev failed. See program.log for details
+DEBUG util.py:435:  2017-03-09 12:54:01,683: failed to unmount /mnt/sysimage. retrying (1/3)...
+DEBUG util.py:435:  2017-03-09 12:54:02,740: failed to unmount /mnt/sysimage. retrying (2/3)...
+DEBUG util.py:435:  2017-03-09 12:54:03,799: Cleanup of /mnt/sysimage failed. See program.log for details
+DEBUG util.py:435:  2017-03-09 12:54:03,800: Install failed: novirt_install cleanup of anaconda mounts failed.
+DEBUG util.py:435:  2017-03-09 12:54:03,801: Removing bad disk image
+DEBUG util.py:435:  2017-03-09 12:54:03,801: ERROR: Image creation failed: novirt_install cleanup of anaconda mounts failed.
+DEBUG util.py:573:  Child return code was: 1
+
+We need to investigate a bit more to figure out if this is a consistent error, or if it&apos;s another lottery situation, or what, but it&apos;s at least a potential F26 Alpha blocker, so proposing it as such.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10226356</commentid>
+    <comment_count>1</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2017-03-09 15:34:54 -0500</bug_when>
+    <thetext>dgilmore suggests that we may have changed from using chroot to systemd-nspawn as the mock isolation mechanism, and that could be the cause of the problem...</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10226394</commentid>
+    <comment_count>2</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2017-03-09 15:53:48 -0500</bug_when>
+    <thetext>Two others failed for the 26-20170309.n.0 compose:
+
+https://koji.fedoraproject.org/koji/taskinfo?taskID=18277617 (Python-Classroom-Live)
+https://koji.fedoraproject.org/koji/taskinfo?taskID=18277585 (Design_suite)
+
+Dennis says these are both based on Workstation.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10226567</commentid>
+    <comment_count>3</comment_count>
+    <who name="Dennis Gilmore">dgilmore</who>
+    <bug_when>2017-03-09 17:01:22 -0500</bug_when>
+    <thetext>gpg-agent was running and keeping /mnt/sysimage/dev/null open in the chroot. after further investigation chroot is still used so there is no chance of it being systemd-nspawn</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10226698</commentid>
+    <comment_count>4</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2017-03-09 18:23:59 -0500</bug_when>
+    <thetext>Dennis believes https://pagure.io/fedora-kickstarts/pull-request/160 and https://pagure.io/fedora-kickstarts/pull-request/161 should fix this.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10226709</commentid>
+    <comment_count>5</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2017-03-09 18:38:20 -0500</bug_when>
+    <thetext>Now merged, will wait for next compose.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10229857</commentid>
+    <comment_count>6</comment_count>
+    <who name="Dennis Gilmore">dennis</who>
+    <bug_when>2017-03-10 18:59:03 -0500</bug_when>
+    <thetext>Workstation live is back and working today</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

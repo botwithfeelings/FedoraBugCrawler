@@ -1,0 +1,508 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1192189</bug_id>
+          
+          <creation_ts>2015-02-12 14:43:00 -0500</creation_ts>
+          <short_desc>Both kernel-debug-core and kernel-core installed if xl2tpd package is in the package set</short_desc>
+          <delta_ts>2017-01-24 19:20:58 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>dnf</component>
+          <version>24</version>
+          <rep_platform>All</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          <see_also>https://bugzilla.redhat.com/show_bug.cgi?id=1406360</see_also>
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords>Triaged</keywords>
+          <priority>low</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>1192182</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Adam Williamson">awilliam</reporter>
+          <assigned_to>rpm-software-management</assigned_to>
+          <cc>akozumpl</cc>
+    
+    
+    <cc>awilliam</cc>
+    
+    
+    <cc>bruno</cc>
+    
+    
+    <cc>genes1122</cc>
+    
+    
+    <cc>hedayatv</cc>
+    
+    
+    <cc>johannespfrang+redhat</cc>
+    
+    
+    <cc>jwboyer</cc>
+    
+    
+    <cc>marco.hartgring</cc>
+    
+    
+    <cc>mluscon</cc>
+    
+    
+    <cc>mmraka</cc>
+    
+    
+    <cc>muhammad.saad</cc>
+    
+    
+    <cc>orion</cc>
+    
+    
+    <cc>packaging-team-maint</cc>
+    
+    
+    <cc>paul.lipps</cc>
+    
+    
+    <cc>pnemade</cc>
+    
+    
+    <cc>pomidorabelisima</cc>
+    
+    
+    <cc>pwouters</cc>
+    
+    
+    <cc>rdieter</cc>
+    
+    
+    <cc>rpm-software-management</cc>
+    
+    
+    <cc>samoht0-bugzilla</cc>
+    
+    
+    <cc>samuel-rhbugs</cc>
+    
+    
+    <cc>tla</cc>
+    
+    
+    <cc>vmukhame</cc>
+    
+    
+    <cc>yselkowi</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-01-21 14:21:29</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>7933858</commentid>
+    <comment_count>0</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2015-02-12 14:43:12 -0500</bug_when>
+    <thetext>While testing installs for the F22 Anaconda DNF Test Day today, we noticed something odd: KDE installs wound up with two kernels, both kernel-core and kernel-debug-core .
+
+After some investigation I was able to identify the issue.
+
+It boils down to another case of DNF not handling an ambiguous dependency situation as well as yum. The offending package is &apos;xl2tpd&apos;, which is pulled into the kde-desktop somehow (I didn&apos;t bother tracking down if it&apos;s explicitly included or just comes in as a dep of something else).
+
+xl2tpd requires &quot;kmod(l2tp_ppp.ko)&quot;. That is provided by all kernel -modules-extra packages. When you run &apos;yum install xl2tpd&apos; without a kernel installed (e.g. from a mock chroot), yum selects kernel-modules-extra to provide it. When you run &apos;dnf install xl2tpd&apos;, DNF selects kernel-debug-modules-extra .
+
+At install time, if your package set happens to have xl2tpd in it, when anaconda first resolves the deps of the packages selected for install, &apos;kernel-debug-core&apos; is pulled in to satisfy xl2tpd. Later, anaconda runs a method to ensure the &apos;preferred&apos; kernel is installed, dnfpayload.py&apos;s DNFPayload._select_kernel_package() . The logic of this method is (and has been for years, it&apos;s pretty much identical to the yumpayload one):
+
+1. If &apos;kernel&apos; is explicitly excluded figure the user knows what they&apos;re doing and don&apos;t install anything
+2. If &apos;kernel-PAE&apos; is available, install it
+3. Otherwise if we&apos;re on ARM and &apos;kernel-(platform)&apos; or &apos;kernel-lpae&apos; is available, install it
+4. Otherwise install &apos;kernel&apos;
+
+So the upshot is, that if your package set has xl2tpd in it, and the kernel currently in the repos is a &apos;production&apos; build (so kernel-debug exists), you get two kernels installed: kernel-core (as a dep of &apos;kernel&apos;) and kernel-debug-core (as a dep of &apos;kernel-debug-modules&apos;, a dep of &apos;kernel-debug-modules-extra&apos;).
+
+If you install with yum instead of dnf (by passing inst.nodnf), you only get one kernel, because kernel-modules-extra is selected to satisfy xl2tpd, not kernel-debug-modules-extra.
+
+I&apos;ll note that DNF&apos;s resolution here is really pretty dumb. Check this:
+
+&lt;mock-chroot&gt;sh-4.3# dnf install kernel
+...
+&lt;mock-chroot&gt;sh-4.3# rpm -q kernel kernel-core kernel-modules
+kernel-3.19.0-1.fc22.x86_64
+kernel-core-3.19.0-1.fc22.x86_64
+kernel-modules-3.19.0-1.fc22.x86_64
+&lt;mock-chroot&gt;sh-4.3# dnf install xl2tpd
+...
+Installing:
+...
+ kernel-debug-core             x86_64    3.19.0-1.fc22         rawhide     20 M
+ kernel-debug-modules          x86_64    3.19.0-1.fc22         rawhide     18 M
+ kernel-debug-modules-extra    x86_64    3.19.0-1.fc22         rawhide    2.3 M
+...
+
+That is, even if kernel-modules is already installed and it could satisfy the requirement with a single additional package - &apos;kernel-modules-extra&apos; - it prefers to install a whole separate kernel to satisfy the dep. This is significant because anaconda resolves deps once the whole &apos;desired&apos; package set is generated, so the package manager does have the cue of anaconda&apos;s &apos;preferred&apos; kernel package to go on.
+
+If you do an i686 F21 install with xl2tpd selected, yum correctly figures out it should install kernel-PAE-modules-extra to satisfy xl2tpd&apos;s dep, not kernel-modules-extra or kernel-debug-modules-extra or anything else, because it knows kernel-PAE is also selected.
+
+This case involves anaconda&apos;s behaviour as well as DNF&apos;s, but it&apos;s clearly primarily down to a difference in behaviour between DNF and yum, and so far anaconda devs are solidly of the opinion it should be resolved in DNF, not anaconda.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>7935569</commentid>
+    <comment_count>1</comment_count>
+    <who name="Honza Silhan">jsilhan</who>
+    <bug_when>2015-02-13 06:08:13 -0500</bug_when>
+    <thetext>Same story... We are trying to find a simple rules how fix the yum vs dnf resolved sets. Btw thanks for writing a comment at libsolv github selection by provide issue so it&apos;s developer gets a better insight to Fedora packaging problem.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>7936218</commentid>
+    <comment_count>2</comment_count>
+    <who name="Radek Holy">rholy</who>
+    <bug_when>2015-02-13 09:53:29 -0500</bug_when>
+    <thetext>Adam, out of curiosity, why Anaconda cannot add the preferred kernel to the same transaction as the other packages?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>7936724</commentid>
+    <comment_count>3</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2015-02-13 12:57:17 -0500</bug_when>
+    <thetext>It *does*. What it doesn&apos;t include is kernel-modules-extra, because most installs don&apos;t need it (that&apos;s why we have a split between kernel-modules and kernel-modules-extra in the first place). yum knows that, when a package needs a -modules-extra and we already have &apos;kernel&apos;, &apos;kernel-core&apos; and &apos;kernel-modules&apos; selected, it makes sense to pick &apos;kernel-modules-extra&apos;. DNF doesn&apos;t, and happily chooses &apos;kernel-debug-modules-extra&apos; - hence pulling in &apos;kernel-debug&apos;, &apos;kernel-debug-core&apos; and &apos;kernel-debug-modules&apos;.
+
+Sorry if the description wasn&apos;t clear. This is quite easy to play with:
+
+mock -r fedora-rawhide-x86_64 --clean
+mock -r fedora-rawhide-x86_64 --install dnf
+mock -r fedora-rawhide-x86_64 --install yum
+mock -r fedora-rawhide-x86_64 --shell
+dnf install kernel-modules
+dnf install xl2tpd (observe the list of deps, and say &apos;N&apos;)
+yum install xl2tpd (observe the list of deps, and compare to dnf)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8228681</commentid>
+    <comment_count>4</comment_count>
+    <who name="Hans de Goede">hdegoede</who>
+    <bug_when>2015-05-13 05:42:03 -0400</bug_when>
+    <thetext>*** Bug 1220821 has been marked as a duplicate of this bug. ***</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8429390</commentid>
+    <comment_count>5</comment_count>
+    <who name="Johannes Pfrang">johannespfrang+redhat</who>
+    <bug_when>2015-07-11 13:15:15 -0400</bug_when>
+    <thetext>Actually it seems, yum did the same thing in bug 1025301 comment 1 once.
+This was probably fixed in yum sometime, but didn&apos;t make it into dnf (or sth like that).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8432183</commentid>
+    <comment_count>6</comment_count>
+    <who name="Michael Mráka">mmraka</who>
+    <bug_when>2015-07-13 05:29:10 -0400</bug_when>
+    <thetext>The issue is that xl2tpd requires kmod(l2tp_ppp.ko) which is provided both by
+kernel-modules-extra and kernel-debug-modules-extra.
+
+So this is a kernel packaging problem. The kernel-debug* packages should provide something different than kmod(xyz), e.g. kmod-debug(xyz), for debug versions of modules.
+
+Because yum preferred packages with shorter name the issue was just silently hidden in yum.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8444434</commentid>
+    <comment_count>7</comment_count>
+    <who name="Jan Kurik">jkurik</who>
+    <bug_when>2015-07-15 10:33:28 -0400</bug_when>
+    <thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 23 development cycle.
+Changing version to &apos;23&apos;.
+
+(As we did not run this process for some time, it could affect also pre-Fedora 23 development
+cycle bugs. We are very sorry. It will help us with cleanup during Fedora 23 End Of Life. Thank you.)
+
+More information and reason for this action is here:
+https://fedoraproject.org/wiki/BugZappers/HouseKeeping/Fedora23</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8445630</commentid>
+    <comment_count>8</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2015-07-15 11:51:13 -0400</bug_when>
+    <thetext>&quot;Because yum preferred packages with shorter name the issue was just silently hidden in yum.&quot;
+
+That&apos;s one way to characterize it, sure. The other way to characterize it is, as I have been doing all along, that yum consistently produces results with ambiguous dependencies that humans find significantly better than dnf&apos;s, and dnf&apos;s hard-line refusal to dirty up their nice clean code to make things better for humans is a pain the butt.
+
+In any *single* case of ambiguous dependencies you can probably come up with some kind of tweak to the dependencies which helps out dnf, yes. But packagers being fallible, squishy humans, they&apos;re probably going to keep making *new* ambiguous dependencies, and it seems like dnf is going to keep sucking at resolving them.
+
+In any case I&apos;m not sure the change you suggest is really a sensible one, but the kernel team would know better whether it makes sense to &apos;flavor&apos; the kmod virtual provides.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8447628</commentid>
+    <comment_count>9</comment_count>
+    <who name="Radek Holy">rholy</who>
+    <bug_when>2015-07-16 03:06:17 -0400</bug_when>
+    <thetext>Well, but why does Yum &quot;consistently produces results with ambiguous dependencies that humans find significantly better than dnf&apos;s&quot;? Because maintainers abuse the knowledge about the Yum&apos;s algorithm of choosing providers. E.g. they choose a shorter name to make their package to be preferred. Or they choose a higher virtual provide version even if it does not match the reality. I think that they did &quot;come up with some kind of tweak to the dependencies which helps out&quot; Yum as well. What would Fedora do if someone creates a package foo-modules-extra which provides &quot;kmod(l2tp_ppp.ko)&quot; as well? Then, I think, Yum would choose this new package because it has shorter name [1]. Will they ask him to rename the package?
+
+My point is that we simply miss a Fedora recommended way how to express Fedora preferences. Until someone comes up with something like that, there is no reason to argue which workaround is better.
+
+[1] I&apos;m not sure here but you know what I mean. It is always possible to create a new package which will be more preferred by Yum.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8728769</commentid>
+    <comment_count>10</comment_count>
+    <who name="Orion Poplawski">orion</who>
+    <bug_when>2015-10-16 16:22:01 -0400</bug_when>
+    <thetext>FYI - this is hitting KDE kickstart installs because @kde-desktop includes plasma-nm-l2tp which ends up pulling in x2ltpd.  I&apos;ve alerted the KDE folks here: https://lists.fedoraproject.org/pipermail/kde/2015-October/016218.html</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8851246</commentid>
+    <comment_count>11</comment_count>
+    <who name="Hedayat Vatankhah">hedayatv</who>
+    <bug_when>2015-11-23 06:56:12 -0500</bug_when>
+    <thetext>How does DNF currently choose what packages to install to resolve a dependency when there are many options? If it is just the *first one* it finds, I&apos;ll suggest a probably better solution in such cases: it should select an option which pulls the least number of dependencies to be installed/updated. It certainly fixes the current situation and is not *hacky* at all. On the plus side, it even pulls the correct kernel-modules-extras package if a system is using kernel-debug packages rather than kernel packages.
+
+And even when all conditions are the same, it is better if DNF also has a predictable policy in choosing the package to be installed (e.g. smaller package name!), rather than being unpredictable. (Maybe it is predictably already? Why it chooses kernel-debug-modules extra currently?). And maybe it is better if RPM packages can express their preferences themselves, and DNF would choose the preferred provider in such cases. I&apos;m sure I&apos;ve seen such feature in a package format, but I&apos;m not sure if it was .rpm or .deb.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9479120</commentid>
+    <comment_count>12</comment_count>
+    <who name="samoht0">samoht0-bugzilla</who>
+    <bug_when>2016-07-04 13:41:19 -0400</bug_when>
+    <thetext>Bug still present when installing KDE with Fedora-Everything-netinst-x86_64-24-1.2.iso.
+I suggest changing F23 =&gt; F24.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9490315</commentid>
+    <comment_count>13</comment_count>
+    <who name="Fedora Admin XMLRPC Client">fedora-admin-xmlrpc</who>
+    <bug_when>2016-07-08 05:32:29 -0400</bug_when>
+    <thetext>This package has changed ownership in the Fedora Package Database.  Reassigning to the new owner of this component.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9759231</commentid>
+    <comment_count>14</comment_count>
+    <who name="samoht0">samoht0-bugzilla</who>
+    <bug_when>2016-10-01 18:12:11 -0400</bug_when>
+    <thetext>Where do we stand here?
+
+1) Dependency chain:
+plasma-nm-l2tp &gt; NetworkManager-l2tp &gt; xl2tpd (requires l2tp_ppp.ko) &gt; kernel-modules-extra
+2) Bodhi now put weak deps into metadata:
+https://github.com/fedora-infra/bodhi/issues/875
+
+So maybe a &quot;Suggests: kernel-modules-extra&quot; in xl2tpd could help the resolver to choose the non-debug kernel package. Assigning this to xl2tpd should be worth a try, I guess.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9775094</commentid>
+    <comment_count>15</comment_count>
+    <who name="samoht0">samoht0-bugzilla</who>
+    <bug_when>2016-10-08 07:48:37 -0400</bug_when>
+    <thetext>@Adam
+So what do you think about assigning this to xl2tpd to try to improve resolving with weak deps?
+BTW, I would like to see F25 shipping without this ugly bug.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9865719</commentid>
+    <comment_count>16</comment_count>
+    <who name="Honza Silhan">jsilhan</who>
+    <bug_when>2016-11-07 03:31:27 -0500</bug_when>
+    <thetext>*** Bug 1284228 has been marked as a duplicate of this bug. ***</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9865745</commentid>
+    <comment_count>17</comment_count>
+    <who name="Honza Silhan">jsilhan</who>
+    <bug_when>2016-11-07 03:43:16 -0500</bug_when>
+    <thetext>Please, consider adding &quot;Suggests&quot; tag as described in comment 14. DNF cannot guess which package it should choose as these provides are equal. xl2tpd seems to be the only package requiring &quot;kmod(l2tp_ppp.ko)&quot; so we don&apos;t need any general solution for that. More universal solution that comes to my mind is to add non-debug kernel packages weak dependency into fedora-repos [1] but there would need to be involved FESCo in the process.
+
+[1] https://fedoraproject.org/wiki/PackagingDrafts/ProvidesPreferences#Distribution_preference</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9956253</commentid>
+    <comment_count>18</comment_count>
+    <who name="Paul Wouters">pwouters</who>
+    <bug_when>2016-12-05 09:13:36 -0500</bug_when>
+    <thetext>so this is still not an xl2tpd bug. This should be re-assigned to either yum/dnf or kernel package.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9957269</commentid>
+    <comment_count>19</comment_count>
+    <who name="samoht0">samoht0-bugzilla</who>
+    <bug_when>2016-12-05 13:51:00 -0500</bug_when>
+    <thetext>(In reply to Paul Wouters from comment #18)
+&gt; so this is still not an xl2tpd bug. This should be re-assigned to either
+&gt; yum/dnf or kernel package.
+
+I&apos;m confused. Please explain your statement. Why exactly
+Suggests: kernel-modules-extra
+in spec won&apos;t work here to help the resolver?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9957692</commentid>
+    <comment_count>20</comment_count>
+    <who name="Paul Wouters">pwouters</who>
+    <bug_when>2016-12-05 16:44:35 -0500</bug_when>
+    <thetext>Will the suggests: tag ensure that kernel-modules-extra is installed? I mean, Then I can also just change the kmod(l2tp_ppp.ko) to kernel-modules-extra.
+
+Sine using the kernel module saves every single data packet from being send from kernel to userland and back to kernel, to then make it down the regular network stack, it really should be used when using xl2tpd.
+
+If kernel-modules-extra is supposed to be for more rarely used modules, perhaps l2tp.ko needs to move back into the core module set?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9957727</commentid>
+    <comment_count>21</comment_count>
+    <who name="Josh Boyer">jwboyer</who>
+    <bug_when>2016-12-05 17:09:08 -0500</bug_when>
+    <thetext>(In reply to Paul Wouters from comment #20)
+&gt; Will the suggests: tag ensure that kernel-modules-extra is installed? I
+&gt; mean, Then I can also just change the kmod(l2tp_ppp.ko) to
+&gt; kernel-modules-extra.
+
+Don&apos;t do that.  The entire point of introducing the Provides for individual modules is so that modules can move around within the kernel subpackages and userspace packages do not need to be updated to keep things working.
+
+&gt; Sine using the kernel module saves every single data packet from being send
+&gt; from kernel to userland and back to kernel, to then make it down the regular
+&gt; network stack, it really should be used when using xl2tpd.
+&gt; 
+&gt; If kernel-modules-extra is supposed to be for more rarely used modules,
+&gt; perhaps l2tp.ko needs to move back into the core module set?
+
+DNF needs to be fixed.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9961866</commentid>
+    <comment_count>22</comment_count>
+    <who name="samoht0">samoht0-bugzilla</who>
+    <bug_when>2016-12-06 14:59:31 -0500</bug_when>
+    <thetext>(In reply to Josh Boyer from comment #21)
+&gt; DNF needs to be fixed.
+
+I disagree.
+
+The resolver chooses a working package, so I consider the decision as week, no as wrong. I think no bug. But we don&apos;t need to argue, as this was already discussed here:
+
+https://bugzilla.redhat.com/show_bug.cgi?id=1349743
+
+Conclusion:
+1. Resolving is a matter of libsolv (not DNF).
+2. Libsolv Dev doesn&apos;t see proper options for improvements (#43).
+3. (Currently) Needs to be fixed at package level (what worked).
+
+@Paul
+So why no test with week deps? Won&apos;t break anything (even if it fails to help the resolver).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9962096</commentid>
+    <comment_count>23</comment_count>
+    <who name="Paul Wouters">pwouters</who>
+    <bug_when>2016-12-06 17:14:03 -0500</bug_when>
+    <thetext>How am I guaranteed that a year from now the weak deps won&apos;t get skipped and xl2tpd will not have the kernel module it wants for proper performance?
+
+The package requires the kernel module to be installed. Whoever is responsible for that should ensure the kernel module is installed. If xl2tpd needs to use a different syntax in the spec file to ensure the kernel module is installed, then I can update that.
+
+But a &quot;weak dependency&quot; is not what xl2tpd wants. It Requires: the kernel module.
+
+Should I leave the component to dnf or should the component be libsolv ?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9965662</commentid>
+    <comment_count>24</comment_count>
+    <who name="samoht0">samoht0-bugzilla</who>
+    <bug_when>2016-12-07 13:24:36 -0500</bug_when>
+    <thetext>(In reply to Paul Wouters from comment #23)
+&gt; How am I guaranteed that a year from now the weak deps won&apos;t get skipped and
+&gt; xl2tpd will not have the kernel module it wants for proper performance?
+
+Oh, there might be some misunderstanding here.
+
+It&apos;s *not* intended at all to remove
+&quot;Requires: ppp &gt;= 2.4.5-18, kmod(l2tp_ppp.ko)&quot;
+
+The module is &quot;required&quot; and will be installed, no matter which package will provide it in the future.
+
+The &quot;Suggests:&quot;-tag is just an addition, no a substitution.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10012287</commentid>
+    <comment_count>25</comment_count>
+    <who name="samoht0">samoht0-bugzilla</who>
+    <bug_when>2016-12-21 15:36:56 -0500</bug_when>
+    <thetext>So, why is there still no xl2tpd package with &quot;Suggests:&quot;-tag submitted for testing?
+
+I was pretty sure, the concerns and options were already properly discussed here.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10064245</commentid>
+    <comment_count>26</comment_count>
+    <who name="samoht0">samoht0-bugzilla</who>
+    <bug_when>2017-01-15 08:30:24 -0500</bug_when>
+    <thetext>Ping once more for xl2tpd F24 to F26 testing updates...</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10064461</commentid>
+    <comment_count>27</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-15 14:24:26 -0500</bug_when>
+    <thetext>xl2tpd-1.3.8-2.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2017-5e09aacd3f</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10064463</commentid>
+    <comment_count>28</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-15 14:24:44 -0500</bug_when>
+    <thetext>xl2tpd-1.3.8-2.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-d460c89c93</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10068103</commentid>
+    <comment_count>29</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-16 17:22:31 -0500</bug_when>
+    <thetext>xl2tpd-1.3.8-2.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-5e09aacd3f</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10068128</commentid>
+    <comment_count>30</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-16 17:23:06 -0500</bug_when>
+    <thetext>xl2tpd-1.3.8-2.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-d460c89c93</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10072831</commentid>
+    <comment_count>31</comment_count>
+    <who name="samoht0">samoht0-bugzilla</who>
+    <bug_when>2017-01-17 12:55:47 -0500</bug_when>
+    <thetext>Tested with F24.
+I removed all packages of the dependency chain and installed plasma-nm-l2tp with --enablerepo=updates-testing. This perfectly pulled in kernel-modules-extra.
+Removing --enablerepo=updates-testing from the dnf command leads to kernel-debug-modules-extra.
+So this is clearly fixed with xl2tpd-1.3.8-2.fc24 for now. Fine.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10086043</commentid>
+    <comment_count>32</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-21 14:21:29 -0500</bug_when>
+    <thetext>xl2tpd-1.3.8-2.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10093809</commentid>
+    <comment_count>33</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-24 19:20:58 -0500</bug_when>
+    <thetext>xl2tpd-1.3.8-2.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

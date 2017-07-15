@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1436094</bug_id>
+          
+          <creation_ts>2017-03-27 03:20:00 -0400</creation_ts>
+          <short_desc>Segmentation fault / Invalid read of size 8 in EVP_CIPHER_CTX_cleanup</short_desc>
+          <delta_ts>2017-04-01 13:32:31 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>libevent</component>
+          <version>26</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          <dependson>1423849</dependson>
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Remi Collet">fedora</reporter>
+          <assigned_to name="Steve Dickson">steved</assigned_to>
+          <cc>steved</cc>
+    
+    
+    <cc>tmraz</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>libevent-2.0.22-3.fc26</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-04-01 13:32:31</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10278198</commentid>
+    <comment_count>0</comment_count>
+    <who name="Remi Collet">fedora</who>
+    <bug_when>2017-03-27 03:20:11 -0400</bug_when>
+    <thetext>Working in php-pecl-event extension, which uses libevent and openssl
+
+openssl-devel-1.1.0e-1.fc26.x86_64
+libevent-devel-2.0.22-1.fc25.x86_64
+php-devel-7.1.3-1.fc26.x86_64
+
+$ gdb php
+(gdb) run  -n  -d &quot;output_handler=&quot; -d &quot;open_basedir=&quot; -d &quot;disable_functions=&quot; -d &quot;output_buffering=Off&quot; -d &quot;error_reporting=32767&quot; -d &quot;display_errors=1&quot; -d &quot;display_startup_errors=1&quot; -d &quot;log_errors=0&quot; -d &quot;html_errors=0&quot; -d &quot;track_errors=1&quot; -d &quot;report_memleaks=1&quot; -d &quot;report_zend_debug=0&quot; -d &quot;docref_root=&quot; -d &quot;docref_ext=.html&quot; -d &quot;error_prepend_string=&quot; -d &quot;error_append_string=&quot; -d &quot;auto_prepend_file=&quot; -d &quot;auto_append_file=&quot; -d &quot;ignore_repeated_errors=0&quot; -d &quot;precision=14&quot; -d &quot;memory_limit=128M&quot; -d &quot;log_errors_max_len=0&quot; -d &quot;opcache.fast_shutdown=0&quot; -d &quot;opcache.file_update_protection=0&quot; -d &quot;extension=sockets.so&quot; -d &quot;extension=/home/remi/pecl-event/modules/event.so&quot; -d &quot;session.auto_start=0&quot; -d &quot;zlib.output_compression=Off&quot; -f &quot;/home/remi/pecl-event/tests/21-bevent-sslfilter.php&quot;
+(gdb) bt
+#0  0x00007fffebfb2d61 in EVP_CIPHER_CTX_cleanup () from /lib64/libcrypto.so.10
+#1  0x00007fffec32ca5d in ssl_clear_cipher_ctx () from /lib64/libssl.so.10
+#2  0x00007fffec32e23a in SSL_set_accept_state () from /lib64/libssl.so.10
+#3  0x00007fffec9a4ea2 in bufferevent_openssl_new_impl (base=0x555555cf6380, underlying=0x555555cd6750, fd=fd@entry=-1, ssl=0x555555ced850, state=BUFFEREVENT_SSL_ACCEPTING, 
+    options=&lt;optimized out&gt;) at bufferevent_openssl.c:1337
+#4  0x00007fffec9a5b8e in bufferevent_openssl_filter_new (base=&lt;optimized out&gt;, underlying=&lt;optimized out&gt;, ssl=&lt;optimized out&gt;, state=&lt;optimized out&gt;, options=&lt;optimized out&gt;)
+    at bufferevent_openssl.c:1396
+#5  0x00007fffecbbe9ce in _create_ssl_filter (execute_data=&lt;optimized out&gt;, return_value=0x7fffffffa210, deprecated=&lt;optimized out&gt;)
+    at /home/remi/pecl-event/php7/classes/buffer_event.c:308
+#6  0x0000555555853e80 in ZEND_DO_FCALL_SPEC_RETVAL_UNUSED_HANDLER () at /usr/src/debug/php-7.1.3/Zend/zend_vm_execute.h:970
+#7  0x00005555557fb14b in execute_ex (ex=&lt;optimized out&gt;) at /usr/src/debug/php-7.1.3/Zend/zend_vm_execute.h:429
+#8  0x0000555555855ec0 in zend_execute (op_array=op_array@entry=0x555555cf5e40, return_value=return_value@entry=0x555555cf6310)
+    at /usr/src/debug/php-7.1.3/Zend/zend_vm_execute.h:474
+#9  0x00005555557b1972 in zend_execute_scripts (type=type@entry=8, retval=0x555555cf6310, retval@entry=0x0, file_count=-134995904, file_count@entry=3)
+    at /usr/src/debug/php-7.1.3/Zend/zend.c:1476
+#10 0x000055555574e670 in php_execute_script (primary_file=0x7fffffffc830) at /usr/src/debug/php-7.1.3/main/main.c:2537
+#11 0x00005555558581f8 in do_cli (argc=60, argv=0x555555bd1db0) at /usr/src/debug/php-7.1.3/sapi/cli/php_cli.c:993
+#12 0x0000555555621558 in main (argc=60, argv=0x555555bd1db0) at /usr/src/debug/php-7.1.3/sapi/cli/php_cli.c:1381
+
+Using valgrind (ensuring we are not using PHP allocator)
+$ export USE_ZEND_ALLOC=0
+$ valgrind /usr/bin/php  -n  -d &quot;output_handler=&quot; -d &quot;open_basedir=&quot; -d &quot;disable_functions=&quot; -d &quot;output_buffering=Off&quot; -d &quot;error_reporting=32767&quot; -d &quot;display_errors=1&quot; -d &quot;display_startup_errors=1&quot; -d &quot;log_errors=0&quot; -d &quot;html_errors=0&quot; -d &quot;track_errors=1&quot; -d &quot;report_memleaks=1&quot; -d &quot;report_zend_debug=0&quot; -d &quot;docref_root=&quot; -d &quot;docref_ext=.html&quot; -d &quot;error_prepend_string=&quot; -d &quot;error_append_string=&quot; -d &quot;auto_prepend_file=&quot; -d &quot;auto_append_file=&quot; -d &quot;ignore_repeated_errors=0&quot; -d &quot;precision=14&quot; -d &quot;memory_limit=128M&quot; -d &quot;log_errors_max_len=0&quot; -d &quot;opcache.fast_shutdown=0&quot; -d &quot;opcache.file_update_protection=0&quot; -d &quot;extension=sockets.so&quot; -d &quot;extension=/home/remi/pecl-event/modules/event.so&quot; -d &quot;session.auto_start=0&quot; -d &quot;zlib.output_compression=Off&quot; -f &quot;/home/remi/pecl-event/tests/21-bevent-sslfilter.php&quot; 
+==20455== Memcheck, a memory error detector
+==20455== Copyright (C) 2002-2015, and GNU GPL&apos;d, by Julian Seward et al.
+==20455== Using Valgrind-3.12.0 and LibVEX; rerun with -h for copyright info
+==20455== Command: /usr/bin/php -n -d output_handler= -d open_basedir= -d disable_functions= -d output_buffering=Off -d error_reporting=32767 -d display_errors=1 -d display_startup_errors=1 -d log_errors=0 -d html_errors=0 -d track_errors=1 -d report_memleaks=1 -d report_zend_debug=0 -d docref_root= -d docref_ext=.html -d error_prepend_string= -d error_append_string= -d auto_prepend_file= -d auto_append_file= -d ignore_repeated_errors=0 -d precision=14 -d memory_limit=128M -d log_errors_max_len=0 -d opcache.fast_shutdown=0 -d opcache.file_update_protection=0 -d extension=sockets.so -d extension=/home/remi/pecl-event/modules/event.so -d session.auto_start=0 -d zlib.output_compression=Off -f /home/remi/pecl-event/tests/21-bevent-sslfilter.php
+==20455== 
+==20455== Invalid read of size 8
+==20455==    at 0x10E50D61: EVP_CIPHER_CTX_cleanup (in /usr/lib64/libcrypto.so.1.0.2j)
+==20455==    by 0x10AFDA5C: ssl_clear_cipher_ctx (in /usr/lib64/libssl.so.1.0.2j)
+==20455==    by 0x10AFF239: SSL_set_accept_state (in /usr/lib64/libssl.so.1.0.2j)
+==20455==    by 0x1046BEA1: bufferevent_openssl_new_impl (bufferevent_openssl.c:1337)
+==20455==    by 0x102539CD: _create_ssl_filter (buffer_event.c:308)
+==20455==    by 0x407E7F: ZEND_DO_FCALL_SPEC_RETVAL_UNUSED_HANDLER (zend_vm_execute.h:970)
+==20455==    by 0x3AF14A: execute_ex (zend_vm_execute.h:429)
+==20455==    by 0x409EBF: zend_execute (zend_vm_execute.h:474)
+==20455==    by 0x365971: zend_execute_scripts (zend.c:1476)
+==20455==    by 0x30266F: php_execute_script (main.c:2537)
+==20455==    by 0x40C1F7: do_cli (php_cli.c:993)
+==20455==    by 0x1D5557: main (php_cli.c:1381)
+==20455==  Address 0xffffffff00000000 is not stack&apos;d, malloc&apos;d or (recently) free&apos;d
+==20455== 
+
+I&apos;m not sure where the bug is (php-pecl-event, libevent or openssl), but this only happen with OpenSSL 1.1, everything works as expected with OpenSSL 1.0.
+
+Any help welcome on this issue.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10278203</commentid>
+    <comment_count>1</comment_count>
+    <who name="Remi Collet">fedora</who>
+    <bug_when>2017-03-27 03:21:38 -0400</bug_when>
+    <thetext>BTW, just noticed libevent is FTBFS in rawhide... so still use older openssl library... see #1423849</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10278231</commentid>
+    <comment_count>2</comment_count>
+    <who name="Tomas Mraz">tmraz</who>
+    <bug_when>2017-03-27 03:35:47 -0400</bug_when>
+    <thetext>This is most probably a conflict between the old and new openssl being simultaneously used in a single process. In most cases this works fine, but there might be use-cases where it does not. I&apos;ll look at patching libevent to use the 1.1.0.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10278254</commentid>
+    <comment_count>3</comment_count>
+    <who name="Remi Collet">fedora</who>
+    <bug_when>2017-03-27 03:49:02 -0400</bug_when>
+    <thetext>Notice: from a quick test
+
+- latest libevent 2.1.8 just build fine in F26 (but introduce a soname bump from 5 to 6)
+
+- the pecl/event test suite passes without any segfault
+
+
+&gt; This is most probably a conflict between the old and new openssl being simultaneously used in a single process.
+
+Indeed.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10280113</commentid>
+    <comment_count>4</comment_count>
+    <who name="Remi Collet">fedora</who>
+    <bug_when>2017-03-27 12:37:45 -0400</bug_when>
+    <thetext>php-pecl-event rebuild in rawhide, &quot;full&quot; test suite passes without any segfault.
+
+Thanks for the quick fix.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10280796</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-27 15:22:18 -0400</bug_when>
+    <thetext>libevent-2.0.22-3.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-f1d16808df</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10282183</commentid>
+    <comment_count>6</comment_count>
+    <who name="Tomas Mraz">tmraz</who>
+    <bug_when>2017-03-28 03:41:42 -0400</bug_when>
+    <thetext>Of course at least in Rawhide it would be much better if libevent was updated to current upstream version. But I suppose doing soname bump in F26 branch is not a good idea.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10282185</commentid>
+    <comment_count>7</comment_count>
+    <who name="Remi Collet">fedora</who>
+    <bug_when>2017-03-28 03:44:04 -0400</bug_when>
+    <thetext>(In reply to Tomas Mraz from comment #6)
+&gt; Of course at least in Rawhide it would be much better if libevent was
+&gt; updated to current upstream version. But I suppose doing soname bump in F26
+&gt; branch is not a good idea.
+
++1</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10296935</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-01 13:32:31 -0400</bug_when>
+    <thetext>libevent-2.0.22-3.fc26 has been pushed to the Fedora 26 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

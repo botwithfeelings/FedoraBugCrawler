@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1297087</bug_id>
+          
+          <creation_ts>2016-01-08 19:20:00 -0500</creation_ts>
+          <short_desc>[RFE] Implementation of localpkg_gpgcheck option for checking gpg signature for local packages or packages specified by URL</short_desc>
+          <delta_ts>2016-10-04 14:06:31 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>dnf</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>RAWHIDE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords>Reopened, Security, Triaged</keywords>
+          <priority>low</priority>
+          <bug_severity>low</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>1362452</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Graham Cole">diakkaml</reporter>
+          <assigned_to name="Jaroslav Mracek">jmracek</assigned_to>
+          <cc>emailtoflorian</cc>
+    
+    
+    <cc>jmracek</cc>
+    
+    
+    <cc>jsilhan</cc>
+    
+    
+    <cc>lantw44</cc>
+    
+    
+    <cc>mluscon</cc>
+    
+    
+    <cc>packaging-team-maint</cc>
+    
+    
+    <cc>pnemade</cc>
+    
+    
+    <cc>rhbz2</cc>
+    
+    
+    <cc>vmukhame</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-10-04 14:06:31</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>8966635</commentid>
+    <comment_count>0</comment_count>
+    <who name="Graham Cole">diakkaml</who>
+    <bug_when>2016-01-08 19:20:36 -0500</bug_when>
+    <thetext>Description of problem:
+dnf is not checking gpg signature for local packages or packages specified by URL
+
+Version-Release number of selected component (if applicable):
+1.1.5-1.fc23
+
+How reproducible:
+Every Time
+
+Steps to Reproduce:
+1. dnf install http://rpm.livna.org/livna-release.rpm
+#this should fail as I did not install the livna gpg key
+
+2. dnf install --downloadonly patch
+#dnf downloads patch-2.7.5-2.fc23.x86_64.rpm
+3. echo hello &gt;&gt; /var/cache/dnf/fedora-fe3d2f0c91e9b65c/packages/patch-2.7.5-2.fc23.x86_64.rpm
+#this will corrupt the package making the signature bad
+4. rpm -K /var/cache/dnf/fedora-fe3d2f0c91e9b65c/packages/patch-2.7.5-2.fc23.x86_64.rpm 
+#/var/cache/dnf/fedora-fe3d2f0c91e9b65c/packages/patch-2.7.5-2.fc23.x86_64.rpm: #rsa sha1 (MD5) PGP MD5 NOT OK
+5. dnf install /var/cache/dnf/fedora-fe3d2f0c91e9b65c/packages/patch-2.7.5-2.fc23.x86_64.rpm 
+#dnf installs the package without realizing the package has been corrupted.
+
+Actual results:
+dnf installed both the livna package and the corrupted patch package without complaint
+
+Expected results:
+dnf should find the GPG signatures to be invalid and refuse to install the package without a --nogpgcheck flag
+
+Additional info:
+Fedora documentation states that local packages should also be checked when gpgcheck=1 in dnf.conf:
+
+https://docs.fedoraproject.org/en-US/Fedora/23/html/System_Administrators_Guide/sec-Configuring_DNF_and_DNF_Repositories.html</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8969678</commentid>
+    <comment_count>1</comment_count>
+    <who name="Honza Silhan">jsilhan</who>
+    <bug_when>2016-01-11 08:28:54 -0500</bug_when>
+    <thetext>We&apos;ll take a look.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9490446</commentid>
+    <comment_count>2</comment_count>
+    <who name="Fedora Admin XMLRPC Client">fedora-admin-xmlrpc</who>
+    <bug_when>2016-07-08 05:37:22 -0400</bug_when>
+    <thetext>This package has changed ownership in the Fedora Package Database.  Reassigning to the new owner of this component.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9543962</commentid>
+    <comment_count>3</comment_count>
+    <who name="Christian Stadelmann">rhbz2</who>
+    <bug_when>2016-07-24 06:03:49 -0400</bug_when>
+    <thetext>How can a security bug, which also is a regression to yum AFAIK, have low severity and low priority?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9549905</commentid>
+    <comment_count>4</comment_count>
+    <who name="Jan Kurik">jkurik</who>
+    <bug_when>2016-07-26 01:02:46 -0400</bug_when>
+    <thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 25 development cycle.
+Changing version to &apos;25&apos;.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9572482</commentid>
+    <comment_count>5</comment_count>
+    <who name="Jaroslav Mracek">jmracek</who>
+    <bug_when>2016-08-01 06:49:20 -0400</bug_when>
+    <thetext>According to my investigation, the behavior of DNF with gpgcheck of local messages is identical to YUM. Please let me know if I overlooked something.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9572914</commentid>
+    <comment_count>6</comment_count>
+    <who name="Jaroslav Mracek">jmracek</who>
+    <bug_when>2016-08-01 08:38:14 -0400</bug_when>
+    <thetext>Thank you very much for report of documentation difference from preset dnf behavior. We will change it according to current behavior.
+
+We know that security is important part of package distribution, but there is supported way - repository with only signed rpms. Repositories also solve a problem of gpg-keys distribution and checksum of metadata. To create repository, createrepo_c package can be used and repositories can be remote as well local. 
+
+With gpgcheck for local packages or remote packages outside of repository many users can have difficulties with new behavior of DNF, therefore I think due to existing solution that this bug report I can close a notbug. If you will experience any further problem, please report it.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9573474</commentid>
+    <comment_count>7</comment_count>
+    <who name="Jaroslav Mracek">jmracek</who>
+    <bug_when>2016-08-01 11:02:34 -0400</bug_when>
+    <thetext>The yum has an option &apos;localpkg_gpgcheck&apos; that provides requested behavior. It change the situation.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9575738</commentid>
+    <comment_count>8</comment_count>
+    <who name="Jaroslav Mracek">jmracek</who>
+    <bug_when>2016-08-02 03:42:09 -0400</bug_when>
+    <thetext>The option &apos;localpkg_gpgcheck&apos; was already implemented in DNF, but it is not in documentation. It is going to be change by new pull-request.
+
+https://github.com/rpm-software-management/dnf/pull/554
+
+If you want to use gpgcheck for local packages, you have to add &quot;localpkg_gpgcheck=1&quot; into /etc/dnf/dnf.conf file. Have a fun with it.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

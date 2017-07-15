@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1349199</bug_id>
+          
+          <creation_ts>2016-06-22 20:02:00 -0400</creation_ts>
+          <short_desc>file conflict when installing mysql server</short_desc>
+          <delta_ts>2016-11-22 22:23:36 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>community-mysql</component>
+          <version>24</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>CURRENTRELEASE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Reader News">reader.news</reporter>
+          <assigned_to name="Jakub Dorňák">jdornak</assigned_to>
+          <cc>hhorak</cc>
+    
+    
+    <cc>jdornak</cc>
+    
+    
+    <cc>jstanek</cc>
+    
+    
+    <cc>samuel.rakitnican</cc>
+    
+    
+    <cc>terjeros</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>5.7.15-1.fc24</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-11-22 22:23:36</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9443240</commentid>
+    <comment_count>0</comment_count>
+    <who name="Reader News">reader.news</who>
+    <bug_when>2016-06-22 20:02:56 -0400</bug_when>
+    <thetext>Description of problem:
+In Fedora 24, when installing community-mysql-server package, it tries to bring in mariadb package along with 5 other packages.  But the transaction check failed with this error: &quot;file /usr/bin/mysqlbinlog conflicts between attempted installs of community-mysql-server-5.7.11-2.fc24.x86_64 and mariadb-1:10.1.14-1.fc24.x86_64&quot;.
+
+Version-Release number of selected component (if applicable):
+community-mysql-server-5.7.11-2.fc24.x86_64
+
+How reproducible:
+
+
+Steps to Reproduce:
+1. sudo dnf install community-mysql-server
+2.
+3.
+
+Actual results:
+Nothing is installed due to the conflict.
+
+Expected results:
+The installation should go through fine.
+
+Additional info:</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9448399</commentid>
+    <comment_count>1</comment_count>
+    <who name="Terje Røsten">terjeros</who>
+    <bug_when>2016-06-23 17:19:40 -0400</bug_when>
+    <thetext>MySQL 5.7.12 in testing has a fix for this:
+
+ https://bodhi.fedoraproject.org/updates/FEDORA-2016-dfa325d31b
+
+Would be nice if that update could be pushed to stable.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9448410</commentid>
+    <comment_count>2</comment_count>
+    <who name="Terje Røsten">terjeros</who>
+    <bug_when>2016-06-23 17:26:27 -0400</bug_when>
+    <thetext>You can test the MySQL 5.7.12 package by doing:
+
+dnf --allowerasing --enablerepo=updates-testing install community-mysql-server</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9613016</commentid>
+    <comment_count>3</comment_count>
+    <who name="srakitnican">samuel.rakitnican</who>
+    <bug_when>2016-08-13 15:44:18 -0400</bug_when>
+    <thetext>It also breaks updates F23 -&gt; F24 if both community-mysql-server and mariadb was installed. In community-mysql-server F23 package /usr/bin/mysqlbinlog was not present.
+
+$ sudo dnf --disablerepo \* --enablerepo updates --releasever 23 repoquery -l community-mysql-server | grep mysqlbinlog
+$ sudo dnf --disablerepo \* --enablerepo updates --releasever 24 repoquery -l community-mysql-server | grep mysqlbinlog
+/usr/bin/mysqlbinlog</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9613017</commentid>
+    <comment_count>4</comment_count>
+    <who name="srakitnican">samuel.rakitnican</who>
+    <bug_when>2016-08-13 15:47:52 -0400</bug_when>
+    <thetext>http://forums.fedoraforum.org/showthread.php?t=311091</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9914497</commentid>
+    <comment_count>5</comment_count>
+    <who name="Reader News">reader.news</who>
+    <bug_when>2016-11-22 22:23:36 -0500</bug_when>
+    <thetext>The problem no longer exist when upgrade to community-mysql-server-5.7.15-1.fc24.x86_64</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

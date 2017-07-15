@@ -1,0 +1,376 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1350201</bug_id>
+          
+          <creation_ts>2016-06-26 08:15:00 -0400</creation_ts>
+          <short_desc>nmcli failed to modify IPv4 routes metric on i686 system</short_desc>
+          <delta_ts>2016-08-19 15:49:56 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>NetworkManager</component>
+          <version>24</version>
+          <rep_platform>i686</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="ArcFi">arcfi</reporter>
+          <assigned_to name="Beniamino Galvani">bgalvani</assigned_to>
+          <cc>arcfi</cc>
+    
+    
+    <cc>bgalvani</cc>
+    
+    
+    <cc>dcbw</cc>
+    
+    
+    <cc>fgiudici</cc>
+    
+    
+    <cc>lkundrak</cc>
+    
+    
+    <cc>psimerda</cc>
+    
+    
+    <cc>thaller</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>NetworkManager-1.2.4-2.fc24</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-08-19 15:49:56</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9453059</commentid>
+    <comment_count>0</comment_count>
+    <who name="ArcFi">arcfi</who>
+    <bug_when>2016-06-26 08:15:53 -0400</bug_when>
+    <thetext>Description of problem:
+$ nmcli connection add type ethernet con-name test ifname &quot;*&quot;
+Connection &apos;test&apos; (4029438a-eedd-4606-be32-6f9d2da6bea7) successfully added.
+$ nmcli connection modify test ipv4.routes &quot;10.10.10.0/24 192.168.1.254 10&quot;
+Error: failed to modify ipv4.routes: invalid metric &apos;10&apos;.
+
+Version-Release number of selected component (if applicable):
+NetworkManager-1.2.2-2.fc24.i686
+
+How reproducible:
+Always.
+
+Steps to Reproduce:
+1. Use i686.
+2. nmcli connection add type ethernet con-name test ifname &quot;*&quot;
+3. nmcli connection modify test ipv4.routes &quot;10.10.10.0/24 192.168.1.254 10&quot;
+
+Actual results:
+nmcli failed to modify IPv4 routes metric on i686 system.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9455494</commentid>
+    <comment_count>1</comment_count>
+      <attachid>1172885</attachid>
+    <who name="Beniamino Galvani">bgalvani</who>
+    <bug_when>2016-06-27 09:51:23 -0400</bug_when>
+    <thetext>Created attachment 1172885
+[PATCH] cli: fix parsing of route metric on 32-bit archs
+
+Untested patch.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9467444</commentid>
+    <comment_count>2</comment_count>
+    <who name="Thomas Haller">thaller</who>
+    <bug_when>2016-06-30 04:08:45 -0400</bug_when>
+    <thetext>(In reply to Beniamino Galvani from comment #1)
+&gt; Created attachment 1172885 [details]
+&gt; [PATCH] cli: fix parsing of route metric on 32-bit archs
+&gt; 
+&gt; Untested patch.
+
+I think you have to initialize @metric, otherwise (depending on compiler optimiation flags) it may emit a warning about uninitialized variable.
+
+
+and in &quot;(gint64) (metric_valid ? metric : -1)&quot; inside the ternary operator we have types &quot;? unsigned long : signed&quot;. This will be promoted to signed long (I guess). Which is actually fine, but it still makes me hesitate for 5 seconds to reason whether it is correct. I&apos;d avoid that by doing the cast inside the ternary operator.
+
+
+Can you not just avoid that by doing:
+
+  gint64 metric = -1;
+  ...
+      if (!nmc_string_to_uint (third, TRUE, 0, G_MAXUINT32, &amp;tmp_ulong)) {
+      }
+      metric = tmp_ulong;
+
+
+
+
+
+(btw. how hard can it be to get a string-to-int function right :) ? We should eventually replace this with _nm_utils_ascii_str_to_int64()).
+
+
+rest, lgtm</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9467800</commentid>
+    <comment_count>3</comment_count>
+      <attachid>1174454</attachid>
+    <who name="Beniamino Galvani">bgalvani</who>
+    <bug_when>2016-06-30 06:01:41 -0400</bug_when>
+    <thetext>Created attachment 1174454
+[PATCH v2] cli: fix parsing of route metric on 32-bit archs
+
+(In reply to Thomas Haller from comment #2)
+
+&gt; Can you not just avoid that by doing:
+
+Changed, thanks.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9467905</commentid>
+    <comment_count>4</comment_count>
+    <who name="Francesco Giudici">fgiudici</who>
+    <bug_when>2016-06-30 06:29:55 -0400</bug_when>
+    <thetext>lgtm</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9468068</commentid>
+    <comment_count>5</comment_count>
+    <who name="Thomas Haller">thaller</who>
+    <bug_when>2016-06-30 07:25:48 -0400</bug_when>
+    <thetext>v2 lgtm</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9468095</commentid>
+    <comment_count>6</comment_count>
+    <who name="Beniamino Galvani">bgalvani</who>
+    <bug_when>2016-06-30 07:30:38 -0400</bug_when>
+    <thetext>Patch applied to master:
+
+https://cgit.freedesktop.org/NetworkManager/NetworkManager/commit/?id=938a4b35c64027a2a337fa8ac123fe97d230f785
+
+and nm-1-2:
+
+https://cgit.freedesktop.org/NetworkManager/NetworkManager/commit/?h=nm-1-2&amp;id=751e8b89144bfc1a61cad45e3626edf2dfc86180</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9587850</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-05 03:52:47 -0400</bug_when>
+    <thetext>NetworkManager-1.2.4-1.fc24 network-manager-applet-1.2.4-1.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-f739ece3cf</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9590106</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-05 17:21:33 -0400</bug_when>
+    <thetext>NetworkManager-1.2.4-1.fc24, network-manager-applet-1.2.4-1.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-f739ece3cf</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9627249</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-18 12:38:52 -0400</bug_when>
+    <thetext>NetworkManager-1.2.4-2.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-fade485364</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9628652</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-18 20:56:46 -0400</bug_when>
+    <thetext>NetworkManager-1.2.4-2.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-fade485364</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9630111</commentid>
+    <comment_count>11</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-19 06:29:01 -0400</bug_when>
+    <thetext>network-manager-applet-1.2.4-1.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-f739ece3cf</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9631566</commentid>
+    <comment_count>12</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-19 15:49:31 -0400</bug_when>
+    <thetext>NetworkManager-1.2.4-2.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="1"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1172885</attachid>
+            <date>2016-06-27 09:51:00 -0400</date>
+            <delta_ts>2016-06-30 06:01:41 -0400</delta_ts>
+            <desc>[PATCH] cli: fix parsing of route metric on 32-bit archs</desc>
+            <filename>0001-cli-fix-parsing-of-route-metric-on-32-bit-archs.patch</filename>
+            <type>text/plain</type>
+            <size>2718</size>
+            <attacher name="Beniamino Galvani">bgalvani</attacher>
+            
+              <data encoding="base64">RnJvbSAxYWYwZTc2N2M5MWI3OWViZTJlMjliOWJjYTJiZWRhZDUzNzJlYThkIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBCZW5pYW1pbm8gR2FsdmFuaSA8YmdhbHZhbmlAcmVkaGF0LmNv
+bT4KRGF0ZTogTW9uLCAyNyBKdW4gMjAxNiAxNTo0OToxMiArMDIwMApTdWJqZWN0OiBbUEFUQ0hd
+IGNsaTogZml4IHBhcnNpbmcgb2Ygcm91dGUgbWV0cmljIG9uIDMyLWJpdCBhcmNocwoKT24gMzIt
+Yml0IGFyY2hpdGVjdHVyZXMgbG9uZyBhbmQgaW50IGhhdmUgdGhlIHNhbWUgc2l6ZSBhbmQgdGh1
+cyB0aGUKaXQncyB3cm9uZyB0byB1c2Ugbm1jX3N0cmluZ190b19pbnQoKSBzaW5jZSBpdCB1c2Vz
+IHN0cnRvbCgpIGFuZCB0aGUKQG1heCBhcmd1bWVudCBjYW4ndCByZXByZXNlbnQgR19NQVhVSU5U
+MzIuIFVzZSBubWNfc3RyaW5nX3RvX3VpbnQoKQppbnN0ZWFkLgoKaHR0cHM6Ly9idWd6aWxsYS5y
+ZWRoYXQuY29tL3Nob3dfYnVnLmNnaT9pZD0xMzUwMjAxCi0tLQogY2xpZW50cy9jbGkvY29tbW9u
+LmMgfCAxNSArKysrKysrKysrLS0tLS0KIDEgZmlsZSBjaGFuZ2VkLCAxMCBpbnNlcnRpb25zKCsp
+LCA1IGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL2NsaWVudHMvY2xpL2NvbW1vbi5jIGIvY2xp
+ZW50cy9jbGkvY29tbW9uLmMKaW5kZXggMDg4OGYwNi4uYzJjMWU5ZSAxMDA2NDQKLS0tIGEvY2xp
+ZW50cy9jbGkvY29tbW9uLmMKKysrIGIvY2xpZW50cy9jbGkvY29tbW9uLmMKQEAgLTQxMiwxNSAr
+NDEyLDE2IEBAIG5tY19wYXJzZV9hbmRfYnVpbGRfcm91dGUgKGludCBmYW1pbHksCiAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICBHRXJyb3IgKiplcnJvcikKIHsKIAlpbnQgbWF4X3ByZWZpeCA9
+IChmYW1pbHkgPT0gQUZfSU5FVCkgPyAzMiA6IDEyODsKIAljaGFyICpkZXN0ID0gTlVMTCwgKnBs
+ZW4gPSBOVUxMOwogCWNvbnN0IGNoYXIgKm5leHRfaG9wID0gTlVMTDsKIAljb25zdCBjaGFyICpj
+YW5vbl9kZXN0OwotCWxvbmcgaW50IHByZWZpeCA9IG1heF9wcmVmaXgsIG1ldHJpYyA9IC0xOwor
+CWxvbmcgaW50IHByZWZpeCA9IG1heF9wcmVmaXg7CisJdW5zaWduZWQgbG9uZyBpbnQgbWV0cmlj
+OwogCU5NSVBSb3V0ZSAqcm91dGUgPSBOVUxMOwotCWdib29sZWFuIHN1Y2Nlc3MgPSBGQUxTRTsK
+KwlnYm9vbGVhbiBzdWNjZXNzID0gRkFMU0UsIG1ldHJpY192YWxpZCA9IEZBTFNFOwogCUdFcnJv
+ciAqbG9jYWwgPSBOVUxMOwogCiAJZ19yZXR1cm5fdmFsX2lmX2ZhaWwgKGZhbWlseSA9PSBBRl9J
+TkVUIHx8IGZhbWlseSA9PSBBRl9JTkVUNiwgRkFMU0UpOwogCWdfcmV0dXJuX3ZhbF9pZl9mYWls
+IChmaXJzdCAhPSBOVUxMLCBGQUxTRSk7CiAJZ19yZXR1cm5fdmFsX2lmX2ZhaWwgKHNlY29uZCB8
+fCAhdGhpcmQsIEZBTFNFKTsKIAlnX3JldHVybl92YWxfaWZfZmFpbCAoZXJyb3IgPT0gTlVMTCB8
+fCAqZXJyb3IgPT0gTlVMTCwgRkFMU0UpOwpAQCAtNDQxLDI4ICs0NDIsMzIgQEAgbm1jX3BhcnNl
+X2FuZF9idWlsZF9yb3V0ZSAoaW50IGZhbWlseSwKIAogCWlmIChzZWNvbmQpIHsKIAkJaWYgKHRo
+aXJkIHx8IG5tX3V0aWxzX2lwYWRkcl92YWxpZCAoZmFtaWx5LCBzZWNvbmQpKQogCQkJbmV4dF9o
+b3AgPSBzZWNvbmQ7CiAJCWVsc2UgewogCQkJLyogJ3NlY29uZCcgY2FuIGJlIGEgbWV0cmljICov
+Ci0JCQlpZiAoIW5tY19zdHJpbmdfdG9faW50IChzZWNvbmQsIFRSVUUsIDAsIEdfTUFYVUlOVDMy
+LCAmbWV0cmljKSkgeworCQkJaWYgKCFubWNfc3RyaW5nX3RvX3VpbnQgKHNlY29uZCwgVFJVRSwg
+MCwgR19NQVhVSU5UMzIsICZtZXRyaWMpKSB7CiAJCQkJZ19zZXRfZXJyb3IgKGVycm9yLCAxLCAw
+LCBfKCJ0aGUgc2Vjb25kIGNvbXBvbmVudCBvZiByb3V0ZSAoJyVzJykgaXMgbmVpdGhlciAiCiAJ
+CQkJICAgICAgICAgICAgICAgICAgICAgICAgICAgICJhIG5leHQgaG9wIGFkZHJlc3Mgbm9yIGEg
+bWV0cmljIiksIHNlY29uZCk7CiAJCQkJZ290byBmaW5pc2g7CiAJCQl9CisJCQltZXRyaWNfdmFs
+aWQgPSBUUlVFOwogCQl9CiAJfQogCiAJaWYgKHRoaXJkKSB7Ci0JCWlmICghbm1jX3N0cmluZ190
+b19pbnQgKHRoaXJkLCBUUlVFLCAwLCBHX01BWFVJTlQzMiwgJm1ldHJpYykpIHsKKwkJaWYgKCFu
+bWNfc3RyaW5nX3RvX3VpbnQgKHRoaXJkLCBUUlVFLCAwLCBHX01BWFVJTlQzMiwgJm1ldHJpYykp
+IHsKIAkJCWdfc2V0X2Vycm9yIChlcnJvciwgMSwgMCwgXygiaW52YWxpZCBtZXRyaWMgJyVzJyIp
+LCB0aGlyZCk7CiAJCQlnb3RvIGZpbmlzaDsKIAkJfQorCQltZXRyaWNfdmFsaWQgPSBUUlVFOwog
+CX0KIAotCXJvdXRlID0gbm1faXBfcm91dGVfbmV3IChmYW1pbHksIGRlc3QsIHByZWZpeCwgbmV4
+dF9ob3AsIG1ldHJpYywgJmxvY2FsKTsKKwlyb3V0ZSA9IG5tX2lwX3JvdXRlX25ldyAoZmFtaWx5
+LCBkZXN0LCBwcmVmaXgsIG5leHRfaG9wLAorCSAgICAgICAgICAgICAgICAgICAgICAgICAoZ2lu
+dDY0KSAobWV0cmljX3ZhbGlkID8gbWV0cmljIDogLTEpLAorCSAgICAgICAgICAgICAgICAgICAg
+ICAgICAmbG9jYWwpOwogCWlmICghcm91dGUpIHsKIAkJZ19zZXRfZXJyb3IgKGVycm9yLCBOTUNM
+SV9FUlJPUiwgTk1DX1JFU1VMVF9FUlJPUl9VU0VSX0lOUFVULAogCQkgICAgICAgICAgICAgXygi
+aW52YWxpZCByb3V0ZTogJXMiKSwgbG9jYWwtPm1lc3NhZ2UpOwogCQlnX2NsZWFyX2Vycm9yICgm
+bG9jYWwpOwogCQlnb3RvIGZpbmlzaDsKIAl9Ci0tIAoyLjUuNQoK
+</data>
+
+          </attachment>
+          <attachment
+              isobsolete="0"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1174454</attachid>
+            <date>2016-06-30 06:01:00 -0400</date>
+            <delta_ts>2016-06-30 06:01:41 -0400</delta_ts>
+            <desc>[PATCH v2] cli: fix parsing of route metric on 32-bit archs</desc>
+            <filename>0001-cli-fix-parsing-of-route-metric-on-32-bit-archs.patch</filename>
+            <type>text/plain</type>
+            <size>2715</size>
+            <attacher name="Beniamino Galvani">bgalvani</attacher>
+            
+              <data encoding="base64">RnJvbSBjZjQ2OGQyNjRmY2RlOTVkOWJhMzY2YzFmM2UxOWQzM2QzMDE0ODE3IE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBCZW5pYW1pbm8gR2FsdmFuaSA8YmdhbHZhbmlAcmVkaGF0LmNv
+bT4KRGF0ZTogTW9uLCAyNyBKdW4gMjAxNiAxNTo0OToxMiArMDIwMApTdWJqZWN0OiBbUEFUQ0gg
+djJdIGNsaTogZml4IHBhcnNpbmcgb2Ygcm91dGUgbWV0cmljIG9uIDMyLWJpdCBhcmNocwoKT24g
+MzItYml0IGFyY2hpdGVjdHVyZXMgbG9uZyBhbmQgaW50IGhhdmUgdGhlIHNhbWUgc2l6ZSBhbmQg
+dGh1cyB0aGUKaXQncyB3cm9uZyB0byB1c2Ugbm1jX3N0cmluZ190b19pbnQoKSBzaW5jZSBpdCB1
+c2VzIHN0cnRvbCgpIGFuZCB0aGUKQG1heCBhcmd1bWVudCBjYW4ndCByZXByZXNlbnQgR19NQVhV
+SU5UMzIuIFVzZSBubWNfc3RyaW5nX3RvX3VpbnQoKQppbnN0ZWFkLgoKaHR0cHM6Ly9idWd6aWxs
+YS5yZWRoYXQuY29tL3Nob3dfYnVnLmNnaT9pZD0xMzUwMjAxCi0tLQogY2xpZW50cy9jbGkvY29t
+bW9uLmMgfCAxMCArKysrKysrLS0tCiAxIGZpbGUgY2hhbmdlZCwgNyBpbnNlcnRpb25zKCspLCAz
+IGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL2NsaWVudHMvY2xpL2NvbW1vbi5jIGIvY2xpZW50
+cy9jbGkvY29tbW9uLmMKaW5kZXggZTgwOTllMS4uN2FjMGE3NiAxMDA2NDQKLS0tIGEvY2xpZW50
+cy9jbGkvY29tbW9uLmMKKysrIGIvY2xpZW50cy9jbGkvY29tbW9uLmMKQEAgLTQxMCwyMCArNDEw
+LDIyIEBAIG5tY19wYXJzZV9hbmRfYnVpbGRfcm91dGUgKGludCBmYW1pbHksCiAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICBjb25zdCBjaGFyICpzZWNvbmQsCiAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICBjb25zdCBjaGFyICp0aGlyZCwKICAgICAgICAgICAgICAgICAgICAgICAgICAgIEdF
+cnJvciAqKmVycm9yKQogewogCWludCBtYXhfcHJlZml4ID0gKGZhbWlseSA9PSBBRl9JTkVUKSA/
+IDMyIDogMTI4OwogCWNoYXIgKmRlc3QgPSBOVUxMLCAqcGxlbiA9IE5VTEw7CiAJY29uc3QgY2hh
+ciAqbmV4dF9ob3AgPSBOVUxMOwogCWNvbnN0IGNoYXIgKmNhbm9uX2Rlc3Q7Ci0JbG9uZyBpbnQg
+cHJlZml4ID0gbWF4X3ByZWZpeCwgbWV0cmljID0gLTE7CisJbG9uZyBpbnQgcHJlZml4ID0gbWF4
+X3ByZWZpeDsKKwl1bnNpZ25lZCBsb25nIGludCB0bXBfdWxvbmc7CiAJTk1JUFJvdXRlICpyb3V0
+ZSA9IE5VTEw7CiAJZ2Jvb2xlYW4gc3VjY2VzcyA9IEZBTFNFOwogCUdFcnJvciAqbG9jYWwgPSBO
+VUxMOworCWdpbnQ2NCBtZXRyaWMgPSAtMTsKIAogCWdfcmV0dXJuX3ZhbF9pZl9mYWlsIChmYW1p
+bHkgPT0gQUZfSU5FVCB8fCBmYW1pbHkgPT0gQUZfSU5FVDYsIEZBTFNFKTsKIAlnX3JldHVybl92
+YWxfaWZfZmFpbCAoZmlyc3QgIT0gTlVMTCwgRkFMU0UpOwogCWdfcmV0dXJuX3ZhbF9pZl9mYWls
+IChzZWNvbmQgfHwgIXRoaXJkLCBGQUxTRSk7CiAJZ19yZXR1cm5fdmFsX2lmX2ZhaWwgKGVycm9y
+ID09IE5VTEwgfHwgKmVycm9yID09IE5VTEwsIEZBTFNFKTsKIAogCWRlc3QgPSBnX3N0cmR1cCAo
+Zmlyc3QpOwogCXBsZW4gPSBzdHJjaHIgKGRlc3QsICcvJyk7ICAvKiBwcmVmaXggZGVsaW1pdGVy
+ICovCkBAIC00MzksMjkgKzQ0MSwzMSBAQCBubWNfcGFyc2VfYW5kX2J1aWxkX3JvdXRlIChpbnQg
+ZmFtaWx5LAogCQl9CiAJfQogCiAJaWYgKHNlY29uZCkgewogCQlpZiAodGhpcmQgfHwgbm1fdXRp
+bHNfaXBhZGRyX3ZhbGlkIChmYW1pbHksIHNlY29uZCkpCiAJCQluZXh0X2hvcCA9IHNlY29uZDsK
+IAkJZWxzZSB7CiAJCQkvKiAnc2Vjb25kJyBjYW4gYmUgYSBtZXRyaWMgKi8KLQkJCWlmICghbm1j
+X3N0cmluZ190b19pbnQgKHNlY29uZCwgVFJVRSwgMCwgR19NQVhVSU5UMzIsICZtZXRyaWMpKSB7
+CisJCQlpZiAoIW5tY19zdHJpbmdfdG9fdWludCAoc2Vjb25kLCBUUlVFLCAwLCBHX01BWFVJTlQz
+MiwgJnRtcF91bG9uZykpIHsKIAkJCQlnX3NldF9lcnJvciAoZXJyb3IsIDEsIDAsIF8oInRoZSBz
+ZWNvbmQgY29tcG9uZW50IG9mIHJvdXRlICgnJXMnKSBpcyBuZWl0aGVyICIKIAkJCQkgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgImEgbmV4dCBob3AgYWRkcmVzcyBub3IgYSBtZXRyaWMiKSwg
+c2Vjb25kKTsKIAkJCQlnb3RvIGZpbmlzaDsKIAkJCX0KKwkJCW1ldHJpYyA9IHRtcF91bG9uZzsK
+IAkJfQogCX0KIAogCWlmICh0aGlyZCkgewotCQlpZiAoIW5tY19zdHJpbmdfdG9faW50ICh0aGly
+ZCwgVFJVRSwgMCwgR19NQVhVSU5UMzIsICZtZXRyaWMpKSB7CisJCWlmICghbm1jX3N0cmluZ190
+b191aW50ICh0aGlyZCwgVFJVRSwgMCwgR19NQVhVSU5UMzIsICZ0bXBfdWxvbmcpKSB7CiAJCQln
+X3NldF9lcnJvciAoZXJyb3IsIDEsIDAsIF8oImludmFsaWQgbWV0cmljICclcyciKSwgdGhpcmQp
+OwogCQkJZ290byBmaW5pc2g7CiAJCX0KKwkJbWV0cmljID0gdG1wX3Vsb25nOwogCX0KIAogCXJv
+dXRlID0gbm1faXBfcm91dGVfbmV3IChmYW1pbHksIGRlc3QsIHByZWZpeCwgbmV4dF9ob3AsIG1l
+dHJpYywgJmxvY2FsKTsKIAlpZiAoIXJvdXRlKSB7CiAJCWdfc2V0X2Vycm9yIChlcnJvciwgTk1D
+TElfRVJST1IsIE5NQ19SRVNVTFRfRVJST1JfVVNFUl9JTlBVVCwKIAkJICAgICAgICAgICAgIF8o
+ImludmFsaWQgcm91dGU6ICVzIiksIGxvY2FsLT5tZXNzYWdlKTsKIAkJZ19jbGVhcl9lcnJvciAo
+JmxvY2FsKTsKIAkJZ290byBmaW5pc2g7Ci0tIAoyLjUuNQoK
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

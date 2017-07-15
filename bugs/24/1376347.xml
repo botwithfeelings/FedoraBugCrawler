@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1376347</bug_id>
+          
+          <creation_ts>2016-09-15 04:12:00 -0400</creation_ts>
+          <short_desc>&quot;ip route show cached&quot; doesn&apos;t work but man page says it does?</short_desc>
+          <delta_ts>2017-03-21 12:50:40 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>iproute</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Cristian Morales Vega">christian.morales.vega</reporter>
+          <assigned_to name="Phil Sutter">psutter</assigned_to>
+          <cc>psimerda</cc>
+    
+    
+    <cc>psutter</cc>
+    
+    
+    <cc>rvokal</cc>
+    
+    
+    <cc>twoerner</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>iproute-4.4.0-4.fc24</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-03-21 12:50:40</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9710145</commentid>
+    <comment_count>0</comment_count>
+    <who name="Cristian Morales Vega">christian.morales.vega</who>
+    <bug_when>2016-09-15 04:12:15 -0400</bug_when>
+    <thetext>I spent some time trying to find the cached ssthresh of a route and wondering why &quot;ip route show cached&quot; wasn&apos;t returning anything as it used to do.
+I have found &quot;ip tcp_metrics&quot;, which is fine. But if (and this is a big if) I get http://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=89aef8921bfbac22f00e04f8450f6e447db13e42 right there is no cache table any more, so &quot;ip route show cached&quot; will never work?
+
+The main problem is that &quot;man ip-route&quot; keeps having multiple references to the cache table.
+
+* &quot;cache - dump the routing cache.&quot;
+* &quot;cached list cloned routes i.e. routes which were dynamically forked from other routes because some route attribute (f.e. MTU) was updated.  Actually, it is equivalent to table cache&quot;
+* &quot;a subsequent ip route ls cache, however, no packets are actually sent.&quot;</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9727777</commentid>
+    <comment_count>1</comment_count>
+    <who name="Phil Sutter">psutter</who>
+    <bug_when>2016-09-20 16:46:39 -0400</bug_when>
+    <thetext>Hi,
+
+The mentioned kernel commit disables routing cache only for IPv4, IPv6 still has it. Subsequently, &apos;ip -6 route show cache&apos; indeed shows cached routes (in case there are any).
+
+For older kernels, the documentation is also correct and since iproute2 is supposed to be backwards compatible, I don&apos;t see much need to change it. We could add a note to the description of the &apos;cache&apos; option though that since v3.10 it only affects IPv6 anymore.
+
+Cheers, Phil</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9729018</commentid>
+    <comment_count>2</comment_count>
+    <who name="Cristian Morales Vega">christian.morales.vega</who>
+    <bug_when>2016-09-21 04:38:57 -0400</bug_when>
+    <thetext>IMHO the note would be nice.
+Also, I don&apos;t know the kernel interface, maybe there is no way for ip to know but, if possible, shouldn&apos;t &quot;ip -4 route show cache&quot; show some error message and return something other than zero when the running kernel doesn&apos;t support it?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9941880</commentid>
+    <comment_count>3</comment_count>
+    <who name="Phil Sutter">psutter</who>
+    <bug_when>2016-11-30 03:34:54 -0500</bug_when>
+    <thetext>Hi Cristian,
+
+(In reply to Cristian Morales Vega from comment #2)
+&gt; IMHO the note would be nice.
+
+Patch submitted upstream: http://marc.info/?l=linux-netdev&amp;m=148049460813798&amp;w=2
+
+&gt; Also, I don&apos;t know the kernel interface, maybe there is no way for ip to
+&gt; know but, if possible, shouldn&apos;t &quot;ip -4 route show cache&quot; show some error
+&gt; message and return something other than zero when the running kernel doesn&apos;t
+&gt; support it?
+
+I don&apos;t like this idea. It is not a mistake to list IPv4 route cache on newer systems, it&apos;s just empty. Having iproute bail here might confuse users checking the return code as they might think they got the syntax wrong or something. Also it might break existing scripts, which is a no go.
+
+Cheers, Phil</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9950128</commentid>
+    <comment_count>4</comment_count>
+    <who name="Phil Sutter">psutter</who>
+    <bug_when>2016-12-02 02:52:56 -0500</bug_when>
+    <thetext>Patch accepted upstream:
+
+commit f5f760b81250630da23a4021c30e802695be79d2
+Author: Phil Sutter &lt;phil@nwl.cc&gt;
+Date:   Wed Nov 30 09:29:48 2016 +0100
+
+    man: ip-route.8: Add notes about dropped IPv4 route cache
+    
+    Signed-off-by: Phil Sutter &lt;phil@nwl.cc&gt;</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10238390</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-14 11:49:14 -0400</bug_when>
+    <thetext>iproute-4.4.0-4.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2017-d92ee91481</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10243354</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-15 15:56:12 -0400</bug_when>
+    <thetext>iproute-4.4.0-4.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-d92ee91481</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10262184</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-21 12:50:40 -0400</bug_when>
+    <thetext>iproute-4.4.0-4.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

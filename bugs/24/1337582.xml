@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1337582</bug_id>
+          
+          <creation_ts>2016-05-19 10:19:00 -0400</creation_ts>
+          <short_desc>Fails to start with &quot;Cannot read MSR_ERROR_CONTROL from /dev/cpu/0/msr&quot; when running in VM on Xeon E5-2450 host</short_desc>
+          <delta_ts>2017-01-22 07:17:08 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>mcelog</component>
+          <version>24</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>CURRENTRELEASE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard>RejectedBlocker RejectedFreezeException</status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>high</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Adam Williamson">awilliam</reporter>
+          <assigned_to name="Prarit Bhargava">prarit</assigned_to>
+          <cc>gmarr</cc>
+    
+    
+    <cc>jsedlak</cc>
+    
+    
+    <cc>prarit</cc>
+    
+    
+    <cc>robatino</cc>
+    
+    
+    <cc>sergei.litvinenko</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-12-09 14:19:46</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9341195</commentid>
+    <comment_count>0</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2016-05-19 10:19:47 -0400</bug_when>
+    <thetext>Description of problem:
+
+
+Version-Release number of selected component (if applicable):
+
+
+How reproducible:
+
+
+Steps to Reproduce:
+1.
+2.
+3.
+
+Actual results:
+
+
+Expected results:
+
+
+Additional info:</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9341207</commentid>
+    <comment_count>1</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2016-05-19 10:23:04 -0400</bug_when>
+    <thetext>Sorry, somehow hit &apos;submit&apos; too early.
+
+We have an openQA test which checks whether all services started successfully after a default install. It seems recently mcelog quite often fails to start up (though not always - sometimes it works fine). e.g.:
+
+https://openqa.fedoraproject.org/tests/18081
+
+I downloaded the logs from that test - you can find them on the &apos;Logs &amp; Assets&apos; tab - and this seems to be the error:
+
+May 18 12:42:01 localhost.localdomain mcelog[1001]: mcelog: Cannot read MSR_ERROR_CONTROL from /dev/cpu/0/msr
+May 18 12:42:01 localhost.localdomain mcelog[1001]: : Input/output error
+
+the tests run in qemu VMs with &apos;-cpu host&apos;. The host machine for that test has a &apos;Intel(R) Xeon(R) CPU E5-2450 0 @ 2.10GHz&apos; CPU. I haven&apos;t checked yet if the failure is related to the host machine used, I&apos;ll look into that.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9341216</commentid>
+    <comment_count>2</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2016-05-19 10:24:53 -0400</bug_when>
+    <thetext>Proposing as a Final blocker: &quot;All system services present after installation with one of the release-blocking package sets must start properly, unless they require hardware which is not present.&quot; https://fedoraproject.org/wiki/Fedora_24_Final_Release_Criteria#System_services</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9341234</commentid>
+    <comment_count>3</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2016-05-19 10:28:49 -0400</bug_when>
+    <thetext>OK, now I look at it, there seems to be quite a strong correlation with the &apos;worker host&apos; used. We have two types of &apos;worker host&apos; machine: one with that Xeon E5-2450 and three with Xeon E5540 CPUs. It looks a lot like the test always fails when run on the E5-2450 host, and always passes when run on the E5540 hosts.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9351629</commentid>
+    <comment_count>4</comment_count>
+    <who name="Geoffrey Marr">gmarr</who>
+    <bug_when>2016-05-23 14:16:13 -0400</bug_when>
+    <thetext>Discussed during the 2016-05-23 blocker review meeting: [1]
+
+The decision to delay the classification of this bug as a blocker has been made so that the mcelog packager and developers can be consulted as this could be a hardware-specific issue. This will be discussed at next week&apos;s blocker-review meeting.
+
+[1] https://meetbot-raw.fedoraproject.org/fedora-blocker-review/2016-05-23/f24-blocker-review.2016-05-23-16.00.txt</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9363950</commentid>
+    <comment_count>5</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2016-05-26 19:25:44 -0400</bug_when>
+    <thetext>Prarit, I believe this is resolved upstream by these two commits:
+
+https://github.com/andikleen/mcelog/commit/89d3888aada31103d433e14f7c8a9c45ea1c3011
+https://github.com/andikleen/mcelog/commit/b2d6f0c4e762e28d877a8e0e744a6946cd1cae4f
+
+I&apos;ve sent the latest tag (v137) to Rawhide, that seemed pretty obvious. But I&apos;m not sure whether it&apos;s better for F24 - since we&apos;re quite late, it&apos;s nearly Final freeze time - to do the same thing, or just to backport those two patches. WDYT? Could you please make a decision? Thanks!</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9369763</commentid>
+    <comment_count>6</comment_count>
+    <who name="Geoffrey Marr">gmarr</who>
+    <bug_when>2016-05-30 14:15:32 -0400</bug_when>
+    <thetext>Discussed during the 2016-05-30 blocker review meeting: [1]
+
+Decision was made to not classify this as either a Blocker or a FreezeException due to the fact that the bug is very hardware-specfic and the impact is not broad enough to violate the release criteria.
+
+[1] https://meetbot-raw.fedoraproject.org/fedora-blocker-review/2016-05-30/f24-blocker-review.2016-05-30-16.01.txt</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9972695</commentid>
+    <comment_count>7</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2016-12-09 14:19:46 -0500</bug_when>
+    <thetext>This should be OK on F25 and Rawhide now, and I really don&apos;t care much about F24 any more.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10086812</commentid>
+    <comment_count>8</comment_count>
+    <who name="Sergei LITVINENKO">sergei.litvinenko</who>
+    <bug_when>2017-01-22 07:17:08 -0500</bug_when>
+    <thetext>Fedora-25
+
+[root@homedesk sysctl.d]# uname -r
+4.9.4-201.fc25.x86_64 
+
+Issue is not fixed...
+
+янв 22 13:51:42 homedesk.homedesk.org.ua mcelog[1032]: mcelog: Cannot read MSR_ERROR_CONTROL from /dev/cpu/0/msr
+янв 22 13:51:42 homedesk.homedesk.org.ua mcelog[1032]: : Input/output error
+янв 22 13:51:42 homedesk.homedesk.org.ua mcelog[1032]: mcelog: Cannot read MSR_ERROR_CONTROL from /dev/cpu/1/msr
+янв 22 13:51:42 homedesk.homedesk.org.ua mcelog[1032]: : Input/output error
+янв 22 13:51:42 homedesk.homedesk.org.ua mcelog[1032]: mcelog: Cannot read MSR_ERROR_CONTROL from /dev/cpu/2/msr
+янв 22 13:51:42 homedesk.homedesk.org.ua mcelog[1032]: : Input/output error
+янв 22 13:51:42 homedesk.homedesk.org.ua mcelog[1032]: mcelog: Cannot read MSR_ERROR_CONTROL from /dev/cpu/3/msr
+янв 22 13:51:42 homedesk.homedesk.org.ua mcelog[1032]: : Input/output error
+янв 22 13:51:42 homedesk.homedesk.org.ua mcelog[1032]: mcelog: Cannot read MSR_ERROR_CONTROL from /dev/cpu/4/msr
+янв 22 13:51:42 homedesk.homedesk.org.ua mcelog[1032]: : Input/output error
+янв 22 13:51:42 homedesk.homedesk.org.ua mcelog[1032]: mcelog: Cannot read MSR_ERROR_CONTROL from /dev/cpu/5/msr
+янв 22 13:51:42 homedesk.homedesk.org.ua mcelog[1032]: : Input/output error
+янв 22 13:51:42 homedesk.homedesk.org.ua mcelog[1032]: mcelog: Cannot read MSR_ERROR_CONTROL from /dev/cpu/6/msr
+янв 22 13:51:42 homedesk.homedesk.org.ua mcelog[1032]: : Input/output error
+янв 22 13:51:42 homedesk.homedesk.org.ua mcelog[1032]: mcelog: Cannot read MSR_ERROR_CONTROL from /dev/cpu/7/msr
+янв 22 13:51:42 homedesk.homedesk.org.ua mcelog[1032]: : Input/output error
+янв 22 13:51:42 homedesk.homedesk.org.ua mcelog[1032]: mcelog: Cannot read MSR_ERROR_CONTROL from /dev/cpu/8/msr
+янв 22 13:51:42 homedesk.homedesk.org.ua mcelog[1032]: : Input/output error
+янв 22 13:51:42 homedesk.homedesk.org.ua mcelog[1032]: mcelog: Cannot read MSR_ERROR_CONTROL from /dev/cpu/9/msr
+янв 22 13:51:42 homedesk.homedesk.org.ua mcelog[1032]: : Input/output error
+янв 22 13:51:42 homedesk.homedesk.org.ua mcelog[1032]: mcelog: Cannot read MSR_ERROR_CONTROL from /dev/cpu/10/msr
+янв 22 13:51:42 homedesk.homedesk.org.ua mcelog[1032]: : Input/output error
+янв 22 13:51:42 homedesk.homedesk.org.ua mcelog[1032]: mcelog: Cannot read MSR_ERROR_CONTROL from /dev/cpu/11/msr
+янв 22 13:51:42 homedesk.homedesk.org.ua mcelog[1032]: : Input/output error
+янв 22 13:51:42 homedesk.homedesk.org.ua mcelog[1032]: mcelog: Cannot read MSR_ERROR_CONTROL from /dev/cpu/12/msr
+янв 22 13:51:42 homedesk.homedesk.org.ua mcelog[1032]: : Input/output error
+янв 22 13:51:42 homedesk.homedesk.org.ua mcelog[1032]: mcelog: Cannot read MSR_ERROR_CONTROL from /dev/cpu/13/msr
+янв 22 13:51:42 homedesk.homedesk.org.ua mcelog[1032]: : Input/output error
+янв 22 13:51:42 homedesk.homedesk.org.ua mcelog[1032]: mcelog: Cannot read MSR_ERROR_CONTROL from /dev/cpu/14/msr
+янв 22 13:51:42 homedesk.homedesk.org.ua mcelog[1032]: : Input/output error
+янв 22 13:51:42 homedesk.homedesk.org.ua mcelog[1032]: mcelog: Cannot read MSR_ERROR_CONTROL from /dev/cpu/15/msr
+янв 22 13:51:42 homedesk.homedesk.org.ua mcelog[1032]: : Input/output error
+янв 22 13:51:42 homedesk.homedesk.org.ua mcelog[1032]: mcelog: warning: 16 bytes ignored in each record
+янв 22 13:51:42 homedesk.homedesk.org.ua mcelog[1032]: mcelog: consider an update</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

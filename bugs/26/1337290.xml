@@ -1,0 +1,506 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1337290</bug_id>
+          
+          <creation_ts>2016-05-18 13:49:00 -0400</creation_ts>
+          <short_desc>libvirt: spice gl doesn&apos;t work with qemu:///system</short_desc>
+          <delta_ts>2017-06-09 13:35:22 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>libvirt</component>
+          <version>26</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>CURRENTRELEASE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Cole Robinson">crobinso</reporter>
+          <assigned_to name="Michal Privoznik">mprivozn</assigned_to>
+          <cc>agedosier</cc>
+    
+    
+    <cc>airlied</cc>
+    
+    
+    <cc>berrange</cc>
+    
+    
+    <cc>cfergeau</cc>
+    
+    
+    <cc>clalancette</cc>
+    
+    
+    <cc>darkbasic</cc>
+    
+    
+    <cc>devurandom</cc>
+    
+    
+    <cc>dinechin</cc>
+    
+    
+    <cc>dyuan</cc>
+    
+    
+    <cc>everplays</cc>
+    
+    
+    <cc>fjin</cc>
+    
+    
+    <cc>fziglio</cc>
+    
+    
+    <cc>igeorgex</cc>
+    
+    
+    <cc>itamar</cc>
+    
+    
+    <cc>jfrieben</cc>
+    
+    
+    <cc>jtomko</cc>
+    
+    
+    <cc>kraxel</cc>
+    
+    
+    <cc>laine</cc>
+    
+    
+    <cc>lantw44</cc>
+    
+    
+    <cc>libvirt-maint</cc>
+    
+    
+    <cc>marcandre.lureau</cc>
+    
+    
+    <cc>mprivozn</cc>
+    
+    
+    <cc>paulkek</cc>
+    
+    
+    <cc>pzeppegno</cc>
+    
+    
+    <cc>pzhang</cc>
+    
+    
+    <cc>sassmann</cc>
+    
+    
+    <cc>veillard</cc>
+    
+    
+    <cc>virt-maint</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-05-04 13:53:43</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9338274</commentid>
+    <comment_count>0</comment_count>
+    <who name="Cole Robinson">crobinso</who>
+    <bug_when>2016-05-18 13:49:18 -0400</bug_when>
+    <thetext>spice GL passthrough doesn&apos;t currently work with libvirt&apos;s qemu:///system, talking to the system libvirtd instance and launching VMs as the unprivileged qemu:qemu user, vs qemu:///session which is running libvirtd and launching VMs are your local user
+
+The issue is qemu can&apos;t open /dev/dri/render* since it lacks permissions to do so. For a login session the permissions are:
+
+$ getfacl /dev/dri/renderD128 
+getfacl: Removing leading &apos;/&apos; from absolute path names
+# file: dev/dri/renderD128
+# owner: root
+# group: video
+user::rw-
+user:crobinso:rw-
+group::rw-
+mask::rw-
+other::---
+
+Even after chmod 666 or adding qemu to the &apos;video&apos; group, the open() still fails but with &apos;Operation not permitted&apos; instead of &apos;Permission denied&apos;. selinux is permissive
+
+$ rpm -q qemu-kvm libvirt-daemon mesa-libEGL
+qemu-kvm-2.6.0-1.fc24.x86_64
+libvirt-daemon-1.3.3.1-1.fc24.x86_64
+mesa-libEGL-11.2.1-1.20160501.fc24.x86_64</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9338278</commentid>
+    <comment_count>1</comment_count>
+    <who name="Cole Robinson">crobinso</who>
+    <bug_when>2016-05-18 13:50:50 -0400</bug_when>
+    <thetext>CCing some people for suggestions</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9338581</commentid>
+    <comment_count>2</comment_count>
+    <who name="Dave Airlie">airlied</who>
+    <bug_when>2016-05-18 16:02:30 -0400</bug_when>
+    <thetext>I think we need to change cgroup_device_acl to include the /dev/dri/render nodes
+in /etc/libvirt/qemu.conf by default.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9339714</commentid>
+    <comment_count>3</comment_count>
+    <who name="Ján Tomko">jtomko</who>
+    <bug_when>2016-05-19 03:35:27 -0400</bug_when>
+    <thetext>Proposed upstream patch allowing &quot;c 226:* rw&quot;:
+https://www.redhat.com/archives/libvir-list/2016-May/msg01407.html</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9339933</commentid>
+    <comment_count>4</comment_count>
+    <who name="Ján Tomko">jtomko</who>
+    <bug_when>2016-05-19 05:00:36 -0400</bug_when>
+    <thetext>Pushed as:
+commit 3943bdd60c7ff1de00e73f66d907664b74a88a3f
+Author:     Ján Tomko &lt;jtomko@redhat.com&gt;
+CommitDate: 2016-05-19 10:52:50 +0200
+
+    qemu_cgroup: allow access to /dev/dri for virtio-vga
+    
+    QEMU needs access to the /dev/dri/render* device for
+    virgl to work.
+    
+    Allow access to all /dev/dri/* devices for domains with
+    &lt;video&gt;
+      &lt;model type=&apos;virtio&apos; heads=&apos;1&apos; primary=&apos;yes&apos;&gt;
+        &lt;acceleration accel3d=&apos;yes&apos;/&gt;
+      &lt;/model&gt;
+    &lt;/video&gt;
+    
+    https://bugzilla.redhat.com/show_bug.cgi?id=1337290
+
+git describe: v1.3.4-350-g3943bdd</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9340160</commentid>
+    <comment_count>5</comment_count>
+    <who name="Dave Airlie">airlied</who>
+    <bug_when>2016-05-19 06:05:00 -0400</bug_when>
+    <thetext>I think we should possibly restrict it to just /dev/dri/render* for system level qemus. Accessing card nodes has a lot more rules on what you can do.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9340501</commentid>
+    <comment_count>6</comment_count>
+    <who name="Ján Tomko">jtomko</who>
+    <bug_when>2016-05-19 07:32:48 -0400</bug_when>
+    <thetext>Version 2:
+* only allows /dev/dri/render*
+* checks for &lt;graphics type=&quot;spice&quot;&gt; has &lt;gl enable=&quot;yes&quot;/&gt;
+  instead of &lt;acceleration accel3d=&apos;yes&apos;/&gt; in &lt;model type=&apos;virtio&apos;&gt;
+
+https://www.redhat.com/archives/libvir-list/2016-May/msg01435.html</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9590330</commentid>
+    <comment_count>7</comment_count>
+    <who name="Joachim Frieben">jfrieben</who>
+    <bug_when>2016-08-06 00:09:42 -0400</bug_when>
+    <thetext>(In reply to Ján Tomko from comment #6)
+As of current Fedora 24, the addition of directive &lt;gl enable=&apos;on&apos;/&gt; in section &lt;graphics ..&gt; is ignored and even removed upon start-up of the corresponding virtual machine. Current version is libvirt-1.3.3.2-1.fc24. The output of command &apos;dmesg&apos; reports:
+
+[    6.086809] [drm] Initialized drm 1.1.0 20060810
+[    6.386704] [drm] pci: virtio-vga detected
+[    6.396710] [drm] virgl 3d acceleration not available
+[    6.397956] [drm] virtio vbuffers: 80 bufs, 192B each, 15kB total.
+[    6.424352] [drm] number of scanouts: 1
+[    6.424363] [drm] number of cap sets: 0
+[    6.574810] virtio_gpu virtio0: fb0: virtiodrmfb frame buffer device
+[    6.597074] [drm] Initialized virtio_gpu 0.0.1 0 on minor 0
+ 
+On the contrary, under current Fedora 25, virgl 3d is then enabled correctly as long as SELinux is operating in permissive mode (bug 1364075). Here, current version is libvirt-2.1.0-1.fc25.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9669063</commentid>
+    <comment_count>8</comment_count>
+    <who name="Niccolò Belli">darkbasic</who>
+    <bug_when>2016-08-31 17:50:40 -0400</bug_when>
+    <thetext>With the patch I get:
+
+SPICE GL support is local-only for now and incompatible with -spice port/tls-port</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9669107</commentid>
+    <comment_count>9</comment_count>
+    <who name="Niccolò Belli">darkbasic</who>
+    <bug_when>2016-08-31 18:10:28 -0400</bug_when>
+    <thetext>The vm starts with a socket instead, but I had to manually edit the config because virt-manager didn&apos;t allow me to to either specify a socket nor enabling gl:
+
+&lt;graphics type=&apos;spice&apos; autoport=&apos;yes&apos; keymap=&apos;en-us&apos; passwd=&apos;password&apos;&gt;
+  &lt;listen type=&apos;socket&apos; socket=&apos;/tmp/spice.socket&apos;/&gt;
+  &lt;gl enable=&quot;yes&quot;/&gt;
+&lt;/graphics&gt;
+
+I&apos;m using libvirt-git with this patch: https://www.redhat.com/archives/libvir-list/2016-May/msg01437.html
+
+Unfortunately virgl still don&apos;t work:
+
+[    2.459310] [drm] Initialized drm 1.1.0 20060810
+[    2.560986] [drm] pci: virtio-vga detected
+[    2.562226] [drm] virgl 3d acceleration not available
+[    2.562904] [drm] virtio vbuffers: 80 bufs, 192B each, 15kB total.
+[    2.566460] [drm] number of scanouts: 1
+[    2.566469] [drm] number of cap sets: 0
+[    2.572279] virtio_gpu virtio0: fb0: virtiodrmfb frame buffer device
+[    2.582905] [drm] Initialized virtio_gpu 0.0.1 0 on minor 0
+
+Guest is Fedora 25.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9669135</commentid>
+    <comment_count>10</comment_count>
+    <who name="Niccolò Belli">darkbasic</who>
+    <bug_when>2016-08-31 18:43:01 -0400</bug_when>
+    <thetext>My fault, forgot to reboot after updating libvirt.
+
+Now I get:
+
+internal error: qemu unexpectedly closed the monitor: egl: no drm render node available
+qemu-system-x86_64: Failed to initialize EGL render node for SPICE GL
+
+$ ls -l /dev/dri/renderD128
+crw-rw----+ 1 root video 226, 128  1 set 00.22 /dev/dri/renderD128
+
+So I added nobody (yeah, Archlinux runs qemu through the nobody user) to the video group and rebooted:
+
+[    2.529792] [drm] virgl 3d acceleration enabled</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9776670</commentid>
+    <comment_count>11</comment_count>
+    <who name="">devurandom</who>
+    <bug_when>2016-10-09 16:44:18 -0400</bug_when>
+    <thetext>I confirm for Arch Linux that the following makes the VM start with without the abovementioned error &quot;egl: no drm render node available&quot;, but instead with VirGL support detected by the kernel:
+
+1. Download libvirt-git PKGBUILD from AUR
+2. Add this patch to prepare(): https://www.redhat.com/archives/libvir-list/2016-May/msg01437.html
+3. Build and install
+4. Restart libvirtd
+5. Boot VM</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10093340</commentid>
+    <comment_count>12</comment_count>
+    <who name="Paul">paulkek</who>
+    <bug_when>2017-01-24 15:20:18 -0500</bug_when>
+    <thetext>Hello,
+
+I guess this still has not been fixed, even in the 3.0 release of libvirt since I am still getting that error message even with the patch posted in above posts.
+
+I compiled libvirt from master with the patch applied with no luck. Is there anything I can do to solve this?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10097374</commentid>
+    <comment_count>13</comment_count>
+    <who name="Paul">paulkek</who>
+    <bug_when>2017-01-25 19:26:02 -0500</bug_when>
+    <thetext>Since the patch didn&apos;t work, I tried modifying cgroup_device_acl in the qemu.conf file by adding &quot;/dev/dri/renderD128&quot; to the list and I am no longer getting the old error message which says that no render node is available.
+
+However, I am getting new error messages:
+
+qemu-system-x86_64: egl: eglGetDisplay failed
+qemu-system-x86_64: egl: EGL_KHR_surfaceless_context not supported
+qemu-system-x86_64: Failed to initialize EGL render node for SPICE GL</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10107138</commentid>
+    <comment_count>14</comment_count>
+    <who name="Paul">paulkek</who>
+    <bug_when>2017-01-30 16:33:42 -0500</bug_when>
+    <thetext>Ping?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10115289</commentid>
+    <comment_count>15</comment_count>
+    <who name="Behrooz">everplays</who>
+    <bug_when>2017-02-02 05:20:00 -0500</bug_when>
+    <thetext>I had the same problem as Paul described: The patch did not solve the issue. However, by manually adding `/dev/dri/renderD128` to the cgroup_device_acl of `/etc/libvirt/qemu.conf` (note that it was commented), I managed to get 3D context:
+
+&gt; virgl 3d acceleration enabled
+
+I am running Fedora 25 for both host and guest.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10136126</commentid>
+    <comment_count>16</comment_count>
+    <who name="Cole Robinson">crobinso</who>
+    <bug_when>2017-02-09 16:40:02 -0500</bug_when>
+    <thetext>There&apos;s been another attempt at this on the list from mprivozn:
+
+http://www.redhat.com/archives/libvir-list/2017-February/msg00263.html</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10152695</commentid>
+    <comment_count>17</comment_count>
+    <who name="Michal Privoznik">mprivozn</who>
+    <bug_when>2017-02-16 04:28:12 -0500</bug_when>
+    <thetext>And yet anther one:
+
+https://www.redhat.com/archives/libvir-list/2017-February/msg00497.html</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10166453</commentid>
+    <comment_count>18</comment_count>
+    <who name="Michal Privoznik">mprivozn</who>
+    <bug_when>2017-02-20 05:33:32 -0500</bug_when>
+    <thetext>Pushed upstream:
+
+commit 5c74cf1f440b19c05dd9dbd2ab22c217db959fcf
+Author:     Michal Privoznik &lt;mprivozn@redhat.com&gt;
+AuthorDate: Thu Feb 9 17:53:53 2017 +0100
+Commit:     Michal Privoznik &lt;mprivozn@redhat.com&gt;
+CommitDate: Mon Feb 20 10:44:22 2017 +0100
+
+    qemu: Allow @rendernode for virgl domains
+    
+    When enabling virgl, qemu opens /dev/dri/render*. So far, we are
+    not allowing that in devices CGroup nor creating the file in
+    domain&apos;s namespace and thus requiring users to set the paths in
+    qemu.conf. This, however, is suboptimal as it allows access to
+    ALL qemu processes even those which don&apos;t have virgl configured.
+    Now that we have a way to specify render node that qemu will use
+    we can be more cautious and enable just that.
+    
+    Signed-off-by: Michal Privoznik &lt;mprivozn@redhat.com&gt;
+
+v3.0.0-236-g5c74cf1f4</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10166883</commentid>
+    <comment_count>19</comment_count>
+    <who name="Frediano Ziglio">fziglio</who>
+    <bug_when>2017-02-20 07:52:39 -0500</bug_when>
+    <thetext>(In reply to Paul from comment #13)
+&gt; Since the patch didn&apos;t work, I tried modifying cgroup_device_acl in the
+&gt; qemu.conf file by adding &quot;/dev/dri/renderD128&quot; to the list and I am no
+&gt; longer getting the old error message which says that no render node is
+&gt; available.
+&gt; 
+&gt; However, I am getting new error messages:
+&gt; 
+&gt; qemu-system-x86_64: egl: eglGetDisplay failed
+&gt; qemu-system-x86_64: egl: EGL_KHR_surfaceless_context not supported
+&gt; qemu-system-x86_64: Failed to initialize EGL render node for SPICE GL
+
+I think following patch should solve this issue:
+
+http://lists.nongnu.org/archive/html/qemu-devel/2017-02/msg04223.html</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10183770</commentid>
+    <comment_count>20</comment_count>
+    <who name="Paul">paulkek</who>
+    <bug_when>2017-02-25 11:11:00 -0500</bug_when>
+    <thetext>I am still getting the same error with the new patch (Which uses eglGetPlatformDisplayEXT instead of eglGetDisplay).
+
+Though, I am wondering if this will work on NVIDIA drivers? Since I have noticed the usage of EGL_PLATFORM_GBM_MESA which seems Mesa specific? (This is just an assumption, I am not familiar with any of this.)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10183773</commentid>
+    <comment_count>21</comment_count>
+    <who name="Paul">paulkek</who>
+    <bug_when>2017-02-25 11:16:55 -0500</bug_when>
+    <thetext>Well, I&apos;ve just realized that NVIDIA drivers don&apos;t support GBM.
+
+That is unfortunate.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10184766</commentid>
+    <comment_count>22</comment_count>
+    <who name="Niccolò Belli">darkbasic</who>
+    <bug_when>2017-02-26 17:18:17 -0500</bug_when>
+    <thetext>&gt; That is unfortunate.
+
+No it isn&apos;t unfortunate, it&apos;s just stupid. Allowing them to create their own standards mainlining non-gbm wayland support in Gnome is even more stupid.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10309851</commentid>
+    <comment_count>23</comment_count>
+    <who name="Christophe de Dinechin">dinechin</who>
+    <bug_when>2017-04-06 05:45:59 -0400</bug_when>
+    <thetext>With the current state of Fedora25, I had some success on AMD V7900 after following Paul&apos;s advice in cgroup_device_acl. It initializes OK in the guest:
+
+[   22.531176] [drm] Initialized
+[   22.938684] [drm] pci: virtio-vga detected at 0000:00:02.0
+[   22.939198] [drm] virgl 3d acceleration enabled
+[   22.939972] [drm] virtio vbuffers: 288 bufs, 192B each, 54kB total.
+[   22.940246] [drm] number of scanouts: 1
+[   22.940255] [drm] number of cap sets: 1
+[   22.947790] [drm] cap set 0: id 1, max-version 1, max-size 308
+[   22.969754] virtio_gpu virtio0: fb0: virtiodrmfb frame buffer device
+[   22.975394] [drm] Initialized virtio_gpu 0.0.1 0 on minor 0
+
+But when I run glxgears, I get a black window and the following message:
+
+libGL error: MESA-LOADER: failed to retrieve device information
+MESA-LOADER: failed to retrieve device information
+MESA-LOADER: failed to retrieve device information
+Running synchronized to the vertical refresh.  The framerate should be
+approximately the same as the monitor refresh rate.
+GL_RENDERER   = Gallium 0.4 on virgl
+GL_VERSION    = 3.0 Mesa 13.0.4
+GL_VENDOR     = Red Hat
+VisualID 440, 0x1b8</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10309871</commentid>
+    <comment_count>24</comment_count>
+    <who name="Christophe de Dinechin">dinechin</who>
+    <bug_when>2017-04-06 05:52:38 -0400</bug_when>
+    <thetext>Tried under GNOME / Xorg, in that case, the Terminal itself is not readable. I believe this is bug 1426549.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10387015</commentid>
+    <comment_count>25</comment_count>
+    <who name="Cole Robinson">crobinso</who>
+    <bug_when>2017-05-04 13:53:43 -0400</bug_when>
+    <thetext>I&apos;m not going to backport the libvirt rendernode patches to f25, but they are in f26. If people want to try them on f25, grab latest libvirt and qemu from the fedora-virt-preview repo.
+
+Closing this against F26. If anyone is still hitting issues please file a new bug</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10493738</commentid>
+    <comment_count>26</comment_count>
+    <who name="">pzeppegno</who>
+    <bug_when>2017-06-09 13:35:22 -0400</bug_when>
+    <thetext>I still get &quot;Failed to initialize EGL render node for SPICE GL &quot; running fedora 26 on my fedora 26 host machine (upgraded as of today).
+
+I would love to use 3d support and I thought fedora26 would be ready. How can I help to fix it?</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

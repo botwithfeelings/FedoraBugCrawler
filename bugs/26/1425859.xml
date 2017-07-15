@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1425859</bug_id>
+          
+          <creation_ts>2017-02-22 10:42:00 -0500</creation_ts>
+          <short_desc>Can&apos;t connect to VPN after upgrade</short_desc>
+          <delta_ts>2017-04-01 13:28:45 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>openvpn</component>
+          <version>26</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords>Regression</keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Bastien Nocera">bnocera</reporter>
+          <assigned_to name="David Sommerseth">dazo</assigned_to>
+          <cc>choeger</cc>
+    
+    
+    <cc>dazo</cc>
+    
+    
+    <cc>dcbw</cc>
+    
+    
+    <cc>huzaifas</cc>
+    
+    
+    <cc>jfrieben</cc>
+    
+    
+    <cc>limburgher</cc>
+    
+    
+    <cc>lkundrak</cc>
+    
+    
+    <cc>mauricio.teixeira</cc>
+    
+    
+    <cc>psimerda</cc>
+    
+    
+    <cc>steve</cc>
+    
+    
+    <cc>thaller</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>openvpn-2.4.1-1.fc26</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-04-01 13:28:45</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10175059</commentid>
+    <comment_count>0</comment_count>
+    <who name="Bastien Nocera">bnocera</who>
+    <bug_when>2017-02-22 10:42:17 -0500</bug_when>
+    <thetext>openvpn-2.4.0-2.fc26.x86_64
+NetworkManager-openvpn-1.2.8-1.fc26.x86_64
+
+My VPN provider won&apos;t work after upgrading to F26/rawhide:
+
+VERIFY ERROR: depth=0, subject=C=AA, ST=Net, L=The Cloud, O=StreamVia, CN=server, emailAddress=hostmaster@streamvia.com: The certificate is signed with an unacceptable key (eg bad curve, RSA too short).
+
+Changing the certificate is not an option, as it&apos;s what is considered sufficient by my provider.
+
+This seems to be a known problem with the mbedtls build:
+https://bugs.lede-project.org/index.php?do=details&amp;task_id=405#comment1335</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10175717</commentid>
+    <comment_count>1</comment_count>
+    <who name="Thomas Haller">thaller</who>
+    <bug_when>2017-02-22 13:15:54 -0500</bug_when>
+    <thetext>NetworkManager-openvpn plugin just calls openvpn. So, if the plugin does something wrong, it means it calls openvpn with wrong arguments. But from the given information, I don&apos;t see that being the case.
+
+Reassigning to openvpn.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10176177</commentid>
+    <comment_count>2</comment_count>
+    <who name="David Sommerseth">dazo</who>
+    <bug_when>2017-02-22 15:25:49 -0500</bug_when>
+    <thetext>
+OpenVPN v2.4 on Fedora is currently using mbedtls-2.{3,4} instead of OpenSSL, due to building issues against OpenSSL v1.1.
+
+The mbedtls-2.x versions *by default does not accept* any RSA certificates signed by a CA with a key less than 2048 bits.
+
+IIRC, this behaviour may be changed in mbed TLS, but it is a build-time option.  So the whole mbed TLS library needs to be reconfigured.
+
+With all this said, there are now patches on the openvpn-devel mailing list under review which enables OpenVPN to be built against OpenSSL v1.1 as well as v1.0.
+
+Currently the only workaround I can see is to recompile the mbed TLS library to allow weaker CA keys.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10193404</commentid>
+    <comment_count>3</comment_count>
+    <who name="Fedora End Of Life">jkurik</who>
+    <bug_when>2017-02-28 07:24:42 -0500</bug_when>
+    <thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 26 development cycle.
+Changing version to &apos;26&apos;.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10197077</commentid>
+    <comment_count>4</comment_count>
+    <who name="Bastien Nocera">bnocera</who>
+    <bug_when>2017-03-01 07:15:58 -0500</bug_when>
+    <thetext>(In reply to David Sommerseth from comment #2)
+&gt; OpenVPN v2.4 on Fedora is currently using mbedtls-2.{3,4} instead of
+&gt; OpenSSL, due to building issues against OpenSSL v1.1.
+&gt; 
+&gt; The mbedtls-2.x versions *by default does not accept* any RSA certificates
+&gt; signed by a CA with a key less than 2048 bits.
+&gt; 
+&gt; IIRC, this behaviour may be changed in mbed TLS, but it is a build-time
+&gt; option.  So the whole mbed TLS library needs to be reconfigured.
+&gt; 
+&gt; With all this said, there are now patches on the openvpn-devel mailing list
+&gt; under review which enables OpenVPN to be built against OpenSSL v1.1 as well
+&gt; as v1.0.
+&gt; 
+&gt; Currently the only workaround I can see is to recompile the mbed TLS library
+&gt; to allow weaker CA keys.
+
+Could we have that in rawhide soon? I haven&apos;t been able to use that VPN for a week.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10237220</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Admin XMLRPC Client">fedora-admin-xmlrpc</who>
+    <bug_when>2017-03-14 08:15:56 -0400</bug_when>
+    <thetext>This package has changed ownership in the Fedora Package Database.  Reassigning to the new owner of this component.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10238668</commentid>
+    <comment_count>6</comment_count>
+    <who name="Joachim Frieben">jfrieben</who>
+    <bug_when>2017-03-14 13:06:59 -0400</bug_when>
+    <thetext>After downgrading a Fedora 26 system to openvpn-2.4.0-1.fc25. OpenVPN seems to work: it is possible to connect successfully to an OpenVPN server which did not work with openvpn-2.4.0-2.fc26.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10270665</commentid>
+    <comment_count>7</comment_count>
+    <who name="David Sommerseth">dazo</who>
+    <bug_when>2017-03-23 12:14:06 -0400</bug_when>
+    <thetext>Please try the latest openvpn-2.4.1-1.fc26.  This have an additional Fedora specific patch which permits mbed TLS to accept weaker RSA keys and hashing algorithms (so called &apos;legacy certificate profile&apos;)
+
+https://bodhi.fedoraproject.org/updates/openvpn-2.4.1-1.fc26</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10270667</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-23 12:14:32 -0400</bug_when>
+    <thetext>openvpn-2.4.1-1.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-f41671c546</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10296889</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-01 13:28:45 -0400</bug_when>
+    <thetext>openvpn-2.4.1-1.fc26 has been pushed to the Fedora 26 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

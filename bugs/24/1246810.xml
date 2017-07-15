@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1246810</bug_id>
+          
+          <creation_ts>2015-07-25 22:55:00 -0400</creation_ts>
+          <short_desc>Running &apos;mock&apos; complains that I&apos;m running /usr/sbin/mock</short_desc>
+          <delta_ts>2016-10-22 00:01:21 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>mock</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords>Reopened</keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          <dependson>1270972</dependson>
+    
+    
+    <dependson>1271209</dependson>
+    
+    
+    <dependson>1271211</dependson>
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Ben Boeckel">mathstuf</reporter>
+          <assigned_to name="Miroslav Suchý">msuchy</assigned_to>
+          <cc>belegdol</cc>
+    
+    
+    <cc>carl</cc>
+    
+    
+    <cc>erik</cc>
+    
+    
+    <cc>jdisnard</cc>
+    
+    
+    <cc>mebrown</cc>
+    
+    
+    <cc>msimacek</cc>
+    
+    
+    <cc>msuchy</cc>
+    
+    
+    <cc>praiskup</cc>
+    
+    
+    <cc>williams</cc>
+    
+    
+    <cc>zbyszek</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>mock-1.3.2-1.fc25</cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-10-22 00:01:21</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>8479839</commentid>
+    <comment_count>0</comment_count>
+    <who name="Ben Boeckel">mathstuf</who>
+    <bug_when>2015-07-25 22:55:47 -0400</bug_when>
+    <thetext>When running `mock`, I get this error:
+
+% mock
+
+ERROR: [Errno 1] Operation not permitted
+
+ERROR: The most common cause for this error is trying to run /usr/sbin/mock as an unprivileged user.
+ERROR: Check your path to make sure that /usr/bin/ is listed before /usr/sbin, or manually run /usr/bin/mock to see if that fixes this problem.
+
+However, when starting with `systemd --user`, /usr/sbin is before /usr/bin (not sure really where it comes from).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8483121</commentid>
+    <comment_count>1</comment_count>
+    <who name="Zbigniew Jędrzejewski-Szmek">zbyszek</who>
+    <bug_when>2015-07-27 08:47:52 -0400</bug_when>
+    <thetext>How are you running mock? If you are running it inside systemd service, than indeed $PATH will be set to have /sbin before /bin. You probably should refer to the one you want by full path: /bin/mock.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8483143</commentid>
+    <comment_count>2</comment_count>
+    <who name="Ben Boeckel">mathstuf</who>
+    <bug_when>2015-07-27 08:56:43 -0400</bug_when>
+    <thetext>I&apos;m running it from the shell from within tmux. The tmux server was started using a user-level service though. Should `systemd --user` switch around the order of things in `$PATH` to match typical user environments?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8483184</commentid>
+    <comment_count>3</comment_count>
+    <who name="Zbigniew Jędrzejewski-Szmek">zbyszek</who>
+    <bug_when>2015-07-27 09:07:45 -0400</bug_when>
+    <thetext>Yes, that explains stuff. In hindsight, using a different $PATH for user services seems like a good idea, but there&apos;s also the issue of backwards compatiblity: current setting has been like for a long while in systemd and is also documented. This would require some upstream discussion. Could you file a bug at https://github.com/systemd/systemd/issues/ and describe your use case?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8483221</commentid>
+    <comment_count>4</comment_count>
+    <who name="Ben Boeckel">mathstuf</who>
+    <bug_when>2015-07-27 09:20:34 -0400</bug_when>
+    <thetext>Thanks. https://github.com/systemd/systemd/issues/733</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8483399</commentid>
+    <comment_count>5</comment_count>
+    <who name="Miroslav Suchý">msuchy</who>
+    <bug_when>2015-07-27 09:53:53 -0400</bug_when>
+    <thetext>Ok. Closing for now. I am afraid that there is nothing to do on Mock side. As mock either require to be run as user or have /usr/bin/ before /usr/sbin in $PATH.
+Otherwise it will print error, which apparently does.
+
+If you come to some conclusion with $PATH handling, that would require mock intervention, then feel free to reopen this report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8502426</commentid>
+    <comment_count>6</comment_count>
+    <who name="Ben Boeckel">mathstuf</who>
+    <bug_when>2015-08-02 00:33:40 -0400</bug_when>
+    <thetext>Lennart says that shadowing /usr/bin/mock with /usr/sbin/mock should be fixed:
+
+&gt; Having two binaries by the same name in bin and sbin sounds really sick, and should be fixed. I am not sure we want to support such a thing in the built-in defaults. Generally we give the more privileged, more basic tools precedence over the less privileged, more additional tools. This means &quot;/sbin&quot; gets precedence over &quot;/bin&quot; and &quot;/usr/bin&quot;, if all of these exist.
+
+Bug is here: https://github.com/systemd/systemd/issues/733
+
+I&apos;ve done a work-around for now with the user.conf setting, but this is going to surprise anyone moving over to a systemd --user session.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8651186</commentid>
+    <comment_count>7</comment_count>
+    <who name="Ben Boeckel">mathstuf</who>
+    <bug_when>2015-09-19 10:47:31 -0400</bug_when>
+    <thetext>Is there any reason /usr/sbin/mock can&apos;t live as /usr/libexec/mock/mock instead?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8712832</commentid>
+    <comment_count>8</comment_count>
+    <who name="Miroslav Suchý">msuchy</who>
+    <bug_when>2015-10-12 15:02:17 -0400</bug_when>
+    <thetext>Hmm. Moving /usr/sbin/mock to /usr/libexec/mock/mock sounds good to me.
+However we will need to assign correct file selinux context for this file first.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8791988</commentid>
+    <comment_count>9</comment_count>
+    <who name="Erik Johnson">erik</who>
+    <bug_when>2015-11-04 12:56:57 -0500</bug_when>
+    <thetext>I don&apos;t think this has anything to do with systemd, I get the same error even when running mock using the full path:
+
+[builder@rpmbuild ~]$ /usr/bin/mock --root=epel-7-x86_64 --resultdir=/home/builder/mock --define &quot;dist .el7&quot;  /tmp/tmpGnTW29/SRPMS/python-msgpack-0.4.6-1.el5.src.rpm
+INFO: mock.py version 1.2.13 starting (python version = 3.4.3)...
+Start: init plugins
+INFO: selinux disabled
+Finish: init plugins
+Start: run
+INFO: Start(/tmp/tmpGnTW29/SRPMS/python-msgpack-0.4.6-1.el5.src.rpm)  Config(epel-7-x86_64)
+Start: clean chroot
+Finish: clean chroot
+Start: chroot init
+INFO: calling preinit hooks
+INFO: enabled root cache
+INFO: enabled yum cache
+Start: cleaning yum metadata
+Finish: cleaning yum metadata
+INFO: enabled ccache
+Mock Version: 1.2.13
+INFO: Mock Version: 1.2.13
+ERROR: Exception(/tmp/tmpGnTW29/SRPMS/python-msgpack-0.4.6-1.el5.src.rpm) Config(epel-7-x86_64) 0 minutes 0 seconds
+INFO: Results and/or logs in: /home/builder/mock
+INFO: Cleaning up build root (&apos;cleanup_on_failure=True&apos;)
+Start: clean chroot
+Finish: clean chroot
+
+ERROR: [Errno 1] Operation not permitted
+
+ERROR: The most common cause for this error is trying to run /usr/sbin/mock as an unprivileged user.
+ERROR: Check your path to make sure that /usr/bin/ is listed before /usr/sbin, or manually run /usr/bin/mock to see if that fixes this problem.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8792112</commentid>
+    <comment_count>10</comment_count>
+    <who name="Ben Boeckel">mathstuf</who>
+    <bug_when>2015-11-04 13:09:44 -0500</bug_when>
+    <thetext>Is your user in the &quot;mock&quot; group?
+
+% groups
+… mock</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8792170</commentid>
+    <comment_count>11</comment_count>
+    <who name="Erik Johnson">erik</who>
+    <bug_when>2015-11-04 13:15:47 -0500</bug_when>
+    <thetext>Yes. I even logged out and back in to make sure.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9091932</commentid>
+    <comment_count>12</comment_count>
+    <who name="Jan Kurik">jkurik</who>
+    <bug_when>2016-02-24 08:28:26 -0500</bug_when>
+    <thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 24 development cycle.
+Changing version to &apos;24&apos;.
+
+More information and reason for this action is here:
+https://fedoraproject.org/wiki/Fedora_Program_Management/HouseKeeping/Fedora24#Rawhide_Rebase</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9497920</commentid>
+    <comment_count>13</comment_count>
+    <who name="Julian Sikorski">belegdol</who>
+    <bug_when>2016-07-11 16:36:47 -0400</bug_when>
+    <thetext>Happens to me here - I upgraded from f22 which was unaffected.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9710677</commentid>
+    <comment_count>14</comment_count>
+    <who name="Miroslav Suchý">msuchy</who>
+    <bug_when>2016-09-15 08:00:22 -0400</bug_when>
+    <thetext>Notes for myself. When moving the file, we can get rid of consolehelper too:
+http://fedoraproject.org/wiki/Features/UsermodeMigration</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9746767</commentid>
+    <comment_count>15</comment_count>
+    <who name="Miroslav Suchý">msuchy</who>
+    <bug_when>2016-09-27 10:20:58 -0400</bug_when>
+    <thetext>Addressed by commit:
+  * 1537582 move /usr/sbin/mock to /usr/libexec/mock/mock [RHBZ#1246810]
+
+I did not done the usermode migration as part of this change as pkexec is not quite ready.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9803648</commentid>
+    <comment_count>16</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-10-19 04:29:57 -0400</bug_when>
+    <thetext>mock-1.3.2-1.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-07f2f5e2c9</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9812772</commentid>
+    <comment_count>17</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-10-22 00:01:21 -0400</bug_when>
+    <thetext>mock-1.3.2-1.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

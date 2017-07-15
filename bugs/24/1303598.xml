@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1303598</bug_id>
+          
+          <creation_ts>2016-02-01 07:12:00 -0500</creation_ts>
+          <short_desc>libical packages missing libical.a which is referenced by CMake config files</short_desc>
+          <delta_ts>2016-02-28 03:23:04 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>libical</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords>Reopened</keywords>
+          <priority>unspecified</priority>
+          <bug_severity>high</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Daniel Vrátil">me</reporter>
+          <assigned_to name="Rex Dieter">rdieter</assigned_to>
+          <cc>mcrha</cc>
+    
+    
+    <cc>rdieter</cc>
+    
+    
+    <cc>redhat-bugzilla</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>libical-1.0.1-3.fc23 libical-1.0.1-3.fc22</cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-02-28 03:23:04</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9025823</commentid>
+    <comment_count>0</comment_count>
+    <who name="Daniel Vrátil">me</who>
+    <bug_when>2016-02-01 07:12:03 -0500</bug_when>
+    <thetext>Description of problem:
+
+Currently it&apos;s not possible to use CMake to find libical (using CMake config files, i.e. via find_package(LibIcal ....) command), because the package is missing static libraries:
+
+CMake Error at /usr/lib64/cmake/LibIcal/LibIcalTargets.cmake:76 (message):
+  The imported target &quot;ical-static&quot; references the file
+
+     &quot;/usr/lib64/libical.a&quot;
+
+  but this file does not exist.  Possible reasons include:
+
+  * The file was deleted, renamed, or moved to another location.
+
+  * An install or uninstall procedure did not complete successfully.
+
+  * The installation package was faulty and contained
+
+     &quot;/usr/lib64/cmake/LibIcal/LibIcalTargets.cmake&quot;
+
+  but not all the files it references.
+
+
+Since libical is built with static libraries enabled, the generated CMake config files are referencing the libical-static target. Because CMake verifies all imported targets, the configuration fails because the files are not found.
+
+There should either be libical-static subpackage with the static files or if you really don&apos;t want to build the static files you must pass -DSHARED_ONLY=TRUE to CMake to disable the static libraries. It will also make sure the generated CMake config files don&apos;t reference the libical-static target anymore.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9025978</commentid>
+    <comment_count>1</comment_count>
+    <who name="Rex Dieter">rdieter</who>
+    <bug_when>2016-02-01 07:58:11 -0500</bug_when>
+    <thetext>%changelog
+* Mon Feb 01 2016 Rex Dieter &lt;rdieter@fedoraproject.org&gt; 2.0.0-4
+- %%build: -DSHARED_ONLY=TRUE (#1303598)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9025979</commentid>
+    <comment_count>2</comment_count>
+    <who name="Rex Dieter">rdieter</who>
+    <bug_when>2016-02-01 07:58:30 -0500</bug_when>
+    <thetext>oops, looks like f23 is needed too, re-opening</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9025983</commentid>
+    <comment_count>3</comment_count>
+    <who name="Rex Dieter">rdieter</who>
+    <bug_when>2016-02-01 07:59:29 -0500</bug_when>
+    <thetext>nevermind, looks like bug had wrong version, re-closing (marking rawhide).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9026001</commentid>
+    <comment_count>4</comment_count>
+    <who name="Milan Crha">mcrha</who>
+    <bug_when>2016-02-01 08:07:00 -0500</bug_when>
+    <thetext>Event with disabled static libraries, looking into the installed cmake files I see that LibIcalConfig.cmake still references static parts partly:
+
+&gt; # Temporary, will be removed once issue#87 is fixed
+&gt; set(LibIcal_STATIC_LIBRARIES ical-static icalss-static icalvcal-static)
+
+The other files are free of the &apos;static&apos; when built with SHARED_ONLY. I&apos;m unsure whether SHARED_ONLY=true will be sufficient for your build in this case (aka should there be added also a patch which will remove the above quoted lines to make it work properly?).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9026023</commentid>
+    <comment_count>5</comment_count>
+    <who name="Rex Dieter">rdieter</who>
+    <bug_when>2016-02-01 08:10:27 -0500</bug_when>
+    <thetext>simply setting a variable should be mostly harmless, unless... is LibIcal_STATIC_LIBRARIES actually used anywhere else?  (if not, it&apos;s fine)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9052617</commentid>
+    <comment_count>6</comment_count>
+    <who name="Rex Dieter">rdieter</who>
+    <bug_when>2016-02-11 08:24:36 -0500</bug_when>
+    <thetext>I was right, we did need this fixed for f23 too (I just hit FTBFS), doing so now.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9053404</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-02-11 11:27:46 -0500</bug_when>
+    <thetext>libical-1.0.1-3.fc23 has been submitted as an update to Fedora 23. https://bodhi.fedoraproject.org/updates/FEDORA-2016-d938b80157</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9062631</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-02-14 11:23:06 -0500</bug_when>
+    <thetext>libical-1.0.1-3.fc23 has been pushed to the Fedora 23 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-d938b80157</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9068966</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-02-16 12:21:29 -0500</bug_when>
+    <thetext>libical-1.0.1-3.fc22 has been submitted as an update to Fedora 22. https://bodhi.fedoraproject.org/updates/FEDORA-2016-72a831c739</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9070283</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-02-16 22:49:44 -0500</bug_when>
+    <thetext>libical-1.0.1-3.fc23 has been pushed to the Fedora 23 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9070631</commentid>
+    <comment_count>11</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-02-17 01:24:19 -0500</bug_when>
+    <thetext>libical-1.0.1-3.fc22 has been pushed to the Fedora 22 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-72a831c739</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9094307</commentid>
+    <comment_count>12</comment_count>
+    <who name="Jan Kurik">jkurik</who>
+    <bug_when>2016-02-24 10:33:36 -0500</bug_when>
+    <thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 24 development cycle.
+Changing version to &apos;24&apos;.
+
+More information and reason for this action is here:
+https://fedoraproject.org/wiki/Fedora_Program_Management/HouseKeeping/Fedora24#Rawhide_Rebase</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9103272</commentid>
+    <comment_count>13</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-02-28 03:23:02 -0500</bug_when>
+    <thetext>libical-1.0.1-3.fc22 has been pushed to the Fedora 22 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

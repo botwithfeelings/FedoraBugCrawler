@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1311788</bug_id>
+          
+          <creation_ts>2016-02-24 20:07:00 -0500</creation_ts>
+          <short_desc>SELinux is preventing /usr/bin/tor from using the &apos;net_admin&apos; capabilities.</short_desc>
+          <delta_ts>2016-08-16 23:03:52 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>selinux-policy</component>
+          <version>25</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard>abrt_hash:7bc0d4a61bc87c987466081a858f71d7838c7a8e41fd475d50e65dd6bbf89c58;VARIANT_ID=workstation;</status_whiteboard>
+          <keywords></keywords>
+          <priority>medium</priority>
+          <bug_severity>medium</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Andrew Cook">ariscop</reporter>
+          <assigned_to name="Lukas Vrabec">lvrabec</assigned_to>
+          <cc>dominick.grift</cc>
+    
+    
+    <cc>dwalsh</cc>
+    
+    
+    <cc>lvrabec</cc>
+    
+    
+    <cc>mgrepl</cc>
+    
+    
+    <cc>plautrba</cc>
+    
+    
+    <cc>rhbz2</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>selinux-policy-3.13.1-183.fc25 selinux-policy-3.13.1-208.fc25</cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-08-16 23:03:52</cf_last_closed>
+          <cf_type>---</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9096010</commentid>
+    <comment_count>0</comment_count>
+    <who name="Andrew Cook">ariscop</who>
+    <bug_when>2016-02-24 20:07:54 -0500</bug_when>
+    <thetext>Description of problem:
+AVC denial upon starting tor
+
+it... seems to work regardless? i&apos;d assume net_admin is set for binding ports &lt; 1024 but there&apos;s no apparent need for it
+SELinux is preventing /usr/bin/tor from using the &apos;net_admin&apos; capabilities.
+
+*****  Plugin catchall (100. confidence) suggests   **************************
+
+If you believe that tor should have the net_admin capability by default.
+Then you should report this as a bug.
+You can generate a local policy module to allow this access.
+Do
+allow this access for now by executing:
+# grep tor /var/log/audit/audit.log | audit2allow -M mypol
+# semodule -i mypol.pp
+
+Additional Information:
+Source Context                system_u:system_r:tor_t:s0
+Target Context                system_u:system_r:tor_t:s0
+Target Objects                Unknown [ capability ]
+Source                        tor
+Source Path                   /usr/bin/tor
+Port                          &lt;Unknown&gt;
+Host                          (removed)
+Source RPM Packages           tor-0.2.7.6-6.fc24.x86_64
+Target RPM Packages           
+Policy RPM                    selinux-policy-3.13.1-171.fc24.noarch
+Selinux Enabled               True
+Policy Type                   targeted
+Enforcing Mode                Enforcing
+Host Name                     (removed)
+Platform                      Linux (removed) 4.5.0-0.rc5.git0.1.fc24.x86_64 #1
+                              SMP Sun Feb 21 22:39:46 UTC 2016 x86_64 x86_64
+Alert Count                   1
+First Seen                    2016-02-25 12:03:06 AEDT
+Last Seen                     2016-02-25 12:03:06 AEDT
+Local ID                      b6491a5d-3df9-4176-8664-6b4b399b0d61
+
+Raw Audit Messages
+type=AVC msg=audit(1456362186.891:586): avc:  denied  { net_admin } for  pid=12589 comm=&quot;tor&quot; capability=12  scontext=system_u:system_r:tor_t:s0 tcontext=system_u:system_r:tor_t:s0 tclass=capability permissive=0
+
+
+type=SYSCALL msg=audit(1456362186.891:586): arch=x86_64 syscall=setsockopt success=no exit=EPERM a0=3 a1=1 a2=20 a3=7ffdb468a6c0 items=0 ppid=1 pid=12589 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm=tor exe=/usr/bin/tor subj=system_u:system_r:tor_t:s0 key=(null)
+
+Hash: tor,tor_t,tor_t,capability,net_admin
+
+Version-Release number of selected component:
+selinux-policy-3.13.1-171.fc24.noarch
+
+Additional info:
+reporter:       libreport-2.6.4
+hashmarkername: setroubleshoot
+kernel:         4.5.0-0.rc5.git0.1.fc24.x86_64
+type:           libreport</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9097935</commentid>
+    <comment_count>1</comment_count>
+    <who name="Lukas Vrabec">lvrabec</who>
+    <bug_when>2016-02-25 10:11:58 -0500</bug_when>
+    <thetext>Hi, 
+Is everything working without this allow rule, or is something broken with tor?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9099061</commentid>
+    <comment_count>2</comment_count>
+    <who name="Andrew Cook">ariscop</who>
+    <bug_when>2016-02-25 17:54:56 -0500</bug_when>
+    <thetext>Haven&apos;t noticed anything broken, but i only rarely use it to test things from a remote ip address</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9217224</commentid>
+    <comment_count>3</comment_count>
+    <who name="Daniel Walsh">dwalsh</who>
+    <bug_when>2016-04-07 16:01:30 -0400</bug_when>
+    <thetext>*** Bug 1324658 has been marked as a duplicate of this bug. ***</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9217226</commentid>
+    <comment_count>4</comment_count>
+    <who name="Daniel Walsh">dwalsh</who>
+    <bug_when>2016-04-07 16:02:04 -0400</bug_when>
+    <thetext>Did tor seem to work correctly.  I have a feeling this can be dontaudited.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9226223</commentid>
+    <comment_count>5</comment_count>
+    <who name="Lukas Vrabec">lvrabec</who>
+    <bug_when>2016-04-11 11:20:13 -0400</bug_when>
+    <thetext>Agree.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9549428</commentid>
+    <comment_count>6</comment_count>
+    <who name="Jan Kurik">jkurik</who>
+    <bug_when>2016-07-26 00:38:17 -0400</bug_when>
+    <thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 25 development cycle.
+Changing version to &apos;25&apos;.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9611258</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-12 10:17:56 -0400</bug_when>
+    <thetext>selinux-policy-3.13.1-208.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2016-662487f8f1</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9611653</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-12 11:56:26 -0400</bug_when>
+    <thetext>selinux-policy-3.13.1-208.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-662487f8f1</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9620995</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-16 23:02:16 -0400</bug_when>
+    <thetext>selinux-policy-3.13.1-208.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

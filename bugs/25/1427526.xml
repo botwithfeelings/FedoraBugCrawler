@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1427526</bug_id>
+          
+          <creation_ts>2017-02-28 08:47:00 -0500</creation_ts>
+          <short_desc>sshd.service: Got notification message from PID [x], but reception only permitted for main PID [y]</short_desc>
+          <delta_ts>2017-03-05 21:51:39 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>openssh</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Paul Stauffer">paulds</reporter>
+          <assigned_to name="Jakub Jelen">jjelen</assigned_to>
+          <cc>jjelen</cc>
+    
+    
+    <cc>mattias.ellert</cc>
+    
+    
+    <cc>mgrepl</cc>
+    
+    
+    <cc>michal.jnn</cc>
+    
+    
+    <cc>ondrejj</cc>
+    
+    
+    <cc>plautrba</cc>
+    
+    
+    <cc>rkudyba</cc>
+    
+    
+    <cc>tmraz</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>openssh-7.4p1-4.fc25</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-03-05 21:51:39</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10193746</commentid>
+    <comment_count>0</comment_count>
+    <who name="Paul Stauffer">paulds</who>
+    <bug_when>2017-02-28 08:47:03 -0500</bug_when>
+    <thetext>Immediately following the openssh-server-7.4p1-3.fc25.x86_64 update, systemd began spewing hundreds of notifications like the following:
+
+Feb 28 08:39:59 wildwest systemd: sshd.service: Got notification message from PID 2959, but reception only permitted for main PID 1438
+
+On several of my F25 systems these messages seem to appear roughly every 3 minutes, but this may be site- or configuration-dependent.  Restarting the service or rebooting the system has no effect on the behavior.
+
+This appears to be the same issue as Debian bug 809035 from a year ago:
+https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=809035
+
+In that case, the spawned child sshd processes were incorrectly calling sd_notify(), when only the main parent should do so.  The Debian bug reports that this was fixed in openssh 1:7.1p1-6, so the current manifestation may be a regression in Fedora or upstream.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10193847</commentid>
+    <comment_count>1</comment_count>
+    <who name="Jakub Jelen">jjelen</who>
+    <bug_when>2017-02-28 09:08:50 -0500</bug_when>
+    <thetext>Thank you for the elaborated report and sorry for trouble.
+I gave it brief testing, results looked good so I moved on. I missed that the current Debian patch is a bit different then the one discussed in the original bug report which made me to apply this change.
+
+Using this debian patch should solve the problems:
+
+https://anonscm.debian.org/cgit/pkg-ssh/openssh.git/commit/?id=0fd4134
+
+Change itself in
+https://anonscm.debian.org/cgit/pkg-ssh/openssh.git/commit/?id=f9c35cb
+
+Can you try with this scratch build, it if will resolve the problems for you:
+https://koji.fedoraproject.org/koji/taskinfo?taskID=18107849
+
+It looks good to me so I will submit new builds soon.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10194535</commentid>
+    <comment_count>2</comment_count>
+    <who name="Paul Stauffer">paulds</who>
+    <bug_when>2017-02-28 11:37:11 -0500</bug_when>
+    <thetext>Confirmed that your 7.4p1-3.1.fc25 build in Koji appears to resolve the problem.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10195501</commentid>
+    <comment_count>3</comment_count>
+    <who name="Michal Jaegermann">michal.jnn</who>
+    <bug_when>2017-02-28 18:50:00 -0500</bug_when>
+    <thetext>(In reply to Paul Stauffer from comment #0)
+
+&gt; On several of my F25 systems these messages seem to appear roughly every 3
+&gt; minutes, but this may be site- or configuration-dependent.
+
+&quot;Got notification message&quot; appears to show up on every attempt to connect to an updated sshd - regardless if accepted or rejected.  Apparently something is doing that on your systems in regular intervals.
+
+Hopefuly this will get resolved &quot;officially&quot; pretty soon.  On a system exposed to numerous bogus login tries this is getting truly annoying.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10207034</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-03 12:52:56 -0500</bug_when>
+    <thetext>openssh-7.4p1-4.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-cc8582d738</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10207117</commentid>
+    <comment_count>5</comment_count>
+    <who name="Paul Stauffer">paulds</who>
+    <bug_when>2017-03-03 13:20:10 -0500</bug_when>
+    <thetext>Tested and left positive karma in Bodhi.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10208682</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-04 23:23:12 -0500</bug_when>
+    <thetext>openssh-7.4p1-4.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-cc8582d738</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10209607</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-05 21:51:39 -0500</bug_when>
+    <thetext>openssh-7.4p1-4.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

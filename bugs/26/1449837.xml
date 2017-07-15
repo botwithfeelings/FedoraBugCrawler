@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1449837</bug_id>
+          
+          <creation_ts>2017-05-10 16:58:00 -0400</creation_ts>
+          <short_desc>Unable to create aarch64 images with virt-manager due to missing gicv3 emulation</short_desc>
+          <delta_ts>2017-06-09 15:19:13 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>libvirt</component>
+          <version>26</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>245418</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Jeremy Linton">jeremy.linton</reporter>
+          <assigned_to name="Libvirt Maintainers">libvirt-maint</assigned_to>
+          <cc>abologna</cc>
+    
+    
+    <cc>agedosier</cc>
+    
+    
+    <cc>amitshah</cc>
+    
+    
+    <cc>berrange</cc>
+    
+    
+    <cc>cfergeau</cc>
+    
+    
+    <cc>clalancette</cc>
+    
+    
+    <cc>crobinso</cc>
+    
+    
+    <cc>dwmw2</cc>
+    
+    
+    <cc>eric.auger</cc>
+    
+    
+    <cc>itamar</cc>
+    
+    
+    <cc>laine</cc>
+    
+    
+    <cc>libvirt-maint</cc>
+    
+    
+    <cc>pbonzini</cc>
+    
+    
+    <cc>pbrobinson</cc>
+    
+    
+    <cc>phrdina</cc>
+    
+    
+    <cc>rjones</cc>
+    
+    
+    <cc>veillard</cc>
+    
+    
+    <cc>virt-maint</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>libvirt-3.2.1-3.fc26</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-06-09 15:19:13</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10401976</commentid>
+    <comment_count>0</comment_count>
+    <who name="Jeremy Linton">jeremy.linton</who>
+    <bug_when>2017-05-10 16:58:15 -0400</bug_when>
+    <thetext>Description of problem: qemu/aarch64 only supports gicv3 emulation via KVM on a aarch64 machine. This wouldn&apos;t be a problem except that the last couple of qemu releases default to gicv3, which means that the default machine config created via libvirt/virt-manager fails with a message &quot;MSIX is not supported by interrupt controller&quot; (older versions say) &quot;MSI is not supported by interrupt controller&quot;.
+
+
+Version-Release number of selected component (if applicable): qemu 2.8.11 &amp; 2.9
+
+
+How reproducible: 100%
+
+
+Steps to Reproduce:
+1. fedpkg install qemu libvirt virt-manager
+2. virt-manager
+3. new machine, arch = aarch64, type=virt
+3. Install from fedora aarch64.iso
+4. next a couple times, until finish.
+5. Failure with above message.
+
+Actual results:
+&quot;MSIX is not supported by interrupt controller&quot;
+
+Expected results:
+Emulated machine starts up, and starts install fedora 
+
+Additional info:
+This could be a libvirt type bug as well, because the gic type can be overriden with `gic_version=2` to make it work as well.
+
+
+A quick hack in virt.c to create_its() would return a failure code, which when handled in create_gic() would flip the gic type=2, and proceed to create_v2m().</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10401979</commentid>
+    <comment_count>1</comment_count>
+    <who name="Jeremy Linton">jeremy.linton</who>
+    <bug_when>2017-05-10 16:58:48 -0400</bug_when>
+    <thetext>This bug is likely in F26 as well, I just haven&apos;t verified it there.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10402000</commentid>
+    <comment_count>2</comment_count>
+    <who name="Cole Robinson">crobinso</who>
+    <bug_when>2017-05-10 17:05:03 -0400</bug_when>
+    <thetext>Andrea I think I saw some internal discussion about this but I&apos;m light on details. Can you explain the plan here?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10404925</commentid>
+    <comment_count>3</comment_count>
+    <who name="Andrea Bolognani">abologna</who>
+    <bug_when>2017-05-11 11:51:27 -0400</bug_when>
+    <thetext>(In reply to Cole Robinson from comment #2)
+&gt; Andrea I think I saw some internal discussion about this but I&apos;m light on
+&gt; details. Can you explain the plan here?
+
+As detailed in Bug 1414081, the root of the issue is
+that QEMU doesn&apos;t fully emulate GICv3, and more
+specifically is missing the MSI controller which is
+a requirement for virtio-pci.
+
+There are several ways we could deal with the issue:
+
+  1) switch back from virtio-pci to virtio-mmio, which
+     works with the current GICv3;
+
+  2) implement the missing bits of GICv3 emulation;
+
+  3) change libvirt to always prefer GICv2 for TCG
+     guests;
+
+  4) provide a way for virt-manager users to choose
+     between GICv2 and GICv3.
+
+1) would be a massive step back, so I&apos;ve included it
+only for completeness&apos; sake and strongly advise against
+even considering it.
+
+2) is something that we want to have at some point,
+hence Bug 1414081, but I also have to assume it would
+be a lot of work which rules it out as a short to medium
+term solution.
+
+3) is probably our best bet. We&apos;ll want to have a way
+for libvirt to figure out whether QEMU supports full
+GICv3 emulation so we can switch the default back to
+that in the future.
+
+4) is something that we should arguably have in any
+case, same way you can already pass gic_version= to
+virt-install in order to override libvirt&apos;s default.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10406623</commentid>
+    <comment_count>4</comment_count>
+    <who name="Eric Auger">eric.auger</who>
+    <bug_when>2017-05-12 03:11:20 -0400</bug_when>
+    <thetext>Actually virtio-pci does not require any MSI controller. It can work with legacy INTx interrupts.
+
+However the new PCIe topology requires it (the ioh3420 root port requires it and this causes the failure).
+
+So I don&apos;t think 1) or reverting to the former topology is the right direction.
+I confirm 2) is a really huge work.
+
+3) looks the easiest (GICv2m MSI controller then will be used). Then 4)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10406707</commentid>
+    <comment_count>5</comment_count>
+    <who name="Andrea Bolognani">abologna</who>
+    <bug_when>2017-05-12 03:49:59 -0400</bug_when>
+    <thetext>(In reply to Eric Auger from comment #4)
+&gt; Actually virtio-pci does not require any MSI controller. It can work with
+&gt; legacy INTx interrupts.
+&gt; 
+&gt; However the new PCIe topology requires it (the ioh3420 root port requires it
+&gt; and this causes the failure).
+
+Sorry for being inaccurate :)
+
+At the end of the day the distinction is irrelevant to us
+though, because we only care about PCIe anyway.
+
+&gt; So I don&apos;t think 1) or reverting to the former topology is the right
+&gt; direction.
+&gt; I confirm 2) is a really huge work.
+&gt; 3) looks the easiest (GICv2m MSI controller then will be used). Then 4)
+
+3) and 4) should be tackled in parallel.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10421968</commentid>
+    <comment_count>6</comment_count>
+    <who name="Cole Robinson">crobinso</who>
+    <bug_when>2017-05-17 12:35:02 -0400</bug_when>
+    <thetext>Fixed in libvirt.git, needs these commits:
+
+commit 5645badd1fe04fee7237c2f95e7710e978e40770
+Author: Andrea Bolognani &lt;abologna@redhat.com&gt;
+Date:   Fri May 12 14:38:08 2017 +0200
+
+    gic: Remove VIR_GIC_VERSION_DEFAULT
+    
+    The QEMU default is GICv2, and some of the code in libvirt
+    relies on the exact value. Stop pretending that&apos;s not the
+    case and use GICv2 explicitly where needed.
+    
+    Signed-off-by: Andrea Bolognani &lt;abologna@redhat.com&gt;
+
+commit bc07101a7c2cd2ce07ad1ca28c47e0a7cde5625d
+Author: Andrea Bolognani &lt;abologna@redhat.com&gt;
+Date:   Fri May 12 13:29:57 2017 +0200
+
+    qemu: Use GICv2 for aarch64/virt TCG guests
+    
+    There are currently some limitations in the emulated GICv3
+    that make it unsuitable as a default. Use GICv2 instead.
+    
+    Resolves: https://bugzilla.redhat.com/show_bug.cgi?id=1450433
+    
+    Signed-off-by: Andrea Bolognani &lt;abologna@redhat.com&gt;
+
+commit b24eaf6210ebaf5dc8d29621063873c8419c517e
+Author: Andrea Bolognani &lt;abologna@redhat.com&gt;
+Date:   Fri May 12 14:05:55 2017 +0200
+
+    tests: Check default GIC version for aarch64/virt TCG guests
+    
+    Signed-off-by: Andrea Bolognani &lt;abologna@redhat.com&gt;
+
+commit 5290d4fdaf7758a03b06d60d113993babee0a9d5
+Author: Andrea Bolognani &lt;abologna@redhat.com&gt;
+Date:   Fri May 12 11:03:19 2017 +0200
+
+    qemu: Use qemuDomainMachineIsVirt() more
+    
+    Signed-off-by: Andrea Bolognani &lt;abologna@redhat.com&gt;</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10423981</commentid>
+    <comment_count>7</comment_count>
+    <who name="Andrea Bolognani">abologna</who>
+    <bug_when>2017-05-18 03:06:43 -0400</bug_when>
+    <thetext>Do you not plan to implent a way for users to switch
+between GIC versions from the GUI then? virt-install
+already allows you to do that.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10424796</commentid>
+    <comment_count>8</comment_count>
+    <who name="Cole Robinson">crobinso</who>
+    <bug_when>2017-05-18 07:04:26 -0400</bug_when>
+    <thetext>(In reply to Andrea Bolognani from comment #7)
+&gt; Do you not plan to implent a way for users to switch
+&gt; between GIC versions from the GUI then? virt-install
+&gt; already allows you to do that.
+
+Yeah I can do that</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10424821</commentid>
+    <comment_count>9</comment_count>
+    <who name="Pavel Hrdina">phrdina</who>
+    <bug_when>2017-05-18 07:14:50 -0400</bug_when>
+    <thetext>https://www.redhat.com/archives/virt-tools-list/2016-June/msg00056.html</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10425359</commentid>
+    <comment_count>10</comment_count>
+    <who name="Cole Robinson">crobinso</who>
+    <bug_when>2017-05-18 09:43:34 -0400</bug_when>
+    <thetext>(In reply to Pavel Hrdina from comment #9)
+&gt; https://www.redhat.com/archives/virt-tools-list/2016-June/msg00056.html
+
+Whoops, forgot about that :)
+
+But re-reading my emails I think the reasoning for not exposing this in the UI still applies. Basically users will always want the latest gic version that the config supports, and changing it to something older would only be for testing purposes or maybe some obscure migration compat case. It&apos;s just that our understanding of a working config missed the tcg+virtio-pci case so libvirt&apos;s default was wrong. That&apos;s fixed, so all is good.
+
+Yes having clicky UI would have given a virt-manager workaround here but a UI element who&apos;s primary use is bug workaround isn&apos;t very compelling to me.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10427980</commentid>
+    <comment_count>11</comment_count>
+    <who name="Pavel Hrdina">phrdina</who>
+    <bug_when>2017-05-19 03:59:05 -0400</bug_when>
+    <thetext>Np :)
+
+These kind of UI elements could be hidden under &quot;Advanced configuration&quot; which could be enabled/disabled in the &quot;Preferences&quot; and by default it would be disabled to make the UI simple for the majority of users.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10460568</commentid>
+    <comment_count>12</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-30 19:37:24 -0400</bug_when>
+    <thetext>libvirt-3.2.1-2.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-1bfce27ae1</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10466738</commentid>
+    <comment_count>13</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-31 23:19:14 -0400</bug_when>
+    <thetext>libvirt-3.2.1-2.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-1bfce27ae1</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10494315</commentid>
+    <comment_count>14</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-09 15:19:13 -0400</bug_when>
+    <thetext>libvirt-3.2.1-3.fc26 has been pushed to the Fedora 26 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

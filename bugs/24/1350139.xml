@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1350139</bug_id>
+          
+          <creation_ts>2016-06-25 20:13:00 -0400</creation_ts>
+          <short_desc>No valid cgroup for LXC container due to machine name mismatch</short_desc>
+          <delta_ts>2016-07-22 11:57:54 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>libvirt</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Gregorio Gervasio">gregorio.gervasio</reporter>
+          <assigned_to name="Libvirt Maintainers">libvirt-maint</assigned_to>
+          <cc>agedosier</cc>
+    
+    
+    <cc>berrange</cc>
+    
+    
+    <cc>clalancette</cc>
+    
+    
+    <cc>crobinso</cc>
+    
+    
+    <cc>dyuan</cc>
+    
+    
+    <cc>itamar</cc>
+    
+    
+    <cc>laine</cc>
+    
+    
+    <cc>libvirt-maint</cc>
+    
+    
+    <cc>veillard</cc>
+    
+    
+    <cc>virt-maint</cc>
+    
+    
+    <cc>yisun</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>libvirt-1.3.3.2-1.fc24</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-07-22 11:57:54</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9452650</commentid>
+    <comment_count>0</comment_count>
+    <who name="Gregorio Gervasio">gregorio.gervasio</who>
+    <bug_when>2016-06-25 20:13:17 -0400</bug_when>
+    <thetext>Description of problem:
+
+After upgrading from F23 to F24, starting an LXC container always results in an error:
+
+# virsh -c lxc:// start --console lallor
+error: Failed to start domain lallor
+error: internal error: No valid cgroup for machine lallor
+
+Running libvirtd with logging at level 1 shows the following:
+
+2016-06-25 22:12:23.654+0000: 8766: debug : virCgroupValidateMachineGroup:317 : Name &apos;lxc-8828-lallor.libvirt-lxc&apos; for controller &apos;cpu&apos; does not match &apos;lallor&apos;, &apos;lxc-8828-lallor&apos;, &apos;lallor.libvirt-lxc&apos;, &apos;machine-lxc\x2dlallor.scope&apos; or &apos;machine-lxc\x2d8828\x2dlallor.scope&apos;
+2016-06-25 22:12:23.654+0000: 8766: debug : virCgroupNewDetectMachine:1501 : Failed to validate machine name for &apos;lallor&apos; driver &apos;lxc&apos;
+2016-06-25 22:12:23.654+0000: 8766: error : virLXCProcessStart:1501 : internal error: No valid cgroup for machine lallor
+
+
+The error goes away when the patch in this message is applied:
+
+https://www.redhat.com/archives/libvir-list/2016-May/msg00401.html
+
+
+Version-Release number of selected component (if applicable):
+
+libvirt-1.3.3.1-3.fc24.x86_64
+
+How reproducible:
+
+Always
+
+Steps to Reproduce:
+1. Start LXC container
+
+Actual results:
+Error occurs
+
+Expected results:
+No error
+
+
+Additional info:</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9456601</commentid>
+    <comment_count>1</comment_count>
+    <who name="Cole Robinson">crobinso</who>
+    <bug_when>2016-06-27 14:46:21 -0400</bug_when>
+    <thetext>I pushed the commit to the upstream v1.3.3-maint branch now. I&apos;ll do a fedora build soon:
+
+commit 7e20f44d8da1634aabec68437854a8810bc28f44
+Author: Michal Privoznik &lt;mprivozn@redhat.com&gt;
+Date:   Thu May 5 17:35:38 2016 +0200
+
+    virCgroupValidateMachineGroup: Reflect change in CGroup struct naming
+    
+    Fron c3bd0019c0e on instead of creating the following path for
+    cgroups:
+    
+      /sys/fs/cgroupX/$name.libvirt-$driver
+    
+    we generate rather more verbose one:
+    
+      /sys/fs/cgroupX/$driver-$id-$name.libvirt-$driver
+    
+    where $name is optional and included iff contains allowed chars.
+    See original commit for more reasoning. Now, problem with the
+    original commit is that we are unable to start any LXC domain
+    after it. Because when starting LXC container, the CGroup layout
+    is created by our lxc_controller process and then detected and
+    validated by libvirtd. The validation is done by trying to match
+    detected layout against all the possible patterns for cgroup
+    paths that we&apos;ve ever had. And the commit in question forgot to
+    update this part of the code.
+    
+    Signed-off-by: Michal Privoznik &lt;mprivozn@redhat.com&gt;
+    (cherry picked from commit fb377701f253559268e903377707ed3d265823cd)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9521996</commentid>
+    <comment_count>2</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-19 07:25:07 -0400</bug_when>
+    <thetext>libvirt-1.3.3.2-1.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-65cc608ebe</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9530331</commentid>
+    <comment_count>3</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-19 21:53:36 -0400</bug_when>
+    <thetext>libvirt-1.3.3.2-1.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-65cc608ebe</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9541794</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-22 11:56:47 -0400</bug_when>
+    <thetext>libvirt-1.3.3.2-1.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

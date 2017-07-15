@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1381116</bug_id>
+          
+          <creation_ts>2016-10-03 01:05:00 -0400</creation_ts>
+          <short_desc>PCP PMDA Installation Fails</short_desc>
+          <delta_ts>2017-01-31 19:35:04 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>pcp</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>CURRENTRELEASE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Marko Myllynen">myllynen</reporter>
+          <assigned_to name="Nathan Scott">nathans</assigned_to>
+          <cc>brolley</cc>
+    
+    
+    <cc>fche</cc>
+    
+    
+    <cc>lberk</cc>
+    
+    
+    <cc>mbenitez</cc>
+    
+    
+    <cc>mgoodwin</cc>
+    
+    
+    <cc>nathans</cc>
+    
+    
+    <cc>pcp</cc>
+    
+    
+    <cc>scox</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-01-31 19:35:04</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9760114</commentid>
+    <comment_count>0</comment_count>
+    <who name="Marko Myllynen">myllynen</who>
+    <bug_when>2016-10-03 01:05:45 -0400</bug_when>
+    <thetext>Description of problem:
+[root@localhost libvirt]# pwd
+/var/lib/pcp/pmdas/libvirt
+[root@localhost libvirt]# ./Install
+You will need to choose an appropriate configuration for installation of
+the &quot;libvirt&quot; Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [b] c
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+Updating the PMCD control file, and notifying PMCD ...
+Waiting for pmcd to terminate ...
+Starting pmcd ... [Mon Oct  3 08:00:43] pmcd(3831) Error: OpenRequestSocket(44321, INADDR_ANY, inet) __pmBind: Address already in use
+[Mon Oct  3 08:00:43] pmcd(3831) Error: pmcd may already be running
+[Mon Oct  3 08:00:43] pmcd(3831) Error: OpenRequestSocket(44321, INADDR_ANY, ipv6) __pmBind: Address already in use
+[Mon Oct  3 08:00:43] pmcd(3831) Error: pmcd may already be running
+[Mon Oct  3 08:00:43] pmcd(3831) Error: OpenRequestSocket(0, /var/run/pcp/pmcd.socket, unix) __pmBind: Address already in use
+[Mon Oct  3 08:00:43] pmcd(3831) Error: pmcd may already be running
+[Mon Oct  3 08:00:43] pmcd(3831) Error: pmcd: can&apos;t open any request ports, exiting
+[Mon Oct  3 08:00:43] pmcd(3831) Error: pmcd not started due to errors!
+
+Check libvirt metrics have appeared ... 1 warnings, 1 metrics and 0 values
+[root@localhost libvirt]# pminfo libvirt | wc -l
+1
+[root@localhost libvirt]# systemctl restart pmcd
+[root@localhost libvirt]# pminfo libvirt | wc -l
+72
+[root@localhost libvirt]# getenforce 
+Permissive
+[root@localhost libvirt]# 
+
+Version-Release number of selected component (if applicable):
+pcp-3.11.5-1.fc24.x86_64
+pcp-pmda-libvirt-3.11.5-1.fc24.x86_64
+
+How reproducible:
+Always</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9760139</commentid>
+    <comment_count>1</comment_count>
+    <who name="Nathan Scott">nathans</who>
+    <bug_when>2016-10-03 01:36:31 -0400</bug_when>
+    <thetext>&gt; [...]
+&gt; How reproducible:
+&gt; Always
+
+Something whacky there - no problems here, and this kind of catastrophic failure from pmdaproc.sh would be affecting everyone (and many QA tests).
+
+Marko confirmed on IRC that after setting forced_restart=false the libvirt PMDA Install proceeds successfully.  Probably high time we made that the default, as we&apos;ve been planning to for ages - I&apos;ll get that in for the next release.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9760249</commentid>
+    <comment_count>2</comment_count>
+    <who name="Marko Myllynen">myllynen</who>
+    <bug_when>2016-10-03 03:09:55 -0400</bug_when>
+    <thetext>Steps to reproduce:
+
+1. Install Fedora 24 Server
+2. Update, put SELinux to Permissive
+3. Install PCP, enable pmcd/pmlogger/pmie
+4. Install pcp-pmda-libvirt from updates-testing
+5. Continue as in comment#0</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10111107</commentid>
+    <comment_count>3</comment_count>
+    <who name="Nathan Scott">nathans</who>
+    <bug_when>2017-01-31 19:35:04 -0500</bug_when>
+    <thetext>This bug can no longer happen since the forced_restart=true was removed from the Install script (i.e. since pcp-3.11.6).</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

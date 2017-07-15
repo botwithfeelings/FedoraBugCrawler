@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1288815</bug_id>
+          
+          <creation_ts>2015-12-06 03:59:00 -0500</creation_ts>
+          <short_desc>sphinx systemd service file references mysqld still</short_desc>
+          <delta_ts>2016-08-05 16:55:35 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>sphinx</component>
+          <version>24</version>
+          <rep_platform>All</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>low</priority>
+          <bug_severity>low</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Trevor Cordes">trevor</reporter>
+          <assigned_to name="Gerald Cox">gbcox</assigned_to>
+          <cc>christof</cc>
+    
+    
+    <cc>gbcox</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>sphinx-2.2.11-1.fc23 sphinx-2.2.11-1.fc24</cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-08-05 16:50:22</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>8893587</commentid>
+    <comment_count>0</comment_count>
+    <who name="Trevor Cordes">trevor</who>
+    <bug_when>2015-12-06 03:59:24 -0500</bug_when>
+    <thetext>Description of problem:
+Sphinx&apos;s systemd .service file references mysqld.service in its After= line, when F22 has renamed mysqld.service to mariadb.service.  This can cause (in a race condition way) sphinx to start before mariadb, and hence fail.
+
+
+Version-Release number of selected component (if applicable):
+sphinx-2.2.10-1.fc22.x86_64
+mariadb-10.0.21-1.fc22.x86_64
+
+
+How reproducible:
+always
+
+
+Steps to Reproduce:
+1. grep -i after /usr/lib/systemd/system/searchd.service
+
+Actual results:
+After=local-fs.target network.target mysqld.service
+
+Expected results:
+After=local-fs.target network.target mariadb.service
+
+Additional info:
+There may be other rpms with systemd service files with the same bug, but I can&apos;t think (or find) any off the top of my head.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8893999</commentid>
+    <comment_count>1</comment_count>
+    <who name="Gerald Cox">gbcox</who>
+    <bug_when>2015-12-06 12:16:18 -0500</bug_when>
+    <thetext>Investigating...</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8894087</commentid>
+    <comment_count>2</comment_count>
+    <who name="Gerald Cox">gbcox</who>
+    <bug_when>2015-12-06 13:21:32 -0500</bug_when>
+    <thetext>Still investigating, but don&apos;t believe this will cause an issue because it doesn&apos;t appear that mysql/mariadb is required.  In my system, I am running neither... instead I&apos;m using postgresql - and I haven&apos;t experienced any issues.  I will however continue to research before I update the searchd.service file.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8894325</commentid>
+    <comment_count>3</comment_count>
+    <who name="Trevor Cordes">trevor</who>
+    <bug_when>2015-12-06 17:07:42 -0500</bug_when>
+    <thetext>Good point.  I haven&apos;t actually had sphinx fail because of this, I only came across it when I had another .service file that did fail because it referenced mysqld and in that case the order did matter.
+
+If sphinx doesn&apos;t need maria alive when it starts, if it waits for connections from client programs before calling the db, then I guess it wouldn&apos;t matter.  However, say you have another .service file that had After=searchd.service and started to make sphinx calls right away.  If sphinx wasn&apos;t waiting for maria then in that case things would start failing.  Pathological, but possible?
+
+I don&apos;t think systemd and rpm give an easy way to say &quot;if our db choice is pg then After=pg; if our db choice is maria then After=maria&quot;.  So it might be hopeless until someone programs such an option.  (That said, most people will be using maria instead of pg(? maybe?) so perhaps a default still helps.  In any case, After=mysqld.service is no longer useful.)
+
+Thanks</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8894578</commentid>
+    <comment_count>4</comment_count>
+    <who name="Gerald Cox">gbcox</who>
+    <bug_when>2015-12-06 21:14:37 -0500</bug_when>
+    <thetext>(In reply to Trevor Cordes from comment #3)
+&gt; I don&apos;t think systemd and rpm give an easy way to say &quot;if our db choice is
+&gt; pg then After=pg; if our db choice is maria then After=maria&quot;.  So it might
+&gt; be hopeless until someone programs such an option.  (That said, most people
+&gt; will be using maria instead of pg(? maybe?) so perhaps a default still
+&gt; helps.  In any case, After=mysqld.service is no longer useful.)
+
+Agreed, mysqld.service should be removed.  I&apos;ll continue looking, but at this point appears it was really never needed.  I&apos;ll keep this bug open as a reminder to me to remove it during the next update.  Thanks for taking the time to report it.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9433525</commentid>
+    <comment_count>5</comment_count>
+    <who name="Gerald Cox">gbcox</who>
+    <bug_when>2016-06-20 11:07:53 -0400</bug_when>
+    <thetext>Changing to F24 since that is current.  Awaiting next release to incorporate this change.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9554521</commentid>
+    <comment_count>6</comment_count>
+    <who name="Gerald Cox">gbcox</who>
+    <bug_when>2016-07-26 15:16:45 -0400</bug_when>
+    <thetext>Upstream bugfix release 2.2.11 is available.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9554728</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-26 17:11:39 -0400</bug_when>
+    <thetext>sphinx-2.2.11-1.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-bca02f997b</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9554729</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-26 17:12:44 -0400</bug_when>
+    <thetext>sphinx-2.2.11-1.fc23 has been submitted as an update to Fedora 23. https://bodhi.fedoraproject.org/updates/FEDORA-2016-29846306eb</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9561440</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-28 00:18:04 -0400</bug_when>
+    <thetext>sphinx-2.2.11-1.fc23 has been pushed to the Fedora 23 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-29846306eb</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9561709</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-28 01:59:13 -0400</bug_when>
+    <thetext>sphinx-2.2.11-1.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-bca02f997b</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9590013</commentid>
+    <comment_count>11</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-05 16:50:19 -0400</bug_when>
+    <thetext>sphinx-2.2.11-1.fc23 has been pushed to the Fedora 23 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9590060</commentid>
+    <comment_count>12</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-08-05 16:55:33 -0400</bug_when>
+    <thetext>sphinx-2.2.11-1.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

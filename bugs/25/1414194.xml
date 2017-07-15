@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1414194</bug_id>
+          
+          <creation_ts>2017-01-17 20:35:00 -0500</creation_ts>
+          <short_desc>kernel 4.9.3 breaks container networking under OpenShift</short_desc>
+          <delta_ts>2017-04-11 11:04:58 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>kernel</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>CURRENTRELEASE</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>medium</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>1414469</blocked>
+    
+    
+    <blocked>1422172</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Joel Diaz">jdiaz</reporter>
+          <assigned_to name="Kernel Maintainer List">kernel-maint</assigned_to>
+          <cc>gansalmon</cc>
+    
+    
+    <cc>ichavero</cc>
+    
+    
+    <cc>itamar</cc>
+    
+    
+    <cc>jkastner</cc>
+    
+    
+    <cc>jonathan</cc>
+    
+    
+    <cc>kernel-maint</cc>
+    
+    
+    <cc>labbott</cc>
+    
+    
+    <cc>madhu.chinakonda</cc>
+    
+    
+    <cc>mchehab</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-04-11 11:04:58</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10074447</commentid>
+    <comment_count>0</comment_count>
+    <who name="Joel Diaz">jdiaz</who>
+    <bug_when>2017-01-17 20:35:32 -0500</bug_when>
+    <thetext>Description of problem:
+I recently started to be unable to communicate (TCP) from one container to another container under OpenShift origin. After much digging around, I&apos;ve found that kernel 4.9.3-200.fc25.x86_64 is where the problems have started. I&apos;ve confirmed that an earlier kernel 4.8.16-300.fc25.x86_64 works.
+
+Version-Release number of selected component (if applicable):
+kernel-4.9.3-200.fc25.x86_64
+
+How reproducible:
+100%
+
+Steps to Reproduce:
+Unfortunately I don&apos;t know how else to reproduce this, so bear with the intricate setup.
+1. Download/untar OpenShift Origin from https://github.com/openshift/origin/releases/download/v1.3.2/openshift-origin-client-tools-v1.3.2-ac1d579-linux-64bit.tar.gz&apos;
+  1a) Install docker, and add the following line to /etc/sysconfig/docker:
+        INSECURE_REGISTRY=&apos;--insecure-registry 172.30.0.0/16&apos;
+  1b) sudo systemctl start docker
+2. sudo firewall-cmd --add-service=dns (so that containers can do DNS resolution from one container to the next)
+3. sudo ./openshift-origin.../oc cluster up
+4. Connect to openshift web url using your browser (provided as output from &apos;oc cluster up&apos;)
+5. Log in (user: developer, password: developer), select the &quot;My Project&quot; project, and &apos;Add to project&apos; the &apos;mysql-ephemeral&apos; container
+6. &apos;Add to project&apos; a second &apos;mysql-ephemeral&apos; container. Call the &quot;Database Service Name&quot; &apos;mysql2&apos; to differentiate it (just need a container with the mysql client installed)
+7. From the first mysql container, see the environment variables that were set for MYSQL_USER and MYSQL_PASSWORD. You can find this in the web UI through Applications-&gt;Pods then viewing the &quot;Environment&quot; tab on the first mysql container.
+8. From the second mysql container, go to the terminal: Applications-&gt;Pods-&gt;second mysql container, then &quot;Terminal&quot; tab.
+9. From the second mysql container shell: mysql -u&lt;MYSQL_USER var from first mysql pod&gt; -p&lt;MYSQL_PASSWORD from first mysql pod&gt; -hmysql sampledb
+
+
+Actual results:
+connecting to the mysql pod fails
+
+Expected results:
+connecting to the mysql pod succeeds
+
+Additional info:
+performing the above steps with kernel-4.8.16-300.fc25.x86_64 works just fine.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10074461</commentid>
+    <comment_count>1</comment_count>
+    <who name="Laura Abbott">labbott</who>
+    <bug_when>2017-01-17 20:54:12 -0500</bug_when>
+    <thetext>Can you try the scratch build at https://koji.fedoraproject.org/koji/taskinfo?taskID=17316113 ? This fixed an issue with kubernetes networking (see https://bugzilla.redhat.com/show_bug.cgi?id=1414068)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10074484</commentid>
+    <comment_count>2</comment_count>
+    <who name="Joel Diaz">jdiaz</who>
+    <bug_when>2017-01-17 21:12:29 -0500</bug_when>
+    <thetext>(In reply to Laura Abbott from comment #1)
+&gt; Can you try the scratch build at
+&gt; https://koji.fedoraproject.org/koji/taskinfo?taskID=17316113 ? This fixed an
+&gt; issue with kubernetes networking (see
+&gt; https://bugzilla.redhat.com/show_bug.cgi?id=1414068)
+
+Kernel 4.9.4-202.rhbz1414068.fc25 does let the kubernetes inter-container networking work again.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10325168</commentid>
+    <comment_count>3</comment_count>
+    <who name="Justin M. Forbes">jforbes</who>
+    <bug_when>2017-04-11 10:57:00 -0400</bug_when>
+    <thetext>*********** MASS BUG UPDATE **************
+
+We apologize for the inconvenience.  There is a large number of bugs to go through and several of them have gone stale.  Due to this, we are doing a mass bug update across all of the Fedora 25 kernel bugs.
+
+Fedora 25 has now been rebased to 4.10.9-200.fc25.  Please test this kernel update (or newer) and let us know if you issue has been resolved or if it is still present with the newer kernel.
+
+If you have moved on to Fedora 26, and are still experiencing this issue, please change the version to Fedora 26.
+
+If you experience different issues, please open a new bug report for those.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10325287</commentid>
+    <comment_count>4</comment_count>
+    <who name="Joel Diaz">jdiaz</who>
+    <bug_when>2017-04-11 11:04:58 -0400</bug_when>
+    <thetext>Works with kernel-4.9.14-200.fc25.x86_64</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

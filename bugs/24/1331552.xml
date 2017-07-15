@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1331552</bug_id>
+          
+          <creation_ts>2016-04-28 15:13:00 -0400</creation_ts>
+          <short_desc>libvirt should not disable auto_login of iscsi-targets that are *not* used by libvirt.</short_desc>
+          <delta_ts>2016-06-26 16:55:01 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>libvirt</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>high</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Fritz Elfert">fritz</reporter>
+          <assigned_to name="Libvirt Maintainers">libvirt-maint</assigned_to>
+          <cc>agedosier</cc>
+    
+    
+    <cc>berrange</cc>
+    
+    
+    <cc>clalancette</cc>
+    
+    
+    <cc>crobinso</cc>
+    
+    
+    <cc>dyuan</cc>
+    
+    
+    <cc>fritz</cc>
+    
+    
+    <cc>itamar</cc>
+    
+    
+    <cc>jferlan</cc>
+    
+    
+    <cc>laine</cc>
+    
+    
+    <cc>libvirt-maint</cc>
+    
+    
+    <cc>lmen</cc>
+    
+    
+    <cc>veillard</cc>
+    
+    
+    <cc>virt-maint</cc>
+    
+    
+    <cc>yisun</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>libvirt-1.3.3.1-4.fc24</cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-06-26 16:55:01</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9278045</commentid>
+    <comment_count>0</comment_count>
+    <who name="Fritz Elfert">fritz</who>
+    <bug_when>2016-04-28 15:13:17 -0400</bug_when>
+    <thetext>Description of problem:
+I have a setup where multiple iscsi targets are used for *both* libvirt (as a storage-pool) as well as the host system itself (as general storage). Of course, the desired autologin-mode for targets used as host storage is &quot;automatic&quot;. However, whenever libvirtd starts, *all* targets are switched into manual mode. When the system is rebooted, then the next start fails for all the host-mounted filsystems.
+
+I found this mail which i believe is the original reasoning for that
+behavior:
+https://www.redhat.com/archives/libvir-list/2010-November/msg00548.html
+
+However: Since quite some time the mentioned behavior of iscsiadm has been changed and therefore the reasoning is obsolete. Instead, when performing discovery with iscsiadm, libvirt should use the --op nonpersistent argument in order to prevent any persistent changes in the first place, it then can safely skip the subsequent disabling of auto-login mode.
+
+Version-Release number of selected component (if applicable):
+
+
+How reproducible:
+always
+
+Steps to Reproduce:
+1. configure an iscsi storage pool for libvirt
+2. use another iscsi target as host storage with auto-logon enabled
+3. startup libvirt
+4. reboot
+
+Actual results:
+The configured host storage fails, because no auto-login is performed.
+Depending on the mount-point subsequent services may fail, if they depend on the mounted filesystem.
+
+Expected results:
+The configured host storage should automatically become available upon reboot.
+
+Additional info:</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9279676</commentid>
+    <comment_count>1</comment_count>
+    <who name="Cole Robinson">crobinso</who>
+    <bug_when>2016-04-29 07:13:33 -0400</bug_when>
+    <thetext>jferlan this seems like your area, any thoughts?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9279694</commentid>
+    <comment_count>2</comment_count>
+    <who name="Fritz Elfert">fritz</who>
+    <bug_when>2016-04-29 07:23:47 -0400</bug_when>
+    <thetext>BTW: I&apos;ll try to come up with a patch over the weekend ...</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9280014</commentid>
+    <comment_count>3</comment_count>
+    <who name="John Ferlan">jferlan</who>
+    <bug_when>2016-04-29 08:57:45 -0400</bug_when>
+    <thetext>My initial thought would be that changing the libvirt iSCSI backend code to utilize some new iscsiadm switch/option would only be valid if that switch option were available; otherwise, the existing mechanism would have to be used (and we&apos;d need to document that). I don&apos;t stay current with the changes in iscsiadm, so I assume that switch would &quot;do the right thing&quot;.
+
+Whatever patches are developed need to take into account that an &apos;iscsiadm&apos; may not have that switch. Checking for that in configure.ac is I&apos;m sure possible, but I&apos;m not the expert to know the &quot;how&quot; to do that.  You will end up with &quot;WITH_&quot; type conditionals that would then be used in the iSCSI storage backend to decide whether or not to use the switch.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9280115</commentid>
+    <comment_count>4</comment_count>
+    <who name="Cole Robinson">crobinso</who>
+    <bug_when>2016-04-29 09:27:59 -0400</bug_when>
+    <thetext>On latest RHEL6 at least the iscsiadm man page says it supports --op nonpersistent, so maybe we can use it unconditionally since we don&apos;t support RHEL5 host anymore.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9280599</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fritz Elfert">fritz</who>
+    <bug_when>2016-04-29 12:10:30 -0400</bug_when>
+    <thetext>If you look into iscsiadm&apos;s upstream git, you can see, that support for nonpersistent mode was added long time in March 2010 even before the original mail above was written. It just happened that - at that time - it was not yet released.
+So: I&apos;m certain, that this is supported even in older releases now (no need for a configure check!). See this commit: https://github.com/open-iscsi/open-iscsi/commit/ad873767436f1cc242f0d4a522a2fce7133795c1</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9280712</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fritz Elfert">fritz</who>
+    <bug_when>2016-04-29 13:11:50 -0400</bug_when>
+    <thetext>Even in RHEL5.6 (checked against CentOS, because old RHEL sources are hard to find) this is supported since iscsi-initiator-utils-6.2.0.872-6.el5.src.rpm (released around Apr 2011).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9281216</commentid>
+    <comment_count>7</comment_count>
+      <attachid>1152419</attachid>
+    <who name="Fritz Elfert">fritz</who>
+    <bug_when>2016-04-29 17:48:56 -0400</bug_when>
+    <thetext>Created attachment 1152419
+proposed patch
+
+This patch fixes the problem on my test system:
+ - Non-libvirt related targets stay in automatic login mode
+ - libvirt-related target stay in manual login mode
+ - The whole setup &quot;survives&quot; a reboot.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9281223</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fritz Elfert">fritz</who>
+    <bug_when>2016-04-29 17:56:30 -0400</bug_when>
+    <thetext>As I have shown in Comments 5 and 6, the used &quot;nonpersistent&quot; feature is generally available since ~ April 2011. Therefore, I found it unnecessary to add a configure check. (According to https://access.redhat.com/support/policy/updates/errata RHEL 5.6 is EOL (EUS for 5.6 ended July 31, 2013 - almost 3 years ago!)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9282037</commentid>
+    <comment_count>9</comment_count>
+    <who name="Cole Robinson">crobinso</who>
+    <bug_when>2016-04-30 15:21:02 -0400</bug_when>
+    <thetext>Thanks for the patch! Please send it to libvir-list@redhat.com so it gets the proper attention</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9286044</commentid>
+    <comment_count>10</comment_count>
+    <who name="Cole Robinson">crobinso</who>
+    <bug_when>2016-05-02 16:13:32 -0400</bug_when>
+    <thetext>Patch was sent:
+
+http://www.redhat.com/archives/libvir-list/2016-May/msg00002.html</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9337104</commentid>
+    <comment_count>11</comment_count>
+    <who name="John Ferlan">jferlan</who>
+    <bug_when>2016-05-18 08:38:58 -0400</bug_when>
+    <thetext>Adjustments to original patch were sent:
+
+http://www.redhat.com/archives/libvir-list/2016-May/msg01162.html
+
+reviewed, ACK&apos;d, and pushed.
+
+
+commit 56057900dc53df490d953d56de1195ebfa025bdd
+Author: Fritz Elfert &lt;fritz@fritz-elfert.de&gt;
+Date:   Fri May 13 11:19:09 2016 -0400
+
+    util: Remove disabling of autologin for iscsi-targets
+
+
+...
+$ git describe 56057900dc53df490d953d56de1195ebfa025bdd
+v1.3.4-340-g5605790
+$</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9448092</commentid>
+    <comment_count>12</comment_count>
+    <who name="Cole Robinson">crobinso</who>
+    <bug_when>2016-06-23 15:40:13 -0400</bug_when>
+    <thetext>I hit some conflicts backporting this to f23, so moving to f24</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9448509</commentid>
+    <comment_count>13</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-06-23 18:31:43 -0400</bug_when>
+    <thetext>libvirt-1.3.3.1-4.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-b2f402a414</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9451987</commentid>
+    <comment_count>14</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-06-24 20:31:53 -0400</bug_when>
+    <thetext>libvirt-1.3.3.1-4.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-b2f402a414</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9453489</commentid>
+    <comment_count>15</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-06-26 16:54:46 -0400</bug_when>
+    <thetext>libvirt-1.3.3.1-4.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="0"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1152419</attachid>
+            <date>2016-04-29 17:48:00 -0400</date>
+            <delta_ts>2016-04-29 17:48:56 -0400</delta_ts>
+            <desc>proposed patch</desc>
+            <filename>0017-use-nonpersistent-iscsi-discovery.patch</filename>
+            <type>text/plain</type>
+            <size>3192</size>
+            <attacher name="Fritz Elfert">fritz</attacher>
+            
+              <data encoding="base64">RnJvbTogRnJpdHogRWxmZXJ0IDxmcml0ekBmcml0ei1lbGZlcnQuZGU+CkRhdGU6IEZyaSwgMjkg
+QXByIDIwMTYgMjA6NTk6NTkgKzAyMDAKU3ViamVjdDogW1BBVENIXSB2aXJpc2NzaTogVXNlIG5v
+bnBlcnNpc3RlbnQgaXNjc2kgZGlzY292ZXJ5CgpJbnN0ZWFkIG9mIGRpc2FibGluZyBhdXRvLWxv
+Z2luIG9mIGFsbCBzY3NpIHRhcmdldHMgKGV2ZW4gdGhvc2UKdGhhdCBkbyBub3QgImJlbG9uZyIg
+dG8gbGlidmlydCwgdXNlIGlzY3NpYWRtJ3MgLS1vcCBub25wZXJzaXN0ZW50CmR1cmluZyBkaXNj
+b3ZlcnkuCgpodHRwczovL2J1Z3ppbGxhLnJlZGhhdC5jb20vc2hvd19idWcuY2dpP2lkPTEzMzE1
+NTIKLS0tCiBzcmMvdXRpbC92aXJpc2NzaS5jICB8IDI4ICstLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0KIHRlc3RzL3ZpcmlzY3NpdGVzdC5jIHwgIDQgKysrLQogMiBmaWxlcyBjaGFuZ2VkLCA0
+IGluc2VydGlvbnMoKyksIDI4IGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL3NyYy91dGlsL3Zp
+cmlzY3NpLmMgYi9zcmMvdXRpbC92aXJpc2NzaS5jCmluZGV4IGJkMzRmZWEuLjMxZjhjZTYgMTAw
+NjQ0Ci0tLSBhL3NyYy91dGlsL3ZpcmlzY3NpLmMKKysrIGIvc3JjL3V0aWwvdmlyaXNjc2kuYwpA
+QCAtMzg2LDIxICszODYsNiBAQCB2aXJJU0NTSUdldFRhcmdldHMoY2hhciAqKmNvbnN0IGdyb3Vw
+cywKIH0KIAogCi1zdGF0aWMgaW50Ci12aXJJU0NTSVRhcmdldEF1dG9sb2dpbihjb25zdCBjaGFy
+ICpwb3J0YWwsCi0gICAgICAgICAgICAgICAgICAgICAgICBjb25zdCBjaGFyICppbml0aWF0b3Jp
+cW4sCi0gICAgICAgICAgICAgICAgICAgICAgICBjb25zdCBjaGFyICp0YXJnZXQsCi0gICAgICAg
+ICAgICAgICAgICAgICAgICBib29sIGVuYWJsZSkKLXsKLSAgICBjb25zdCBjaGFyICpleHRyYWFy
+Z3ZbXSA9IHsgIi0tb3AiLCAidXBkYXRlIiwKLSAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgIi0tbmFtZSIsICJub2RlLnN0YXJ0dXAiLAotICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAiLS12YWx1ZSIsIGVuYWJsZSA/ICJhdXRvbWF0aWMiIDogIm1hbnVhbCIsCi0gICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgIE5VTEwgfTsKLQotICAgIHJldHVybiB2aXJJU0NTSUNv
+bm5lY3Rpb24ocG9ydGFsLCBpbml0aWF0b3JpcW4sIHRhcmdldCwgZXh0cmFhcmd2KTsKLX0KLQot
+CiBpbnQKIHZpcklTQ1NJU2NhblRhcmdldHMoY29uc3QgY2hhciAqcG9ydGFsLAogICAgICAgICAg
+ICAgICAgICAgICBjb25zdCBjaGFyICppbml0aWF0b3JpcW4sCkBAIC00MjgsNiArNDEzLDcgQEAg
+dmlySVNDU0lTY2FuVGFyZ2V0cyhjb25zdCBjaGFyICpwb3J0YWwsCiAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAiLS1tb2RlIiwgImRpc2NvdmVyeSIsCiAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAiLS10eXBlIiwgInNlbmR0
+YXJnZXRzIiwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICIt
+LXBvcnRhbCIsIHBvcnRhbCwKKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICItLW9wIiwgIm5vbnBlcnNpc3RlbnQiLAogICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgTlVMTCk7CiAKICAgICBtZW1zZXQoJmxpc3QsIDAsIHNpemVv
+ZihsaXN0KSk7CkBAIC00NDAsMTggKzQyNiw2IEBAIHZpcklTQ1NJU2NhblRhcmdldHMoY29uc3Qg
+Y2hhciAqcG9ydGFsLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgJmxpc3QsIE5VTEwpIDwg
+MCkKICAgICAgICAgZ290byBjbGVhbnVwOwogCi0gICAgZm9yIChpID0gMDsgaSA8IGxpc3QubnRh
+cmdldHM7IGkrKykgewotICAgICAgICAvKiBXZSBoYXZlIHRvIGlnbm9yZSBmYWlsdXJlLCBiZWNh
+dXNlIHdlIGNhbid0IHVuZG8KLSAgICAgICAgICogdGhlIHJlc3VsdHMgb2YgJ3NlbmR0YXJnZXRz
+JywgdW5sZXNzIHdlIGdvIHNjcnViYmluZwotICAgICAgICAgKiBhcm91bmQgaW4gdGhlIGRpcnQg
+aW4gL3Zhci9saWIvaXNjc2kuCi0gICAgICAgICAqLwotICAgICAgICBpZiAodmlySVNDU0lUYXJn
+ZXRBdXRvbG9naW4ocG9ydGFsLAotICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+aW5pdGlhdG9yaXFuLAotICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgbGlzdC50
+YXJnZXRzW2ldLCBmYWxzZSkgPCAwKQotICAgICAgICAgICAgVklSX1dBUk4oIlVuYWJsZSB0byBk
+aXNhYmxlIGF1dG8tbG9naW4gb24gaVNDU0kgdGFyZ2V0ICVzOiAlcyIsCi0gICAgICAgICAgICAg
+ICAgICAgICBwb3J0YWwsIGxpc3QudGFyZ2V0c1tpXSk7Ci0gICAgfQotCiAgICAgaWYgKG50YXJn
+ZXRzcmV0ICYmIHRhcmdldHNyZXQpIHsKICAgICAgICAgKm50YXJnZXRzcmV0ID0gbGlzdC5udGFy
+Z2V0czsKICAgICAgICAgKnRhcmdldHNyZXQgPSBsaXN0LnRhcmdldHM7CmRpZmYgLS1naXQgYS90
+ZXN0cy92aXJpc2NzaXRlc3QuYyBiL3Rlc3RzL3ZpcmlzY3NpdGVzdC5jCmluZGV4IGM2OTdhNGEu
+LmI1YjBlMjAgMTAwNjQ0Ci0tLSBhL3Rlc3RzL3ZpcmlzY3NpdGVzdC5jCisrKyBiL3Rlc3RzL3Zp
+cmlzY3NpdGVzdC5jCkBAIC05MCw3ICs5MCw5IEBAIHN0YXRpYyB2b2lkIHRlc3RJc2NzaWFkbUNi
+KGNvbnN0IGNoYXIgKmNvbnN0KmFyZ3MsCiAgICAgICAgICAgICAgICBhcmdzWzRdICYmIFNUUkVR
+KGFyZ3NbNF0sICJzZW5kdGFyZ2V0cyIpICYmCiAgICAgICAgICAgICAgICBhcmdzWzVdICYmIFNU
+UkVRKGFyZ3NbNV0sICItLXBvcnRhbCIpICYmCiAgICAgICAgICAgICAgICBhcmdzWzZdICYmIFNU
+UkVRKGFyZ3NbNl0sICIxMC4yMC4zMC40MDozMjYwLDEiKSAmJgotICAgICAgICAgICAgICAgYXJn
+c1s3XSA9PSBOVUxMKSB7CisgICAgICAgICAgICAgICBhcmdzWzddICYmIFNUUkVRKGFyZ3NbN10s
+ICItLW9wIikgJiYKKyAgICAgICAgICAgICAgIGFyZ3NbOF0gJiYgU1RSRVEoYXJnc1s4XSwgIm5v
+bnBlcnNpc3RlbnQiKSAmJgorICAgICAgICAgICAgICAgYXJnc1s5XSA9PSBOVUxMKSB7CiAgICAg
+ICAgIGlnbm9yZV92YWx1ZShWSVJfU1RSRFVQKCpvdXRwdXQsIGlzY3NpYWRtU2VuZHRhcmdldHNP
+dXRwdXQpKTsKICAgICB9IGVsc2UgewogICAgICAgICAqc3RhdHVzID0gLTE7Ci0tIAoyLjUuNQoK
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

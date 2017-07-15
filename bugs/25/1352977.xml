@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1352977</bug_id>
+          
+          <creation_ts>2016-07-05 12:19:00 -0400</creation_ts>
+          <short_desc>virtio-serial devices in qemu-kvm break when guests write on channel with host side closed</short_desc>
+          <delta_ts>2017-04-19 05:24:31 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>qemu</component>
+          <version>25</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>high</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Nat Meo">nat</reporter>
+          <assigned_to name="Fedora Virtualization Maintainers">virt-maint</assigned_to>
+          <cc>amitshah</cc>
+    
+    
+    <cc>amit.shah</cc>
+    
+    
+    <cc>berrange</cc>
+    
+    
+    <cc>cfergeau</cc>
+    
+    
+    <cc>crobinso</cc>
+    
+    
+    <cc>dwmw2</cc>
+    
+    
+    <cc>itamar</cc>
+    
+    
+    <cc>knappch</cc>
+    
+    
+    <cc>pagupta</cc>
+    
+    
+    <cc>pbonzini</cc>
+    
+    
+    <cc>rjones</cc>
+    
+    
+    <cc>virt-maint</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>qemu-2.7.1-6.fc25</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-04-19 05:24:31</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9481894</commentid>
+    <comment_count>0</comment_count>
+    <who name="Nat Meo">nat</who>
+    <bug_when>2016-07-05 12:19:20 -0400</bug_when>
+    <thetext>Description of problem:
+There is a problem when using virtio-serial devices in qemu-kvm where writing to a channel from the guest side when the host side has been closed will result in the host subsequently not being able to read any data after the host side has been reopened.
+
+Version-Release number of selected component (if applicable):
+qemu-kvm-2.6.0-4.fc24.x86_64
+qemu-common-2.6.0-4.fc24.x86_64
+qemu-system-x86-2.6.0-4.fc24.x86_64
+libvirt-1.3.3.1-4.fc24.x86_64
+libvirt-daemon-1.3.3.1-4.fc24.x86_64
+libvirt-daemon-driver-qemu-1.3.3.1-4.fc24.x86_64
+libvirt-daemon-kvm-1.3.3.1-4.fc24.x86_64
+virt-manager-1.4.0-3.fc24.noarch
+virt-manager-common-1.4.0-3.fc24.noarch
+
+How reproducible:
+100%
+
+Steps to Reproduce:
+1. Using virt-manager or some other means, install you favorite Linux distribution that has virtio-serial support in the kernel.
+2. Add the following to the libvirt XML for the guest that you created:
+
+    &lt;channel type=&apos;pty&apos;&gt;
+      &lt;target type=&apos;virtio&apos; name=&apos;test&apos;/&gt;
+      &lt;address type=&apos;virtio-serial&apos; controller=&apos;0&apos; bus=&apos;0&apos; port=&apos;3&apos;/&gt;
+    &lt;/channel&gt;
+
+3. Start up the guest and while it is booting do a virsh dumpxml to determine the /dev/pty/? device attached to the host side of the channel.
+4. In a terminal on the host, execute the command &quot;cat /dev/pty/?&quot; to capture output.
+5. In a terminal on the guest, execute the command &quot;echo test1 &gt; /dev/virtio-ports/test&quot;.
+6. Observe that the message &quot;test1&quot; is displayed on the host side.
+7. Press CTRL-C in the terminal on the host to kill the &quot;cat&quot; command.
+8. In the terminal on the guest, execute the command &quot;echo test2 &gt; /dev/virtio-ports/test&quot;.
+9. In a terminal on the host, execute the command &quot;cat /dev/pty/?&quot; to capture output again.
+10. Observe that &quot;test2&quot; is not displayed in the output on the host side.
+11. In the terminal on the guest, execute the command &quot;echo test3 &gt; /dev/virtio-ports/test&quot;.
+12. Observe that &quot;test3&quot; is also not displayed in the output on the host side.
+
+Actual results:
+&quot;test2&quot; and &quot;test3&quot; are not displayed on the host side.
+
+Expected results:
+At least &quot;test3&quot; should be displayed on the host side. Seeing &quot;test2&quot; would also be good since it would mean messages would not be dropped when the host side is not being read from.
+
+Additional info:
+If you skip the step where &quot;test2&quot; is sent when the host side is closed then you will see &quot;test3&quot; displayed successfully. It seems that if any write occurs on the guest side while the host side has been closed, then it breaks the virtio-serial channel in a manner that nothing else can ever be read again. The only way to get it working again is to completely shutdown the guest and restart it. The operating system running inside the guest does not appear to matter as this happens with Ubuntu, Windows, CentOS, etc, so this seems to be a problem with qemu-kvm.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9481912</commentid>
+    <comment_count>1</comment_count>
+    <who name="Nat Meo">nat</who>
+    <bug_when>2016-07-05 12:25:06 -0400</bug_when>
+    <thetext>This also appears to be a problem on Fedora 22 and 23.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9505512</commentid>
+    <comment_count>2</comment_count>
+    <who name="Cole Robinson">crobinso</who>
+    <bug_when>2016-07-13 10:37:04 -0400</bug_when>
+    <thetext>Amit, any ideas?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9550390</commentid>
+    <comment_count>3</comment_count>
+    <who name="Amit Shah">amit.shah</who>
+    <bug_when>2016-07-26 02:30:51 -0400</bug_when>
+    <thetext>Thanks for the detailed report.
+
+It&apos;s been known for a while that host-side disconnects aren&apos;t registered immediately, and qemu can lose some data.  If you try writing to the port from the guest in a loop, the writes will resume at some time, when qemu realises the host side was closed, and then it does reopen the port after that.  If writing several bytes from the guest doesn&apos;t change this, it&apos;s likely a new bug.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9551961</commentid>
+    <comment_count>4</comment_count>
+    <who name="Nat Meo">nat</who>
+    <bug_when>2016-07-26 09:11:37 -0400</bug_when>
+    <thetext>Based on this I ran a simple test. I did a fresh install on a host of Fedora 24 and inside that host I did a fresh install of a CentOS 7 guest. I then configured a virtio-serial device in the same manner described above and performed a &quot;cat&quot; on it from the host side and left it running. Inside the guest I created the following shell script:
+
+#!/bin/sh
+while :
+do
+    echo Testing &gt; /dev/virtio-ports/test
+    sleep 1
+done
+
+I then ran this script on the guest. I let it run for 10 seconds and saw that there were 10 &quot;Testing&quot; messages displayed on the host side. I then killed the &quot;cat&quot; command and waited another 10 seconds. I then executed &quot;cat&quot; again on the same pts device and saw no output. I waited five minutes and still nothing showed up on the host side despite the script still running in a loop on the guest side.
+
+Unless there is some large amount of data or long timeout required for the host side to realize it has been closed it appears that the virtio-serial device has permanently ceased receiving data. If I appear to be doing anything incorrectly or there is some special configuration required that I am not aware of then please let me know.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9556217</commentid>
+    <comment_count>5</comment_count>
+    <who name="Amit Shah">amit.shah</who>
+    <bug_when>2016-07-27 02:03:25 -0400</bug_when>
+    <thetext>Thanks.  Can you try a different backend on the host - tcp or unix?  Then use netcat or socat to see output from the guest - this will help in narrowing down the problem - whether it&apos;s in the pts backend, or all the backends.
+
+Thanks,</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9558501</commentid>
+    <comment_count>6</comment_count>
+    <who name="Nat Meo">nat</who>
+    <bug_when>2016-07-27 07:48:48 -0400</bug_when>
+    <thetext>I added the following to my libvirt XML:
+
+    &lt;channel type=&apos;unix&apos;&gt;
+      &lt;source mode=&apos;bind&apos; path=&apos;/tmp/virtio-bind&apos;/&gt;
+      &lt;target type=&apos;virtio&apos; name=&apos;testing&apos; state=&apos;connected&apos;/&gt;
+    &lt;/channel&gt;
+
+I then executed &quot;socat /tmp/virtio-bind STDOUT&quot; on the host. On the guest I ran an echo command and the message displayed on the host side. I then killed the socat command and did another echo on the guest. After the echo command was executed, I ran socat on the host again and it did not display anything. I then proceeded to perform another echo on the guest side and saw the third message on the host side. It appears using a unix channel type as opposed to a pty type works. This bug seems to be isolated to pty devices.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10254923</commentid>
+    <comment_count>7</comment_count>
+    <who name="Cole Robinson">crobinso</who>
+    <bug_when>2017-03-20 11:43:55 -0400</bug_when>
+    <thetext>I reproduced (using a sleep .1 loop makes it more reliable). qemu.git master is working though, and looks like the fix is:
+
+commit 1c64fdbc8177058802df205f5d7cd65edafa59a8
+Author: Ed Swierk &lt;eswierk@skyportsystems.com&gt;
+Date:   Tue Jan 31 05:45:29 2017 -0800
+
+    char: drop data written to a disconnected pty
+    
+    When a serial port writes data to a pty that&apos;s disconnected, drop the
+    data and return the length dropped. This avoids triggering pointless
+    retries in callers like the 16550A serial_xmit(), and causes
+    qemu_chr_fe_write() to write all data to the log file, rather than
+    logging only while a pty client like virsh console happens to be
+    connected.
+    
+    Signed-off-by: Ed Swierk &lt;eswierk@skyportsystems.com&gt;
+    Message-Id: &lt;1485870329-79428-1-git-send-email-eswierk@skyportsystems.com&gt;
+    Signed-off-by: Paolo Bonzini &lt;pbonzini@redhat.com&gt;
+
+
+I&apos;ll let that get some testing with qemu 2.9 in f26, and after that I&apos;ll backport to f25</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10336739</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-15 14:23:26 -0400</bug_when>
+    <thetext>qemu-2.7.1-6.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-01925dba3c</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10337212</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-16 17:23:17 -0400</bug_when>
+    <thetext>qemu-2.7.1-6.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-01925dba3c</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10344915</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-19 05:24:31 -0400</bug_when>
+    <thetext>qemu-2.7.1-6.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

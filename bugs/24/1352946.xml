@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1352946</bug_id>
+          
+          <creation_ts>2016-07-05 10:48:00 -0400</creation_ts>
+          <short_desc>Mariadb server crashes when galera replication is enabled</short_desc>
+          <delta_ts>2016-10-27 02:00:02 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>mariadb</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>high</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Damien Ciabrini">dciabrin</reporter>
+          <assigned_to name="Damien Ciabrini">dciabrin</assigned_to>
+          <cc>dciabrin</cc>
+    
+    
+    <cc>hhorak</cc>
+    
+    
+    <cc>jdornak</cc>
+    
+    
+    <cc>jstanek</cc>
+    
+    
+    <cc>lordfoom</cc>
+    
+    
+    <cc>mbayer</cc>
+    
+    
+    <cc>mmuzila</cc>
+    
+    
+    <cc>tobias.jungel</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>mariadb-10.1.17-1.fc24</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-09-15 18:52:51</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          <external_bugs name="Github">https://github.com/codership/mysql-wsrep/issues/267</external_bugs>
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9481552</commentid>
+    <comment_count>0</comment_count>
+    <who name="Damien Ciabrini">dciabrin</who>
+    <bug_when>2016-07-05 10:48:34 -0400</bug_when>
+    <thetext>Description of problem:
+Mariadb server segfaults when it is configured to enable Galera replication.
+
+
+Version-Release number of selected component (if applicable):
+mariadb-10.1.14-1.fc24.x86_64
+
+How reproducible:
+always
+
+Steps to Reproduce:
+1. Ensure that mysql has created files on disk, create it otherwise
+
+   mysql_install_db
+   chmod -R mysql. /var/lib/mysql
+   
+2. Enable galera by ensuring the following variable are set in /etc/my.cnf.d/mariadb-server.cnf
+
+    [galera]
+    # Mandatory settings
+    wsrep_on=ON
+    wsrep_provider=/usr/lib64/galera/libgalera_smm.so
+    wsrep_cluster_address=gcomm://
+    wsrep_cluster_name=galera
+    binlog_format=row
+    default_storage_engine=InnoDB
+    innodb_autoinc_lock_mode=2
+
+3. Start a new galera cluster
+
+    [root@fedora ~]# mysqld_safe --wsrep-new-cluster
+
+Actual results:
+mysqld segfaults and mysqld_safe exit in error
+
+    160705 12:34:43 mysqld_safe Logging to &apos;/var/log/mariadb/mariadb.log&apos;.
+    160705 12:34:43 mysqld_safe Starting mysqld daemon with databases from /var/lib/mysql
+    160705 12:34:43 mysqld_safe WSREP: Running position recovery with --log_error=&apos;/var/lib/mysql/wsrep_recovery.X8ZxeH&apos; --pid-file=&apos;/var/lib/mysql/fedora2.localdomain-recover.pid&apos;
+    160705 12:34:46 mysqld_safe WSREP: Recovered position 00000000-0000-0000-0000-000000000000:-1
+    /usr/bin/mysqld_safe: line 188:  1799 Segmentation fault      (core dumped) nohup /usr/libexec/mysqld --basedir=/usr --datadir=/var/lib/mysql --plugin-dir=/usr/lib64/mysql/plugin --user=mysql --wsrep_provider=/usr/lib64/galera/libgalera_smm.so --wsrep-new-cluster --log-error=/var/log/mariadb/mariadb.log --pid-file=/var/run/mariadb/mariadb.pid --socket=/var/lib/mysql/mysql.sock --wsrep_start_position=00000000-0000-0000-0000-000000000000:-1 &lt; /dev/null &gt;&gt; /var/log/mariadb/mariadb.log 2&gt;&amp;1
+    160705 12:34:46 mysqld_safe mysqld from pid file /var/run/mariadb/mariadb.pid ended
+
+A stack trace is dumped in /var/log/mariadb/mariadb.log:
+
+   Attempting backtrace. You can use the following information to find out
+    where mysqld died. If you see no messages after this, something went
+    terribly wrong...
+    2016-07-05 12:34:46 139974166951680 [Note] WSREP: Member 0.0 () synced with group.
+    2016-07-05 12:34:46 139974166951680 [Note] WSREP: Shifting JOINED -&gt; SYNCED (TO: 0)
+    stack_bottom = 0x7f4e54072d18 thread_stack 0x48400
+    /usr/libexec/mysqld(my_print_stacktrace+0x2e)[0x565322e6f39e]
+    /usr/libexec/mysqld(handle_fatal_signal+0x3f5)[0x5653229b4d25]
+    /lib64/libpthread.so.0(+0x10c10)[0x7f4e5a210c10]
+    /usr/libexec/mysqld(+0x53928e)[0x56532295328e]
+    /usr/lib64/galera/libgalera_smm.so(_ZN6galera13ReplicatorSMM19process_conf_changeEPvRK15wsrep_view_infoiNS_10Replicator5StateEl+0x38a)[0x7f4e553e178a]
+    /usr/lib64/galera/libgalera_smm.so(_ZN6galera15GcsActionSource8dispatchEPvRK10gcs_actionRb+0x54b)[0x7f4e553baa7b]
+    /usr/lib64/galera/libgalera_smm.so(_ZN6galera15GcsActionSource7processEPvRb+0x76)[0x7f4e553bc166]
+    /usr/lib64/galera/libgalera_smm.so(_ZN6galera13ReplicatorSMM10async_recvEPv+0x86)[0x7f4e553e0f46]
+    /usr/lib64/galera/libgalera_smm.so(galera_recv+0x2e)[0x7f4e553fb61e]
+    /usr/libexec/mysqld(+0x5483f7)[0x5653229623f7]
+    /usr/libexec/mysqld(start_wsrep_THD+0x484)[0x565322951ef4]
+    /lib64/libpthread.so.0(+0x75ba)[0x7f4e5a2075ba]
+    /lib64/libc.so.6(clone+0x6d)[0x7f4e5871a7cd]
+
+Expected results:
+mysqld should keep running, a new galera cluster should be available.
+Checking that galera is started would require running the following:
+
+[root@fedora ~]# mysql -e &quot;show status like &apos;wsrep_cluster%&apos;;&quot;
++--------------------------+--------------------------------------+
+| Variable_name            | Value                                |
++--------------------------+--------------------------------------+
+| wsrep_cluster_conf_id    | 1                                    |
+| wsrep_cluster_size       | 1                                    |
+| wsrep_cluster_state_uuid | c2f94f44-3fce-11e6-a869-17918323b495 |
+| wsrep_cluster_status     | Primary                              |
++--------------------------+--------------------------------------+
+ 
+
+Additional info:
+As reported upstream [1,2] the segfault seems to be related to a bug which is triggered when compiling with gcc 6.0 (or gcc5.x --std=c++11)
+
+[1] https://jira.mariadb.org/browse/MDEV-10335
+[2] https://github.com/codership/mysql-wsrep/issues/267</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9611270</commentid>
+    <comment_count>1</comment_count>
+    <who name="Damien Ciabrini">dciabrin</who>
+    <bug_when>2016-08-12 10:22:02 -0400</bug_when>
+    <thetext>Fixed in https://github.com/codership/mysql-wsrep/pull/274</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9659596</commentid>
+    <comment_count>2</comment_count>
+    <who name="Tobias Jungel">tobias.jungel</who>
+    <bug_when>2016-08-29 10:01:12 -0400</bug_when>
+    <thetext>running into the same issue here and just found this report here. Any chance of seeing a new packet anytime soon?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9659736</commentid>
+    <comment_count>3</comment_count>
+    <who name="Honza Horak">hhorak</who>
+    <bug_when>2016-08-29 10:37:30 -0400</bug_when>
+    <thetext>It will be fixed with 10.1.17 (to be released every day, so we won&apos;t probably manage to go through testing repo much sooner):
+https://github.com/MariaDB/server/commit/fec296cc10f0d1319e032b72e92e3c824b7fc390
+
+Sorry for the delay, I admin we should have go with downstream patch sooner.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9659890</commentid>
+    <comment_count>4</comment_count>
+    <who name="Jakub Dorňák">jdornak</who>
+    <bug_when>2016-08-29 11:13:43 -0400</bug_when>
+    <thetext>http://pkgs.fedoraproject.org/cgit/rpms/mariadb.git/commit/?id=3444dbd74666e82656a3b46c83eddf1f52f641d4</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9701646</commentid>
+    <comment_count>5</comment_count>
+    <who name="Tobias Jungel">tobias.jungel</who>
+    <bug_when>2016-09-13 03:54:23 -0400</bug_when>
+    <thetext>yeah, it would be nice to go with the patch sooner. At least in F24 Galera is not working at all. But maybe I am sort of insane to use Fedora as a Server ;)
+
+But since there is now as well a CVE reported (1375201) I have a bit of a hope, that this will be done faster *sncr*.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9703509</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-13 10:46:59 -0400</bug_when>
+    <thetext>mariadb-10.1.17-1.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-b7411ec62f</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9705446</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-13 22:52:06 -0400</bug_when>
+    <thetext>mariadb-10.1.17-1.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-b7411ec62f</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9712650</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-15 18:52:47 -0400</bug_when>
+    <thetext>mariadb-10.1.17-1.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9720421</commentid>
+    <comment_count>9</comment_count>
+    <who name="lordfoom">lordfoom</who>
+    <bug_when>2016-09-19 05:07:40 -0400</bug_when>
+    <thetext>Hi there,
+
+I&apos;m a newbie, so please bear with me if I&apos;m doing something stupid.
+
+This morning I attempted to update my Fedora 24 system (running KDE plasma), and got the following error:
+
+Error: Transaction check error:
+  file /usr/lib64/mysql/plugin/dialog.so from install of mariadb-common-3:10.1.17-1.fc24.x86_64 conflicts with file from package Percona-Server-server-57-5.7.10-3.1.el7.x86_64
+  file /usr/bin/mysql from install of mariadb-3:10.1.17-1.fc24.x86_64 conflicts with file from package Percona-Server-client-57-5.7.10-3.1.el7.x86_64
+  file /usr/bin/mysqladmin from install of mariadb-3:10.1.17-1.fc24.x86_64 conflicts with file from package Percona-Server-client-57-5.7.10-3.1.el7.x86_64
+  file /usr/bin/mysqlbinlog from install of mariadb-3:10.1.17-1.fc24.x86_64 conflicts with file from package Percona-Server-client-57-5.7.10-3.1.el7.x86_64
+  file /usr/bin/mysqlcheck from install of mariadb-3:10.1.17-1.fc24.x86_64 conflicts with file from package Percona-Server-client-57-5.7.10-3.1.el7.x86_64
+  file /usr/bin/mysqldump from install of mariadb-3:10.1.17-1.fc24.x86_64 conflicts with file from package Percona-Server-client-57-5.7.10-3.1.el7.x86_64
+  file /usr/bin/mysqlimport from install of mariadb-3:10.1.17-1.fc24.x86_64 conflicts with file from package Percona-Server-client-57-5.7.10-3.1.el7.x86_64
+  file /usr/bin/mysqlshow from install of mariadb-3:10.1.17-1.fc24.x86_64 conflicts with file from package Percona-Server-client-57-5.7.10-3.1.el7.x86_64
+  file /usr/bin/mysqlslap from install of mariadb-3:10.1.17-1.fc24.x86_64 conflicts with file from package Percona-Server-client-57-5.7.10-3.1.el7.x86_64
+  file /usr/share/man/man1/mysql.1.gz from install of mariadb-3:10.1.17-1.fc24.x86_64 conflicts with file from package Percona-Server-client-57-5.7.10-3.1.el7.x86_64
+  file /usr/share/man/man1/mysqladmin.1.gz from install of mariadb-3:10.1.17-1.fc24.x86_64 conflicts with file from package Percona-Server-client-57-5.7.10-3.1.el7.x86_64
+  file /usr/share/man/man1/mysqlbinlog.1.gz from install of mariadb-3:10.1.17-1.fc24.x86_64 conflicts with file from package Percona-Server-client-57-5.7.10-3.1.el7.x86_64
+&lt;SNIP&gt;
+
+and continues in that vein for a while.
+
+Now, I installed Percona 5.7 from rpms because I couldn&apos;t do it from the repos. I don&apos;t have mariadb installed and don&apos;t want it installed (want to match production). 
+
+Is there anything I can do to stop fedora from installing mariadb when I run a system update? I&apos;ve tried unselecting the packages in Apper, but it says the packages are required.
+
+Long story short: is there a bug introduced by the bugfix, or have I done something silly?
+
+Thank you.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9720434</commentid>
+    <comment_count>10</comment_count>
+    <who name="lordfoom">lordfoom</who>
+    <bug_when>2016-09-19 05:08:32 -0400</bug_when>
+    <thetext>And the reason I am commenting on this issue is because the update note said this is the issue the mariadb install relates to.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

@@ -1,0 +1,462 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1421471</bug_id>
+          
+          <creation_ts>2017-02-12 09:37:00 -0500</creation_ts>
+          <short_desc>failure to start: /run/rpcbind/rpcbind.lock: No such file or directory</short_desc>
+          <delta_ts>2017-06-12 09:59:22 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>rpcbind</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Frank Ch. Eigler">fche</reporter>
+          <assigned_to name="Steve Dickson">steved</assigned_to>
+          <cc>fche</cc>
+    
+    
+    <cc>fedora</cc>
+    
+    
+    <cc>mael.lavault</cc>
+    
+    
+    <cc>massi.ergosum</cc>
+    
+    
+    <cc>rstonehouse</cc>
+    
+    
+    <cc>sixpack13</cc>
+    
+    
+    <cc>steved</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>rpcbind-0.2.4-5.fc25 rpcbind-0.2.4-6.fc26</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-03-24 14:55:53</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10141050</commentid>
+    <comment_count>0</comment_count>
+    <who name="Frank Ch. Eigler">fche</who>
+    <bug_when>2017-02-12 09:37:21 -0500</bug_when>
+    <thetext>Under fedora 25, even with selinux in permissive mode, a straight ypbind configuration fails to start because its prerequisite rpcbind service fails to start:
+
+systemd[1]: Starting RPC Bind...
+rpcbind[8297]: rpcbind: /run/rpcbind/rpcbind.lock: No such file or directory
+systemd[1]: rpcbind.service: Main process exited, code=exited, status=1/FAILURE
+systemd[1]: Failed to start RPC Bind.
+
+There is no more information posted about what went wrong, even if rpcbind is started in debugging mode.
+
+However, this systemd service tweak seems to help:
+
+--- /lib/systemd/system/rpcbind.service 2017-01-28 15:58:58.000000000 -0500
++++ ./rpcbind.service   2017-02-12 09:36:08.424784942 -0500
+@@ -7,11 +7,12 @@
+ # Make sure we use the IP addresses listed for
+ # rpcbind.socket, no matter how this unit is started.
+ Wants=rpcbind.socket systemd-tmpfiles-setup.service
+-After=rpcbind.socket systemd-tmpfiles-setup.service
++After=rpcbind.socket systemd-tmpfiles-setup.service network.target
+ 
+ [Service]
+ Type=notify
+ EnvironmentFile=/etc/sysconfig/rpcbind
++ExecStartPre=/bin/mkdir -p /run/rpcbind
+ ExecStart=/usr/sbin/rpcbind $RPCBIND_OPTIONS -w -f
+ 
+ [Install]</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10143520</commentid>
+    <comment_count>1</comment_count>
+    <who name="Steve Dickson">steved</who>
+    <bug_when>2017-02-13 10:42:51 -0500</bug_when>
+    <thetext>(In reply to Frank Ch. Eigler from comment #0)
+&gt; However, this systemd service tweak seems to help:
+&gt; 
+&gt; --- /lib/systemd/system/rpcbind.service 2017-01-28 15:58:58.000000000 -0500
+&gt; +++ ./rpcbind.service   2017-02-12 09:36:08.424784942 -0500
+&gt; @@ -7,11 +7,12 @@
+&gt;  # Make sure we use the IP addresses listed for
+&gt;  # rpcbind.socket, no matter how this unit is started.
+&gt;  Wants=rpcbind.socket systemd-tmpfiles-setup.service
+&gt; -After=rpcbind.socket systemd-tmpfiles-setup.service
+&gt; +After=rpcbind.socket systemd-tmpfiles-setup.service network.target
+This was never needed before... I wonder what has changed.
+&gt;  
+&gt;  [Service]
+&gt;  Type=notify
+&gt;  EnvironmentFile=/etc/sysconfig/rpcbind
+&gt; +ExecStartPre=/bin/mkdir -p /run/rpcbind
+This should not be needed since this is what systemd-tmpfiles-setup.service should be doing.
+
+&gt;  ExecStart=/usr/sbin/rpcbind $RPCBIND_OPTIONS -w -f
+&gt;  
+&gt;  [Install]</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10143592</commentid>
+    <comment_count>2</comment_count>
+    <who name="Frank Ch. Eigler">fche</who>
+    <bug_when>2017-02-13 10:57:39 -0500</bug_when>
+    <thetext>&gt; &gt; -After=rpcbind.socket systemd-tmpfiles-setup.service
+&gt; &gt; +After=rpcbind.socket systemd-tmpfiles-setup.service network.target
+&gt; This was never needed before... I wonder what has changed.
+
+Not sure it -is- necessary.  With the limited diagnostics of rpcbind, it&apos;s hard to know.  (I seem to recall that starting it by hand, some time after a boot, sometimes worked.)
+
+&gt; &gt;  [Service]
+&gt; &gt;  Type=notify
+&gt; &gt;  EnvironmentFile=/etc/sysconfig/rpcbind
+&gt; &gt; +ExecStartPre=/bin/mkdir -p /run/rpcbind
+&gt; This should not be needed since this is what systemd-tmpfiles-setup.service
+&gt; should be doing.
+
+I don&apos;t see an rpcbind related clause in any of the tmpfiles.d directories.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10144470</commentid>
+    <comment_count>3</comment_count>
+    <who name="Steve Dickson">steved</who>
+    <bug_when>2017-02-13 16:59:46 -0500</bug_when>
+    <thetext>(In reply to Frank Ch. Eigler from comment #2)
+&gt; &gt; &gt; -After=rpcbind.socket systemd-tmpfiles-setup.service
+&gt; &gt; &gt; +After=rpcbind.socket systemd-tmpfiles-setup.service network.target
+&gt; &gt; This was never needed before... I wonder what has changed.
+&gt; 
+&gt; Not sure it -is- necessary.  With the limited diagnostics of rpcbind, it&apos;s
+&gt; hard to know.  (I seem to recall that starting it by hand, some time after a
+&gt; boot, sometimes worked.)
+Yeah I see this with a number of packages... 
+
+
+&gt; 
+&gt; &gt; &gt;  [Service]
+&gt; &gt; &gt;  Type=notify
+&gt; &gt; &gt;  EnvironmentFile=/etc/sysconfig/rpcbind
+&gt; &gt; &gt; +ExecStartPre=/bin/mkdir -p /run/rpcbind
+&gt; &gt; This should not be needed since this is what systemd-tmpfiles-setup.service
+&gt; &gt; should be doing.
+&gt; 
+&gt; I don&apos;t see an rpcbind related clause in any of the tmpfiles.d directories.
+Moving the lock file has been very painful... probably a mistake :-(
+but with rpcbind-0.2.4-4 you are still seeing this problem?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10147694</commentid>
+    <comment_count>4</comment_count>
+    <who name="Frank Ch. Eigler">fche</who>
+    <bug_when>2017-02-14 14:28:40 -0500</bug_when>
+    <thetext>Removing my /etc/systemd custom rpcbind.service, using the up-to-date f25 rpcbind 0.2.4-2.fc25.i686, no go:
+
+● rpcbind.service - RPC Bind
+   Loaded: loaded (/usr/lib/systemd/system/rpcbind.service; enabled; vendor preset: disabled)
+   Active: failed (Result: exit-code) since Tue 2017-02-14 14:24:35 EST; 55s ago
+     Docs: man:rpcbind(8)
+  Process: 540 ExecStart=/usr/bin/rpcbind $RPCBIND_OPTIONS -w -f (code=exited, status=1/FAILURE)
+ Main PID: 540 (code=exited, status=1/FAILURE)
+
+Feb 14 14:24:35 brutus.elastic.org rpcbind[540]: rpcbind: /run/rpcbind/rpcbind.lock: No such file or directory
+Feb 14 14:24:35 brutus.elastic.org systemd[1]: rpcbind.service: Main process exited, code=exited, status=1/FAILURE
+Feb 14 14:24:35 brutus.elastic.org systemd[1]: Failed to start RPC Bind.
+Feb 14 14:24:35 brutus.elastic.org systemd[1]: rpcbind.service: Unit entered failed state.
+Feb 14 14:24:35 brutus.elastic.org systemd[1]: rpcbind.service: Failed with result &apos;exit-code&apos;.
+
+Yet ... after the boot, /run/rpcbind exists:
+
+[root@brutus ~]# ls -al /run/rpcbind
+total 0
+drwx------.  2 rpc  rpc    40 Feb 14 14:24 .
+drwxr-xr-x. 45 root root 1280 Feb 14 14:24 ..
+
+And a # service rpcbind start succeeds.
+So I suspect there&apos;s some timing problem.  Hm, the new rpcbind.service does not prereq the tmpfiles service.  Is that intentional?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10147933</commentid>
+    <comment_count>5</comment_count>
+    <who name="Steve Dickson">steved</who>
+    <bug_when>2017-02-14 16:07:15 -0500</bug_when>
+    <thetext>(In reply to Frank Ch. Eigler from comment #4)
+
+&gt; 
+&gt; And a # service rpcbind start succeeds.
+&gt; So I suspect there&apos;s some timing problem.  Hm, the new rpcbind.service does
+&gt; not prereq the tmpfiles service.  Is that intentional?
+prereq?? What is that? Its the first I&apos;ve hear of that... 
+
+So the answer to your question is... no! :-)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10147992</commentid>
+    <comment_count>6</comment_count>
+    <who name="Frank Ch. Eigler">fche</who>
+    <bug_when>2017-02-14 16:28:04 -0500</bug_when>
+    <thetext>I meant:
+
+Requires=systemd-tmpfiles-setup.service
+After=systemd-tmpfiles-setup.service</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10170957</commentid>
+    <comment_count>7</comment_count>
+    <who name="Steve Dickson">steved</who>
+    <bug_when>2017-02-21 08:56:43 -0500</bug_when>
+    <thetext>(In reply to Frank Ch. Eigler from comment #6)
+&gt; I meant:
+&gt; 
+&gt; Requires=systemd-tmpfiles-setup.service
+&gt; After=systemd-tmpfiles-setup.service
+
+Currently there is 
+
+Wants=rpcbind.socket systemd-tmpfiles-setup.service
+After=rpcbind.socket systemd-tmpfiles-setup.service
+
+With Requires I believe rpcbind will be started 
+every time systemd-tmpfiles-setup is started??</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10171279</commentid>
+    <comment_count>8</comment_count>
+    <who name="Frank Ch. Eigler">fche</who>
+    <bug_when>2017-02-21 10:11:48 -0500</bug_when>
+    <thetext>Either Requires | Wants  probably works in this context.
+Please by the way also update F24; the same problem appears to exist there.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10231173</commentid>
+    <comment_count>9</comment_count>
+    <who name="Georg Sauthoff">fedora</who>
+    <bug_when>2017-03-12 13:07:47 -0400</bug_when>
+    <thetext>I can reproduce this issue on a freshly installed Fedora 25 with rpcbind-0.2.4-4.fc25.x86_64:
+
+# systemctl start rpcbind
+Mar 12 17:30:45 example.org systemd[1]: Starting RPC Bind...
+Mar 12 17:30:45 example.org rpcbind[1783]: rpcbind: /run/rpcbind/rpcbind.lock: No such file or directory
+Mar 12 17:30:45 example.org systemd[1]: rpcbind.service: Main process exited, code=exited, status=1/FAILURE
+Mar 12 17:30:45 example.org systemd[1]: Failed to start RPC Bind.
+
+I can work around this via:
+
+# systemd-tmpfiles --create /usr/lib/tmpfiles.d/rpcbind.conf
+# systemctl start rpcbind
+#
+
+cf. https://bugzilla.redhat.com/show_bug.cgi?id=1401561#c68</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10262282</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-21 13:25:17 -0400</bug_when>
+    <thetext>rpcbind-0.2.4-5.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-66c84b1ba8</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10262295</commentid>
+    <comment_count>11</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-21 13:26:04 -0400</bug_when>
+    <thetext>rpcbind-0.2.4-6.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-5c5fcde1a0</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10265498</commentid>
+    <comment_count>12</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-22 11:27:33 -0400</bug_when>
+    <thetext>rpcbind-0.2.4-6.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-5c5fcde1a0</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10266314</commentid>
+    <comment_count>13</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-22 16:21:32 -0400</bug_when>
+    <thetext>rpcbind-0.2.4-5.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-66c84b1ba8</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10276006</commentid>
+    <comment_count>14</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-24 14:55:53 -0400</bug_when>
+    <thetext>rpcbind-0.2.4-5.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10296850</commentid>
+    <comment_count>15</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-01 13:23:52 -0400</bug_when>
+    <thetext>rpcbind-0.2.4-6.fc26 has been pushed to the Fedora 26 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10323023</commentid>
+    <comment_count>16</comment_count>
+    <who name="Maël Lavault">mael.lavault</who>
+    <bug_when>2017-04-11 03:24:30 -0400</bug_when>
+    <thetext>Issue is still here with rpcbind-0.2.4-5.fc25</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10333376</commentid>
+    <comment_count>17</comment_count>
+    <who name="Steve Dickson">steved</who>
+    <bug_when>2017-04-13 10:36:13 -0400</bug_when>
+    <thetext>(In reply to Maël Lavault from comment #16)
+&gt; Issue is still here with rpcbind-0.2.4-5.fc25
+
+This must be a different problem</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10340834</commentid>
+    <comment_count>18</comment_count>
+    <who name="Maël Lavault">mael.lavault</who>
+    <bug_when>2017-04-18 05:58:33 -0400</bug_when>
+    <thetext>If I go in gnome-logs I can see: 
+
+
+systemd-tmpfile
+Failed to open &apos;rpcbind.conf&apos;: No such file or directory
+
+Looks like the same issue, what do you think ?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10342141</commentid>
+    <comment_count>19</comment_count>
+    <who name="Steve Dickson">steved</who>
+    <bug_when>2017-04-18 10:45:40 -0400</bug_when>
+    <thetext>(In reply to Maël Lavault from comment #18)
+&gt; If I go in gnome-logs I can see: 
+&gt; 
+&gt; 
+&gt; systemd-tmpfile
+&gt; Failed to open &apos;rpcbind.conf&apos;: No such file or directory
+&gt; 
+&gt; Looks like the same issue, what do you think ?
+
+No. This problem was because the rpcbind.lock file could
+not be created because /run/rpcbind was not being
+created when rpcbind was not started by systemd.
+
+The problem you are seeing is different. So there 
+is no rpcbind.conf under /usr/lib/tmpfiles.d?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10342471</commentid>
+    <comment_count>20</comment_count>
+    <who name="Maël Lavault">mael.lavault</who>
+    <bug_when>2017-04-18 11:50:09 -0400</bug_when>
+    <thetext>Ah ok, so I do have a rpcbind.conf under /usr/lib/tmpfiles.d and permissions are the same as all other files in this directory.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10474502</commentid>
+    <comment_count>21</comment_count>
+    <who name="sixpack13">sixpack13</who>
+    <bug_when>2017-06-03 18:14:26 -0400</bug_when>
+    <thetext>maybe a workaround:
+
+for a homebrewed kernel I set
+
+CONFIG_AF_RXRPC=y
+CONFIG_AF_RXRPC_IPV6=y
+CONFIG_AF_RXRPC_INJECT_LOSS=y
+CONFIG_AF_RXRPC_DEBUG=y</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10478208</commentid>
+    <comment_count>22</comment_count>
+    <who name="Steve Dickson">steved</who>
+    <bug_when>2017-06-05 13:11:52 -0400</bug_when>
+    <thetext>(In reply to Maël Lavault from comment #20)
+&gt; Ah ok, so I do have a rpcbind.conf under /usr/lib/tmpfiles.d and permissions
+&gt; are the same as all other files in this directory.
+
+So why can&apos;t systemd access that file? selinux??</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10484568</commentid>
+    <comment_count>23</comment_count>
+    <who name="Maël Lavault">mael.lavault</who>
+    <bug_when>2017-06-07 04:43:41 -0400</bug_when>
+    <thetext>No idea... selinux is disabled...</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10498007</commentid>
+    <comment_count>24</comment_count>
+    <who name="Steve Dickson">steved</who>
+    <bug_when>2017-06-12 09:55:21 -0400</bug_when>
+    <thetext>(In reply to Maël Lavault from comment #23)
+&gt; No idea... selinux is disabled...
+
+Can you please post the any error messages you
+get when booting?
+
+Also does systemctl restart rpcbind work?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10498025</commentid>
+    <comment_count>25</comment_count>
+    <who name="Maël Lavault">mael.lavault</who>
+    <bug_when>2017-06-12 09:59:22 -0400</bug_when>
+    <thetext>juin 12 10:20:18 localhost kernel: calling  init_sunrpc+0x0/0x6e [sunrpc] @ 349
+juin 12 10:20:18 localhost kernel: RPC: Registered named UNIX socket transport module.
+juin 12 10:20:18 localhost kernel: RPC: Registered udp transport module.
+juin 12 10:20:18 localhost kernel: RPC: Registered tcp transport module.
+juin 12 10:20:18 localhost kernel: RPC: Registered tcp NFSv4.1 backchannel transport module.
+juin 12 10:20:18 localhost kernel: initcall init_sunrpc+0x0/0x6e [sunrpc] returned 0 after 142 usecs
+juin 12 10:20:18 localhost systemd-tmpfiles[356]: Failed to open &apos;rpcbind.conf&apos;: No such file or directory
+juin 12 10:20:18 localhost dracut-pre-udev[336]: rpcbind: /run/rpcbind/rpcbind.lock: No such file or directory
+juin 12 10:20:18 localhost rpc.statd[360]: Version 2.1.1 starting
+juin 12 10:20:18 localhost rpc.statd[360]: Initializing NSM state
+juin 12 10:20:18 localhost rpc.statd[360]: Running as root.  chown /var/lib/nfs/statd to choose different user
+juin 12 10:20:18 localhost rpc.statd[360]: Failed to register (statd, 1, udp): svc_reg() err: RPC: Remote system error - Connection refused
+juin 12 10:20:18 localhost kernel: usb 1-5: new full-speed USB device number 3 using xhci_hcd
+juin 12 10:20:18 localhost rpc.statd[360]: Failed to register (statd, 1, tcp): svc_reg() err: RPC: Remote system error - Connection refused
+juin 12 10:20:18 localhost rpc.statd[360]: Failed to register (statd, 1, udp6): svc_reg() err: RPC: Remote system error - Connection refused
+juin 12 10:20:18 localhost rpc.statd[360]: Failed to register (statd, 1, tcp6): svc_reg() err: RPC: Remote system error - Connection refused
+juin 12 10:20:18 localhost rpc.statd[360]: failed to create RPC listeners, exiting
+
+
+And yes restart do work perfectly.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

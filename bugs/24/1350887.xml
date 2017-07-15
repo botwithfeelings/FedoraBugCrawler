@@ -1,0 +1,453 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1350887</bug_id>
+          
+          <creation_ts>2016-06-28 11:26:00 -0400</creation_ts>
+          <short_desc>Reporting spam leaks Activity and Message</short_desc>
+          <delta_ts>2016-07-10 01:56:36 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>evolution-rspam</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords>Reopened</keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Matthew Saltzman">mjs</reporter>
+          <assigned_to name="Lucian Langa">lucilanga</assigned_to>
+          <cc>lucilanga</cc>
+    
+    
+    <cc>mcrha</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>evolution-rpsam-0.6.0-14 evolution-rspam-0.6.0-14.fc24</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-07-10 01:56:36</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9459954</commentid>
+    <comment_count>0</comment_count>
+    <who name="Matthew Saltzman">mjs</who>
+    <bug_when>2016-06-28 11:26:49 -0400</bug_when>
+    <thetext>Description of problem:
+After reporting spam, status messages about the reported message remain in the status bar. Also, evolution hangs on exit after reporting spam.
+
+Version-Release number of selected component (if applicable):
+evolution-rspam-0.6.0-13.fc24.x86_64
+
+How reproducible:
+Always, I think.
+
+Steps to Reproduce:
+1. Right-click on a spam message and seleect &quot;Report as SPAM&quot;
+2. Note &quot;Message reported as SPAM&quot; and &quot;Retrieving message ...&quot; status messages never clear
+3. Exit evolution
+
+Actual results:
+Evolution never exits. Clicking &quot;close window&quot; in the title bar generates a popup saying evo is taking a long time to exit and offering to close immediately. The close option seems to properly terminate evo.
+
+Expected results:
+Messages are processed, status messages clear, exiting evolution works.
+
+Additional info:
+This seems to happen with an Exchange EWS account and Gmail (IMAP). It doesn&apos;t seem to be an issue with POP3.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9461900</commentid>
+    <comment_count>1</comment_count>
+    <who name="Milan Crha">mcrha</who>
+    <bug_when>2016-06-29 03:02:40 -0400</bug_when>
+    <thetext>Thanks for a bug report. The Quit requests the status bar to be clear, aka no ongoing activities being running, thus when some are left there then the evolution would not quit.
+
+Could you install debuginfo packages for the evolution-data-server, evolution, evolution-ews and evolution-rspam [1], please? Catch a backtrace of the running evolution with the stuck activities, to see what the evolution does:
+
+   $ gdb --batch --ex &quot;t a a bt&quot; -pid=`pidof evolution` &amp;&gt;bt.txt
+
+Please check the bt.txt for any private information, like passwords, email address, server addresses,... I usually search for &quot;pass&quot; at least (quotes for clarity only).
+
+[1] # dnf install evolution-data-server-debuginfo evolution-debuginfo \
+         evolution-ews-debuginfo evolution-rspam-debuginfo \
+         --enablerepo=*-debuginfo
+
+    And make sure that the versions of the debuginfo packages match the version
+    of the binary package.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9466806</commentid>
+    <comment_count>2</comment_count>
+      <attachid>1174321</attachid>
+    <who name="Matthew Saltzman">mjs</who>
+    <bug_when>2016-06-29 23:21:33 -0400</bug_when>
+    <thetext>Created attachment 1174321
+traceback of hung evolution process
+
+bt.txt attached, generated as described.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9467809</commentid>
+    <comment_count>3</comment_count>
+    <who name="Milan Crha">mcrha</who>
+    <bug_when>2016-06-30 06:06:06 -0400</bug_when>
+    <thetext>Thanks for the update. The backtrace shows the evolution basically idle, thus it can be that the evolution-rspam failed to finish some sub-task appropriately or something like that.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9468979</commentid>
+    <comment_count>4</comment_count>
+    <who name="Matthew Saltzman">mjs</who>
+    <bug_when>2016-06-30 10:46:26 -0400</bug_when>
+    <thetext>(In reply to Milan Crha from comment #3)
+&gt; Thanks for the update. The backtrace shows the evolution basically idle,
+&gt; thus it can be that the evolution-rspam failed to finish some sub-task
+&gt; appropriately or something like that.
+
+Indeed, I can interact with Evo while it is waiting for the background task to complete. I guess the background task (in the status bar: Retrieving message ...) is what&apos;s hung. The spam report message is copied to the outbox and is either sent automatically or sent when I click Send/Receive, but the Retrieving message never clears from the status bar.
+
+What&apos;s the next step?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9469040</commentid>
+    <comment_count>5</comment_count>
+    <who name="Matthew Saltzman">mjs</who>
+    <bug_when>2016-06-30 10:53:18 -0400</bug_when>
+    <thetext>I can add that clicking the stop sign in the status bar message has no effect.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9469255</commentid>
+    <comment_count>6</comment_count>
+    <who name="Milan Crha">mcrha</who>
+    <bug_when>2016-06-30 11:47:24 -0400</bug_when>
+    <thetext>I found out that the activity and the message itself was leaking, thus it left at the status bar. I fixed it, together with &quot;a little&quot; build break, for the next version for rawhide and Fedora 24.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9469372</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-06-30 12:07:55 -0400</bug_when>
+    <thetext>evolution-rspam-0.6.0-14.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-1be4d94b7a</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9474276</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-02 16:30:53 -0400</bug_when>
+    <thetext>evolution-rspam-0.6.0-14.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-1be4d94b7a</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9479260</commentid>
+    <comment_count>9</comment_count>
+    <who name="Matthew Saltzman">mjs</who>
+    <bug_when>2016-07-04 15:49:24 -0400</bug_when>
+    <thetext>That fixed it, thanks.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9494132</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-07-10 01:56:35 -0400</bug_when>
+    <thetext>evolution-rspam-0.6.0-14.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="0"
+              ispatch="0"
+              isprivate="0"
+          >
+            <attachid>1174321</attachid>
+            <date>2016-06-29 23:21:00 -0400</date>
+            <delta_ts>2016-06-29 23:21:33 -0400</delta_ts>
+            <desc>traceback of hung evolution process</desc>
+            <filename>bt.txt</filename>
+            <type>text/plain</type>
+            <size>13547</size>
+            <attacher name="Matthew Saltzman">mjs</attacher>
+            
+              <data encoding="base64">W05ldyBMV1AgMzI2NzRdCltOZXcgTFdQIDMyNjc1XQpbTmV3IExXUCAzMjY3Nl0KW05ldyBMV1Ag
+MzI2NzddCltOZXcgTFdQIDMyNjc4XQpbTmV3IExXUCAzMjY3OV0KW05ldyBMV1AgMzI3MDFdCltO
+ZXcgTFdQIDMyNzAyXQpbTmV3IExXUCAzMjcwM10KW05ldyBMV1AgMzI3MjRdCltOZXcgTFdQIDMy
+NzI1XQpbTmV3IExXUCAzMjcyNl0KW05ldyBMV1AgMzI3MjddCltOZXcgTFdQIDMyNzI4XQpbTmV3
+IExXUCAzMjcyOV0KW05ldyBMV1AgMzI3MzFdCltOZXcgTFdQIDMyNzQ5XQpbTmV3IExXUCAzMjc2
+MV0KW05ldyBMV1AgMzg1XQpbVGhyZWFkIGRlYnVnZ2luZyB1c2luZyBsaWJ0aHJlYWRfZGIgZW5h
+YmxlZF0KVXNpbmcgaG9zdCBsaWJ0aHJlYWRfZGIgbGlicmFyeSAiL2xpYjY0L2xpYnRocmVhZF9k
+Yi5zby4xIi4KMHgwMDAwN2ZhNTdmZjVlMzJkIGluIHBvbGwgKCkgZnJvbSAvbGliNjQvbGliYy5z
+by42CgpUaHJlYWQgMjAgKFRocmVhZCAweDdmYTUwNTNmMTcwMCAoTFdQIDM4NSkpOgojMCAgMHgw
+MDAwN2ZhNTdmZjYzZmY5IGluIHN5c2NhbGwgKCkgYXQgL2xpYjY0L2xpYmMuc28uNgojMSAgMHgw
+MDAwN2ZhNTgwMmI2ZGNhIGluIGdfY29uZF93YWl0X3VudGlsICgpIGF0IC9saWI2NC9saWJnbGli
+LTIuMC5zby4wCiMyICAweDAwMDA3ZmE1ODAyNDc0ODkgaW4gZ19hc3luY19xdWV1ZV9wb3BfaW50
+ZXJuX3VubG9ja2VkICgpIGF0IC9saWI2NC9saWJnbGliLTIuMC5zby4wCiMzICAweDAwMDA3ZmE1
+ODAyNDdhYWMgaW4gZ19hc3luY19xdWV1ZV90aW1lb3V0X3BvcCAoKSBhdCAvbGliNjQvbGliZ2xp
+Yi0yLjAuc28uMAojNCAgMHgwMDAwN2ZhNTgwMjk5ODBkIGluIGdfdGhyZWFkX3Bvb2xfdGhyZWFk
+X3Byb3h5ICgpIGF0IC9saWI2NC9saWJnbGliLTIuMC5zby4wCiM1ICAweDAwMDA3ZmE1ODAyOThk
+MzggaW4gZ190aHJlYWRfcHJveHkgKCkgYXQgL2xpYjY0L2xpYmdsaWItMi4wLnNvLjAKIzYgIDB4
+MDAwMDdmYTU4NmM4ZTVjYSBpbiBzdGFydF90aHJlYWQgKCkgYXQgL2xpYjY0L2xpYnB0aHJlYWQu
+c28uMAojNyAgMHgwMDAwN2ZhNTdmZjY5ZWFkIGluIGNsb25lICgpIGF0IC9saWI2NC9saWJjLnNv
+LjYKClRocmVhZCAxOSAoVGhyZWFkIDB4N2ZhNGU2N2ZjNzAwIChMV1AgMzI3NjEpKToKIzAgIDB4
+MDAwMDdmYTU3ZmY1ZTMyZCBpbiBwb2xsICgpIGF0IC9saWI2NC9saWJjLnNvLjYKIzEgIDB4MDAw
+MDdmYTU4MDgwMGEzNSBpbiBnX3NvY2tldF9jb25kaXRpb25fdGltZWRfd2FpdCAoKSBhdCAvbGli
+NjQvbGliZ2lvLTIuMC5zby4wCiMyICAweDAwMDA3ZmE1ODA4MDE5NWEgaW4gZ19zb2NrZXRfcmVj
+ZWl2ZV93aXRoX3RpbWVvdXQgKCkgYXQgL2xpYjY0L2xpYmdpby0yLjAuc28uMAojMyAgMHgwMDAw
+N2ZhNTgwN2U3YWY0IGluIGdfaW5wdXRfc3RyZWFtX3JlYWQgKCkgYXQgL2xpYjY0L2xpYmdpby0y
+LjAuc28uMAojNCAgMHgwMDAwN2ZhNGJhZjc5YjQ1IGluIGdfdGxzX2Nvbm5lY3Rpb25fZ251dGxz
+X3B1bGxfZnVuYyAoKSBhdCAvdXNyL2xpYjY0L2dpby9tb2R1bGVzL2xpYmdpb2dudXRscy5zbwoj
+NSAgMHgwMDAwN2ZhNGJhYzZiNDQ1IGluIF9nbnV0bHNfaW9fcmVhZF9idWZmZXJlZCAoKSBhdCAv
+bGliNjQvbGliZ251dGxzLnNvLjMwCiM2ICAweDAwMDA3ZmE0YmFjNjU4ZmYgaW4gX2dudXRsc19y
+ZWN2X2luX2J1ZmZlcnMgKCkgYXQgL2xpYjY0L2xpYmdudXRscy5zby4zMAojNyAgMHgwMDAwN2Zh
+NGJhYzY3MWU4IGluIF9nbnV0bHNfcmVjdl9pbnQgKCkgYXQgL2xpYjY0L2xpYmdudXRscy5zby4z
+MAojOCAgMHgwMDAwN2ZhNGJhYzY3NmY0IGluIGdudXRsc19yZWNvcmRfcmVjdiAoKSBhdCAvbGli
+NjQvbGliZ251dGxzLnNvLjMwCiM5ICAweDAwMDA3ZmE0YmFmN2I2ZmIgaW4gZ190bHNfY29ubmVj
+dGlvbl9nbnV0bHNfcmVhZCAoKSBhdCAvdXNyL2xpYjY0L2dpby9tb2R1bGVzL2xpYmdpb2dudXRs
+cy5zbwojMTAgMHgwMDAwN2ZhNGJhZjdkOTAxIGluIGdfdGxzX2lucHV0X3N0cmVhbV9nbnV0bHNf
+cmVhZCAoKSBhdCAvdXNyL2xpYjY0L2dpby9tb2R1bGVzL2xpYmdpb2dudXRscy5zbwojMTEgMHgw
+MDAwN2ZhNTgwN2U3YWY0IGluIGdfaW5wdXRfc3RyZWFtX3JlYWQgKCkgYXQgL2xpYjY0L2xpYmdp
+by0yLjAuc28uMAojMTIgMHgwMDAwN2ZhNTgwN2U3YWY0IGluIGdfaW5wdXRfc3RyZWFtX3JlYWQg
+KCkgYXQgL2xpYjY0L2xpYmdpby0yLjAuc28uMAojMTMgMHgwMDAwN2ZhNTgzMDZlNjlhIGluIHNv
+dXBfZmlsdGVyX2lucHV0X3N0cmVhbV9yZWFkX3VudGlsICgpIGF0IC9saWI2NC9saWJzb3VwLTIu
+NC5zby4xCiMxNCAweDAwMDA3ZmE1ODMwNmU4NDMgaW4gc291cF9maWx0ZXJfaW5wdXRfc3RyZWFt
+X3JlYWRfbGluZSAoKSBhdCAvbGliNjQvbGlic291cC0yLjQuc28uMQojMTUgMHgwMDAwN2ZhNTgz
+MDVlNDc5IGluIHJlYWRfaW50ZXJuYWwgKCkgYXQgL2xpYjY0L2xpYnNvdXAtMi40LnNvLjEKIzE2
+IDB4MDAwMDdmYTU4MDdlN2FmNCBpbiBnX2lucHV0X3N0cmVhbV9yZWFkICgpIGF0IC9saWI2NC9s
+aWJnaW8tMi4wLnNvLjAKIzE3IDB4MDAwMDdmYTU4MzA3ODFlZCBpbiBpb19yZWFkICgpIGF0IC9s
+aWI2NC9saWJzb3VwLTIuNC5zby4xCiMxOCAweDAwMDA3ZmE1ODMwNzg2M2QgaW4gaW9fcnVuX3Vu
+dGlsICgpIGF0IC9saWI2NC9saWJzb3VwLTIuNC5zby4xCiMxOSAweDAwMDA3ZmE1ODMwNzkyNzUg
+aW4gaW9fcnVuICgpIGF0IC9saWI2NC9saWJzb3VwLTIuNC5zby4xCiMyMCAweDAwMDA3ZmE1ODMw
+NzViZDUgaW4gc291cF9tZXNzYWdlX3NlbmRfcmVxdWVzdCAoKSBhdCAvbGliNjQvbGlic291cC0y
+LjQuc28uMQojMjEgMHgwMDAwN2ZhNTgzMDg4OTBlIGluIHNvdXBfc2Vzc2lvbl9wcm9jZXNzX3F1
+ZXVlX2l0ZW0gKCkgYXQgL2xpYjY0L2xpYnNvdXAtMi40LnNvLjEKIzIyIDB4MDAwMDdmYTU4MzA4
+OGYxZSBpbiBzb3VwX3Nlc3Npb25fcmVhbF9zZW5kX21lc3NhZ2UgKCkgYXQgL2xpYjY0L2xpYnNv
+dXAtMi40LnNvLjEKIzIzIDB4MDAwMDdmYTU2MTU2MGNiZCBpbiBlX2V3c19ub3RpZmljYXRpb25f
+Z2V0X2V2ZW50c190aHJlYWQgKG91dF9mYXRhbF9lcnJvcj08c3ludGhldGljIHBvaW50ZXI+LCBz
+dWJzY3JpcHRpb25faWQ9PG9wdGltaXplZCBvdXQ+LCBub3RpZmljYXRpb249MHg1NjBhYzJjOTU3
+NjApIGF0IGUtZXdzLW5vdGlmaWNhdGlvbi5jOjgwMAojMjQgMHgwMDAwN2ZhNTYxNTYwY2JkIGlu
+IGVfZXdzX25vdGlmaWNhdGlvbl9nZXRfZXZlbnRzX3RocmVhZCAodXNlcl9kYXRhPTB4N2ZhNDk1
+MjY1MWQwKSBhdCBlLWV3cy1ub3RpZmljYXRpb24uYzo4NDEKIzI1IDB4MDAwMDdmYTU4MDI5OGQz
+OCBpbiBnX3RocmVhZF9wcm94eSAoKSBhdCAvbGliNjQvbGliZ2xpYi0yLjAuc28uMAojMjYgMHgw
+MDAwN2ZhNTg2YzhlNWNhIGluIHN0YXJ0X3RocmVhZCAoKSBhdCAvbGliNjQvbGlicHRocmVhZC5z
+by4wCiMyNyAweDAwMDA3ZmE1N2ZmNjllYWQgaW4gY2xvbmUgKCkgYXQgL2xpYjY0L2xpYmMuc28u
+NgoKVGhyZWFkIDE4IChUaHJlYWQgMHg3ZmE1MDY3ZmM3MDAgKExXUCAzMjc0OSkpOgojMCAgMHgw
+MDAwN2ZhNTdmZjVlMzJkIGluIHBvbGwgKCkgYXQgL2xpYjY0L2xpYmMuc28uNgojMSAgMHgwMDAw
+N2ZhNTgwMjcyYTQ2IGluIGdfbWFpbl9jb250ZXh0X2l0ZXJhdGUuaXNyYSAoKSBhdCAvbGliNjQv
+bGliZ2xpYi0yLjAuc28uMAojMiAgMHgwMDAwN2ZhNTgwMjcyZGQyIGluIGdfbWFpbl9sb29wX3J1
+biAoKSBhdCAvbGliNjQvbGliZ2xpYi0yLjAuc28uMAojMyAgMHgwMDAwN2ZhNTYxNTQ0NjllIGlu
+IGVfZXdzX3NvdXBfdGhyZWFkICh1c2VyX2RhdGE9MHg1NjBhYzJlYmFmOTApIGF0IGUtZXdzLWNv
+bm5lY3Rpb24uYzoxNzM1CiM0ICAweDAwMDA3ZmE1ODAyOThkMzggaW4gZ190aHJlYWRfcHJveHkg
+KCkgYXQgL2xpYjY0L2xpYmdsaWItMi4wLnNvLjAKIzUgIDB4MDAwMDdmYTU4NmM4ZTVjYSBpbiBz
+dGFydF90aHJlYWQgKCkgYXQgL2xpYjY0L2xpYnB0aHJlYWQuc28uMAojNiAgMHgwMDAwN2ZhNTdm
+ZjY5ZWFkIGluIGNsb25lICgpIGF0IC9saWI2NC9saWJjLnNvLjYKClRocmVhZCAxNyAoVGhyZWFk
+IDB4N2ZhNGM4ZGVlNzAwIChMV1AgMzI3MzEpKToKIzAgIDB4MDAwMDdmYTU4NmM5M2JkMCBpbiBw
+dGhyZWFkX2NvbmRfd2FpdEBAR0xJQkNfMi4zLjIgKCkgYXQgL2xpYjY0L2xpYnB0aHJlYWQuc28u
+MAojMSAgMHgwMDAwN2ZhNTdlMWFmYTNjIGluIHN0ZDo6Y29uZGl0aW9uX3ZhcmlhYmxlOjp3YWl0
+KHN0ZDo6dW5pcXVlX2xvY2s8c3RkOjptdXRleD4mKSAoKSBhdCAvbGliNjQvbGlic3RkYysrLnNv
+LjYKIzIgIDB4MDAwMDdmYTU4MjlkNTQwYiBpbiBKU0M6OkdDVGhyZWFkOjp3YWl0Rm9yTmV4dFBo
+YXNlKCkgKCkgYXQgL2xpYjY0L2xpYmphdmFzY3JpcHRjb3JlZ3RrLTMuMC5zby4wCiMzICAweDAw
+MDA3ZmE1ODI5ZDU0ZjggaW4gSlNDOjpHQ1RocmVhZDo6Z2NUaHJlYWRNYWluKCkgKCkgYXQgL2xp
+YjY0L2xpYmphdmFzY3JpcHRjb3JlZ3RrLTMuMC5zby4wCiM0ICAweDAwMDA3ZmE1ODJjZDkzZDIg
+aW4gV1RGOjp3dGZUaHJlYWRFbnRyeVBvaW50KHZvaWQqKSAoKSBhdCAvbGliNjQvbGliamF2YXNj
+cmlwdGNvcmVndGstMy4wLnNvLjAKIzUgIDB4MDAwMDdmYTU4NmM4ZTVjYSBpbiBzdGFydF90aHJl
+YWQgKCkgYXQgL2xpYjY0L2xpYnB0aHJlYWQuc28uMAojNiAgMHgwMDAwN2ZhNTdmZjY5ZWFkIGlu
+IGNsb25lICgpIGF0IC9saWI2NC9saWJjLnNvLjYKClRocmVhZCAxNiAoVGhyZWFkIDB4N2ZhNGM5
+NWVmNzAwIChMV1AgMzI3MjkpKToKIzAgIDB4MDAwMDdmYTU4NmM5M2JkMCBpbiBwdGhyZWFkX2Nv
+bmRfd2FpdEBAR0xJQkNfMi4zLjIgKCkgYXQgL2xpYjY0L2xpYnB0aHJlYWQuc28uMAojMSAgMHgw
+MDAwN2ZhNTdlMWFmYTNjIGluIHN0ZDo6Y29uZGl0aW9uX3ZhcmlhYmxlOjp3YWl0KHN0ZDo6dW5p
+cXVlX2xvY2s8c3RkOjptdXRleD4mKSAoKSBhdCAvbGliNjQvbGlic3RkYysrLnNvLjYKIzIgIDB4
+MDAwMDdmYTU4MjlkNTQwYiBpbiBKU0M6OkdDVGhyZWFkOjp3YWl0Rm9yTmV4dFBoYXNlKCkgKCkg
+YXQgL2xpYjY0L2xpYmphdmFzY3JpcHRjb3JlZ3RrLTMuMC5zby4wCiMzICAweDAwMDA3ZmE1ODI5
+ZDU0ZjggaW4gSlNDOjpHQ1RocmVhZDo6Z2NUaHJlYWRNYWluKCkgKCkgYXQgL2xpYjY0L2xpYmph
+dmFzY3JpcHRjb3JlZ3RrLTMuMC5zby4wCiM0ICAweDAwMDA3ZmE1ODJjZDkzZDIgaW4gV1RGOjp3
+dGZUaHJlYWRFbnRyeVBvaW50KHZvaWQqKSAoKSBhdCAvbGliNjQvbGliamF2YXNjcmlwdGNvcmVn
+dGstMy4wLnNvLjAKIzUgIDB4MDAwMDdmYTU4NmM4ZTVjYSBpbiBzdGFydF90aHJlYWQgKCkgYXQg
+L2xpYjY0L2xpYnB0aHJlYWQuc28uMAojNiAgMHgwMDAwN2ZhNTdmZjY5ZWFkIGluIGNsb25lICgp
+IGF0IC9saWI2NC9saWJjLnNvLjYKClRocmVhZCAxNSAoVGhyZWFkIDB4N2ZhNGM5ZGYwNzAwIChM
+V1AgMzI3MjgpKToKIzAgIDB4MDAwMDdmYTU4NmM5M2JkMCBpbiBwdGhyZWFkX2NvbmRfd2FpdEBA
+R0xJQkNfMi4zLjIgKCkgYXQgL2xpYjY0L2xpYnB0aHJlYWQuc28uMAojMSAgMHgwMDAwN2ZhNTdl
+MWFmYTNjIGluIHN0ZDo6Y29uZGl0aW9uX3ZhcmlhYmxlOjp3YWl0KHN0ZDo6dW5pcXVlX2xvY2s8
+c3RkOjptdXRleD4mKSAoKSBhdCAvbGliNjQvbGlic3RkYysrLnNvLjYKIzIgIDB4MDAwMDdmYTU4
+MjlkNTQwYiBpbiBKU0M6OkdDVGhyZWFkOjp3YWl0Rm9yTmV4dFBoYXNlKCkgKCkgYXQgL2xpYjY0
+L2xpYmphdmFzY3JpcHRjb3JlZ3RrLTMuMC5zby4wCiMzICAweDAwMDA3ZmE1ODI5ZDU0ZjggaW4g
+SlNDOjpHQ1RocmVhZDo6Z2NUaHJlYWRNYWluKCkgKCkgYXQgL2xpYjY0L2xpYmphdmFzY3JpcHRj
+b3JlZ3RrLTMuMC5zby4wCiM0ICAweDAwMDA3ZmE1ODJjZDkzZDIgaW4gV1RGOjp3dGZUaHJlYWRF
+bnRyeVBvaW50KHZvaWQqKSAoKSBhdCAvbGliNjQvbGliamF2YXNjcmlwdGNvcmVndGstMy4wLnNv
+LjAKIzUgIDB4MDAwMDdmYTU4NmM4ZTVjYSBpbiBzdGFydF90aHJlYWQgKCkgYXQgL2xpYjY0L2xp
+YnB0aHJlYWQuc28uMAojNiAgMHgwMDAwN2ZhNTdmZjY5ZWFkIGluIGNsb25lICgpIGF0IC9saWI2
+NC9saWJjLnNvLjYKClRocmVhZCAxNCAoVGhyZWFkIDB4N2ZhNGNhNWYxNzAwIChMV1AgMzI3Mjcp
+KToKIzAgIDB4MDAwMDdmYTU4NmM5M2JkMCBpbiBwdGhyZWFkX2NvbmRfd2FpdEBAR0xJQkNfMi4z
+LjIgKCkgYXQgL2xpYjY0L2xpYnB0aHJlYWQuc28uMAojMSAgMHgwMDAwN2ZhNTdlMWFmYTNjIGlu
+IHN0ZDo6Y29uZGl0aW9uX3ZhcmlhYmxlOjp3YWl0KHN0ZDo6dW5pcXVlX2xvY2s8c3RkOjptdXRl
+eD4mKSAoKSBhdCAvbGliNjQvbGlic3RkYysrLnNvLjYKIzIgIDB4MDAwMDdmYTU4MjlkNTQwYiBp
+biBKU0M6OkdDVGhyZWFkOjp3YWl0Rm9yTmV4dFBoYXNlKCkgKCkgYXQgL2xpYjY0L2xpYmphdmFz
+Y3JpcHRjb3JlZ3RrLTMuMC5zby4wCiMzICAweDAwMDA3ZmE1ODI5ZDU0ZjggaW4gSlNDOjpHQ1Ro
+cmVhZDo6Z2NUaHJlYWRNYWluKCkgKCkgYXQgL2xpYjY0L2xpYmphdmFzY3JpcHRjb3JlZ3RrLTMu
+MC5zby4wCiM0ICAweDAwMDA3ZmE1ODJjZDkzZDIgaW4gV1RGOjp3dGZUaHJlYWRFbnRyeVBvaW50
+KHZvaWQqKSAoKSBhdCAvbGliNjQvbGliamF2YXNjcmlwdGNvcmVndGstMy4wLnNvLjAKIzUgIDB4
+MDAwMDdmYTU4NmM4ZTVjYSBpbiBzdGFydF90aHJlYWQgKCkgYXQgL2xpYjY0L2xpYnB0aHJlYWQu
+c28uMAojNiAgMHgwMDAwN2ZhNTdmZjY5ZWFkIGluIGNsb25lICgpIGF0IC9saWI2NC9saWJjLnNv
+LjYKClRocmVhZCAxMyAoVGhyZWFkIDB4N2ZhNGNhZGYyNzAwIChMV1AgMzI3MjYpKToKIzAgIDB4
+MDAwMDdmYTU4NmM5M2JkMCBpbiBwdGhyZWFkX2NvbmRfd2FpdEBAR0xJQkNfMi4zLjIgKCkgYXQg
+L2xpYjY0L2xpYnB0aHJlYWQuc28uMAojMSAgMHgwMDAwN2ZhNTdlMWFmYTNjIGluIHN0ZDo6Y29u
+ZGl0aW9uX3ZhcmlhYmxlOjp3YWl0KHN0ZDo6dW5pcXVlX2xvY2s8c3RkOjptdXRleD4mKSAoKSBh
+dCAvbGliNjQvbGlic3RkYysrLnNvLjYKIzIgIDB4MDAwMDdmYTU4MjlkNTQwYiBpbiBKU0M6OkdD
+VGhyZWFkOjp3YWl0Rm9yTmV4dFBoYXNlKCkgKCkgYXQgL2xpYjY0L2xpYmphdmFzY3JpcHRjb3Jl
+Z3RrLTMuMC5zby4wCiMzICAweDAwMDA3ZmE1ODI5ZDU0ZjggaW4gSlNDOjpHQ1RocmVhZDo6Z2NU
+aHJlYWRNYWluKCkgKCkgYXQgL2xpYjY0L2xpYmphdmFzY3JpcHRjb3JlZ3RrLTMuMC5zby4wCiM0
+ICAweDAwMDA3ZmE1ODJjZDkzZDIgaW4gV1RGOjp3dGZUaHJlYWRFbnRyeVBvaW50KHZvaWQqKSAo
+KSBhdCAvbGliNjQvbGliamF2YXNjcmlwdGNvcmVndGstMy4wLnNvLjAKIzUgIDB4MDAwMDdmYTU4
+NmM4ZTVjYSBpbiBzdGFydF90aHJlYWQgKCkgYXQgL2xpYjY0L2xpYnB0aHJlYWQuc28uMAojNiAg
+MHgwMDAwN2ZhNTdmZjY5ZWFkIGluIGNsb25lICgpIGF0IC9saWI2NC9saWJjLnNvLjYKClRocmVh
+ZCAxMiAoVGhyZWFkIDB4N2ZhNGNiNWYzNzAwIChMV1AgMzI3MjUpKToKIzAgIDB4MDAwMDdmYTU4
+NmM5M2JkMCBpbiBwdGhyZWFkX2NvbmRfd2FpdEBAR0xJQkNfMi4zLjIgKCkgYXQgL2xpYjY0L2xp
+YnB0aHJlYWQuc28uMAojMSAgMHgwMDAwN2ZhNTdlMWFmYTNjIGluIHN0ZDo6Y29uZGl0aW9uX3Zh
+cmlhYmxlOjp3YWl0KHN0ZDo6dW5pcXVlX2xvY2s8c3RkOjptdXRleD4mKSAoKSBhdCAvbGliNjQv
+bGlic3RkYysrLnNvLjYKIzIgIDB4MDAwMDdmYTU4MjlkNTQwYiBpbiBKU0M6OkdDVGhyZWFkOjp3
+YWl0Rm9yTmV4dFBoYXNlKCkgKCkgYXQgL2xpYjY0L2xpYmphdmFzY3JpcHRjb3JlZ3RrLTMuMC5z
+by4wCiMzICAweDAwMDA3ZmE1ODI5ZDU0ZjggaW4gSlNDOjpHQ1RocmVhZDo6Z2NUaHJlYWRNYWlu
+KCkgKCkgYXQgL2xpYjY0L2xpYmphdmFzY3JpcHRjb3JlZ3RrLTMuMC5zby4wCiM0ICAweDAwMDA3
+ZmE1ODJjZDkzZDIgaW4gV1RGOjp3dGZUaHJlYWRFbnRyeVBvaW50KHZvaWQqKSAoKSBhdCAvbGli
+NjQvbGliamF2YXNjcmlwdGNvcmVndGstMy4wLnNvLjAKIzUgIDB4MDAwMDdmYTU4NmM4ZTVjYSBp
+biBzdGFydF90aHJlYWQgKCkgYXQgL2xpYjY0L2xpYnB0aHJlYWQuc28uMAojNiAgMHgwMDAwN2Zh
+NTdmZjY5ZWFkIGluIGNsb25lICgpIGF0IC9saWI2NC9saWJjLnNvLjYKClRocmVhZCAxMSAoVGhy
+ZWFkIDB4N2ZhNGNiZGY0NzAwIChMV1AgMzI3MjQpKToKIzAgIDB4MDAwMDdmYTU4NmM5M2JkMCBp
+biBwdGhyZWFkX2NvbmRfd2FpdEBAR0xJQkNfMi4zLjIgKCkgYXQgL2xpYjY0L2xpYnB0aHJlYWQu
+c28uMAojMSAgMHgwMDAwN2ZhNTdlMWFmYTNjIGluIHN0ZDo6Y29uZGl0aW9uX3ZhcmlhYmxlOjp3
+YWl0KHN0ZDo6dW5pcXVlX2xvY2s8c3RkOjptdXRleD4mKSAoKSBhdCAvbGliNjQvbGlic3RkYysr
+LnNvLjYKIzIgIDB4MDAwMDdmYTU4MjlkM2M2MiBpbiBKU0M6OkJsb2NrQWxsb2NhdG9yOjpibG9j
+a0ZyZWVpbmdUaHJlYWRNYWluKCkgKCkgYXQgL2xpYjY0L2xpYmphdmFzY3JpcHRjb3JlZ3RrLTMu
+MC5zby4wCiMzICAweDAwMDA3ZmE1ODJjZDkzZDIgaW4gV1RGOjp3dGZUaHJlYWRFbnRyeVBvaW50
+KHZvaWQqKSAoKSBhdCAvbGliNjQvbGliamF2YXNjcmlwdGNvcmVndGstMy4wLnNvLjAKIzQgIDB4
+MDAwMDdmYTU4NmM4ZTVjYSBpbiBzdGFydF90aHJlYWQgKCkgYXQgL2xpYjY0L2xpYnB0aHJlYWQu
+c28uMAojNSAgMHgwMDAwN2ZhNTdmZjY5ZWFkIGluIGNsb25lICgpIGF0IC9saWI2NC9saWJjLnNv
+LjYKClRocmVhZCAxMCAoVGhyZWFkIDB4N2ZhNGU0OGZiNzAwIChMV1AgMzI3MDMpKToKIzAgIDB4
+MDAwMDdmYTU4NmM5M2JkMCBpbiBwdGhyZWFkX2NvbmRfd2FpdEBAR0xJQkNfMi4zLjIgKCkgYXQg
+L2xpYjY0L2xpYnB0aHJlYWQuc28uMAojMSAgMHgwMDAwN2ZhNGU1OTYwMDMxIGluIFBsdWdpblJl
+cXVlc3RQcm9jZXNzb3I6OnF1ZXVlUHJvY2Vzc29yVGhyZWFkKCkgKCkgYXQgL3Vzci9saWI2NC9J
+Y2VkVGVhUGx1Z2luLnNvCiMyICAweDAwMDA3ZmE0ZTU5NjA4YjkgaW4gICgpIGF0IC91c3IvbGli
+NjQvSWNlZFRlYVBsdWdpbi5zbwojMyAgMHgwMDAwN2ZhNTg2YzhlNWNhIGluIHN0YXJ0X3RocmVh
+ZCAoKSBhdCAvbGliNjQvbGlicHRocmVhZC5zby4wCiM0ICAweDAwMDA3ZmE1N2ZmNjllYWQgaW4g
+Y2xvbmUgKCkgYXQgL2xpYjY0L2xpYmMuc28uNgoKVGhyZWFkIDkgKFRocmVhZCAweDdmYTRlNTBm
+YzcwMCAoTFdQIDMyNzAyKSk6CiMwICAweDAwMDA3ZmE1ODZjOTNiZDAgaW4gcHRocmVhZF9jb25k
+X3dhaXRAQEdMSUJDXzIuMy4yICgpIGF0IC9saWI2NC9saWJwdGhyZWFkLnNvLjAKIzEgIDB4MDAw
+MDdmYTRlNTk2MDAzMSBpbiBQbHVnaW5SZXF1ZXN0UHJvY2Vzc29yOjpxdWV1ZVByb2Nlc3NvclRo
+cmVhZCgpICgpIGF0IC91c3IvbGliNjQvSWNlZFRlYVBsdWdpbi5zbwojMiAgMHgwMDAwN2ZhNGU1
+OTYwOGI5IGluICAoKSBhdCAvdXNyL2xpYjY0L0ljZWRUZWFQbHVnaW4uc28KIzMgIDB4MDAwMDdm
+YTU4NmM4ZTVjYSBpbiBzdGFydF90aHJlYWQgKCkgYXQgL2xpYjY0L2xpYnB0aHJlYWQuc28uMAoj
+NCAgMHgwMDAwN2ZhNTdmZjY5ZWFkIGluIGNsb25lICgpIGF0IC9saWI2NC9saWJjLnNvLjYKClRo
+cmVhZCA4IChUaHJlYWQgMHg3ZmE0ZTU4ZmQ3MDAgKExXUCAzMjcwMSkpOgojMCAgMHgwMDAwN2Zh
+NTg2YzkzYmQwIGluIHB0aHJlYWRfY29uZF93YWl0QEBHTElCQ18yLjMuMiAoKSBhdCAvbGliNjQv
+bGlicHRocmVhZC5zby4wCiMxICAweDAwMDA3ZmE0ZTU5NjAwMzEgaW4gUGx1Z2luUmVxdWVzdFBy
+b2Nlc3Nvcjo6cXVldWVQcm9jZXNzb3JUaHJlYWQoKSAoKSBhdCAvdXNyL2xpYjY0L0ljZWRUZWFQ
+bHVnaW4uc28KIzIgIDB4MDAwMDdmYTRlNTk2MDhiOSBpbiAgKCkgYXQgL3Vzci9saWI2NC9JY2Vk
+VGVhUGx1Z2luLnNvCiMzICAweDAwMDA3ZmE1ODZjOGU1Y2EgaW4gc3RhcnRfdGhyZWFkICgpIGF0
+IC9saWI2NC9saWJwdGhyZWFkLnNvLjAKIzQgIDB4MDAwMDdmYTU3ZmY2OWVhZCBpbiBjbG9uZSAo
+KSBhdCAvbGliNjQvbGliYy5zby42CgpUaHJlYWQgNyAoVGhyZWFkIDB4N2ZhNTU3NWI1NzAwIChM
+V1AgMzI2NzkpKToKIzAgIDB4MDAwMDdmYTU4NmM5M2JkMCBpbiBwdGhyZWFkX2NvbmRfd2FpdEBA
+R0xJQkNfMi4zLjIgKCkgYXQgL2xpYjY0L2xpYnB0aHJlYWQuc28uMAojMSAgMHgwMDAwN2ZhNTgz
+ZWQzM2Q0IGluIFdlYkNvcmU6Okljb25EYXRhYmFzZTo6c3luY1RocmVhZE1haW5Mb29wKCkgKCkg
+YXQgL2xpYjY0L2xpYndlYmtpdGd0ay0zLjAuc28uMAojMiAgMHgwMDAwN2ZhNTgzZWQ1N2NhIGlu
+IFdlYkNvcmU6Okljb25EYXRhYmFzZTo6aWNvbkRhdGFiYXNlU3luY1RocmVhZCgpICgpIGF0IC9s
+aWI2NC9saWJ3ZWJraXRndGstMy4wLnNvLjAKIzMgIDB4MDAwMDdmYTU4MmNkOTNkMiBpbiBXVEY6
+Ond0ZlRocmVhZEVudHJ5UG9pbnQodm9pZCopICgpIGF0IC9saWI2NC9saWJqYXZhc2NyaXB0Y29y
+ZWd0ay0zLjAuc28uMAojNCAgMHgwMDAwN2ZhNTg2YzhlNWNhIGluIHN0YXJ0X3RocmVhZCAoKSBh
+dCAvbGliNjQvbGlicHRocmVhZC5zby4wCiM1ICAweDAwMDA3ZmE1N2ZmNjllYWQgaW4gY2xvbmUg
+KCkgYXQgL2xpYjY0L2xpYmMuc28uNgoKVGhyZWFkIDYgKFRocmVhZCAweDdmYTU1N2RiNjcwMCAo
+TFdQIDMyNjc4KSk6CiMwICAweDAwMDA3ZmE1ODZjOTNiZDAgaW4gcHRocmVhZF9jb25kX3dhaXRA
+QEdMSUJDXzIuMy4yICgpIGF0IC9saWI2NC9saWJwdGhyZWFkLnNvLjAKIzEgIDB4MDAwMDdmYTU4
+MmNjMGExNiBpbiBXVEY6OlRDTWFsbG9jX1BhZ2VIZWFwOjpzY2F2ZW5nZXJUaHJlYWQoKSAoKSBh
+dCAvbGliNjQvbGliamF2YXNjcmlwdGNvcmVndGstMy4wLnNvLjAKIzIgIDB4MDAwMDdmYTU4MmNj
+MGE0OSBpbiAgKCkgYXQgL2xpYjY0L2xpYmphdmFzY3JpcHRjb3JlZ3RrLTMuMC5zby4wCiMzICAw
+eDAwMDA3ZmE1ODZjOGU1Y2EgaW4gc3RhcnRfdGhyZWFkICgpIGF0IC9saWI2NC9saWJwdGhyZWFk
+LnNvLjAKIzQgIDB4MDAwMDdmYTU3ZmY2OWVhZCBpbiBjbG9uZSAoKSBhdCAvbGliNjQvbGliYy5z
+by42CgpUaHJlYWQgNSAoVGhyZWFkIDB4N2ZhNTYzN2ZlNzAwIChMV1AgMzI2NzcpKToKIzAgIDB4
+MDAwMDdmYTU3ZmY1ZTMyZCBpbiBwb2xsICgpIGF0IC9saWI2NC9saWJjLnNvLjYKIzEgIDB4MDAw
+MDdmYTU4MDI3MmE0NiBpbiBnX21haW5fY29udGV4dF9pdGVyYXRlLmlzcmEgKCkgYXQgL2xpYjY0
+L2xpYmdsaWItMi4wLnNvLjAKIzIgIDB4MDAwMDdmYTU4MDI3MmRkMiBpbiBnX21haW5fbG9vcF9y
+dW4gKCkgYXQgL2xpYjY0L2xpYmdsaWItMi4wLnNvLjAKIzMgIDB4MDAwMDdmYTU4ODRmZTI4NCBp
+biBzb3VyY2VfcmVnaXN0cnlfb2JqZWN0X21hbmFnZXJfdGhyZWFkIChkYXRhPTB4NTYwYWMxYWNk
+ZDQwKSBhdCBlLXNvdXJjZS1yZWdpc3RyeS5jOjExNjQKIzQgIDB4MDAwMDdmYTU4MDI5OGQzOCBp
+biBnX3RocmVhZF9wcm94eSAoKSBhdCAvbGliNjQvbGliZ2xpYi0yLjAuc28uMAojNSAgMHgwMDAw
+N2ZhNTg2YzhlNWNhIGluIHN0YXJ0X3RocmVhZCAoKSBhdCAvbGliNjQvbGlicHRocmVhZC5zby4w
+CiM2ICAweDAwMDA3ZmE1N2ZmNjllYWQgaW4gY2xvbmUgKCkgYXQgL2xpYjY0L2xpYmMuc28uNgoK
+VGhyZWFkIDQgKFRocmVhZCAweDdmYTU2M2ZmZjcwMCAoTFdQIDMyNjc2KSk6CiMwICAweDAwMDA3
+ZmE1N2ZmNWUzMmQgaW4gcG9sbCAoKSBhdCAvbGliNjQvbGliYy5zby42CiMxICAweDAwMDA3ZmE1
+ODAyNzJhNDYgaW4gZ19tYWluX2NvbnRleHRfaXRlcmF0ZS5pc3JhICgpIGF0IC9saWI2NC9saWJn
+bGliLTIuMC5zby4wCiMyICAweDAwMDA3ZmE1ODAyNzJiNWMgaW4gZ19tYWluX2NvbnRleHRfaXRl
+cmF0aW9uICgpIGF0IC9saWI2NC9saWJnbGliLTIuMC5zby4wCiMzICAweDAwMDA3ZmE1NjgxNmRm
+YWQgaW4gZGNvbmZfZ2RidXNfd29ya2VyX3RocmVhZCAoKSBhdCAvdXNyL2xpYjY0L2dpby9tb2R1
+bGVzL2xpYmRjb25mc2V0dGluZ3Muc28KIzQgIDB4MDAwMDdmYTU4MDI5OGQzOCBpbiBnX3RocmVh
+ZF9wcm94eSAoKSBhdCAvbGliNjQvbGliZ2xpYi0yLjAuc28uMAojNSAgMHgwMDAwN2ZhNTg2Yzhl
+NWNhIGluIHN0YXJ0X3RocmVhZCAoKSBhdCAvbGliNjQvbGlicHRocmVhZC5zby4wCiM2ICAweDAw
+MDA3ZmE1N2ZmNjllYWQgaW4gY2xvbmUgKCkgYXQgL2xpYjY0L2xpYmMuc28uNgoKVGhyZWFkIDMg
+KFRocmVhZCAweDdmYTU2YTIyYjcwMCAoTFdQIDMyNjc1KSk6CiMwICAweDAwMDA3ZmE1N2ZmNWUz
+MmQgaW4gcG9sbCAoKSBhdCAvbGliNjQvbGliYy5zby42CiMxICAweDAwMDA3ZmE1ODAyNzJhNDYg
+aW4gZ19tYWluX2NvbnRleHRfaXRlcmF0ZS5pc3JhICgpIGF0IC9saWI2NC9saWJnbGliLTIuMC5z
+by4wCiMyICAweDAwMDA3ZmE1ODAyNzJkZDIgaW4gZ19tYWluX2xvb3BfcnVuICgpIGF0IC9saWI2
+NC9saWJnbGliLTIuMC5zby4wCiMzICAweDAwMDA3ZmE1ODA4NmJmNzYgaW4gZ2RidXNfc2hhcmVk
+X3RocmVhZF9mdW5jICgpIGF0IC9saWI2NC9saWJnaW8tMi4wLnNvLjAKIzQgIDB4MDAwMDdmYTU4
+MDI5OGQzOCBpbiBnX3RocmVhZF9wcm94eSAoKSBhdCAvbGliNjQvbGliZ2xpYi0yLjAuc28uMAoj
+NSAgMHgwMDAwN2ZhNTg2YzhlNWNhIGluIHN0YXJ0X3RocmVhZCAoKSBhdCAvbGliNjQvbGlicHRo
+cmVhZC5zby4wCiM2ICAweDAwMDA3ZmE1N2ZmNjllYWQgaW4gY2xvbmUgKCkgYXQgL2xpYjY0L2xp
+YmMuc28uNgoKVGhyZWFkIDIgKFRocmVhZCAweDdmYTU2YWEyYzcwMCAoTFdQIDMyNjc0KSk6CiMw
+ICAweDAwMDA3ZmE1N2ZmNWUzMmQgaW4gcG9sbCAoKSBhdCAvbGliNjQvbGliYy5zby42CiMxICAw
+eDAwMDA3ZmE1ODAyNzJhNDYgaW4gZ19tYWluX2NvbnRleHRfaXRlcmF0ZS5pc3JhICgpIGF0IC9s
+aWI2NC9saWJnbGliLTIuMC5zby4wCiMyICAweDAwMDA3ZmE1ODAyNzJiNWMgaW4gZ19tYWluX2Nv
+bnRleHRfaXRlcmF0aW9uICgpIGF0IC9saWI2NC9saWJnbGliLTIuMC5zby4wCiMzICAweDAwMDA3
+ZmE1ODAyNzJiYTEgaW4gZ2xpYl93b3JrZXJfbWFpbiAoKSBhdCAvbGliNjQvbGliZ2xpYi0yLjAu
+c28uMAojNCAgMHgwMDAwN2ZhNTgwMjk4ZDM4IGluIGdfdGhyZWFkX3Byb3h5ICgpIGF0IC9saWI2
+NC9saWJnbGliLTIuMC5zby4wCiM1ICAweDAwMDA3ZmE1ODZjOGU1Y2EgaW4gc3RhcnRfdGhyZWFk
+ICgpIGF0IC9saWI2NC9saWJwdGhyZWFkLnNvLjAKIzYgIDB4MDAwMDdmYTU3ZmY2OWVhZCBpbiBj
+bG9uZSAoKSBhdCAvbGliNjQvbGliYy5zby42CgpUaHJlYWQgMSAoVGhyZWFkIDB4N2ZhNThiNDU1
+YWMwIChMV1AgMzI2NzIpKToKIzAgIDB4MDAwMDdmYTU3ZmY1ZTMyZCBpbiBwb2xsICgpIGF0IC9s
+aWI2NC9saWJjLnNvLjYKIzEgIDB4MDAwMDdmYTU4MDI3MmE0NiBpbiBnX21haW5fY29udGV4dF9p
+dGVyYXRlLmlzcmEgKCkgYXQgL2xpYjY0L2xpYmdsaWItMi4wLnNvLjAKIzIgIDB4MDAwMDdmYTU4
+MDI3MmRkMiBpbiBnX21haW5fbG9vcF9ydW4gKCkgYXQgL2xpYjY0L2xpYmdsaWItMi4wLnNvLjAK
+IzMgIDB4MDAwMDdmYTU4MWRkNjc4NSBpbiBndGtfbWFpbiAoKSBhdCAvbGliNjQvbGliZ3RrLTMu
+c28uMAojNCAgMHgwMDAwNTYwYWMwZGQ0ZDMxIGluIG1haW4gKGFyZ2M9PG9wdGltaXplZCBvdXQ+
+LCBhcmd2PTxvcHRpbWl6ZWQgb3V0PikgYXQgbWFpbi5jOjY2MAo=
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

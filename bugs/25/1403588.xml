@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1403588</bug_id>
+          
+          <creation_ts>2016-12-11 12:29:00 -0500</creation_ts>
+          <short_desc>/usr/share/bugzilla/assets/.htaccess: Require not allowed here</short_desc>
+          <delta_ts>2017-04-25 17:33:30 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>bugzilla</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>1438957</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Adrian Reber">adrian</reporter>
+          <assigned_to name="Emmanuel Seyman">emmanuel</assigned_to>
+          <cc>bazanluis20</cc>
+    
+    
+    <cc>dwt</cc>
+    
+    
+    <cc>emmanuel</cc>
+    
+    
+    <cc>hughbragg</cc>
+    
+    
+    <cc>itamar</cc>
+    
+    
+    <cc>perl-devel</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>bugzilla-5.0.3-4.fc25 bugzilla-5.0.3-5.fc26</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-04-24 22:22:30</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9974886</commentid>
+    <comment_count>0</comment_count>
+    <who name="Adrian Reber">adrian</who>
+    <bug_when>2016-12-11 12:29:33 -0500</bug_when>
+    <thetext>Description of problem:
+Cannot access js and css files under /usr/share/bugzilla/assets/
+Getting following error in the error.log
+
+/usr/share/bugzilla/assets/.htaccess: Require not allowed here
+
+
+Version-Release number of selected component (if applicable):
+bugzilla-5.0.3-3.fc25.noarch
+
+How reproducible:
+Always
+
+
+Package seems to be unmodified. No output from &apos;rpm -V bugzilla&apos;
+
+buglist.cgi works but no css and js files are loaded.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9974976</commentid>
+    <comment_count>1</comment_count>
+    <who name="Emmanuel Seyman">emmanuel</who>
+    <bug_when>2016-12-11 14:34:35 -0500</bug_when>
+    <thetext>I&apos;ll take this one.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10012508</commentid>
+    <comment_count>2</comment_count>
+    <who name="Dennis W. Tokarski">dwt</who>
+    <bug_when>2016-12-21 18:14:29 -0500</bug_when>
+    <thetext>Just ran into this this afternoon. Some web research led
+to at least a workaround. Modify /etc/httpd/conf.d/bugzilla.conf
+so that the line
+
+  AllowOverride Limit Options FileInfo Indexes
+
+instead reads
+
+  AllowOverride Limit Options FileInfo Indexes AuthConfig
+
+Then be sure to systemctl reload httpd.
+
+Can&apos;t speak as to whether that&apos;s a proper fix or not, but it
+made the problem go away.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10012557</commentid>
+    <comment_count>3</comment_count>
+    <who name="Dennis W. Tokarski">dwt</who>
+    <bug_when>2016-12-21 18:32:34 -0500</bug_when>
+    <thetext>And by the way, once you get the home page to render, the large
+icons for bug/search/usr/docs are missing.
+
+The client is trying to fetch e.g /skins/standard/index/search.png and getting a 404. It should be trying for /bugzilla/skins....
+
+Temporary fix is to edit bugzilla.conf again and at the top add
+
+  Alias /skins /usr/share/bugzilla/skins
+
+Looks like a bug in the cgi script for the home page.
+
+Sorry for not filing this separately, emmanuel, but since you&apos;re on this anyway...
+
+Hope this helps.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10184447</commentid>
+    <comment_count>4</comment_count>
+    <who name="Hugh">hughbragg</who>
+    <bug_when>2017-02-26 06:53:51 -0500</bug_when>
+    <thetext>This problem still exists in Fedora 25, Bugzilla 5.0.3.
+
+The workaround described by Dennis in comment #2 has been applied and isn&apos;t effective.
+The home Bugzilla page is displayed without formatting.
+
+This possibly unrelated message always precedes the 4 &quot;Require not allowed&quot; messages from the home page:
+AH01215: [Sun Feb 26 21:45:53 2017] Bugzilla.pm: sysread() is deprecated on :utf8 handles at /usr/share/perl5/vendor_perl/File/Slurp.pm line 225.: /usr/share/bugzilla/index.cgi</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10184517</commentid>
+    <comment_count>5</comment_count>
+    <who name="Emmanuel Seyman">emmanuel</who>
+    <bug_when>2017-02-26 08:11:24 -0500</bug_when>
+    <thetext>(In reply to Hugh from comment #4)
+&gt; 
+&gt; The workaround described by Dennis in comment #2 has been applied and isn&apos;t
+&gt; effective.
+&gt; The home Bugzilla page is displayed without formatting.
+
+Strange... I&apos;ve been testing the fix and it works for me.
+
+&gt; This possibly unrelated message always precedes the 4 &quot;Require not allowed&quot;
+&gt; messages from the home page:
+&gt; AH01215: [Sun Feb 26 21:45:53 2017] Bugzilla.pm: sysread() is deprecated on
+&gt; :utf8 handles at /usr/share/perl5/vendor_perl/File/Slurp.pm line 225.:
+&gt; /usr/share/bugzilla/index.cgi
+
+Yes, this is unrelated. I&apos;ve also backported the upstream commit that fixes this.
+Still working on the /skins issues...</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10184704</commentid>
+    <comment_count>6</comment_count>
+    <who name="Hugh">hughbragg</who>
+    <bug_when>2017-02-26 13:43:46 -0500</bug_when>
+    <thetext>It looks like the Require clause in the generated .htaccess files are causing the problem. When I remove this file, it works. Maybe have a look at the generation method to see why the Require clause is included.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10184771</commentid>
+    <comment_count>7</comment_count>
+    <who name="Emmanuel Seyman">emmanuel</who>
+    <bug_when>2017-02-26 17:21:39 -0500</bug_when>
+    <thetext>We really want to prevent directory listings of /usr/share/bugzilla/assets/ so the Require clause needs to stay.
+
+It would be interesting to figure out why adding the AuthConfig override on your system doesn&apos;t allow you to use Require in .htaccess files.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10185103</commentid>
+    <comment_count>8</comment_count>
+    <who name="Hugh">hughbragg</who>
+    <bug_when>2017-02-26 22:12:10 -0500</bug_when>
+    <thetext>Sounds like a bug. I have a fresh install with no customisations.
+Is there anything specific I can do to help resolve this?
+btw. I didn&apos;t have the /skins problem.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10185545</commentid>
+    <comment_count>9</comment_count>
+    <who name="Emmanuel Seyman">emmanuel</who>
+    <bug_when>2017-02-27 03:23:31 -0500</bug_when>
+    <thetext>(In reply to Hugh from comment #8)
+&gt;
+&gt; Is there anything specific I can do to help resolve this?
+
+Double check that you do have an AuthConfig override for /usr/share/bugzilla/assets/ (or any parent directory) and restart httpd. If that still doesn&apos;t solve your problem, file a bug against httpd.
+
+&gt; btw. I didn&apos;t have the /skins problem.
+
+Ah. Curiouser and curiouser...</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10186425</commentid>
+    <comment_count>10</comment_count>
+    <who name="Hugh">hughbragg</who>
+    <bug_when>2017-02-27 07:56:55 -0500</bug_when>
+    <thetext>This is in /etc/httpd/conf.d/bugzilla.conf
+
+Alias /var/lib/bugzilla/data/webdot /var/lib/bugzilla/data/webdot
+Alias /bugzilla /usr/share/bugzilla
+
+&lt;Directory /usr/share/bugzilla&gt;
+
+  &lt;IfModule mod_authz_core.c&gt;
+    # Bugzilla will be accessible to all machines in your network
+    # Replace with &quot;Require local&quot; if you want access to be restricted
+    # to this machine.
+    Require all granted
+  &lt;/IfModule&gt;
+
+  AddHandler cgi-script .cgi
+  Options +Indexes +ExecCGI +FollowSymLinks
+  DirectoryIndex index.cgi index.html
+  AllowOverride Limit Options FileInfo Indexes
+  AddType application/vnd.mozilla.xul+xml .xul
+  AddType application/rdf+xml .rdf
+&lt;/Directory&gt;
+
+&lt;Directory /var/lib/bugzilla/data/webdot&gt;
+  Require all granted
+&lt;/Directory&gt;
+
+
+The only other thing affecting this directory is in httpd.conf
+
+&lt;Directory /&gt;
+    AllowOverride none
+    Require all denied
+&lt;/Directory&gt;
+
+I noticed this:
+/usr/share/bugzilla/assets -&gt; ../../../var/lib/bugzilla/assets
+Which may explain the problem.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10307598</commentid>
+    <comment_count>11</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-05 12:30:56 -0400</bug_when>
+    <thetext>bugzilla-5.0.3-4.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-f2f561c439</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10307602</commentid>
+    <comment_count>12</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-05 12:31:20 -0400</bug_when>
+    <thetext>bugzilla-5.0.3-5.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-e676c0dbc1</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10312235</commentid>
+    <comment_count>13</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-06 16:23:45 -0400</bug_when>
+    <thetext>bugzilla-5.0.3-4.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-f2f561c439</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10312449</commentid>
+    <comment_count>14</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-06 18:22:02 -0400</bug_when>
+    <thetext>bugzilla-5.0.3-5.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-e676c0dbc1</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10358621</commentid>
+    <comment_count>15</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-24 22:22:30 -0400</bug_when>
+    <thetext>bugzilla-5.0.3-4.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10362148</commentid>
+    <comment_count>16</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-25 17:33:30 -0400</bug_when>
+    <thetext>bugzilla-5.0.3-5.fc26 has been pushed to the Fedora 26 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

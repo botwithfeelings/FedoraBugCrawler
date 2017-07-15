@@ -1,0 +1,540 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1392192</bug_id>
+          
+          <creation_ts>2016-11-05 17:10:00 -0400</creation_ts>
+          <short_desc>segfault during normal usage</short_desc>
+          <delta_ts>2017-01-06 19:19:11 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>rpy</component>
+          <version>25</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>high</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Fabio Valentini">decathorpe</reporter>
+          <assigned_to name="José Matos">jamatos</assigned_to>
+          <cc>alexl</cc>
+    
+    
+    <cc>igeorgex</cc>
+    
+    
+    <cc>jamatos</cc>
+    
+    
+    <cc>tcallawa</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-12-19 01:03:23</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9864294</commentid>
+    <comment_count>0</comment_count>
+    <who name="Fabio Valentini">decathorpe</who>
+    <bug_when>2016-11-05 17:10:49 -0400</bug_when>
+    <thetext>Executing the following python code in a python shell
+
+  &quot;from rpy2 import robjects&quot;
+
+causes the following Exception:
+
+Traceback (most recent call last):
+  File &quot;&lt;stdin&gt;&quot;, line 1, in &lt;module&gt;
+  File &quot;/usr/lib64/python3.5/site-packages/rpy2/robjects/__init__.py&quot;, line 16, in &lt;module&gt;
+    import rpy2.rinterface as rinterface
+  File &quot;/usr/lib64/python3.5/site-packages/rpy2/rinterface/__init__.py&quot;, line 92, in &lt;module&gt;
+    from rpy2.rinterface._rinterface import (baseenv,
+ImportError: libRblas.so: cannot open shared object file: No such file or directory
+
+
+Executing a python script containing the line above causes a segfault, which ABRT doesn&apos;t successfully manage to report:
+
+Segmentation fault (core dumped)
+
+
+Looking at the folder /usr/lib64/R/lib, libRblas.so is definitely there, but is a symlink to /usr/lib64/libopenblas.so.0, maybe that confuses the rpy2 module initialisation.
+
+
+Version-Release number of selected component (if applicable):
+python3-rpy-2.8.3-1.fc25.x86_64
+R-core-3.3.2-2.fc25.x86_64</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9866007</commentid>
+    <comment_count>1</comment_count>
+    <who name="José Matos">jamatos</who>
+    <bug_when>2016-11-07 05:09:53 -0500</bug_when>
+    <thetext>I can not reproduce it.
+
+I am running F25 as well on x86_64 and it works (using ipython2 and 3):
+
+
+In [1]: import rpy2
+
+In [2]: from rpy2 import robjects
+
+In [3]:
+
+Could this be related with bug #1391491 ?
+
+Could you, please, update to the latest version of openblas in updates-testing?
+openblas-0.2.19-2.fc25.x86_64</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9866971</commentid>
+    <comment_count>2</comment_count>
+    <who name="Fabio Valentini">decathorpe</who>
+    <bug_when>2016-11-07 09:26:02 -0500</bug_when>
+    <thetext>Still happens with the newest openblas version:
+openblas-0.2.19-3.fc25.x86_64
+
+  $ python3
+  Python 3.5.2 (default, Sep 14 2016, 11:28:32) 
+  [GCC 6.2.1 20160901 (Red Hat 6.2.1-1)] on linux
+  Type &quot;help&quot;, &quot;copyright&quot;, &quot;credits&quot; or &quot;license&quot; for more information.
+  &gt;&gt;&gt; import rpy2
+  &gt;&gt;&gt; from rpy2 import robjects
+  Segmentation fault (core dumped)
+
+I also ran &quot;rpm -Va&quot; to check if my installation got corrupted somehow, but no files related to R / python3 / openblas show up with errors.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9866990</commentid>
+    <comment_count>3</comment_count>
+    <who name="Fabio Valentini">decathorpe</who>
+    <bug_when>2016-11-07 09:28:52 -0500</bug_when>
+    <thetext>With valgrind, I got the following errors:
+
+[deca@asudora ~]$ valgrind python3
+==6869== Memcheck, a memory error detector
+==6869== Copyright (C) 2002-2015, and GNU GPL&apos;d, by Julian Seward et al.
+==6869== Using Valgrind-3.12.0 and LibVEX; rerun with -h for copyright info
+==6869== Command: python3
+==6869== 
+Python 3.5.2 (default, Sep 14 2016, 11:28:32) 
+[GCC 6.2.1 20160901 (Red Hat 6.2.1-1)] on linux
+Type &quot;help&quot;, &quot;copyright&quot;, &quot;credits&quot; or &quot;license&quot; for more information.
+&gt;&gt;&gt; import rpy2
+&gt;&gt;&gt; from rpy2 import robjects
+==6874== Warning: invalid file descriptor 1024 in syscall close()
+==6874== Warning: invalid file descriptor 1025 in syscall close()
+==6874== Warning: invalid file descriptor 1026 in syscall close()
+==6874== Warning: invalid file descriptor 1027 in syscall close()
+==6874==    Use --log-fd=&lt;number&gt; to select an alternative log fd.
+==6874== Warning: invalid file descriptor 1028 in syscall close()
+==6874== Warning: invalid file descriptor 1029 in syscall close()
+==6877== Warning: invalid file descriptor 1024 in syscall close()
+==6877== Warning: invalid file descriptor 1025 in syscall close()
+==6877== Warning: invalid file descriptor 1026 in syscall close()
+==6877== Warning: invalid file descriptor 1027 in syscall close()
+==6877==    Use --log-fd=&lt;number&gt; to select an alternative log fd.
+==6877== Warning: invalid file descriptor 1028 in syscall close()
+==6877== Warning: invalid file descriptor 1029 in syscall close()
+==6869== Jump to the invalid address stated on the next line
+==6869==    at 0x2240: ???
+==6869==    by 0x40109C9: call_init.part.0 (in /usr/lib64/ld-2.24.so)
+==6869==    by 0x4010ADA: _dl_init (in /usr/lib64/ld-2.24.so)
+==6869==    by 0x4015A35: dl_open_worker (in /usr/lib64/ld-2.24.so)
+==6869==    by 0x4010873: _dl_catch_error (in /usr/lib64/ld-2.24.so)
+==6869==    by 0x4015008: _dl_open (in /usr/lib64/ld-2.24.so)
+==6869==    by 0x5525F08: dlopen_doit (in /usr/lib64/libdl-2.24.so)
+==6869==    by 0x4010873: _dl_catch_error (in /usr/lib64/ld-2.24.so)
+==6869==    by 0x5526590: _dlerror_run (in /usr/lib64/libdl-2.24.so)
+==6869==    by 0x5525FA1: dlopen@@GLIBC_2.2.5 (in /usr/lib64/libdl-2.24.so)
+==6869==    by 0x4F95D38: _PyImport_FindSharedFuncptr (in /usr/lib64/libpython3.5m.so.1.0)
+==6869==    by 0x4F7517C: _PyImport_LoadDynamicModuleWithSpec (in /usr/lib64/libpython3.5m.so.1.0)
+==6869==  Address 0x2240 is not stack&apos;d, malloc&apos;d or (recently) free&apos;d
+==6869== 
+==6869== 
+==6869== Process terminating with default action of signal 11 (SIGSEGV): dumping core
+==6869==  Bad permissions for mapped region at address 0x2240
+==6869==    at 0x2240: ???
+==6869==    by 0x40109C9: call_init.part.0 (in /usr/lib64/ld-2.24.so)
+==6869==    by 0x4010ADA: _dl_init (in /usr/lib64/ld-2.24.so)
+==6869==    by 0x4015A35: dl_open_worker (in /usr/lib64/ld-2.24.so)
+==6869==    by 0x4010873: _dl_catch_error (in /usr/lib64/ld-2.24.so)
+==6869==    by 0x4015008: _dl_open (in /usr/lib64/ld-2.24.so)
+==6869==    by 0x5525F08: dlopen_doit (in /usr/lib64/libdl-2.24.so)
+==6869==    by 0x4010873: _dl_catch_error (in /usr/lib64/ld-2.24.so)
+==6869==    by 0x5526590: _dlerror_run (in /usr/lib64/libdl-2.24.so)
+==6869==    by 0x5525FA1: dlopen@@GLIBC_2.2.5 (in /usr/lib64/libdl-2.24.so)
+==6869==    by 0x4F95D38: _PyImport_FindSharedFuncptr (in /usr/lib64/libpython3.5m.so.1.0)
+==6869==    by 0x4F7517C: _PyImport_LoadDynamicModuleWithSpec (in /usr/lib64/libpython3.5m.so.1.0)
+==6869== 
+==6869== HEAP SUMMARY:
+==6869==     in use at exit: 5,576,250 bytes in 43,852 blocks
+==6869==   total heap usage: 115,115 allocs, 71,263 frees, 18,530,946 bytes allocated
+==6869== 
+==6869== LEAK SUMMARY:
+==6869==    definitely lost: 0 bytes in 0 blocks
+==6869==    indirectly lost: 0 bytes in 0 blocks
+==6869==      possibly lost: 1,701,167 bytes in 14,104 blocks
+==6869==    still reachable: 3,875,083 bytes in 29,748 blocks
+==6869==         suppressed: 0 bytes in 0 blocks
+==6869== Rerun with --leak-check=full to see details of leaked memory
+==6869== 
+==6869== For counts of detected and suppressed errors, rerun with: -v
+==6869== ERROR SUMMARY: 1 errors from 1 contexts (suppressed: 0 from 0)
+Segmentation fault (core dumped)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9879141</commentid>
+    <comment_count>4</comment_count>
+    <who name="José Matos">jamatos</who>
+    <bug_when>2016-11-10 04:56:12 -0500</bug_when>
+    <thetext>OK, I can reproduce it now.
+
+For some reason I had not update R, due to the change in the repos to disable the updates-testing since F25 is coming.
+
+As soon as I have updated R then I get the same crash as you do.
+
+I am adding Tom in CC since probably this is related with the last change about openblas in R.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9881129</commentid>
+    <comment_count>5</comment_count>
+    <who name="Tom &quot;spot&quot; Callaway">tcallawa</who>
+    <bug_when>2016-11-10 14:23:42 -0500</bug_when>
+    <thetext>That&apos;s very odd that it would crash on a symlink. If you make it a hardlink, does it crash?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9882521</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fabio Valentini">decathorpe</who>
+    <bug_when>2016-11-11 03:15:10 -0500</bug_when>
+    <thetext>Creating a hardlink
+
+from /usr/lib64/libopenblas.so.0
+or /usr/lib64/libopenblas-r0.2.19.so
+to /usr/lib64/R/lib/libRblas.so
+
+doesn&apos;t change the error / crash.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9883513</commentid>
+    <comment_count>7</comment_count>
+    <who name="Tom &quot;spot&quot; Callaway">tcallawa</who>
+    <bug_when>2016-11-11 09:17:57 -0500</bug_when>
+    <thetext>Very strange. I&apos;m guessing if you switch libRrefblas.so to libRblas.so, it starts working again?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9883662</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fabio Valentini">decathorpe</who>
+    <bug_when>2016-11-11 10:07:55 -0500</bug_when>
+    <thetext>I removed the symlink &quot;libRblas.so -&gt; /usr/lib64/libopenblas.so.0&quot; and moved libRrefblas.so into place. Still segfaults.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9883666</commentid>
+    <comment_count>9</comment_count>
+    <who name="Tom &quot;spot&quot; Callaway">tcallawa</who>
+    <bug_when>2016-11-11 10:09:30 -0500</bug_when>
+    <thetext>Okay, so this issue has nothing to do with the BLAS in use. That&apos;s comforting at least.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9894019</commentid>
+    <comment_count>10</comment_count>
+    <who name="Tom &quot;spot&quot; Callaway">tcallawa</who>
+    <bug_when>2016-11-15 14:31:18 -0500</bug_when>
+    <thetext>When I try to reproduce this on rawhide, I get a different issue:
+
+[spot@localhost scratch]$ python3
+Python 3.5.2 (default, Oct 17 2016, 12:57:54) 
+[GCC 6.2.1 20160916 (Red Hat 6.2.1-2)] on linux
+Type &quot;help&quot;, &quot;copyright&quot;, &quot;credits&quot; or &quot;license&quot; for more information.
+&gt;&gt;&gt; import rpy2
+&gt;&gt;&gt; from rpy2 import robjects
+python3: Relink `/lib64/libsystemd.so.0&apos; with `/lib64/librt.so.1&apos; for IFUNC symbol `clock_gettime&apos;
+
+This works on python2 though:
+
+[spot@localhost scratch]$ python2
+Python 2.7.12 (default, Oct 12 2016, 14:31:21) 
+[GCC 6.2.1 20160916 (Red Hat 6.2.1-2)] on linux2
+Type &quot;help&quot;, &quot;copyright&quot;, &quot;credits&quot; or &quot;license&quot; for more information.
+&gt;&gt;&gt; import rpy2
+&gt;&gt;&gt; from rpy2 import robjects
+&gt;&gt;&gt;</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9985759</commentid>
+    <comment_count>11</comment_count>
+    <who name="JM">igeorgex</who>
+    <bug_when>2016-12-14 09:56:20 -0500</bug_when>
+    <thetext>I have a similar problem with Fedora 24 and VTK, when I import the 
+
+vtkXMLImageDataReader from vtk
+
+(from vtk import vtkXMLImageDataReader)
+
+I get the message
+
+ImportError: libRblas.so: cannot open shared object file: No such file or directory
+
+---------------
+importing modules ...
+Traceback (most recent call last):
+  File &quot;./test.py&quot;, line 10, in &lt;module&gt;
+    from vtk import vtkXMLImageDataReader
+  File &quot;/usr/lib64/python2.7/site-packages/vtk/__init__.py&quot;, line 102, in &lt;module&gt;
+    from vtkFiltersStatisticsGnuR import *
+  File &quot;/usr/lib64/python2.7/site-packages/vtk/vtkFiltersStatisticsGnuR.py&quot;, line 1, in &lt;module&gt;
+    from vtkFiltersStatisticsGnuRPython import *
+ImportError: libRblas.so: cannot open shared object file: No such file or directory
+---------------
+
+An 
+
+export LD_LIBRARY_PATH=&quot;/usr/lib64/R/lib/:$LD_LIBRARY_PATH&quot;
+
+fixed the problem. Looks like libRblas.so is no longer part of the search path. The problem startet with the version 3.3.2-2 of R-core
+
+R-core-3.3.2-2.fc24.x86_64
+R-core-devel-3.3.2-2.fc24.x86_64
+
+the version
+
+R-core-3.3.0-3.fc24.x86_64
+R-core-devel-3.3.0-3.fc24.x86_64
+
+works without problems and without the LD_LIBRARY_PATH fix.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9985828</commentid>
+    <comment_count>12</comment_count>
+    <who name="Tom &quot;spot&quot; Callaway">tcallawa</who>
+    <bug_when>2016-12-14 10:09:19 -0500</bug_when>
+    <thetext>Do you have an /etc/ld.so.conf.d//R-x86_64.conf file?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9985890</commentid>
+    <comment_count>13</comment_count>
+    <who name="JM">igeorgex</who>
+    <bug_when>2016-12-14 10:16:34 -0500</bug_when>
+    <thetext>Yes
+
+(version 3.3.2-2)
+ls -la /etc/ld.so.conf.d/R-x86_64.conf
+-rw-r--r--. 1 root root 17 31. Okt 21:17 /etc/ld.so.conf.d/R-x86_64.conf
+
+more /etc/ld.so.conf.d/R-x86_64.conf
+/usr/lib64/R/lib
+
+
+(version 3.3.0-3)
+ls -la /etc/ld.so.conf.d/R-x86_64.conf
+-rw-r--r--. 1 root root 17 13. Mai 2016  /etc/ld.so.conf.d/R-x86_64.conf
+
+more /etc/ld.so.conf.d/R-x86_64.conf
+/usr/lib64/R/lib
+
+
+(version 3.3.2-2)
+ls -la /usr/lib64/R/lib
+total 4972
+drwxr-xr-x. 2 root root    4096 14. Dez 14:02 .
+drwxr-xr-x. 7 root root    4096 14. Dez 14:02 ..
+lrwxrwxrwx. 1 root root      11 14. Dez 14:02 libopenblas.so.0 -&gt; libRblas.so
+lrwxrwxrwx. 1 root root      27 31. Okt 21:17 libRblas.so -&gt; /usr/lib64/libopenblas.so.0
+-rwxr-xr-x. 1 root root 1989312 31. Okt 21:17 libRlapack.so
+-rwxr-xr-x. 1 root root  178856 31. Okt 21:17 libRrefblas.so
+-rwxr-xr-x. 1 root root 2911504 31. Okt 21:17 libR.so
+----
+ldconfig -p | grep -i libRblas.so
+&lt;nothing&gt;
+
+(version 3.3.0-3)
+ls -la /usr/lib64/R/lib
+total 4948
+drwxr-xr-x. 2 root root    4096 14. Dez 14:43 .
+drwxr-xr-x. 7 root root    4096 14. Dez 14:43 ..
+lrwxrwxrwx. 1 root root      11 13. Dez 13:46 libopenblas.so.0 -&gt; libRblas.so
+-rwxr-xr-x. 1 root root  178848 13. Mai 2016  libRblas.so
+-rwxr-xr-x. 1 root root 1964736 13. Mai 2016  libRlapack.so
+-rwxr-xr-x. 1 root root 2911576 13. Mai 2016  libR.so
+----
+ldconfig -p | grep -i libRblas.so
+libRblas.so (libc6,x86-64) =&gt; /usr/lib64/R/lib/libRblas.so
+
+
+Somehow libRblas.so is missing in the cache with version 3.3.2-2, version 3.3.0-3 still has /usr/lib64/R/lib/libRblas.so in the cache and yes I forced an update of the cache :-).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9986928</commentid>
+    <comment_count>14</comment_count>
+    <who name="Tom &quot;spot&quot; Callaway">tcallawa</who>
+    <bug_when>2016-12-14 12:09:11 -0500</bug_when>
+    <thetext>I&apos;ve figured out how to fix this. Details are in https://bugzilla.redhat.com/show_bug.cgi?id=1404662</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9986978</commentid>
+    <comment_count>15</comment_count>
+    <who name="JM">igeorgex</who>
+    <bug_when>2016-12-14 12:23:09 -0500</bug_when>
+    <thetext>The fix in Bug #1404662 solved the problem. Thank you!</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9990886</commentid>
+    <comment_count>16</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-15 12:32:08 -0500</bug_when>
+    <thetext>R-3.3.2-3.fc23 openblas-0.2.19-4.fc23 has been submitted as an update to Fedora 23. https://bodhi.fedoraproject.org/updates/FEDORA-2016-46ffd0fe13</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9990891</commentid>
+    <comment_count>17</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-15 12:32:29 -0500</bug_when>
+    <thetext>R-3.3.2-3.el7 openblas-0.2.19-4.el7 has been submitted as an update to Fedora EPEL 7. https://bodhi.fedoraproject.org/updates/FEDORA-EPEL-2016-08541f148f</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9990894</commentid>
+    <comment_count>18</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-15 12:32:41 -0500</bug_when>
+    <thetext>R-3.3.2-3.fc24 openblas-0.2.19-4.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-87243d4214</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9990898</commentid>
+    <comment_count>19</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-15 12:32:52 -0500</bug_when>
+    <thetext>R-3.3.2-3.el6 has been submitted as an update to Fedora EPEL 6. https://bodhi.fedoraproject.org/updates/FEDORA-EPEL-2016-e213692dbc</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9990902</commentid>
+    <comment_count>20</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-15 12:33:04 -0500</bug_when>
+    <thetext>R-3.3.2-3.fc25 openblas-0.2.19-4.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2016-3b99079f61</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9990906</commentid>
+    <comment_count>21</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-15 12:33:17 -0500</bug_when>
+    <thetext>R-3.3.2-3.el5 has been submitted as an update to Fedora EPEL 5. https://bodhi.fedoraproject.org/updates/FEDORA-EPEL-2016-11ca20b113</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9992151</commentid>
+    <comment_count>22</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-15 23:23:00 -0500</bug_when>
+    <thetext>R-3.3.2-3.el7, openblas-0.2.19-4.el7 has been pushed to the Fedora EPEL 7 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-EPEL-2016-08541f148f</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9992235</commentid>
+    <comment_count>23</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-16 00:26:58 -0500</bug_when>
+    <thetext>R-3.3.2-3.fc23, openblas-0.2.19-4.fc23 has been pushed to the Fedora 23 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-46ffd0fe13</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9992266</commentid>
+    <comment_count>24</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-16 00:32:08 -0500</bug_when>
+    <thetext>R-3.3.2-3.fc24, openblas-0.2.19-4.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-87243d4214</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9992305</commentid>
+    <comment_count>25</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-16 00:34:11 -0500</bug_when>
+    <thetext>R-3.3.2-3.fc25, openblas-0.2.19-4.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-3b99079f61</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9993313</commentid>
+    <comment_count>26</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-16 08:17:35 -0500</bug_when>
+    <thetext>R-3.3.2-3.el6 has been pushed to the Fedora EPEL 6 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-EPEL-2016-e213692dbc</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9993316</commentid>
+    <comment_count>27</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-16 08:18:01 -0500</bug_when>
+    <thetext>R-3.3.2-3.el5 has been pushed to the Fedora EPEL 5 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-EPEL-2016-11ca20b113</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9997194</commentid>
+    <comment_count>28</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-19 01:03:23 -0500</bug_when>
+    <thetext>R-3.3.2-3.fc25, openblas-0.2.19-4.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10035545</commentid>
+    <comment_count>29</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-04 16:21:45 -0500</bug_when>
+    <thetext>R-3.3.2-3.fc24, openblas-0.2.19-4.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10036251</commentid>
+    <comment_count>30</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-04 23:19:56 -0500</bug_when>
+    <thetext>R-3.3.2-3.el7, openblas-0.2.19-4.el7 has been pushed to the Fedora EPEL 7 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10042032</commentid>
+    <comment_count>31</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-06 18:48:27 -0500</bug_when>
+    <thetext>R-3.3.2-3.el5 has been pushed to the Fedora EPEL 5 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10042099</commentid>
+    <comment_count>32</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-01-06 19:19:11 -0500</bug_when>
+    <thetext>R-3.3.2-3.el6 has been pushed to the Fedora EPEL 6 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

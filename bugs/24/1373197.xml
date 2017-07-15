@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1373197</bug_id>
+          
+          <creation_ts>2016-09-05 09:12:00 -0400</creation_ts>
+          <short_desc>dyninst: Repeated execution of Process::temporaryDetach(), Process::reAttach() fails</short_desc>
+          <delta_ts>2016-12-07 00:24:01 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>dyninst</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>urgent</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Florian Weimer">fweimer</reporter>
+          <assigned_to name="Josh Stone">jistone</assigned_to>
+          <cc>fche</cc>
+    
+    
+    <cc>jistone</cc>
+    
+    
+    <cc>lberk</cc>
+    
+    
+    <cc>mbenitez</cc>
+    
+    
+    <cc>orion</cc>
+    
+    
+    <cc>wcohen</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>dyninst-9.2.0-5.fc25</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-12-07 00:24:01</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          <external_bugs name="Github">https://github.com/dyninst/dyninst/issues/208</external_bugs>
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9679637</commentid>
+    <comment_count>0</comment_count>
+      <attachid>1197942</attachid>
+    <who name="Florian Weimer">fweimer</who>
+    <bug_when>2016-09-05 09:12:38 -0400</bug_when>
+    <thetext>Created attachment 1197942
+dyninst-reattach-loop.cpp
+
+Description of problem:
+
+The dyninst process either fails in reAttach() or deadlocks after repeatedly detaching and reattaching to a target process.
+
+Version-Release number of selected component (if applicable):
+
+dyninst-9.0.3-3.fc23.x86_64
+
+How reproducible:
+
+The loop has to execute for a few thousand times, likely depending on the activity in the target process and overall system load.
+
+Steps to Reproduce:
+1. Run the reproducer against a target PID and wait.
+
+Actual results:
+
+Process hangs (with the message “error: process appears to be stuck”), or reAttach() fails.
+
+I have seen a reAttach() failure only with a target process which frequently starts and terminates threads.
+
+Expected results:
+
+No hang.
+
+Additional info:
+
+A backtrace from the hang looks like this:
+
+Thread 5 (Thread 0x7ffff3404700 (LWP 31816)):
+#0  0x00007ffff74d334d in pause () at ../sysdeps/unix/syscall-template.S:84
+#1  0x000000000040142e in &lt;lambda()&gt;::operator() (__closure=0x62fda8) at dyninst-reattach-loop.cpp:43
+#2  std::_Bind_simple&lt;main(int, char**)::&lt;lambda()&gt;()&gt;::_M_invoke&lt;&gt; (this=0x62fda8)
+    at /usr/include/c++/5.3.1/functional:1531
+#3  std::_Bind_simple&lt;main(int, char**)::&lt;lambda()&gt;()&gt;::operator() (this=0x62fda8)
+    at /usr/include/c++/5.3.1/functional:1520
+#4  std::thread::_Impl&lt;std::_Bind_simple&lt;main(int, char**)::&lt;lambda()&gt;()&gt; &gt;::_M_run(void) (this=0x62fd90)
+    at /usr/include/c++/5.3.1/thread:115
+#5  0x00007ffff71f9f20 in std::(anonymous namespace)::execute_native_thread_routine (__p=&lt;optimized out&gt;)
+    at ../../../../../libstdc++-v3/src/c++11/thread.cc:84
+#6  0x00007ffff74ca61a in start_thread (arg=0x7ffff3404700) at pthread_create.c:334
+#7  0x00007ffff69695fd in clone () at ../sysdeps/unix/sysv/linux/x86_64/clone.S:109
+
+Thread 4 (Thread 0x7ffff40af700 (LWP 31815)):
+#0  pthread_cond_wait@@GLIBC_2.3.2 () at ../sysdeps/unix/sysv/linux/x86_64/pthread_cond_wait.S:185
+#1  0x00007ffff7a7d5e8 in boost::condition_variable_any::wait&lt;Mutex&lt;false&gt; &gt; (m=..., this=0x62dc60)
+    at /usr/include/boost/thread/pthread/condition_variable.hpp:184
+#2  CondVar&lt;Mutex&lt;false&gt; &gt;::wait (this=0x62dc60)
+    at /usr/src/debug/dyninst-9.0.3/DyninstAPI-9.0.3/common/src/dthread.h:121
+#3  Dyninst::ProcControlAPI::GeneratorMT::processWait (this=0x62fa80, block=true)
+    at /usr/src/debug/dyninst-9.0.3/DyninstAPI-9.0.3/proccontrol/src/generator.C:438
+#4  0x00007ffff7a7e218 in Dyninst::ProcControlAPI::Generator::getAndQueueEventInt (this=this@entry=0x62fa80, 
+    block=block@entry=true) at /usr/src/debug/dyninst-9.0.3/DyninstAPI-9.0.3/proccontrol/src/generator.C:188
+#5  0x00007ffff7a6e381 in Dyninst::ProcControlAPI::GeneratorMT::main (this=this@entry=0x62fa80)
+    at /usr/src/debug/dyninst-9.0.3/DyninstAPI-9.0.3/proccontrol/src/generator.C:418
+#6  0x00007ffff7a7ebeb in Dyninst::ProcControlAPI::GeneratorMT::start (this=0x62fa80)
+    at /usr/src/debug/dyninst-9.0.3/DyninstAPI-9.0.3/proccontrol/src/generator.C:410
+#7  0x00007ffff7b525cc in thread_init (d=&lt;optimized out&gt;)
+    at /usr/src/debug/dyninst-9.0.3/DyninstAPI-9.0.3/common/src/dthread-unix.C:56
+#8  0x00007ffff74ca61a in start_thread (arg=0x7ffff40af700) at pthread_create.c:334
+#9  0x00007ffff69695fd in clone () at ../sysdeps/unix/sysv/linux/x86_64/clone.S:109
+
+Thread 3 (Thread 0x7ffff4ab8700 (LWP 31814)):
+#0  pthread_cond_wait@@GLIBC_2.3.2 () at ../sysdeps/unix/sysv/linux/x86_64/pthread_cond_wait.S:185
+#1  0x00007ffff7a6f05a in boost::condition_variable_any::wait&lt;Mutex&lt;false&gt; &gt; (m=..., this=0x62ded0)
+    at /usr/include/boost/thread/pthread/condition_variable.hpp:184
+#2  CondVar&lt;Mutex&lt;false&gt; &gt;::wait (this=0x62ded0)
+    at /usr/src/debug/dyninst-9.0.3/DyninstAPI-9.0.3/common/src/dthread.h:121
+#3  LinuxPtrace::main (this=this@entry=0x62de10)
+    at /usr/src/debug/dyninst-9.0.3/DyninstAPI-9.0.3/proccontrol/src/linux.C:3346
+#4  0x00007ffff7b3e869 in start_ptrace (lp=lp@entry=0x62de10)
+    at /usr/src/debug/dyninst-9.0.3/DyninstAPI-9.0.3/proccontrol/src/linux.C:3328
+#5  0x00007ffff7b525cc in thread_init (d=&lt;optimized out&gt;)
+    at /usr/src/debug/dyninst-9.0.3/DyninstAPI-9.0.3/common/src/dthread-unix.C:56
+#6  0x00007ffff74ca61a in start_thread (arg=0x7ffff4ab8700) at pthread_create.c:334
+#7  0x00007ffff69695fd in clone () at ../sysdeps/unix/sysv/linux/x86_64/clone.S:109
+
+Thread 2 (Thread 0x7ffff52b9700 (LWP 31813)):
+#0  __lll_lock_wait () at ../sysdeps/unix/sysv/linux/x86_64/lowlevellock.S:135
+#1  0x00007ffff74cca46 in __GI___pthread_mutex_lock (mutex=mutex@entry=0x624b88) at ../nptl/pthread_mutex_lock.c:116
+#2  0x00007ffff7ac3c85 in boost::recursive_mutex::lock (this=0x624b88)
+    at /usr/include/boost/thread/pthread/recursive_mutex.hpp:113
+#3  MTManager::startWork (this=0x624b10)
+    at /usr/src/debug/dyninst-9.0.3/DyninstAPI-9.0.3/proccontrol/src/process.C:8640
+#4  MTManager::evhandler_main (this=0x624b10)
+    at /usr/src/debug/dyninst-9.0.3/DyninstAPI-9.0.3/proccontrol/src/process.C:8583
+#5  0x00007ffff7b525cc in thread_init (d=&lt;optimized out&gt;)
+    at /usr/src/debug/dyninst-9.0.3/DyninstAPI-9.0.3/common/src/dthread-unix.C:56
+#6  0x00007ffff74ca61a in start_thread (arg=0x7ffff52b9700) at pthread_create.c:334
+#7  0x00007ffff69695fd in clone () at ../sysdeps/unix/sysv/linux/x86_64/clone.S:109
+
+Thread 1 (Thread 0x7ffff7fc9740 (LWP 31812)):
+#0  pthread_cond_wait@@GLIBC_2.3.2 () at ../sysdeps/unix/sysv/linux/x86_64/pthread_cond_wait.S:185
+#1  0x00007ffff7b3e9e4 in boost::condition_variable_any::wait&lt;Mutex&lt;false&gt; &gt; (m=..., this=0x62df38)
+    at /usr/include/boost/thread/pthread/condition_variable.hpp:184
+#2  CondVar&lt;Mutex&lt;false&gt; &gt;::wait (this=0x62df38)
+    at /usr/src/debug/dyninst-9.0.3/DyninstAPI-9.0.3/common/src/dthread.h:121
+#3  LinuxPtrace::waitfor_ret (this=this@entry=0x62de10)
+    at /usr/src/debug/dyninst-9.0.3/DyninstAPI-9.0.3/proccontrol/src/linux.C:3381
+#4  0x00007ffff7b3ef48 in LinuxPtrace::ptrace_write (this=0x62de10, inTrace=139903394877056, size_=1, 
+    inSelf=0xa47750, pid_=31390) at /usr/src/debug/dyninst-9.0.3/DyninstAPI-9.0.3/proccontrol/src/linux.C:3446
+#5  0x00007ffff7a9b43a in int_process::writeMem (this=this@entry=0x62e458, local=local@entry=0xa47750, 
+    remote=139903394877056, size=1, result=..., thr=0x633b78, thr@entry=0x0, bp_write=int_process::bp_clear)
+    at /usr/src/debug/dyninst-9.0.3/DyninstAPI-9.0.3/proccontrol/src/process.C:1548
+#6  0x00007ffff7a9e322 in sw_breakpoint::restoreBreakpointData (this=this@entry=0xa476c0, proc=proc@entry=0x62e458, 
+    res_resp=...) at /usr/src/debug/dyninst-9.0.3/DyninstAPI-9.0.3/proccontrol/src/process.C:5075
+#7  0x00007ffff7ab3127 in sw_breakpoint::suspend (this=0xa476c0, proc=0x62e458, resps=std::set with 0 elements)
+    at /usr/src/debug/dyninst-9.0.3/DyninstAPI-9.0.3/proccontrol/src/process.C:5119
+#8  0x00007ffff7a89141 in HandleDetach::handleEvent (this=&lt;optimized out&gt;, ev=...)
+    at /usr/src/debug/dyninst-9.0.3/DyninstAPI-9.0.3/proccontrol/src/handler.C:1862
+#9  0x00007ffff7a8de5c in HandlerPool::handleEvent (this=this@entry=0x62f880, orig_ev=...)
+    at /usr/src/debug/dyninst-9.0.3/DyninstAPI-9.0.3/proccontrol/src/handler.C:438
+#10 0x00007ffff7ac15db in int_process::waitAndHandleEvents (block=block@entry=false)
+    at /usr/src/debug/dyninst-9.0.3/DyninstAPI-9.0.3/proccontrol/src/process.C:1106
+#11 0x00007ffff7aecba3 in do_detach (procset=0xa3bd20, temporary=temporary@entry=true, 
+    leaveStopped=leaveStopped@entry=false)
+    at /usr/src/debug/dyninst-9.0.3/DyninstAPI-9.0.3/proccontrol/src/procset.C:1560
+#12 0x00007ffff7aecca0 in Dyninst::ProcControlAPI::ProcessSet::temporaryDetach (this=&lt;optimized out&gt;)
+    at /usr/src/debug/dyninst-9.0.3/DyninstAPI-9.0.3/proccontrol/src/procset.C:1591
+#13 0x00007ffff7aad02e in Dyninst::ProcControlAPI::Process::temporaryDetach (this=&lt;optimized out&gt;)
+    at /usr/src/debug/dyninst-9.0.3/DyninstAPI-9.0.3/proccontrol/src/process.C:6470
+#14 0x00000000004010f5 in main (argc=&lt;optimized out&gt;, argv=0x7fffffffe058) at dyninst-reattach-loop.cpp:52</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9679868</commentid>
+    <comment_count>1</comment_count>
+    <who name="Florian Weimer">fweimer</who>
+    <bug_when>2016-09-05 10:43:22 -0400</bug_when>
+    <thetext>Stuck process also reproduces with dyninst-9.1.0-5.fc24.x86_64.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9679921</commentid>
+    <comment_count>2</comment_count>
+    <who name="Florian Weimer">fweimer</who>
+    <bug_when>2016-09-05 11:02:04 -0400</bug_when>
+    <thetext>I can test rawhide due to bug 1373239.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9708640</commentid>
+    <comment_count>3</comment_count>
+    <who name="Josh Stone">jistone</who>
+    <bug_when>2016-09-14 15:51:31 -0400</bug_when>
+    <thetext>With dyninst-9.2.0-4.fc26, rawhide now gets stuck too. (yay?)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9748410</commentid>
+    <comment_count>4</comment_count>
+    <who name="Josh Stone">jistone</who>
+    <bug_when>2016-09-27 17:50:01 -0400</bug_when>
+    <thetext>Aha - the watchdog is rigged!
+
+      while (true) {
+        if (!running) {
+          fprintf(stderr,
+                  &quot;error: process appears to be stuck (%zu iterations)\n&quot;,
+                  loops.load());
+          pause();
+        }
+        usleep (1000 * 1000);
+        running = false;
+      }
+
+That&apos;s an almost impossible window between &quot;running = false;&quot; and looping around to check it again.  I was baffled why this always seemed to get stuck in &quot;about&quot; one second, when in fact it was exactly one usleep&apos;s worth.
+
+Having swapped the usleep line after &quot;running = false&quot;, I have not seen the watchdog report a problem anymore.
+
+&gt; Process hangs (with the message “error: process appears to be stuck”), or
+&gt; reAttach() fails.
+&gt; 
+&gt; I have seen a reAttach() failure only with a target process which frequently
+&gt; starts and terminates threads.
+
+Now I&apos;ll see if I can reproduce this actual reAttach failure.  Do you have a suggested process which behaves this way?  (Or I can mock one up, of course.)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9748626</commentid>
+    <comment_count>5</comment_count>
+    <who name="Josh Stone">jistone</who>
+    <bug_when>2016-09-27 19:12:31 -0400</bug_when>
+    <thetext>I can reproduce a reAttach failure by targeting Firefox.  It&apos;s not consistent in how long that takes to fail.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9748711</commentid>
+    <comment_count>6</comment_count>
+    <who name="Josh Stone">jistone</who>
+    <bug_when>2016-09-27 20:29:39 -0400</bug_when>
+    <thetext>This fails reliably quickly as a target process:
+
+
+#include &lt;thread&gt;
+#include &lt;unistd.h&gt;
+
+using namespace std;
+
+void
+spawn() {
+    this_thread::sleep_for(100ms);
+    thread(spawn).detach();
+}
+
+int
+main()
+{
+    for (int i = 0; i &lt; 10; ++i)
+        spawn();
+    pause();
+    return 0;
+}</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9913973</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-11-22 17:30:12 -0500</bug_when>
+    <thetext>dyninst-9.2.0-5.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2016-2401f115af</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9929130</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-11-25 04:40:52 -0500</bug_when>
+    <thetext>dyninst-9.2.0-5.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-2401f115af</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9962963</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-07 00:24:01 -0500</bug_when>
+    <thetext>dyninst-9.2.0-5.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="0"
+              ispatch="0"
+              isprivate="0"
+          >
+            <attachid>1197942</attachid>
+            <date>2016-09-05 09:12:00 -0400</date>
+            <delta_ts>2016-09-05 09:12:38 -0400</delta_ts>
+            <desc>dyninst-reattach-loop.cpp</desc>
+            <filename>dyninst-reattach-loop.cpp</filename>
+            <type>text/plain</type>
+            <size>1486</size>
+            <attacher name="Florian Weimer">fweimer</attacher>
+            
+              <data encoding="base64">I2luY2x1ZGUgPGR5bmluc3QvUENQcm9jZXNzLmg+CiNpbmNsdWRlIDxkeW5pbnN0L1N5bXRhYi5o
+PgojaW5jbHVkZSA8ZHluaW5zdC9WYXJpYWJsZS5oPgoKI2luY2x1ZGUgPGVyci5oPgojaW5jbHVk
+ZSA8Z251L2xpYi1uYW1lcy5oPgojaW5jbHVkZSA8cHRocmVhZC5oPgojaW5jbHVkZSA8c2lnbmFs
+Lmg+CiNpbmNsdWRlIDxzdGRpby5oPgojaW5jbHVkZSA8c3RkbGliLmg+CgojaW5jbHVkZSA8YXRv
+bWljPgojaW5jbHVkZSA8dGhyZWFkPgoKaW50Cm1haW4oaW50IGFyZ2MsIGNoYXIgKiphcmd2KQp7
+CiAgaWYgKGFyZ2MgIT0gMikgewogICAgZnByaW50ZihzdGRlcnIsICJ1c2FnZTogJXMgUElEXG4i
+LCBhcmd2WzBdKTsKICAgIHJldHVybiAxOwogIH0KCiAgaW50IHBpZCA9IGF0b2koYXJndlsxXSk7
+CiAgaWYgKHBpZCA8PSAwKSB7CiAgICBmcHJpbnRmKHN0ZGVyciwgImVycm9yOiBpbnZhbGlkIFBJ
+RDogJXNcbiIsIGFyZ3ZbMV0pOwogICAgcmV0dXJuIDI7CiAgfQoKICBEeW5pbnN0OjpQcm9jQ29u
+dHJvbEFQSTo6UHJvY2Vzczo6cHRyIHByb2MKICAgIHtEeW5pbnN0OjpQcm9jQ29udHJvbEFQSTo6
+UHJvY2Vzczo6YXR0YWNoUHJvY2VzcyhwaWQpfTsKCiAgc3RkOjphdG9taWM8c2l6ZV90PiBsb29w
+c3t9OwogIHN0ZDo6YXRvbWljPGJvb2w+IHJ1bm5pbmd7dHJ1ZX07CiAgc3RkOjp0aHJlYWQgd2F0
+Y2hkb2coWyZsb29wcywgJnJ1bm5pbmddKCkgewogICAgICBzaWdzZXRfdCBibG9ja2VkOwogICAg
+ICBzaWdmaWxsc2V0KCZibG9ja2VkKTsKICAgICAgcHRocmVhZF9zaWdtYXNrKFNJR19CTE9DSywg
+JmJsb2NrZWQsIG51bGxwdHIpOwogICAgICB3aGlsZSAodHJ1ZSkgewogICAgICAgIGlmICghcnVu
+bmluZykgewogICAgICAgICAgZnByaW50ZihzdGRlcnIsCiAgICAgICAgICAgICAgICAgICJlcnJv
+cjogcHJvY2VzcyBhcHBlYXJzIHRvIGJlIHN0dWNrICglenUgaXRlcmF0aW9ucylcbiIsCiAgICAg
+ICAgICAgICAgICAgIGxvb3BzLmxvYWQoKSk7CiAgICAgICAgICBwYXVzZSgpOwogICAgICAgIH0K
+ICAgICAgICB1c2xlZXAgKDEwMDAgKiAxMDAwKTsKICAgICAgICBydW5uaW5nID0gZmFsc2U7CiAg
+ICAgIH0KICAgIH0pOwoKICB3aGlsZSAodHJ1ZSkgewogICAgcnVubmluZyA9IHRydWU7CiAgICBp
+ZiAoIXByb2MtPnRlbXBvcmFyeURldGFjaCgpKSB7CiAgICAgIGZwcmludGYgKHN0ZGVyciwgImVy
+cm9yOiB0ZW1wb3JhcnlEZXRhY2ggZmFpbGVkICglenUgaXRlcmF0aW9zbilcbiIsCiAgICAgICAg
+ICAgICAgIGxvb3BzLmxvYWQoKSk7CiAgICAgIF9leGl0KDIpOwogICAgfQogICAgc2NoZWRfeWll
+bGQoKTsKICAgIGlmICghcHJvYy0+cmVBdHRhY2goKSkgewogICAgICBmcHJpbnRmIChzdGRlcnIs
+ICJlcnJvcjogcmVBdHRhY2ggZmFpbGVkICglenUgaXRlcmF0aW9ucylcbiIsCiAgICAgICAgICAg
+ICAgIGxvb3BzLmxvYWQoKSk7CiAgICAgIF9leGl0KDIpOwogICAgfQogICAgKytsb29wczsKICB9
+Cn0KCg==
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

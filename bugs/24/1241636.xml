@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1241636</bug_id>
+          
+          <creation_ts>2015-07-09 12:33:00 -0400</creation_ts>
+          <short_desc>Grant hyperv-daemons access to /dev/vmbus/hv_* devices</short_desc>
+          <delta_ts>2016-04-09 16:17:26 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>selinux-policy</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>medium</priority>
+          <bug_severity>medium</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Vitaly Kuznetsov">vkuznets</reporter>
+          <assigned_to name="Lukas Vrabec">lvrabec</assigned_to>
+          <cc>dominick.grift</cc>
+    
+    
+    <cc>dwalsh</cc>
+    
+    
+    <cc>goncalo.lourenco</cc>
+    
+    
+    <cc>lvrabec</cc>
+    
+    
+    <cc>mgrepl</cc>
+    
+    
+    <cc>plautrba</cc>
+    
+    
+    <cc>sitsofe</cc>
+    
+    
+    <cc>vkuznets</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>selinux-policy-3.13.1-180.fc24</cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-04-09 16:17:26</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>8424985</commentid>
+    <comment_count>0</comment_count>
+    <who name="Vitaly Kuznetsov">vkuznets</who>
+    <bug_when>2015-07-09 12:33:50 -0400</bug_when>
+    <thetext>Description of problem:
+In kernel 4.2 the following patch series was merged: https://lkml.org/lkml/2015/4/9/124
+
+hyperv-daemons will shortly switch to using these new devices. In particular,
+
+hypervkvpd (system_u:system_r:hypervkvp_t:s0 atm) will need to access /dev/vmbus/hv_kvp (rw)
+hypervvssd (system_u:system_r:hypervvssd_t:s0 atm) will need to access /dev/vmbus/hv_vss (rw)
+hypervfcopyd (system_u:system_r:unconfined_service_t:s0 atm) will continue using /dev/vmbus/hv_fcopy
+
+Current policy prevents hypervkvpd and hypervvssd from accessing their devices:
+type=AVC msg=audit(1436484445.431:449): avc:  denied  { read write } for  pid=5724 comm=&quot;hypervkvpd&quot; name=&quot;hv_kvp&quot; dev=&quot;devtmpfs&quot; ino=18556 scontext=system_u:system_r:hypervkvp_t:s0 tcontext=system_u:object_r:device_t:s0 tclass=chr_file permissive=0
+type=AVC msg=audit(1436484448.569:452): avc:  denied  { read write } for  pid=5731 comm=&quot;hypervvssd&quot; name=&quot;hv_vss&quot; dev=&quot;devtmpfs&quot; ino=18557 scontext=system_u:system_r:hypervvssd_t:s0 tcontext=system_u:object_r:device_t:s0 tclass=chr_file permissive=0
+
+I would also suggest we introduce new hypervfcopyd_t for hypervfcopyd.
+
+Version-Release number of selected component (if applicable):
+selinux-policy-3.13.1-128.2.fc22.noarch</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8442509</commentid>
+    <comment_count>1</comment_count>
+    <who name="Jan Kurik">jkurik</who>
+    <bug_when>2015-07-15 09:19:27 -0400</bug_when>
+    <thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 23 development cycle.
+Changing version to &apos;23&apos;.
+
+(As we did not run this process for some time, it could affect also pre-Fedora 23 development
+cycle bugs. We are very sorry. It will help us with cleanup during Fedora 23 End Of Life. Thank you.)
+
+More information and reason for this action is here:
+https://fedoraproject.org/wiki/BugZappers/HouseKeeping/Fedora23</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8548109</commentid>
+    <comment_count>2</comment_count>
+    <who name="Lukas Vrabec">lvrabec</who>
+    <bug_when>2015-08-17 10:37:59 -0400</bug_when>
+    <thetext>Hi Vytaly! 
+
+Can we label hypervfcopyd as hypervkvp_t? What is purpose of this service? 
+
+Which rpm package owns /dev/vmbus? We need to find proper label for /dev/vmbus/* devices.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8548117</commentid>
+    <comment_count>3</comment_count>
+    <who name="Lukas Vrabec">lvrabec</who>
+    <bug_when>2015-08-17 10:39:31 -0400</bug_when>
+    <thetext>Vytaly/Vitaly.
+
+Sorry for mistake.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8552964</commentid>
+    <comment_count>4</comment_count>
+    <who name="Vitaly Kuznetsov">vkuznets</who>
+    <bug_when>2015-08-18 14:49:24 -0400</bug_when>
+    <thetext>(In reply to Lukas Vrabec from comment #2)
+&gt; Hi Vytaly! 
+&gt; 
+&gt; Can we label hypervfcopyd as hypervkvp_t?
+
+That would be a misnomer.
+
+hypervkvp_t is being used for hypervkvpd (key-value pair service, mainly used to set/get network configuration of a VM from the host).
+
+&gt;  What is purpose of this service?
+
+hypervfcopyd is a file copy service, it supports copying a file from host to guest through vmbus.
+
+&gt; 
+&gt; Which rpm package owns /dev/vmbus?
+
+No one owns it, I think udev creates this folder and device files there when kernel registers corresponding devices.
+
+&gt; We need to find proper label for /dev/vmbus/* devices.
+
+I&apos;d suggest we use different labels for these services as they&apos;re independent and shouldn&apos;t normally access other devices.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8582109</commentid>
+    <comment_count>6</comment_count>
+    <who name="Miroslav Grepl">mgrepl</who>
+    <bug_when>2015-08-27 12:41:30 -0400</bug_when>
+    <thetext>We should add labeling for
+
+/dev/vmbus
+
+and probably a new domain for hypervfcopyd.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>8792514</commentid>
+    <comment_count>7</comment_count>
+    <who name="Sitsofe Wheeler">sitsofe</who>
+    <bug_when>2015-11-04 14:56:03 -0500</bug_when>
+    <thetext>I&apos;ve just hit this on the Fedora 23 LiveCD after starting the hypervkvpd service and it breaks things like getting the IP address of the guest. Switching selinux to permissive mode produced the following logs:
+
+type=SERVICE_START msg=audit(1446613082.722:556): pid=1 uid=0 auid=4294967295 ses=4294967295 subj=system_u:system_r:init_t:s0 msg=&apos;unit=hypervkvpd comm=&quot;systemd&quot; exe=&quot;/usr/lib/systemd/systemd&quot; hostname=? addr=? terminal=? res=success&apos;
+type=AVC msg=audit(1446613082.732:557): avc:  denied  { read write } for  pid=2924 comm=&quot;hypervkvpd&quot; name=&quot;hv_kvp&quot; dev=&quot;devtmpfs&quot; ino=16807 scontext=system_u:system_r:hypervkvp_t:s0 tcontext=system_u:object_r:device_t:s0 tclass=chr_file permissive=1
+type=AVC msg=audit(1446613082.732:558): avc:  denied  { open } for  pid=2924 comm=&quot;hypervkvpd&quot; path=&quot;/dev/vmbus/hv_kvp&quot; dev=&quot;devtmpfs&quot; ino=16807 scontext=system_u:system_r:hypervkvp_t:s0 tcontext=system_u:object_r:device_t:s0 tclass=chr_file permissive=1</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9094581</commentid>
+    <comment_count>8</comment_count>
+    <who name="Jan Kurik">jkurik</who>
+    <bug_when>2016-02-24 10:49:57 -0500</bug_when>
+    <thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 24 development cycle.
+Changing version to &apos;24&apos;.
+
+More information and reason for this action is here:
+https://fedoraproject.org/wiki/Fedora_Program_Management/HouseKeeping/Fedora24#Rawhide_Rebase</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9169133</commentid>
+    <comment_count>9</comment_count>
+    <who name="Gonçalo Lourenço">goncalo.lourenco</who>
+    <bug_when>2016-03-22 10:11:57 -0400</bug_when>
+    <thetext>Grettings, everyone. I&apos;ve also hit this exact same bug in CentOS 7.2. All packages in this system are up-to-date. The LIS version that this system is using is 4.1, the one released on the past 18th of this month.
+
+I&apos;m glad to see this issue will be fixed in the near future! Is there an ETA for the release of this new package for CentOS?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9191853</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-03-30 10:07:00 -0400</bug_when>
+    <thetext>selinux-policy-3.13.1-180.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-ffb5ed99b4</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9193344</commentid>
+    <comment_count>11</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-03-30 18:25:08 -0400</bug_when>
+    <thetext>selinux-policy-3.13.1-180.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-ffb5ed99b4</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9222182</commentid>
+    <comment_count>12</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-04-09 16:17:10 -0400</bug_when>
+    <thetext>selinux-policy-3.13.1-180.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

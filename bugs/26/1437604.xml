@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1437604</bug_id>
+          
+          <creation_ts>2017-03-30 11:55:00 -0400</creation_ts>
+          <short_desc>&apos;container-storage-setup --reset&apos; returns &apos;Info: command not found&apos;</short_desc>
+          <delta_ts>2017-04-07 17:25:29 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>container-storage-setup</component>
+          <version>26</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Micah Abbott">miabbott</reporter>
+          <assigned_to name="smahajan@redhat.com">smahajan</assigned_to>
+          <cc>adimania</cc>
+    
+    
+    <cc>amurdaca</cc>
+    
+    
+    <cc>dwalsh</cc>
+    
+    
+    <cc>fkluknav</cc>
+    
+    
+    <cc>lsm5</cc>
+    
+    
+    <cc>walters</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>container-storage-setup-0.2.0-2.fc26</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-04-07 17:25:29</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10291454</commentid>
+    <comment_count>0</comment_count>
+    <who name="Micah Abbott">miabbott</who>
+    <bug_when>2017-03-30 11:55:50 -0400</bug_when>
+    <thetext>Using atomic-1.16.5-1.fc26.x86_64 from &apos;updates-testing&apos;
+
+&apos;atomic storage reset&apos; fails because it is looking for &apos;docker-storage-setup&apos;
+
+# atomic storage reset
+/usr/bin/docker-storage-setup: line 1240: Info: command not found
+
+# atomic --debug storage reset
+/usr/bin/docker-storage-setup: line 1240: Info: command not found
+
+Traceback (most recent call last):
+  File &quot;/usr/bin/atomic&quot;, line 189, in &lt;module&gt;
+    sys.exit(_func())
+  File &quot;/usr/lib/python3.6/site-packages/Atomic/storage.py&quot;, line 159, in reset
+    util.check_call([&quot;docker-storage-setup&quot;, &quot;--reset&quot;], stdout=DEVNULL)
+  File &quot;/usr/lib/python3.6/site-packages/Atomic/util.py&quot;, line 141, in check_call
+    return subprocess.check_call(cmd, env=env, stdin=stdin, stderr=stderr, stdout=stdout, close_fds=True)
+  File &quot;/usr/lib64/python3.6/subprocess.py&quot;, line 291, in check_call
+    raise CalledProcessError(retcode, cmd)
+subprocess.CalledProcessError: Command &apos;[&apos;docker-storage-setup&apos;, &apos;--reset&apos;]&apos; returned non-zero exit status 127.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File &quot;/usr/bin/atomic&quot;, line 202, in &lt;module&gt;
+    sys.exit(e.returncode)
+SystemExit: 127</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10291489</commentid>
+    <comment_count>1</comment_count>
+    <who name="Micah Abbott">miabbott</who>
+    <bug_when>2017-03-30 12:05:40 -0400</bug_when>
+    <thetext>Oh, /usr/bin/docker-storage-setup is symlinked to /usr/bin/container-storage-setup
+
+So this is actually an issue with &apos;container-storage-setup&apos;
+
+# container-storage-setup --reset
+/usr/bin/container-storage-setup: line 1240: Info: command not found
+
+# awk &apos;{if(NR==1240) print $0}&apos; /usr/bin/container-storage-setup
+  Info &quot;Volume group backing root filesystem could not be determined&quot;
+
+???</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10291493</commentid>
+    <comment_count>2</comment_count>
+    <who name="Micah Abbott">miabbott</who>
+    <bug_when>2017-03-30 12:06:08 -0400</bug_when>
+    <thetext># rpm -q container-storage-setup
+container-storage-setup-0.1.0-2.fc26.noarch</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10299563</commentid>
+    <comment_count>3</comment_count>
+    <who name="smahajan@redhat.com">smahajan</who>
+    <bug_when>2017-04-03 10:31:16 -0400</bug_when>
+    <thetext>Can you paste the contents of `/etc/sysconfig/docker-storage-setup` on the failing machine?
+
+Shishir</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10299632</commentid>
+    <comment_count>4</comment_count>
+    <who name="Micah Abbott">miabbott</who>
+    <bug_when>2017-04-03 10:52:32 -0400</bug_when>
+    <thetext># cat /etc/sysconfig/docker-storage-setup 
+# Edit this file to override any configuration options specified in
+# /usr/share/container-storage-setup/container-storage-setup.
+#
+# For more details refer to &quot;man container-storage-setup&quot;
+STORAGE_DRIVER=overlay2</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10299642</commentid>
+    <comment_count>5</comment_count>
+    <who name="smahajan@redhat.com">smahajan</who>
+    <bug_when>2017-04-03 10:54:58 -0400</bug_when>
+    <thetext>Thanks. Can you also paste the output of the following commands?
+
+1) lvs
+2) vgs
+3) pvs
+4) lsblk
+5) cat /etc/os-release
+
+Shishir</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10299644</commentid>
+    <comment_count>6</comment_count>
+    <who name="Micah Abbott">miabbott</who>
+    <bug_when>2017-04-03 10:56:07 -0400</bug_when>
+    <thetext># lvs
+# vgs
+# pvs
+# lsblk
+NAME   MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+sr0     11:0    1  366K  0 rom  
+vda    252:0    0   20G  0 disk 
+├─vda1 252:1    0   50M  0 part /boot/efi
+└─vda2 252:2    0   20G  0 part /
+# cat /etc/os-release 
+NAME=Fedora
+VERSION=&quot;26 (Cloud Edition)&quot;
+ID=fedora
+VERSION_ID=26
+PRETTY_NAME=&quot;Fedora 26 (Cloud Edition)&quot;
+ANSI_COLOR=&quot;0;34&quot;
+CPE_NAME=&quot;cpe:/o:fedoraproject:fedora:26&quot;
+HOME_URL=&quot;https://fedoraproject.org/&quot;
+BUG_REPORT_URL=&quot;https://bugzilla.redhat.com/&quot;
+REDHAT_BUGZILLA_PRODUCT=&quot;Fedora&quot;
+REDHAT_BUGZILLA_PRODUCT_VERSION=26
+REDHAT_SUPPORT_PRODUCT=&quot;Fedora&quot;
+REDHAT_SUPPORT_PRODUCT_VERSION=26
+PRIVACY_POLICY_URL=https://fedoraproject.org/wiki/Legal:PrivacyPolicy
+VARIANT=&quot;Cloud Edition&quot;
+VARIANT_ID=cloud</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10299946</commentid>
+    <comment_count>8</comment_count>
+    <who name="smahajan@redhat.com">smahajan</who>
+    <bug_when>2017-04-03 12:10:53 -0400</bug_when>
+    <thetext>Okay, so this seems to be a packaging issue.
+
+In container-storage-setup upstream/master code, libcss.sh is installed in /usr/share/container-storage-setup/libcss.sh
+https://github.com/projectatomic/container-storage-setup/blob/master/Makefile#L32
+
+and the script sources it from there.
+https://github.com/projectatomic/container-storage-setup/blob/master/container-storage-setup.sh#L1267
+
+However, in the failed environment.
+
+/usr/bin/container-storage-setup is trying to source:
+&gt;&gt;  source /usr/lib/container-storage-setup/libcss.sh
+and the file is installed at /usr/share/container-storage-setup/libcss.sh
+
+Since the script doesn&apos;t find the file, it is not able to recognize the INFO command and throws the error.
+
+Lokesh, can you take a look on this ?
+
+Shishir</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10300518</commentid>
+    <comment_count>9</comment_count>
+    <who name="Lokesh Mandvekar">lsm5</who>
+    <bug_when>2017-04-03 16:18:46 -0400</bug_when>
+    <thetext>Could you try the scratch build at https://koji.fedoraproject.org/koji/taskinfo?taskID=18770735 ?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10300554</commentid>
+    <comment_count>10</comment_count>
+    <who name="Micah Abbott">miabbott</who>
+    <bug_when>2017-04-03 16:43:49 -0400</bug_when>
+    <thetext>Looks good here.  (That error is expected.)
+
+# container-storage-setup --reset
+INFO: Volume group backing root filesystem could not be determined</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10301323</commentid>
+    <comment_count>11</comment_count>
+    <who name="Daniel Walsh">dwalsh</who>
+    <bug_when>2017-04-04 02:09:00 -0400</bug_when>
+    <thetext>That is an info message, which we should eat if we are not using devicemapper.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10302516</commentid>
+    <comment_count>12</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-04 09:27:22 -0400</bug_when>
+    <thetext>container-storage-setup-0.2.0-2.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-b445dbe5e7</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10304228</commentid>
+    <comment_count>13</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-04 19:53:18 -0400</bug_when>
+    <thetext>container-storage-setup-0.2.0-2.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-b445dbe5e7</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10315804</commentid>
+    <comment_count>14</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-04-07 17:25:29 -0400</bug_when>
+    <thetext>container-storage-setup-0.2.0-2.fc26 has been pushed to the Fedora 26 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

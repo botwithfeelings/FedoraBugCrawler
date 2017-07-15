@@ -1,0 +1,795 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1405921</bug_id>
+          
+          <creation_ts>2016-12-19 02:50:00 -0500</creation_ts>
+          <short_desc>SELinux is preventing lxc-attach from entrypoint access on the file /usr/bin/bash</short_desc>
+          <delta_ts>2017-03-13 22:21:24 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>container-selinux</component>
+          <version>25</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords>Reopened</keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="srakitnican">samuel.rakitnican</reporter>
+          <assigned_to name="Lokesh Mandvekar">lsm5</assigned_to>
+          <cc>adimania</cc>
+    
+    
+    <cc>admiller</cc>
+    
+    
+    <cc>amurdaca</cc>
+    
+    
+    <cc>dominick.grift</cc>
+    
+    
+    <cc>dwalsh</cc>
+    
+    
+    <cc>fkluknav</cc>
+    
+    
+    <cc>ichavero</cc>
+    
+    
+    <cc>jcajka</cc>
+    
+    
+    <cc>jchaloup</cc>
+    
+    
+    <cc>jlebon</cc>
+    
+    
+    <cc>karlthered</cc>
+    
+    
+    <cc>lsm5</cc>
+    
+    
+    <cc>lvrabec</cc>
+    
+    
+    <cc>marianne</cc>
+    
+    
+    <cc>mgrepl</cc>
+    
+    
+    <cc>michael.goehler</cc>
+    
+    
+    <cc>miminar</cc>
+    
+    
+    <cc>nalin</cc>
+    
+    
+    <cc>plautrba</cc>
+    
+    
+    <cc>pmoore</cc>
+    
+    
+    <cc>pokorra.mailinglists</cc>
+    
+    
+    <cc>riek</cc>
+    
+    
+    <cc>sagarun</cc>
+    
+    
+    <cc>ssekidde</cc>
+    
+    
+    <cc>thomas.moschny</cc>
+    
+    
+    <cc>vbatts</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>container-selinux-2.9-1.fc25 container-selinux-2.10-1.fc25</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-03-13 19:55:07</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9997342</commentid>
+    <comment_count>0</comment_count>
+    <who name="srakitnican">samuel.rakitnican</who>
+    <bug_when>2016-12-19 02:50:23 -0500</bug_when>
+    <thetext>Description of problem: Attaching to a lxc container located under /var/lib/lxc/ is not possible.
+
+
+SELinux is preventing lxc-attach from entrypoint access on the file /usr/bin/bash.
+
+*****  Plugin restorecon (94.8 confidence) suggests   ************************
+
+If you want to fix the label. 
+/usr/bin/bash default label should be shell_exec_t.
+Then you can run restorecon.
+Do
+# /sbin/restorecon -v /usr/bin/bash
+
+*****  Plugin catchall_labels (5.21 confidence) suggests   *******************
+
+If you want to allow lxc-attach to have entrypoint access on the bash file
+Then you need to change the label on /usr/bin/bash
+Do
+# semanage fcontext -a -t FILE_TYPE &apos;/usr/bin/bash&apos;
+where FILE_TYPE is one of the following: bin_t, shell_exec_t, usr_t.
+Then execute:
+restorecon -v &apos;/usr/bin/bash&apos;
+
+
+*****  Plugin catchall (1.44 confidence) suggests   **************************
+
+If you believe that lxc-attach should be allowed entrypoint access on the bash file by default.
+Then you should report this as a bug.
+You can generate a local policy module to allow this access.
+Do
+allow this access for now by executing:
+# ausearch -c &apos;lxc-attach&apos; --raw | audit2allow -M my-lxcattach
+# semodule -X 300 -i my-lxcattach.pp
+
+Additional Information:
+Source Context                system_u:system_r:unconfined_service_t:s0
+Target Context                unconfined_u:object_r:var_lib_t:s0
+Target Objects                /usr/bin/bash [ file ]
+Source                        lxc-attach
+Source Path                   lxc-attach
+Port                          &lt;Unknown&gt;
+Host                          rawhide
+Source RPM Packages           
+Target RPM Packages           bash-4.3.43-4.fc25.x86_64
+Policy RPM                    selinux-policy-3.13.1-225.3.fc25.noarch
+Selinux Enabled               True
+Policy Type                   targeted
+Enforcing Mode                Enforcing
+Host Name                     rawhide
+Platform                      Linux rawhide 4.8.13-300.fc25.x86_64 #1 SMP Fri
+                              Dec 9 14:52:00 UTC 2016 x86_64 x86_64
+Alert Count                   3
+First Seen                    2016-12-19 08:37:49 CET
+Last Seen                     2016-12-19 08:42:19 CET
+Local ID                      8ef4ba24-bb86-4bb6-b006-7fc1748bf679
+
+Raw Audit Messages
+type=AVC msg=audit(1482133339.979:1258): avc:  denied  { entrypoint } for  pid=17506 comm=&quot;lxc-attach&quot; path=&quot;/usr/bin/bash&quot; dev=&quot;sdc4&quot; ino=1329114 scontext=system_u:system_r:unconfined_service_t:s0 tcontext=unconfined_u:object_r:var_lib_t:s0 tclass=file permissive=0
+
+
+Hash: lxc-attach,unconfined_service_t,var_lib_t,file,entrypoint
+
+
+Version-Release number of selected component (if applicable):
+
+
+How reproducible:
+lxc-attach --name=&lt;container-name&gt;
+
+
+Actual results:
+lxc-attach: attach.c: lxc_attach_run_shell: 1325 Permission denied - failed to exec shell
+
+
+Expected results:
+For command lxc-attach to be able to attach to a container by default.
+
+
+Additional info:
+Command restorecon -Rv /var/lib/lxc/ did not fix the issue.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9997347</commentid>
+    <comment_count>1</comment_count>
+    <who name="srakitnican">samuel.rakitnican</who>
+    <bug_when>2016-12-19 02:52:21 -0500</bug_when>
+    <thetext>Version-Release number of selected component (if applicable):
+selinux-policy-3.13.1-225.3.fc25.noarch</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10000145</commentid>
+    <comment_count>2</comment_count>
+    <who name="Daniel Walsh">dwalsh</who>
+    <bug_when>2016-12-19 17:25:22 -0500</bug_when>
+    <thetext>If you change the label of lxc-attach to container_runtime_exec_t does it fix the issue?
+
+chcon -t container_runtime_exec_t /usr/bin/lxc-attach</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10001020</commentid>
+    <comment_count>3</comment_count>
+    <who name="srakitnican">samuel.rakitnican</who>
+    <bug_when>2016-12-20 02:14:02 -0500</bug_when>
+    <thetext>I am unable to change it, not sure why.
+
+$ ls -lZ /usr/bin/lxc-attach
+-rwxr-xr-x. 1 root root system_u:object_r:bin_t:s0 20320 Pro  5 12:30 /usr/bin/lxc-attach
+$ sudo chcon -t container_runtime_exec_t /usr/bin/lxc-attach
+chcon: failed to change context of &apos;/usr/bin/lxc-attach&apos; to ‘system_u:object_r:container_runtime_exec_t:s0’: Invalid argument</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10001045</commentid>
+    <comment_count>4</comment_count>
+    <who name="srakitnican">samuel.rakitnican</who>
+    <bug_when>2016-12-20 02:29:36 -0500</bug_when>
+    <thetext>Because it doesn&apos;t seems to exist.
+
+$ sudo semanage fcontext -l | grep container_runtime_exec_t
+$</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10003156</commentid>
+    <comment_count>5</comment_count>
+    <who name="Daniel Walsh">dwalsh</who>
+    <bug_when>2016-12-20 08:57:57 -0500</bug_when>
+    <thetext>dnf -y install container-selinux
+
+Then try it.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10003424</commentid>
+    <comment_count>6</comment_count>
+    <who name="srakitnican">samuel.rakitnican</who>
+    <bug_when>2016-12-20 09:19:18 -0500</bug_when>
+    <thetext>Ok, I&apos;ve installed container-selinux and changed label for lxc-attach, same thing is happening, SELinux alert and error message.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10003536</commentid>
+    <comment_count>7</comment_count>
+    <who name="Daniel Walsh">dwalsh</who>
+    <bug_when>2016-12-20 09:28:27 -0500</bug_when>
+    <thetext>What AVC are you getting now?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10004154</commentid>
+    <comment_count>8</comment_count>
+    <who name="srakitnican">samuel.rakitnican</who>
+    <bug_when>2016-12-20 10:16:59 -0500</bug_when>
+    <thetext>$ ls -lZ /usr/bin/lxc-attach 
+-rwxr-xr-x. 1 root root system_u:object_r:container_runtime_exec_t:s0 20320 Dec  5 12:30 /usr/bin/lxc-attach
+$ sudo lxc-attach --name=fedora-dev
+lxc-attach: attach.c: lxc_attach_run_shell: 1325 Permission denied - failed to exec shell
+
+SELinux is preventing lxc-attach from entrypoint access on the file /usr/bin/bash.
+
+*****  Plugin restorecon (94.8 confidence) suggests   ************************
+
+If you want to fix the label. 
+/usr/bin/bash default label should be shell_exec_t.
+Then you can run restorecon.
+Do
+# /sbin/restorecon -v /usr/bin/bash
+
+*****  Plugin catchall_labels (5.21 confidence) suggests   *******************
+
+If you want to allow lxc-attach to have entrypoint access on the bash file
+Then you need to change the label on /usr/bin/bash
+Do
+# semanage fcontext -a -t FILE_TYPE &apos;/usr/bin/bash&apos;
+where FILE_TYPE is one of the following: bin_t, shell_exec_t, usr_t.
+Then execute:
+restorecon -v &apos;/usr/bin/bash&apos;
+
+
+*****  Plugin catchall (1.44 confidence) suggests   **************************
+
+If you believe that lxc-attach should be allowed entrypoint access on the bash file by default.
+Then you should report this as a bug.
+You can generate a local policy module to allow this access.
+Do
+allow this access for now by executing:
+# ausearch -c &apos;lxc-attach&apos; --raw | audit2allow -M my-lxcattach
+# semodule -X 300 -i my-lxcattach.pp
+
+Additional Information:
+Source Context                system_u:system_r:unconfined_service_t:s0
+Target Context                unconfined_u:object_r:var_lib_t:s0
+Target Objects                /usr/bin/bash [ file ]
+Source                        lxc-attach
+Source Path                   lxc-attach
+Port                          &lt;Unknown&gt;
+Host                          rawhide
+Source RPM Packages           
+Target RPM Packages           bash-4.3.43-4.fc25.x86_64
+Policy RPM                    selinux-policy-3.13.1-225.3.fc25.noarch
+Selinux Enabled               True
+Policy Type                   targeted
+Enforcing Mode                Enforcing
+Host Name                     rawhide
+Platform                      Linux rawhide 4.8.14-300.fc25.x86_64 #1 SMP Mon
+                              Dec 12 16:31:04 UTC 2016 x86_64 x86_64
+Alert Count                   14
+First Seen                    2016-12-19 08:37:49 CET
+Last Seen                     2016-12-20 16:14:54 CET
+Local ID                      8ef4ba24-bb86-4bb6-b006-7fc1748bf679
+
+Raw Audit Messages
+type=AVC msg=audit(1482246894.908:780): avc:  denied  { entrypoint } for  pid=28947 comm=&quot;lxc-attach&quot; path=&quot;/usr/bin/bash&quot; dev=&quot;sdc4&quot; ino=1329114 scontext=system_u:system_r:unconfined_service_t:s0 tcontext=unconfined_u:object_r:var_lib_t:s0 tclass=file permissive=0
+
+
+Hash: lxc-attach,unconfined_service_t,var_lib_t,file,entrypoint</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10004818</commentid>
+    <comment_count>9</comment_count>
+    <who name="Daniel Walsh">dwalsh</who>
+    <bug_when>2016-12-20 11:10:30 -0500</bug_when>
+    <thetext>chcon -Rt container_var_lib_t /var/lib/lxc
+
+Should fix this issue.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10004944</commentid>
+    <comment_count>10</comment_count>
+    <who name="srakitnican">samuel.rakitnican</who>
+    <bug_when>2016-12-20 11:19:55 -0500</bug_when>
+    <thetext>Umm, I am seeing the same issue
+
+type=AVC msg=audit(1482250671.868:894): avc:  denied  { entrypoint } for  pid=31225 comm=&quot;lxc-attach&quot; path=&quot;/usr/bin/bash&quot; dev=&quot;sdc4&quot; ino=1329114 scontext=system_u:system_r:unconfined_service_t:s0 tcontext=unconfined_u:object_r:container_var_lib_t:s0 tclass=file permissive=0
+type=AVC msg=audit(1482250671.868:895): avc:  denied  { entrypoint } for  pid=31225 comm=&quot;lxc-attach&quot; path=&quot;/usr/bin/bash&quot; dev=&quot;sdc4&quot; ino=1329114 scontext=system_u:system_r:unconfined_service_t:s0 tcontext=unconfined_u:object_r:container_var_lib_t:s0 tclass=file permissive=0</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10004988</commentid>
+    <comment_count>11</comment_count>
+    <who name="Daniel Walsh">dwalsh</who>
+    <bug_when>2016-12-20 11:24:03 -0500</bug_when>
+    <thetext>Looks like lxc-attach is not labeled as container_runtime_exec_t?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10005648</commentid>
+    <comment_count>12</comment_count>
+    <who name="srakitnican">samuel.rakitnican</who>
+    <bug_when>2016-12-20 12:19:37 -0500</bug_when>
+    <thetext>Yes, I did restorecon on it, but it was the same with it.
+
+$ ls -lZ /usr/bin/lxc-attach 
+-rwxr-xr-x. 1 root root system_u:object_r:container_runtime_exec_t:s0 20320 Pro  5 12:30 /usr/bin/lxc-attach
+$ ls -ldZ /var/lib/lxc
+drwxr-xr-x. 3 root root system_u:object_r:container_var_lib_t:s0 4096 Pro  5 12:30 /var/lib/lxc
+
+type=AVC msg=audit(1482254207.040:942): avc:  denied  { entrypoint } for  pid=32709 comm=&quot;lxc-attach&quot; path=&quot;/usr/bin/bash&quot; dev=&quot;sdc4&quot; ino=1329114 scontext=system_u:system_r:unconfined_service_t:s0 tcontext=unconfined_u:object_r:container_var_lib_t:s0 tclass=file permissive=0
+type=AVC msg=audit(1482254207.040:943): avc:  denied  { entrypoint } for  pid=32709 comm=&quot;lxc-attach&quot; path=&quot;/usr/bin/bash&quot; dev=&quot;sdc4&quot; ino=1329114 scontext=system_u:system_r:unconfined_service_t:s0 tcontext=unconfined_u:object_r:container_var_lib_t:s0 tclass=file permissive=0</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10006398</commentid>
+    <comment_count>13</comment_count>
+    <who name="Daniel Walsh">dwalsh</who>
+    <bug_when>2016-12-20 13:14:25 -0500</bug_when>
+    <thetext>What does the unit file look like?  Is there something about an unconfined_service_t in the unit file?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10006434</commentid>
+    <comment_count>14</comment_count>
+    <who name="Daniel Walsh">dwalsh</who>
+    <bug_when>2016-12-20 13:16:33 -0500</bug_when>
+    <thetext>How did the original container get started?  This looks like we would label the original container lxc-start as container_runtime_exec_t also.
+I am adding labels for all /usr/bin/lxc-* code to container_runtime_exec_t, which should cause all of the container processes to be container_runtime_t.  No unconfined_service_t.
+
+You would need to stop and start the container again.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10006700</commentid>
+    <comment_count>15</comment_count>
+    <who name="srakitnican">samuel.rakitnican</who>
+    <bug_when>2016-12-20 13:39:14 -0500</bug_when>
+    <thetext>Sorry I don&apos;t understand, which unit file are you referring to? If systemd unit file it is standard unmodified file from Fedora repository.
+
+I have found that &quot;[lxc monitor]&quot; runs under unconfined_service_t
+
+$ ps -Z 2038
+LABEL                             PID TTY      STAT   TIME COMMAND
+system_u:system_r:unconfined_service_t:s0 2038 ? Ss   0:00 [lxc monitor] /var/lib/lxc fedora-dev
+
+
+$ for proc in $(sudo find /proc/ -context *unconfined_service_t* | cut -f1-3 -d / | sort -u); do cat $proc/cmdline; echo; done
+find: getfilecon failed: ‘/proc/3606/task/3669/fdinfo/134’: No such file or directory
+[lxc monitor] /var/lib/lxc fedora-dev
+/sbin/init
+/usr/lib/systemd/systemd-journald
+/usr/lib/systemd/systemd-logind
+/usr/bin/dbus-daemon--system--address=systemd:--nofork--nopidfile--systemd-activation--syslog-only
+/usr/sbin/rsyslogd-n
+/sbin/agetty--nocleartty3linux
+/sbin/agetty--noclear--keep-baudconsole115200,38400,9600vt220
+/sbin/agetty--nocleartty4linux
+/sbin/agetty--noclear--keep-baudpts/1115200,38400,9600vt220
+/sbin/agetty--noclear--keep-baudpts/0115200,38400,9600vt220
+/sbin/agetty--nocleartty2linux
+/sbin/agetty--noclear--keep-baudpts/3115200,38400,9600vt220
+/sbin/agetty--noclear--keep-baudpts/2115200,38400,9600vt220
+/sbin/agetty--nocleartty1linux
+/usr/sbin/sshd
+/sbin/dhclient-Hfedora-dev-1-q-lf/var/lib/dhclient/dhclient--eth0.lease-pf/var/run/dhclient-eth0.pideth0
+
+Yes I am running it this entire time as a service from lxc.service.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10006756</commentid>
+    <comment_count>16</comment_count>
+    <who name="srakitnican">samuel.rakitnican</who>
+    <bug_when>2016-12-20 13:43:42 -0500</bug_when>
+    <thetext>Ok, following worked.
+
+$ sudo chcon -t container_runtime_exec_t /usr/bin/lxc-*</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10044494</commentid>
+    <comment_count>17</comment_count>
+    <who name="Lukas Vrabec">lvrabec</who>
+    <bug_when>2017-01-09 04:28:12 -0500</bug_when>
+    <thetext>This shoudl be fixed in docker package.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10044513</commentid>
+    <comment_count>18</comment_count>
+    <who name="srakitnican">samuel.rakitnican</who>
+    <bug_when>2017-01-09 04:34:52 -0500</bug_when>
+    <thetext>(In reply to Lukas Vrabec from comment #17)
+&gt; This shoudl be fixed in docker package.
+
+I don&apos;t have a &quot;docker&quot; package installed, shouldn&apos;t lxc work without docker?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10045824</commentid>
+    <comment_count>19</comment_count>
+    <who name="Daniel Walsh">dwalsh</who>
+    <bug_when>2017-01-09 10:23:31 -0500</bug_when>
+    <thetext>You need to install container-selinux.  Which is being separated out into a separate package.
+
+lxc should probbaly require this package going forward.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10149850</commentid>
+    <comment_count>20</comment_count>
+    <who name="Michael Göhler">michael.goehler</who>
+    <bug_when>2017-02-15 07:27:38 -0500</bug_when>
+    <thetext>I have the same issue on CentOS 7.
+
+I&apos;ve tried the following:
+
+- installed container-selinux
+- set container_runtime_exec_t on /usr/bin/lxc-*
+- set container_var_lib_t on /var/lib/lxc (recursive)
+
+But I still get unconfined_service_t for containers started by lxc.service
+
+# ps -efZ | grep lxc
+system_u:system_r:unconfined_service_t:s0 root 2982 1  0 13:08 ?       00:00:00 /usr/bin/lxc-autostart -g onboot,
+
+# for proc in $(sudo find /proc/ -context *unconfined_service_t* | cut -f1-3 -d / | sort -u); do tr &apos;\0&apos; &apos; &apos; &lt;$proc/cmdline; echo; done
+/usr/bin/lxc-autostart -g onboot,
+/sbin/init
+/usr/lib/systemd/systemd-journald
+/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation
+/usr/lib/systemd/systemd-logind
+/usr/sbin/rsyslogd -n
+/sbin/agetty --noclear --keep-baud console 115200 38400 9600 vt220
+/usr/sbin/sshd
+/sbin/dhclient -H centos_lxc_01 -1 -q -lf /var/lib/dhclient/dhclient--eth0.lease -pf /var/run/dhclient-eth0.pid eth0</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10153613</commentid>
+    <comment_count>21</comment_count>
+    <who name="Daniel Walsh">dwalsh</who>
+    <bug_when>2017-02-16 09:21:22 -0500</bug_when>
+    <thetext>Does your service unit run lxc-autostart directly or is it executing some other command. 
+
+The transition right now is for systemd running as init_t executing something labeled as bin_t will run unconfined_service_t.  If it executes something labeled container_runtime_exec_t it will run it as container_runtime_t.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10154015</commentid>
+    <comment_count>22</comment_count>
+    <who name="Michael Göhler">michael.goehler</who>
+    <bug_when>2017-02-16 10:54:11 -0500</bug_when>
+    <thetext>The service runs /usr/libexec/lxc/lxc-autostart-helper, which is a sysvinit script labeled bin_t. Changing the label of the shell script doesn&apos;t help.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10168741</commentid>
+    <comment_count>23</comment_count>
+    <who name="Daniel Walsh">dwalsh</who>
+    <bug_when>2017-02-20 16:52:52 -0500</bug_when>
+    <thetext>Changing it to initrc_exec_t or container_runtime_exec_t doesn&apos;t help?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10169880</commentid>
+    <comment_count>24</comment_count>
+    <who name="Michael Göhler">michael.goehler</who>
+    <bug_when>2017-02-21 04:11:40 -0500</bug_when>
+    <thetext>My fault. The label of /usr/libexec/lxc/lxc-autostart-helper is reset to bin_t on reboot.
+
+After a reboot to enforce selinux:
+
+# chcon -t container_runtime_exec_t /usr/libexec/lxc/lxc-autostart-helper
+# systemctl restart lxc
+# ps -eZ | grep lxc-autostart
+system_u:system_r:container_runtime_t:s0 3488 ? 00:00:00 lxc-autostart</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10182106</commentid>
+    <comment_count>25</comment_count>
+    <who name="Daniel Walsh">dwalsh</who>
+    <bug_when>2017-02-24 10:23:17 -0500</bug_when>
+    <thetext>semanage fcontext -a -t container_runtime_exec_t /usr/libexec/lxc/lxc-autostart-helper
+restorecon -R -v container_runtime_exec_t /usr/libexec/lxc/lxc-autostart-helper
+
+Should tell the system to not set it back to bin_t.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10182119</commentid>
+    <comment_count>26</comment_count>
+    <who name="Daniel Walsh">dwalsh</who>
+    <bug_when>2017-02-24 10:25:43 -0500</bug_when>
+    <thetext>I just set this up as the default labeling for content in this directory in the container-selinux repo.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10187579</commentid>
+    <comment_count>27</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-27 12:18:45 -0500</bug_when>
+    <thetext>container-selinux-2.9-1.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-018d2c13f7</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10195870</commentid>
+    <comment_count>28</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-28 21:53:01 -0500</bug_when>
+    <thetext>container-selinux-2.9-1.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-018d2c13f7</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10196632</commentid>
+    <comment_count>29</comment_count>
+    <who name="srakitnican">samuel.rakitnican</who>
+    <bug_when>2017-03-01 04:45:00 -0500</bug_when>
+    <thetext>I&apos;ve installed container-selinux-2.9-1.fc25 and did &quot;touch /.autorelabel &amp;&amp; reboot&quot;. I still have issues attaching to a running container with lxc-attach.
+
+Seems the issue is now that process from lxc.service is labeled as unconfined_service_t.
+
+SELinux is preventing lxc-attach from entrypoint access on the file /usr/bin/bash.
+
+*****  Plugin restorecon (99.5 confidence) suggests   ************************
+
+If you want to fix the label. 
+/usr/bin/bash default label should be shell_exec_t.
+Then you can run restorecon.
+Do
+# /sbin/restorecon -v /usr/bin/bash
+
+*****  Plugin catchall (1.49 confidence) suggests   **************************
+
+If you believe that lxc-attach should be allowed entrypoint access on the bash file by default.
+Then you should report this as a bug.
+You can generate a local policy module to allow this access.
+Do
+allow this access for now by executing:
+# ausearch -c &apos;lxc-attach&apos; --raw | audit2allow -M my-lxcattach
+# semodule -X 300 -i my-lxcattach.pp
+
+Additional Information:
+Source Context                system_u:system_r:unconfined_service_t:s0
+Target Context                unconfined_u:object_r:container_var_lib_t:s0
+Target Objects                /usr/bin/bash [ file ]
+Source                        lxc-attach
+Source Path                   lxc-attach
+Port                          &lt;Unknown&gt;
+Host                          host
+Source RPM Packages           
+Target RPM Packages           bash-4.3.43-4.fc25.x86_64
+Policy RPM                    selinux-policy-3.13.1-225.11.fc25.noarch
+Selinux Enabled               True
+Policy Type                   targeted
+Enforcing Mode                Enforcing
+Host Name                     host
+Platform                      Linux host 4.9.12-200.fc25.x86_64 #1 SMP
+                              Thu Feb 23 19:31:49 UTC 2017 x86_64 x86_64
+Alert Count                   1
+First Seen                    2017-03-01 10:35:04 CET
+Last Seen                     2017-03-01 10:35:04 CET
+Local ID                      797269fc-0887-40a5-a5f5-92eddc72148a
+
+Raw Audit Messages
+type=AVC msg=audit(1488360904.991:258): avc:  denied  { entrypoint } for  pid=3407 comm=&quot;lxc-attach&quot; path=&quot;/usr/bin/bash&quot; dev=&quot;sda2&quot; ino=941481 scontext=system_u:system_r:unconfined_service_t:s0 tcontext=unconfined_u:object_r:container_var_lib_t:s0 tclass=file permissive=0
+
+
+Hash: lxc-attach,unconfined_service_t,container_var_lib_t,file,entrypoint
+
+
+$ ps -auxZ | grep lxc
+system_u:system_r:unconfined_service_t:s0 root 1968 0.0  0.0 24496 2732 ?      Ss   10:32   0:00 [lxc monitor] /var/lib/lxc fedora-dev
+
+
+$ ls -Z /usr/bin/lxc*
+system_u:object_r:container_runtime_exec_t:s0 /usr/bin/lxc-attach
+system_u:object_r:container_runtime_exec_t:s0 /usr/bin/lxc-autostart
+system_u:object_r:container_runtime_exec_t:s0 /usr/bin/lxc-cgroup
+system_u:object_r:container_runtime_exec_t:s0 /usr/bin/lxc-checkconfig
+system_u:object_r:container_runtime_exec_t:s0 /usr/bin/lxc-checkpoint
+system_u:object_r:container_runtime_exec_t:s0 /usr/bin/lxc-config
+system_u:object_r:container_runtime_exec_t:s0 /usr/bin/lxc-console
+system_u:object_r:container_runtime_exec_t:s0 /usr/bin/lxc-copy
+system_u:object_r:container_runtime_exec_t:s0 /usr/bin/lxc-create
+system_u:object_r:container_runtime_exec_t:s0 /usr/bin/lxc-destroy
+system_u:object_r:container_runtime_exec_t:s0 /usr/bin/lxc-device
+system_u:object_r:container_runtime_exec_t:s0 /usr/bin/lxc-execute
+system_u:object_r:container_runtime_exec_t:s0 /usr/bin/lxc-freeze
+system_u:object_r:container_runtime_exec_t:s0 /usr/bin/lxc-info
+system_u:object_r:container_runtime_exec_t:s0 /usr/bin/lxc-ls
+system_u:object_r:container_runtime_exec_t:s0 /usr/bin/lxc-monitor
+system_u:object_r:container_runtime_exec_t:s0 /usr/bin/lxc-snapshot
+system_u:object_r:container_runtime_exec_t:s0 /usr/bin/lxc-start
+system_u:object_r:container_runtime_exec_t:s0 /usr/bin/lxc-stop
+system_u:object_r:container_runtime_exec_t:s0 /usr/bin/lxc-top
+system_u:object_r:container_runtime_exec_t:s0 /usr/bin/lxc-unfreeze
+system_u:object_r:container_runtime_exec_t:s0 /usr/bin/lxc-unshare
+system_u:object_r:container_runtime_exec_t:s0 /usr/bin/lxc-usernsexec
+system_u:object_r:container_runtime_exec_t:s0 /usr/bin/lxc-wait</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10198848</commentid>
+    <comment_count>30</comment_count>
+    <who name="Daniel Walsh">dwalsh</who>
+    <bug_when>2017-03-01 14:25:52 -0500</bug_when>
+    <thetext>ls -lZ /usr/libexec/lxc/*</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10199618</commentid>
+    <comment_count>31</comment_count>
+    <who name="srakitnican">samuel.rakitnican</who>
+    <bug_when>2017-03-01 18:54:11 -0500</bug_when>
+    <thetext>$ ls -lZ /usr/libexec/lxc/*
+-rwxr-xr-x. 1 root root unconfined_u:object_r:bin_t:s0   521 Sij 29 13:20 /usr/libexec/lxc/lxc-apparmor-load
+-rwxr-xr-x. 1 root root unconfined_u:object_r:bin_t:s0  2969 Sij 29 13:20 /usr/libexec/lxc/lxc-containers
+-rwxr-xr-x. 1 root root unconfined_u:object_r:bin_t:s0 19672 Sij 29 13:20 /usr/libexec/lxc/lxc-monitord
+-rwxr-xr-x. 1 root root unconfined_u:object_r:bin_t:s0  6357 Sij 29 13:20 /usr/libexec/lxc/lxc-net
+-rwsr-xr-x. 1 root root unconfined_u:object_r:bin_t:s0 40408 Sij 29 13:20 /usr/libexec/lxc/lxc-user-nic
+/usr/libexec/lxc/hooks:
+total 12
+-rwxr-xr-x. 1 root root unconfined_u:object_r:bin_t:s0 11240 Sij 29 13:20 unmount-namespace</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10200030</commentid>
+    <comment_count>32</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-01 20:21:12 -0500</bug_when>
+    <thetext>container-selinux-2.9-1.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10202231</commentid>
+    <comment_count>33</comment_count>
+    <who name="Daniel Walsh">dwalsh</who>
+    <bug_when>2017-03-02 09:52:04 -0500</bug_when>
+    <thetext>matchpathcon /usr/libexec/lxc/*
+/usr/libexec/lxc/hooks	system_u:object_r:bin_t:s0
+/usr/libexec/lxc/lxc-apparmor-load	system_u:object_r:container_runtime_exec_t:s0
+/usr/libexec/lxc/lxc-containers	system_u:object_r:container_runtime_exec_t:s0
+/usr/libexec/lxc/lxc-monitord	system_u:object_r:container_runtime_exec_t:s0
+/usr/libexec/lxc/lxc-net	system_u:object_r:container_runtime_exec_t:s0
+/usr/libexec/lxc/lxc-user-nic	system_u:object_r:container_runtime_exec_t:s0
+
+# rpm -q container-selinux
+container-selinux-2.9-1.fc26.noarch</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10203644</commentid>
+    <comment_count>34</comment_count>
+    <who name="srakitnican">samuel.rakitnican</who>
+    <bug_when>2017-03-02 15:00:45 -0500</bug_when>
+    <thetext>It seems F25 package is slightly different?
+
+$ matchpathcon /usr/libexec/lxc/*
+/usr/libexec/lxc/hooks	system_u:object_r:bin_t:s0
+/usr/libexec/lxc/lxc-apparmor-load	system_u:object_r:bin_t:s0
+/usr/libexec/lxc/lxc-containers	system_u:object_r:bin_t:s0
+/usr/libexec/lxc/lxc-monitord	system_u:object_r:bin_t:s0
+/usr/libexec/lxc/lxc-net	system_u:object_r:bin_t:s0
+/usr/libexec/lxc/lxc-user-nic	system_u:object_r:bin_t:s0</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10203889</commentid>
+    <comment_count>35</comment_count>
+    <who name="Daniel Walsh">dwalsh</who>
+    <bug_when>2017-03-02 16:30:21 -0500</bug_when>
+    <thetext>could you make sure it was installed successfully?
+
+dnf reinstall container-selinux</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10204030</commentid>
+    <comment_count>36</comment_count>
+    <who name="srakitnican">samuel.rakitnican</who>
+    <bug_when>2017-03-02 17:40:14 -0500</bug_when>
+    <thetext>Sure, I did that but it seems there was no effect, matchpathcon /usr/libexec/lxc/* shows the same result as before.
+
+I take a look at upstream container-selinux project, and could not find any security context information for /usr/libexec/lxc.* on commit that 2:9.1-1 branch for F25 is based on:
+
+https://github.com/projectatomic/container-selinux/blob/08bb6e0a1a63b1312c88c2e201b58aeb0ffd5467/container.fc
+
+
+F26 branch however, seems to have correct commit
+
+https://github.com/projectatomic/container-selinux/blob/8f8caa66c11f8657ebf8ae50d7221ee3a97ac7d3/container.fc</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10204039</commentid>
+    <comment_count>37</comment_count>
+    <who name="Daniel Walsh">dwalsh</who>
+    <bug_when>2017-03-02 17:45:39 -0500</bug_when>
+    <thetext>Yup sorry it looks like I need a new version.
+
+commit 46648d73b05fa0d0a5ba1b35be27a8417b6d46c5
+Author: Daniel J Walsh &lt;dwalsh@redhat.com&gt;
+Date:   Fri Feb 24 10:25:08 2017 -0500
+
+    Label files under /usr/libexec/lxc as container_runtime_exec_t
+
+commit 08bb6e0a1a63b1312c88c2e201b58aeb0ffd5467
+Author: Daniel J Walsh &lt;dwalsh@redhat.com&gt;
+Date:   Sun Feb 12 10:48:39 2017 -0500
+
+    bUMP TO V2.9</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10204047</commentid>
+    <comment_count>38</comment_count>
+    <who name="Daniel Walsh">dwalsh</who>
+    <bug_when>2017-03-02 17:48:21 -0500</bug_when>
+    <thetext>Building container-selinux-2.10...</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10204101</commentid>
+    <comment_count>39</comment_count>
+    <who name="srakitnican">samuel.rakitnican</who>
+    <bug_when>2017-03-02 18:34:55 -0500</bug_when>
+    <thetext>container-selinux-2.10-1.fc25, seems to work fine, thanks.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10205824</commentid>
+    <comment_count>40</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-03 07:51:34 -0500</bug_when>
+    <thetext>container-selinux-2.10-1.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-02001fefbc</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10207773</commentid>
+    <comment_count>41</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-03 17:49:55 -0500</bug_when>
+    <thetext>container-selinux-2.10-1.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-02001fefbc</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10235177</commentid>
+    <comment_count>42</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-13 19:55:07 -0400</bug_when>
+    <thetext>container-selinux-2.10-1.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10235623</commentid>
+    <comment_count>43</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-03-13 22:21:24 -0400</bug_when>
+    <thetext>container-selinux-2.10-1.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

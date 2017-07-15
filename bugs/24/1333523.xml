@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1333523</bug_id>
+          
+          <creation_ts>2016-05-05 14:02:00 -0400</creation_ts>
+          <short_desc>Quoted backslashes gets repeated when taken from history</short_desc>
+          <delta_ts>2016-05-20 13:37:19 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>tcsh</component>
+          <version>24</version>
+          <rep_platform>All</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords>Regression</keywords>
+          <priority>high</priority>
+          <bug_severity>medium</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>1319816</blocked>
+    
+    
+    <blocked>1334751</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Göran Uddeborg">goeran</reporter>
+          <assigned_to name="David Kaspar [Dee&apos;Kej]">dkaspar</assigned_to>
+          <cc>dkaspar</cc>
+    
+    
+    <cc>fpokorny</cc>
+    
+    
+    <cc>jchaloup</cc>
+    
+    
+    <cc>jfrieben</cc>
+    
+    
+    <cc>kdudka</cc>
+    
+    
+    <cc>ovasik</cc>
+    
+    
+    <cc>praiskup</cc>
+    
+    
+    <cc>pschindl</cc>
+    
+    
+    <cc>rkollar</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>tcsh-6.19.00-8.fc24</cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-05-20 13:37:19</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9296602</commentid>
+    <comment_count>0</comment_count>
+    <who name="Göran Uddeborg">goeran</who>
+    <bug_when>2016-05-05 14:02:22 -0400</bug_when>
+    <thetext>Description of problem:
+If a command has a backslash within quotes, and that command is brought back with e.g. &quot;up-history&quot;, the backslash is doubled.
+
+Version-Release number of selected component (if applicable):
+tcsh-6.19.00-7.fc24.x86_64
+
+
+How reproducible:
+Every time
+
+
+Steps to Reproduce:
+1. echo &apos;\n&apos;
+2. &lt;Up&gt; (or ctrl-p)
+
+
+Actual results:
+The line says: echo &apos;\\n&apos;
+
+
+Expected results:
+A line saying: echo &apos;\n&apos;</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9297639</commentid>
+    <comment_count>1</comment_count>
+    <who name="Pavel Raiskup">praiskup</who>
+    <bug_when>2016-05-06 01:19:05 -0400</bug_when>
+    <thetext>Göran, I&apos;m not able to reproduce this (f24 mock with 6.19.00-7).  Seems like
+there is some missing step in the reproducer?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9297760</commentid>
+    <comment_count>2</comment_count>
+    <who name="Joachim Frieben">jfrieben</who>
+    <bug_when>2016-05-06 02:39:28 -0400</bug_when>
+    <thetext>(In reply to Pavel Raiskup from comment #1)
+Just type &quot;\&quot; followed by &lt;Enter&gt; and recall the (last) command using the history function.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9297968</commentid>
+    <comment_count>3</comment_count>
+    <who name="Kamil Dudka">kdudka</who>
+    <bug_when>2016-05-06 04:07:46 -0400</bug_when>
+    <thetext>I am able to reproduce it on f23 if I just compile the f24 version of tcsh:
+
+kdudka@f23 ~/fedora/tcsh/tcsh-6.19.00 $ ./tcsh 
+[kdudka@f23 tcsh-6.19.00]$ echo &apos;\n&apos;
+
+
+[kdudka@f23 tcsh-6.19.00]$ echo &apos;\\n&apos;
+
+
+
+After commenting out tcsh-6.19.00-026-quote-backslashes-properly.patch, the bug is no longer reproducible:
+
+kdudka@f23 ~/fedora/tcsh/tcsh-6.19.00 $ ./tcsh 
+[kdudka@f23 tcsh-6.19.00]$ echo &apos;\n&apos;
+
+
+[kdudka@f23 tcsh-6.19.00]$ echo &apos;\n&apos;</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9300541</commentid>
+    <comment_count>4</comment_count>
+    <who name="Göran Uddeborg">goeran</who>
+    <bug_when>2016-05-06 16:44:06 -0400</bug_when>
+    <thetext>Pawel, did the examples from Joachim and Kamil help you to reproduce?  If not, and to be very explicit, these are the keys I type in my example
+
+e c h o SPACE &apos; \ n &apos; ENTER UP-ARROW
+
+If you do the same, do you see one or two backslashes?
+
+To be on  the safe side, I tried it in a shell started with the -f flag, and I could still reproduce it.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9303142</commentid>
+    <comment_count>5</comment_count>
+    <who name="Pavel Raiskup">praiskup</who>
+    <bug_when>2016-05-09 03:05:15 -0400</bug_when>
+    <thetext>Ah, sorry - it is clearly reproducible:
+
+  $ mock -r fedora-rawhide-x86_64 --install tcsh
+  $ mock -r fedora-rawhide-x86_64 --shell
+  &lt;mock-chroot&gt; sh-4.3# tcsh
+  [root@nb /]# echo &apos;\n&apos;
+
+  [root@nb /]# echo &apos;\\n&apos;
+  \n
+  [root@nb /]# echo &apos;\\\\n&apos;
+  \\n
+  [root@nb /]# echo &apos;\\\\\\\\n&apos;
+  \\\\n</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9310715</commentid>
+    <comment_count>6</comment_count>
+    <who name="David Kaspar [Dee&apos;Kej]">dkaspar</who>
+    <bug_when>2016-05-10 08:50:10 -0400</bug_when>
+    <thetext>I have already informed upstream about this:
+http://mx.gw.com/pipermail/tcsh-bugs/2016-May/001043.html</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9310725</commentid>
+    <comment_count>7</comment_count>
+      <attachid>1155760</attachid>
+    <who name="David Kaspar [Dee&apos;Kej]">dkaspar</who>
+    <bug_when>2016-05-10 08:54:47 -0400</bug_when>
+    <thetext>Created attachment 1155760
+proposed-patch
+
+The patch seems to be an EasyFix (one liner). It fixes the regression, testsuite passes, as well as the testcase for the initial issue.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9329167</commentid>
+    <comment_count>8</comment_count>
+    <who name="David Kaspar [Dee&apos;Kej]">dkaspar</who>
+    <bug_when>2016-05-16 07:19:03 -0400</bug_when>
+    <thetext>Upstream has published fix for this regression:
+https://github.com/tcsh-org/tcsh/commit/d52d669405da
+
+I have already included the changes in Rawhide &amp; F24:
+http://pkgs.fedoraproject.org/cgit/rpms/tcsh.git/commit/?d=4fa96ac1048b5f5a
+
+New package build is on the way, so stay tuned! ;)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9329334</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-05-16 08:14:42 -0400</bug_when>
+    <thetext>tcsh-6.19.00-8.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-16167118e0</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9329625</commentid>
+    <comment_count>10</comment_count>
+      <attachid>1155760</attachid>
+    <who name="David Kaspar [Dee&apos;Kej]">dkaspar</who>
+    <bug_when>2016-05-16 09:20:34 -0400</bug_when>
+    <thetext>Comment on attachment 1155760
+proposed-patch
+
+Upstream fixed the issue in different part of source code.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9331467</commentid>
+    <comment_count>11</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-05-16 19:55:57 -0400</bug_when>
+    <thetext>tcsh-6.19.00-8.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-16167118e0</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9343764</commentid>
+    <comment_count>12</comment_count>
+    <who name="Petr Schindler">pschindl</who>
+    <bug_when>2016-05-20 04:18:15 -0400</bug_when>
+    <thetext>tcsh 6.19.00-8.fc24 fixes this bug.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9345395</commentid>
+    <comment_count>13</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-05-20 13:37:14 -0400</bug_when>
+    <thetext>tcsh-6.19.00-8.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="0"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1155760</attachid>
+            <date>2016-05-10 08:54:00 -0400</date>
+            <delta_ts>2016-05-16 09:20:34 -0400</delta_ts>
+            <desc>proposed-patch</desc>
+            <filename>PR-526-Fix-regression-when-using-UP-ARROW-key.patch</filename>
+            <type>text/plain</type>
+            <size>559</size>
+            <attacher name="David Kaspar [Dee&apos;Kej]">dkaspar</attacher>
+            
+              <data encoding="base64">RnJvbSA2M2Y2NTI3Y2RlOGUyYzFiMjU3OGY4NmY1NmRmNmQ2N2UyMWNjMDNiIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiAiRGF2aWQgS2FzcGFyIFtEZWUnS2VqXSIgPGRrYXNwYXJAcmVk
+aGF0LmNvbT4KRGF0ZTogVHVlLCAxMCBNYXkgMjAxNiAxNDoyMzo1OCArMDIwMApTdWJqZWN0OiBb
+UEFUQ0ggMS8xXSBQUiA1MjY6IEZpeCByZWdyZXNzaW9uIHdoZW4gdXNpbmcgVVAgQVJST1cga2V5
+IHRvIGRpc3BsYXkKIGxhc3QgY29tbWFuZAoKLS0tCiBzaC5sZXguYyB8IDIgKy0KIDEgZmlsZSBj
+aGFuZ2VkLCAxIGluc2VydGlvbigrKSwgMSBkZWxldGlvbigtKQoKZGlmZiAtLWdpdCBhL3NoLmxl
+eC5jIGIvc2gubGV4LmMKaW5kZXggZWFlOGEwMy4uOGE2ZDFiMCAxMDA2NDQKLS0tIGEvc2gubGV4
+LmMKKysrIGIvc2gubGV4LmMKQEAgLTM4Niw3ICszODYsNyBAQCBsb29wOgogCQkJICAgICAqLwog
+CQkJICAgIGMgfD0gUVVPVEU7CiAJCQl1bmdldEMoYyk7Ci0JCQljID0gJ1xcJyB8IFFVT1RFOwor
+CQkJYyA9ICdcXCc7CiAJCSAgICB9CiAJCX0KIAkgICAgfQotLSAKMi41LjUKCg==
+</data>
+<flag name="review"
+          id="2654504"
+          type_id="155"
+          status="-"
+          setter="dkaspar"
+    />
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

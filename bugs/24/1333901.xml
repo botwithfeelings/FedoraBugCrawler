@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1333901</bug_id>
+          
+          <creation_ts>2016-05-06 11:26:00 -0400</creation_ts>
+          <short_desc>glibc: getnameinfo: fix memory leak and incorrect truncation checks</short_desc>
+          <delta_ts>2016-05-15 00:52:45 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>glibc</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Florian Weimer">fweimer</reporter>
+          <assigned_to name="Florian Weimer">fweimer</assigned_to>
+          <cc>arjun.is</cc>
+    
+    
+    <cc>codonell</cc>
+    
+    
+    <cc>dj</cc>
+    
+    
+    <cc>fweimer</cc>
+    
+    
+    <cc>jakub</cc>
+    
+    
+    <cc>law</cc>
+    
+    
+    <cc>mfabian</cc>
+    
+    
+    <cc>pfrankli</cc>
+    
+    
+    <cc>sid</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>glibc-2.22-15.fc23, glibc-2.23.1-7.fc24</cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-05-15 00:52:45</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          <external_bugs name="Sourceware">19642</external_bugs>
+    
+    
+    
+    <external_bugs name="Sourceware">19787</external_bugs>
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9299856</commentid>
+    <comment_count>0</comment_count>
+    <who name="Florian Weimer">fweimer</who>
+    <bug_when>2016-05-06 11:26:07 -0400</bug_when>
+    <thetext>getnameinfo suffers from a memory leak if a scratch buffer is not freed.
+
+In addition, truncation checks are wrong and getnameinfo can fail to return EAI_OVERFLOW.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9301754</commentid>
+    <comment_count>1</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-05-07 13:20:01 -0400</bug_when>
+    <thetext>glibc-2.22-15.fc23 has been submitted as an update to Fedora 23. https://bodhi.fedoraproject.org/updates/FEDORA-2016-68abc0be35</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9302366</commentid>
+    <comment_count>2</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-05-08 12:25:44 -0400</bug_when>
+    <thetext>glibc-2.22-15.fc23 has been pushed to the Fedora 23 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-68abc0be35</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9303503</commentid>
+    <comment_count>3</comment_count>
+    <who name="Florian Weimer">fweimer</who>
+    <bug_when>2016-05-09 05:08:54 -0400</bug_when>
+    <thetext>Fixed with these new 2.23 backports:
+
+commit f8020794aea5d4feb38683fc8301ee04a4fc4759
+Author: Florian Weimer &lt;fweimer@redhat.com&gt;
+Date:   Wed May 4 14:45:17 2016 +0200
+
+    getnameinfo: Return EAI_OVERFLOW in more cases [BZ #19787]
+    
+    The AF_LOCAL and AF_INET/AF_INET6 non-numerci service conversion
+    did not return EAI_OVERFLOW if the supplied buffer was too small,
+    silently returning truncated data.  In the AF_INET/AF_INET6
+    numeric cases, the snprintf return value checking was incorrect.
+    
+    (cherry picked from commit 066746783d6c6c0f61b39c741177e24a9b398a20)
+
+commit 05d2606fa110a8afd85419d969a6d55bf88efb0f
+Author: Florian Weimer &lt;fweimer@redhat.com&gt;
+Date:   Wed May 4 14:35:23 2016 +0200
+
+    getnameinfo: Avoid calling strnlen on uninitialized buffer
+    
+    In the numeric AF_INET/AF_INET6 case, if inet_ntop fails
+    as the result of a short host buffer, we used to call strnlen
+    on the uninitialized host buffer.
+    
+    (cherry picked from commit 1c3490d4b29fc5b3f30dd6b13082046aee94443d)
+
+commit c5aae1035cac6305a111e3461af23a924914d9f5
+Author: Florian Weimer &lt;fweimer@redhat.com&gt;
+Date:   Wed May 4 14:35:12 2016 +0200
+
+    getnameinfo: Reduce line length and add missing comments
+    
+    (cherry picked from commit c9b0e6a432e827b61f12eb52c2aaeadc77b64461)
+
+commit e5bcbfc23b356b62ebfcd1943655eab45a9ca87c
+Author: Florian Weimer &lt;fweimer@redhat.com&gt;
+Date:   Fri Apr 29 17:08:06 2016 +0200
+
+    getnameinfo: Refactor and fix memory leak [BZ #19642]
+    
+    Split getnameinfo into separate functions for host and service
+    lookups, and for different address families.
+    
+    (cherry picked from commit 2dce81a319601e1ee110f7316f705b48c5686e72)
+
+commit 42a496388d00a6eb781e0b1c6754ae1f38790531
+Author: Florian Weimer &lt;fweimer@redhat.com&gt;
+Date:   Thu Apr 28 17:41:49 2016 +0200
+
+    getnameinfo: Do not preserve errno
+    
+    POSIX does not require it, the companion getaddrinfo implementation
+    does not do it, and this behavior is not documented in the manual
+    page, either.
+    
+    (cherry picked from commit 2b54cbce2c363ab6ae89d10657d7465858116d7a)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9305289</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-05-09 10:57:07 -0400</bug_when>
+    <thetext>glibc-2.23.1-6.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-b321728d74</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9311925</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-05-10 13:57:49 -0400</bug_when>
+    <thetext>glibc-2.22-15.fc23 has been pushed to the Fedora 23 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9313069</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-05-10 16:30:19 -0400</bug_when>
+    <thetext>glibc-2.23.1-6.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-b321728d74</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9317200</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-05-11 09:55:35 -0400</bug_when>
+    <thetext>glibc-2.23.1-7.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-b321728d74</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9320431</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-05-12 05:44:15 -0400</bug_when>
+    <thetext>glibc-2.23.1-7.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-b321728d74</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9326700</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-05-14 19:30:11 -0400</bug_when>
+    <thetext>glibc-2.23.1-7.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

@@ -1,0 +1,374 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1322524</bug_id>
+          
+          <creation_ts>2016-03-30 12:05:00 -0400</creation_ts>
+          <short_desc>Fix build on MIPS</short_desc>
+          <delta_ts>2016-12-05 08:54:24 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>qt</component>
+          <version>25</version>
+          <rep_platform>mips64</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>1242747</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Michal Toman">michal.toman</reporter>
+          <assigned_to name="Rex Dieter">rdieter</assigned_to>
+          <cc>itamar</cc>
+    
+    
+    <cc>jreznik</cc>
+    
+    
+    <cc>kevin</cc>
+    
+    
+    <cc>me</cc>
+    
+    
+    <cc>michal.toman</cc>
+    
+    
+    <cc>ovasik</cc>
+    
+    
+    <cc>rdieter</cc>
+    
+    
+    <cc>smparrish</cc>
+    
+    
+    <cc>than</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in></cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-12-05 08:54:24</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9192432</commentid>
+    <comment_count>0</comment_count>
+      <attachid>1141832</attachid>
+    <who name="Michal Toman">michal.toman</who>
+    <bug_when>2016-03-30 12:05:21 -0400</bug_when>
+    <thetext>Created attachment 1141832
+Fix-build-on-MIPS.patch
+
+Description of problem:
+We are trying to bring Fedora to MIPS platform and this requires making qt specfila MIPS-aware. Also for some reason mips64 is evaluated as unsupported even though it works. An override is therefore required.
+
+Actual results:
+MIPS is not included in multilib archs, mips64 build falls back to &apos;generic&apos;
+
+Expected results:
+MIPS is included in multilib archs, mips64 builds &apos;mips&apos;
+
+Additional info:
+Attaching dist-git patch. It would be great if this could also be applied to F24.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9196834</commentid>
+    <comment_count>1</comment_count>
+    <who name="Rex Dieter">rdieter</who>
+    <bug_when>2016-03-31 11:16:09 -0400</bug_when>
+    <thetext>2 questions:
+
+1. Are you sure you want to use linux-g++ on mips64 ?
+
+Per old bug #569542 on the topic,
+
+it would appear that qt&apos;s 
+src/corelib/arch/mips/arch.pri
+
+includes qatomic assembly depending on if platform includes -64 suffix or not:
+
+*-64:SOURCES += $$QT_ARCH_CPP/qatomic_mips64.s
+else:SOURCES += $$QT_ARCH_CPP/qatomic_mips32.s
+
+
+2.  why is &apos;-arch mips&apos; needed?  I assume because the autodetection fails?  (If so, I think I would prefer to fix/patch the autodetection rather than workaround it this way)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9196862</commentid>
+    <comment_count>2</comment_count>
+    <who name="Michal Toman">michal.toman</who>
+    <bug_when>2016-03-31 11:25:16 -0400</bug_when>
+    <thetext>1. I am sure with linux-g++, MIPS does not accept -m32/-m64 GCC flags and linux-g++-64 appends -m64.
+
+2. &apos;-arch mips&apos; is only needed on 64-bit, &apos;mips64&apos; fails autodetection and uses &apos;generic&apos; implementation. Let me prepare a patch.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9196899</commentid>
+    <comment_count>3</comment_count>
+    <who name="Rex Dieter">rdieter</who>
+    <bug_when>2016-03-31 11:38:11 -0400</bug_when>
+    <thetext>
+So, given comment #2, 
+1.  I think keeping -platform linux-g++-64 (to use proper atomics) and patching mkspecs to not use -m64/-m32 flags (on mips) is the way to go
+
+2. On second though, I guess qt(4) upstream development has essentially stopped, so fixing autodetection and getting that upstreamed is less likely... so, conditionally overriding -arch mips on mips64 is ok with me</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9196935</commentid>
+    <comment_count>4</comment_count>
+    <who name="Michal Toman">michal.toman</who>
+    <bug_when>2016-03-31 11:49:53 -0400</bug_when>
+    <thetext>(In reply to Rex Dieter from comment #3)
+&gt; So, given comment #2, 
+&gt; 1.  I think keeping -platform linux-g++-64 (to use proper atomics) and
+&gt; patching mkspecs to not use -m64/-m32 flags (on mips) is the way to go
+
+Ah I see, I have misread your previous comment. You are right, let me prepare a patch for this part.
+
+Thanks for your suggestions.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9205526</commentid>
+    <comment_count>5</comment_count>
+      <attachid>1143410</attachid>
+    <who name="Michal Toman">michal.toman</who>
+    <bug_when>2016-04-04 14:14:11 -0400</bug_when>
+    <thetext>Created attachment 1143410
+Fix-build-on-MIPS.patch
+
+I&apos;ve managed to patch configure to fix mips64 autodetection. I&apos;ve also tried to patch linux-g++-64/qmake.conf to remove -m64 on mips64 but this is kind of tricky to do just for mips64 (the patch would conflict with injecting optflags). I propose just removing it with sed within %ifarch. Attaching an updated dist-git patch.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9208533</commentid>
+    <comment_count>6</comment_count>
+    <who name="Rex Dieter">rdieter</who>
+    <bug_when>2016-04-05 09:54:29 -0400</bug_when>
+    <thetext>Thanks, adapted a bit and committed,
+
+http://pkgs.fedoraproject.org/cgit/rpms/qt.git/commit/?id=593e8b6cfd804fabbc3e79fdccd2a5adad8f145c
+
+builds underway.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9238690</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-04-14 22:30:38 -0400</bug_when>
+    <thetext>qt-4.8.7-14.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-d3a880fb8c</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9241828</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-04-15 19:22:23 -0400</bug_when>
+    <thetext>qt-4.8.7-14.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-d3a880fb8c</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9241855</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-04-15 19:36:12 -0400</bug_when>
+    <thetext>qt-4.8.7-15.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2016-d3a880fb8c</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9243318</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-04-18 00:56:09 -0400</bug_when>
+    <thetext>qt-4.8.7-15.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-d3a880fb8c</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9252384</commentid>
+    <comment_count>11</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-04-19 16:31:19 -0400</bug_when>
+    <thetext>qt-4.8.7-15.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9549823</commentid>
+    <comment_count>12</comment_count>
+    <who name="Jan Kurik">jkurik</who>
+    <bug_when>2016-07-26 00:58:19 -0400</bug_when>
+    <thetext>This bug appears to have been reported against &apos;rawhide&apos; during the Fedora 25 development cycle.
+Changing version to &apos;25&apos;.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9956168</commentid>
+    <comment_count>13</comment_count>
+    <who name="Rex Dieter">rdieter</who>
+    <bug_when>2016-12-05 08:54:24 -0500</bug_when>
+    <thetext>marking fixed</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="1"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1141832</attachid>
+            <date>2016-03-30 12:05:00 -0400</date>
+            <delta_ts>2016-04-04 14:14:11 -0400</delta_ts>
+            <desc>Fix-build-on-MIPS.patch</desc>
+            <filename>Fix-build-on-MIPS.patch</filename>
+            <type>text/plain</type>
+            <size>2084</size>
+            <attacher name="Michal Toman">michal.toman</attacher>
+            
+              <data encoding="base64">RnJvbSAyMzU4NzFkYjU1MjVmNDU4OTk1NDFiNGFmMTlkOWI0OGQ0ZjU4NWU4IE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBNaWNoYWwgVG9tYW4gPG10b21hbkBmZWRvcmFwcm9qZWN0Lm9y
+Zz4KRGF0ZTogTW9uLCAyMSBNYXIgMjAxNiAxOTo1NjoyMSArMDEwMApTdWJqZWN0OiBbUEFUQ0hd
+IEZpeCBidWlsZCBvbiBNSVBTCgotLS0KIHF0LnNwZWMgfCAxNSArKysrKysrKysrKy0tLS0KIDEg
+ZmlsZSBjaGFuZ2VkLCAxMSBpbnNlcnRpb25zKCspLCA0IGRlbGV0aW9ucygtKQoKZGlmZiAtLWdp
+dCBhL3F0LnNwZWMgYi9xdC5zcGVjCmluZGV4IGZmNjZmZDkuLjMxMjRjODYgMTAwNjQ0Ci0tLSBh
+L3F0LnNwZWMKKysrIGIvcXQuc3BlYwpAQCAtNSw4ICs1LDggQEAKICVkZWZpbmUgbm9fcGNoIC1u
+by1wY2gKIAogIyBTZWUgaHR0cDovL2J1Z3ppbGxhLnJlZGhhdC5jb20vMjIzNjYzCi0lZGVmaW5l
+IG11bHRpbGliX2FyY2hzIHg4Nl82NCAle2l4ODZ9IHBwYzY0IHBwYyBzMzkweCBzMzkwIHNwYXJj
+NjQgc3BhcmN2OSBwcGM2NGxlCi0lZGVmaW5lIG11bHRpbGliX2Jhc2VhcmNocyB4ODZfNjQgcHBj
+NjQgczM5MHggc3BhcmM2NCBwcGM2NGxlCislZGVmaW5lIG11bHRpbGliX2FyY2hzIHg4Nl82NCAl
+e2l4ODZ9IHBwYzY0IHBwYyBzMzkweCBzMzkwIHNwYXJjNjQgc3BhcmN2OSBwcGM2NGxlICV7bWlw
+c30KKyVkZWZpbmUgbXVsdGlsaWJfYmFzZWFyY2hzIHg4Nl82NCBwcGM2NCBzMzkweCBzcGFyYzY0
+IHBwYzY0bGUgJXttaXBzNjR9CiAKICVpZiAwJXs/ZmVkb3JhfSA+IDE2IHx8IDAlez9yaGVsfSA+
+IDYKICMgdXNlIGV4dGVybmFsIHF0X3NldHRpbmdzIHBrZwpAQCAtNDQsNyArNDQsNyBAQCBTdW1t
+YXJ5OiBRdCB0b29sa2l0CiBOYW1lOiAgICBxdAogRXBvY2g6ICAgMQogVmVyc2lvbjogNC44LjcK
+LVJlbGVhc2U6IDEzJXs/ZGlzdH0KK1JlbGVhc2U6IDE0JXs/ZGlzdH0KIAogIyBTZWUgTEdQTF9F
+WENFUFRJT05TLnR4dCwgTElDRU5TRS5HUEwzLCByZXNwZWN0aXZlbHksIGZvciBleGNlcHRpb24g
+ZGV0YWlscwogTGljZW5zZTogKExHUEx2MiB3aXRoIGV4Y2VwdGlvbnMgb3IgR1BMdjMgd2l0aCBl
+eGNlcHRpb25zKSBhbmQgQVNMIDIuMCBhbmQgQlNEIGFuZCBGVEwgYW5kIE1JVApAQCAtMjMzLDYg
+KzIzMyw5IEBAIFNvdXJjZTMxOiBoaTQ4LWFwcC1xdDQtbG9nby5wbmcKICVkZWZpbmUgaWJhc2Ug
+LW5vLXNxbC1pYmFzZQogJWRlZmluZSB0ZHMgLW5vLXNxbC10ZHMKICVlbmRpZgorJWlmYXJjaCAl
+e21pcHM2NH0KKyVkZWZpbmUgZml4X21pcHM2NCAtYXJjaCBtaXBzCislZW5kaWYKIAogIyBtYWNy
+b3MsIGJlIG1pbmRmdWwgdG8ga2VlcCBzeW5jJ2Qgd2l0aCBtYWNyb3MucXQ0CiBTb3VyY2UxOiBt
+YWNyb3MucXQ0CkBAIC02MDgsNyArNjExLDcgQEAgcm0gLXJmIHNyYy8zcmRwYXJ0eS9jbHVjZW5l
+CiAlZW5kaWYKIAogIyBodHRwczovL2J1Z3ppbGxhLnJlZGhhdC5jb20vNDc4NDgxCi0laWZhcmNo
+IHg4Nl82NCBhYXJjaDY0CislaWZhcmNoIHg4Nl82NCBhYXJjaDY0ICV7bWlwczY0fQogJWRlZmlu
+ZSBwbGF0Zm9ybSBsaW51eC1nKysKICVlbmRpZgogCkBAIC03MjEsNiArNzI0LDcgQEAgZXhwb3J0
+IE1BS0VGTEFHUz0iJXs/X3NtcF9tZmxhZ3N9IgogICAlez9vZGJjfSBcCiAgICV7P3NxbGl0ZX0g
+JXs/X3N5c3RlbV9zcWxpdGV9IFwKICAgJXs/dGRzfSBcCisgICV7P2ZpeF9taXBzNjR9IFwKICAg
+JXshP2RvY3M6LW5vbWFrZSBkb2NzfSBcCiAgICV7IT9kZW1vczotbm9tYWtlIGRlbW9zfSBcCiAg
+ICV7IT9leGFtcGxlczotbm9tYWtlIGV4YW1wbGVzfQpAQCAtMTM1Miw2ICsxMzU2LDkgQEAgZmkK
+IAogCiAlY2hhbmdlbG9nCisqIE1vbiBNYXIgMjEgMjAxNiBNaWNoYWwgVG9tYW4gPG10b21hbkBm
+ZWRvcmFwcm9qZWN0Lm9yZz4gLSAxOjQuOC43LTE0CistIEZpeCBidWlsZCBvbiBNSVBTCisKICog
+V2VkIE1hciAxNiAyMDE2IFJleCBEaWV0ZXIgPHJkaWV0ZXJAZmVkb3JhcHJvamVjdC5vcmc+IC0g
+MTo0LjguNy0xMwogLSByZXNwaW4gYm9vc3QvbW9jIHBhdGNoIGZvciBib29zdC0xLjYwIChCT09T
+VF9UWVBFX1RSQUlUU19IUFApCiAKLS0gCjIuNS4wCgo=
+</data>
+
+          </attachment>
+          <attachment
+              isobsolete="0"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1143410</attachid>
+            <date>2016-04-04 14:14:00 -0400</date>
+            <delta_ts>2016-04-04 14:14:11 -0400</delta_ts>
+            <desc>Fix-build-on-MIPS.patch</desc>
+            <filename>Fix-build-on-MIPS.patch</filename>
+            <type>text/plain</type>
+            <size>3220</size>
+            <attacher name="Michal Toman">michal.toman</attacher>
+            
+              <data encoding="base64">RnJvbSA4ZTM2MDAxNzcwYTJiNmZiN2Y4NjU1M2M5N2ZmM2RhNWI5ZTFlYmExIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBNaWNoYWwgVG9tYW4gPG10b21hbkBmZWRvcmFwcm9qZWN0Lm9y
+Zz4KRGF0ZTogTW9uLCA0IEFwciAyMDE2IDIwOjA1OjU3ICswMjAwClN1YmplY3Q6IFtQQVRDSF0g
+Rml4IGJ1aWxkIG9uIE1JUFMKCi0tLQogcXQtZXZlcnl3aGVyZS1vcGVuc291cmNlLXNyYy00Ljgu
+Ny1taXBzNjQucGF0Y2ggfCAxMyArKysrKysrKysrKysrCiBxdC5zcGVjICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICB8IDE4ICsrKysrKysrKysrKysrKy0tLQogMiBmaWxl
+cyBjaGFuZ2VkLCAyOCBpbnNlcnRpb25zKCspLCAzIGRlbGV0aW9ucygtKQogY3JlYXRlIG1vZGUg
+MTAwNjQ0IHF0LWV2ZXJ5d2hlcmUtb3BlbnNvdXJjZS1zcmMtNC44LjctbWlwczY0LnBhdGNoCgpk
+aWZmIC0tZ2l0IGEvcXQtZXZlcnl3aGVyZS1vcGVuc291cmNlLXNyYy00LjguNy1taXBzNjQucGF0
+Y2ggYi9xdC1ldmVyeXdoZXJlLW9wZW5zb3VyY2Utc3JjLTQuOC43LW1pcHM2NC5wYXRjaApuZXcg
+ZmlsZSBtb2RlIDEwMDY0NAppbmRleCAwMDAwMDAwLi42NDU2ZjJjCi0tLSAvZGV2L251bGwKKysr
+IGIvcXQtZXZlcnl3aGVyZS1vcGVuc291cmNlLXNyYy00LjguNy1taXBzNjQucGF0Y2gKQEAgLTAs
+MCArMSwxMyBAQAorZGlmZiAtdXJwIHF0LWV2ZXJ5d2hlcmUtb3BlbnNvdXJjZS1zcmMtNC44Ljcv
+Y29uZmlndXJlIHEvY29uZmlndXJlCistLS0gcXQtZXZlcnl3aGVyZS1vcGVuc291cmNlLXNyYy00
+LjguNy9jb25maWd1cmUJMjAxNi0wNC0wMyAxNjo0OTo1MC4yMTg2NDQ0NDkgKzAyMDAKKysrKyBx
+L2NvbmZpZ3VyZQkyMDE2LTA0LTAzIDE3OjIyOjM1LjM3NjQwNTAyNCArMDIwMAorQEAgLTMzMzEs
+NiArMzMzMSw5IEBAIGFybSopCisgICAgIENGR19BUkNIPWFybQorICAgICBDT01QQVRfQVJDSD1h
+cm12NgorICAgICA7OworK21pcHMqKQorKyAgICBDRkdfQVJDSD1taXBzCisrICAgIDs7CisgZXNh
+YworIAorIGlmIFsgLWQgIiRyZWxwYXRoL3NyYy9jb3JlbGliL2FyY2gvJENGR19BUkNIIiBdOyB0
+aGVuCmRpZmYgLS1naXQgYS9xdC5zcGVjIGIvcXQuc3BlYwppbmRleCBmZjY2ZmQ5Li44NTNiNWVi
+IDEwMDY0NAotLS0gYS9xdC5zcGVjCisrKyBiL3F0LnNwZWMKQEAgLTUsOCArNSw4IEBACiAlZGVm
+aW5lIG5vX3BjaCAtbm8tcGNoCiAKICMgU2VlIGh0dHA6Ly9idWd6aWxsYS5yZWRoYXQuY29tLzIy
+MzY2MwotJWRlZmluZSBtdWx0aWxpYl9hcmNocyB4ODZfNjQgJXtpeDg2fSBwcGM2NCBwcGMgczM5
+MHggczM5MCBzcGFyYzY0IHNwYXJjdjkgcHBjNjRsZQotJWRlZmluZSBtdWx0aWxpYl9iYXNlYXJj
+aHMgeDg2XzY0IHBwYzY0IHMzOTB4IHNwYXJjNjQgcHBjNjRsZQorJWRlZmluZSBtdWx0aWxpYl9h
+cmNocyB4ODZfNjQgJXtpeDg2fSBwcGM2NCBwcGMgczM5MHggczM5MCBzcGFyYzY0IHNwYXJjdjkg
+cHBjNjRsZSAle21pcHN9CislZGVmaW5lIG11bHRpbGliX2Jhc2VhcmNocyB4ODZfNjQgcHBjNjQg
+czM5MHggc3BhcmM2NCBwcGM2NGxlICV7bWlwczY0fQogCiAlaWYgMCV7P2ZlZG9yYX0gPiAxNiB8
+fCAwJXs/cmhlbH0gPiA2CiAjIHVzZSBleHRlcm5hbCBxdF9zZXR0aW5ncyBwa2cKQEAgLTQ0LDcg
+KzQ0LDcgQEAgU3VtbWFyeTogUXQgdG9vbGtpdAogTmFtZTogICAgcXQKIEVwb2NoOiAgIDEKIFZl
+cnNpb246IDQuOC43Ci1SZWxlYXNlOiAxMyV7P2Rpc3R9CitSZWxlYXNlOiAxNCV7P2Rpc3R9CiAK
+ICMgU2VlIExHUExfRVhDRVBUSU9OUy50eHQsIExJQ0VOU0UuR1BMMywgcmVzcGVjdGl2ZWx5LCBm
+b3IgZXhjZXB0aW9uIGRldGFpbHMKIExpY2Vuc2U6IChMR1BMdjIgd2l0aCBleGNlcHRpb25zIG9y
+IEdQTHYzIHdpdGggZXhjZXB0aW9ucykgYW5kIEFTTCAyLjAgYW5kIEJTRCBhbmQgRlRMIGFuZCBN
+SVQKQEAgLTE3Miw2ICsxNzIsOSBAQCBQYXRjaDg5OiBxdC1ldmVyeXdoZXJlLW9wZW5zb3VyY2Ut
+c3JjLTQuOC42LVFUQlVHLTM4NTg1LnBhdGNoCiAjIGJ1aWxkIGFnYWluc3QgdGhlIHN5c3RlbSBj
+bHVjZW5lMDktY29yZQogUGF0Y2g5MDogcXQtZXZlcnl3aGVyZS1vcGVuc291cmNlLXNyYy00Ljgu
+Ni1zeXN0ZW0tY2x1Y2VuZS5wYXRjaAogCisjIGZpeCBhcmNoIGF1dG9kZXRlY3Rpb24gZm9yIDY0
+LWJpdCBNSVBTCitQYXRjaDkxOiBxdC1ldmVyeXdoZXJlLW9wZW5zb3VyY2Utc3JjLTQuOC43LW1p
+cHM2NC5wYXRjaAorCiAjIGZpeCBidWlsZCBpc3N1ZSB3aXRoIGdjYzYKIFBhdGNoMTAwOiBxdC1l
+dmVyeXdoZXJlLW9wZW5zb3VyY2Utc3JjLTQuOC43LWdjYzYucGF0Y2gKIApAQCAtNTgzLDYgKzU4
+Niw3IEBAIGFuZCBpbnZva2UgbWV0aG9kcyBvbiB0aG9zZSBvYmplY3RzLgogIyBkZWxldGUgYnVu
+ZGxlZCBjb3B5CiBybSAtcmYgc3JjLzNyZHBhcnR5L2NsdWNlbmUKICVlbmRpZgorJXBhdGNoOTEg
+LXAxIC1iIC5taXBzNjQKICVwYXRjaDEwMCAtcDEgLWIgLmdjYzYKICVwYXRjaDEwMSAtcDEgLWIg
+LmFsc2ExLjEKIApAQCAtNjM5LDYgKzY0MywxMSBAQCBpZiBbICIle19saWJ9IiA9PSAibGliNjQi
+IF0gOyB0aGVuCiAgIHNlZCAtaSAtZSAicywvbGliIC91c3IvbGliLC8le19saWJ9IC91c3IvJXtf
+bGlifSxnIiBjb25maWcudGVzdHMve3VuaXgseDExfS8qLnRlc3QKIGZpCiAKKyMgNjQtYml0IE1J
+UFMgZG9lcyBub3QgYWNjZXB0IC1tNjQgZmxhZworJWlmYXJjaCAle21pcHM2NH0KK3NlZCAtaSAt
+ZSAncywtbTY0LCwnIG1rc3BlY3MvbGludXgtZysrLTY0L3FtYWtlLmNvbmYKKyVlbmRpZgorCiAj
+IGxldCBtYWtlZmlsZSBjcmVhdGUgbWlzc2luZyAucW0gZmlsZXMsIHRoZSAucW0gZmlsZXMgc2hv
+dWxkIGJlIGluY2x1ZGVkIGluIHF0IHVwc3RyZWFtCiBmb3IgZiBpbiB0cmFuc2xhdGlvbnMvKi50
+cyA7IGRvCiAgIHRvdWNoICR7ZiUudHN9LnFtCkBAIC0xMzUyLDYgKzEzNjEsOSBAQCBmaQogCiAK
+ICVjaGFuZ2Vsb2cKKyogU3VuIEFwciAwMyAyMDE2IE1pY2hhbCBUb21hbiA8bXRvbWFuQGZlZG9y
+YXByb2plY3Qub3JnPiAtIDE6NC44LjctMTQKKy0gRml4IGJ1aWxkIG9uIE1JUFMKKwogKiBXZWQg
+TWFyIDE2IDIwMTYgUmV4IERpZXRlciA8cmRpZXRlckBmZWRvcmFwcm9qZWN0Lm9yZz4gLSAxOjQu
+OC43LTEzCiAtIHJlc3BpbiBib29zdC9tb2MgcGF0Y2ggZm9yIGJvb3N0LTEuNjAgKEJPT1NUX1RZ
+UEVfVFJBSVRTX0hQUCkKIAotLSAKMi41LjUKCg==
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

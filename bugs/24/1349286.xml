@@ -1,0 +1,452 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1349286</bug_id>
+          
+          <creation_ts>2016-06-23 03:21:00 -0400</creation_ts>
+          <short_desc>authconfig fails with SSSDConfig.NoDomainError: default if nonexistent domain is mentioned.</short_desc>
+          <delta_ts>2016-10-09 05:23:21 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>sssd</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Viktor Ashirov">vashirov</reporter>
+          <assigned_to name="Jakub Hrozek">jhrozek</assigned_to>
+          <cc>abokovoy</cc>
+    
+    
+    <cc>jhrozek</cc>
+    
+    
+    <cc>jlieskov</cc>
+    
+    
+    <cc>lleung</cc>
+    
+    
+    <cc>lslebodn</cc>
+    
+    
+    <cc>pbrezina</cc>
+    
+    
+    <cc>preichl</cc>
+    
+    
+    <cc>rharwood</cc>
+    
+    
+    <cc>sbose</cc>
+    
+    
+    <cc>ssorce</cc>
+    
+    
+    <cc>tmraz</cc>
+    
+    
+    <cc>vashirov</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>sssd-1.14.1-3.fc24 sssd-1.14.1-3.fc23</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-09-30 11:51:58</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9445118</commentid>
+    <comment_count>0</comment_count>
+    <who name="Viktor Ashirov">vashirov</who>
+    <bug_when>2016-06-23 03:21:10 -0400</bug_when>
+    <thetext>Description of problem:
+If nonexistent domain is defined in sssd.conf, authconfig fails with a traceback.
+
+Version-Release number of selected component (if applicable):
+sssd-1.13.4-3.fc24.x86_64
+
+How reproducible:
+always
+
+Steps to Reproduce:
+1. Set in [sssd] section:
+domains = redhat, nonexistent
+
+2. authconfig --test
+
+Actual results:
+Traceback (most recent call last):
+  File &quot;/usr/share/authconfig/authinfo.py&quot;, line 1901, in readSSSD
+    domain = self.sssdDomain = self.sssdConfig.get_domain(SSSD_AUTHCONFIG_DOMAIN)
+  File &quot;/usr/lib/python3.4/site-packages/SSSDConfig/__init__.py&quot;, line 1856, in get_domain
+    raise NoDomainError(name)
+SSSDConfig.NoDomainError: default
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File &quot;/usr/sbin/authconfig&quot;, line 1078, in &lt;module&gt;
+    sys.exit(module.run())
+  File &quot;/usr/sbin/authconfig&quot;, line 654, in run
+    self.readAuthInfo()
+  File &quot;/usr/sbin/authconfig&quot;, line 425, in readAuthInfo
+    self.info = authinfo.read(self.printError)
+  File &quot;/usr/share/authconfig/authinfo.py&quot;, line 1029, in read
+    info.read()
+  File &quot;/usr/share/authconfig/authinfo.py&quot;, line 2529, in read
+    self.readSSSD(ref)
+  File &quot;/usr/share/authconfig/authinfo.py&quot;, line 1904, in readSSSD
+    domname = self.sssdConfig.list_active_domains()[0]
+  File &quot;/usr/lib/python3.4/site-packages/SSSDConfig/__init__.py&quot;, line 1784, in list_active_domains
+    for dom in domain_dict.keys():
+RuntimeError: dictionary changed size during iteration
+
+
+Expected results:
+Nonexistent domains should be ignored.
+
+Additional info:</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9445301</commentid>
+    <comment_count>1</comment_count>
+    <who name="Jakub Hrozek">jhrozek</who>
+    <bug_when>2016-06-23 04:21:51 -0400</bug_when>
+    <thetext>Well, I would say sssd&apos;s configAPI does exactly what it was asked to do, there was an operation on non-existing domain and the API returned an exception.
+
+If this is supposed to be ignored, then it should be ignored in authconfig
+
+(That said, I&apos;m not sure if we should invest much development time into fixing authconfig at this point..)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9445358</commentid>
+    <comment_count>2</comment_count>
+    <who name="Viktor Ashirov">vashirov</who>
+    <bug_when>2016-06-23 04:35:16 -0400</bug_when>
+    <thetext>This works on RHEL6 and RHEL7, but not on Fedora. I suppose because of Python 3.
+There was a similar problem, introduced by migration to Python 3: https://fedorahosted.org/sssd/ticket/2699</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9445563</commentid>
+    <comment_count>3</comment_count>
+    <who name="Lukas Slebodnik">lslebodn</who>
+    <bug_when>2016-06-23 05:32:16 -0400</bug_when>
+    <thetext>(In reply to Viktor Ashirov from comment #0)
+&gt; Description of problem:
+&gt; If nonexistent domain is defined in sssd.conf, authconfig fails with a
+&gt; traceback.
+&gt; 
+&gt; Version-Release number of selected component (if applicable):
+&gt; sssd-1.13.4-3.fc24.x86_64
+&gt; 
+&gt; How reproducible:
+&gt; always
+&gt; 
+&gt; Steps to Reproduce:
+&gt; 1. Set in [sssd] section:
+&gt; domains = redhat, nonexistent
+&gt; 
+&gt; 2. authconfig --test
+&gt; 
+&gt; Actual results:
+&gt; Traceback (most recent call last):
+&gt;   File &quot;/usr/share/authconfig/authinfo.py&quot;, line 1901, in readSSSD
+&gt;     domain = self.sssdDomain =
+&gt; self.sssdConfig.get_domain(SSSD_AUTHCONFIG_DOMAIN)
+&gt;   File &quot;/usr/lib/python3.4/site-packages/SSSDConfig/__init__.py&quot;, line 1856,
+Fedora 24 does not have a python3.4
+There is python3.5
+
+
+&gt; in get_domain
+&gt;     raise NoDomainError(name)
+&gt; SSSDConfig.NoDomainError: default
+&gt; 
+&gt; During handling of the above exception, another exception occurred:
+&gt; 
+&gt; Traceback (most recent call last):
+&gt;   File &quot;/usr/sbin/authconfig&quot;, line 1078, in &lt;module&gt;
+&gt;     sys.exit(module.run())
+&gt;   File &quot;/usr/sbin/authconfig&quot;, line 654, in run
+&gt;     self.readAuthInfo()
+&gt;   File &quot;/usr/sbin/authconfig&quot;, line 425, in readAuthInfo
+&gt;     self.info = authinfo.read(self.printError)
+&gt;   File &quot;/usr/share/authconfig/authinfo.py&quot;, line 1029, in read
+&gt;     info.read()
+&gt;   File &quot;/usr/share/authconfig/authinfo.py&quot;, line 2529, in read
+&gt;     self.readSSSD(ref)
+&gt;   File &quot;/usr/share/authconfig/authinfo.py&quot;, line 1904, in readSSSD
+&gt;     domname = self.sssdConfig.list_active_domains()[0]
+&gt;   File &quot;/usr/lib/python3.4/site-packages/SSSDConfig/__init__.py&quot;, line 1784,
+&gt; in list_active_domains
+&gt;     for dom in domain_dict.keys():
+&gt; RuntimeError: dictionary changed size during iteration
+&gt; 
+&gt; 
+&gt; Expected results:
+&gt; Nonexistent domains should be ignored.
+&gt; 
+&gt; Additional info:
+
+If you want to assign back to sssd then please provide python reproducer
+without authconfig.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9445745</commentid>
+    <comment_count>4</comment_count>
+    <who name="Viktor Ashirov">vashirov</who>
+    <bug_when>2016-06-23 06:31:55 -0400</bug_when>
+    <thetext>(In reply to Lukas Slebodnik from comment #3)
+&gt; (In reply to Viktor Ashirov from comment #0)
+&gt; &gt; Description of problem:
+&gt; &gt; If nonexistent domain is defined in sssd.conf, authconfig fails with a
+&gt; &gt; traceback.
+&gt; &gt; 
+&gt; &gt; Version-Release number of selected component (if applicable):
+&gt; &gt; sssd-1.13.4-3.fc24.x86_64
+&gt; &gt; 
+&gt; &gt; How reproducible:
+&gt; &gt; always
+&gt; &gt; 
+&gt; &gt; Steps to Reproduce:
+&gt; &gt; 1. Set in [sssd] section:
+&gt; &gt; domains = redhat, nonexistent
+&gt; &gt; 
+&gt; &gt; 2. authconfig --test
+&gt; &gt; 
+&gt; &gt; Actual results:
+&gt; &gt; Traceback (most recent call last):
+&gt; &gt;   File &quot;/usr/share/authconfig/authinfo.py&quot;, line 1901, in readSSSD
+&gt; &gt;     domain = self.sssdDomain =
+&gt; &gt; self.sssdConfig.get_domain(SSSD_AUTHCONFIG_DOMAIN)
+&gt; &gt;   File &quot;/usr/lib/python3.4/site-packages/SSSDConfig/__init__.py&quot;, line 1856,
+&gt; Fedora 24 does not have a python3.4
+&gt; There is python3.5
+Copy-paste error, I&apos;ve tested on Fedora 23 as well and copied output from there. It happens on Fedora 24 too with Python 3.5
+&gt; 
+&gt; 
+&gt; &gt; in get_domain
+&gt; &gt;     raise NoDomainError(name)
+&gt; &gt; SSSDConfig.NoDomainError: default
+&gt; &gt; 
+&gt; &gt; During handling of the above exception, another exception occurred:
+&gt; &gt; 
+&gt; &gt; Traceback (most recent call last):
+&gt; &gt;   File &quot;/usr/sbin/authconfig&quot;, line 1078, in &lt;module&gt;
+&gt; &gt;     sys.exit(module.run())
+&gt; &gt;   File &quot;/usr/sbin/authconfig&quot;, line 654, in run
+&gt; &gt;     self.readAuthInfo()
+&gt; &gt;   File &quot;/usr/sbin/authconfig&quot;, line 425, in readAuthInfo
+&gt; &gt;     self.info = authinfo.read(self.printError)
+&gt; &gt;   File &quot;/usr/share/authconfig/authinfo.py&quot;, line 1029, in read
+&gt; &gt;     info.read()
+&gt; &gt;   File &quot;/usr/share/authconfig/authinfo.py&quot;, line 2529, in read
+&gt; &gt;     self.readSSSD(ref)
+&gt; &gt;   File &quot;/usr/share/authconfig/authinfo.py&quot;, line 1904, in readSSSD
+&gt; &gt;     domname = self.sssdConfig.list_active_domains()[0]
+&gt; &gt;   File &quot;/usr/lib/python3.4/site-packages/SSSDConfig/__init__.py&quot;, line 1784,
+&gt; &gt; in list_active_domains
+&gt; &gt;     for dom in domain_dict.keys():
+&gt; &gt; RuntimeError: dictionary changed size during iteration
+&gt; &gt; 
+&gt; &gt; 
+&gt; &gt; Expected results:
+&gt; &gt; Nonexistent domains should be ignored.
+&gt; &gt; 
+&gt; &gt; Additional info:
+&gt; 
+&gt; If you want to assign back to sssd then please provide python reproducer
+&gt; without authconfig.
+Here you go:
+----
+from __future__ import print_function
+import SSSDConfig
+
+sssdConfig = SSSDConfig.SSSDConfig()
+sssdConfig.import_config(&apos;sssd.conf&apos;)
+print(sssdConfig.list_active_domains())
+----
+
+sssd.conf:
+----
+[domain/redhat]
+ 
+[sssd]
+config_file_version = 2
+domains = nonexistent, redhat
+----
+
+RHEL6:
+$ python --version
+Python 2.6.6
+$ python reproducer.py
+[&apos;redhat&apos;]
+
+RHEL7:
+$ python --version
+Python 2.7.5
+$ python reproducer.py 
+[&apos;redhat&apos;]
+
+Fedora 24
+$ python3 --version
+Python 3.5.1
+$ python3 reproducer.py 
+Traceback (most recent call last):
+  File &quot;reproducer.py&quot;, line 6, in &lt;module&gt;
+    print(sssdConfig.list_active_domains())
+  File &quot;/usr/lib/python3.5/site-packages/SSSDConfig/__init__.py&quot;, line 1784, in list_active_domains
+    for dom in domain_dict.keys():
+RuntimeError: dictionary changed size during iteration</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9445781</commentid>
+    <comment_count>5</comment_count>
+    <who name="Viktor Ashirov">vashirov</who>
+    <bug_when>2016-06-23 06:37:41 -0400</bug_when>
+    <thetext>And on Fedora 24 with Python 2:
+
+$ python --version
+Python 2.7.11
+$ python reproducer.py        
+[&apos;redhat&apos;]</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9547617</commentid>
+    <comment_count>6</comment_count>
+    <who name="">lleung</who>
+    <bug_when>2016-07-25 13:04:45 -0400</bug_when>
+    <thetext>I ran across the same error on Fedora 24 when my sssd domain didn&apos;t match because it wasn&apos;t cased properly (eg. EXAMPLE.COM and example.com).
+
+Looking at the lines in the trace, I don&apos;t see how it would ever succeed if the the active domains are not configured as it always tries to modify the dictionary as it&apos;s being iterated.
+
+/usr/lib/python3.5/site-packages/SSSDConfig/__init__.py:
+1783             configured_domains = self.list_domains()
+1784             for dom in domain_dict.keys():
+1785                 if dom not in configured_domains:
+1786                     del domain_dict[dom]
+1787
+
+A quick fix is to iterate over a copy of the list from domain_dict.keys(), eg:
+/usr/lib/python3.5/site-packages/SSSDConfig/__init__.py:
+1784             for dom in list(domain_dict.keys()):</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9547644</commentid>
+    <comment_count>7</comment_count>
+    <who name="Jakub Hrozek">jhrozek</who>
+    <bug_when>2016-07-25 13:23:19 -0400</bug_when>
+    <thetext>Upstream ticket:
+https://fedorahosted.org/sssd/ticket/3107</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9547646</commentid>
+    <comment_count>8</comment_count>
+    <who name="Jakub Hrozek">jhrozek</who>
+    <bug_when>2016-07-25 13:24:01 -0400</bug_when>
+    <thetext>Thank you,this indeed sounds like a bug. I opened upstream ticket #3107 to track that.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9735457</commentid>
+    <comment_count>9</comment_count>
+    <who name="Lukas Slebodnik">lslebodn</who>
+    <bug_when>2016-09-22 15:42:24 -0400</bug_when>
+    <thetext>master:
+* 1773fdad2730f3f910782781fa286f402ce36cca
+
+sssd-1-13:
+* a85253ab5ad24c02055496aca64e96d833aa70ab</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9739864</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-23 20:53:28 -0400</bug_when>
+    <thetext>sssd-1.14.1-3.fc23 has been pushed to the Fedora 23 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-33f0007fb9</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9739866</commentid>
+    <comment_count>11</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-23 20:53:33 -0400</bug_when>
+    <thetext>sssd-1.14.1-3.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-3107ac53e5</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9739908</commentid>
+    <comment_count>12</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-23 21:51:18 -0400</bug_when>
+    <thetext>sssd-1.14.1-3.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-1306e3da3c</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9744364</commentid>
+    <comment_count>13</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-26 20:32:32 -0400</bug_when>
+    <thetext>sssd-1.14.1-3.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9757913</commentid>
+    <comment_count>14</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-09-30 11:51:58 -0400</bug_when>
+    <thetext>sssd-1.14.1-3.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9776168</commentid>
+    <comment_count>15</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-10-09 05:23:21 -0400</bug_when>
+    <thetext>sssd-1.14.1-3.fc23 has been pushed to the Fedora 23 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

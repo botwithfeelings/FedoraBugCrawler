@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1419912</bug_id>
+          
+          <creation_ts>2017-02-07 06:52:00 -0500</creation_ts>
+          <short_desc>fix building against lz4 (with new versioning scheme)</short_desc>
+          <delta_ts>2017-02-09 15:50:51 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>systemd</component>
+          <version>24</version>
+          <rep_platform>All</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>urgent</bug_severity>
+          <target_milestone>---</target_milestone>
+          <dependson>1404406</dependson>
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Michal Sekletar">msekleta</reporter>
+          <assigned_to>systemd-maint</assigned_to>
+          <cc>adrian</cc>
+    
+    
+    <cc>alanh</cc>
+    
+    
+    <cc>amessina</cc>
+    
+    
+    <cc>ayurtsev</cc>
+    
+    
+    <cc>charles-henri</cc>
+    
+    
+    <cc>dinechin</cc>
+    
+    
+    <cc>extras-qa</cc>
+    
+    
+    <cc>johannbg</cc>
+    
+    
+    <cc>jsynacek</cc>
+    
+    
+    <cc>k2571822</cc>
+    
+    
+    <cc>k2683901</cc>
+    
+    
+    <cc>lnykryn</cc>
+    
+    
+    <cc>mike</cc>
+    
+    
+    <cc>msekleta</cc>
+    
+    
+    <cc>muadda</cc>
+    
+    
+    <cc>oliver.henshaw</cc>
+    
+    
+    <cc>ssahani</cc>
+    
+    
+    <cc>s</cc>
+    
+    
+    <cc>systemd-maint</cc>
+    
+    
+    <cc>zbyszek</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>systemd-229-18.fc24</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          <cf_clone_of>1404406</cf_clone_of>
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-02-09 15:50:51</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10127110</commentid>
+    <comment_count>0</comment_count>
+    <who name="Michal Sekletar">msekleta</who>
+    <bug_when>2017-02-07 06:52:28 -0500</bug_when>
+    <thetext>+++ This bug was initially created as a clone of Bug #1404406 +++
+
+Description of problem:
+
+While building a locally patched version of systemd I noticed that new package builds drop the liblz4 dependency.
+
+$ fedpkg mockbuild --no-cleanup-after --root /etc/mock/fedora-25-x86_64.cfg
+$ rpm -qRp /path/to/systemd-231-10.fc25.local.1.x86_64.rpm | grep -i lz4
+$ rpm -qRp https://kojipkgs.fedoraproject.org//packages/systemd/231/10.fc25/x86_64/systemd-231-10.fc25.x86_64.rpm | grep -i lz4
+liblz4.so.1()(64bit)
+
+From /var/lib/mock/fedora-25-x86_64/root/builddir/build/BUILD/systemd-231/config.log:
+configure:18568: checking for LZ4
+configure:18575: $PKG_CONFIG --exists --print-errors &quot; liblz4 &gt;= 125 &quot;
+Requested &apos;liblz4 &gt;= 125&apos; but version of lz4 is 1.7.3
+You may find new versions of lz4 at http://www.lz4.org/
+configure:18578: $? = 1
+configure:18592: $PKG_CONFIG --exists --print-errors &quot; liblz4 &gt;= 125 &quot;
+Requested &apos;liblz4 &gt;= 125&apos; but version of lz4 is 1.7.3
+You may find new versions of lz4 at http://www.lz4.org/
+configure:18595: $? = 1
+configure:18609: result: no
+Requested &apos;liblz4 &gt;= 125&apos; but version of lz4 is 1.7.3
+
+The cause is lz4 renumbering from r131 to  1.7.x, and these new packages have been pushed as F24/F25/EL7 updates. Cherry-picking https://github.com/systemd/systemd/commit/3d4cf7de48a74726694abbaa09f9804b845ff3ba (which is not in v231 or v232) fixes this. 
+
+This is not a problem in systemd-231-10.fc25 itself but will crop up in any new builds that you make.
+
+Version-Release number of selected component (if applicable):
+systemd-231-10.fc25
+lz4-1.7.3-1.fc25
+
+--- Additional comment from Zbigniew Jędrzejewski-Szmek on 2016-12-13 22:48:17 CET ---
+
+I discussed this with ignatenkobrain (who built that last lz4), and I&apos;m going to backport the patch before the next build of systemd.
+
+--- Additional comment from Anthony Messina on 2017-01-14 21:15:45 CET ---
+
+systemd-231-11.fc25.x86_64 was build without LZ4 support creating a lot of &quot;Journal file ... uses an unsupported feature, ignoring file.&quot;
+
+https://kojipkgs.fedoraproject.org//packages/systemd/231/11.fc25/data/logs/x86_64/build.log
+
+...
+checking for LZ4... no
+...
+
+
+$ systemctl --version
+systemd 231
++PAM +AUDIT +SELINUX +IMA -APPARMOR +SMACK +SYSVINIT +UTMP +LIBCRYPTSETUP +GCRYPT +GNUTLS +ACL +XZ -LZ4 +SECCOMP +BLKID +ELFUTILS +KMOD +IDN
+
+--- Additional comment from Jan Synacek on 2017-01-16 08:09:01 CET ---
+
+
+
+--- Additional comment from Jan Synacek on 2017-01-16 08:21:13 CET ---
+
+@zbyszek Any idea, if the error message could be improved to actually say what feature is missing? In its current state, the message is pretty much useless.
+
+--- Additional comment from Jan Synacek on 2017-01-16 12:56:20 CET ---
+
+
+
+--- Additional comment from Fedora Update System on 2017-01-16 14:23:14 CET ---
+
+systemd-231-12.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2017-4e5bd2cfb9
+
+--- Additional comment from Fedora Update System on 2017-01-16 23:24:15 CET ---
+
+systemd-231-12.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-4e5bd2cfb9
+
+--- Additional comment from Zbigniew Jędrzejewski-Szmek on 2017-01-17 05:04:17 CET ---
+
+(In reply to Jan Synacek from comment #4)
+&gt; @zbyszek Any idea, if the error message could be improved to actually say
+&gt; what feature is missing? In its current state, the message is pretty much
+&gt; useless.
+
+It just compares versions. I don&apos;t think there&apos;s much to add to that.
+
+--- Additional comment from Kinston Hughes on 2017-01-17 13:25:08 CET ---
+
+(In reply to Zbigniew Jędrzejewski-Szmek from comment #8)
+&gt; (In reply to Jan Synacek from comment #4144)
+&gt; &gt; @zbyszek Any idea, if the error message could be improved to actually say
+&gt; &gt; what feature is missing? In its current state, the message is pretty much
+&gt; &gt; useless.
+&gt; 
+&gt; It just compares versions. I don&apos;t think there&apos;s much to add to that.
+
+How about the name of the feature flag it&apos;s incompat with?
+
+--- Additional comment from Zbigniew Jędrzejewski-Szmek on 2017-01-17 14:17:42 CET ---
+
+The detection is done by a set of m4 macros. One *could* make them better, but I don&apos;t think we should do that. Why? The part to detect lz4 and print a message if it is missing is already ~10 lines in configure.ac. If this was made to detect a proper error message, it&apos;d likely be a few times that. Now consider that we have maybe 40 other libraries. If they were all detected in the same way, we could write one fancy function. But they are not, we&apos;d need to write lots of macros. The only option that&apos;d scale would be for the configuration system (i.e. autotools and pkg-config in this case) to provide better routines. This is not going to happen. We should just consider switching to something better, when something better exists. Meson certainly has a lot of potential, let&apos;s see how it develops.
+
+--- Additional comment from Oliver Henshaw on 2017-01-17 15:21:15 CET ---
+
+I think comment #4 was referring to the message (&quot;...uses an unsupported feature&quot;) that systemd emits at runtime.
+
+On the subject of missing features at build time, you would need something like functionality tests outside the build system (so that they don&apos;t get configured out when the dependency is not met.)
+
+--- Additional comment from Zbigniew Jędrzejewski-Szmek on 2017-01-17 16:10:39 CET ---
+
+(In reply to Oliver Henshaw from comment #11)
+&gt; I think comment #4 was referring to the message (&quot;...uses an unsupported
+&gt; feature&quot;) that systemd emits at runtime.
+Ah, OK. I guess we could do that.
+
+&gt; On the subject of missing features at build time, you would need something
+&gt; like functionality tests outside the build system (so that they don&apos;t get
+&gt; configured out when the dependency is not met.)
+http://pkgs.fedoraproject.org/cgit/rpms/systemd.git/commit/?id=25bd358ef1484b59ede5ea247febc0dabf01e821
+
+--- Additional comment from Fedora Update System on 2017-01-17 20:52:51 CET ---
+
+systemd-231-12.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.
+
+--- Additional comment from Kinston Hughes on 2017-01-24 21:53:50 CET ---
+
+(In reply to Kinston Hughes from comment #9)
+&gt; (In reply to Zbigniew Jędrzejewski-Szmek from comment #8149)
+&gt; &gt; (In reply to Jan Synacek from comment #4144150)
+&gt; &gt; &gt; @zbyszek Any idea, if the error message could be improved to actually say
+&gt; &gt; &gt; what feature is missing? In its current state, the message is pretty much
+&gt; &gt; &gt; useless.
+&gt; &gt; 
+&gt; &gt; It just compares versions. I don&apos;t think there&apos;s much to add to that.
+&gt; 
+&gt; How about the name of the feature flag it&apos;s incompat with?
+
+(In reply to Zbigniew Jędrzejewski-Szmek from comment #12)
+&gt; (In reply to Oliver Henshaw from comment #11164)
+&gt; &gt; I think comment #4165 was referring to the message (&quot;...uses an unsupported
+&gt; &gt; feature&quot;) that systemd emits at runtime.
+&gt; Ah, OK. I guess we could do that.
+ 
+Good, I&apos;ve opened 1416201 for that.
+
+--- Additional comment from Adrian Reber on 2017-02-06 12:30:44 CET ---
+
+Can this change also be made available in Fedora 24. I cannot read my journal files in Fedora 24:
+
+  journal uses an unsupported feature, ignoring file.
+
+--- Additional comment from Mike Gerber on 2017-02-06 20:49:24 CET ---
+
+Also breaks on Fedora 24.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10127780</commentid>
+    <comment_count>1</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-07 09:23:49 -0500</bug_when>
+    <thetext>systemd-229-18.fc24 has been submitted as an update to Fedora 24. https://bodhi.fedoraproject.org/updates/FEDORA-2017-a938f8dd36</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10129664</commentid>
+    <comment_count>2</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-07 21:48:27 -0500</bug_when>
+    <thetext>systemd-229-18.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-a938f8dd36</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10135980</commentid>
+    <comment_count>3</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-02-09 15:50:51 -0500</bug_when>
+    <thetext>systemd-229-18.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

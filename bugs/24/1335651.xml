@@ -1,0 +1,410 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1335651</bug_id>
+          
+          <creation_ts>2016-05-12 15:08:00 -0400</creation_ts>
+          <short_desc>dnsmasq update failed: An SELinux policy prevents this sender</short_desc>
+          <delta_ts>2016-05-28 14:34:24 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>selinux-policy</component>
+          <version>24</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>high</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter>rvcsaba</reporter>
+          <assigned_to name="Lukas Vrabec">lvrabec</assigned_to>
+          <cc>dominick.grift</cc>
+    
+    
+    <cc>dwalsh</cc>
+    
+    
+    <cc>lvrabec</cc>
+    
+    
+    <cc>mgrepl</cc>
+    
+    
+    <cc>mmalik</cc>
+    
+    
+    <cc>plautrba</cc>
+    
+    
+    <cc>rvcsaba</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>selinux-policy-3.13.1-188.fc24 selinux-policy-3.13.1-189.fc24</cf_fixed_in>
+          <cf_doc_type>Bug Fix</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-05-28 14:34:24</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9322404</commentid>
+    <comment_count>0</comment_count>
+    <who name="">rvcsaba</who>
+    <bug_when>2016-05-12 15:08:14 -0400</bug_when>
+    <thetext>Description of problem:
+
+I use NetworkManager with dnsmasq caching nameserver:
+
+cat /etc/NetworkManager/conf.d/99-caching-nameserver.conf 
+[main]
+
+dns=dnsmasq
+
+I boot, but not name resolution.
+
+May 12 20:34:11 deer NetworkManager[935]: &lt;warn&gt;  [1463078051.3459] dnsmasq[0x55cfb1d9d220]: dnsmasq update failed: GDBus.Error:org.freedesktop.DBus.Error.AccessDenied: An SELinux policy prevents this sender from sending this message to this recipient, 0 matched rules; type=&quot;method_call&quot;, sender=&quot;:1.9&quot; (uid=0 pid=935 comm=&quot;/usr/sbin/NetworkManager --no-daemon &quot;)
+
+Temporary workaround I disable SELinux:
+
+setenforce 0
+systemctl restart NetworkManager
+
+
+Version-Release number of selected component (if applicable):
+
+dbus-1.11.2-1.fc24.x86_64
+dnsmasq-2.75-4.fc24.x86_64
+kernel-4.5.4-300.fc24.x86_64
+NetworkManager-1.2.2-1.fc24.x86_64
+selinux-policy-3.13.1-186.fc24.noarch
+
+
+How reproducible:
+always</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9323475</commentid>
+    <comment_count>1</comment_count>
+    <who name="Milos Malik">mmalik</who>
+    <bug_when>2016-05-13 02:29:57 -0400</bug_when>
+    <thetext>Could you collect SELinux denials and attach them here?
+
+# ausearch -m avc -m user_avc -i -ts today</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9324519</commentid>
+    <comment_count>2</comment_count>
+      <attachid>1157129</attachid>
+    <who name="">rvcsaba</who>
+    <bug_when>2016-05-13 09:46:59 -0400</bug_when>
+    <thetext>Created attachment 1157129
+ausearch -m avc -m user_avc -i -ts today</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9324530</commentid>
+    <comment_count>3</comment_count>
+    <who name="Milos Malik">mmalik</who>
+    <bug_when>2016-05-13 09:55:09 -0400</bug_when>
+    <thetext>Based on attached SELinux denials, dnsmasq and NetworkManager cannot talk to each other via D-bus:
+----
+type=USER_AVC msg=audit(05/13/2016 15:36:31.109:390) : pid=802 uid=dbus auid=unset ses=unset subj=system_u:system_r:system_dbusd_t:s0-s0:c0.c1023 msg=&apos;avc:  denied  { send_msg } for msgtype=signal interface=org.freedesktop.NetworkManager.dnsmasq member=Up dest=org.freedesktop.DBus spid=2811 tpid=2741 scontext=system_u:system_r:dnsmasq_t:s0 tcontext=system_u:system_r:NetworkManager_t:s0 tclass=dbus  exe=/usr/bin/dbus-daemon sauid=dbus hostname=? addr=? terminal=?&apos; 
+----
+type=USER_AVC msg=audit(05/13/2016 15:36:31.181:391) : pid=802 uid=dbus auid=unset ses=unset subj=system_u:system_r:system_dbusd_t:s0-s0:c0.c1023 msg=&apos;avc:  denied  { send_msg } for msgtype=method_call interface=org.freedesktop.DBus.Properties member=GetAll dest=:1.59 spid=2741 tpid=2811 scontext=system_u:system_r:NetworkManager_t:s0 tcontext=system_u:system_r:dnsmasq_t:s0 tclass=dbus  exe=/usr/bin/dbus-daemon sauid=dbus hostname=? addr=? terminal=?&apos; 
+----</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9359984</commentid>
+    <comment_count>4</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-05-26 01:02:07 -0400</bug_when>
+    <thetext>selinux-policy-3.13.1-189.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-43d1395a18</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9360010</commentid>
+    <comment_count>5</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-05-26 01:03:05 -0400</bug_when>
+    <thetext>selinux-policy-3.13.1-188.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-3ccd9afa2f</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9367060</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-05-28 14:34:00 -0400</bug_when>
+    <thetext>selinux-policy-3.13.1-189.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="0"
+              ispatch="0"
+              isprivate="0"
+          >
+            <attachid>1157129</attachid>
+            <date>2016-05-13 09:46:00 -0400</date>
+            <delta_ts>2016-05-13 09:46:59 -0400</delta_ts>
+            <desc>ausearch -m avc -m user_avc -i -ts today</desc>
+            <filename>avc.txt</filename>
+            <type>text/plain</type>
+            <size>11809</size>
+            <attacher>rvcsaba</attacher>
+            
+              <data encoding="base64">LS0tLQp0eXBlPVVTRVJfQVZDIG1zZz1hdWRpdCgwNS8xMy8yMDE2IDAwOjIzOjU4LjA5MTo3MDUp
+IDogcGlkPTEgdWlkPXJvb3QgYXVpZD11bnNldCBzZXM9dW5zZXQgc3Viaj1zeXN0ZW1fdTpzeXN0
+ZW1fcjppbml0X3Q6czAgbXNnPSdVbmtub3duIHBlcm1pc3Npb24gc3RvcCBmb3IgY2xhc3Mgc3lz
+dGVtIGV4ZT0vdXNyL2xpYi9zeXN0ZW1kL3N5c3RlbWQgc2F1aWQ9cm9vdCBob3N0bmFtZT0/IGFk
+ZHI9PyB0ZXJtaW5hbD0/JyAKLS0tLQp0eXBlPUFWQyBtc2c9YXVkaXQoMDUvMTMvMjAxNiAwMDoy
+Mzo1OC4xMjE6NzM2KSA6IGF2YzogIGRlbmllZCAgeyBtb3VudG9uIH0gZm9yICBwaWQ9MzA1Njkg
+Y29tbT0oZG92ZWFkbSkgcGF0aD0vZXRjIGRldj0ic2RhMiIgaW5vPTEwNDg1Nzcgc2NvbnRleHQ9
+c3lzdGVtX3U6c3lzdGVtX3I6aW5pdF90OnMwIHRjb250ZXh0PXN5c3RlbV91Om9iamVjdF9yOmV0
+Y190OnMwIHRjbGFzcz1kaXIgcGVybWlzc2l2ZT0xIAotLS0tCnR5cGU9QVZDIG1zZz1hdWRpdCgw
+NS8xMy8yMDE2IDE1OjM1OjM1LjYwMjo4NykgOiBhdmM6ICBkZW5pZWQgIHsgZ2V0YXR0ciB9IGZv
+ciAgcGlkPTc1MiBjb21tPWdzc3Byb3h5IG5hbWU9LyBkZXY9InNkYTIiIGlubz0yIHNjb250ZXh0
+PXN5c3RlbV91OnN5c3RlbV9yOmdzc3Byb3h5X3Q6czAgdGNvbnRleHQ9c3lzdGVtX3U6b2JqZWN0
+X3I6ZnNfdDpzMCB0Y2xhc3M9ZmlsZXN5c3RlbSBwZXJtaXNzaXZlPTAgCi0tLS0KdHlwZT1BVkMg
+bXNnPWF1ZGl0KDA1LzEzLzIwMTYgMTU6MzU6MzUuODU0Ojk2KSA6IGF2YzogIGRlbmllZCAgeyBt
+b3VudG9uIH0gZm9yICBwaWQ9ODU0IGNvbW09KHJ0c2NyaXB0KSBwYXRoPS9ldGMgZGV2PSJzZGEy
+IiBpbm89MTA0ODU3NyBzY29udGV4dD1zeXN0ZW1fdTpzeXN0ZW1fcjppbml0X3Q6czAgdGNvbnRl
+eHQ9c3lzdGVtX3U6b2JqZWN0X3I6ZXRjX3Q6czAgdGNsYXNzPWRpciBwZXJtaXNzaXZlPTAgCi0t
+LS0KdHlwZT1VU0VSX0FWQyBtc2c9YXVkaXQoMDUvMTMvMjAxNiAxNTozNTozOC44NTM6MjU5KSA6
+IHBpZD0xIHVpZD1yb290IGF1aWQ9dW5zZXQgc2VzPXVuc2V0IHN1Ymo9c3lzdGVtX3U6c3lzdGVt
+X3I6aW5pdF90OnMwIG1zZz0nVW5rbm93biBwZXJtaXNzaW9uIHN0YXJ0IGZvciBjbGFzcyBzeXN0
+ZW0gZXhlPS91c3IvbGliL3N5c3RlbWQvc3lzdGVtZCBzYXVpZD1yb290IGhvc3RuYW1lPT8gYWRk
+cj0/IHRlcm1pbmFsPT8nIAotLS0tCnR5cGU9VVNFUl9BVkMgbXNnPWF1ZGl0KDA1LzEzLzIwMTYg
+MTU6MzU6MzguODU3OjI2MCkgOiBwaWQ9MSB1aWQ9cm9vdCBhdWlkPXVuc2V0IHNlcz11bnNldCBz
+dWJqPXN5c3RlbV91OnN5c3RlbV9yOmluaXRfdDpzMCBtc2c9J1Vua25vd24gcGVybWlzc2lvbiBz
+dGFydCBmb3IgY2xhc3Mgc3lzdGVtIGV4ZT0vdXNyL2xpYi9zeXN0ZW1kL3N5c3RlbWQgc2F1aWQ9
+cm9vdCBob3N0bmFtZT0/IGFkZHI9PyB0ZXJtaW5hbD0/JyAKLS0tLQp0eXBlPVVTRVJfQVZDIG1z
+Zz1hdWRpdCgwNS8xMy8yMDE2IDE1OjM1OjM4Ljg3NDoyNjEpIDogcGlkPTEgdWlkPXJvb3QgYXVp
+ZD11bnNldCBzZXM9dW5zZXQgc3Viaj1zeXN0ZW1fdTpzeXN0ZW1fcjppbml0X3Q6czAgbXNnPSdV
+bmtub3duIHBlcm1pc3Npb24gc3RhcnQgZm9yIGNsYXNzIHN5c3RlbSBleGU9L3Vzci9saWIvc3lz
+dGVtZC9zeXN0ZW1kIHNhdWlkPXJvb3QgaG9zdG5hbWU9PyBhZGRyPT8gdGVybWluYWw9PycgCi0t
+LS0KdHlwZT1VU0VSX0FWQyBtc2c9YXVkaXQoMDUvMTMvMjAxNiAxNTozNTozOC44Nzk6MjYyKSA6
+IHBpZD0xIHVpZD1yb290IGF1aWQ9dW5zZXQgc2VzPXVuc2V0IHN1Ymo9c3lzdGVtX3U6c3lzdGVt
+X3I6aW5pdF90OnMwIG1zZz0nVW5rbm93biBwZXJtaXNzaW9uIHN0YXJ0IGZvciBjbGFzcyBzeXN0
+ZW0gZXhlPS91c3IvbGliL3N5c3RlbWQvc3lzdGVtZCBzYXVpZD1yb290IGhvc3RuYW1lPT8gYWRk
+cj0/IHRlcm1pbmFsPT8nIAotLS0tCnR5cGU9VVNFUl9BVkMgbXNnPWF1ZGl0KDA1LzEzLzIwMTYg
+MTU6MzU6NDAuMDUxOjI3NCkgOiBwaWQ9ODAyIHVpZD1kYnVzIGF1aWQ9dW5zZXQgc2VzPXVuc2V0
+IHN1Ymo9c3lzdGVtX3U6c3lzdGVtX3I6c3lzdGVtX2RidXNkX3Q6czAtczA6YzAuYzEwMjMgbXNn
+PSdhdmM6ICBkZW5pZWQgIHsgc2VuZF9tc2cgfSBmb3IgbXNndHlwZT1zaWduYWwgaW50ZXJmYWNl
+PW9yZy5mcmVlZGVza3RvcC5OZXR3b3JrTWFuYWdlci5kbnNtYXNxIG1lbWJlcj1VcCBkZXN0PW9y
+Zy5mcmVlZGVza3RvcC5EQnVzIHNwaWQ9MTQzNiB0cGlkPTkzNCBzY29udGV4dD1zeXN0ZW1fdTpz
+eXN0ZW1fcjpkbnNtYXNxX3Q6czAgdGNvbnRleHQ9c3lzdGVtX3U6c3lzdGVtX3I6TmV0d29ya01h
+bmFnZXJfdDpzMCB0Y2xhc3M9ZGJ1cyAgZXhlPS91c3IvYmluL2RidXMtZGFlbW9uIHNhdWlkPWRi
+dXMgaG9zdG5hbWU9PyBhZGRyPT8gdGVybWluYWw9PycgCi0tLS0KdHlwZT1BVkMgbXNnPWF1ZGl0
+KDA1LzEzLzIwMTYgMTU6MzU6MzcuOTY4OjI1MikgOiBhdmM6ICBkZW5pZWQgIHsgcmVhZCB9IGZv
+ciAgcGlkPTEyNDcgY29tbT12bnN0YXRkIG5hbWU9cDZwMSBkZXY9InN5c2ZzIiBpbm89MTY3NDgg
+c2NvbnRleHQ9c3lzdGVtX3U6c3lzdGVtX3I6dm5zdGF0ZF90OnMwIHRjb250ZXh0PXN5c3RlbV91
+Om9iamVjdF9yOnN5c2ZzX3Q6czAgdGNsYXNzPWxua19maWxlIHBlcm1pc3NpdmU9MCAKLS0tLQp0
+eXBlPVVTRVJfQVZDIG1zZz1hdWRpdCgwNS8xMy8yMDE2IDE1OjM1OjQwLjA1MToyNzUpIDogcGlk
+PTgwMiB1aWQ9ZGJ1cyBhdWlkPXVuc2V0IHNlcz11bnNldCBzdWJqPXN5c3RlbV91OnN5c3RlbV9y
+OnN5c3RlbV9kYnVzZF90OnMwLXMwOmMwLmMxMDIzIG1zZz0nYXZjOiAgZGVuaWVkICB7IHNlbmRf
+bXNnIH0gZm9yIG1zZ3R5cGU9bWV0aG9kX2NhbGwgaW50ZXJmYWNlPW9yZy5mcmVlZGVza3RvcC5E
+QnVzLlByb3BlcnRpZXMgbWVtYmVyPUdldEFsbCBkZXN0PToxLjE5IHNwaWQ9OTM0IHRwaWQ9MTQz
+NiBzY29udGV4dD1zeXN0ZW1fdTpzeXN0ZW1fcjpOZXR3b3JrTWFuYWdlcl90OnMwIHRjb250ZXh0
+PXN5c3RlbV91OnN5c3RlbV9yOmRuc21hc3FfdDpzMCB0Y2xhc3M9ZGJ1cyAgZXhlPS91c3IvYmlu
+L2RidXMtZGFlbW9uIHNhdWlkPWRidXMgaG9zdG5hbWU9PyBhZGRyPT8gdGVybWluYWw9PycgCi0t
+LS0KdHlwZT1VU0VSX0FWQyBtc2c9YXVkaXQoMDUvMTMvMjAxNiAxNTozNTo0MC4wNTI6Mjc2KSA6
+IHBpZD04MDIgdWlkPWRidXMgYXVpZD11bnNldCBzZXM9dW5zZXQgc3Viaj1zeXN0ZW1fdTpzeXN0
+ZW1fcjpzeXN0ZW1fZGJ1c2RfdDpzMC1zMDpjMC5jMTAyMyBtc2c9J2F2YzogIGRlbmllZCAgeyBz
+ZW5kX21zZyB9IGZvciBtc2d0eXBlPW1ldGhvZF9jYWxsIGludGVyZmFjZT1vcmcuZnJlZWRlc2t0
+b3AuTmV0d29ya01hbmFnZXIuZG5zbWFzcSBtZW1iZXI9U2V0U2VydmVyc0V4IGRlc3Q9OjEuMTkg
+c3BpZD05MzQgdHBpZD0xNDM2IHNjb250ZXh0PXN5c3RlbV91OnN5c3RlbV9yOk5ldHdvcmtNYW5h
+Z2VyX3Q6czAgdGNvbnRleHQ9c3lzdGVtX3U6c3lzdGVtX3I6ZG5zbWFzcV90OnMwIHRjbGFzcz1k
+YnVzICBleGU9L3Vzci9iaW4vZGJ1cy1kYWVtb24gc2F1aWQ9ZGJ1cyBob3N0bmFtZT0/IGFkZHI9
+PyB0ZXJtaW5hbD0/JyAKLS0tLQp0eXBlPUFWQyBtc2c9YXVkaXQoMDUvMTMvMjAxNiAxNTozNTo0
+MC4wNzI6Mjc3KSA6IGF2YzogIGRlbmllZCAgeyBtb3VudG9uIH0gZm9yICBwaWQ9MTQ0NSBjb21t
+PShkb3ZlY290KSBwYXRoPS9ldGMgZGV2PSJzZGEyIiBpbm89MTA0ODU3NyBzY29udGV4dD1zeXN0
+ZW1fdTpzeXN0ZW1fcjppbml0X3Q6czAgdGNvbnRleHQ9c3lzdGVtX3U6b2JqZWN0X3I6ZXRjX3Q6
+czAgdGNsYXNzPWRpciBwZXJtaXNzaXZlPTAgCi0tLS0KdHlwZT1VU0VSX0FWQyBtc2c9YXVkaXQo
+MDUvMTMvMjAxNiAxNTozNTo1MC42MjI6MzI5KSA6IHBpZD0xIHVpZD1yb290IGF1aWQ9dW5zZXQg
+c2VzPXVuc2V0IHN1Ymo9c3lzdGVtX3U6c3lzdGVtX3I6aW5pdF90OnMwIG1zZz0nVW5rbm93biBw
+ZXJtaXNzaW9uIHN0b3AgZm9yIGNsYXNzIHN5c3RlbSBleGU9L3Vzci9saWIvc3lzdGVtZC9zeXN0
+ZW1kIHNhdWlkPXJvb3QgaG9zdG5hbWU9PyBhZGRyPT8gdGVybWluYWw9PycgCi0tLS0KdHlwZT1V
+U0VSX0FWQyBtc2c9YXVkaXQoMDUvMTMvMjAxNiAxNTozNTo1MC42Mzg6MzMyKSA6IHBpZD0xIHVp
+ZD1yb290IGF1aWQ9dW5zZXQgc2VzPXVuc2V0IHN1Ymo9c3lzdGVtX3U6c3lzdGVtX3I6aW5pdF90
+OnMwIG1zZz0nVW5rbm93biBwZXJtaXNzaW9uIHN0b3AgZm9yIGNsYXNzIHN5c3RlbSBleGU9L3Vz
+ci9saWIvc3lzdGVtZC9zeXN0ZW1kIHNhdWlkPXJvb3QgaG9zdG5hbWU9PyBhZGRyPT8gdGVybWlu
+YWw9PycgCi0tLS0KdHlwZT1VU0VSX0FWQyBtc2c9YXVkaXQoMDUvMTMvMjAxNiAxNTozNTo1MC42
+Mzk6MzMzKSA6IHBpZD0xIHVpZD1yb290IGF1aWQ9dW5zZXQgc2VzPXVuc2V0IHN1Ymo9c3lzdGVt
+X3U6c3lzdGVtX3I6aW5pdF90OnMwIG1zZz0nVW5rbm93biBwZXJtaXNzaW9uIHN0b3AgZm9yIGNs
+YXNzIHN5c3RlbSBleGU9L3Vzci9saWIvc3lzdGVtZC9zeXN0ZW1kIHNhdWlkPXJvb3QgaG9zdG5h
+bWU9PyBhZGRyPT8gdGVybWluYWw9PycgCi0tLS0KdHlwZT1VU0VSX0FWQyBtc2c9YXVkaXQoMDUv
+MTMvMjAxNiAxNTozNTo1MC43MDU6MzM2KSA6IHBpZD0xIHVpZD1yb290IGF1aWQ9dW5zZXQgc2Vz
+PXVuc2V0IHN1Ymo9c3lzdGVtX3U6c3lzdGVtX3I6aW5pdF90OnMwIG1zZz0nVW5rbm93biBwZXJt
+aXNzaW9uIHN0YXJ0IGZvciBjbGFzcyBzeXN0ZW0gZXhlPS91c3IvbGliL3N5c3RlbWQvc3lzdGVt
+ZCBzYXVpZD1yb290IGhvc3RuYW1lPT8gYWRkcj0/IHRlcm1pbmFsPT8nIAotLS0tCnR5cGU9VVNF
+Ul9BVkMgbXNnPWF1ZGl0KDA1LzEzLzIwMTYgMTU6MzU6NTAuNzA4OjMzNykgOiBwaWQ9MSB1aWQ9
+cm9vdCBhdWlkPXVuc2V0IHNlcz11bnNldCBzdWJqPXN5c3RlbV91OnN5c3RlbV9yOmluaXRfdDpz
+MCBtc2c9J1Vua25vd24gcGVybWlzc2lvbiBzdGFydCBmb3IgY2xhc3Mgc3lzdGVtIGV4ZT0vdXNy
+L2xpYi9zeXN0ZW1kL3N5c3RlbWQgc2F1aWQ9cm9vdCBob3N0bmFtZT0/IGFkZHI9PyB0ZXJtaW5h
+bD0/JyAKLS0tLQp0eXBlPVVTRVJfQVZDIG1zZz1hdWRpdCgwNS8xMy8yMDE2IDE1OjM1OjUwLjcx
+NzozMzgpIDogcGlkPTEgdWlkPXJvb3QgYXVpZD11bnNldCBzZXM9dW5zZXQgc3Viaj1zeXN0ZW1f
+dTpzeXN0ZW1fcjppbml0X3Q6czAgbXNnPSdVbmtub3duIHBlcm1pc3Npb24gc3RhcnQgZm9yIGNs
+YXNzIHN5c3RlbSBleGU9L3Vzci9saWIvc3lzdGVtZC9zeXN0ZW1kIHNhdWlkPXJvb3QgaG9zdG5h
+bWU9PyBhZGRyPT8gdGVybWluYWw9PycgCi0tLS0KdHlwZT1VU0VSX0FWQyBtc2c9YXVkaXQoMDUv
+MTMvMjAxNiAxNTozNTo1MC43MjE6MzM5KSA6IHBpZD0xIHVpZD1yb290IGF1aWQ9dW5zZXQgc2Vz
+PXVuc2V0IHN1Ymo9c3lzdGVtX3U6c3lzdGVtX3I6aW5pdF90OnMwIG1zZz0nVW5rbm93biBwZXJt
+aXNzaW9uIHN0YXJ0IGZvciBjbGFzcyBzeXN0ZW0gZXhlPS91c3IvbGliL3N5c3RlbWQvc3lzdGVt
+ZCBzYXVpZD1yb290IGhvc3RuYW1lPT8gYWRkcj0/IHRlcm1pbmFsPT8nIAotLS0tCnR5cGU9VVNF
+Ul9BVkMgbXNnPWF1ZGl0KDA1LzEzLzIwMTYgMTU6MzU6NTMuOTc3OjM1MikgOiBwaWQ9MSB1aWQ9
+cm9vdCBhdWlkPXVuc2V0IHNlcz11bnNldCBzdWJqPXN5c3RlbV91OnN5c3RlbV9yOmluaXRfdDpz
+MCBtc2c9J1Vua25vd24gcGVybWlzc2lvbiBzdGFydCBmb3IgY2xhc3Mgc3lzdGVtIGV4ZT0vdXNy
+L2xpYi9zeXN0ZW1kL3N5c3RlbWQgc2F1aWQ9cm9vdCBob3N0bmFtZT0/IGFkZHI9PyB0ZXJtaW5h
+bD0/JyAKLS0tLQp0eXBlPVVTRVJfQVZDIG1zZz1hdWRpdCgwNS8xMy8yMDE2IDE1OjM1OjUzLjk4
+MjozNTMpIDogcGlkPTEgdWlkPXJvb3QgYXVpZD11bnNldCBzZXM9dW5zZXQgc3Viaj1zeXN0ZW1f
+dTpzeXN0ZW1fcjppbml0X3Q6czAgbXNnPSdVbmtub3duIHBlcm1pc3Npb24gc3RhcnQgZm9yIGNs
+YXNzIHN5c3RlbSBleGU9L3Vzci9saWIvc3lzdGVtZC9zeXN0ZW1kIHNhdWlkPXJvb3QgaG9zdG5h
+bWU9PyBhZGRyPT8gdGVybWluYWw9PycgCi0tLS0KdHlwZT1VU0VSX0FWQyBtc2c9YXVkaXQoMDUv
+MTMvMjAxNiAxNTozNjowMS4wOTY6MzU3KSA6IHBpZD0xIHVpZD1yb290IGF1aWQ9dW5zZXQgc2Vz
+PXVuc2V0IHN1Ymo9c3lzdGVtX3U6c3lzdGVtX3I6aW5pdF90OnMwIG1zZz0nVW5rbm93biBwZXJt
+aXNzaW9uIHN0b3AgZm9yIGNsYXNzIHN5c3RlbSBleGU9L3Vzci9saWIvc3lzdGVtZC9zeXN0ZW1k
+IHNhdWlkPXJvb3QgaG9zdG5hbWU9PyBhZGRyPT8gdGVybWluYWw9PycgCi0tLS0KdHlwZT1VU0VS
+X0FWQyBtc2c9YXVkaXQoMDUvMTMvMjAxNiAxNTozNjowMS4xMTg6MzYxKSA6IHBpZD0xIHVpZD1y
+b290IGF1aWQ9dW5zZXQgc2VzPXVuc2V0IHN1Ymo9c3lzdGVtX3U6c3lzdGVtX3I6aW5pdF90OnMw
+IG1zZz0nVW5rbm93biBwZXJtaXNzaW9uIHN0YXJ0IGZvciBjbGFzcyBzeXN0ZW0gZXhlPS91c3Iv
+bGliL3N5c3RlbWQvc3lzdGVtZCBzYXVpZD1yb290IGhvc3RuYW1lPT8gYWRkcj0/IHRlcm1pbmFs
+PT8nIAotLS0tCnR5cGU9VVNFUl9BVkMgbXNnPWF1ZGl0KDA1LzEzLzIwMTYgMTU6MzY6MDEuMTIz
+OjM2MikgOiBwaWQ9MSB1aWQ9cm9vdCBhdWlkPXVuc2V0IHNlcz11bnNldCBzdWJqPXN5c3RlbV91
+OnN5c3RlbV9yOmluaXRfdDpzMCBtc2c9J1Vua25vd24gcGVybWlzc2lvbiBzdGFydCBmb3IgY2xh
+c3Mgc3lzdGVtIGV4ZT0vdXNyL2xpYi9zeXN0ZW1kL3N5c3RlbWQgc2F1aWQ9cm9vdCBob3N0bmFt
+ZT0/IGFkZHI9PyB0ZXJtaW5hbD0/JyAKLS0tLQp0eXBlPVVTRVJfQVZDIG1zZz1hdWRpdCgwNS8x
+My8yMDE2IDE1OjM2OjAxLjE4MjozNjYpIDogcGlkPTEgdWlkPXJvb3QgYXVpZD11bnNldCBzZXM9
+dW5zZXQgc3Viaj1zeXN0ZW1fdTpzeXN0ZW1fcjppbml0X3Q6czAgbXNnPSdVbmtub3duIHBlcm1p
+c3Npb24gc3RvcCBmb3IgY2xhc3Mgc3lzdGVtIGV4ZT0vdXNyL2xpYi9zeXN0ZW1kL3N5c3RlbWQg
+c2F1aWQ9cm9vdCBob3N0bmFtZT0/IGFkZHI9PyB0ZXJtaW5hbD0/JyAKLS0tLQp0eXBlPUFWQyBt
+c2c9YXVkaXQoMDUvMTMvMjAxNiAxNTozNjowOC4xMzk6MzY4KSA6IGF2YzogIGRlbmllZCAgeyBy
+ZWFkIH0gZm9yICBwaWQ9MTI0NyBjb21tPXZuc3RhdGQgbmFtZT1wNnAxIGRldj0ic3lzZnMiIGlu
+bz0xNjc0OCBzY29udGV4dD1zeXN0ZW1fdTpzeXN0ZW1fcjp2bnN0YXRkX3Q6czAgdGNvbnRleHQ9
+c3lzdGVtX3U6b2JqZWN0X3I6c3lzZnNfdDpzMCB0Y2xhc3M9bG5rX2ZpbGUgcGVybWlzc2l2ZT0w
+IAotLS0tCnR5cGU9VVNFUl9BVkMgbXNnPWF1ZGl0KDA1LzEzLzIwMTYgMTU6MzY6MTQuNzg3OjM3
+NCkgOiBwaWQ9ODAyIHVpZD1kYnVzIGF1aWQ9dW5zZXQgc2VzPXVuc2V0IHN1Ymo9c3lzdGVtX3U6
+c3lzdGVtX3I6c3lzdGVtX2RidXNkX3Q6czAtczA6YzAuYzEwMjMgbXNnPSdhdmM6ICByZWNlaXZl
+ZCBzZXRlbmZvcmNlIG5vdGljZSAoZW5mb3JjaW5nPTApICBleGU9L3Vzci9iaW4vZGJ1cy1kYWVt
+b24gc2F1aWQ9ZGJ1cyBob3N0bmFtZT0/IGFkZHI9PyB0ZXJtaW5hbD0/JyAKLS0tLQp0eXBlPVVT
+RVJfQVZDIG1zZz1hdWRpdCgwNS8xMy8yMDE2IDE1OjM2OjIxLjI2MDozNzUpIDogcGlkPTEgdWlk
+PXJvb3QgYXVpZD11bnNldCBzZXM9dW5zZXQgc3Viaj1zeXN0ZW1fdTpzeXN0ZW1fcjppbml0X3Q6
+czAgbXNnPSdhdmM6ICByZWNlaXZlZCBzZXRlbmZvcmNlIG5vdGljZSAoZW5mb3JjaW5nPTApICBl
+eGU9L3Vzci9saWIvc3lzdGVtZC9zeXN0ZW1kIHNhdWlkPXJvb3QgaG9zdG5hbWU9PyBhZGRyPT8g
+dGVybWluYWw9PycgCi0tLS0KdHlwZT1VU0VSX0FWQyBtc2c9YXVkaXQoMDUvMTMvMjAxNiAxNToz
+NjozMS4xMDk6MzkwKSA6IHBpZD04MDIgdWlkPWRidXMgYXVpZD11bnNldCBzZXM9dW5zZXQgc3Vi
+aj1zeXN0ZW1fdTpzeXN0ZW1fcjpzeXN0ZW1fZGJ1c2RfdDpzMC1zMDpjMC5jMTAyMyBtc2c9J2F2
+YzogIGRlbmllZCAgeyBzZW5kX21zZyB9IGZvciBtc2d0eXBlPXNpZ25hbCBpbnRlcmZhY2U9b3Jn
+LmZyZWVkZXNrdG9wLk5ldHdvcmtNYW5hZ2VyLmRuc21hc3EgbWVtYmVyPVVwIGRlc3Q9b3JnLmZy
+ZWVkZXNrdG9wLkRCdXMgc3BpZD0yODExIHRwaWQ9Mjc0MSBzY29udGV4dD1zeXN0ZW1fdTpzeXN0
+ZW1fcjpkbnNtYXNxX3Q6czAgdGNvbnRleHQ9c3lzdGVtX3U6c3lzdGVtX3I6TmV0d29ya01hbmFn
+ZXJfdDpzMCB0Y2xhc3M9ZGJ1cyAgZXhlPS91c3IvYmluL2RidXMtZGFlbW9uIHNhdWlkPWRidXMg
+aG9zdG5hbWU9PyBhZGRyPT8gdGVybWluYWw9PycgCi0tLS0KdHlwZT1VU0VSX0FWQyBtc2c9YXVk
+aXQoMDUvMTMvMjAxNiAxNTozNjozMS4xODE6MzkxKSA6IHBpZD04MDIgdWlkPWRidXMgYXVpZD11
+bnNldCBzZXM9dW5zZXQgc3Viaj1zeXN0ZW1fdTpzeXN0ZW1fcjpzeXN0ZW1fZGJ1c2RfdDpzMC1z
+MDpjMC5jMTAyMyBtc2c9J2F2YzogIGRlbmllZCAgeyBzZW5kX21zZyB9IGZvciBtc2d0eXBlPW1l
+dGhvZF9jYWxsIGludGVyZmFjZT1vcmcuZnJlZWRlc2t0b3AuREJ1cy5Qcm9wZXJ0aWVzIG1lbWJl
+cj1HZXRBbGwgZGVzdD06MS41OSBzcGlkPTI3NDEgdHBpZD0yODExIHNjb250ZXh0PXN5c3RlbV91
+OnN5c3RlbV9yOk5ldHdvcmtNYW5hZ2VyX3Q6czAgdGNvbnRleHQ9c3lzdGVtX3U6c3lzdGVtX3I6
+ZG5zbWFzcV90OnMwIHRjbGFzcz1kYnVzICBleGU9L3Vzci9iaW4vZGJ1cy1kYWVtb24gc2F1aWQ9
+ZGJ1cyBob3N0bmFtZT0/IGFkZHI9PyB0ZXJtaW5hbD0/JyAKLS0tLQp0eXBlPUFWQyBtc2c9YXVk
+aXQoMDUvMTMvMjAxNiAxNTozNjozOC4xNDk6Mzk0KSA6IGF2YzogIGRlbmllZCAgeyByZWFkIH0g
+Zm9yICBwaWQ9MTI0NyBjb21tPXZuc3RhdGQgbmFtZT1wNnAxIGRldj0ic3lzZnMiIGlubz0xNjc0
+OCBzY29udGV4dD1zeXN0ZW1fdTpzeXN0ZW1fcjp2bnN0YXRkX3Q6czAgdGNvbnRleHQ9c3lzdGVt
+X3U6b2JqZWN0X3I6c3lzZnNfdDpzMCB0Y2xhc3M9bG5rX2ZpbGUgcGVybWlzc2l2ZT0xIAotLS0t
+CnR5cGU9QVZDIG1zZz1hdWRpdCgwNS8xMy8yMDE2IDE1OjM2OjM4LjE0OTozOTUpIDogYXZjOiAg
+ZGVuaWVkICB7IHJlYWQgfSBmb3IgIHBpZD0xMjQ3IGNvbW09dm5zdGF0ZCBuYW1lPXNwZWVkIGRl
+dj0ic3lzZnMiIGlubz0xNjc2MSBzY29udGV4dD1zeXN0ZW1fdTpzeXN0ZW1fcjp2bnN0YXRkX3Q6
+czAgdGNvbnRleHQ9c3lzdGVtX3U6b2JqZWN0X3I6c3lzZnNfdDpzMCB0Y2xhc3M9ZmlsZSBwZXJt
+aXNzaXZlPTEgCi0tLS0KdHlwZT1BVkMgbXNnPWF1ZGl0KDA1LzEzLzIwMTYgMTU6MzY6MzguMTQ5
+OjM5NikgOiBhdmM6ICBkZW5pZWQgIHsgb3BlbiB9IGZvciAgcGlkPTEyNDcgY29tbT12bnN0YXRk
+IHBhdGg9L3N5cy9kZXZpY2VzL3BjaTAwMDA6MDAvMDAwMDowMDowNi4wLzAwMDA6MDM6MDAuMC9u
+ZXQvcDZwMS9zcGVlZCBkZXY9InN5c2ZzIiBpbm89MTY3NjEgc2NvbnRleHQ9c3lzdGVtX3U6c3lz
+dGVtX3I6dm5zdGF0ZF90OnMwIHRjb250ZXh0PXN5c3RlbV91Om9iamVjdF9yOnN5c2ZzX3Q6czAg
+dGNsYXNzPWZpbGUgcGVybWlzc2l2ZT0xIAotLS0tCnR5cGU9QVZDIG1zZz1hdWRpdCgwNS8xMy8y
+MDE2IDE1OjM2OjM4LjE0OTozOTcpIDogYXZjOiAgZGVuaWVkICB7IGdldGF0dHIgfSBmb3IgIHBp
+ZD0xMjQ3IGNvbW09dm5zdGF0ZCBwYXRoPS9zeXMvZGV2aWNlcy9wY2kwMDAwOjAwLzAwMDA6MDA6
+MDYuMC8wMDAwOjAzOjAwLjAvbmV0L3A2cDEvc3BlZWQgZGV2PSJzeXNmcyIgaW5vPTE2NzYxIHNj
+b250ZXh0PXN5c3RlbV91OnN5c3RlbV9yOnZuc3RhdGRfdDpzMCB0Y29udGV4dD1zeXN0ZW1fdTpv
+YmplY3RfcjpzeXNmc190OnMwIHRjbGFzcz1maWxlIHBlcm1pc3NpdmU9MSAKLS0tLQp0eXBlPUFW
+QyBtc2c9YXVkaXQoMDUvMTMvMjAxNiAxNTozODozOS41ODU6NDAwKSA6IGF2YzogIGRlbmllZCAg
+eyBvcGVuIH0gZm9yICBwaWQ9ODY1OCBjb21tPXBsdWdpbi1jb250YWluZSBwYXRoPS9kZXYvc2ht
+L3B1bHNlLXNobS0xOTg5NTQ1MzM4IGRldj0idG1wZnMiIGlubz0zMzUxNSBzY29udGV4dD11bmNv
+bmZpbmVkX3U6dW5jb25maW5lZF9yOm1vemlsbGFfcGx1Z2luX3Q6czAtczA6YzAuYzEwMjMgdGNv
+bnRleHQ9c3lzdGVtX3U6b2JqZWN0X3I6dG1wZnNfdDpzMCB0Y2xhc3M9ZmlsZSBwZXJtaXNzaXZl
+PTEgCi0tLS0KdHlwZT1BVkMgbXNnPWF1ZGl0KDA1LzEzLzIwMTYgMTU6Mzg6MzkuNTg2OjQwMSkg
+OiBhdmM6ICBkZW5pZWQgIHsgZ2V0YXR0ciB9IGZvciAgcGlkPTg2NTggY29tbT1wbHVnaW4tY29u
+dGFpbmUgcGF0aD0vZGV2L3NobS9wdWxzZS1zaG0tMTk4OTU0NTMzOCBkZXY9InRtcGZzIiBpbm89
+MzM1MTUgc2NvbnRleHQ9dW5jb25maW5lZF91OnVuY29uZmluZWRfcjptb3ppbGxhX3BsdWdpbl90
+OnMwLXMwOmMwLmMxMDIzIHRjb250ZXh0PXN5c3RlbV91Om9iamVjdF9yOnRtcGZzX3Q6czAgdGNs
+YXNzPWZpbGUgcGVybWlzc2l2ZT0xIAotLS0tCnR5cGU9QVZDIG1zZz1hdWRpdCgwNS8xMy8yMDE2
+IDE1OjM4OjM5LjU4Njo0MDIpIDogYXZjOiAgZGVuaWVkICB7IHNpZ251bGwgfSBmb3IgIHBpZD04
+NjU4IGNvbW09cGx1Z2luLWNvbnRhaW5lIHNjb250ZXh0PXVuY29uZmluZWRfdTp1bmNvbmZpbmVk
+X3I6bW96aWxsYV9wbHVnaW5fdDpzMC1zMDpjMC5jMTAyMyB0Y29udGV4dD1zeXN0ZW1fdTpzeXN0
+ZW1fcjp1bmNvbmZpbmVkX3NlcnZpY2VfdDpzMCB0Y2xhc3M9cHJvY2VzcyBwZXJtaXNzaXZlPTEg
+Ci0tLS0KdHlwZT1BVkMgbXNnPWF1ZGl0KDA1LzEzLzIwMTYgMTU6NDI6MDguMjA4OjQwOSkgOiBh
+dmM6ICBkZW5pZWQgIHsgcmVhZCB9IGZvciAgcGlkPTEyNDcgY29tbT12bnN0YXRkIG5hbWU9cDZw
+MSBkZXY9InN5c2ZzIiBpbm89MTY3NDggc2NvbnRleHQ9c3lzdGVtX3U6c3lzdGVtX3I6dm5zdGF0
+ZF90OnMwIHRjb250ZXh0PXN5c3RlbV91Om9iamVjdF9yOnN5c2ZzX3Q6czAgdGNsYXNzPWxua19m
+aWxlIHBlcm1pc3NpdmU9MSAKLS0tLQp0eXBlPUFWQyBtc2c9YXVkaXQoMDUvMTMvMjAxNiAxNTo0
+MjowOC4yMDg6NDEwKSA6IGF2YzogIGRlbmllZCAgeyByZWFkIH0gZm9yICBwaWQ9MTI0NyBjb21t
+PXZuc3RhdGQgbmFtZT1zcGVlZCBkZXY9InN5c2ZzIiBpbm89MTY3NjEgc2NvbnRleHQ9c3lzdGVt
+X3U6c3lzdGVtX3I6dm5zdGF0ZF90OnMwIHRjb250ZXh0PXN5c3RlbV91Om9iamVjdF9yOnN5c2Zz
+X3Q6czAgdGNsYXNzPWZpbGUgcGVybWlzc2l2ZT0xIAotLS0tCnR5cGU9QVZDIG1zZz1hdWRpdCgw
+NS8xMy8yMDE2IDE1OjQyOjA4LjIwODo0MTEpIDogYXZjOiAgZGVuaWVkICB7IG9wZW4gfSBmb3Ig
+IHBpZD0xMjQ3IGNvbW09dm5zdGF0ZCBwYXRoPS9zeXMvZGV2aWNlcy9wY2kwMDAwOjAwLzAwMDA6
+MDA6MDYuMC8wMDAwOjAzOjAwLjAvbmV0L3A2cDEvc3BlZWQgZGV2PSJzeXNmcyIgaW5vPTE2NzYx
+IHNjb250ZXh0PXN5c3RlbV91OnN5c3RlbV9yOnZuc3RhdGRfdDpzMCB0Y29udGV4dD1zeXN0ZW1f
+dTpvYmplY3RfcjpzeXNmc190OnMwIHRjbGFzcz1maWxlIHBlcm1pc3NpdmU9MSAKLS0tLQp0eXBl
+PUFWQyBtc2c9YXVkaXQoMDUvMTMvMjAxNiAxNTo0MjowOC4yMDg6NDEyKSA6IGF2YzogIGRlbmll
+ZCAgeyBnZXRhdHRyIH0gZm9yICBwaWQ9MTI0NyBjb21tPXZuc3RhdGQgcGF0aD0vc3lzL2Rldmlj
+ZXMvcGNpMDAwMDowMC8wMDAwOjAwOjA2LjAvMDAwMDowMzowMC4wL25ldC9wNnAxL3NwZWVkIGRl
+dj0ic3lzZnMiIGlubz0xNjc2MSBzY29udGV4dD1zeXN0ZW1fdTpzeXN0ZW1fcjp2bnN0YXRkX3Q6
+czAgdGNvbnRleHQ9c3lzdGVtX3U6b2JqZWN0X3I6c3lzZnNfdDpzMCB0Y2xhc3M9ZmlsZSBwZXJt
+aXNzaXZlPTEgCg==
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>

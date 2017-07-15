@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1398474</bug_id>
+          
+          <creation_ts>2016-11-24 19:14:00 -0500</creation_ts>
+          <short_desc>PHP PCRE JIT (enabled by default) causes httpd to execmem (so a flood of AVCs)</short_desc>
+          <delta_ts>2016-12-03 21:24:38 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>php</component>
+          <version>25</version>
+          <rep_platform>x86_64</rep_platform>
+          <op_sys>Linux</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard>https://fedoraproject.org/wiki/Common_F25_bugs#php-execmem</status_whiteboard>
+          <keywords>CommonBugs</keywords>
+          <priority>unspecified</priority>
+          <bug_severity>high</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="Adam Williamson">awilliam</reporter>
+          <assigned_to name="Remi Collet">fedora</assigned_to>
+          <cc>fedora</cc>
+    
+    
+    <cc>jorton</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>php-7.0.13-2.fc25</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-12-03 21:24:38</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9926624</commentid>
+    <comment_count>0</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2016-11-24 19:14:29 -0500</bug_when>
+    <thetext>I just upgraded my web server to Fedora 25. Soon as HTTP and php-fpm-server start up, floods of AVCs start appearing in the system log:
+
+Nov 24 15:45:30 www.happyassassin.net audit[6584]: AVC avc:  denied  { execmem } for  pid=6584 comm=&quot;httpd&quot; scontext=system_u:system_r:httpd_t:s0 tcontext=system_u:system_r:httpd_t:s0 tclass=process permissive=0
+
+there are hundreds of them. Using the technique found at https://unix.stackexchange.com/questions/287831/how-to-work-out-why-apache-is-attempting-execmem , I got the same result multiple people got there: it&apos;s caused by the PHP PCRE JIT feature, which is enabled by default, in 7.0.
+
+If I edit /etc/php.ini and change this line:
+
+;pcre.jit=1
+
+to:
+
+pcre.jit=0
+
+the problem goes away. If we can&apos;t fix this not to use execmem, we should flip the default for that setting.
+
+Note that even though the docs claim it can be set anywhere, if I create a /etc/php.d/99-happyassassin.ini with this content:
+
+[Pcre]
+pcre.jit=0
+
+it doesn&apos;t seem to work, execmems still occur. Not sure what&apos;s going on with that.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9926967</commentid>
+    <comment_count>1</comment_count>
+    <who name="Remi Collet">fedora</who>
+    <bug_when>2016-11-25 00:36:51 -0500</bug_when>
+    <thetext>I cannot reproduce the ini file issue... strange, works for me (try without the section name, which is uneeded)
+
+Indeed, I can reproduce the AVC and indeed switching pcre.jit=0 fix it
+
+I will update the provided configuration in next build (7.0.14 planed for Dec 8th)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9927006</commentid>
+    <comment_count>2</comment_count>
+    <who name="Remi Collet">fedora</who>
+    <bug_when>2016-11-25 00:56:11 -0500</bug_when>
+    <thetext>F26/PHP-7.1:  http://pkgs.fedoraproject.org/cgit/rpms/php.git/commit/?id=f5482baa0c1ae8a3063bbaf342ea7634f759d4de
+
+F25/PHP-7.0: http://pkgs.fedoraproject.org/cgit/rpms/php.git/commit/?h=f25&amp;id=2bc76e8f1bfcc41a89d2146e234b5de5c8f227e9</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9927027</commentid>
+    <comment_count>3</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2016-11-25 01:14:46 -0500</bug_when>
+    <thetext>thanks for that. the only thing that worries me is that many people will have modified php.ini locally and so will not get the change. could we flip the default in the code so that you have to have an explicit &apos;=1&apos; in config somewhere to get it?</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9927061</commentid>
+    <comment_count>4</comment_count>
+    <who name="Remi Collet">fedora</who>
+    <bug_when>2016-11-25 01:32:31 -0500</bug_when>
+    <thetext>Indeed, I usually never alter provided configuration in stable branch.
+
+BTW:
+- F25 is just released
+- this AVC is not critical (it still works)
+- I want to avoid non-upstream patch as much as possible
+
+My plan is to talk with upstream about this default value.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9927064</commentid>
+    <comment_count>5</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2016-11-25 01:35:07 -0500</bug_when>
+    <thetext>These days people probably are probably more likely to use php.d files (still can&apos;t figure out why I can&apos;t turn this off with one, though - yes, I&apos;ve tried without a module name...), but it was pretty common practice for a long time to edit php.ini directly...
+
+the AVC isn&apos;t critical indeed, but it absolutely spams the system logs, as it occurs dozens or hundreds of times a minute (for me at least) and winds up in both the journal and audit.log.
+
+Ideal fix would, I guess, be to make the JIT thing work without needing execmem in the first place. No idea how possible/hard that is.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9927444</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-11-25 02:31:16 -0500</bug_when>
+    <thetext>php-7.0.13-2.fc25 has been submitted as an update to Fedora 25. https://bodhi.fedoraproject.org/updates/FEDORA-2016-b03e84b3e5</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9927504</commentid>
+    <comment_count>7</comment_count>
+    <who name="Remi Collet">fedora</who>
+    <bug_when>2016-11-25 02:54:32 -0500</bug_when>
+    <thetext>Notice: bug #1290432</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9932565</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-11-27 17:58:43 -0500</bug_when>
+    <thetext>php-7.0.13-2.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-b03e84b3e5</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9936422</commentid>
+    <comment_count>9</comment_count>
+    <who name="Adam Williamson">awilliam</who>
+    <bug_when>2016-11-28 16:24:34 -0500</bug_when>
+    <thetext>Also see pcre upstream bug: https://bugs.exim.org/show_bug.cgi?id=1749</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9953908</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-12-03 21:24:38 -0500</bug_when>
+    <thetext>php-7.0.13-2.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

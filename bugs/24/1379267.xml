@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1379267</bug_id>
+          
+          <creation_ts>2016-09-26 04:59:00 -0400</creation_ts>
+          <short_desc>multiple KeyError exceptions raised during handling of empty response</short_desc>
+          <delta_ts>2016-11-19 16:00:55 -0500</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>python-dns</component>
+          <version>24</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          
+          <everconfirmed>1</everconfirmed>
+          <reporter name="David Howells">dhowells</reporter>
+          <assigned_to name="Jeffrey C. Ollie">jeff</assigned_to>
+          <cc>aviso</cc>
+    
+    
+    <cc>jeff</cc>
+    
+    
+    <cc>louiz</cc>
+    
+    
+    <cc>pspacek</cc>
+    
+    
+    <cc>pwouters</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>python-dns-1.15.0-1.fc24 python-dns-1.15.0-1.fc25</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2016-11-11 15:51:27</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          <external_bugs name="Github">rthalley/dnspython/issues/206</external_bugs>
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>9741937</commentid>
+    <comment_count>0</comment_count>
+    <who name="David Howells">dhowells</who>
+    <bug_when>2016-09-26 04:59:31 -0400</bug_when>
+    <thetext>Description of problem:
+
+The following code:
+
+#!/usr/bin/python3
+import sys
+import dns.resolver;
+try:
+    print(&quot;AFSDB:&quot;)
+    for AFSDB in dns.resolver.query(sys.argv[1], &quot;AFSDB&quot;):
+        print(&quot;\t&quot; + str(AFSDB.hostname))
+except (dns.resolver.NXDOMAIN, dns.resolver.NoAnswer):
+    print(&quot;Couldn&apos;t find any AFSDB records&quot;)
+
+when pointed at a place that produces a response with no pertinent answers, eg:
+
+    /data/afs/dnstest.py your-file-system.com
+
+or:
+
+    /data/afs/dnstest.py www.redhat.com
+
+tries to generate a NoAnswer exception, but incurs a KeyError exception whilst trying to do so and then yet another KeyError exception whilst trying to handle that:
+
+warthog&gt;/data/afs/dnstest.py your-file-system.com
+AFSDB:
+Traceback (most recent call last):
+  File &quot;/usr/lib/python3.5/site-packages/dns/resolver.py&quot;, line 157, in __init__
+    rdclass, rdtype)
+  File &quot;/usr/lib/python3.5/site-packages/dns/message.py&quot;, line 333, in find_rrset
+    raise KeyError
+KeyError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File &quot;/usr/lib/python3.5/site-packages/dns/resolver.py&quot;, line 167, in __init__
+    dns.rdatatype.CNAME)
+  File &quot;/usr/lib/python3.5/site-packages/dns/message.py&quot;, line 333, in find_rrset
+    raise KeyError
+KeyError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File &quot;/data/afs/dnstest.py&quot;, line 6, in &lt;module&gt;
+    for AFSDB in dns.resolver.query(sys.argv[1], &quot;AFSDB&quot;):
+  File &quot;/usr/lib/python3.5/site-packages/dns/resolver.py&quot;, line 1025, in query
+    raise_on_no_answer, source_port)
+  File &quot;/usr/lib/python3.5/site-packages/dns/resolver.py&quot;, line 956, in query
+    raise_on_no_answer)
+  File &quot;/usr/lib/python3.5/site-packages/dns/resolver.py&quot;, line 176, in __init__
+    raise NoAnswer(question=response.question)
+  File &quot;/usr/lib/python3.5/site-packages/dns/exception.py&quot;, line 47, in __init__
+    self._check_kwargs(**kwargs)
+  File &quot;/usr/lib/python3.5/site-packages/dns/exception.py&quot;, line 69, in _check_kwargs
+    self.supp_kwargs)
+AssertionError: following set of keyword args is required: {&apos;response&apos;}
+
+
+On the other hand, invoking it with somewhere that has an AFSDB record works fine:
+
+warthog&gt;/data/afs/dnstest.py grand.central.org
+AFSDB:
+        grand-old-opry.central.org.
+        grand.mit.edu.
+
+As does giving it an invalid name:
+
+warthog&gt;/data/afs/dnstest.py grand.central.orgg
+AFSDB:
+Couldn&apos;t find any AFSDB records
+
+
+Version-Release number of selected component (if applicable):
+
+python3-3.5.1-17.fc24.x86_64
+python3-dns-1.12.0GITa4774ee-1.fc24.noarch</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9741939</commentid>
+    <comment_count>1</comment_count>
+    <who name="David Howells">dhowells</who>
+    <bug_when>2016-09-26 05:00:43 -0400</bug_when>
+    <thetext>Note that the problem still happens if AFSDB is changed to TXT in the code.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9742564</commentid>
+    <comment_count>2</comment_count>
+    <who name="Avram Lubkin">aviso</who>
+    <bug_when>2016-09-26 08:36:38 -0400</bug_when>
+    <thetext>This looks like an upstream bug. I tried it with the current git snapshot. Interestingly, NoAnswer was handled correctly, but I was unable to get a response when there should have been one. I think this might be related to the deprecation of the ANY class, but I&apos;m not sure. Can you confirm and file an issue upstream? [1] The plan is to update Fedora with 1.15.0 when it is released.
+
+[1] https://github.com/rthalley/dnspython/issues</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9742986</commentid>
+    <comment_count>3</comment_count>
+    <who name="David Howells">dhowells</who>
+    <bug_when>2016-09-26 10:40:33 -0400</bug_when>
+    <thetext>I built the current git top into the Fedora RPM and it doesn&apos;t produce an AFSDB record, even for grand.central.org which definitely has one.
+
+However, examples/mx.py from the git tree crashes in the same way as I was seeing with my test program earlier if I make it use python3 but not if it uses python2.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9746674</commentid>
+    <comment_count>4</comment_count>
+    <who name="David Howells">dhowells</who>
+    <bug_when>2016-09-27 10:05:35 -0400</bug_when>
+    <thetext>This is fixed as of commit bb0c9f21f4a6f56f2fe8d7c1fc991080ef89d223 upstream.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9746730</commentid>
+    <comment_count>5</comment_count>
+    <who name="Avram Lubkin">aviso</who>
+    <bug_when>2016-09-27 10:16:03 -0400</bug_when>
+    <thetext>Thanks for working with upstream. We&apos;re expecting 1.15.0 to be released in the near future and will put it out when it become available.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9776372</commentid>
+    <comment_count>6</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-10-09 08:29:26 -0400</bug_when>
+    <thetext>python-dns-1.15.0-1.fc25 has been pushed to the Fedora 25 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-4998c59ba3</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9776460</commentid>
+    <comment_count>7</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-10-09 09:50:49 -0400</bug_when>
+    <thetext>python-dns-1.15.0-1.fc24 has been pushed to the Fedora 24 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2016-1857421df6</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9884505</commentid>
+    <comment_count>8</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-11-11 15:51:27 -0500</bug_when>
+    <thetext>python-dns-1.15.0-1.fc24 has been pushed to the Fedora 24 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>9905647</commentid>
+    <comment_count>9</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2016-11-19 16:00:55 -0500</bug_when>
+    <thetext>python-dns-1.15.0-1.fc25 has been pushed to the Fedora 25 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+      
+
+    </bug>
+
+</bugzilla>

@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE bugzilla SYSTEM "https://bugzilla.redhat.com/page.cgi?id=bugzilla.dtd">
+
+<bugzilla version="4.4.12068.1"
+          urlbase="https://bugzilla.redhat.com/"
+          
+          maintainer="bugzilla-error-list@redhat.com"
+>
+
+    <bug>
+          <bug_id>1441234</bug_id>
+          
+          <creation_ts>2017-04-11 09:15:00 -0400</creation_ts>
+          <short_desc>adb (~ keygen, ~ start-server) not compatible with OpenSSL 1.1.0</short_desc>
+          <delta_ts>2017-06-09 15:05:02 -0400</delta_ts>
+          <reporter_accessible>1</reporter_accessible>
+          <cclist_accessible>1</cclist_accessible>
+          <classification_id>2</classification_id>
+          <classification>Fedora</classification>
+          <product>Fedora</product>
+          <component>android-tools</component>
+          <version>26</version>
+          <rep_platform>Unspecified</rep_platform>
+          <op_sys>Unspecified</op_sys>
+          <bug_status>CLOSED</bug_status>
+          <resolution>ERRATA</resolution>
+          
+          
+          <bug_file_loc></bug_file_loc>
+          <status_whiteboard></status_whiteboard>
+          <keywords></keywords>
+          <priority>unspecified</priority>
+          <bug_severity>unspecified</bug_severity>
+          <target_milestone>---</target_milestone>
+          
+          <blocked>1383740</blocked>
+          <everconfirmed>1</everconfirmed>
+          <reporter name="teppot">teppot</reporter>
+          <assigned_to name="Ivan Afonichev">ivan.afonichev</assigned_to>
+          <cc>ivan.afonichev</cc>
+    
+    
+    <cc>jpokorny</cc>
+          <qa_contact name="Fedora Extras Quality Assurance">extras-qa</qa_contact>
+          
+          <cf_fixed_in>android-tools-20170311gite7195be7725a-2.fc26</cf_fixed_in>
+          <cf_doc_type>If docs needed, set a value</cf_doc_type>
+          <cf_release_notes></cf_release_notes>
+          <cf_story_points>---</cf_story_points>
+          
+          <cf_environment></cf_environment>
+          <cf_last_closed>2017-06-09 15:05:02</cf_last_closed>
+          <cf_type>Bug</cf_type>
+          <cf_regression_status>---</cf_regression_status>
+          <cf_mount_type>---</cf_mount_type>
+          <cf_documentation_action>---</cf_documentation_action>
+          <cf_crm></cf_crm>
+          <cf_verified_branch></cf_verified_branch>
+          <cf_category>---</cf_category>
+          <cf_ovirt_team>---</cf_ovirt_team>
+          
+          <cf_cloudforms_team>---</cf_cloudforms_team>
+          
+          
+          
+          
+          <target_release>---</target_release>
+          
+          <votes>0</votes>
+
+      
+
+      
+
+      
+
+          <comment_sort_order>oldest_to_newest</comment_sort_order>  
+          <long_desc isprivate="0" >
+    <commentid>10324172</commentid>
+    <comment_count>0</comment_count>
+    <who name="teppot">teppot</who>
+    <bug_when>2017-04-11 09:15:12 -0400</bug_when>
+    <thetext>adb keygen crashes on Fedora 26 with the following stack trace:
+
+Program received signal SIGSEGV, Segmentation fault.
+BN_div (dv=dv@entry=0x0, rm=rm@entry=0x69d050, num=0x0, 
+    divisor=divisor@entry=0x69dba0, ctx=ctx@entry=0x69d770)
+    at crypto/bn/bn_div.c:155
+155	    if ((num-&gt;top &gt; 0 &amp;&amp; num-&gt;d[num-&gt;top - 1] == 0) ||
+
+adb version:
+
+Android Debug Bridge version 1.0.39
+Revision e7195be7725a</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10358256</commentid>
+    <comment_count>1</comment_count>
+    <who name="Jan Pokorný">jpokorny</who>
+    <bug_when>2017-04-24 17:20:55 -0400</bug_when>
+    <thetext>Note that the condition is hit also by simply running
+
+  adb start-server
+
+while there is no adbkey file in neither ~/.android nor
+/var/lib/adb/.android.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10358267</commentid>
+    <comment_count>2</comment_count>
+    <who name="Jan Pokorný">jpokorny</who>
+    <bug_when>2017-04-24 17:29:21 -0400</bug_when>
+    <thetext>#0  BN_div (dv=dv@entry=0x0, rm=rm@entry=0x6b0680, num=0x0,
+divisor=divisor@entry=0x6b1c90, ctx=ctx@entry=0x6b01e0)
+at crypto/bn/bn_div.c:155 &lt;-- this is openssl
+
+150│     /*
+151│      * Invalid zero-padding would have particularly bad consequences so don&apos;t
+152│      * just rely on bn_check_top() here (bn_check_top() works only for
+153│      * BN_DEBUG builds)
+154│      */
+155├&gt;    if ((num-&gt;top &gt; 0 &amp;&amp; num-&gt;d[num-&gt;top - 1] == 0) ||
+156│         (divisor-&gt;top &gt; 0 &amp;&amp; divisor-&gt;d[divisor-&gt;top - 1] == 0)) {
+157│         BNerr(BN_F_BN_DIV, BN_R_NOT_INITIALIZED);
+158│         return 0;
+159│     }
+
+(gdb) p	num
+$1 = (const BIGNUM *) 0x
+
+That is, NULL pointer dereference here.
+
+
+#1  0x000000000041a39b in android_pubkey_encode	(key=key@entry=0x6b10e0,
+key_buffer=key_buffer@entry=0x7fffffffb750 &quot;@&quot;, size=size@entry=524)
+at libcrypto_utils/android_pubkey.c:140 &lt;-- android-tools already
+
+138│   // Compute and store n0inv = -1 / N[0] mod 2^32.
+139│   if (!ctx || !r32 || !n0inv || !BN_set_bit(r32, 32) ||
+140├&gt;      !BN_mod(n0inv, key-&gt;n, r32, ctx) ||
+141│       !BN_mod_inverse(n0inv, n0inv, r32, ctx) || !BN_sub(n0inv, r32, n0inv)) {
+142│     goto cleanup;
+143│   }
+
+That means, modulus component of the key (key-&gt;n) is absent, although
+it was present at least at some key initialization steps earlier.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10358274</commentid>
+    <comment_count>3</comment_count>
+    <who name="Jan Pokorný">jpokorny</who>
+    <bug_when>2017-04-24 17:30:57 -0400</bug_when>
+    <thetext>In my case, this was with:
+android-tools-20170311gite7195be7725a-1.fc27.x86_64
+openssl-1.1.0e-1.fc27.x86_64</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10358278</commentid>
+    <comment_count>4</comment_count>
+    <who name="Jan Pokorný">jpokorny</who>
+    <bug_when>2017-04-24 17:35:30 -0400</bug_when>
+    <thetext>Maybe this has something to do with new OpenSSL 1.1.0 API,
+i.e., [bug 1383740] (?)</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10360110</commentid>
+    <comment_count>5</comment_count>
+    <who name="Jan Pokorný">jpokorny</who>
+    <bug_when>2017-04-25 08:42:15 -0400</bug_when>
+    <thetext>re [comment 4]:  Indeed.
+
+https://wiki.openssl.org/index.php/OpenSSL_1.1.0_Changes#Compatibility_Layer
+
+&gt; If you want to access rsa-&gt;n you now have to do something like:
+&gt; 
+&gt;     const BIGNUM *n;
+&gt; 
+&gt;     RSA_get0_key(rsa, &amp;n, NULL, NULL);
+
+This bug hence blocks mentioned [bug 1383740].</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10361333</commentid>
+    <comment_count>6</comment_count>
+    <who name="Jan Pokorný">jpokorny</who>
+    <bug_when>2017-04-25 12:56:53 -0400</bug_when>
+    <thetext>I&apos;ve tried rebuilding android-tools with this change:
+
+--- a/android-tools.spec
++++ b/android-tools.spec
+@@ -49,7 +49,9 @@ Requires(post): systemd
+ Requires(preun): systemd
+ Requires(postun): systemd
+ BuildRequires: zlib-devel
+-BuildRequires: openssl-devel
++# Not OpenSSL 1.1.0 ready yet (rhbz 1441234)
++#BuildRequires: openssl-devel
++BuildRequires: compat-openssl10-devel
+ BuildRequires: libselinux-devel
+ BuildRequires: f2fs-tools-devel
+ BuildRequires: gtest-devel
+
+ldd for adb shows:
+
+&gt; libcrypto.so.10 =&gt; /lib64/libcrypto.so.10
+
+but that did not help in any way :-/</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10361515</commentid>
+    <comment_count>7</comment_count>
+    <who name="Ivan Afonichev">ivan.afonichev</who>
+    <bug_when>2017-04-25 13:46:50 -0400</bug_when>
+    <thetext>Maybe the issue is not in system openssl, but in bundled boringssl.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10362247</commentid>
+    <comment_count>8</comment_count>
+      <attachid>1274033</attachid>
+    <who name="Jan Pokorný">jpokorny</who>
+    <bug_when>2017-04-25 17:56:42 -0400</bug_when>
+    <thetext>Created attachment 1274033
+Pkgs repo patch to solve adb crash when generating a key (due to changed OpenSSL 1.1.0 API)
+
+Nope, gdb explicitly referred to openssl sources.
+
+I am attaching a patch that worked for me when generating a local key.
+
+That doesn&apos;t mean all issues with OpenSSL 1.1.0 are solved, it&apos;s more
+likely a matter of future trial &amp; error (or careful review, which I don&apos;t
+have enough time for).</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10366019</commentid>
+    <comment_count>9</comment_count>
+    <who name="Jan Pokorný">jpokorny</who>
+    <bug_when>2017-04-26 15:09:35 -0400</bug_when>
+    <thetext>In that patch, I&apos;ve missed to swap also &quot;key-&gt;e&quot; usage.
+
+Anyway, it would be vital to have tests enabled during build,
+as this very occurrence would most likely be caught with
+libcrypto_utils/tests/android_pubkey_test.cpp test.
+Good news is that gtest is packaged, but still having the suite
+up and usable does not look exactly easy.</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10431590</commentid>
+    <comment_count>10</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-21 18:12:18 -0400</bug_when>
+    <thetext>android-tools-20170311gite7195be7725a-2.fc26 has been submitted as an update to Fedora 26. https://bodhi.fedoraproject.org/updates/FEDORA-2017-9da6979158</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10436274</commentid>
+    <comment_count>11</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-05-22 12:39:04 -0400</bug_when>
+    <thetext>android-tools-20170311gite7195be7725a-2.fc26 has been pushed to the Fedora 26 testing repository. If problems still persist, please make note of it in this bug report.
+See https://fedoraproject.org/wiki/QA:Updates_Testing for
+instructions on how to install test updates.
+You can provide feedback for this update here: https://bodhi.fedoraproject.org/updates/FEDORA-2017-9da6979158</thetext>
+  </long_desc><long_desc isprivate="0" >
+    <commentid>10494110</commentid>
+    <comment_count>12</comment_count>
+    <who name="Fedora Update System">updates</who>
+    <bug_when>2017-06-09 15:05:02 -0400</bug_when>
+    <thetext>android-tools-20170311gite7195be7725a-2.fc26 has been pushed to the Fedora 26 stable repository. If problems still persist, please make note of it in this bug report.</thetext>
+  </long_desc>
+      
+          <attachment
+              isobsolete="0"
+              ispatch="1"
+              isprivate="0"
+          >
+            <attachid>1274033</attachid>
+            <date>2017-04-25 17:56:00 -0400</date>
+            <delta_ts>2017-04-25 17:56:42 -0400</delta_ts>
+            <desc>Pkgs repo patch to solve adb crash when generating a key (due to changed OpenSSL 1.1.0 API)</desc>
+            <filename>Resolves-rhbz-1441234-Fix-adb-crash-when-generating-.patch</filename>
+            <type>text/plain</type>
+            <size>4096</size>
+            <attacher name="Jan Pokorný">jpokorny</attacher>
+            
+              <data encoding="base64">RnJvbSAyYzhmNzUzZDg5NWJhMWQyNzY1NjNiNTliMjQ4Y2NhZTA3NTE2ZTgyIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiA9P1VURi04P3E/SmFuPTIwUG9rb3JuPUMzPUJEPz0gPGpwb2tv
+cm55QHJlZGhhdC5jb20+CkRhdGU6IFR1ZSwgMjUgQXByIDIwMTcgMjM6NTQ6NTIgKzAyMDAKU3Vi
+amVjdDogW1BBVENIXSBSZXNvbHZlczogcmhieiAxNDQxMjM0IEZpeCBhZGIgY3Jhc2ggd2hlbiBn
+ZW5lcmF0aW5nIGEga2V5Ck1JTUUtVmVyc2lvbjogMS4wCkNvbnRlbnQtVHlwZTogdGV4dC9wbGFp
+bjsgY2hhcnNldD1VVEYtOApDb250ZW50LVRyYW5zZmVyLUVuY29kaW5nOiA4Yml0CgooT3BlblNT
+TCAxLjEuMCBBUEkgY29tcGF0aWJpbGl0eSkKClNpZ25lZC1vZmYtYnk6IEphbiBQb2tvcm7DvSA8
+anBva29ybnlAcmVkaGF0LmNvbT4KLS0tCiAwMDA0LWJ6MTQ0MTIzNC5wYXRjaCB8IDQzICsrKysr
+KysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysKIGFuZHJvaWQtdG9vbHMuc3Bl
+YyAgIHwgIDkgKysrKysrKy0tCiAyIGZpbGVzIGNoYW5nZWQsIDUwIGluc2VydGlvbnMoKyksIDIg
+ZGVsZXRpb25zKC0pCiBjcmVhdGUgbW9kZSAxMDA2NDQgMDAwNC1iejE0NDEyMzQucGF0Y2gKCmRp
+ZmYgLS1naXQgYS8wMDA0LWJ6MTQ0MTIzNC5wYXRjaCBiLzAwMDQtYnoxNDQxMjM0LnBhdGNoCm5l
+dyBmaWxlIG1vZGUgMTAwNjQ0CmluZGV4IDAwMDAwMDAuLmFmNzU5ZDQKLS0tIC9kZXYvbnVsbAor
+KysgYi8wMDA0LWJ6MTQ0MTIzNC5wYXRjaApAQCAtMCwwICsxLDQzIEBACitkaWZmIC11ciBhL2xp
+YmNyeXB0b191dGlscy9hbmRyb2lkX3B1YmtleS5jIGIvbGliY3J5cHRvX3V0aWxzL2FuZHJvaWRf
+cHVia2V5LmMKKy0tLSBhL2xpYmNyeXB0b191dGlscy9hbmRyb2lkX3B1YmtleS5jCTIwMTctMDMt
+MTAgMjI6MDM6NTYuMDAwMDAwMDAwICswMTAwCisrKysgYi9saWJjcnlwdG9fdXRpbHMvYW5kcm9p
+ZF9wdWJrZXkuYwkyMDE3LTA0LTI1IDIzOjE4OjI2LjA3ODgxODc1NCArMDIwMAorQEAgLTEyNiwz
+MSArMTI2LDM1IEBACisgICBCSUdOVU0qIHIzMiA9IEJOX25ldygpOworICAgQklHTlVNKiBuMGlu
+diA9IEJOX25ldygpOworICAgQklHTlVNKiByciA9IEJOX25ldygpOworKyAgY29uc3QgQklHTlVN
+ICpuOworKyAgY29uc3QgQklHTlVNICplOworIAorICAgaWYgKHNpemVvZihSU0FQdWJsaWNLZXkp
+ID4gc2l6ZSB8fAorICAgICAgIFJTQV9zaXplKGtleSkgIT0gQU5EUk9JRF9QVUJLRVlfTU9EVUxV
+U19TSVpFKSB7CisgICAgIGdvdG8gY2xlYW51cDsKKyAgIH0KKyAKKysgIFJTQV9nZXQwX2tleShr
+ZXksICZuLCAmZSwgTlVMTCk7CisrCisgICAvLyBTdG9yZSB0aGUgbW9kdWx1cyBzaXplLgorICAg
+a2V5X3N0cnVjdC0+bW9kdWx1c19zaXplX3dvcmRzID0gQU5EUk9JRF9QVUJLRVlfTU9EVUxVU19T
+SVpFX1dPUkRTOworIAorICAgLy8gQ29tcHV0ZSBhbmQgc3RvcmUgbjBpbnYgPSAtMSAvIE5bMF0g
+bW9kIDJeMzIuCistICBpZiAoIWN0eCB8fCAhcjMyIHx8ICFuMGludiB8fCAhQk5fc2V0X2JpdChy
+MzIsIDMyKSB8fAorLSAgICAgICFCTl9tb2QobjBpbnYsIGtleS0+biwgcjMyLCBjdHgpIHx8Cisr
+ICBpZiAoIWN0eCB8fCAhcjMyIHx8ICFuMGludiB8fCAhbiB8fCAhZSB8fCAhQk5fc2V0X2JpdChy
+MzIsIDMyKSB8fAorKyAgICAgICFCTl9tb2QobjBpbnYsIG4sIHIzMiwgY3R4KSB8fAorICAgICAg
+ICFCTl9tb2RfaW52ZXJzZShuMGludiwgbjBpbnYsIHIzMiwgY3R4KSB8fCAhQk5fc3ViKG4waW52
+LCByMzIsIG4waW52KSkgeworICAgICBnb3RvIGNsZWFudXA7CisgICB9CisgICBrZXlfc3RydWN0
+LT5uMGludiA9ICh1aW50MzJfdClCTl9nZXRfd29yZChuMGludik7CisgCisgICAvLyBTdG9yZSB0
+aGUgbW9kdWx1cy4KKy0gIGlmICghYW5kcm9pZF9wdWJrZXlfZW5jb2RlX2JpZ251bShrZXktPm4s
+IGtleV9zdHJ1Y3QtPm1vZHVsdXMpKSB7CisrICBpZiAoIWFuZHJvaWRfcHVia2V5X2VuY29kZV9i
+aWdudW0obiwga2V5X3N0cnVjdC0+bW9kdWx1cykpIHsKKyAgICAgZ290byBjbGVhbnVwOworICAg
+fQorIAorICAgLy8gQ29tcHV0ZSBhbmQgc3RvcmUgcnIgPSAoMl4ocnNhX3NpemUpKSBeIDIgbW9k
+IE4uCisgICBpZiAoIWN0eCB8fCAhcnIgfHwgIUJOX3NldF9iaXQocnIsIEFORFJPSURfUFVCS0VZ
+X01PRFVMVVNfU0laRSAqIDgpIHx8CistICAgICAgIUJOX21vZF9zcXIocnIsIHJyLCBrZXktPm4s
+IGN0eCkgfHwKKysgICAgICAhQk5fbW9kX3NxcihyciwgcnIsIG4sIGN0eCkgfHwKKyAgICAgICAh
+YW5kcm9pZF9wdWJrZXlfZW5jb2RlX2JpZ251bShyciwga2V5X3N0cnVjdC0+cnIpKSB7CisgICAg
+IGdvdG8gY2xlYW51cDsKKyAgIH0KZGlmZiAtLWdpdCBhL2FuZHJvaWQtdG9vbHMuc3BlYyBiL2Fu
+ZHJvaWQtdG9vbHMuc3BlYwppbmRleCAxOWNkZDY4Li44NGFkYWU3IDEwMDY0NAotLS0gYS9hbmRy
+b2lkLXRvb2xzLnNwZWMKKysrIGIvYW5kcm9pZC10b29scy5zcGVjCkBAIC0xNCw3ICsxNCw3IEBA
+CiAKIE5hbWU6ICAgICAgICAgIGFuZHJvaWQtdG9vbHMKIFZlcnNpb246ICAgICAgICV7ZGF0ZX1n
+aXQle2dpdF9jb21taXR9Ci1SZWxlYXNlOiAgICAgICAxJXs/ZGlzdH0KK1JlbGVhc2U6ICAgICAg
+IDIlez9kaXN0fQogU3VtbWFyeTogICAgICAgQW5kcm9pZCBwbGF0Zm9ybSB0b29scyhhZGIsIGZh
+c3Rib290KQogCiBHcm91cDogICAgICAgICBBcHBsaWNhdGlvbnMvU3lzdGVtCkBAIC00NCw2ICs0
+NCw3IEBAIFNvdXJjZTY6ICAgICAgIGFkYi5zZXJ2aWNlCiBQYXRjaDE6ICAgICAgICAwMDAxLUFk
+ZC1zdHJpbmctaC5wYXRjaAogUGF0Y2gyOiAgICAgICAgMDAwMi1saWJ1c2ItbW9kaWZpY2F0aW9u
+cy5wYXRjaAogUGF0Y2gzOiAgICAgICAgMDAwMy1hdG9taWMtZml4LnBhdGNoCitQYXRjaDQ6ICAg
+ICAgICAwMDA0LWJ6MTQ0MTIzNC5wYXRjaAogCiBSZXF1aXJlcyhwb3N0KTogc3lzdGVtZAogUmVx
+dWlyZXMocHJldW4pOiBzeXN0ZW1kCkBAIC05Niw2ICs5Nyw3IEBAIHNldHVwIGJldHdlZW4gdGhl
+IGhvc3QgYW5kIHRoZSB0YXJnZXQgcGhvbmUgYXMgYWRiLgogJXBhdGNoMSAtcDEKICVwYXRjaDIg
+LXAxCiAlcGF0Y2gzIC1wMQorJXBhdGNoNCAtcDEKIAogY3AgLXAgJXtTT1VSQ0U1fSA1MS1hbmRy
+b2lkLnJ1bGVzCiAKQEAgLTEzMiw2ICsxMzQsOSBAQCBpbnN0YWxsIC1wIC1EIC1tIDA2NDQgJXtT
+T1VSQ0U2fSBcCiAKIAogJWNoYW5nZWxvZworKiBUdWUgQXByIDI1IDIwMTcgSmFuIFBva29ybsO9
+IDxqcG9rb3JueUBmZWRvcmFwcm9qZWN0Lm9yZz4gLSAyMDE3MDMxMWdpdGU3MTk1YmU3NzI1YS0y
+CistIFJlc29sdmVzOiByaGJ6IDE0NDEyMzQgRml4IGFkYiBjcmFzaCB3aGVuIGdlbmVyYXRpbmcg
+YSBrZXkgKE9wZW5TU0wgMS4xLjAgQVBJKQorCiAqIFNhdCBNYXIgMTEgMjAxNyBJdmFuIEFmb25p
+Y2hldiA8aXZhbi5hZm9uaWNoZXZAZ21haWwuY29tPiAtIDIwMTcwMzExZ2l0ZTcxOTViZTc3MjVh
+LTEKIC0gVXBkYXRlIHRvIHVwc3RyZWFtIGdpdCBjb21taXQgZTcxOTViZTc3MjVhCiAtIFJlc29s
+dmVzOiByaGJ6IDEzMjM2MzIgMTQyMzIxOSBBZGQgb3B0ZmxhZ3MuIFN1cHBvcnQgbmV3IHZlcnNp
+b25zLgpAQCAtMTM5LDcgKzE0NCw3IEBAIGluc3RhbGwgLXAgLUQgLW0gMDY0NCAle1NPVVJDRTZ9
+IFwKICogRnJpIEZlYiAxMCAyMDE3IEZlZG9yYSBSZWxlYXNlIEVuZ2luZWVyaW5nIDxyZWxlbmdA
+ZmVkb3JhcHJvamVjdC5vcmc+IC0gMjAxNjAzMjdnaXQzNzYxMzY1NzM1ZGUtMwogLSBSZWJ1aWx0
+IGZvciBodHRwczovL2ZlZG9yYXByb2plY3Qub3JnL3dpa2kvRmVkb3JhXzI2X01hc3NfUmVidWls
+ZAogCi0qIFN1biBBcHIgMDggMjAxNiBCYXN0aWVuIE5vY2VyYSA8aGFkZXNzQGhhZGVzcy5uZXQ+
+IC0gMjAxNjAzMjdnaXQzNzYxMzY1NzM1ZGUtMgorKiBTdW4gTWF5IDA4IDIwMTYgQmFzdGllbiBO
+b2NlcmEgPGhhZGVzc0BoYWRlc3MubmV0PiAtIDIwMTYwMzI3Z2l0Mzc2MTM2NTczNWRlLTIKIC0g
+QWRkIG1pc3NpbmcgQnVpbGRSZXF1aXJlcyBmb3IgUnVieSBzY3JpcHQgdG8gcnVuCiAtIENvbXBp
+bGUgYW5kIGJ1aWxkIGltZzJzaW1nIGFuZCBzaW1nMmltZwogCi0tIAoyLjEyLjIKCg==
+</data>
+
+          </attachment>
+      
+
+    </bug>
+
+</bugzilla>
