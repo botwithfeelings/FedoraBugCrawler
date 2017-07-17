@@ -14,3 +14,4 @@ optional arguments:
   -s {OPEN,CLOSED}, -bugstatus {OPEN,CLOSED}
                         Status of the bug
 ```
+Link to the pulled bug data in [google drive](https://drive.google.com/drive/folders/0B-gKnEjWxjkLT3hrWUJNRWtFTVU?usp=sharing).
